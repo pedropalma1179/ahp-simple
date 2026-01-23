@@ -308,7 +308,7 @@ function generateConsistentWeights(
     return raw.map(w => w / sum);
   };
   
-  // 1. Pesos BOCR (4 elementos: B, O, C, R)
+  // 1. Pesos BOCR (4 elementos: B, O, C, R) - Importância Relativa
   switch (pattern) {
     case 'biased_benefits':
       weights['bocr'] = generateWeightVector(4, 'first'); // B, O mais altos
@@ -324,6 +324,40 @@ function generateConsistentWeights(
       break;
     default:
       weights['bocr'] = generateWeightVector(4);
+  }
+  
+  // 1.5. 🆕 Pesos MAGNITUDE (4 elementos: B, O, C, R) - Magnitude Absoluta
+  // IMPORTANTE: Magnitude deve ser DIFERENTE de BOCR!
+  // BOCR = importância relativa (valores pessoais)
+  // MAGNITUDE = tamanho absoluto (valores objetivos)
+  switch (pattern) {
+    case 'biased_benefits':
+      // Magnitude: Benefícios têm grande magnitude absoluta
+      weights['magnitude'] = generateWeightVector(4, 'first'); // B muito maior
+      break;
+    case 'biased_costs':
+      // Magnitude: Custos têm grande magnitude absoluta
+      weights['magnitude'] = generateWeightVector(4, 'last'); // C, R maiores
+      break;
+    case 'consistent':
+      // Magnitude típica: Benefícios > Custos > Oportunidades > Riscos
+      // Gera distribuição diferente de BOCR para simular realismo
+      const magnitudeRaw = [
+        4 + Math.random() * 3,  // B: 4-7
+        2 + Math.random() * 2,  // O: 2-4
+        3 + Math.random() * 2,  // C: 3-5
+        1 + Math.random() * 1.5 // R: 1-2.5
+      ];
+      const magnitudeSum = magnitudeRaw.reduce((a, b) => a + b, 0);
+      weights['magnitude'] = magnitudeRaw.map(w => w / magnitudeSum);
+      break;
+    case 'moderate':
+      // Magnitude balanceada mas ainda variada
+      weights['magnitude'] = generateWeightVector(4, 'uniform');
+      break;
+    default:
+      // Magnitude aleatória mas diferente de BOCR
+      weights['magnitude'] = generateWeightVector(4);
   }
   
   // 2. Pesos dos subcritérios (5 elementos cada: X1, X2, X3, X4, X5)
@@ -393,6 +427,7 @@ function generateJudgment(
   // Se temos pesos pré-calculados, usar para derivar julgamento consistente
   if (precomputedWeights) {
     const key = comparison.type === 'bocr' ? 'bocr' : 
+                comparison.type === 'magnitude' ? 'magnitude' :  // ← ADICIONADO
                 comparison.type === 'subcriteria' ? `sub_${comparison.group}` :
                 `alt_${comparison.group}`;
     
@@ -402,6 +437,11 @@ function generateJudgment(
       let idxB = -1;
       
       if (comparison.type === 'bocr') {
+        const bocrItems = ['B', 'O', 'C', 'R'];
+        idxA = bocrItems.indexOf(comparison.itemA);
+        idxB = bocrItems.indexOf(comparison.itemB);
+      } else if (comparison.type === 'magnitude') {
+        // Magnitude: comparações entre B, O, C, R (iguais ao BOCR mas pesos diferentes)
         const bocrItems = ['B', 'O', 'C', 'R'];
         idxA = bocrItems.indexOf(comparison.itemA);
         idxB = bocrItems.indexOf(comparison.itemB);
