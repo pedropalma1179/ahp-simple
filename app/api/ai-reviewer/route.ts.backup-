@@ -1,0 +1,539 @@
+// app/api/ai-reviewer/route.ts
+// API de Revisão IA v6.3 - TOM ACADÊMICO A1 (BLIND REVIEW)
+// Persona: Peer Reviewer | Tom: Cirúrgico, Impessoal | Referências: Saaty, Wijnmalen, Petrillo
+
+import { NextRequest, NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
+
+// ============================================================
+// TIPOS
+// ============================================================
+
+interface IndividualStats {
+  total: number;
+  valid: number;
+  warning: number;
+  critical: number;
+  avgCR?: number;
+}
+
+interface ReviewRequest {
+  projectName: string;
+  projectDescription?: string;
+  alternatives: Array<{ code: string; name: string }>;
+  bocrWeights: number[];
+  bocrConsistency: { cr: number; lambda: number };
+  subWeights?: Record<string, number[]>;
+  subConsistency?: Record<string, { cr: number; lambda: number }>;
+  finalScores: Array<{
+    name: string;
+    code: string;
+    scoreAdditive?: number;
+    B?: number; O?: number; C?: number; R?: number;
+  }>;
+  responseCount: number;
+  sensitivityInflections?: Record<string, number | null>;
+  individualStats?: IndividualStats;
+  calculationData?: any;
+}
+
+// ============================================================
+// CONSTANTES
+// ============================================================
+
+const THRESHOLDS = {
+  CR_LIMIT: 0.10, // Saaty (1980)
+  MIN_RESPONDENTS: 5,
+  IDEAL_RESPONDENTS: 7, // Saaty & Ozdemir (2003)
+  QUALITY_GATE_WARNING: 0.20,
+  QUALITY_GATE_CRITICAL: 0.30,
+  QUALITY_GATE_SEVERE: 0.50,
+};
+
+// ============================================================
+// SYSTEM PROMPT - BLIND REVIEWER (A1/Q1)
+// ============================================================
+
+const SYSTEM_PROMPT = `
+ATUE COMO: Revisor Técnico (Peer Reviewer) de periódico científico JCR Q1 (ex: Int. J. of Production Economics, Expert Systems with Applications).
+OBJETIVO: Validar a conformidade metodológica da aplicação AHP-BOCR.
+
+DIRETRIZES DE TOM DE VOZ (RIGOROSAS):
+1. IMPESSOALIDADE: Jamais use "Eu", "Nós" ou "Recomendo". Use voz passiva ("Observa-se", "Verifica-se", "Constata-se").
+2. ADJETIVOS PROIBIDOS: Não use "Excelente", "Ótimo", "Incrível", "Robusta", "Perfeita", "Impressionante".
+3. ADJETIVOS PERMITIDOS: "Conforme", "Adequado", "Significativo", "Divergente", "Satisfatório", "Dentro dos limites".
+4. REFERÊNCIAS: Vincule todas as conclusões à literatura base (Saaty, 1980; Wijnmalen, 2007; Petrillo et al., 2023).
+5. EXTENSÃO: Mínimo 600 palavras. Seja analítico, não superficial.
+
+ESTRUTURA DO PARECER TÉCNICO:
+
+### 1. AVALIAÇÃO METODOLÓGICA
+Avalie o rigor matemático com base nos dados fornecidos.
+- CR Global: Compare com o limite de 0.10 (Saaty, 1980).
+- Amostra: Compare com requisitos mínimos (n≥7, Saaty & Ozdemir, 2003).
+- Qualidade dos Dados: Analise a homogeneidade do grupo de especialistas.
+
+### 2. ANÁLISE DOS VETORES DE PRIORIDADE
+Interprete os pesos BOCR de forma técnica.
+- Qual dimensão BOCR predomina e qual a implicação estratégica?
+- O que a distribuição de pesos indica sobre o perfil de decisão?
+- Compare com padrões da literatura (Wijnmalen, 2007).
+
+### 3. SÍNTESE DOS RESULTADOS
+{{BLOCO_RANKING}}
+- Relate a diferença em pontos percentuais (p.p.) entre alternativas.
+- Determine se há dominância clara ou empate técnico (margem < 5 p.p.).
+- Discuta a robustez do ranking.
+
+### 4. LIMITAÇÕES E RESSALVAS
+- Identifique potenciais fragilidades metodológicas.
+- Comente sobre a generalização dos resultados.
+- Sugira análises complementares se pertinente.
+
+### 5. VEREDICTO EDITORIAL
+{{BLOCO_CLASSIFICACAO}}
+{{BLOCO_VEREDITO}}
+- Conclua objetivamente se o estudo possui conformidade para publicação ou aplicação prática.
+
+REGRAS ABSOLUTAS:
+- Use APENAS os valores numéricos fornecidos nos blocos. Não invente dados.
+- Mantenha tom técnico e impessoal do início ao fim.
+- Cite referências metodológicas para sustentar cada conclusão.
+`;
+
+// ============================================================
+// FUNÇÃO: Calcular Classificação com Quality Gate
+// ============================================================
+
+function calculateClassification(
+  crBOCR: number,
+  subCRs: number[],
+  responseCount: number,
+  individualStats?: IndividualStats
+) {
+  let qualityPenalty = false;
+  let penaltyReason: string | undefined;
+  let penaltySeverity: 'none' | 'warning' | 'critical' | 'severe' = 'none';
+
+  // Quality Gate - penalização por respondentes problemáticos
+  if (individualStats && individualStats.total > 0) {
+    const badRatio = (individualStats.warning + individualStats.critical) / individualStats.total;
+    
+    if (badRatio >= THRESHOLDS.QUALITY_GATE_SEVERE) {
+      qualityPenalty = true;
+      penaltySeverity = 'severe';
+      penaltyReason = `Inconsistência amostral severa (${(badRatio * 100).toFixed(0)}% > 50%). Violação da premissa de homogeneidade do grupo.`;
+    } else if (badRatio >= THRESHOLDS.QUALITY_GATE_CRITICAL) {
+      qualityPenalty = true;
+      penaltySeverity = 'critical';
+      penaltyReason = `Violação da premissa de homogeneidade (${(badRatio * 100).toFixed(0)}% > 30% inconsistentes). Dados não confiáveis.`;
+    } else if (badRatio >= THRESHOLDS.QUALITY_GATE_WARNING) {
+      penaltySeverity = 'warning';
+      penaltyReason = `Heterogeneidade amostral detectada (${(badRatio * 100).toFixed(0)}% inconsistentes).`;
+    }
+  }
+
+  // Calcular nota base (0-100)
+  let nota = 100;
+
+  // Penalidades por CR BOCR (Saaty, 1980)
+  if (crBOCR > 0.20) nota -= 40;
+  else if (crBOCR > 0.15) nota -= 25;
+  else if (crBOCR > THRESHOLDS.CR_LIMIT) nota -= 15;
+
+  // Penalidades por subcritérios
+  if (subCRs.length > 0) {
+    const maxSubCR = Math.max(...subCRs);
+    if (maxSubCR > 0.20) nota -= 20;
+    else if (maxSubCR > THRESHOLDS.CR_LIMIT) nota -= 10;
+  }
+
+  // Penalidades por amostra (Saaty & Ozdemir, 2003)
+  if (responseCount < 3) nota -= 30;
+  else if (responseCount < THRESHOLDS.MIN_RESPONDENTS) nota -= 15;
+  else if (responseCount < THRESHOLDS.IDEAL_RESPONDENTS) nota -= 5;
+
+  // Quality Gate penalty
+  if (penaltySeverity === 'severe') nota = Math.min(nota, 35);
+  else if (penaltySeverity === 'critical') nota = Math.min(nota, 55);
+  else if (penaltySeverity === 'warning') nota -= 10;
+
+  nota = Math.max(0, Math.min(100, nota));
+
+  // Determinar grade (Terminologia Editorial Q1)
+  let grade: 'A' | 'B' | 'C' | 'D';
+  let gradeLabel: string;
+  let verdict: string;
+  let verdictIcon: string;
+  let confidenceLevel: string;
+
+  if (nota >= 85) {
+    grade = 'A'; gradeLabel = 'HIGH STANDARD';
+    verdict = 'ACCEPT'; verdictIcon = '✅';
+    confidenceLevel = 'ALTA';
+  } else if (nota >= 70) {
+    grade = 'B'; gradeLabel = 'SATISFACTORY';
+    verdict = 'MINOR REVISIONS'; verdictIcon = '📝';
+    confidenceLevel = 'MODERADA';
+  } else if (nota >= 50) {
+    grade = 'C'; gradeLabel = 'QUESTIONABLE';
+    verdict = qualityPenalty ? 'MAJOR REVISIONS (Quality Gate)' : 'MAJOR REVISIONS';
+    verdictIcon = '⚠️';
+    confidenceLevel = 'BAIXA';
+  } else {
+    grade = 'D'; gradeLabel = 'UNSATISFACTORY';
+    verdict = 'REJECT'; verdictIcon = '🔴';
+    confidenceLevel = 'INSUFICIENTE';
+  }
+
+  return {
+    grade, gradeLabel, nota: Math.round(nota),
+    verdict, verdictIcon, confidenceLevel,
+    qualityPenalty, penaltyReason, penaltySeverity
+  };
+}
+
+// ============================================================
+// FUNÇÃO: Gerar Blocos Narrativos (ESTILO TÉCNICO)
+// ============================================================
+
+function generateBlocks(data: ReviewRequest, classification: any) {
+  const { 
+    bocrWeights = [], 
+    bocrConsistency = { cr: 0, lambda: 0 }, 
+    subConsistency = {}, 
+    finalScores = [], 
+    responseCount = 0, 
+    individualStats 
+  } = data;
+
+  // Tokens numéricos
+  const tokens: Record<string, string> = {
+    CR_BOCR: ((bocrConsistency?.cr || 0) * 100).toFixed(2) + '%',
+    LAMBDA_BOCR: (bocrConsistency?.lambda || 0).toFixed(4),
+    PESO_B: ((bocrWeights[0] || 0) * 100).toFixed(1) + '%',
+    PESO_O: ((bocrWeights[1] || 0) * 100).toFixed(1) + '%',
+    PESO_C: ((bocrWeights[2] || 0) * 100).toFixed(1) + '%',
+    PESO_R: ((bocrWeights[3] || 0) * 100).toFixed(1) + '%',
+    TOTAL_RESPONDENTES: String(responseCount),
+  };
+
+  ['B', 'O', 'C', 'R'].forEach(m => {
+    const cr = subConsistency?.[m]?.cr ?? 0;
+    tokens[`CR_${m}`] = (cr * 100).toFixed(2) + '%';
+  });
+
+  // Ranking
+  const sorted = [...finalScores].sort((a, b) => (b.scoreAdditive || 0) - (a.scoreAdditive || 0));
+  
+  if (sorted.length > 0) {
+    tokens.WINNER_NAME = sorted[0]?.name || 'N/A';
+    tokens.WINNER_SCORE = (sorted[0]?.scoreAdditive || 0).toFixed(4);
+    tokens.SECOND_NAME = sorted[1]?.name || 'N/A';
+    tokens.SECOND_SCORE = (sorted[1]?.scoreAdditive || 0).toFixed(4);
+    const margin = sorted.length >= 2 
+      ? Math.abs((sorted[0].scoreAdditive || 0) - (sorted[1].scoreAdditive || 0)) * 100
+      : 0;
+    tokens.MARGEM_VITORIA = margin.toFixed(2) + ' p.p.';
+    tokens.MARGEM_PCT = margin.toFixed(2) + '%';
+  } else {
+    tokens.WINNER_NAME = 'N/A';
+    tokens.WINNER_SCORE = '0.0000';
+    tokens.SECOND_NAME = 'N/A';
+    tokens.SECOND_SCORE = '0.0000';
+    tokens.MARGEM_VITORIA = '0.00 p.p.';
+    tokens.MARGEM_PCT = '0.00%';
+  }
+
+  // BLOCO: Consistência (Técnico - Saaty, 1980)
+  const crBOCR = bocrConsistency?.cr || 0;
+  const crStatus = crBOCR <= THRESHOLDS.CR_LIMIT ? 'CONFORME (CR ≤ 0.10)' : 'NÃO CONFORME (CR > 0.10)';
+
+  const BLOCO_CONSISTENCIA = `
+#### Verificação de Consistência (Saaty, 1980)
+
+| Matriz | CR | Limite | Status |
+|--------|-----|--------|--------|
+| **BOCR Principal** | **${tokens.CR_BOCR}** | ≤ 10% | ${crStatus} |
+| Benefícios (B) | ${tokens.CR_B} | ≤ 10% | ${parseFloat(tokens.CR_B) <= 10 ? 'OK' : 'ALTO'} |
+| Oportunidades (O) | ${tokens.CR_O} | ≤ 10% | ${parseFloat(tokens.CR_O) <= 10 ? 'OK' : 'ALTO'} |
+| Custos (C) | ${tokens.CR_C} | ≤ 10% | ${parseFloat(tokens.CR_C) <= 10 ? 'OK' : 'ALTO'} |
+| Riscos (R) | ${tokens.CR_R} | ≤ 10% | ${parseFloat(tokens.CR_R) <= 10 ? 'OK' : 'ALTO'} |
+
+**Vetor de Pesos BOCR:** B=${tokens.PESO_B}, O=${tokens.PESO_O}, C=${tokens.PESO_C}, R=${tokens.PESO_R}
+`;
+
+  // BLOCO: Amostra (Saaty & Ozdemir, 2003)
+  const sampleStatus = responseCount >= THRESHOLDS.IDEAL_RESPONDENTS 
+    ? 'ADEQUADA (n ≥ 7)' 
+    : responseCount >= THRESHOLDS.MIN_RESPONDENTS 
+      ? 'MÍNIMA (5 ≤ n < 7)' 
+      : 'INSUFICIENTE (n < 5)';
+
+  const BLOCO_AMOSTRA = `
+#### Adequação Amostral (Saaty & Ozdemir, 2003)
+
+| Parâmetro | Valor | Referência | Status |
+|-----------|-------|------------|--------|
+| **n (Especialistas)** | **${responseCount}** | n ≥ 7 ideal | ${sampleStatus} |
+`;
+
+  // BLOCO: Qualidade (Quality Gate - Homogeneidade)
+  let BLOCO_QUALIDADE: string;
+
+  if (individualStats && individualStats.total > 0) {
+    const validPct = ((individualStats.valid / individualStats.total) * 100).toFixed(1);
+    const warnPct = ((individualStats.warning / individualStats.total) * 100).toFixed(1);
+    const critPct = ((individualStats.critical / individualStats.total) * 100).toFixed(1);
+    const badCount = individualStats.warning + individualStats.critical;
+    const badPct = ((badCount / individualStats.total) * 100).toFixed(1);
+    
+    let qualityNote = 'Premissa de homogeneidade do grupo verificada.';
+    if (classification.penaltySeverity === 'severe') {
+      qualityNote = `⚠️ **VIOLAÇÃO SEVERA:** ${classification.penaltyReason}`;
+    } else if (classification.penaltySeverity === 'critical') {
+      qualityNote = `⚠️ **VIOLAÇÃO:** ${classification.penaltyReason}`;
+    } else if (classification.penaltySeverity === 'warning') {
+      qualityNote = `⚠️ **ATENÇÃO:** ${classification.penaltyReason}`;
+    }
+
+    BLOCO_QUALIDADE = `
+#### Auditoria de Homogeneidade Amostral
+
+| Categoria | n | % | Critério |
+|-----------|---|---|----------|
+| Consistentes (CR ≤ 0.10) | ${individualStats.valid} | ${validPct}% | Saaty (1980) |
+| Atenção (0.10 < CR ≤ 0.20) | ${individualStats.warning} | ${warnPct}% | Limítrofe |
+| Inconsistentes (CR > 0.20) | ${individualStats.critical} | ${critPct}% | Dados suspeitos |
+| **Total Problemáticos** | **${badCount}** | **${badPct}%** | Threshold: 30% |
+
+**Parecer:** ${qualityNote}
+`;
+  } else {
+    BLOCO_QUALIDADE = `
+> ℹ️ **Nota:** Auditoria individual dos respondentes não disponível. 
+> Execute "Análise de Qualidade" para verificar homogeneidade amostral.
+`;
+  }
+
+  // BLOCO: Ranking (Técnico)
+  const rankingRows = sorted.slice(0, 5).map((alt, i) => 
+    `| ${i + 1}º | ${alt.name} | ${(alt.scoreAdditive || 0).toFixed(4)} |`
+  ).join('\n');
+
+  const dominanceType = parseFloat(tokens.MARGEM_PCT) >= 10 
+    ? 'Dominância clara' 
+    : parseFloat(tokens.MARGEM_PCT) >= 5 
+      ? 'Preferência moderada' 
+      : 'Empate técnico (margem < 5 p.p.)';
+
+  const BLOCO_RANKING = `
+#### Síntese do Ranking Final
+
+| Posição | Alternativa | Score Global (Aditivo) |
+|---------|-------------|------------------------|
+${rankingRows}
+
+| Métrica | Valor | Interpretação |
+|---------|-------|---------------|
+| **Diferença 1º-2º** | **${tokens.MARGEM_VITORIA}** | ${dominanceType} |
+| **Vencedor** | **${tokens.WINNER_NAME}** | Score: ${tokens.WINNER_SCORE} |
+`;
+
+  // BLOCO: Classificação (Editorial)
+  const BLOCO_CLASSIFICACAO = `
+---
+
+## 📋 PARECER TÉCNICO CONSOLIDADO
+
+| Dimensão | Avaliação |
+|----------|-----------|
+| **Score de Conformidade** | **${classification.nota}/100** |
+| **Classificação Editorial** | **${classification.grade}** (${classification.gradeLabel}) |
+| **Nível de Confiança** | ${classification.confidenceLevel} |
+| **Integridade dos Dados** | ${classification.qualityPenalty ? '⚠️ COMPROMETIDA' : '✅ PRESERVADA'} |
+${classification.qualityPenalty ? `| **Quality Gate** | 🔴 ATIVADO - ${classification.penaltyReason} |` : ''}
+`;
+
+  // BLOCO: Veredicto (Editorial Q1)
+  const BLOCO_VEREDITO = `
+## 📜 VEREDICTO
+
+### ${classification.verdictIcon} ${classification.verdict}
+
+**Sistema:** AHP-BOCR Peer Review v6.3  
+**Data:** ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}  
+**Referências:** Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)
+`;
+
+  return {
+    BLOCO_CONSISTENCIA,
+    BLOCO_AMOSTRA,
+    BLOCO_QUALIDADE,
+    BLOCO_RANKING,
+    BLOCO_CLASSIFICACAO,
+    BLOCO_VEREDITO,
+    ...tokens
+  };
+}
+
+// ============================================================
+// HANDLER POST
+// ============================================================
+
+export async function POST(request: NextRequest) {
+  try {
+    let data: ReviewRequest = await request.json();
+
+    // Compatibilidade com formato antigo
+    if (data.calculationData && !data.bocrWeights) {
+      const calc = data.calculationData;
+      data = {
+        ...data,
+        bocrWeights: calc.bocrWeights || [],
+        bocrConsistency: calc.bocrConsistency || { cr: 0, lambda: 0 },
+        subWeights: calc.subWeights || {},
+        subConsistency: calc.subConsistency || {},
+        finalScores: calc.finalScores || [],
+        responseCount: calc.responseCount || 0,
+        sensitivityInflections: calc.sensitivityInflections,
+        individualStats: calc.individualStats,
+      };
+    }
+
+    // Validação robusta
+    if (!data.projectName || !data.bocrWeights || !data.finalScores || data.finalScores.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'Dados incompletos. Campos obrigatórios: projectName, bocrWeights, finalScores',
+        version: '6.3'
+      }, { status: 400 });
+    }
+
+    // Garantir defaults
+    data.subConsistency = data.subConsistency || {};
+    data.bocrConsistency = data.bocrConsistency || { cr: 0, lambda: 0 };
+
+    // Extrair CRs dos subcritérios
+    const subCRs = ['B', 'O', 'C', 'R']
+      .map(m => data.subConsistency?.[m]?.cr ?? 0)
+      .filter(cr => cr > 0);
+
+    // Calcular classificação
+    const classification = calculateClassification(
+      data.bocrConsistency?.cr || 0,
+      subCRs,
+      data.responseCount || 0,
+      data.individualStats
+    );
+
+    // Gerar blocos narrativos
+    const blocks = generateBlocks(data, classification);
+
+    // Prompt do Usuário (Estruturado)
+    const userPrompt = `
+## DADOS PARA REVISÃO TÉCNICA
+
+**PROJETO:** ${data.projectName}
+${data.projectDescription ? `**DESCRIÇÃO:** ${data.projectDescription}` : ''}
+**ALTERNATIVAS:** ${data.alternatives?.map(a => a.name).join(', ') || 'N/A'}
+**RESPONDENTES:** ${data.responseCount}
+
+---
+
+${blocks.BLOCO_CONSISTENCIA}
+
+${blocks.BLOCO_AMOSTRA}
+
+${blocks.BLOCO_QUALIDADE}
+
+${blocks.BLOCO_RANKING}
+
+${blocks.BLOCO_CLASSIFICACAO}
+
+${blocks.BLOCO_VEREDITO}
+
+---
+
+Elabore o parecer técnico completo (mínimo 600 palavras) no estilo Blind Review de periódico Q1:
+`;
+
+    // Chamar Claude (modelo atualizado)
+    const anthropic = new Anthropic();
+    
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514', // Modelo atualizado
+      max_tokens: 5000,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: userPrompt }]
+    });
+
+    // Extrair texto da resposta
+    const reviewText = message.content
+      .filter(block => block.type === 'text')
+      .map(block => (block as { type: 'text'; text: string }).text)
+      .join('\n');
+
+    // Retornar resposta estruturada
+    return NextResponse.json({
+      success: true,
+      version: '6.3',
+      review: {
+        resumo_executivo: reviewText,
+        observacoes_revisor: reviewText,
+        nota_geral: classification.nota,
+        classificacao: classification.gradeLabel,
+        veredito: classification.verdict,
+        analise_amostra: {
+          tamanho: data.responseCount,
+          adequacao: data.responseCount >= THRESHOLDS.IDEAL_RESPONDENTS ? 'ADEQUADA' : 
+                     data.responseCount >= THRESHOLDS.MIN_RESPONDENTS ? 'MÍNIMA' : 'INSUFICIENTE'
+        },
+        adequacao_publicacao: {
+          nivel: classification.grade === 'A' ? 'A1_Q1' : 
+                 classification.grade === 'B' ? 'A2_Q2' : 
+                 classification.grade === 'C' ? 'B1_B2' : 'REVISAR',
+          justificativa: classification.verdict
+        },
+        pontos_fortes: [],
+        pontos_fracos: [],
+        recomendacoes: [],
+        _sistema: classification,
+        _qualityStats: data.individualStats
+      },
+      classification,
+      blocks,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        model: 'claude-sonnet-4-20250514',
+        inputTokens: message.usage?.input_tokens,
+        outputTokens: message.usage?.output_tokens
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Erro API AI Reviewer v6.3:', error);
+    
+    return NextResponse.json({
+      success: false,
+      error: 'Erro ao gerar revisão',
+      details: error.message || String(error),
+      version: '6.3'
+    }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  return NextResponse.json({
+    name: 'AI Reviewer API',
+    version: '6.3',
+    description: 'Peer Reviewer Persona (A1/Q1) - Tom Técnico Impessoal',
+    status: 'OK',
+    changes: [
+      'Persona: Peer Reviewer Q1',
+      'Tom: Cirúrgico e impessoal',
+      'Adjetivos neutros: Conforme, Adequado',
+      'Quality Gate: Violação de homogeneidade'
+    ]
+  });
+}

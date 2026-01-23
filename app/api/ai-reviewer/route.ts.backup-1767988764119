@@ -1,0 +1,823 @@
+// app/api/ai-reviewer/route.ts
+// API de Revisão IA v6.0 - Com Quality Gate, Tokenização e Penalização Automática
+// Resolve: Paradoxo da Agregação e Inconsistência de Veredicto
+
+import { NextRequest, NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
+
+// ============================================================
+// TIPOS E INTERFACES
+// ============================================================
+
+interface IndividualStats {
+  total: number;
+  valid: number;      // CONFIÁVEL
+  warning: number;    // REVISAR + SUSPEITO
+  critical: number;   // CRÍTICO
+  avgCR?: number;     // CR médio individual
+}
+
+interface ReviewRequest {
+  projectName: string;
+  projectDescription?: string;
+  alternatives: Array<{ code: string; name: string; description?: string }>;
+  bocrWeights: number[];
+  bocrConsistency: { cr: number; lambda: number; ci?: number };
+  subWeights: Record<string, number[]>;
+  subConsistency: Record<string, { cr: number; lambda: number }>;
+  finalScores: Array<{
+    name: string;
+    code: string;
+    scoreAdditive?: number;
+    scoreMultiplicative?: number;
+    rankAdditive?: number;
+    rankMultiplicative?: number;
+    B?: number;
+    O?: number;
+    C?: number;
+    R?: number;
+  }>;
+  responseCount: number;
+  sensitivityInflections?: Record<string, number | null>;
+  // NOVO v6.0: Estatísticas individuais dos respondentes
+  individualStats?: IndividualStats;
+}
+
+interface ClassificationResult {
+  grade: 'A' | 'B' | 'C';
+  gradeLabel: string;
+  verdict: string;
+  verdictIcon: string;
+  confidenceLevel: string;
+  qualityPenalty: boolean;
+  penaltyReason?: string;
+}
+
+interface NarrativeBlocks {
+  BLOCO_CONSISTENCIA: string;
+  BLOCO_RANKING: string;
+  BLOCO_SENSIBILIDADE: string;
+  BLOCO_AMOSTRA: string;
+  BLOCO_QUALIDADE: string;      // NOVO v6.0
+  BLOCO_CLASSIFICACAO: string;  // NOVO v6.0
+  BLOCO_VEREDITO: string;       // NOVO v6.0
+  tokens: Record<string, string>;
+}
+
+// ============================================================
+// CONSTANTES DE CONFIGURAÇÃO
+// ============================================================
+
+const THRESHOLDS = {
+  CR_EXCELLENT: 0.05,
+  CR_GOOD: 0.08,
+  CR_ACCEPTABLE: 0.10,
+  CR_WARNING: 0.15,
+  CR_CRITICAL: 0.20,
+  MIN_RESPONDENTS: 5,
+  IDEAL_RESPONDENTS: 7,
+  // NOVO v6.0: Limites do Quality Gate
+  QUALITY_GATE_WARNING: 0.20,   // 20% de respondentes ruins = alerta
+  QUALITY_GATE_CRITICAL: 0.30,  // 30% de respondentes ruins = penalidade
+  QUALITY_GATE_SEVERE: 0.50,    // 50% de respondentes ruins = penalidade grave
+};
+
+// ============================================================
+// SYSTEM PROMPT v6.0 - PROÍBE IA DE DECIDIR CLASSIFICAÇÃO
+// ============================================================
+
+const SYSTEM_PROMPT = `Você é um auditor acadêmico especializado em métodos AHP-BOCR (Analytic Hierarchy Process com Benefits, Opportunities, Costs, Risks). Sua função é gerar uma revisão técnica formal e imparcial.
+
+## REGRAS ABSOLUTAS - VIOLAÇÃO PROIBIDA
+
+1. **NUNCA invente ou modifique valores numéricos** - Use APENAS os tokens fornecidos (ex: {{CR_BOCR}}, {{RANKING_FINAL}}).
+2. **NUNCA escreva a classificação ou veredicto manualmente** - Use OBRIGATORIAMENTE os tokens {{BLOCO_CLASSIFICACAO}} e {{BLOCO_VEREDITO}}.
+3. **NUNCA use frases como "Classificação: A" ou "Veredicto: Aprovado"** - Isso é determinado pelo sistema, não por você.
+4. **NUNCA contradiga os tokens** - Se {{BLOCO_QUALIDADE}} indicar problemas, você DEVE comentar sobre isso.
+5. **Mantenha tom técnico e imparcial** - Sem elogios excessivos ou linguagem informal.
+
+## ESTRUTURA OBRIGATÓRIA DA REVISÃO
+
+### 1. SUMÁRIO EXECUTIVO (2-3 parágrafos)
+- Contextualização do problema de decisão
+- Resumo da metodologia aplicada
+- Conclusão principal (use {{RANKING_FINAL}})
+
+### 2. ANÁLISE DE CONSISTÊNCIA
+{{BLOCO_CONSISTENCIA}}
+
+### 3. ANÁLISE DA QUALIDADE DA AMOSTRA
+{{BLOCO_AMOSTRA}}
+{{BLOCO_QUALIDADE}}
+
+### 4. RANKING DAS ALTERNATIVAS
+{{BLOCO_RANKING}}
+
+### 5. ANÁLISE DE SENSIBILIDADE
+{{BLOCO_SENSIBILIDADE}}
+
+### 6. CERTIFICADO DE AUDITORIA
+{{BLOCO_CLASSIFICACAO}}
+{{BLOCO_VEREDITO}}
+
+### 7. RECOMENDAÇÕES (se aplicável)
+- Liste recomendações baseadas nos problemas identificados
+- Seja específico sobre ações corretivas
+
+## FORMATAÇÃO
+- Use Markdown com headers (##, ###)
+- Destaque valores críticos em **negrito**
+- Use tabelas quando apropriado
+- Mantenha parágrafos concisos (máx. 4 linhas)
+
+## TOKENS DISPONÍVEIS
+Substitua automaticamente durante a renderização:
+- {{CR_BOCR}}, {{CR_B}}, {{CR_O}}, {{CR_C}}, {{CR_R}}
+- {{PESO_B}}, {{PESO_O}}, {{PESO_C}}, {{PESO_R}}
+- {{RANKING_FINAL}}, {{WINNER_NAME}}, {{WINNER_SCORE}}
+- {{TOTAL_RESPONDENTES}}, {{STATUS_AMOSTRA}}
+- {{BLOCO_CONSISTENCIA}}, {{BLOCO_RANKING}}, {{BLOCO_SENSIBILIDADE}}
+- {{BLOCO_AMOSTRA}}, {{BLOCO_QUALIDADE}}
+- {{BLOCO_CLASSIFICACAO}}, {{BLOCO_VEREDITO}}`;
+
+// ============================================================
+// FUNÇÕES DE CÁLCULO v6.0
+// ============================================================
+
+/**
+ * Calcula a classificação final com Quality Gate
+ * A IA NÃO DECIDE - o sistema calcula deterministicamente
+ */
+function calculateClassification(
+  crBOCR: number,
+  subCRs: number[],
+  responseCount: number,
+  individualStats?: IndividualStats
+): ClassificationResult {
+  // Calcular % de respondentes problemáticos
+  let badRespondentRatio = 0;
+  let qualityPenalty = false;
+  let penaltyReason: string | undefined;
+  let penaltySeverity: 'warning' | 'critical' | 'severe' | null = null;
+
+  if (individualStats && individualStats.total > 0) {
+    const badCount = individualStats.warning + individualStats.critical;
+    badRespondentRatio = badCount / individualStats.total;
+
+    if (badRespondentRatio >= THRESHOLDS.QUALITY_GATE_SEVERE) {
+      qualityPenalty = true;
+      penaltySeverity = 'severe';
+      penaltyReason = `${(badRespondentRatio * 100).toFixed(1)}% dos respondentes são problemáticos (≥50%)`;
+    } else if (badRespondentRatio >= THRESHOLDS.QUALITY_GATE_CRITICAL) {
+      qualityPenalty = true;
+      penaltySeverity = 'critical';
+      penaltyReason = `${(badRespondentRatio * 100).toFixed(1)}% dos respondentes são problemáticos (≥30%)`;
+    } else if (badRespondentRatio >= THRESHOLDS.QUALITY_GATE_WARNING) {
+      penaltySeverity = 'warning';
+      penaltyReason = `${(badRespondentRatio * 100).toFixed(1)}% dos respondentes requerem atenção`;
+    }
+  }
+
+  // Calcular nota base (sem penalidade)
+  let baseGrade: 'A' | 'B' | 'C';
+  let baseGradeLabel: string;
+
+  const maxSubCR = subCRs.length > 0 ? Math.max(...subCRs) : 0;
+  const avgSubCR = subCRs.length > 0 ? subCRs.reduce((a, b) => a + b, 0) / subCRs.length : 0;
+
+  // Critérios para nota A
+  if (
+    crBOCR <= THRESHOLDS.CR_GOOD &&
+    maxSubCR <= THRESHOLDS.CR_ACCEPTABLE &&
+    responseCount >= THRESHOLDS.IDEAL_RESPONDENTS
+  ) {
+    baseGrade = 'A';
+    baseGradeLabel = 'EXCELENTE';
+  }
+  // Critérios para nota B
+  else if (
+    crBOCR <= THRESHOLDS.CR_ACCEPTABLE &&
+    avgSubCR <= THRESHOLDS.CR_WARNING &&
+    responseCount >= THRESHOLDS.MIN_RESPONDENTS
+  ) {
+    baseGrade = 'B';
+    baseGradeLabel = 'SATISFATÓRIO';
+  }
+  // Nota C para o resto
+  else {
+    baseGrade = 'C';
+    baseGradeLabel = 'REQUER REVISÃO';
+  }
+
+  // APLICAR PENALIDADE DO QUALITY GATE
+  let finalGrade = baseGrade;
+  let finalGradeLabel = baseGradeLabel;
+
+  if (qualityPenalty) {
+    if (penaltySeverity === 'severe') {
+      // Penalidade grave: sempre C
+      finalGrade = 'C';
+      finalGradeLabel = 'COMPROMETIDO';
+    } else if (penaltySeverity === 'critical') {
+      // Penalidade crítica: cai 1-2 níveis
+      if (baseGrade === 'A') {
+        finalGrade = 'C';
+        finalGradeLabel = 'REQUER REVISÃO';
+      } else if (baseGrade === 'B') {
+        finalGrade = 'C';
+        finalGradeLabel = 'REQUER REVISÃO';
+      }
+    }
+  }
+
+  // Determinar veredicto baseado na nota FINAL
+  let verdict: string;
+  let verdictIcon: string;
+  let confidenceLevel: string;
+
+  switch (finalGrade) {
+    case 'A':
+      verdict = 'APROVADO';
+      verdictIcon = '✅';
+      confidenceLevel = 'ALTA';
+      break;
+    case 'B':
+      verdict = qualityPenalty ? 'APROVADO COM RESSALVAS' : 'APROVADO COM OBSERVAÇÕES';
+      verdictIcon = '⚠️';
+      confidenceLevel = 'MODERADA';
+      break;
+    case 'C':
+      verdict = qualityPenalty ? 'REVISÃO MAIOR REQUERIDA' : 'REVISÃO RECOMENDADA';
+      verdictIcon = '🔴';
+      confidenceLevel = 'BAIXA';
+      break;
+  }
+
+  return {
+    grade: finalGrade,
+    gradeLabel: finalGradeLabel,
+    verdict,
+    verdictIcon,
+    confidenceLevel,
+    qualityPenalty,
+    penaltyReason
+  };
+}
+
+/**
+ * Gera todos os blocos narrativos tokenizados
+ */
+function calculateNarrativeBlocks(
+  data: ReviewRequest,
+  classification: ClassificationResult
+): NarrativeBlocks {
+  const { bocrWeights, bocrConsistency, subConsistency, finalScores, responseCount, sensitivityInflections, individualStats } = data;
+  
+  // ============================================================
+  // TOKENS BASE
+  // ============================================================
+  
+  const tokens: Record<string, string> = {
+    CR_BOCR: (bocrConsistency.cr * 100).toFixed(2) + '%',
+    LAMBDA_BOCR: bocrConsistency.lambda.toFixed(4),
+    PESO_B: ((bocrWeights[0] || 0) * 100).toFixed(1) + '%',
+    PESO_O: ((bocrWeights[1] || 0) * 100).toFixed(1) + '%',
+    PESO_C: ((bocrWeights[2] || 0) * 100).toFixed(1) + '%',
+    PESO_R: ((bocrWeights[3] || 0) * 100).toFixed(1) + '%',
+    TOTAL_RESPONDENTES: responseCount.toString(),
+  };
+
+  // CRs dos subcritérios
+  const merits = ['B', 'O', 'C', 'R'];
+  merits.forEach(m => {
+    const cr = subConsistency[m]?.cr || 0;
+    tokens[`CR_${m}`] = (cr * 100).toFixed(2) + '%';
+  });
+
+  // Ranking
+  const sorted = [...finalScores].sort((a, b) => 
+    (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+  );
+  
+  if (sorted.length > 0) {
+    tokens.WINNER_NAME = sorted[0].name;
+    tokens.WINNER_SCORE = (sorted[0].scoreAdditive || 0).toFixed(4);
+    tokens.RANKING_FINAL = sorted.map((alt, i) => 
+      `${i + 1}º ${alt.name} (${(alt.scoreAdditive || 0).toFixed(4)})`
+    ).join(' > ');
+  }
+
+  // ============================================================
+  // BLOCO: CONSISTÊNCIA
+  // ============================================================
+  
+  const crBOCR = bocrConsistency.cr;
+  let consistencyStatus: string;
+  let consistencyIcon: string;
+  
+  if (crBOCR <= THRESHOLDS.CR_EXCELLENT) {
+    consistencyStatus = 'EXCELENTE';
+    consistencyIcon = '🟢';
+  } else if (crBOCR <= THRESHOLDS.CR_GOOD) {
+    consistencyStatus = 'BOM';
+    consistencyIcon = '🟢';
+  } else if (crBOCR <= THRESHOLDS.CR_ACCEPTABLE) {
+    consistencyStatus = 'ACEITÁVEL';
+    consistencyIcon = '🟡';
+  } else if (crBOCR <= THRESHOLDS.CR_WARNING) {
+    consistencyStatus = 'LIMÍTROFE';
+    consistencyIcon = '🟠';
+  } else {
+    consistencyStatus = 'INCONSISTENTE';
+    consistencyIcon = '🔴';
+  }
+
+  const BLOCO_CONSISTENCIA = `
+#### Matriz BOCR Principal
+- **CR Global:** ${tokens.CR_BOCR} ${consistencyIcon} ${consistencyStatus}
+- **Lambda máximo (λmax):** ${tokens.LAMBDA_BOCR}
+- **Limite de Saaty:** ≤10%
+
+#### Consistência por Subcritério
+| Mérito | CR | Status |
+|--------|-----|--------|
+| Benefícios (B) | ${tokens.CR_B} | ${parseFloat(tokens.CR_B) <= 10 ? '✅' : '⚠️'} |
+| Oportunidades (O) | ${tokens.CR_O} | ${parseFloat(tokens.CR_O) <= 10 ? '✅' : '⚠️'} |
+| Custos (C) | ${tokens.CR_C} | ${parseFloat(tokens.CR_C) <= 10 ? '✅' : '⚠️'} |
+| Riscos (R) | ${tokens.CR_R} | ${parseFloat(tokens.CR_R) <= 10 ? '✅' : '⚠️'} |
+
+#### Pesos Estratégicos Derivados
+| Mérito | Peso | Interpretação |
+|--------|------|---------------|
+| Benefícios | ${tokens.PESO_B} | ${parseFloat(tokens.PESO_B) > 30 ? 'Alta prioridade' : 'Prioridade moderada'} |
+| Oportunidades | ${tokens.PESO_O} | ${parseFloat(tokens.PESO_O) > 30 ? 'Alta prioridade' : 'Prioridade moderada'} |
+| Custos | ${tokens.PESO_C} | ${parseFloat(tokens.PESO_C) > 30 ? 'Alta prioridade' : 'Prioridade moderada'} |
+| Riscos | ${tokens.PESO_R} | ${parseFloat(tokens.PESO_R) > 30 ? 'Alta prioridade' : 'Prioridade moderada'} |
+`.trim();
+
+  // ============================================================
+  // BLOCO: RANKING
+  // ============================================================
+  
+  const rankingRows = sorted.map((alt, i) => {
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}º`;
+    const score = (alt.scoreAdditive || 0).toFixed(4);
+    const b = ((alt.B || 0) * 100).toFixed(1);
+    const o = ((alt.O || 0) * 100).toFixed(1);
+    const c = ((alt.C || 0) * 100).toFixed(1);
+    const r = ((alt.R || 0) * 100).toFixed(1);
+    return `| ${medal} | ${alt.name} | ${score} | ${b}% | ${o}% | ${c}% | ${r}% |`;
+  }).join('\n');
+
+  const dominance = sorted.length >= 2 
+    ? ((((sorted[0].scoreAdditive || 0) - (sorted[1].scoreAdditive || 0)) / (sorted[1].scoreAdditive || 1)) * 100).toFixed(1)
+    : '0';
+
+  const BLOCO_RANKING = `
+#### Ranking Final (Método Aditivo)
+| Posição | Alternativa | Score | B | O | C | R |
+|---------|-------------|-------|---|---|---|---|
+${rankingRows}
+
+#### Análise de Dominância
+- **Vencedor:** ${sorted[0]?.name || 'N/A'} com score ${tokens.WINNER_SCORE}
+- **Margem sobre 2º colocado:** ${dominance}%
+- **Robustez:** ${parseFloat(dominance) > 10 ? 'Alta (diferença significativa)' : parseFloat(dominance) > 5 ? 'Moderada' : 'Baixa (diferença marginal)'}
+`.trim();
+
+  // ============================================================
+  // BLOCO: SENSIBILIDADE
+  // ============================================================
+  
+  let sensitivityAnalysis = '';
+  if (sensitivityInflections && Object.keys(sensitivityInflections).length > 0) {
+    const inflectionRows = Object.entries(sensitivityInflections).map(([merit, value]) => {
+      if (value === null || value === undefined) {
+        return `| ${merit} | Sem inversão | ✅ Robusto |`;
+      }
+      const absVal = Math.abs(value);
+      const direction = value > 0 ? 'aumento' : 'redução';
+      const robustness = absVal > 0.3 ? '✅ Robusto' : absVal > 0.15 ? '⚠️ Moderado' : '🔴 Sensível';
+      return `| ${merit} | ${(absVal * 100).toFixed(1)}% ${direction} | ${robustness} |`;
+    }).join('\n');
+
+    sensitivityAnalysis = `
+#### Pontos de Inflexão por Mérito BOCR
+| Mérito | Variação p/ Inversão | Robustez |
+|--------|---------------------|----------|
+${inflectionRows}
+
+#### Interpretação
+A análise de sensibilidade avalia quanto cada peso BOCR precisaria variar para inverter o ranking.
+- **Robusto (>30%):** Resultado estável mesmo com variações significativas
+- **Moderado (15-30%):** Requer atenção em cenários extremos
+- **Sensível (<15%):** Pequenas mudanças podem alterar a decisão
+`;
+  } else {
+    sensitivityAnalysis = `
+#### Análise de Sensibilidade
+Dados de sensibilidade não disponíveis. Recomenda-se executar simulação de variação de pesos para validar a robustez do ranking.
+`;
+  }
+
+  const BLOCO_SENSIBILIDADE = sensitivityAnalysis.trim();
+
+  // ============================================================
+  // BLOCO: AMOSTRA
+  // ============================================================
+  
+  let sampleStatus: string;
+  let sampleIcon: string;
+  let sampleRecommendation: string;
+
+  if (responseCount >= 10) {
+    sampleStatus = 'EXCELENTE';
+    sampleIcon = '🟢';
+    sampleRecommendation = 'Amostra robusta para análise estatística.';
+  } else if (responseCount >= THRESHOLDS.IDEAL_RESPONDENTS) {
+    sampleStatus = 'ADEQUADA';
+    sampleIcon = '🟢';
+    sampleRecommendation = 'Amostra atende aos requisitos mínimos de Saaty (1980).';
+  } else if (responseCount >= THRESHOLDS.MIN_RESPONDENTS) {
+    sampleStatus = 'MÍNIMA';
+    sampleIcon = '🟡';
+    sampleRecommendation = 'Considerar ampliar para aumentar representatividade.';
+  } else if (responseCount >= 3) {
+    sampleStatus = 'LIMITADA';
+    sampleIcon = '🟠';
+    sampleRecommendation = 'Resultados podem ter viés. Recomenda-se coletar mais respostas.';
+  } else {
+    sampleStatus = 'INSUFICIENTE';
+    sampleIcon = '🔴';
+    sampleRecommendation = 'Amostra não atende critérios mínimos. Resultados não confiáveis.';
+  }
+
+  const BLOCO_AMOSTRA = `
+#### Estatísticas da Amostra
+- **Total de Respondentes:** ${responseCount} ${sampleIcon} ${sampleStatus}
+- **Mínimo Recomendado:** ${THRESHOLDS.MIN_RESPONDENTS} (Saaty, 1980)
+- **Ideal:** ≥${THRESHOLDS.IDEAL_RESPONDENTS} especialistas
+
+#### Avaliação
+${sampleRecommendation}
+`.trim();
+
+  // ============================================================
+  // BLOCO: QUALIDADE (NOVO v6.0 - Quality Gate)
+  // ============================================================
+  
+  let BLOCO_QUALIDADE: string;
+
+  if (individualStats && individualStats.total > 0) {
+    const badCount = individualStats.warning + individualStats.critical;
+    const badRatio = badCount / individualStats.total;
+    const validRatio = individualStats.valid / individualStats.total;
+
+    let qualityIcon: string;
+    let qualityStatus: string;
+    let qualityAlert: string;
+
+    if (badRatio >= THRESHOLDS.QUALITY_GATE_SEVERE) {
+      qualityIcon = '🚨';
+      qualityStatus = 'COMPROMETIDA';
+      qualityAlert = `
+⚠️ **ALERTA CRÍTICO DE QUALIDADE**
+
+Mais de 50% dos respondentes apresentam inconsistências significativas. O CR Global agregado de ${tokens.CR_BOCR} pode estar **mascarando problemas individuais graves** devido ao efeito de compensação na média geométrica.
+
+**Paradoxo Identificado:** Um CR Global baixo não garante qualidade quando a base de respondentes está contaminada por julgamentos inconsistentes que se cancelam mutuamente.
+
+**Impacto:** A classificação foi rebaixada automaticamente devido à qualidade comprometida dos dados de entrada.
+
+**Ação Requerida:** Revisão individual dos respondentes críticos antes de utilizar os resultados para tomada de decisão.
+`;
+    } else if (badRatio >= THRESHOLDS.QUALITY_GATE_CRITICAL) {
+      qualityIcon = '🔴';
+      qualityStatus = 'QUESTIONÁVEL';
+      qualityAlert = `
+⚠️ **ALERTA DE QUALIDADE**
+
+${(badRatio * 100).toFixed(1)}% dos respondentes (${badCount} de ${individualStats.total}) apresentam problemas de consistência. 
+
+**Risco:** O CR Global de ${tokens.CR_BOCR} pode não refletir a real qualidade dos julgamentos devido ao **Paradoxo da Agregação** - onde erros individuais podem se compensar artificialmente.
+
+**Impacto:** A classificação foi penalizada. Recomenda-se exclusão dos respondentes problemáticos e recálculo.
+`;
+    } else if (badRatio >= THRESHOLDS.QUALITY_GATE_WARNING) {
+      qualityIcon = '🟠';
+      qualityStatus = 'ATENÇÃO';
+      qualityAlert = `
+⚠️ **Atenção:** ${(badRatio * 100).toFixed(1)}% dos respondentes requerem revisão. Embora não comprometa significativamente os resultados, recomenda-se avaliar individualmente os casos sinalizados.
+`;
+    } else {
+      qualityIcon = '🟢';
+      qualityStatus = 'VERIFICADA';
+      qualityAlert = `
+✅ A qualidade individual dos respondentes está adequada. ${(validRatio * 100).toFixed(1)}% da amostra apresenta julgamentos consistentes.
+`;
+    }
+
+    BLOCO_QUALIDADE = `
+#### Certificado de Auditoria de Qualidade Individual
+| Categoria | Quantidade | Percentual |
+|-----------|------------|------------|
+| ✅ Confiáveis | ${individualStats.valid} | ${(validRatio * 100).toFixed(1)}% |
+| ⚠️ Atenção | ${individualStats.warning} | ${((individualStats.warning / individualStats.total) * 100).toFixed(1)}% |
+| 🔴 Críticos | ${individualStats.critical} | ${((individualStats.critical / individualStats.total) * 100).toFixed(1)}% |
+
+**Status da Qualidade:** ${qualityIcon} ${qualityStatus}
+${individualStats.avgCR ? `\n**CR Médio Individual:** ${(individualStats.avgCR * 100).toFixed(2)}%` : ''}
+
+${qualityAlert}
+`.trim();
+
+  } else {
+    BLOCO_QUALIDADE = `
+#### Certificado de Auditoria de Qualidade Individual
+⚠️ **Dados individuais não disponíveis**
+
+Não foi possível verificar a qualidade individual dos respondentes. A análise se baseia apenas no CR agregado, o que pode ocultar inconsistências individuais (Paradoxo da Agregação).
+
+**Recomendação:** Execute a Análise de Qualidade para obter o certificado completo.
+`.trim();
+  }
+
+  // ============================================================
+  // BLOCO: CLASSIFICAÇÃO (NOVO v6.0 - Tokenizado)
+  // ============================================================
+  
+  const gradeColors: Record<string, string> = {
+    'A': '🟢',
+    'B': '🟡', 
+    'C': '🔴'
+  };
+
+  let penaltyNote = '';
+  if (classification.qualityPenalty && classification.penaltyReason) {
+    penaltyNote = `
+> ⚠️ **Nota Penalizada:** ${classification.penaltyReason}
+> A classificação foi rebaixada automaticamente pelo Quality Gate.
+`;
+  }
+
+  const BLOCO_CLASSIFICACAO = `
+### 📋 Classificação Final
+
+| Critério | Resultado |
+|----------|-----------|
+| **Nota** | ${gradeColors[classification.grade]} **${classification.grade}** - ${classification.gradeLabel} |
+| **Nível de Confiança** | ${classification.confidenceLevel} |
+| **Quality Gate** | ${classification.qualityPenalty ? '🔴 ATIVADO' : '✅ OK'} |
+${penaltyNote}
+`.trim();
+
+  // ============================================================
+  // BLOCO: VEREDICTO (NOVO v6.0 - Tokenizado)
+  // ============================================================
+  
+  let verdictDescription: string;
+  switch (classification.verdict) {
+    case 'APROVADO':
+      verdictDescription = 'Os resultados atendem aos critérios de qualidade e podem ser utilizados para tomada de decisão com alta confiança.';
+      break;
+    case 'APROVADO COM OBSERVAÇÕES':
+      verdictDescription = 'Os resultados são válidos, mas algumas métricas estão no limite. Recomenda-se atenção aos pontos sinalizados.';
+      break;
+    case 'APROVADO COM RESSALVAS':
+      verdictDescription = 'Os resultados são utilizáveis, porém existem ressalvas importantes que devem ser consideradas na decisão final.';
+      break;
+    case 'REVISÃO RECOMENDADA':
+      verdictDescription = 'Identificadas inconsistências que requerem revisão antes do uso dos resultados. Considere coletar mais dados ou revisar julgamentos.';
+      break;
+    case 'REVISÃO MAIOR REQUERIDA':
+      verdictDescription = 'A qualidade dos dados está comprometida. É necessária intervenção significativa antes de utilizar os resultados.';
+      break;
+    default:
+      verdictDescription = 'Avalie os critérios individuais para determinar a aplicabilidade dos resultados.';
+  }
+
+  const BLOCO_VEREDITO = `
+### 📜 Veredicto
+
+<div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 12px; padding: 24px; margin: 16px 0; border-left: 4px solid ${classification.grade === 'A' ? '#22c55e' : classification.grade === 'B' ? '#eab308' : '#ef4444'};">
+
+## ${classification.verdictIcon} ${classification.verdict}
+
+${verdictDescription}
+
+**Data da Auditoria:** ${new Date().toLocaleDateString('pt-BR')}
+**Metodologia:** AHP-BOCR (Saaty, 1980; Wijnmalen, 2007)
+**Versão do Sistema:** v6.0
+
+</div>
+`.trim();
+
+  return {
+    BLOCO_CONSISTENCIA,
+    BLOCO_RANKING,
+    BLOCO_SENSIBILIDADE,
+    BLOCO_AMOSTRA,
+    BLOCO_QUALIDADE,
+    BLOCO_CLASSIFICACAO,
+    BLOCO_VEREDITO,
+    tokens
+  };
+}
+
+/**
+ * Prepara o prompt do usuário com todos os dados e tokens
+ */
+function prepareUserPrompt(data: ReviewRequest, blocks: NarrativeBlocks): string {
+  const { projectName, projectDescription, alternatives, bocrWeights, bocrConsistency, responseCount, individualStats } = data;
+
+  // Seção de estatísticas individuais se disponível
+  let individualSection = '';
+  if (individualStats && individualStats.total > 0) {
+    individualSection = `
+### Estatísticas Individuais dos Respondentes
+- Total: ${individualStats.total}
+- Confiáveis: ${individualStats.valid} (${((individualStats.valid / individualStats.total) * 100).toFixed(1)}%)
+- Atenção: ${individualStats.warning} (${((individualStats.warning / individualStats.total) * 100).toFixed(1)}%)
+- Críticos: ${individualStats.critical} (${((individualStats.critical / individualStats.total) * 100).toFixed(1)}%)
+${individualStats.avgCR ? `- CR Médio Individual: ${(individualStats.avgCR * 100).toFixed(2)}%` : ''}
+`;
+  }
+
+  return `
+## Dados do Projeto para Revisão
+
+### Informações Gerais
+- **Projeto:** ${projectName}
+- **Descrição:** ${projectDescription || 'Não informada'}
+- **Alternativas:** ${alternatives.map(a => a.name).join(', ')}
+- **Respondentes:** ${responseCount}
+
+### Métricas BOCR Agregadas
+- **CR Global:** ${(bocrConsistency.cr * 100).toFixed(2)}%
+- **Lambda máximo:** ${bocrConsistency.lambda.toFixed(4)}
+- **Pesos:** B=${((bocrWeights[0] || 0) * 100).toFixed(1)}%, O=${((bocrWeights[1] || 0) * 100).toFixed(1)}%, C=${((bocrWeights[2] || 0) * 100).toFixed(1)}%, R=${((bocrWeights[3] || 0) * 100).toFixed(1)}%
+${individualSection}
+
+---
+
+## BLOCOS PRÉ-CALCULADOS (USE OBRIGATORIAMENTE)
+
+Você DEVE incluir estes blocos na sua revisão. NÃO modifique o conteúdo.
+
+### {{BLOCO_CONSISTENCIA}}
+${blocks.BLOCO_CONSISTENCIA}
+
+### {{BLOCO_AMOSTRA}}
+${blocks.BLOCO_AMOSTRA}
+
+### {{BLOCO_QUALIDADE}}
+${blocks.BLOCO_QUALIDADE}
+
+### {{BLOCO_RANKING}}
+${blocks.BLOCO_RANKING}
+
+### {{BLOCO_SENSIBILIDADE}}
+${blocks.BLOCO_SENSIBILIDADE}
+
+### {{BLOCO_CLASSIFICACAO}}
+${blocks.BLOCO_CLASSIFICACAO}
+
+### {{BLOCO_VEREDITO}}
+${blocks.BLOCO_VEREDITO}
+
+---
+
+## INSTRUÇÕES FINAIS
+
+1. Gere uma revisão técnica completa usando a estrutura do SYSTEM_PROMPT
+2. INCLUA todos os blocos {{BLOCO_*}} nos locais apropriados
+3. NÃO modifique os valores numéricos ou a classificação
+4. Adicione análise contextual e recomendações quando apropriado
+5. Use linguagem técnica e imparcial
+
+Gere a revisão agora:
+`.trim();
+}
+
+// ============================================================
+// HANDLER DA API
+// ============================================================
+
+export async function POST(request: NextRequest) {
+  try {
+    const data: ReviewRequest = await request.json();
+
+    // Validação básica
+    if (!data.projectName || !data.alternatives || !data.bocrWeights || !data.finalScores) {
+      return NextResponse.json(
+        { error: 'Dados incompletos. Campos obrigatórios: projectName, alternatives, bocrWeights, finalScores' },
+        { status: 400 }
+      );
+    }
+
+    // Extrair CRs dos subcritérios para classificação
+    const subCRs = ['B', 'O', 'C', 'R']
+      .map(m => data.subConsistency?.[m]?.cr || 0)
+      .filter(cr => cr > 0);
+
+    // v6.0: Calcular classificação COM Quality Gate
+    const classification = calculateClassification(
+      data.bocrConsistency.cr,
+      subCRs,
+      data.responseCount,
+      data.individualStats
+    );
+
+    // Gerar blocos narrativos tokenizados
+    const blocks = calculateNarrativeBlocks(data, classification);
+
+    // Preparar prompt
+    const userPrompt = prepareUserPrompt(data, blocks);
+
+    // Chamar Claude
+    const anthropic = new Anthropic();
+    
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      system: SYSTEM_PROMPT,
+      messages: [
+        { role: 'user', content: userPrompt }
+      ]
+    });
+
+    // Extrair texto da resposta
+    const reviewText = message.content
+      .filter(block => block.type === 'text')
+      .map(block => (block as { type: 'text'; text: string }).text)
+      .join('\n');
+
+    // Retornar resposta estruturada
+    return NextResponse.json({
+      success: true,
+      version: '6.0',
+      review: reviewText,
+      classification: {
+        grade: classification.grade,
+        gradeLabel: classification.gradeLabel,
+        verdict: classification.verdict,
+        verdictIcon: classification.verdictIcon,
+        confidenceLevel: classification.confidenceLevel,
+        qualityPenalty: classification.qualityPenalty,
+        penaltyReason: classification.penaltyReason
+      },
+      blocks: {
+        consistencia: blocks.BLOCO_CONSISTENCIA,
+        ranking: blocks.BLOCO_RANKING,
+        sensibilidade: blocks.BLOCO_SENSIBILIDADE,
+        amostra: blocks.BLOCO_AMOSTRA,
+        qualidade: blocks.BLOCO_QUALIDADE,
+        classificacao: blocks.BLOCO_CLASSIFICACAO,
+        veredito: blocks.BLOCO_VEREDITO
+      },
+      tokens: blocks.tokens,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        model: 'claude-sonnet-4-20250514',
+        inputTokens: message.usage?.input_tokens,
+        outputTokens: message.usage?.output_tokens
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Erro na API AI Reviewer v6.0:', error);
+    
+    return NextResponse.json(
+      { 
+        success: false,
+        error: 'Erro ao gerar revisão',
+        details: error.message || 'Erro desconhecido',
+        version: '6.0'
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// ============================================================
+// HANDLER GET - Informações da API
+// ============================================================
+
+export async function GET() {
+  return NextResponse.json({
+    name: 'AI Reviewer API',
+    version: '6.0',
+    features: [
+      'Quality Gate com penalização automática',
+      'Tokenização de Classificação e Veredicto',
+      'Detecção do Paradoxo da Agregação',
+      'Blocos narrativos pré-calculados',
+      'Certificado de Auditoria de Qualidade Individual'
+    ],
+    thresholds: THRESHOLDS,
+    endpoints: {
+      POST: 'Gera revisão completa com classificação tokenizada',
+      GET: 'Retorna informações da API'
+    }
+  });
+}

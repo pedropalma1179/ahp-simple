@@ -1,0 +1,520 @@
+// app/api/ai-reviewer/route.ts
+// API de Revisão por IA - Especialista em MCDM/AHP-BOCR
+// VERSÃO 5.2 - BLOCOS NARRATIVOS + CERTIFICADO + NORMALIZAÇÃO
+// Correção: normalização de strings para comparação segura de vencedores
+
+import { NextRequest, NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
+
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+// ============================================================
+// INTERFACES
+// ============================================================
+
+interface NarrativeBlocks {
+  blocks: Record<string, string>;
+  meta: {
+    cr: string;
+    diff: string;
+    concordancia: string;
+    vencedor: string;
+    segundo: string;
+    amostra: number;
+    isUnanimous: boolean;
+    sensibilidadeStatus: string;
+  };
+}
+
+// ============================================================
+// 1. CÁLCULO DA VERDADE & REDAÇÃO DOS BLOCOS
+// ============================================================
+
+// Função de normalização para comparação segura de strings
+const normalize = (s: string): string => (s || '').trim().toLowerCase();
+
+function calculateNarrativeBlocks(calculationData: any): NarrativeBlocks {
+  const {
+    bocrWeights = [],
+    bocrConsistency = {},
+    finalScores = [],
+    responseCount = 0,
+    sensitivityInflections = {}
+  } = calculationData;
+
+  // --- VENCEDORES POR MÉTODO ---
+  const getWinner = (field: string): string => {
+    const sorted = [...finalScores].sort((a: any, b: any) => (b[field] || 0) - (a[field] || 0));
+    return sorted[0]?.name || 'N/A';
+  };
+
+  const sortedByAdditive = [...finalScores].sort((a: any, b: any) => 
+    (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+  );
+  
+  const winnerName = sortedByAdditive[0]?.name || 'N/A';
+  const runnerUpName = sortedByAdditive[1]?.name || 'N/A';
+
+  // --- CONCORDÂNCIA (com normalização para evitar problemas de comparação) ---
+  const methods = ['scoreAdditive', 'scoreProbabilistic', 'scoreSubtractiveNorm', 'scoreMultPowersNorm', 'scoreMultSimpleNorm'];
+  const winners = methods.map(m => getWinner(m));
+  
+  // Comparação normalizada para evitar problemas de espaços/maiúsculas
+  const concordanciaCount = winners.filter(w => normalize(w) === normalize(winnerName)).length;
+  const isUnanimous = concordanciaCount === 5;
+  
+  // Debug: log para verificar a comparação (pode ser removido em produção)
+  console.log('[AI-Review] Concordância:', {
+    winnerName,
+    winners,
+    concordanciaCount,
+    isUnanimous,
+    normalized: winners.map(w => `${w} -> ${normalize(w)}`)
+  });
+
+  // --- VALORES NUMÉRICOS ---
+  const crVal = ((bocrConsistency.cr || 0) * 100).toFixed(2);
+  const score1 = sortedByAdditive[0]?.scoreAdditive || 0;
+  const score2 = sortedByAdditive[1]?.scoreAdditive || 0;
+  const diffVal = (Math.abs(score1 - score2) * 100).toFixed(2);
+  const diffNum = parseFloat(diffVal);
+
+  // --- B+O e C+R ---
+  const boSum = ((bocrWeights[0] || 0) + (bocrWeights[1] || 0)) * 100;
+  const crSum = ((bocrWeights[2] || 0) + (bocrWeights[3] || 0)) * 100;
+
+  // --- SENSIBILIDADE ---
+  const meritNames: Record<string, string> = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' };
+  const criticos: string[] = [];
+  const sensiveis: string[] = [];
+  
+  Object.entries(sensitivityInflections).forEach(([key, val]: [string, any]) => {
+    if (val !== null && val !== undefined) {
+      if (val <= 10) criticos.push(`${meritNames[key]} (${val}%)`);
+      else if (val <= 20) sensiveis.push(`${meritNames[key]} (${val}%)`);
+    }
+  });
+
+  // ============================================================
+  // REDAÇÃO DETERMINÍSTICA DOS BLOCOS
+  // O JavaScript escreve a verdade. A IA não pode modificar.
+  // ============================================================
+
+  // BLOCO 1: Concordância
+  const BLOCO_CONCORDANCIA = isUnanimous
+    ? `Convergência metodológica UNÂNIME: todos os 5 métodos de síntese confirmam ${winnerName} como vencedor.`
+    : `Convergência PREDOMINANTE: ${concordanciaCount} de 5 métodos indicam ${winnerName} como vencedor (divergência em ${5 - concordanciaCount} método${5 - concordanciaCount > 1 ? 's' : ''}).`;
+
+  // BLOCO 2: Consistência (CR) - NUNCA confundir com diferença
+  const crNum = parseFloat(crVal);
+  let BLOCO_CR = '';
+  if (crNum <= 5) {
+    BLOCO_CR = `Consistência EXCELENTE: CR = ${crVal}% (muito abaixo do limite de 10%).`;
+  } else if (crNum <= 10) {
+    BLOCO_CR = `Consistência ACEITÁVEL: CR = ${crVal}% (dentro do limite de 10%).`;
+  } else {
+    BLOCO_CR = `INCONSISTÊNCIA DETECTADA: CR = ${crVal}% (acima do limite de 10%). Revisar julgamentos.`;
+  }
+
+  // BLOCO 3: Diferença - NUNCA confundir com CR
+  let BLOCO_DIFERENCA = '';
+  if (diffNum < 2) {
+    BLOCO_DIFERENCA = `EMPATE TÉCNICO: diferença de apenas ${diffVal}% entre ${winnerName} e ${runnerUpName} (estatisticamente equivalentes).`;
+  } else if (diffNum < 5) {
+    BLOCO_DIFERENCA = `Diferença MARGINAL: ${diffVal}% entre ${winnerName} e ${runnerUpName} (requer análise de desempate).`;
+  } else if (diffNum < 10) {
+    BLOCO_DIFERENCA = `Diferença MODERADA: ${diffVal}% entre ${winnerName} e ${runnerUpName}.`;
+  } else if (diffNum < 20) {
+    BLOCO_DIFERENCA = `Diferença EXPRESSIVA: ${diffVal}% entre ${winnerName} e ${runnerUpName} (dominância clara).`;
+  } else {
+    BLOCO_DIFERENCA = `DOMINÂNCIA ABSOLUTA: ${diffVal}% de diferença entre ${winnerName} e ${runnerUpName}.`;
+  }
+
+  // BLOCO 4: Amostra
+  let BLOCO_AMOSTRA = '';
+  if (responseCount >= 30) {
+    BLOCO_AMOSTRA = `Amostra EXCELENTE: n = ${responseCount} especialistas (adequada para qualquer periódico).`;
+  } else if (responseCount >= 15) {
+    BLOCO_AMOSTRA = `Amostra ADEQUADA: n = ${responseCount} especialistas.`;
+  } else if (responseCount >= 7) {
+    BLOCO_AMOSTRA = `Amostra MÍNIMA: n = ${responseCount} especialistas (recomenda-se ampliação).`;
+  } else {
+    BLOCO_AMOSTRA = `Amostra INSUFICIENTE: n = ${responseCount} especialistas (necessária ampliação).`;
+  }
+
+  // BLOCO 5: Sensibilidade
+  let BLOCO_SENSIBILIDADE = '';
+  let sensibilidadeStatus = 'ROBUSTO';
+  if (criticos.length > 0) {
+    BLOCO_SENSIBILIDADE = `Sensibilidade CRÍTICA: ranking inverte com variação ≤10% em ${criticos.join(', ')}.`;
+    sensibilidadeStatus = 'CRÍTICO';
+  } else if (sensiveis.length > 0) {
+    BLOCO_SENSIBILIDADE = `Sensibilidade MODERADA: ranking inverte com variação de 10-20% em ${sensiveis.join(', ')}.`;
+    sensibilidadeStatus = 'SENSÍVEL';
+  } else {
+    BLOCO_SENSIBILIDADE = `Resultado ROBUSTO: ranking estável mesmo com variações de ±20% nos pesos BOCR.`;
+  }
+
+  // BLOCO 6: Viés
+  let BLOCO_VIES = '';
+  if (boSum > 60) {
+    BLOCO_VIES = `Viés OTIMISTA detectado: ${boSum.toFixed(1)}% do peso em aspectos positivos (B+O).`;
+  } else if (crSum > 60) {
+    BLOCO_VIES = `Viés CONSERVADOR detectado: ${crSum.toFixed(1)}% do peso em aspectos negativos (C+R).`;
+  } else {
+    BLOCO_VIES = `Perfil BALANCEADO: ${boSum.toFixed(1)}% em B+O vs ${crSum.toFixed(1)}% em C+R.`;
+  }
+
+  // BLOCO 7: Resumo Executivo (frase pronta para o início)
+  const BLOCO_RESUMO = `${winnerName} é a alternativa recomendada com ${BLOCO_DIFERENCA.toLowerCase()} ${BLOCO_CONCORDANCIA.toLowerCase()} ${BLOCO_CR.toLowerCase()}`;
+
+  // BLOCO 8: Vencedor e Segundo (simples)
+  const BLOCO_VENCEDOR = winnerName;
+  const BLOCO_SEGUNDO = runnerUpName;
+
+  return {
+    blocks: {
+      "{{BLOCO_CONCORDANCIA}}": BLOCO_CONCORDANCIA,
+      "{{BLOCO_CR}}": BLOCO_CR,
+      "{{BLOCO_DIFERENCA}}": BLOCO_DIFERENCA,
+      "{{BLOCO_AMOSTRA}}": BLOCO_AMOSTRA,
+      "{{BLOCO_SENSIBILIDADE}}": BLOCO_SENSIBILIDADE,
+      "{{BLOCO_VIES}}": BLOCO_VIES,
+      "{{BLOCO_RESUMO}}": BLOCO_RESUMO,
+      "{{VENCEDOR}}": BLOCO_VENCEDOR,
+      "{{SEGUNDO}}": BLOCO_SEGUNDO,
+      // Valores isolados (backup)
+      "{{CONCORDANCIA_SCORE}}": `${concordanciaCount}/5`,
+      "{{CR_VALUE}}": `${crVal}%`,
+      "{{DIFF_VALUE}}": `${diffVal}%`,
+      "{{AMOSTRA_N}}": `${responseCount}`
+    },
+    meta: {
+      cr: `${crVal}%`,
+      diff: `${diffVal}%`,
+      concordancia: `${concordanciaCount}/5`,
+      vencedor: winnerName,
+      segundo: runnerUpName,
+      amostra: responseCount,
+      isUnanimous,
+      sensibilidadeStatus
+    }
+  };
+}
+
+// ============================================================
+// 2. SYSTEM PROMPT
+// ============================================================
+
+const SYSTEM_PROMPT = `Você é um revisor científico de periódicos A1/Q1 especializado em MCDM/AHP-BOCR.
+
+## 🛑 REGRA CRÍTICA: SISTEMA DE BLOCOS NARRATIVOS
+
+Você está **PROIBIDO** de escrever números ou frases sobre métricas.
+Você **DEVE** usar os BLOCOS fornecidos. Cada bloco contém uma frase completa e correta.
+
+### BLOCOS DISPONÍVEIS:
+
+| Para falar sobre... | Use EXATAMENTE |
+|---------------------|----------------|
+| Concordância entre métodos | {{BLOCO_CONCORDANCIA}} |
+| Consistência (CR) | {{BLOCO_CR}} |
+| Diferença entre alternativas | {{BLOCO_DIFERENCA}} |
+| Tamanho da amostra | {{BLOCO_AMOSTRA}} |
+| Sensibilidade | {{BLOCO_SENSIBILIDADE}} |
+| Viés nos pesos | {{BLOCO_VIES}} |
+| Nome do vencedor | {{VENCEDOR}} |
+| Nome do 2º lugar | {{SEGUNDO}} |
+
+### ⚠️ REGRAS ABSOLUTAS:
+
+1. **NUNCA** escreva números como "12.65%", "1.26%", "4/5", "5/5" manualmente
+2. **NUNCA** escreva "unânime" ou "unanimidade" manualmente - use {{BLOCO_CONCORDANCIA}}
+3. **NUNCA** escreva "CR = X%" manualmente - use {{BLOCO_CR}}
+4. **NUNCA** invente porcentagens de gestores, experiência, etc.
+
+### EXEMPLO CORRETO:
+
+\`\`\`json
+{
+  "resumo_executivo": "{{VENCEDOR}} emerge como alternativa dominante. {{BLOCO_DIFERENCA}} {{BLOCO_CONCORDANCIA}}",
+  "pontos_fortes": [
+    "{{BLOCO_CONCORDANCIA}}",
+    "{{BLOCO_CR}}",
+    "{{BLOCO_AMOSTRA}}"
+  ],
+  "observacoes_revisor": "{{BLOCO_DIFERENCA}} {{BLOCO_SENSIBILIDADE}}"
+}
+\`\`\`
+
+## ESTRUTURA DO PARECER (JSON)
+
+{
+  "nota_geral": number (0-100),
+  "classificacao": "A" | "B" | "C" | "D" | "F",
+  "veredito": "APROVADO" | "REVISÃO_MENOR" | "REVISÃO_MAIOR" | "REJEITADO",
+  "resumo_executivo": "Use {{VENCEDOR}}, {{BLOCO_DIFERENCA}}, {{BLOCO_CONCORDANCIA}}",
+  
+  "validacoes_matematicas": {
+    "pesos_bocr_soma_1": { "status": "OK", "comentario": "Soma dos pesos = 100%" },
+    "consistencia_cr": { "status": "OK", "valor": "{{CR_VALUE}}", "comentario": "{{BLOCO_CR}}" },
+    "scores_distributivos": { "status": "OK", "comentario": "Normalização correta" }
+  },
+  
+  "analise_robustez": {
+    "concordancia_metodos": { "valor": "{{CONCORDANCIA_SCORE}}", "comentario": "{{BLOCO_CONCORDANCIA}}" },
+    "diferenca_1o_2o": { "valor": "{{DIFF_VALUE}}", "comentario": "{{BLOCO_DIFERENCA}}" },
+    "sensibilidade": { "comentario": "{{BLOCO_SENSIBILIDADE}}" }
+  },
+  
+  "analise_amostra": {
+    "tamanho": {{AMOSTRA_N}},
+    "comentario": "{{BLOCO_AMOSTRA}}"
+  },
+  
+  "pontos_fortes": [
+    "{{BLOCO_CONCORDANCIA}}",
+    "{{BLOCO_CR}}",
+    "{{BLOCO_AMOSTRA}}"
+  ],
+  
+  "pontos_fracos": ["Descreva aspectos qualitativos, SEM números"],
+  
+  "recomendacoes": [
+    { "prioridade": 1, "texto": "Recomendação qualitativa" }
+  ],
+  
+  "adequacao_publicacao": {
+    "nivel": "A1_Q1" | "A2_Q2" | "B1_B2",
+    "justificativa": "Use blocos: {{BLOCO_AMOSTRA}}, {{BLOCO_CR}}"
+  },
+  
+  "observacoes_revisor": "Análise técnica usando {{BLOCO_DIFERENCA}}, {{BLOCO_SENSIBILIDADE}}, etc."
+}
+
+Responda APENAS em JSON válido.`;
+
+// ============================================================
+// 3. USER PROMPT (COM CERTIFICADO DE AUDITORIA)
+// ============================================================
+
+function prepareUserPrompt(calculationData: any, truth: NarrativeBlocks, projectName?: string): string {
+  const { bocrWeights = [], finalScores = [] } = calculationData;
+
+  // Informações qualitativas
+  const alternativas = finalScores.map((s: any) => s.name).join(', ');
+  const numAlternativas = finalScores.length;
+
+  return `
+# Solicitação de Revisão Científica
+
+**Projeto**: ${projectName || 'Análise AHP-BOCR'}
+**Data**: ${new Date().toLocaleDateString('pt-BR')}
+**Contexto**: Tomada de decisão com ${numAlternativas} alternativas (${alternativas}).
+
+---
+
+## 📋 CERTIFICADO DE AUDITORIA DE DADOS (SISTEMA)
+
+⚠️ **IMPORTANTE**: O algoritmo determinístico JÁ PROCESSOU E VALIDOU todos os dados brutos.
+Os dados abaixo são VERDADEIROS e VERIFICADOS. NÃO questione sua existência.
+
+| Métrica | Status | Instrução |
+|---------|--------|-----------|
+| **Amostragem** | ✅ VÁLIDA (n=${truth.meta.amostra}) | Use {{BLOCO_AMOSTRA}} |
+| **Consistência (CR)** | ✅ VERIFICADA (${truth.meta.cr}) | Use {{BLOCO_CR}} |
+| **Convergência** | ✅ ANALISADA (${truth.meta.concordancia}) | Use {{BLOCO_CONCORDANCIA}} |
+| **Diferença** | ✅ CALCULADA (${truth.meta.diff}) | Use {{BLOCO_DIFERENCA}} |
+| **Sensibilidade** | ✅ TESTADA | Use {{BLOCO_SENSIBILIDADE}} |
+
+### RESUMO DA AUDITORIA:
+- ✅ **Amostra**: ${truth.meta.amostra} especialistas participaram (dado REAL e VÁLIDO)
+- ✅ **CR**: ${truth.meta.cr} - Consistência verificada pelo sistema
+- ✅ **Concordância**: ${truth.meta.concordancia} métodos convergem
+- ✅ **Vencedor**: ${truth.meta.vencedor} com ${truth.meta.diff} de diferença sobre ${truth.meta.segundo}
+
+---
+
+## PERFIL DE PESOS BOCR
+
+| Mérito | Peso |
+|--------|------|
+| Benefícios | ${((bocrWeights[0] || 0) * 100).toFixed(0)}% |
+| Oportunidades | ${((bocrWeights[1] || 0) * 100).toFixed(0)}% |
+| Custos | ${((bocrWeights[2] || 0) * 100).toFixed(0)}% |
+| Riscos | ${((bocrWeights[3] || 0) * 100).toFixed(0)}% |
+
+---
+
+## 🎯 SUA MISSÃO
+
+1. **ASSUMA** que todos os dados acima são VERDADEIROS e VÁLIDOS
+2. **NÃO** questione a existência dos dados - eles foram auditados pelo sistema
+3. **USE** os BLOCOS para inserir as métricas no seu parecer
+4. **FOQUE** na análise qualitativa e recomendações
+
+### Nota Metodológica:
+${numAlternativas === 2 
+  ? 'Este estudo foca em uma comparação binária específica. O número de alternativas é adequado ao escopo da decisão.'
+  : `O estudo avalia ${numAlternativas} alternativas, permitindo boa discriminação metodológica.`}
+
+---
+
+## BLOCOS DISPONÍVEIS
+
+Use EXATAMENTE estes códigos no seu JSON:
+
+| Bloco | O que ele contém |
+|-------|------------------|
+| {{BLOCO_CONCORDANCIA}} | Frase sobre convergência dos métodos |
+| {{BLOCO_CR}} | Frase sobre consistência (CR) |
+| {{BLOCO_DIFERENCA}} | Frase sobre diferença entre alternativas |
+| {{BLOCO_AMOSTRA}} | Frase sobre tamanho amostral |
+| {{BLOCO_SENSIBILIDADE}} | Frase sobre estabilidade do ranking |
+| {{BLOCO_VIES}} | Frase sobre perfil de viés |
+| {{VENCEDOR}} | Nome do vencedor (${truth.meta.vencedor}) |
+| {{SEGUNDO}} | Nome do 2º lugar (${truth.meta.segundo}) |
+
+---
+
+Forneça seu parecer técnico em formato JSON, usando os BLOCOS para todas as métricas numéricas.
+`;
+}
+
+// ============================================================
+// 4. SUBSTITUIR BLOCOS
+// ============================================================
+
+function replaceBlocks(text: string, blocks: Record<string, string>): string {
+  let result = text;
+  
+  // Ordenar por tamanho (maior primeiro) para evitar substituições parciais
+  const sortedBlocks = Object.entries(blocks).sort((a, b) => b[0].length - a[0].length);
+  
+  for (const [block, content] of sortedBlocks) {
+    result = result.split(block).join(content);
+  }
+  
+  return result;
+}
+
+// ============================================================
+// 5. API ENDPOINT
+// ============================================================
+
+export async function POST(request: NextRequest) {
+  try {
+    const { calculationData, projectName } = await request.json();
+
+    if (!calculationData) {
+      return NextResponse.json({ error: 'calculationData é obrigatório' }, { status: 400 });
+    }
+
+    // 1. JavaScript escreve a verdade (Blocos Narrativos)
+    const truth = calculateNarrativeBlocks(calculationData);
+
+    // 2. Preparar prompt (com Certificado de Auditoria)
+    const userPrompt = prepareUserPrompt(calculationData, truth, projectName);
+
+    // 3. Chamar Claude API
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      messages: [{ role: 'user', content: userPrompt }],
+      system: SYSTEM_PROMPT
+    });
+
+    // 4. Extrair resposta
+    let responseText = message.content[0].type === 'text' 
+      ? message.content[0].text 
+      : '';
+
+    // 5. A MÁGICA: Substituir TODOS os blocos pelos textos reais
+    responseText = replaceBlocks(responseText, truth.blocks);
+
+    // 6. Parsear JSON
+    let parsedReview;
+    try {
+      // Limpar markdown
+      const cleanedResponse = responseText
+        .replace(/```json\s*/gi, '')
+        .replace(/```\s*/g, '')
+        .trim();
+      
+      const jsonMatch = cleanedResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsedReview = JSON.parse(jsonMatch[0]);
+        
+        // Adicionar metadados oficiais
+        parsedReview._valores_oficiais = truth.meta;
+        parsedReview._versao = '5.2-normalizado';
+        
+      } else {
+        parsedReview = { 
+          raw_response: responseText,
+          _valores_oficiais: truth.meta
+        };
+      }
+    } catch (e) {
+      parsedReview = { 
+        raw_response: responseText, 
+        parse_error: true,
+        _valores_oficiais: truth.meta
+      };
+    }
+
+    return NextResponse.json({
+      success: true,
+      review: parsedReview,
+      metadata: {
+        model: 'claude-sonnet-4-20250514',
+        timestamp: new Date().toISOString(),
+        tokens_used: message.usage?.output_tokens || 0,
+        versao: '5.2-normalizado',
+        valores_oficiais: truth.meta
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro na revisão por IA:', error);
+    return NextResponse.json({ 
+      error: 'Erro ao executar revisão por IA',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
+  }
+}
+
+// GET - Documentação
+export async function GET() {
+  return NextResponse.json({
+    description: 'API de Revisão por IA - Especialista MCDM/AHP-BOCR',
+    version: '5.2',
+    technique: 'BLOCOS NARRATIVOS + CERTIFICADO + NORMALIZAÇÃO',
+    features: [
+      'IA posiciona blocos, não escreve números',
+      'Cada bloco contém frase completa e correta',
+      'Certificado de Auditoria informa que dados existem',
+      'Normalização de strings para comparação segura',
+      'Impossível trocar CR com Diferença',
+      'Impossível escrever "unânime" quando é 4/5',
+      '100% determinístico para métricas'
+    ],
+    blocos_disponiveis: [
+      '{{BLOCO_CONCORDANCIA}} - Frase sobre convergência dos métodos',
+      '{{BLOCO_CR}} - Frase sobre consistência (CR)',
+      '{{BLOCO_DIFERENCA}} - Frase sobre diferença entre alternativas',
+      '{{BLOCO_AMOSTRA}} - Frase sobre tamanho amostral',
+      '{{BLOCO_SENSIBILIDADE}} - Frase sobre sensibilidade',
+      '{{BLOCO_VIES}} - Frase sobre viés nos pesos',
+      '{{VENCEDOR}} - Nome do vencedor',
+      '{{SEGUNDO}} - Nome do 2º lugar'
+    ],
+    correcoes_v52: [
+      'Normalização de strings (trim + lowercase) na comparação de vencedores',
+      'Evita problemas de espaços extras ou maiúsculas/minúsculas',
+      'Garante contagem correta de concordância (4/5 vs 5/5)'
+    ]
+  });
+}

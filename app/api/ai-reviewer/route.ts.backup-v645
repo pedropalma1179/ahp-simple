@@ -1,0 +1,528 @@
+// app/api/ai-reviewer/route.ts
+// API de Revisão IA v6.4.3 - PEER REVIEW ACADÊMICO A1/Q1
+// Features: Análise Qualitativa Profunda + RAG + Direcionamento ao Pesquisador
+
+import { NextRequest, NextResponse } from 'next/server';
+import Anthropic from '@anthropic-ai/sdk';
+import { getKnowledgeContext, getKnowledgeStats, getCriticalRefs, getRefsByTopic } from './knowledge';
+
+// ============================================================
+// CONFIGURAÇÃO
+// ============================================================
+
+const MODEL_CONFIG = {
+  id: 'claude-sonnet-4-20250514',
+  maxTokens: 8000,  // Aumentado para análise mais profunda
+  temperature: 0.4,  // Um pouco mais criativo para análise qualitativa
+};
+
+// ============================================================
+// TIPOS
+// ============================================================
+
+interface IndividualStats {
+  total: number;
+  valid: number;
+  warning: number;
+  critical: number;
+  avgCR?: number;
+}
+
+interface RespondentData {
+  id: string;
+  name?: string;
+  avgCR: number;
+  status: 'OK' | 'SUSPEITO' | 'CRÍTICO';
+}
+
+interface ReviewRequest {
+  projectName: string;
+  projectDescription?: string;
+  individualStats: {
+    Benefits: IndividualStats;
+    Opportunities: IndividualStats;
+    Costs: IndividualStats;
+    Risks: IndividualStats;
+  };
+  bocrWeights: {
+    Benefits: number;
+    Opportunities: number;
+    Costs: number;
+    Risks: number;
+  };
+  qualityAnalysis?: {
+    respondents: RespondentData[];
+    summary: {
+      total: number;
+      ok: number;
+      suspicious: number;
+      critical: number;
+    };
+  };
+  overallStats?: {
+    total: number;
+    valid: number;
+    warning: number;
+    critical: number;
+  };
+}
+
+// ============================================================
+// SISTEMA DE CLASSIFICAÇÃO AUTOMÁTICA
+// ============================================================
+
+function calculateGrade(data: ReviewRequest): { nota: string; veredicto: string; score: number } {
+  const stats = data.individualStats;
+  const weights = data.bocrWeights;
+  
+  let score = 100;
+  
+  // 1. QUALIDADE DOS DADOS (40 pontos)
+  // Helper para extrair total de respondentes
+  let totalRespondents = 0;
+  let validCount = 0;
+  
+  if (data.qualityAnalysis) {
+    totalRespondents = data.qualityAnalysis.summary.total;
+    validCount = data.qualityAnalysis.summary.ok;
+  } else if (data.overallStats) {
+    totalRespondents = data.overallStats.total;
+    validCount = data.overallStats.valid;
+  }
+  
+  const validPercent = totalRespondents > 0 
+    ? (validCount / totalRespondents) * 100 
+    : 0;
+  
+  if (validPercent < 50) score -= 40;
+  else if (validPercent < 70) score -= 20;
+  else if (validPercent < 85) score -= 10;
+  
+  // 2. HOMOGENEIDADE BOCR (30 pontos)
+  const maxWeight = Math.max(weights.Benefits, weights.Opportunities, weights.Costs, weights.Risks);
+  const minWeight = Math.min(weights.Benefits, weights.Opportunities, weights.Costs, weights.Risks);
+  const weightRatio = maxWeight / minWeight;
+  
+  if (weightRatio > 10) score -= 30;
+  else if (weightRatio > 5) score -= 15;
+  
+  if (weights.Risks < 0.12) score -= 10;
+  
+  // 3. CONSISTÊNCIA POR DIMENSÃO (30 pontos)
+  const dimensions = ['Benefits', 'Opportunities', 'Costs', 'Risks'] as const;
+  dimensions.forEach(dim => {
+    const dimStats = stats[dim];
+    if (dimStats.total > 0) {
+      const dimValidPercent = (dimStats.valid / dimStats.total) * 100;
+      if (dimValidPercent < 60) score -= 10;
+      else if (dimValidPercent < 75) score -= 5;
+    }
+  });
+  
+  // CLASSIFICAÇÃO FINAL
+  let nota: string;
+  let veredicto: string;
+  
+  if (score >= 90) {
+    nota = 'A';
+    veredicto = 'ACEITO';
+  } else if (score >= 80) {
+    nota = 'B';
+    veredicto = 'ACEITO COM REVISÕES MENORES';
+  } else if (score >= 70) {
+    nota = 'C';
+    veredicto = 'REVISÕES MAIORES NECESSÁRIAS';
+  } else if (score >= 60) {
+    nota = 'D';
+    veredicto = 'RECONSIDERAR APÓS REVISÃO SUBSTANCIAL';
+  } else {
+    nota = 'F';
+    veredicto = 'REJEITAR';
+  }
+  
+  return { nota, veredicto, score };
+}
+
+// ============================================================
+// NORMALIZAÇÃO (BACKWARDS COMPATIBILITY)
+// ============================================================
+
+function normalizeRequest(rawData: any): ReviewRequest {
+  // Detectar se individualStats está no formato agregado (sem dimensões)
+  let individualStats = rawData.individualStats || rawData.criteriaStats;
+  
+  // Se individualStats não tem as dimensões BOCR, criar com valores agregados
+  if (individualStats && !individualStats.Benefits) {
+    console.log('[AI-REVIEWER v6.4.4] Formato agregado detectado, distribuindo para dimensões BOCR');
+    const aggregated = individualStats;
+    individualStats = {
+      Benefits: { 
+        total: Math.floor(aggregated.total / 4) || 0,
+        valid: Math.floor(aggregated.valid / 4) || 0,
+        warning: Math.floor(aggregated.warning / 4) || 0,
+        critical: Math.floor(aggregated.critical / 4) || 0,
+      },
+      Opportunities: { 
+        total: Math.floor(aggregated.total / 4) || 0,
+        valid: Math.floor(aggregated.valid / 4) || 0,
+        warning: Math.floor(aggregated.warning / 4) || 0,
+        critical: Math.floor(aggregated.critical / 4) || 0,
+      },
+      Costs: { 
+        total: Math.floor(aggregated.total / 4) || 0,
+        valid: Math.floor(aggregated.valid / 4) || 0,
+        warning: Math.floor(aggregated.warning / 4) || 0,
+        critical: Math.floor(aggregated.critical / 4) || 0,
+      },
+      Risks: { 
+        total: Math.floor(aggregated.total / 4) || 0,
+        valid: Math.floor(aggregated.valid / 4) || 0,
+        warning: Math.floor(aggregated.warning / 4) || 0,
+        critical: Math.floor(aggregated.critical / 4) || 0,
+      },
+    };
+  }
+  
+  // Se ainda não tem, usar valores padrão
+  if (!individualStats) {
+    individualStats = {
+      Benefits: { total: 0, valid: 0, warning: 0, critical: 0 },
+      Opportunities: { total: 0, valid: 0, warning: 0, critical: 0 },
+      Costs: { total: 0, valid: 0, warning: 0, critical: 0 },
+      Risks: { total: 0, valid: 0, warning: 0, critical: 0 },
+    };
+  }
+  
+  return {
+    projectName: rawData.projectName || rawData.name || 'Projeto sem nome',
+    projectDescription: rawData.projectDescription || rawData.description,
+    individualStats,
+    bocrWeights: rawData.bocrWeights || rawData.weights || {
+      Benefits: 0.25,
+      Opportunities: 0.25,
+      Costs: 0.25,
+      Risks: 0.25,
+    },
+    qualityAnalysis: rawData.qualityAnalysis,
+    overallStats: rawData.overallStats || rawData.qualityMetrics,
+  };
+}
+
+// ============================================================
+// SYSTEM PROMPT - PEER REVIEWER ACADÊMICO
+// ============================================================
+
+const SYSTEM_PROMPT = `Você é um **Peer Reviewer sênior** com 15+ anos de experiência em revisão para periódicos A1/Q1 em Engenharia de Produção, com especialização em Métodos Multicritério de Decisão (AHP-BOCR).
+
+**SUA MISSÃO:**
+Fornecer uma análise qualitativa profunda que ajude o pesquisador a melhorar substancialmente seu estudo, identificando tanto os pontos fortes quanto as limitações metodológicas.
+
+**TOM DE COMUNICAÇÃO:**
+- Profissional, respeitoso e construtivo
+- Equilibrado: reconheça méritos antes de apontar limitações
+- Educativo: explique o "porquê" das recomendações
+- Baseado em evidências: cite SEMPRE a literatura científica
+- Terceira pessoa impessoal: "O estudo apresenta...", "Observa-se que...", "Verifica-se..."
+
+**ESTRUTURA OBRIGATÓRIA DA REVISÃO:**
+
+## 📋 RESUMO DA SUBMISSÃO
+[Síntese objetiva do estudo em 2-3 parágrafos: objetivo, método, principais achados]
+
+## ✅ PONTOS FORTES
+[Identifique de 3-5 aspectos positivos do estudo - seja específico e genuíno]
+
+## ⚠️ LIMITAÇÕES E INCONSISTÊNCIAS METODOLÓGICAS
+[Liste as principais fragilidades identificadas - sempre cite literatura que fundamenta cada crítica]
+
+## 🔍 ANÁLISE DETALHADA
+
+### Qualidade e Confiabilidade dos Dados
+[Análise profunda da consistência dos julgamentos - cite Saaty (1977, 2003) sobre CI]
+
+### Metodologia BOCR
+[Avalie a estruturação do modelo - cite Wijnmalen (2007), Lee (2009), Petrillo et al. (2023)]
+
+### Fundamentação Teórica
+[Avalie o rigor na aplicação da teoria AHP - cite axiomas de Saaty (1987, 1990)]
+
+## 💡 RECOMENDAÇÕES ESPECÍFICAS PARA MELHORIA
+
+### Curto Prazo (Essencial)
+[Ações imediatas e obrigatórias]
+
+### Médio Prazo (Recomendado)
+[Melhorias que fortaleceriam significativamente o estudo]
+
+### Longo Prazo (Sugestões Adicionais)
+[Extensões futuras da pesquisa]
+
+## 🎯 DECISÃO EDITORIAL
+[Recomendação final clara: ACEITO / REVISÕES MENORES / REVISÕES MAIORES / REJEITAR]
+
+**DIRETRIZES CRÍTICAS:**
+1. **SEMPRE cite referências científicas** da base de conhecimento para fundamentar cada afirmação
+2. **Seja específico** - evite generalidades como "melhorar a qualidade" (diga COMO melhorar)
+3. **Eduque o pesquisador** - explique conceitos teóricos quando necessário
+4. **Seja equilibrado** - reconheça méritos genuínos antes de críticas
+5. **Seja construtivo** - toda crítica deve vir acompanhada de direcionamento para solução
+
+**REFERÊNCIAS PRIORITÁRIAS:**
+- Saaty (1977, 1987, 1990, 2003) - Fundamentos teóricos
+- Wijnmalen (2007) - Validação de síntese BOCR
+- Lee (2009) - Hierarquia de Controle
+- Petrillo et al. (2023) - Estado da arte BOCR
+- Ishizaka & Labib (2011) - Análise de sensibilidade`;
+
+// ============================================================
+// GERAÇÃO DE REVISÃO ACADÊMICA
+// ============================================================
+
+async function generateReview(data: ReviewRequest, classification: any): Promise<string> {
+  const client = new Anthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
+  });
+
+  const knowledgeContext = getKnowledgeContext();
+  const criticalRefs = getCriticalRefs();
+  const crRefs = getRefsByTopic('consistência');
+  const bocrRefs = getRefsByTopic('BOCR');
+  const sensibilityRefs = getRefsByTopic('sensibilidade');
+  
+  // Análise de respondentes individuais
+  let respondentAnalysis = '';
+  let respondentSummary = '';
+  
+  if (data.qualityAnalysis?.respondents) {
+    const critical = data.qualityAnalysis.respondents.filter(r => r.status === 'CRÍTICO');
+    const suspicious = data.qualityAnalysis.respondents.filter(r => r.status === 'SUSPEITO');
+    const ok = data.qualityAnalysis.respondents.filter(r => r.status === 'OK');
+    
+    respondentSummary = `
+**Distribuição de Qualidade dos Respondentes:**
+- Total: ${data.qualityAnalysis.summary.total} especialistas
+- Respostas confiáveis (CR ≤ 0.10): ${ok.length} (${((ok.length / data.qualityAnalysis.summary.total) * 100).toFixed(1)}%)
+- Respostas suspeitas (0.10 < CR ≤ 0.20): ${suspicious.length} (${((suspicious.length / data.qualityAnalysis.summary.total) * 100).toFixed(1)}%)
+- Respostas críticas (CR > 0.20): ${critical.length} (${((critical.length / data.qualityAnalysis.summary.total) * 100).toFixed(1)}%)
+`;
+
+    if (critical.length > 0) {
+      respondentAnalysis += `\n**Respondentes com Inconsistência Crítica (CR > 0.20):**\n`;
+      critical.slice(0, 10).forEach(r => {
+        respondentAnalysis += `- ${r.name || 'ID: ' + r.id}: CR médio = ${(r.avgCR * 100).toFixed(1)}%\n`;
+      });
+      if (critical.length > 10) {
+        respondentAnalysis += `... e mais ${critical.length - 10} respondentes críticos\n`;
+      }
+    }
+  }
+  
+  // Calcular métricas agregadas
+  const totalResponses = data.individualStats.Benefits.total + 
+                        data.individualStats.Opportunities.total +
+                        data.individualStats.Costs.total +
+                        data.individualStats.Risks.total;
+                        
+  const validResponses = data.individualStats.Benefits.valid + 
+                        data.individualStats.Opportunities.valid +
+                        data.individualStats.Costs.valid +
+                        data.individualStats.Risks.valid;
+                        
+  const overallValidPercent = totalResponses > 0 ? (validResponses / totalResponses) * 100 : 0;
+  
+  const userPrompt = `
+# MANUSCRITO SUBMETIDO
+
+**Título do Projeto:** ${data.projectName}
+${data.projectDescription ? `\n**Descrição:** ${data.projectDescription}\n` : ''}
+
+**Classificação Preliminar (Sistema Automatizado):**
+- Pontuação: ${classification.score}/100
+- Recomendação: ${classification.veredicto}
+
+---
+
+# DADOS METODOLÓGICOS COLETADOS
+
+## Amostra e Qualidade Geral
+
+${respondentSummary}
+
+**Taxa de Validade Geral:** ${overallValidPercent.toFixed(1)}% das respostas com CR ≤ 0.10
+
+${respondentAnalysis}
+
+## Estatísticas por Dimensão BOCR
+
+### Benefits (Benefícios)
+- Respostas totais: ${data.individualStats.Benefits.total}
+- Válidas (CR ≤ 0.10): ${data.individualStats.Benefits.valid} (${data.individualStats.Benefits.total > 0 ? ((data.individualStats.Benefits.valid / data.individualStats.Benefits.total) * 100).toFixed(1) : 0}%)
+- Warning (0.10 < CR ≤ 0.20): ${data.individualStats.Benefits.warning}
+- Críticas (CR > 0.20): ${data.individualStats.Benefits.critical}
+${data.individualStats.Benefits.avgCR ? `- CR médio da dimensão: ${(data.individualStats.Benefits.avgCR * 100).toFixed(2)}%` : ''}
+
+### Opportunities (Oportunidades)
+- Respostas totais: ${data.individualStats.Opportunities.total}
+- Válidas (CR ≤ 0.10): ${data.individualStats.Opportunities.valid} (${data.individualStats.Opportunities.total > 0 ? ((data.individualStats.Opportunities.valid / data.individualStats.Opportunities.total) * 100).toFixed(1) : 0}%)
+- Warning (0.10 < CR ≤ 0.20): ${data.individualStats.Opportunities.warning}
+- Críticas (CR > 0.20): ${data.individualStats.Opportunities.critical}
+${data.individualStats.Opportunities.avgCR ? `- CR médio da dimensão: ${(data.individualStats.Opportunities.avgCR * 100).toFixed(2)}%` : ''}
+
+### Costs (Custos)
+- Respostas totais: ${data.individualStats.Costs.total}
+- Válidas (CR ≤ 0.10): ${data.individualStats.Costs.valid} (${data.individualStats.Costs.total > 0 ? ((data.individualStats.Costs.valid / data.individualStats.Costs.total) * 100).toFixed(1) : 0}%)
+- Warning (0.10 < CR ≤ 0.20): ${data.individualStats.Costs.warning}
+- Críticas (CR > 0.20): ${data.individualStats.Costs.critical}
+${data.individualStats.Costs.avgCR ? `- CR médio da dimensão: ${(data.individualStats.Costs.avgCR * 100).toFixed(2)}%` : ''}
+
+### Risks (Riscos)
+- Respostas totais: ${data.individualStats.Risks.total}
+- Válidas (CR ≤ 0.10): ${data.individualStats.Risks.valid} (${data.individualStats.Risks.total > 0 ? ((data.individualStats.Risks.valid / data.individualStats.Risks.total) * 100).toFixed(1) : 0}%)
+- Warning (0.10 < CR ≤ 0.20): ${data.individualStats.Risks.warning}
+- Críticas (CR > 0.20): ${data.individualStats.Risks.critical}
+${data.individualStats.Risks.avgCR ? `- CR médio da dimensão: ${(data.individualStats.Risks.avgCR * 100).toFixed(2)}%` : ''}
+
+## Pesos Finais da Hierarquia de Controle (Méritos BOCR)
+
+- **Benefits (Benefícios):** ${(data.bocrWeights.Benefits * 100).toFixed(1)}%
+- **Opportunities (Oportunidades):** ${(data.bocrWeights.Opportunities * 100).toFixed(1)}%
+- **Costs (Custos):** ${(data.bocrWeights.Costs * 100).toFixed(1)}%
+- **Risks (Riscos):** ${(data.bocrWeights.Risks * 100).toFixed(1)}%
+
+**Ratio Máximo/Mínimo:** ${(Math.max(data.bocrWeights.Benefits, data.bocrWeights.Opportunities, data.bocrWeights.Costs, data.bocrWeights.Risks) / Math.min(data.bocrWeights.Benefits, data.bocrWeights.Opportunities, data.bocrWeights.Costs, data.bocrWeights.Risks)).toFixed(2)}:1
+
+---
+
+# BASE DE CONHECIMENTO CIENTÍFICO
+
+## Referências sobre Consistência e Validação de Dados
+
+${crRefs.map(ref => `
+**${ref.citation}** - *${ref.topic}*
+Contexto: ${ref.context}
+Fundamento: ${ref.rule}
+`).join('\n')}
+
+## Referências sobre Metodologia BOCR
+
+${bocrRefs.map(ref => `
+**${ref.citation}** - *${ref.topic}*
+Contexto: ${ref.context}
+Fundamento: ${ref.rule}
+`).join('\n')}
+
+## Referências sobre Análise de Sensibilidade e Robustez
+
+${sensibilityRefs.map(ref => `
+**${ref.citation}** - *${ref.topic}*
+Contexto: ${ref.context}
+Fundamento: ${ref.rule}
+`).join('\n')}
+
+## Referências Críticas Adicionais (Alta Prioridade)
+
+${criticalRefs.slice(0, 8).map(ref => `
+**${ref.citation}** - *${ref.topic}*
+Fundamento: ${ref.rule}
+`).join('\n')}
+
+---
+
+# SUA TAREFA
+
+Como **Peer Reviewer sênior** de uma revista A1/Q1, elabore uma revisão acadêmica completa seguindo RIGOROSAMENTE a estrutura definida no system prompt.
+
+**LEMBRE-SE:**
+1. Seja EQUILIBRADO - reconheça pontos fortes genuínos
+2. Seja ESPECÍFICO - cite referências científicas para cada afirmação
+3. Seja CONSTRUTIVO - toda crítica deve ter direcionamento de solução
+4. Seja EDUCATIVO - explique conceitos teóricos quando necessário
+5. Forneça RECOMENDAÇÕES ACIONÁVEIS - o pesquisador deve saber exatamente o que fazer
+
+Elabore agora a revisão completa.`;
+
+  const message = await client.messages.create({
+    model: MODEL_CONFIG.id,
+    max_tokens: MODEL_CONFIG.maxTokens,
+    temperature: MODEL_CONFIG.temperature,
+    system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: userPrompt }],
+  });
+
+  const textContent = message.content.find((block) => block.type === 'text');
+  return textContent && 'text' in textContent ? textContent.text : '';
+}
+
+// ============================================================
+// ENDPOINTS
+// ============================================================
+
+export async function GET() {
+  const stats = getKnowledgeStats();
+  
+  return NextResponse.json({
+    name: 'AI Reviewer API',
+    version: '6.4.4',
+    description: 'Peer Review Acadêmico A1/Q1 - Análise Qualitativa Profunda + Fallback Inteligente',
+    model: MODEL_CONFIG.id,
+    features: [
+      'Peer Review como revisor sênior A1/Q1',
+      'Análise qualitativa profunda',
+      'Identificação de pontos fortes e limitações',
+      'Direcionamento específico para melhoria',
+      'Fundamentação em 24 referências científicas',
+      'Tom educativo e construtivo',
+      'Suporte a múltiplos formatos de payload',
+    ],
+    knowledgeBase: {
+      totalRefs: stats.totalRefs,
+      uniqueArticles: stats.uniqueArticles,
+      categories: stats.categories,
+    },
+  });
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const rawData = await request.json();
+    console.log('[AI-REVIEWER v6.4.4] Payload recebido:', JSON.stringify(rawData, null, 2));
+    
+    const data = normalizeRequest(rawData);
+    console.log('[AI-REVIEWER v6.4.4] Dados normalizados:', JSON.stringify(data.individualStats, null, 2));
+    
+    const classification = calculateGrade(data);
+    
+    console.log('[AI-REVIEWER v6.4.4] Classificação:', classification);
+    
+    const review = await generateReview(data, classification);
+
+    return NextResponse.json({
+      success: true,
+      nota: classification.nota,
+      veredicto: classification.veredicto,
+      review,
+      metadata: {
+        version: '6.4.4',
+        model: MODEL_CONFIG.id,
+        timestamp: new Date().toISOString(),
+        score: classification.score,
+        knowledgeBase: {
+          refsUsed: getKnowledgeStats().totalRefs,
+          criticalRefs: getCriticalRefs().length,
+        },
+      },
+    });
+
+  } catch (error: any) {
+    console.error('[AI-REVIEWER v6.4.4] Erro:', error);
+    console.error('[AI-REVIEWER v6.4.4] Stack:', error.stack);
+    return NextResponse.json(
+      { 
+        error: 'Erro ao gerar revisão acadêmica',
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+      },
+      { status: 500 }
+    );
+  }
+}

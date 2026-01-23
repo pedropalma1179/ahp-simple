@@ -1,0 +1,4218 @@
+// app/decisor/resultados/[projectId]/page.tsx
+// Página de Resultados AHP-BOCR com Visualizações Científicas
+// Baseado em: Wijnmalen (2007), Demirtas & Üstün (2008), Lee (2009)
+'use client';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'next/navigation';
+import { db } from '@/lib/firebase';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { BOCR_CRITERIA, SUBCRITERIA } from '@/lib/data';
+import * as XLSX from 'xlsx';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+
+// Componente híbrido para Revisão IA (resolve problema de alucinação numérica)
+// Valores numéricos do SISTEMA + análise qualitativa da IA
+import AIReviewCard from '@/components/AIReviewCard';
+import QualityDashboard from '@/components/QualityDashboard';
+import QualityAnalysis from './QualityAnalysis';
+
+// ============================================================
+// TIPOS
+// ============================================================
+
+interface Project {
+  id: string;
+  name: string;
+  description?: string;
+  alternatives: { code: string; name: string; description: string }[];
+  status: string;
+}
+
+interface CalculationResult {
+  bocrWeights: number[];
+  bocrConsistency: { cr: number; lambda: number; ci: number };
+  subWeights: Record<string, number[]>;
+  subConsistency: Record<string, { cr: number; lambda: number }>;
+  altScores: Record<string, Record<string, number>>;
+  finalScores: any[];
+  sensitivityInflections: Record<string, number | null>;
+  responseCount: number;
+}
+
+// ============================================================
+// FUNÇÃO AUXILIAR: Calcular valores BOCR por alternativa
+// ============================================================
+
+function calculateAltBOCR(
+  altCode: string,
+  altScores: Record<string, Record<string, number>>,
+  subWeights: Record<string, number[]>,
+  bocrWeights: number[]
+): { B: number; O: number; C: number; R: number } {
+  const merits = ['B', 'O', 'C', 'R'];
+  const result = { B: 0, O: 0, C: 0, R: 0 };
+  
+  merits.forEach((merit, idx) => {
+    const subScores = altScores[merit];
+    const weights = subWeights[merit];
+    const meritWeight = bocrWeights[idx] || 0;
+    
+    if (subScores && weights && subScores[altCode] !== undefined) {
+      // Se temos scores por subcritério
+      const subKeys = Object.keys(subScores).filter(k => k.startsWith(altCode.replace(/[0-9]/g, '')));
+      if (subKeys.length > 0) {
+        let weightedSum = 0;
+        weights.forEach((w, i) => {
+          const subCode = `${merit}${i + 1}`;
+          const score = altScores[subCode]?.[altCode] || 0;
+          weightedSum += w * score;
+        });
+        result[merit as keyof typeof result] = weightedSum * meritWeight;
+      } else {
+        // Score agregado por mérito
+        result[merit as keyof typeof result] = (subScores[altCode] || 0) * meritWeight;
+      }
+    }
+  });
+  
+  return result;
+}
+
+// ============================================================
+// COMPONENTE: BOCRPieChart
+// Gráfico de Pizza com Labels Matemáticos e Hover Sincronizado
+// ============================================================
+
+interface BOCRPieChartProps {
+  bocrWeights: number[];
+}
+
+const BOCRPieChart: React.FC<BOCRPieChartProps> = ({ bocrWeights }) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
+  const labels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
+  const colors = ['#22c55e', '#3b82f6', '#f97316', '#ef4444'];
+  const bgColors = ['bg-green-500', 'bg-blue-500', 'bg-orange-500', 'bg-red-500'];
+  const hoverBgColors = ['bg-green-100', 'bg-blue-100', 'bg-orange-100', 'bg-red-100'];
+
+  // Configuração do SVG otimizada para menos whitespace
+  const viewBoxSize = 200;
+  const center = viewBoxSize / 2;
+  const radius = 85; // Raio grande para ocupar mais espaço
+  const labelRadius = 55; // Raio para posicionar labels dentro da fatia
+
+  // Calcula os dados do arco para cada fatia
+  const calculateSliceData = () => {
+    let cumulative = 0;
+    return bocrWeights.map((weight, idx) => {
+      const startAngle = cumulative * 360 - 90; // -90 para começar do topo
+      const endAngle = (cumulative + weight) * 360 - 90;
+      const midAngle = (startAngle + endAngle) / 2;
+      cumulative += weight;
+
+      // Coordenadas do arco
+      const startRad = (startAngle * Math.PI) / 180;
+      const endRad = (endAngle * Math.PI) / 180;
+      const midRad = (midAngle * Math.PI) / 180;
+
+      const startX = center + radius * Math.cos(startRad);
+      const startY = center + radius * Math.sin(startRad);
+      const endX = center + radius * Math.cos(endRad);
+      const endY = center + radius * Math.sin(endRad);
+
+      // Centróide da fatia para posicionar o label
+      const labelX = center + labelRadius * Math.cos(midRad);
+      const labelY = center + labelRadius * Math.sin(midRad);
+
+      const largeArc = weight > 0.5 ? 1 : 0;
+
+      return {
+        idx,
+        weight,
+        startX,
+        startY,
+        endX,
+        endY,
+        labelX,
+        labelY,
+        largeArc,
+        color: colors[idx],
+        label: labels[idx],
+        percentage: (weight * 100).toFixed(1),
+      };
+    });
+  };
+
+  const slices = calculateSliceData();
+
+  return (
+    <div className="bg-white rounded-xl shadow-sm p-6">
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">
+        Vetor de Prioridades Estratégicas (BOCR)
+      </h3>
+
+      <div className="grid md:grid-cols-2 gap-6 items-center">
+        {/* Tabela com Hover */}
+        <div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50">
+                <th className="px-4 py-2 text-left">Mérito</th>
+                <th className="px-4 py-2 text-right">Peso (w)</th>
+                <th className="px-4 py-2 text-right">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              {labels.map((label, idx) => (
+                <tr
+                  key={idx}
+                  className={`border-b cursor-pointer transition-all duration-200 ${
+                    hoveredIndex === idx
+                      ? `${hoverBgColors[idx]} font-semibold`
+                      : hoveredIndex !== null
+                      ? 'opacity-50'
+                      : ''
+                  }`}
+                  onMouseEnter={() => setHoveredIndex(idx)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                >
+                  <td className="px-4 py-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-sm ${bgColors[idx]}`}></div>
+                      {label}
+                    </div>
+                  </td>
+                  <td className="px-4 py-2 text-right font-mono">
+                    {(bocrWeights[idx] || 0).toFixed(4)}
+                  </td>
+                  <td className="px-4 py-2 text-right font-mono">
+                    {((bocrWeights[idx] || 0) * 100).toFixed(2)}%
+                  </td>
+                </tr>
+              ))}
+              <tr className="bg-gray-50 font-bold">
+                <td className="px-4 py-2">Total</td>
+                <td className="px-4 py-2 text-right">1.0000</td>
+                <td className="px-4 py-2 text-right">100.00%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Gráfico de Pizza SVG Otimizado */}
+        <div className="flex items-center justify-center">
+          <svg
+            viewBox={`0 0 ${viewBoxSize} ${viewBoxSize}`}
+            className="w-64 h-64"
+            style={{ maxWidth: '280px', maxHeight: '280px' }}
+          >
+            {/* Fatias do gráfico */}
+            {slices.map((slice) => (
+              <path
+                key={slice.idx}
+                d={`M ${center} ${center} L ${slice.startX} ${slice.startY} A ${radius} ${radius} 0 ${slice.largeArc} 1 ${slice.endX} ${slice.endY} Z`}
+                fill={slice.color}
+                stroke="white"
+                strokeWidth="2"
+                className="cursor-pointer transition-all duration-200"
+                style={{
+                  opacity: hoveredIndex === null ? 1 : hoveredIndex === slice.idx ? 1 : 0.4,
+                  transform: hoveredIndex === slice.idx ? 'scale(1.03)' : 'scale(1)',
+                  transformOrigin: 'center',
+                }}
+                onMouseEnter={() => setHoveredIndex(slice.idx)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              />
+            ))}
+
+            {/* Labels posicionados no centróide de cada fatia */}
+            {slices.map((slice) => {
+              // Só mostra label se a fatia for grande o suficiente
+              if (slice.weight < 0.08) return null;
+              
+              return (
+                <g
+                  key={`label-${slice.idx}`}
+                  className="pointer-events-none"
+                  style={{
+                    opacity: hoveredIndex === null ? 1 : hoveredIndex === slice.idx ? 1 : 0.4,
+                  }}
+                >
+                  <text
+                    x={slice.labelX}
+                    y={slice.labelY}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    className="text-xs font-bold"
+                    fill="white"
+                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.5)' }}
+                  >
+                    {slice.percentage}%
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      </div>
+
+      {/* Legenda Interativa */}
+      <div className="flex flex-wrap gap-4 mt-6 justify-center">
+        {labels.map((label, idx) => (
+          <div
+            key={idx}
+            className={`flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer transition-all duration-200 ${
+              hoveredIndex === idx
+                ? `${hoverBgColors[idx]} ring-2 ring-offset-1`
+                : hoveredIndex !== null
+                ? 'opacity-50'
+                : 'hover:bg-gray-100'
+            }`}
+            onMouseEnter={() => setHoveredIndex(idx)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            <div className={`w-4 h-4 rounded ${bgColors[idx]}`}></div>
+            <span className="text-sm">
+              {label}: {((bocrWeights[idx] || 0) * 100).toFixed(1)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ============================================================
+// COMPONENTE PRINCIPAL
+// ============================================================
+
+export default function ResultadosPage() {
+  const params = useParams();
+  const projectId = params.projectId as string;
+
+  const [project, setProject] = useState<Project | null>(null);
+  const [calculation, setCalculation] = useState<CalculationResult | null>(null);
+  const [audit, setAudit] = useState<any>(null);
+  const [aiReview, setAiReview] = useState<any>(null);
+  const [aiReviewLoading, setAiReviewLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'overview' | 'demographics' | 'quality' | 'consistency' | 'weights' | 'ranking' | 'sensitivity' | 'audit' | 'academic' | 'export'>('overview');
+  
+  // Estados para texto acadêmico
+  const [academicText, setAcademicText] = useState<string | null>(null);
+  const [generatingText, setGeneratingText] = useState(false);
+  const [textError, setTextError] = useState<string | null>(null);
+  const [textStats, setTextStats] = useState<{ wordCount: number; charCount: number; meetsMinimum: boolean } | null>(null);
+
+  // Estado para dados demográficos dos respondentes
+  const [respondentsDemographics, setRespondentsDemographics] = useState<any[]>([]);
+  const [demographicView, setDemographicView] = useState<'dashboard' | 'table'>('dashboard');
+
+  // Estados para análise de qualidade das respostas
+  const [qualityAnalysis, setQualityAnalysis] = useState<any>(null);
+  const [qualityLoading, setQualityLoading] = useState(false);
+  const [projectResponses, setProjectResponses] = useState<any[]>([]);
+
+  // Dados formatados para o Dashboard Demográfico
+  const demographicDashboardData = useMemo(() => {
+    if (respondentsDemographics.length === 0) return null;
+    
+    const total = respondentsDemographics.length;
+    
+    // Mapear valores para labels amigáveis
+    const mapAge = (val: string) => {
+      const map: Record<string, string> = {
+        'menos_30': '< 30 anos',
+        '31_40': '31-40 anos',
+        '41_50': '41-50 anos',
+        'mais_50': '> 50 anos'
+      };
+      return map[val] || val;
+    };
+    
+    const mapEducation = (val: string) => {
+      const map: Record<string, string> = {
+        'superior': 'Graduação',
+        'especializacao': 'Espec./MBA',
+        'mestrado': 'Mestrado',
+        'doutorado': 'Doutorado+'
+      };
+      return map[val] || val;
+    };
+    
+    const mapExperience = (val: string) => {
+      const map: Record<string, string> = {
+        'menos_10': '< 10 anos',
+        '11_20': '11-20 anos',
+        '21_30': '21-30 anos',
+        'mais_30': '> 30 anos'
+      };
+      return map[val] || val;
+    };
+    
+    const mapRole = (val: string) => {
+      const map: Record<string, string> = {
+        'c_level': 'C-Level',
+        'diretor': 'Diretor',
+        'gerente': 'Gerente',
+        'supervisor': 'Supervisor',
+        'analista': 'Analista/Eng'
+      };
+      return map[val] || val;
+    };
+    
+    const mapArea = (val: string) => {
+      const map: Record<string, string> = {
+        'producao': 'Produção',
+        'eng_processos': 'Eng. Processos',
+        'financas': 'Finanças',
+        'qualidade': 'Qualidade',
+        'manutencao': 'Manutenção',
+        'logistica': 'Logística',
+        'ti': 'TI'
+      };
+      return map[val] || val;
+    };
+    
+    // Contar por categoria
+    const countBy = (field: string, mapper?: (v: string) => string) => {
+      const counts: Record<string, number> = {};
+      respondentsDemographics.forEach(d => {
+        const val = d[field];
+        if (val) {
+          const label = mapper ? mapper(val) : val;
+          counts[label] = (counts[label] || 0) + 1;
+        }
+      });
+      return Object.entries(counts).map(([name, value]) => ({ name, value }));
+    };
+    
+    return {
+      total,
+      age: countBy('idade', mapAge),
+      gender: [
+        { name: 'Masculino', value: respondentsDemographics.filter(d => d.genero === 'masculino').length },
+        { name: 'Feminino', value: respondentsDemographics.filter(d => d.genero === 'feminino').length }
+      ].filter(d => d.value > 0),
+      education: countBy('formacao', mapEducation),
+      experience: countBy('tempoTrabalho', mapExperience),
+      role: countBy('funcao', mapRole),
+      area: countBy('areaAtuacao', mapArea)
+    };
+  }, [respondentsDemographics]);
+  // Dados formatados para o componente de filtro de qualidade
+  const qualityRespondentsData = useMemo(() => {
+    if (!qualityAnalysis?.respondents) return [];
+    
+    return qualityAnalysis.respondents.map((r: any) => ({
+      id: r.respondentId || r.id || String(Math.random()),
+      name: r.name || `Respondente ${(r.respondentId || r.id || '').slice(0, 6)}`,
+      cr: r.metrics?.avgCR || 0,
+      status: r.status || 'REVISAR',
+      overallScore: r.overallScore || 0,
+      isSimulated: r.isSimulated || false,
+      metrics: r.metrics,
+      flags: r.flags || []
+    }));
+  }, [qualityAnalysis]);
+
+
+  // Função para executar revisão profunda com IA
+  const runAiReview = async () => {
+    console.log('🚀 [AI-REVIEW] Função chamada!');
+    console.log('🔍 [AI-REVIEW] calculation:', !!calculation, 'project:', !!project);
+    
+    if (!calculation || !project) {
+      console.error('❌ [AI-REVIEW] Abortando - dados faltando');
+      return;
+    }
+    
+    setAiReviewLoading(true);
+    setAiReview(null);
+    
+    try {
+      console.log('📤 [AI-REVIEW] Preparando payload...');
+      
+      // ------------------------------------------------------------
+      // CORREÇÃO CRÍTICA: CÁLCULO DE QUALIDADE ROBUSTO
+      // ------------------------------------------------------------
+      let individualStats = { valid: 0, warning: 0, critical: 0, total: 0, avgCR: 0 };
+      
+      // Tentar usar dados da análise de qualidade primeiro
+      if (qualityAnalysis?.respondents && qualityAnalysis.respondents.length > 0) {
+        console.log('📊 [AI-REVIEW] Usando dados de qualityAnalysis:', qualityAnalysis.respondents.length, 'respondentes');
+        
+        let totalCR = 0;
+        individualStats = qualityAnalysis.respondents.reduce((acc: any, r: any) => {
+          // 1. Tenta encontrar o CR em qualquer lugar possível
+          let crValue = 0;
+          
+          if (typeof r.cr === 'number') crValue = r.cr;
+          else if (r.metrics && typeof r.metrics.avgCR === 'number') crValue = r.metrics.avgCR;
+          else if (r.consistency && typeof r.consistency.cr === 'number') crValue = r.consistency.cr;
+          else if (typeof r.cr_mean === 'number') crValue = r.cr_mean;
+          
+          totalCR += crValue;
+          
+          // 2. Classificação Agressiva (Mesma régua do Menu Qualidade)
+          const isExplicitlyBad = r.status === 'SUSPEITO' || r.status === 'CRÍTICO';
+          const isMathematicallyBad = crValue > 0.20; // CR > 20% = CRÍTICO
+          const isMathematicallySuspect = crValue > 0.10; // CR > 10% = SUSPEITO
+
+          if (isExplicitlyBad || isMathematicallyBad) {
+            acc.critical++; 
+            console.log(`⚠️ [QUALITY] Respondente CRÍTICO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue*100).toFixed(1)}%, Status: ${r.status || 'N/A'})`);
+          } else if (isMathematicallySuspect) {
+            acc.warning++;
+            console.log(`🔸 [QUALITY] Respondente SUSPEITO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue*100).toFixed(1)}%)`);
+          } else {
+            acc.valid++;
+          }
+
+          acc.total++;
+          return acc;
+        }, { valid: 0, warning: 0, critical: 0, total: 0 });
+        
+        individualStats.avgCR = individualStats.total > 0 ? totalCR / individualStats.total : 0;
+        
+      } else if (projectResponses && projectResponses.length > 0) {
+        // Fallback: usar projectResponses diretamente
+        console.log('📊 [AI-REVIEW] Fallback: usando projectResponses:', projectResponses.length, 'respostas');
+        
+        // Aqui precisaríamos calcular o CR de cada resposta
+        // Por ora, marcamos todos como válidos (será melhorado)
+        individualStats = {
+          valid: projectResponses.length,
+          warning: 0,
+          critical: 0,
+          total: projectResponses.length,
+          avgCR: 0
+        };
+        console.log('⚠️ [AI-REVIEW] Análise de qualidade não executada - usando fallback');
+      }
+      
+      console.log('📉 [AI-REVIEW] RESUMO DE QUALIDADE:', individualStats);
+      
+      // Calcular % de problemáticos
+      const badRatio = individualStats.total > 0 
+        ? (individualStats.warning + individualStats.critical) / individualStats.total 
+        : 0;
+      
+      if (badRatio >= 0.3) {
+        console.warn(`🚨 [AI-REVIEW] ALERTA: ${(badRatio * 100).toFixed(0)}% dos respondentes são problemáticos! Quality Gate será ativado.`);
+      } else if (badRatio >= 0.2) {
+        console.warn(`⚠️ [AI-REVIEW] ATENÇÃO: ${(badRatio * 100).toFixed(0)}% dos respondentes requerem revisão.`);
+      }
+      // ------------------------------------------------------------
+
+      // Preparar payload
+      const payload = {
+        projectName: project.name || 'Projeto sem nome',
+        projectDescription: project.description || '',
+        alternatives: project.alternatives || [],
+        bocrWeights: calculation.bocrWeights || [],
+        bocrConsistency: calculation.bocrConsistency || { cr: 0, lambda: 0 },
+        subWeights: calculation.subWeights || {},
+        subConsistency: calculation.subConsistency || {},
+        finalScores: calculation.finalScores || [],
+        responseCount: calculation.responseCount || 0,
+        sensitivityInflections: calculation.sensitivityInflections || {},
+        individualStats: individualStats.total > 0 ? individualStats : undefined
+      };
+      
+      console.log('📤 [AI-REVIEW] Chamando /api/ai-reviewer...');
+      console.log('📤 [AI-REVIEW] individualStats enviado:', payload.individualStats);
+      
+      const response = await fetch('/api/ai-reviewer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      console.log('📥 [AI-REVIEW] Response status:', response.status);
+      const data = await response.json();
+      console.log('📥 [AI-REVIEW] Response data (v6.4.5):', data);
+      
+      if (data.success && data.review) {
+        // API v6.4.5 retorna: { success, nota, veredicto, review (markdown string), metadata }
+        console.log('✅ [AI-REVIEW] Sucesso! Nota:', data.nota, 'Veredicto:', data.veredicto);
+        
+        // Montar objeto compatível com AIReviewCard
+        const reviewObject = {
+          nota_geral: data.nota,
+          veredito: data.veredicto,
+          texto_completo: data.review,
+          metadata: data.metadata,
+          version: data.metadata?.version || '6.4.5'
+        };
+        
+        setAiReview(reviewObject);
+      } else {
+        console.error('❌ [AI-REVIEW] Erro na resposta:', data.error || data.details);
+        setAiReview({ 
+          error: true, 
+          message: data.error || data.details || 'Erro ao executar revisão' 
+        });
+      }
+    } catch (e: any) {
+      console.error('❌ [AI-REVIEW] Exceção:', e);
+      setAiReview({ 
+        error: true, 
+        message: 'Erro de conexão: ' + (e.message || String(e))
+      });
+    } finally {
+      console.log('🏁 [AI-REVIEW] Finalizando...');
+      setAiReviewLoading(false);
+    }
+  };
+
+  // Função para analisar qualidade das respostas
+  const runQualityAnalysis = async () => {
+    if (projectResponses.length === 0) return;
+    
+    setQualityLoading(true);
+    try {
+      const response = await fetch('/api/response-quality', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          responses: projectResponses,
+          includeSimulated: true
+        })
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setQualityAnalysis(data.analysis);
+      } else {
+        console.error('Erro na análise de qualidade:', data.error);
+      }
+    } catch (e) {
+      console.error('Erro ao analisar qualidade:', e);
+    } finally {
+      setQualityLoading(false);
+    }
+  };
+
+  // Verificar autenticação
+  useEffect(() => {
+    const auth = sessionStorage.getItem('isAuthenticated');
+    if (auth !== 'true') window.location.href = '/';
+  }, []);
+
+  // Carregar dados
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        // 1. Carregar projeto
+        const projectDoc = await getDoc(doc(db, 'projects', projectId));
+        if (!projectDoc.exists()) {
+          setError('Projeto não encontrado');
+          setLoading(false);
+          return;
+        }
+        setProject({ id: projectDoc.id, ...projectDoc.data() } as Project);
+
+        // 2. Carregar cálculo salvo
+        const calcDoc = await getDoc(doc(db, 'calculations', projectId));
+        if (calcDoc.exists()) {
+          const calcData = calcDoc.data() as CalculationResult;
+          setCalculation(calcData);
+
+          // 3. Executar auditoria
+          try {
+            const auditResponse = await fetch('/api/audit-decision', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ calculationData: calcData })
+            });
+            const auditData = await auditResponse.json();
+            if (auditData.success) {
+              setAudit(auditData.audit);
+            }
+          } catch (e) {
+            console.log('Auditoria não disponível');
+          }
+        } else {
+          setError('Resultados não calculados ainda. Execute o cálculo primeiro.');
+        }
+
+        // 4. Carregar dados demográficos dos respondentes
+        try {
+          const respondentsQuery = query(
+            collection(db, 'respondents'),
+            where('projectId', '==', projectId)
+          );
+          const respondentsSnapshot = await getDocs(respondentsQuery);
+          console.log('Total respondents found:', respondentsSnapshot.docs.length);
+          
+          const demographics = respondentsSnapshot.docs
+            .map(doc => {
+              const data = doc.data();
+              console.log('Respondent data:', doc.id, data.status, data.demographics ? 'has demographics' : 'no demographics');
+              // Retorna demographics se existir, independente do status
+              return data.demographics || null;
+            })
+            .filter((d): d is NonNullable<typeof d> => d !== null && Object.keys(d).length > 0);
+          
+          console.log('Demographics loaded:', demographics.length, 'with data');
+          setRespondentsDemographics(demographics);
+        } catch (demoErr) {
+          console.error('Erro ao carregar dados demográficos:', demoErr);
+        }
+
+        // 5. Carregar respostas para análise de qualidade
+        try {
+          const responsesQuery = query(
+            collection(db, 'responses'),
+            where('projectId', '==', projectId)
+          );
+          const responsesSnapshot = await getDocs(responsesQuery);
+          console.log('Total responses found:', responsesSnapshot.docs.length);
+          
+          const responses = responsesSnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+          }));
+          
+          setProjectResponses(responses);
+        } catch (respErr) {
+          console.error('Erro ao carregar respostas:', respErr);
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error('Erro:', err);
+        setError('Erro ao carregar dados');
+        setLoading(false);
+      }
+    };
+
+    if (projectId) loadData();
+  }, [projectId]);
+
+  // ============================================================
+  // FUNÇÕES AUXILIARES
+  // ============================================================
+
+  const formatPercent = (value: number) => `${(value * 100).toFixed(2)}%`;
+  const formatNumber = (value: number) => value.toFixed(4);
+
+  const getGradeColor = (grade: string) => {
+    const colors: Record<string, string> = {
+      'A': 'bg-green-500',
+      'B': 'bg-blue-500',
+      'C': 'bg-yellow-500',
+      'D': 'bg-orange-500',
+      'E': 'bg-red-500'
+    };
+    return colors[grade] || 'bg-gray-500';
+  };
+
+  const getCRStatus = (cr: number) => {
+    if (cr <= 0.08) return { status: 'Excelente', color: 'text-green-600', bg: 'bg-green-100' };
+    if (cr <= 0.10) return { status: 'Aceitável', color: 'text-blue-600', bg: 'bg-blue-100' };
+    return { status: 'Inconsistente', color: 'text-red-600', bg: 'bg-red-100' };
+  };
+
+  // ============================================================
+  // GERAÇÃO DE TEXTO ACADÊMICO
+  // ============================================================
+
+  const generateAcademicText = async () => {
+    if (!calculation) return;
+    
+    setGeneratingText(true);
+    setTextError(null);
+    setTextStats(null);
+    
+    try {
+      const response = await fetch('/api/generate-academic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          calculationData: calculation,
+          projectContext: {
+            name: project?.name,
+            description: project?.description
+          }
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setAcademicText(data.text);
+        if (data.statistics) {
+          setTextStats(data.statistics);
+        }
+      } else {
+        setTextError(data.error || 'Erro ao gerar texto');
+      }
+    } catch (err: any) {
+      setTextError(err.message || 'Erro de conexão');
+    } finally {
+      setGeneratingText(false);
+    }
+  };
+
+  // ============================================================
+  // EXPORTAÇÃO LATEX
+  // ============================================================
+
+  const exportLatex = () => {
+    if (!calculation || !project) return;
+
+    // Calcular CI para cada matriz
+    const calcCI = (cr: number, lambda: number, n: number): number => {
+      const RI: Record<number, number> = { 1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
+      return cr * (RI[n] || 1.49);
+    };
+
+    let latex = `% Tabelas LaTeX - Resultados AHP-BOCR
+% Projeto: ${project.name}
+% Gerado em: ${new Date().toLocaleString('pt-BR')}
+% Software: AHP-BOCR Decision Support System v2.1
+
+% ==================================================
+% TABELA 1: PESOS ESTRATÉGICOS BOCR
+% ==================================================
+\\begin{table}[htbp]
+\\centering
+\\caption{Pesos estratégicos dos méritos BOCR}
+\\label{tab:bocr-weights}
+\\begin{tabular}{lcc}
+\\toprule
+\\textbf{Mérito} & \\textbf{Peso} & \\textbf{Peso (\\%)} \\\\
+\\midrule
+`;
+
+    const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
+    calculation.bocrWeights.forEach((w, i) => {
+      latex += `${bocrLabels[i]} & ${w.toFixed(4)} & ${(w * 100).toFixed(2)}\\% \\\\\n`;
+    });
+
+    const ciBocr = calcCI(calculation.bocrConsistency.cr, calculation.bocrConsistency.lambda, 4);
+    latex += `\\midrule
+\\textbf{Total} & 1.0000 & 100.00\\% \\\\
+\\bottomrule
+\\end{tabular}
+\\begin{tablenotes}
+\\small
+\\item $\\lambda_{max}$ = ${calculation.bocrConsistency.lambda.toFixed(4)}
+\\item CI = ${ciBocr.toFixed(4)} (Índice de Consistência)
+\\item CR = ${(calculation.bocrConsistency.cr * 100).toFixed(2)}\\% (${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'})
+\\item RI = 0.90 (Índice Aleatório para n=4, Saaty 1980)
+\\end{tablenotes}
+\\end{table}
+
+% ==================================================
+% TABELA 2: PESOS LOCAIS E GLOBAIS DOS SUBCRITÉRIOS
+% ==================================================
+\\begin{table}[htbp]
+\\centering
+\\caption{Pesos locais e globais dos subcritérios}
+\\label{tab:subcriteria-weights}
+\\begin{tabular}{llccc}
+\\toprule
+\\textbf{Mérito} & \\textbf{Subcritério} & \\textbf{Peso Local} & \\textbf{Peso Mérito} & \\textbf{Peso Global} \\\\
+\\midrule
+`;
+
+    // Adicionar pesos dos subcritérios
+    ['B', 'O', 'C', 'R'].forEach((merit, mIdx) => {
+      const meritName = bocrLabels[mIdx];
+      const meritWeight = calculation.bocrWeights[mIdx] || 0;
+      const weights = calculation.subWeights[merit];
+      const subs = SUBCRITERIA.filter(s => s.group === merit);
+      
+      if (weights && subs.length > 0) {
+        subs.forEach((sub, idx) => {
+          const localWeight = weights[idx] || 0;
+          const globalWeight = localWeight * meritWeight;
+          latex += `${meritName} & ${sub.name} & ${localWeight.toFixed(4)} & ${meritWeight.toFixed(4)} & ${globalWeight.toFixed(4)} \\\\\n`;
+        });
+        latex += `\\midrule\n`;
+      }
+    });
+
+    latex += `\\bottomrule
+\\end{tabular}
+\\begin{tablenotes}
+\\small
+\\item Peso Global = Peso Local $\\times$ Peso do Mérito
+\\item Fórmula: $w_{global} = w_{local} \\times w_{mérito}$
+\\end{tablenotes}
+\\end{table}
+
+% ==================================================
+% TABELA 3: MATRIZ DE DESEMPENHO BOCR
+% ==================================================
+\\begin{table}[htbp]
+\\centering
+\\caption{Desempenho das alternativas nos méritos BOCR}
+\\label{tab:bocr-performance}
+\\begin{tabular}{lcccc}
+\\toprule
+\\textbf{Alternativa} & \\textbf{B} & \\textbf{O} & \\textbf{C} & \\textbf{R} \\\\
+\\midrule
+`;
+
+    // Matriz de desempenho BOCR
+    calculation.finalScores.forEach(alt => {
+      const b = alt.B || 0;
+      const o = alt.O || 0;
+      const c = alt.C || 0;
+      const r = alt.R || 0;
+      latex += `${alt.name} & ${b.toFixed(4)} & ${o.toFixed(4)} & ${c.toFixed(4)} & ${r.toFixed(4)} \\\\\n`;
+    });
+
+    latex += `\\bottomrule
+\\end{tabular}
+\\begin{tablenotes}
+\\small
+\\item B = Benefícios, O = Oportunidades, C = Custos, R = Riscos
+\\item Valores normalizados representam o desempenho ponderado em cada mérito
+\\item Baseado em Wijnmalen (2007)
+\\end{tablenotes}
+\\end{table}
+
+% ==================================================
+% TABELA 4: RANKING FINAL DAS ALTERNATIVAS
+% ==================================================
+\\begin{table}[htbp]
+\\centering
+\\caption{Ranking final das alternativas por método de síntese}
+\\label{tab:ranking-final}
+\\begin{tabular}{lccccc}
+\\toprule
+\\textbf{Alternativa} & \\textbf{Aditivo} & \\textbf{Probabilístico} & \\textbf{Subtrativo*} & \\textbf{Mult. Potências} & \\textbf{Mult. Simples} \\\\
+\\midrule
+`;
+
+    const sortedAlts = [...calculation.finalScores].sort((a, b) => 
+      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+    );
+
+    sortedAlts.forEach(alt => {
+      latex += `${alt.name} & ${(alt.scoreAdditive || 0).toFixed(4)} & ${(alt.scoreProbabilistic || 0).toFixed(4)} & ${(alt.scoreSubtractiveNorm || 0).toFixed(4)} & ${(alt.scoreMultPowersNorm || 0).toFixed(4)} & ${(alt.scoreMultSimpleNorm || 0).toFixed(4)} \\\\\n`;
+    });
+
+    latex += `\\bottomrule
+\\end{tabular}
+\\begin{tablenotes}
+\\small
+\\item Fonte: Dados da pesquisa (n=${calculation.responseCount})
+\\item Método de agregação: Média geométrica dos julgamentos
+\\item Fórmulas conforme Petrillo et al. (2023)
+\\end{tablenotes}
+\\end{table}
+
+% ==================================================
+% TABELA 5: ÍNDICES DE CONSISTÊNCIA
+% ==================================================
+\\begin{table}[htbp]
+\\centering
+\\caption{Índices de consistência das matrizes de julgamento}
+\\label{tab:consistency}
+\\begin{tabular}{lcccl}
+\\toprule
+\\textbf{Matriz} & \\textbf{$\\lambda_{max}$} & \\textbf{CI} & \\textbf{CR} & \\textbf{Status} \\\\
+\\midrule
+BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed(4)} & ${(calculation.bocrConsistency.cr * 100).toFixed(2)}\\% & ${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\
+`;
+
+    ['B', 'O', 'C', 'R'].forEach(merit => {
+      const cons = calculation.subConsistency[merit];
+      if (cons) {
+        const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
+        const ciSub = calcCI(cons.cr, cons.lambda, 5);
+        latex += `${meritName} (n=5) & ${cons.lambda.toFixed(4)} & ${ciSub.toFixed(4)} & ${(cons.cr * 100).toFixed(2)}\\% & ${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\\n`;
+      }
+    });
+
+    latex += `\\bottomrule
+\\end{tabular}
+\\begin{tablenotes}
+\\small
+\\item CI = $(\\lambda_{max} - n) / (n - 1)$ (Índice de Consistência)
+\\item CR = CI / RI (Razão de Consistência)
+\\item Limite aceitável: CR $\\leq$ 10\\% (Saaty, 1980)
+\\item RI(4) = 0.90, RI(5) = 1.12 (Índice Aleatório)
+\\end{tablenotes}
+\\end{table}
+
+% ==================================================
+% TABELA 6: ANÁLISE DE SENSIBILIDADE
+% ==================================================
+\\begin{table}[htbp]
+\\centering
+\\caption{Análise de sensibilidade dos pesos dos méritos}
+\\label{tab:sensitivity}
+\\begin{tabular}{lccc}
+\\toprule
+\\textbf{Mérito} & \\textbf{Peso Atual (\\%)} & \\textbf{Ponto de Inflexão (\\%)} & \\textbf{Classificação} \\\\
+\\midrule
+`;
+
+    ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
+      const meritName = bocrLabels[idx];
+      const currentWeight = (calculation.bocrWeights[idx] || 0) * 100;
+      const inflection = calculation.sensitivityInflections?.[merit] ?? null;
+      let classification = 'Estável';
+      if (inflection !== null) {
+        if (inflection <= 10) classification = 'Crítico';
+        else if (inflection <= 20) classification = 'Sensível';
+        else if (inflection <= 50) classification = 'Moderado';
+      }
+      latex += `${meritName} & ${currentWeight.toFixed(1)} & ${inflection !== null ? inflection + '\\%' : 'Sem inversão'} & ${classification} \\\\\n`;
+    });
+
+    latex += `\\bottomrule
+\\end{tabular}
+\\begin{tablenotes}
+\\small
+\\item Ponto de inflexão: peso no qual ocorre inversão no ranking
+\\item Classificação baseada em Triantaphyllou \\& Sánchez (1997)
+\\end{tablenotes}
+\\end{table}
+`;
+
+    // Tabela demográfica se houver dados
+    if (respondentsDemographics.length > 0) {
+      latex += `
+% ==================================================
+% TABELA 7: CARACTERIZAÇÃO DA AMOSTRA
+% ==================================================
+\\begin{table}[htbp]
+\\centering
+\\caption{Caracterização sociodemográfica e profissional dos especialistas participantes (n = ${respondentsDemographics.length})}
+\\label{tab:demographics}
+\\begin{tabular}{llcc}
+\\toprule
+\\textbf{Variável} & \\textbf{Categoria} & \\textbf{n} & \\textbf{\\%} \\\\
+\\midrule
+`;
+
+      // Mapeamentos
+      const mapIdade: Record<string, string> = {
+        'menos_30': 'Menos de 30 anos', '31_40': '31 a 40 anos',
+        '41_50': '41 a 50 anos', 'mais_50': 'Mais de 50 anos'
+      };
+      const mapGenero: Record<string, string> = { 'masculino': 'Masculino', 'feminino': 'Feminino' };
+      const mapFormacao: Record<string, string> = {
+        'superior': 'Graduação', 'especializacao': 'Especialização/MBA',
+        'mestrado': 'Mestrado', 'doutorado': 'Doutorado'
+      };
+      const mapExperiencia: Record<string, string> = {
+        'menos_10': 'Menos de 10 anos', '11_20': '11 a 20 anos',
+        '21_30': '21 a 30 anos', 'mais_30': 'Mais de 30 anos'
+      };
+      const mapArea: Record<string, string> = {
+        'producao': 'Produção/Manufatura', 'eng_processos': 'Eng. Processos',
+        'qualidade': 'Qualidade', 'manutencao': 'Manutenção',
+        'logistica': 'Logística', 'ti': 'TI/Automação', 'financas': 'Finanças'
+      };
+      const mapFuncao: Record<string, string> = {
+        'c_level': 'C-Level/Diretoria', 'diretor': 'Diretor', 'gerente': 'Gerente',
+        'supervisor': 'Supervisor', 'analista': 'Analista'
+      };
+
+      const countField = (field: string, mapping: Record<string, string>) => {
+        const counts: Record<string, number> = {};
+        const order: string[] = [];
+        Object.values(mapping).forEach(label => {
+          counts[label] = 0;
+          order.push(label);
+        });
+        respondentsDemographics.forEach(d => {
+          const val = d[field];
+          if (val && mapping[val]) {
+            counts[mapping[val]] = (counts[mapping[val]] || 0) + 1;
+          }
+        });
+        return order.map(label => ({ label, count: counts[label] || 0 })).filter(c => c.count > 0);
+      };
+
+      const variables = [
+        { title: 'Faixa Etária', field: 'idade', map: mapIdade },
+        { title: 'Gênero', field: 'genero', map: mapGenero },
+        { title: 'Formação', field: 'formacao', map: mapFormacao },
+        { title: 'Experiência', field: 'tempoTrabalho', map: mapExperiencia },
+        { title: 'Área', field: 'areaAtuacao', map: mapArea },
+        { title: 'Cargo', field: 'funcao', map: mapFuncao },
+      ];
+
+      variables.forEach((v, vIdx) => {
+        const counts = countField(v.field, v.map);
+        counts.forEach((c, idx) => {
+          const pct = ((c.count / respondentsDemographics.length) * 100).toFixed(1);
+          if (idx === 0) {
+            latex += `${v.title} & ${c.label} & ${c.count} & ${pct} \\\\\n`;
+          } else {
+            latex += ` & ${c.label} & ${c.count} & ${pct} \\\\\n`;
+          }
+        });
+        if (vIdx < variables.length - 1) {
+          latex += `\\midrule\n`;
+        }
+      });
+
+      latex += `\\midrule
+\\textbf{Total} & & \\textbf{${respondentsDemographics.length}} & \\textbf{100,0} \\\\
+\\bottomrule
+\\end{tabular}
+\\begin{tablenotes}
+\\small
+\\item Fonte: Dados primários da pesquisa (${new Date().getFullYear()}).
+\\end{tablenotes}
+\\end{table}
+`;
+    }
+
+    // Download
+    const blob = new Blob([latex], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g, '_')}.tex`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ============================================================
+  // EXPORTAÇÃO CSV
+  // ============================================================
+
+  const exportCSV = () => {
+    if (!calculation || !project) return;
+
+    // Calcular CI
+    const calcCI = (cr: number, n: number): number => {
+      const RI: Record<number, number> = { 1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
+      return cr * (RI[n] || 1.49);
+    };
+
+    let csv = `Resultados AHP-BOCR - ${project.name}\n`;
+    csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
+    csv += `Número de especialistas:,${calculation.responseCount}\n`;
+    csv += `Software:,AHP-BOCR Decision Support System v2.1\n\n`;
+
+    // Pesos BOCR
+    csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
+    csv += `Mérito,Peso,Peso (%)\n`;
+    const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
+    calculation.bocrWeights.forEach((w, i) => {
+      csv += `${bocrLabels[i]},${w.toFixed(6)},${(w * 100).toFixed(2)}%\n`;
+    });
+    
+    const ciBocr = calcCI(calculation.bocrConsistency.cr, 4);
+    csv += `\nÍndices de Consistência BOCR:\n`;
+    csv += `Lambda max:,${calculation.bocrConsistency.lambda.toFixed(6)}\n`;
+    csv += `CI:,${ciBocr.toFixed(6)}\n`;
+    csv += `CR:,${(calculation.bocrConsistency.cr * 100).toFixed(2)}%\n`;
+    csv += `RI (n=4):,0.90\n\n`;
+
+    // Pesos dos Subcritérios
+    csv += `===== PESOS DOS SUBCRITÉRIOS =====\n`;
+    csv += `Mérito,Subcritério,Peso Local,Peso Mérito,Peso Global\n`;
+    ['B', 'O', 'C', 'R'].forEach((merit, mIdx) => {
+      const meritName = bocrLabels[mIdx];
+      const meritWeight = calculation.bocrWeights[mIdx] || 0;
+      const weights = calculation.subWeights[merit];
+      const subs = SUBCRITERIA.filter(s => s.group === merit);
+      
+      if (weights && subs.length > 0) {
+        subs.forEach((sub, idx) => {
+          const localWeight = weights[idx] || 0;
+          const globalWeight = localWeight * meritWeight;
+          csv += `${meritName},${sub.name},${localWeight.toFixed(6)},${meritWeight.toFixed(6)},${globalWeight.toFixed(6)}\n`;
+        });
+      }
+    });
+    csv += `\n`;
+
+    // Matriz de Desempenho BOCR
+    csv += `===== MATRIZ DE DESEMPENHO BOCR =====\n`;
+    csv += `Alternativa,B,O,C,R\n`;
+    calculation.finalScores.forEach(alt => {
+      csv += `${alt.name},${(alt.B || 0).toFixed(6)},${(alt.O || 0).toFixed(6)},${(alt.C || 0).toFixed(6)},${(alt.R || 0).toFixed(6)}\n`;
+    });
+    csv += `\n`;
+
+    // Ranking
+    csv += `===== RANKING FINAL =====\n`;
+    csv += `Alternativa,Aditivo (Σ=1),Probabilístico (Σ=1),Subtrativo (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+    const sortedAlts = [...calculation.finalScores].sort((a, b) => 
+      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+    );
+    sortedAlts.forEach(alt => {
+      csv += `${alt.name},${(alt.scoreAdditive || 0).toFixed(6)},${(alt.scoreProbabilistic || 0).toFixed(6)},${(alt.scoreSubtractiveNorm || 0).toFixed(6)},${(alt.scoreMultPowersNorm || 0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+    });
+    csv += `\n`;
+
+    // Consistência de todas as matrizes
+    csv += `===== ÍNDICES DE CONSISTÊNCIA =====\n`;
+    csv += `Matriz,n,Lambda max,CI,CR,Status\n`;
+    csv += `BOCR,4,${calculation.bocrConsistency.lambda.toFixed(6)},${ciBocr.toFixed(6)},${(calculation.bocrConsistency.cr * 100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
+    
+    ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
+      const cons = calculation.subConsistency[merit];
+      if (cons) {
+        const ciSub = calcCI(cons.cr, 5);
+        csv += `${bocrLabels[idx]},5,${cons.lambda.toFixed(6)},${ciSub.toFixed(6)},${(cons.cr * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
+      }
+    });
+    csv += `\n`;
+
+    // Análise de Sensibilidade
+    csv += `===== ANÁLISE DE SENSIBILIDADE =====\n`;
+    csv += `Mérito,Peso Atual (%),Ponto de Inflexão (%),Classificação\n`;
+    ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
+      const currentWeight = (calculation.bocrWeights[idx] || 0) * 100;
+      const inflection = calculation.sensitivityInflections?.[merit] ?? null;
+      let classification = 'Estável';
+      if (inflection !== null) {
+        if (inflection <= 10) classification = 'Crítico';
+        else if (inflection <= 20) classification = 'Sensível';
+        else if (inflection <= 50) classification = 'Moderado';
+      }
+      csv += `${bocrLabels[idx]},${currentWeight.toFixed(1)},${inflection !== null ? inflection : 'Sem inversão'},${classification}\n`;
+    });
+    csv += `\n`;
+
+    // Dados Demográficos
+    if (respondentsDemographics.length > 0) {
+      csv += `===== PERFIL DEMOGRÁFICO DOS ESPECIALISTAS =====\n`;
+      csv += `Total de respondentes:,${respondentsDemographics.length}\n\n`;
+      
+      // Mapeamentos
+      const mapIdade: Record<string, string> = {
+        'menos_30': 'Menos de 30 anos', '31_40': '31 a 40 anos',
+        '41_50': '41 a 50 anos', 'mais_50': 'Mais de 50 anos'
+      };
+      const mapGenero: Record<string, string> = { 'masculino': 'Masculino', 'feminino': 'Feminino' };
+      const mapFormacao: Record<string, string> = {
+        'superior': 'Graduação', 'especializacao': 'Especialização/MBA',
+        'mestrado': 'Mestrado', 'doutorado': 'Doutorado'
+      };
+      const mapExperiencia: Record<string, string> = {
+        'menos_10': 'Menos de 10 anos', '11_20': '11 a 20 anos',
+        '21_30': '21 a 30 anos', 'mais_30': 'Mais de 30 anos'
+      };
+      const mapArea: Record<string, string> = {
+        'producao': 'Produção/Manufatura', 'eng_processos': 'Engenharia de Processos',
+        'qualidade': 'Qualidade', 'manutencao': 'Manutenção',
+        'logistica': 'Logística/Supply Chain', 'ti': 'TI/Automação', 'financas': 'Finanças/Controladoria'
+      };
+      const mapFuncao: Record<string, string> = {
+        'c_level': 'C-Level/Diretoria', 'diretor': 'Diretor', 'gerente': 'Gerente',
+        'supervisor': 'Supervisor/Coordenador', 'analista': 'Analista/Especialista'
+      };
+
+      const countField = (field: string, mapping: Record<string, string>) => {
+        const counts: Record<string, number> = {};
+        respondentsDemographics.forEach(d => {
+          const val = d[field];
+          if (val && mapping[val]) {
+            counts[mapping[val]] = (counts[mapping[val]] || 0) + 1;
+          }
+        });
+        return counts;
+      };
+
+      const variables = [
+        { title: 'Faixa Etária', field: 'idade', map: mapIdade },
+        { title: 'Gênero', field: 'genero', map: mapGenero },
+        { title: 'Nível de Formação', field: 'formacao', map: mapFormacao },
+        { title: 'Tempo de Experiência', field: 'tempoTrabalho', map: mapExperiencia },
+        { title: 'Área de Atuação', field: 'areaAtuacao', map: mapArea },
+        { title: 'Cargo/Função', field: 'funcao', map: mapFuncao },
+      ];
+
+      variables.forEach(v => {
+        csv += `${v.title}:\n`;
+        csv += `Categoria,n,%\n`;
+        const counts = countField(v.field, v.map);
+        Object.entries(counts).forEach(([label, count]) => {
+          csv += `${label},${count},${((count / respondentsDemographics.length) * 100).toFixed(1)}%\n`;
+        });
+        csv += `\n`;
+      });
+    }
+
+    // Resumo das Respostas
+    if (projectResponses.length > 0) {
+      csv += `===== RESUMO DAS RESPOSTAS =====\n`;
+      csv += `Total de respostas:,${projectResponses.length}\n`;
+      
+      const realResponses = projectResponses.filter(r => !r.isSimulated);
+      const simulatedResponses = projectResponses.filter(r => r.isSimulated);
+      const avgCR = projectResponses.reduce((sum, r) => sum + (r.responses?.bocrConsistency?.cr || 0), 0) / projectResponses.length;
+      const consistentCount = projectResponses.filter(r => (r.responses?.bocrConsistency?.cr || 0) <= 0.10).length;
+      
+      csv += `Respostas reais:,${realResponses.length}\n`;
+      csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
+      csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
+      csv += `Respostas consistentes:,${consistentCount} (${((consistentCount / projectResponses.length) * 100).toFixed(0)}%)\n`;
+      csv += `\n`;
+      
+      csv += `Detalhamento por resposta:\n`;
+      csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
+      projectResponses.forEach((resp, idx) => {
+        const crBocr = resp.responses?.bocrConsistency?.cr || 0;
+        const submittedAt = resp.submittedAt ? new Date(resp.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '-';
+        const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
+        const tipo = resp.isSimulated ? 'Simulada' : 'Real';
+        csv += `R${idx + 1},${submittedAt},${duration},${(crBocr * 100).toFixed(2)}%,${crBocr <= 0.10 ? 'Consistente' : 'Inconsistente'},${tipo}\n`;
+      });
+    }
+
+    // Download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g, '_')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // ============================================================
+  // EXPORTAÇÃO XLSX - PLANILHA COMPLETA COM MÚLTIPLAS SHEETS
+  // ============================================================
+  
+  const exportXLSX = () => {
+    if (!calculation || !project) return;
+
+    const wb = XLSX.utils.book_new();
+    const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
+    
+    // Função auxiliar para calcular CI
+    const calcCI = (cr: number, n: number): number => {
+      const RI: Record<number, number> = { 1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
+      return cr * (RI[n] || 1.49);
+    };
+
+    // ===== SHEET 1: VISÃO GERAL =====
+    const overviewData = [
+      ['RESULTADOS AHP-BOCR'],
+      [''],
+      ['Projeto:', project.name],
+      ['Descrição:', project.description || '-'],
+      ['Data de Geração:', new Date().toLocaleString('pt-BR')],
+      ['Número de Especialistas:', calculation.responseCount],
+      ['Número de Alternativas:', project.alternatives.length],
+      [''],
+      ['ALTERNATIVAS'],
+      ['Código', 'Nome', 'Descrição'],
+      ...project.alternatives.map(alt => [alt.code, alt.name, alt.description || '-']),
+      [''],
+      ['SOFTWARE'],
+      ['Sistema:', 'AHP-BOCR Decision Support System v2.1'],
+      ['Metodologia:', 'Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)'],
+      ['Instituição:', 'UNESP - Engenharia de Produção'],
+    ];
+    const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
+    wsOverview['!cols'] = [{ wch: 20 }, { wch: 40 }, { wch: 50 }];
+    XLSX.utils.book_append_sheet(wb, wsOverview, 'Visão Geral');
+
+    // ===== SHEET 2: PESOS BOCR =====
+    const bocrData = [
+      ['PESOS ESTRATÉGICOS BOCR'],
+      [''],
+      ['Mérito', 'Peso', 'Peso (%)', 'Interpretação'],
+      ...bocrLabels.map((label, i) => {
+        const w = calculation.bocrWeights[i] || 0;
+        const interp = w >= 0.30 ? 'Alta prioridade' : w >= 0.20 ? 'Média prioridade' : 'Baixa prioridade';
+        return [label, w.toFixed(6), `${(w * 100).toFixed(2)}%`, interp];
+      }),
+      ['TOTAL', '1.000000', '100.00%', ''],
+      [''],
+      ['ÍNDICES DE CONSISTÊNCIA'],
+      ['λmax (autovalor máximo):', calculation.bocrConsistency.lambda.toFixed(6)],
+      ['CI (Índice de Consistência):', calcCI(calculation.bocrConsistency.cr, 4).toFixed(6)],
+      ['RI (Índice Aleatório, n=4):', '0.90'],
+      ['CR (Razão de Consistência):', `${(calculation.bocrConsistency.cr * 100).toFixed(2)}%`],
+      ['Status:', calculation.bocrConsistency.cr <= 0.10 ? 'CONSISTENTE (CR ≤ 10%)' : 'INCONSISTENTE (CR > 10%)'],
+      [''],
+      ['INTERPRETAÇÃO'],
+      ['Aspectos Positivos (B+O):', `${((calculation.bocrWeights[0] + calculation.bocrWeights[1]) * 100).toFixed(2)}%`],
+      ['Aspectos Negativos (C+R):', `${((calculation.bocrWeights[2] + calculation.bocrWeights[3]) * 100).toFixed(2)}%`],
+      ['Perfil de Decisão:', (calculation.bocrWeights[0] + calculation.bocrWeights[1]) > 0.6 ? 'Orientado a Valor' : 
+                            (calculation.bocrWeights[2] + calculation.bocrWeights[3]) > 0.6 ? 'Conservador/Cauteloso' : 'Balanceado'],
+    ];
+    const wsBocr = XLSX.utils.aoa_to_sheet(bocrData);
+    wsBocr['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 12 }, { wch: 25 }];
+    XLSX.utils.book_append_sheet(wb, wsBocr, 'Pesos BOCR');
+
+    // ===== SHEET 3: SUBCRITÉRIOS =====
+    const subData = [
+      ['PESOS DOS SUBCRITÉRIOS'],
+      [''],
+      ['Mérito', 'Código', 'Subcritério', 'Dimensão', 'Peso Local', 'Peso Mérito', 'Peso Global'],
+    ];
+    ['B', 'O', 'C', 'R'].forEach((merit, mIdx) => {
+      const meritName = bocrLabels[mIdx];
+      const meritWeight = calculation.bocrWeights[mIdx] || 0;
+      const weights = calculation.subWeights[merit];
+      const subs = SUBCRITERIA.filter(s => s.group === merit);
+      
+      if (weights && subs.length > 0) {
+        subs.forEach((sub, idx) => {
+          const localWeight = weights[idx] || 0;
+          const globalWeight = localWeight * meritWeight;
+          subData.push([
+            meritName,
+            sub.code,
+            sub.name,
+            sub.dimension,
+            localWeight.toFixed(6),
+            meritWeight.toFixed(6),
+            globalWeight.toFixed(6)
+          ]);
+        });
+      }
+    });
+    // Adicionar consistência dos subcritérios
+    subData.push(['']);
+    subData.push(['CONSISTÊNCIA DOS SUBCRITÉRIOS']);
+    subData.push(['Mérito', 'n', 'λmax', 'CI', 'CR', 'Status']);
+    ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
+      const cons = calculation.subConsistency[merit];
+      if (cons) {
+        const ciSub = calcCI(cons.cr, 5);
+        subData.push([
+          bocrLabels[idx],
+          '5',
+          cons.lambda.toFixed(6),
+          ciSub.toFixed(6),
+          `${(cons.cr * 100).toFixed(2)}%`,
+          cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'
+        ]);
+      }
+    });
+    const wsSub = XLSX.utils.aoa_to_sheet(subData);
+    wsSub['!cols'] = [{ wch: 15 }, { wch: 8 }, { wch: 40 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(wb, wsSub, 'Subcritérios');
+
+    // ===== SHEET 4: MATRIZ DE DESEMPENHO =====
+    const perfData = [
+      ['MATRIZ DE DESEMPENHO BOCR'],
+      [''],
+      ['Alternativa', 'Benefícios (B)', 'Oportunidades (O)', 'Custos (C)', 'Riscos (R)', 'B+O', 'C+R', 'Saldo (B+O-C-R)'],
+      ...calculation.finalScores.map(alt => {
+        const b = alt.B || 0;
+        const o = alt.O || 0;
+        const c = alt.C || 0;
+        const r = alt.R || 0;
+        return [
+          alt.name,
+          b.toFixed(6),
+          o.toFixed(6),
+          c.toFixed(6),
+          r.toFixed(6),
+          (b + o).toFixed(6),
+          (c + r).toFixed(6),
+          (b + o - c - r).toFixed(6)
+        ];
+      }),
+      [''],
+      ['INTERPRETAÇÃO'],
+      ['- B e O: Valores maiores são melhores (maximizar)'],
+      ['- C e R: Valores menores são melhores (minimizar)'],
+      ['- Saldo positivo indica que benefícios superam custos/riscos'],
+    ];
+    const wsPerf = XLSX.utils.aoa_to_sheet(perfData);
+    wsPerf['!cols'] = [{ wch: 25 }, { wch: 15 }, { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 15 }];
+    XLSX.utils.book_append_sheet(wb, wsPerf, 'Desempenho BOCR');
+
+    // ===== SHEET 5: RANKING =====
+    const sortedAlts = [...calculation.finalScores].sort((a, b) => 
+      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+    );
+    const rankData = [
+      ['RANKING FINAL - COMPARATIVO DE MÉTODOS'],
+      [''],
+      ['Posição', 'Alternativa', 'Aditivo', 'Probabilístico', 'Subtrativo', 'Mult. Potências', 'Mult. Simples'],
+      ...sortedAlts.map((alt, idx) => [
+        `${idx + 1}º`,
+        alt.name,
+        (alt.scoreAdditive || 0).toFixed(6),
+        (alt.scoreProbabilistic || 0).toFixed(6),
+        (alt.scoreSubtractiveNorm || 0).toFixed(6),
+        (alt.scoreMultPowersNorm || 0).toFixed(6),
+        (alt.scoreMultSimpleNorm || 0).toFixed(6)
+      ]),
+      [''],
+      ['VERIFICAÇÃO DAS SOMAS (métodos distributivos devem somar 1.0)'],
+      ['Método', 'Soma', 'Status'],
+      ['Aditivo', calculation.finalScores.reduce((s, a) => s + (a.scoreAdditive || 0), 0).toFixed(6), 
+       Math.abs(calculation.finalScores.reduce((s, a) => s + (a.scoreAdditive || 0), 0) - 1) < 0.001 ? 'OK' : 'ERRO'],
+      ['Probabilístico', calculation.finalScores.reduce((s, a) => s + (a.scoreProbabilistic || 0), 0).toFixed(6),
+       Math.abs(calculation.finalScores.reduce((s, a) => s + (a.scoreProbabilistic || 0), 0) - 1) < 0.001 ? 'OK' : 'ERRO'],
+      [''],
+      ['VENCEDOR'],
+      ['Alternativa recomendada:', sortedAlts[0]?.name || '-'],
+      ['Score (Aditivo):', (sortedAlts[0]?.scoreAdditive || 0).toFixed(6)],
+      ['Diferença para 2º lugar:', sortedAlts.length >= 2 ? 
+        `${(Math.abs((sortedAlts[0]?.scoreAdditive || 0) - (sortedAlts[1]?.scoreAdditive || 0)) * 100).toFixed(2)}%` : '-'],
+    ];
+    const wsRank = XLSX.utils.aoa_to_sheet(rankData);
+    wsRank['!cols'] = [{ wch: 12 }, { wch: 25 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 14 }];
+    XLSX.utils.book_append_sheet(wb, wsRank, 'Ranking');
+
+    // ===== SHEET 6: CONSISTÊNCIA =====
+    const consData = [
+      ['ÍNDICES DE CONSISTÊNCIA - TODAS AS MATRIZES'],
+      [''],
+      ['Referência: Saaty (1980) - CR ≤ 0.10 (10%) indica julgamentos consistentes'],
+      [''],
+      ['Matriz', 'Tamanho (n)', 'λmax', 'CI', 'RI', 'CR', 'Status'],
+      ['BOCR (Méritos)', '4', calculation.bocrConsistency.lambda.toFixed(6), 
+       calcCI(calculation.bocrConsistency.cr, 4).toFixed(6), '0.90',
+       `${(calculation.bocrConsistency.cr * 100).toFixed(2)}%`,
+       calculation.bocrConsistency.cr <= 0.10 ? '✓ Consistente' : '✗ Inconsistente'],
+    ];
+    ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
+      const cons = calculation.subConsistency[merit];
+      if (cons) {
+        consData.push([
+          `${bocrLabels[idx]} (Subcritérios)`,
+          '5',
+          cons.lambda.toFixed(6),
+          calcCI(cons.cr, 5).toFixed(6),
+          '1.12',
+          `${(cons.cr * 100).toFixed(2)}%`,
+          cons.cr <= 0.10 ? '✓ Consistente' : '✗ Inconsistente'
+        ]);
+      }
+    });
+    consData.push(['']);
+    consData.push(['FÓRMULAS']);
+    consData.push(['CI = (λmax - n) / (n - 1)']);
+    consData.push(['CR = CI / RI']);
+    consData.push(['RI (n=4) = 0.90, RI (n=5) = 1.12 (Saaty, 1980)']);
+    const wsCons = XLSX.utils.aoa_to_sheet(consData);
+    wsCons['!cols'] = [{ wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 10 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, wsCons, 'Consistência');
+
+    // ===== SHEET 7: SENSIBILIDADE =====
+    const sensData = [
+      ['ANÁLISE DE SENSIBILIDADE DOS PESOS BOCR'],
+      [''],
+      ['Metodologia: Variação sistemática de ±5%, ±10%, ±20% nos pesos com renormalização'],
+      ['Ponto de inflexão: percentual de variação no peso que causa inversão no ranking'],
+      [''],
+      ['Mérito', 'Peso Atual', 'Ponto de Inflexão', 'Classificação', 'Interpretação'],
+    ];
+    ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
+      const currentWeight = (calculation.bocrWeights[idx] || 0) * 100;
+      const inflection = calculation.sensitivityInflections?.[merit] ?? null;
+      let classification = 'Estável';
+      let interpretation = 'Ranking robusto - sem inversão em variações de até ±20%';
+      if (inflection !== null) {
+        if (inflection <= 10) {
+          classification = 'CRÍTICO';
+          interpretation = 'Pequenas mudanças podem inverter a recomendação';
+        } else if (inflection <= 20) {
+          classification = 'Sensível';
+          interpretation = 'Mudanças moderadas podem afetar o resultado';
+        } else if (inflection <= 50) {
+          classification = 'Moderado';
+          interpretation = 'Ranking estável para variações pequenas';
+        }
+      }
+      sensData.push([
+        bocrLabels[idx],
+        `${currentWeight.toFixed(1)}%`,
+        inflection !== null ? `${inflection}%` : 'Sem inversão',
+        classification,
+        interpretation
+      ]);
+    });
+    
+    // Resumo da robustez
+    const criticalCount = ['B', 'O', 'C', 'R'].filter(m => {
+      const inf = calculation.sensitivityInflections?.[m];
+      return inf !== null && inf <= 10;
+    }).length;
+    const sensitiveCount = ['B', 'O', 'C', 'R'].filter(m => {
+      const inf = calculation.sensitivityInflections?.[m];
+      return inf !== null && inf > 10 && inf <= 20;
+    }).length;
+    
+    sensData.push(['']);
+    sensData.push(['RESUMO DA ROBUSTEZ']);
+    sensData.push(['Méritos críticos:', criticalCount.toString()]);
+    sensData.push(['Méritos sensíveis:', sensitiveCount.toString()]);
+    sensData.push(['Classificação geral:', 
+      criticalCount === 0 && sensitiveCount === 0 ? 'ALTAMENTE ROBUSTO' :
+      criticalCount === 0 ? 'ROBUSTO' :
+      criticalCount <= 1 ? 'MODERADAMENTE SENSÍVEL' : 'SENSÍVEL']);
+    const wsSens = XLSX.utils.aoa_to_sheet(sensData);
+    wsSens['!cols'] = [{ wch: 15 }, { wch: 12 }, { wch: 18 }, { wch: 15 }, { wch: 50 }];
+    XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
+
+    // ===== SHEET 8: DADOS DEMOGRÁFICOS =====
+    const demoData = [
+      ['PERFIL DEMOGRÁFICO DOS ESPECIALISTAS'],
+      [''],
+      [`Total de respondentes: ${respondentsDemographics.length}`],
+      [''],
+    ];
+    
+    if (respondentsDemographics.length > 0) {
+      // Mapeamentos
+      const mapIdade: Record<string, string> = {
+        'menos_30': 'Menos de 30 anos',
+        '31_40': '31 a 40 anos',
+        '41_50': '41 a 50 anos',
+        'mais_50': 'Mais de 50 anos'
+      };
+      const mapGenero: Record<string, string> = {
+        'masculino': 'Masculino',
+        'feminino': 'Feminino'
+      };
+      const mapFormacao: Record<string, string> = {
+        'superior': 'Graduação',
+        'especializacao': 'Especialização/MBA',
+        'mestrado': 'Mestrado',
+        'doutorado': 'Doutorado'
+      };
+      const mapExperiencia: Record<string, string> = {
+        'menos_10': 'Menos de 10 anos',
+        '11_20': '11 a 20 anos',
+        '21_30': '21 a 30 anos',
+        'mais_30': 'Mais de 30 anos'
+      };
+      const mapArea: Record<string, string> = {
+        'producao': 'Produção/Manufatura',
+        'eng_processos': 'Engenharia de Processos',
+        'qualidade': 'Qualidade',
+        'manutencao': 'Manutenção',
+        'logistica': 'Logística/Supply Chain',
+        'ti': 'TI/Automação',
+        'financas': 'Finanças/Controladoria'
+      };
+      const mapFuncao: Record<string, string> = {
+        'c_level': 'C-Level/Diretoria Executiva',
+        'diretor': 'Diretor',
+        'gerente': 'Gerente',
+        'supervisor': 'Supervisor/Coordenador',
+        'analista': 'Analista/Especialista'
+      };
+
+      // Função para contar
+      const countField = (field: string, mapping: Record<string, string>) => {
+        const counts: Record<string, number> = {};
+        respondentsDemographics.forEach(d => {
+          const val = d[field];
+          if (val && mapping[val]) {
+            counts[mapping[val]] = (counts[mapping[val]] || 0) + 1;
+          }
+        });
+        return Object.entries(counts).map(([label, count]) => ({
+          label,
+          count,
+          pct: ((count / respondentsDemographics.length) * 100).toFixed(1)
+        }));
+      };
+
+      // Tabelas por variável
+      const variables = [
+        { title: 'FAIXA ETÁRIA', field: 'idade', map: mapIdade },
+        { title: 'GÊNERO', field: 'genero', map: mapGenero },
+        { title: 'NÍVEL DE FORMAÇÃO', field: 'formacao', map: mapFormacao },
+        { title: 'TEMPO DE EXPERIÊNCIA', field: 'tempoTrabalho', map: mapExperiencia },
+        { title: 'ÁREA DE ATUAÇÃO', field: 'areaAtuacao', map: mapArea },
+        { title: 'CARGO/FUNÇÃO', field: 'funcao', map: mapFuncao },
+      ];
+
+      variables.forEach(v => {
+        demoData.push([v.title]);
+        demoData.push(['Categoria', 'n', '%']);
+        const counts = countField(v.field, v.map);
+        counts.forEach(c => {
+          demoData.push([c.label, c.count.toString(), `${c.pct}%`]);
+        });
+        demoData.push(['']);
+      });
+
+      // Estatísticas de qualificação
+      const posGrad = respondentsDemographics.filter(d => 
+        ['especializacao', 'mestrado', 'doutorado'].includes(d.formacao)
+      ).length;
+      const experientes = respondentsDemographics.filter(d => 
+        ['11_20', '21_30', 'mais_30'].includes(d.tempoTrabalho)
+      ).length;
+      const gestores = respondentsDemographics.filter(d => 
+        ['c_level', 'diretor', 'gerente'].includes(d.funcao)
+      ).length;
+
+      demoData.push(['QUALIFICAÇÃO DA AMOSTRA']);
+      demoData.push(['Indicador', 'n', '%', 'Avaliação']);
+      demoData.push([
+        'Pós-graduados',
+        posGrad.toString(),
+        `${((posGrad / respondentsDemographics.length) * 100).toFixed(1)}%`,
+        posGrad >= respondentsDemographics.length * 0.5 ? 'Adequado (≥50%)' : 'Baixo (<50%)'
+      ]);
+      demoData.push([
+        'Experiência >10 anos',
+        experientes.toString(),
+        `${((experientes / respondentsDemographics.length) * 100).toFixed(1)}%`,
+        experientes >= respondentsDemographics.length * 0.5 ? 'Adequado (≥50%)' : 'Baixo (<50%)'
+      ]);
+      demoData.push([
+        'Gestores',
+        gestores.toString(),
+        `${((gestores / respondentsDemographics.length) * 100).toFixed(1)}%`,
+        gestores >= respondentsDemographics.length * 0.3 ? 'Adequado (≥30%)' : 'Baixo (<30%)'
+      ]);
+    } else {
+      demoData.push(['Nenhum dado demográfico disponível']);
+    }
+
+    const wsDemo = XLSX.utils.aoa_to_sheet(demoData);
+    wsDemo['!cols'] = [{ wch: 35 }, { wch: 10 }, { wch: 10 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, wsDemo, 'Demográficos');
+
+    // ===== SHEET 9: RESPOSTAS INDIVIDUAIS (Matrizes de Julgamento) =====
+    if (projectResponses.length > 0) {
+      const responsesData: any[][] = [
+        ['RESPOSTAS INDIVIDUAIS - MATRIZES DE JULGAMENTO'],
+        [''],
+        ['Total de respostas:', projectResponses.length],
+        [''],
+        ['RESUMO POR RESPONDENTE'],
+        ['ID Resposta', 'Data/Hora', 'Tempo (min)', 'CR BOCR', 'Status CR', 'Tipo'],
+      ];
+
+      projectResponses.forEach((resp, idx) => {
+        const crBocr = resp.responses?.bocrConsistency?.cr || 0;
+        const submittedAt = resp.submittedAt ? new Date(resp.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '-';
+        const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
+        const tipo = resp.isSimulated ? 'Simulada' : 'Real';
+        
+        responsesData.push([
+          `R${idx + 1}`,
+          submittedAt,
+          duration,
+          (crBocr * 100).toFixed(2) + '%',
+          crBocr <= 0.10 ? 'Consistente' : 'Inconsistente',
+          tipo
+        ]);
+      });
+
+      // Adicionar estatísticas agregadas
+      const realResponses = projectResponses.filter(r => !r.isSimulated);
+      const simulatedResponses = projectResponses.filter(r => r.isSimulated);
+      const avgCR = projectResponses.reduce((sum, r) => sum + (r.responses?.bocrConsistency?.cr || 0), 0) / projectResponses.length;
+      const consistentCount = projectResponses.filter(r => (r.responses?.bocrConsistency?.cr || 0) <= 0.10).length;
+
+      responsesData.push(['']);
+      responsesData.push(['ESTATÍSTICAS']);
+      responsesData.push(['Respostas reais:', realResponses.length.toString()]);
+      responsesData.push(['Respostas simuladas:', simulatedResponses.length.toString()]);
+      responsesData.push(['CR médio:', (avgCR * 100).toFixed(2) + '%']);
+      responsesData.push(['Respostas consistentes:', `${consistentCount} (${((consistentCount / projectResponses.length) * 100).toFixed(0)}%)`]);
+
+      // Adicionar detalhamento dos julgamentos BOCR (primeira resposta como exemplo)
+      responsesData.push(['']);
+      responsesData.push(['ESTRUTURA DOS JULGAMENTOS (exemplo)']);
+      responsesData.push(['']);
+      responsesData.push(['Os julgamentos são realizados em comparações pareadas usando a escala de Saaty (1-9):']);
+      responsesData.push(['1 = Igual importância, 3 = Moderada, 5 = Forte, 7 = Muito forte, 9 = Extrema']);
+      responsesData.push(['']);
+      responsesData.push(['Matrizes coletadas por respondente:']);
+      responsesData.push(['- Matriz BOCR (4x4): Compara Benefícios, Oportunidades, Custos, Riscos']);
+      responsesData.push(['- Matriz Benefícios (5x5): Compara subcritérios B1 a B5']);
+      responsesData.push(['- Matriz Oportunidades (5x5): Compara subcritérios O1 a O5']);
+      responsesData.push(['- Matriz Custos (5x5): Compara subcritérios C1 a C5']);
+      responsesData.push(['- Matriz Riscos (5x5): Compara subcritérios R1 a R5']);
+      responsesData.push(['- Matrizes de Alternativas (2x2 cada): Para cada subcritério']);
+
+      const wsResponses = XLSX.utils.aoa_to_sheet(responsesData);
+      wsResponses['!cols'] = [{ wch: 15 }, { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 12 }];
+      XLSX.utils.book_append_sheet(wb, wsResponses, 'Respostas');
+    }
+
+    // ===== SHEET 10: METADADOS E REFERÊNCIAS =====
+    const metaData = [
+      ['METADADOS E REFERÊNCIAS METODOLÓGICAS'],
+      [''],
+      ['INFORMAÇÕES DO ARQUIVO'],
+      ['Gerado em:', new Date().toLocaleString('pt-BR')],
+      ['Formato:', 'Microsoft Excel (.xlsx)'],
+      ['Sheets:', '10'],
+      [''],
+      ['METODOLOGIA AHP-BOCR'],
+      [''],
+      ['O método AHP-BOCR (Analytic Hierarchy Process with Benefits, Opportunities, Costs, Risks)'],
+      ['é uma extensão do AHP clássico que considera tanto aspectos positivos quanto negativos.'],
+      [''],
+      ['ESTRUTURA HIERÁRQUICA'],
+      ['Nível 0:', 'Objetivo (Decisão de Investimento)'],
+      ['Nível 1:', '4 Méritos (B, O, C, R)'],
+      ['Nível 2:', '20 Subcritérios (5 por mérito)'],
+      ['Nível 3:', 'Alternativas de decisão'],
+      [''],
+      ['FÓRMULAS DE SÍNTESE (Petrillo et al., 2023)'],
+      ['Aditivo:', 'Score = b·B + o·O + c·(1-C) + r·(1-R)'],
+      ['Probabilístico:', 'Score = (b/Σ)·B + (o/Σ)·O + (c/Σ)·(1-C) + (r/Σ)·(1-R)'],
+      ['Subtrativo:', 'Score = b·B + o·O - c·C - r·R (Wijnmalen, 2007)'],
+      ['Mult. Potências:', 'Score = (B^b · O^o) / (C^c · R^r)'],
+      ['Mult. Simples:', 'Score = (B · O) / (C · R)'],
+      [''],
+      ['REFERÊNCIAS'],
+      ['SAATY, T.L. (1980). The Analytic Hierarchy Process. McGraw-Hill, New York.'],
+      ['WIJNMALEN, D.J.D. (2007). Analysis of benefits, opportunities, costs, and risks (BOCR)'],
+      ['  with the AHP-ANP. Mathematical and Computer Modelling, 46(7-8), 892-905.'],
+      ['PETRILLO, A.; SALOMON, V.A.P.; TRAMARICO, C.L. (2023). State-of-the-Art Review on'],
+      ['  Analytic Hierarchy Process with BOCR. JRFM, 16(8), 372.'],
+      [''],
+      ['SOFTWARE'],
+      ['Sistema:', 'AHP-BOCR Decision Support System v2.1'],
+      ['Desenvolvido para:', 'Dissertação de Mestrado em Engenharia de Produção'],
+      ['Instituição:', 'UNESP - Universidade Estadual Paulista'],
+      ['Campus:', 'Guaratinguetá'],
+    ];
+    const wsMeta = XLSX.utils.aoa_to_sheet(metaData);
+    wsMeta['!cols'] = [{ wch: 20 }, { wch: 70 }];
+    XLSX.utils.book_append_sheet(wb, wsMeta, 'Referências');
+
+    // ===== DOWNLOAD =====
+    XLSX.writeFile(wb, `resultados_completos_${project.name.replace(/\s+/g, '_')}.xlsx`);
+  };
+
+  // ============================================================
+  // LOADING / ERROR
+  // ============================================================
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando resultados...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <span className="text-3xl">⚠️</span>
+          </div>
+          <h1 className="text-xl font-bold text-gray-800 mb-2">Erro</h1>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={() => window.history.back()}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            Voltar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!project || !calculation) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md text-center">
+          <div className="text-6xl mb-4">📊</div>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">Nenhum Resultado Disponível</h2>
+          <p className="text-gray-600 mb-6">
+            {!project 
+              ? 'Projeto não encontrado.'
+              : 'Este projeto ainda não possui resultados calculados. Execute uma simulação ou colete respostas reais primeiro.'}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => window.location.href = '/decisor/projetos'}
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              ← Voltar para Projetos
+            </button>
+            <button
+              onClick={() => window.location.href = '/decisor/simulacao'}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            >
+              🧪 Ir para Simulação
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ============================================================
+  // RENDER
+  // ============================================================
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">📊 Resultados da Análise</h1>
+              <p className="text-gray-500 text-sm mt-1">{project.name}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {audit && (
+                <div className={`px-4 py-2 rounded-lg text-white font-bold ${getGradeColor(audit.validacao_cientifica?.nota_metodologica)}`}>
+                  Nota: {audit.validacao_cientifica?.nota_metodologica} ({audit.validacao_cientifica?.score}%)
+                </div>
+              )}
+              <button
+                onClick={() => window.location.href = '/decisor/projetos'}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                ← Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Tabs */}
+      <div className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4">
+          <nav className="flex gap-1 overflow-x-auto">
+            {[
+              { id: 'overview', label: '📋 Visão Geral', icon: '📋' },
+              { id: 'demographics', label: '👥 Perfil Demográfico', icon: '👥' },
+              { id: 'quality', label: '🔍 Qualidade', icon: '🔍' },
+              { id: 'consistency', label: '✓ Consistência', icon: '✓' },
+              { id: 'weights', label: '⚖️ Pesos', icon: '⚖️' },
+              { id: 'ranking', label: '🏆 Ranking', icon: '🏆' },
+              { id: 'sensitivity', label: '📈 Sensibilidade', icon: '📈' },
+              { id: 'audit', label: '🤖 Parecer IA', icon: '🤖' },
+              { id: 'academic', label: '✍️ Texto A1', icon: '✍️' },
+              { id: 'export', label: '📥 Exportar', icon: '📥' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  activeTab === tab.id 
+                    ? 'border-indigo-600 text-indigo-600' 
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      {/* Content */}
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        
+        {/* ==================================================
+            TAB: VISÃO GERAL
+        ================================================== */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Cards de Resumo */}
+            <div className="grid md:grid-cols-4 gap-4">
+              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-indigo-500">
+                <p className="text-gray-500 text-sm">Especialistas</p>
+                <p className="text-3xl font-bold text-gray-900">{calculation.responseCount}</p>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
+                <p className="text-gray-500 text-sm">CR Global</p>
+                <p className="text-3xl font-bold text-gray-900">{formatPercent(calculation.bocrConsistency.cr)}</p>
+                <p className={`text-xs ${getCRStatus(calculation.bocrConsistency.cr).color}`}>
+                  {getCRStatus(calculation.bocrConsistency.cr).status}
+                </p>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
+                <p className="text-gray-500 text-sm">Alternativas</p>
+                <p className="text-3xl font-bold text-gray-900">{project.alternatives.length}</p>
+              </div>
+              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-amber-500">
+                <p className="text-gray-500 text-sm">Métodos de Síntese</p>
+                <p className="text-3xl font-bold text-gray-900">5</p>
+              </div>
+            </div>
+
+            {/* Vencedor com Análise de Diferença */}
+            {calculation.finalScores.length > 0 && (() => {
+              const sorted = [...calculation.finalScores].sort((a, b) => 
+                (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+              );
+              const first = sorted[0];
+              const second = sorted[1];
+              const diff = second ? Math.abs((first?.scoreAdditive || 0) - (second?.scoreAdditive || 0)) : 0;
+              const diffPercent = diff * 100;
+              
+              // Classificação da diferença
+              let diffStatus = { label: '', color: '', icon: '' };
+              if (diffPercent < 2) {
+                diffStatus = { label: 'Empate Técnico', color: 'bg-amber-500', icon: '⚠️' };
+              } else if (diffPercent < 5) {
+                diffStatus = { label: 'Diferença Marginal', color: 'bg-yellow-500', icon: '📊' };
+              } else if (diffPercent < 10) {
+                diffStatus = { label: 'Diferença Moderada', color: 'bg-blue-500', icon: '✓' };
+              } else {
+                diffStatus = { label: 'Diferença Significativa', color: 'bg-green-500', icon: '✓✓' };
+              }
+              
+              return (
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
+                        <span className="text-4xl">🏆</span>
+                      </div>
+                      <div>
+                        <p className="text-white/80 text-sm">Alternativa Recomendada</p>
+                        <h2 className="text-2xl font-bold">{first?.name}</h2>
+                        <p className="text-white/70 text-sm mt-1">
+                          Score: {(first?.scoreAdditive || 0).toFixed(4)} (Método Aditivo)
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Indicador de Diferença */}
+                    {second && (
+                      <div className="text-right">
+                        <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${diffStatus.color} text-white`}>
+                          <span>{diffStatus.icon}</span>
+                          <span>{diffStatus.label}</span>
+                        </div>
+                        <p className="text-white/60 text-xs mt-2">
+                          Δ vs {second.name}: {diffPercent.toFixed(2)}%
+                        </p>
+                        {diffPercent < 5 && (
+                          <p className="text-amber-200 text-xs mt-1">
+                            ⚡ Consulte análise de sensibilidade
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Gráfico de Pesos BOCR - Barras Horizontais */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Pesos Estratégicos BOCR</h3>
+              <div className="space-y-4">
+                {['Benefícios', 'Oportunidades', 'Custos', 'Riscos'].map((label, idx) => {
+                  const weight = calculation.bocrWeights[idx] || 0;
+                  const colors = ['bg-green-500', 'bg-blue-500', 'bg-orange-500', 'bg-red-500'];
+                  return (
+                    <div key={idx} className="flex items-center gap-4">
+                      <div className="w-32 text-sm font-medium text-gray-700">{label}</div>
+                      <div className="flex-1 h-8 bg-gray-100 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${colors[idx]} transition-all duration-500 flex items-center justify-end pr-3`}
+                          style={{ width: `${weight * 100}%` }}
+                        >
+                          <span className="text-white text-xs font-bold">{formatPercent(weight)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Perfil BOCR por Alternativa */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+  <h3 className="text-lg font-semibold text-gray-800 mb-4">Perfil BOCR por Alternativa</h3>
+  <p className="text-sm text-gray-500 mb-4">
+    Baseado em Wijnmalen (2007): B+O crescem para direita (positivo), C+R crescem para esquerda (negativo)
+  </p>
+  <div className="space-y-6">
+    {(() => {
+      // PRÉ-CALCULAR valores BOCR para todas as alternativas
+      const altBOCRData = calculation.finalScores.map((alt) => {
+        let b = alt.B || 0;
+        let o = alt.O || 0;
+        let c = alt.C || 0;
+        let r = alt.R || 0;
+        
+        // Se não tiver valores diretos, calcular a partir de altScores
+        if (b === 0 && o === 0 && c === 0 && r === 0 && calculation.altScores) {
+          const bocrVals = calculateAltBOCR(
+            alt.code,
+            calculation.altScores,
+            calculation.subWeights,
+            calculation.bocrWeights
+          );
+          b = bocrVals.B;
+          o = bocrVals.O;
+          c = bocrVals.C;
+          r = bocrVals.R;
+        }
+        
+        // Se ainda não tiver valores, usar os scores como proxy
+        if (b === 0 && o === 0 && c === 0 && r === 0) {
+          const total = Math.abs(alt.scoreAdditive || 1);
+          b = total * (calculation.bocrWeights[0] || 0.25);
+          o = total * (calculation.bocrWeights[1] || 0.25);
+          c = total * (calculation.bocrWeights[2] || 0.25);
+          r = total * (calculation.bocrWeights[3] || 0.25);
+        }
+        
+        return {
+          name: alt.name,
+          b, o, c, r,
+          positive: b + o,
+          negative: c + r
+        };
+      });
+      
+      // ESCALA GLOBAL - máximo entre todas as alternativas
+      const globalMax = Math.max(
+        ...altBOCRData.map(d => d.positive),
+        ...altBOCRData.map(d => d.negative),
+        0.01
+      );
+      
+      return altBOCRData.map((data, idx) => (
+        <div key={idx} className="relative">
+          <div className="text-sm font-medium text-gray-700 mb-2">{data.name}</div>
+          <div className="flex items-center h-10">
+            {/* Lado negativo (C+R) - cresce para esquerda */}
+            <div className="flex-1 flex justify-end">
+              <div 
+                className="h-8 bg-red-400 rounded-l flex items-center justify-start pl-2"
+                style={{ 
+                  width: `${(data.negative / globalMax) * 100}%`, 
+                  minWidth: data.negative > 0.001 ? '20px' : '0' 
+                }}
+              >
+                {data.negative > 0.01 && (
+                  <span className="text-white text-xs font-medium">
+                    C+R: {data.negative.toFixed(4)}
+                  </span>
+                )}
+              </div>
+            </div>
+            {/* Centro */}
+            <div className="w-1 h-12 bg-gray-400 flex-shrink-0"></div>
+            {/* Lado positivo (B+O) - cresce para direita */}
+            <div className="flex-1">
+              <div 
+                className="h-8 bg-green-400 rounded-r flex items-center justify-end pr-2"
+                style={{ 
+                  width: `${(data.positive / globalMax) * 100}%`, 
+                  minWidth: data.positive > 0.001 ? '20px' : '0' 
+                }}
+              >
+                {data.positive > 0.01 && (
+                  <span className="text-white text-xs font-medium">
+                    B+O: {data.positive.toFixed(4)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ));
+    })()}
+  </div>
+  <div className="flex justify-center gap-8 mt-4 text-xs text-gray-500">
+    <span>← Custos + Riscos (negativo)</span>
+    <span>Benefícios + Oportunidades (positivo) →</span>
+  </div>
+</div>
+
+            {/* Gráfico de Radar Comparativo - Alizadeh (2020) */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Gráfico de Radar Comparativo</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Visualização de trade-offs entre alternativas nos 4 méritos BOCR (Alizadeh et al., 2020)
+              </p>
+              
+              <div className="flex justify-center">
+                <svg viewBox="0 0 500 420" className="w-full max-w-md">
+                  {(() => {
+                    // CONSTANTES CENTRALIZADAS - garante consistência
+                    const CX = 250;  // Centro X
+                    const CY = 200;  // Centro Y
+                    const MAX_R = 140;  // Raio máximo
+                    const ANGLES = [-90, 0, 90, 180];  // Topo, Direita, Baixo, Esquerda
+                    
+                    const toRad = (deg: number) => (deg * Math.PI) / 180;
+                    const getX = (angle: number, r: number) => CX + r * Math.cos(toRad(angle));
+                    const getY = (angle: number, r: number) => CY + r * Math.sin(toRad(angle));
+                    
+                    return (
+                      <>
+                        {/* Grid concêntrico */}
+                        {[0.2, 0.4, 0.6, 0.8, 1.0].map((level, i) => {
+                          const r = level * MAX_R;
+                          const points = ANGLES.map(angle => `${getX(angle, r)},${getY(angle, r)}`).join(' ');
+                          return (
+                            <polygon
+                              key={i}
+                              points={points}
+                              fill="none"
+                              stroke="#e5e7eb"
+                              strokeWidth="1"
+                            />
+                          );
+                        })}
+                        
+                        {/* Eixos */}
+                        {ANGLES.map((angle, i) => (
+                          <line
+                            key={i}
+                            x1={CX}
+                            y1={CY}
+                            x2={getX(angle, MAX_R)}
+                            y2={getY(angle, MAX_R)}
+                            stroke="#d1d5db"
+                            strokeWidth="1"
+                          />
+                        ))}
+                        
+                        {/* Labels */}
+                        <text x={CX} y={CY - MAX_R - 15} textAnchor="middle" className="text-sm fill-green-600 font-semibold">Benefícios</text>
+                        <text x={CX + MAX_R + 15} y={CY + 5} textAnchor="start" className="text-sm fill-blue-600 font-semibold">Oportunidades</text>
+                        <text x={CX} y={CY + MAX_R + 25} textAnchor="middle" className="text-sm fill-orange-600 font-semibold">Custos</text>
+                        <text x={CX - MAX_R - 15} y={CY + 5} textAnchor="end" className="text-sm fill-red-600 font-semibold">Riscos</text>
+                        
+                        {/* Polígonos e pontos das alternativas */}
+                        {calculation.finalScores.map((alt, altIdx) => {
+                          const b = alt.B || 0;
+                          const o = alt.O || 0;
+                          const c = alt.C || 0;
+                          const altR = alt.R || 0;
+                          
+                          const maxVal = Math.max(
+                            ...calculation.finalScores.flatMap(a => [a.B || 0, a.O || 0, a.C || 0, a.R || 0]),
+                            0.01
+                          );
+                          
+                          const values = [b, o, c, altR].map(v => Math.min(v / maxVal, 1));
+                          const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
+                          const color = colors[altIdx % colors.length];
+                          
+                          // Calcular pontos do polígono
+                          const polygonPoints = ANGLES.map((angle, i) => {
+                            const r = values[i] * MAX_R;
+                            return `${getX(angle, r)},${getY(angle, r)}`;
+                          }).join(' ');
+                          
+                          return (
+                            <g key={altIdx}>
+                              <polygon
+                                points={polygonPoints}
+                                fill={color}
+                                fillOpacity="0.2"
+                                stroke={color}
+                                strokeWidth="2"
+                              />
+                              {/* Pontos nos vértices - mesmas coordenadas do polígono */}
+                              {ANGLES.map((angle, i) => {
+                                const r = values[i] * MAX_R;
+                                return (
+                                  <circle
+                                    key={i}
+                                    cx={getX(angle, r)}
+                                    cy={getY(angle, r)}
+                                    r="5"
+                                    fill={color}
+                                    stroke="white"
+                                    strokeWidth="1"
+                                  />
+                                );
+                              })}
+                            </g>
+                          );
+                        })}
+                      </>
+                    );
+                  })()}
+                </svg>
+              </div>
+              
+              {/* Legenda */}
+              <div className="flex justify-center gap-6 mt-4">
+                {calculation.finalScores.map((alt, idx) => {
+                  const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
+                  return (
+                    <div key={idx} className="flex items-center gap-2">
+                      <div 
+                        className="w-4 h-4 rounded" 
+                        style={{ backgroundColor: colors[idx % colors.length] }}
+                      ></div>
+                      <span className="text-sm text-gray-700">{alt.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              
+              <p className="text-xs text-gray-400 text-center mt-4">
+                Nota: Quanto maior a área do polígono nos quadrantes B e O, e menor em C e R, melhor o desempenho global.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: PERFIL DEMOGRÁFICO - DASHBOARD VISUAL
+        ================================================== */}
+        {activeTab === 'demographics' && (
+          <div className="space-y-6">
+            {/* Header com Toggle */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-800">👥 Perfil Demográfico dos Especialistas</h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  Caracterização da amostra (n={respondentsDemographics.length})
+                </p>
+              </div>
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setDemographicView('dashboard')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    demographicView === 'dashboard' 
+                      ? 'bg-white text-indigo-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  📊 Dashboard
+                </button>
+                <button
+                  onClick={() => setDemographicView('table')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    demographicView === 'table' 
+                      ? 'bg-white text-indigo-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  📋 Tabela
+                </button>
+              </div>
+            </div>
+
+            {respondentsDemographics.length === 0 ? (
+              <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+                <div className="text-6xl mb-4">👥</div>
+                <p className="text-lg text-gray-600 mb-2">Nenhum dado demográfico disponível</p>
+                <p className="text-sm text-gray-500">Os respondentes ainda não completaram suas avaliações ou os dados demográficos não foram coletados.</p>
+              </div>
+            ) : demographicView === 'dashboard' && demographicDashboardData ? (
+              /* ========== DASHBOARD VISUAL ========== */
+              <div className="space-y-6">
+                {/* KPIs no Topo */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  {/* KPI Principal */}
+                  <div className="md:col-span-1 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-xl p-6 text-white shadow-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-indigo-200 text-sm font-medium">Total de Respondentes</p>
+                        <p className="text-5xl font-bold mt-2">{demographicDashboardData.total}</p>
+                        <p className="text-indigo-200 text-sm mt-2">especialistas consultados</p>
+                      </div>
+                      <div className="text-6xl opacity-20">👥</div>
+                    </div>
+                  </div>
+
+                  {/* KPI Experiência */}
+                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <p className="text-gray-500 text-sm">+20 anos experiência</p>
+                    {(() => {
+                      const experientes = respondentsDemographics.filter(d => 
+                        ['21_30', 'mais_30'].includes(d.tempoTrabalho)
+                      ).length;
+                      const total = respondentsDemographics.length;
+                      return (
+                        <>
+                          <p className="text-3xl font-bold text-gray-800 mt-1">
+                            {experientes} <span className="text-lg font-normal text-gray-500">({(experientes/total*100).toFixed(0)}%)</span>
+                          </p>
+                          <div className="flex items-center gap-1 mt-2 text-sm text-green-600">
+                            <span>✓</span> Profissionais experientes
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  {/* KPI Pós-graduados */}
+                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <p className="text-gray-500 text-sm">Pós-graduados</p>
+                    {(() => {
+                      const posGrad = respondentsDemographics.filter(d => 
+                        ['especializacao', 'mestrado', 'doutorado'].includes(d.formacao)
+                      ).length;
+                      const total = respondentsDemographics.length;
+                      return (
+                        <>
+                          <p className="text-3xl font-bold text-indigo-600 mt-1">
+                            {posGrad} <span className="text-lg font-normal text-gray-500">({(posGrad/total*100).toFixed(0)}%)</span>
+                          </p>
+                          <p className="text-sm text-gray-500 mt-2">Alta qualificação</p>
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  {/* KPI Gestores */}
+                  <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+                    <p className="text-gray-500 text-sm">Gestores (Ger+Dir+C)</p>
+                    {(() => {
+                      const gestores = respondentsDemographics.filter(d => 
+                        ['gerente', 'diretor', 'c_level'].includes(d.funcao)
+                      ).length;
+                      const total = respondentsDemographics.length;
+                      return (
+                        <>
+                          <p className="text-3xl font-bold text-amber-600 mt-1">
+                            {gestores} <span className="text-lg font-normal text-gray-500">({(gestores/total*100).toFixed(0)}%)</span>
+                          </p>
+                          <p className="text-sm text-gray-500 mt-2">Poder de decisão</p>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {/* Grid de Gráficos */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* Gênero - Donut Chart */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                      <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <span>👤</span> Distribuição por Gênero
+                      </h4>
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-center justify-between">
+                        <ResponsiveContainer width="50%" height={180}>
+                          <PieChart>
+                            <Pie
+                              data={demographicDashboardData.gender}
+                              cx="50%"
+                              cy="50%"
+                              innerRadius={45}
+                              outerRadius={75}
+                              paddingAngle={3}
+                              dataKey="value"
+                            >
+                              {demographicDashboardData.gender.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#EC4899'} />
+                              ))}
+                            </Pie>
+                            <Tooltip 
+                              formatter={(value) => {
+                                const v = Number(value) || 0;
+                                return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes'];
+                              }}
+                            />
+                          </PieChart>
+                        </ResponsiveContainer>
+                        <div className="flex flex-col gap-3 pr-4">
+                          {demographicDashboardData.gender.map((item, index) => (
+                            <div key={item.name} className="flex items-center gap-3">
+                              <div 
+                                className="w-4 h-4 rounded-full" 
+                                style={{ backgroundColor: index === 0 ? '#3B82F6' : '#EC4899' }}
+                              />
+                              <div>
+                                <p className="font-medium text-gray-700">{item.name}</p>
+                                <p className="text-sm text-gray-500">
+                                  {item.value} ({((item.value / demographicDashboardData.total) * 100).toFixed(1)}%)
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Faixa Etária - Bar Chart Vertical */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                      <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <span>📅</span> Distribuição por Faixa Etária
+                      </h4>
+                    </div>
+                    <div className="p-5">
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={demographicDashboardData.age} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} />
+                          <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                          <Bar dataKey="value" fill="#60A5FA" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Formação - Bar Chart Horizontal */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                      <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <span>🎓</span> Nível de Formação Acadêmica
+                      </h4>
+                    </div>
+                    <div className="p-5">
+                      <ResponsiveContainer width="100%" height={demographicDashboardData.education.length * 40 + 20}>
+                        <BarChart data={demographicDashboardData.education} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                          <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
+                          <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={90} />
+                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                          <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                            {demographicDashboardData.education.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={['#6366F1', '#818CF8', '#A5B4FC', '#C7D2FE'][index % 4]} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Experiência - Bar Chart Vertical */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                      <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <span>⏱️</span> Tempo de Experiência Profissional
+                      </h4>
+                    </div>
+                    <div className="p-5">
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={demographicDashboardData.experience} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} />
+                          <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                          <Bar dataKey="value" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Cargo - Bar Chart Horizontal (Ordenado) */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                      <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <span>💼</span> Distribuição por Cargo
+                      </h4>
+                    </div>
+                    <div className="p-5">
+                      {(() => {
+                        const sortedRoles = [...demographicDashboardData.role].sort((a, b) => b.value - a.value);
+                        return (
+                          <ResponsiveContainer width="100%" height={sortedRoles.length * 40 + 20}>
+                            <BarChart data={sortedRoles} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                              <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={90} />
+                              <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                              <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                                {sortedRoles.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE'][index % 5]} />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                    </div>
+                  </div>
+
+                  {/* Área de Atuação - Bar Chart Horizontal (Pareto) */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
+                      <h4 className="font-semibold text-gray-800 flex items-center gap-2">
+                        <span>🏭</span> Área de Atuação (Pareto)
+                      </h4>
+                    </div>
+                    <div className="p-5">
+                      {(() => {
+                        const sortedAreas = [...demographicDashboardData.area].sort((a, b) => b.value - a.value);
+                        const areaColors = ['#10B981', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#94A3B8'];
+                        return (
+                          <ResponsiveContainer width="100%" height={sortedAreas.length * 40 + 20}>
+                            <BarChart data={sortedAreas} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                              <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={100} />
+                              <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                              <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                                {sortedAreas.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={areaColors[index % areaColors.length]} />
+                                ))}
+                              </Bar>
+                            </BarChart>
+                          </ResponsiveContainer>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Resumo da Amostra */}
+                <div className="bg-gradient-to-r from-slate-50 to-indigo-50 rounded-xl p-6 border border-slate-200">
+                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <span>📊</span> Resumo da Caracterização Amostral
+                  </h4>
+                  <p className="text-gray-600 leading-relaxed">
+                    A amostra é composta por <strong>{demographicDashboardData.total} especialistas</strong>
+                    {demographicDashboardData.gender.length > 0 && (
+                      <>, predominantemente do gênero {demographicDashboardData.gender[0].value > (demographicDashboardData.gender[1]?.value || 0) ? demographicDashboardData.gender[0].name.toLowerCase() : demographicDashboardData.gender[1]?.name.toLowerCase()} 
+                      ({((Math.max(demographicDashboardData.gender[0].value, demographicDashboardData.gender[1]?.value || 0) / demographicDashboardData.total) * 100).toFixed(0)}%)</>
+                    )}
+                    {demographicDashboardData.age.length > 0 && (
+                      <>. A faixa etária mais representativa é de <strong>{[...demographicDashboardData.age].sort((a, b) => b.value - a.value)[0]?.name}</strong></>
+                    )}
+                    {(() => {
+                      const posGrad = respondentsDemographics.filter(d => ['especializacao', 'mestrado', 'doutorado'].includes(d.formacao)).length;
+                      return posGrad > 0 && (
+                        <>. Em termos de formação, <strong>{((posGrad / demographicDashboardData.total) * 100).toFixed(0)}%</strong> possuem pós-graduação</>
+                      );
+                    })()}
+                    {demographicDashboardData.area.length > 0 && (
+                      <>. A área de <strong>{[...demographicDashboardData.area].sort((a, b) => b.value - a.value)[0]?.name}</strong> concentra a maior parte dos respondentes, validando a aderência da amostra ao contexto de Indústria 4.0 no setor automotivo.</>
+                    )}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              /* ========== TABELA ACADÊMICA CLÁSSICA ========== */
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                {/* Título da Tabela */}
+                <div className="px-6 py-4 border-b border-gray-200">
+                  <p className="text-sm text-gray-800">
+                    <strong>Tabela 1</strong> – Caracterização sociodemográfica e profissional dos especialistas participantes (n = {respondentsDemographics.length})
+                  </p>
+                </div>
+
+                {/* Tabela */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    {/* Cabeçalho */}
+                    <thead>
+                      <tr className="border-t-2 border-b-2 border-gray-800">
+                        <th className="px-4 py-3 text-left font-semibold text-gray-800">Variável</th>
+                        <th className="px-4 py-3 text-left font-semibold text-gray-800">Categoria</th>
+                        <th className="px-4 py-3 text-center font-semibold text-gray-800 w-16">n</th>
+                        <th className="px-4 py-3 text-center font-semibold text-gray-800 w-20">%</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {/* Faixa Etária */}
+                      {[
+                        { value: 'menos_30', label: 'Menos de 30 anos' },
+                        { value: '31_40', label: '31 a 40 anos' },
+                        { value: '41_50', label: '41 a 50 anos' },
+                        { value: 'mais_50', label: 'Mais de 50 anos' }
+                      ].map((opt, idx, arr) => {
+                        const count = respondentsDemographics.filter(d => d.idade === opt.value).length;
+                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                        return (
+                          <tr key={`idade-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                            {idx === 0 && (
+                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                Faixa Etária
+                              </td>
+                            )}
+                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                          </tr>
+                        );
+                      })}
+
+                      {/* Gênero */}
+                      {[
+                        { value: 'masculino', label: 'Masculino' },
+                        { value: 'feminino', label: 'Feminino' }
+                      ].map((opt, idx, arr) => {
+                        const count = respondentsDemographics.filter(d => d.genero === opt.value).length;
+                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                        return (
+                          <tr key={`genero-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                            {idx === 0 && (
+                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                Gênero
+                              </td>
+                            )}
+                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                          </tr>
+                        );
+                      })}
+
+                      {/* Nível de Formação */}
+                      {[
+                        { value: 'superior', label: 'Graduação' },
+                        { value: 'especializacao', label: 'Especialização / MBA' },
+                        { value: 'mestrado', label: 'Mestrado' },
+                        { value: 'doutorado', label: 'Doutorado ou superior' }
+                      ].map((opt, idx, arr) => {
+                        const count = respondentsDemographics.filter(d => d.formacao === opt.value).length;
+                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                        return (
+                          <tr key={`formacao-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                            {idx === 0 && (
+                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                Nível de Formação
+                              </td>
+                            )}
+                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                          </tr>
+                        );
+                      })}
+
+                      {/* Tempo de Experiência */}
+                      {[
+                        { value: 'menos_10', label: 'Menos de 10 anos' },
+                        { value: '11_20', label: '11 a 20 anos' },
+                        { value: '21_30', label: '21 a 30 anos' },
+                        { value: 'mais_30', label: 'Mais de 30 anos' }
+                      ].map((opt, idx, arr) => {
+                        const count = respondentsDemographics.filter(d => d.tempoTrabalho === opt.value).length;
+                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                        return (
+                          <tr key={`exp-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                            {idx === 0 && (
+                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                Tempo de Experiência
+                              </td>
+                            )}
+                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                          </tr>
+                        );
+                      })}
+
+                      {/* Área de Atuação */}
+                      {(() => {
+                        const options = [
+                          { value: 'producao', label: 'Produção' },
+                          { value: 'eng_processos', label: 'Engenharia de Processos' },
+                          { value: 'qualidade', label: 'Qualidade' },
+                          { value: 'manutencao', label: 'Manutenção' },
+                          { value: 'logistica', label: 'Logística' },
+                          { value: 'ti', label: 'Tecnologia da Informação' },
+                          { value: 'financas', label: 'Finanças' }
+                        ];
+                        return options.map((opt, idx, arr) => {
+                          const count = respondentsDemographics.filter(d => d.areaAtuacao === opt.value).length;
+                          const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                          return (
+                            <tr key={`area-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                              {idx === 0 && (
+                                <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                  Área de Atuação
+                                </td>
+                              )}
+                              <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                              <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                              <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                            </tr>
+                          );
+                        });
+                      })()}
+
+                      {/* Função / Cargo */}
+                      {(() => {
+                        const options = [
+                          { value: 'c_level', label: 'C-Level (CEO, CFO, CTO)' },
+                          { value: 'diretor', label: 'Diretor' },
+                          { value: 'gerente', label: 'Gerente' },
+                          { value: 'supervisor', label: 'Supervisor / Coordenador' },
+                          { value: 'analista', label: 'Analista / Engenheiro / Especialista' }
+                        ];
+                        return options.map((opt, idx, arr) => {
+                          const count = respondentsDemographics.filter(d => d.funcao === opt.value).length;
+                          const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                          return (
+                            <tr key={`funcao-${idx}`}>
+                              {idx === 0 && (
+                                <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                  Cargo / Função
+                                </td>
+                              )}
+                              <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                              <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                              <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                            </tr>
+                          );
+                        });
+                      })()}
+                    </tbody>
+
+                    {/* Rodapé */}
+                    <tfoot>
+                      <tr className="border-t-2 border-gray-800">
+                        <td colSpan={2} className="px-4 py-3 text-gray-800 font-semibold">
+                          Total
+                        </td>
+                        <td className="px-4 py-3 text-center text-gray-800 font-semibold">
+                          {respondentsDemographics.length}
+                        </td>
+                        <td className="px-4 py-3 text-center text-gray-800 font-semibold">
+                          100,0
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+
+                {/* Nota de Rodapé */}
+                <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">
+                    <strong>Fonte:</strong> Dados primários da pesquisa ({new Date().getFullYear()}).
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: QUALIDADE DOS DADOS
+        ================================================== */}
+        {activeTab === 'quality' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">🔍 Análise de Qualidade das Respostas</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Detecta padrões suspeitos que podem comprometer a validade científica
+                  </p>
+                </div>
+                <button
+                  onClick={runQualityAnalysis}
+                  disabled={qualityLoading || projectResponses.length === 0}
+                  className={`px-6 py-3 rounded-lg font-medium ${
+                    qualityLoading || projectResponses.length === 0
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  }`}
+                >
+                  {qualityLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      Analisando...
+                    </span>
+                  ) : '🔬 Analisar Qualidade'}
+                </button>
+              </div>
+
+              <div className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <strong>O que esta análise detecta:</strong>
+                <ul className="mt-2 space-y-1 ml-4 list-disc">
+                  <li>CR individual alto (&gt; 10% alerta, &gt; 20% crítico)</li>
+                  <li>Respostas muito uniformes (todas iguais ou pouca variação)</li>
+                  <li>Uso excessivo de valores extremos (1 ou 9)</li>
+                  <li>Contradições lógicas (violações de transitividade)</li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Resultados da Análise */}
+            {qualityAnalysis && (
+              <>
+                {/* Painel de Filtro de Respondentes */}
+                <QualityDashboard respondents={qualityRespondentsData || []} />
+
+                {/* Status Geral */}
+                <div className={`rounded-xl p-6 border-2 ${
+                  qualityAnalysis.overall?.status === 'EXCELENTE' ? 'bg-green-50 border-green-300' :
+                  qualityAnalysis.overall?.status === 'BOA' ? 'bg-blue-50 border-blue-300' :
+                  qualityAnalysis.overall?.status === 'ACEITÁVEL' ? 'bg-yellow-50 border-yellow-300' :
+                  qualityAnalysis.overall?.status === 'PROBLEMÁTICA' ? 'bg-orange-50 border-orange-300' :
+                  'bg-red-50 border-red-300'
+                }`}>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-4xl">
+                        {qualityAnalysis.overall?.status === 'EXCELENTE' ? '✅' :
+                         qualityAnalysis.overall?.status === 'BOA' ? '👍' :
+                         qualityAnalysis.overall?.status === 'ACEITÁVEL' ? '⚠️' :
+                         qualityAnalysis.overall?.status === 'PROBLEMÁTICA' ? '⚠️' : '❌'}
+                      </span>
+                      <div>
+                        <p className="font-bold text-xl">Qualidade {qualityAnalysis.overall?.status}</p>
+                        <p className="text-sm text-gray-600">{qualityAnalysis.overall?.recommendation}</p>
+                      </div>
+                    </div>
+                    <div className="text-center">
+                      <p className={`text-4xl font-bold ${
+                        qualityAnalysis.overall?.qualityScore >= 80 ? 'text-green-600' :
+                        qualityAnalysis.overall?.qualityScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                      }`}>{qualityAnalysis.overall?.qualityScore}/100</p>
+                      <p className="text-sm text-gray-500">Score Médio</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Estatísticas */}
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div className="bg-green-50 rounded-xl p-4 border border-green-200 text-center">
+                    <p className="text-3xl font-bold text-green-600">{qualityAnalysis.statistics?.byStatus?.CONFIÁVEL || 0}</p>
+                    <p className="text-sm text-green-700">🟢 Confiáveis</p>
+                  </div>
+                  <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-center">
+                    <p className="text-3xl font-bold text-yellow-600">{qualityAnalysis.statistics?.byStatus?.REVISAR || 0}</p>
+                    <p className="text-sm text-yellow-700">🟡 A Revisar</p>
+                  </div>
+                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-200 text-center">
+                    <p className="text-3xl font-bold text-orange-600">{qualityAnalysis.statistics?.byStatus?.SUSPEITO || 0}</p>
+                    <p className="text-sm text-orange-700">🟠 Suspeitos</p>
+                  </div>
+                  <div className="bg-red-50 rounded-xl p-4 border border-red-200 text-center">
+                    <p className="text-3xl font-bold text-red-600">{qualityAnalysis.statistics?.byStatus?.CRÍTICO || 0}</p>
+                    <p className="text-sm text-red-700">🔴 Críticos</p>
+                  </div>
+                </div>
+
+                {/* Tipos de Problemas Detectados */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h4 className="font-semibold text-gray-800 mb-4">📊 Tipos de Problemas Detectados</h4>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {qualityAnalysis.statistics?.flagCounts && Object.entries(qualityAnalysis.statistics.flagCounts).map(([flag, count]) => (
+                      <div key={flag} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <span className="text-sm text-gray-600">
+                          {flag === 'CR_ALTO' ? '⚠️ CR Alto' :
+                           flag === 'TUDO_IGUAL' ? '🔁 Tudo Igual' :
+                           flag === 'PADRAO_UNIFORME' ? '📏 Padrão Uniforme' :
+                           flag === 'VALORES_EXTREMOS' ? '📊 Valores Extremos' :
+                           flag === 'CONTRADICAO' ? '🔄 Contradições' :
+                           flag === 'POUCOS_JULGAMENTOS' ? '📝 Poucos Julgamentos' : flag}
+                        </span>
+                        <span className={`font-bold ${(count as number) > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                          {count as number}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Lista de Respondentes */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h4 className="font-semibold text-gray-800 mb-4">👥 Análise por Respondente</h4>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-50">
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">ID</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700">Status</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700">Score</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700">CR Médio</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Problemas</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Recomendação</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {qualityAnalysis.respondents?.map((r: any, idx: number) => (
+                          <tr key={idx} className={`border-t ${
+                            r.status === 'CRÍTICO' ? 'bg-red-50' :
+                            r.status === 'SUSPEITO' ? 'bg-orange-50' :
+                            r.status === 'REVISAR' ? 'bg-yellow-50' : ''
+                          }`}>
+                            <td className="px-4 py-3 font-mono text-xs">
+                              {r.respondentId?.slice(0, 8)}...
+                              {r.isSimulated && <span className="ml-1 text-orange-500">(sim)</span>}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                r.status === 'CONFIÁVEL' ? 'bg-green-100 text-green-800' :
+                                r.status === 'REVISAR' ? 'bg-yellow-100 text-yellow-800' :
+                                r.status === 'SUSPEITO' ? 'bg-orange-100 text-orange-800' :
+                                'bg-red-100 text-red-800'
+                              }`}>
+                                {r.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-center font-bold">{r.overallScore}</td>
+                            <td className={`px-4 py-3 text-center ${r.metrics?.avgCR > 0.10 ? 'text-red-600' : 'text-green-600'}`}>
+                              {(r.metrics?.avgCR * 100).toFixed(1)}%
+                            </td>
+                            <td className="px-4 py-3">
+                              <div className="flex flex-wrap gap-1">
+                                {r.flags?.map((f: any, fIdx: number) => (
+                                  <span key={fIdx} className={`px-2 py-0.5 rounded text-xs ${
+                                    f.severity === 'GRAVE' ? 'bg-red-100 text-red-700' :
+                                    f.severity === 'ALERTA' ? 'bg-yellow-100 text-yellow-700' :
+                                    'bg-gray-100 text-gray-700'
+                                  }`} title={f.details}>
+                                    {f.type.replace(/_/g, ' ')}
+                                  </span>
+                                ))}
+                                {(!r.flags || r.flags.length === 0) && (
+                                  <span className="text-green-600">✓ Sem problemas</span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-xs text-gray-600 max-w-xs">
+                              {r.recommendation}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Estado inicial */}
+            {!qualityAnalysis && !qualityLoading && (
+              <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                <p className="text-4xl mb-4">🔍</p>
+                <p className="text-gray-600 mb-2">
+                  {projectResponses.length > 0 
+                    ? `${projectResponses.length} respostas disponíveis para análise`
+                    : 'Nenhuma resposta encontrada para este projeto'}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Clique em "Analisar Qualidade" para identificar respostas suspeitas
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: CONSISTÊNCIA
+        ================================================== */}
+        {activeTab === 'consistency' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Dashboard de Consistência</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Índice de Consistência (CR) ≤ 10% é aceitável segundo Saaty (1980). 
+                Resultados em <span className="text-red-600 font-medium">vermelho</span> requerem revisão.
+              </p>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Matriz</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">CR</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">λmax</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* BOCR */}
+                    <tr className="border-b">
+                      <td className="px-4 py-3 font-medium">BOCR (Méritos Estratégicos)</td>
+                      <td className={`px-4 py-3 text-center font-mono ${calculation.bocrConsistency.cr > 0.10 ? 'text-red-600 font-bold' : ''}`}>
+                        {formatPercent(calculation.bocrConsistency.cr)}
+                      </td>
+                      <td className="px-4 py-3 text-center font-mono">{calculation.bocrConsistency.lambda.toFixed(4)}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`px-2 py-1 rounded text-xs font-medium ${getCRStatus(calculation.bocrConsistency.cr).bg} ${getCRStatus(calculation.bocrConsistency.cr).color}`}>
+                          {getCRStatus(calculation.bocrConsistency.cr).status}
+                        </span>
+                      </td>
+                    </tr>
+                    
+                    {/* Subcritérios */}
+                    {['B', 'O', 'C', 'R'].map(merit => {
+                      const cons = calculation.subConsistency[merit];
+                      if (!cons) return null;
+                      const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
+                      return (
+                        <tr key={merit} className="border-b">
+                          <td className="px-4 py-3">{meritName} (Subcritérios)</td>
+                          <td className={`px-4 py-3 text-center font-mono ${cons.cr > 0.10 ? 'text-red-600 font-bold' : ''}`}>
+                            {formatPercent(cons.cr)}
+                          </td>
+                          <td className="px-4 py-3 text-center font-mono">{cons.lambda.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${getCRStatus(cons.cr).bg} ${getCRStatus(cons.cr).color}`}>
+                              {getCRStatus(cons.cr).status}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Referência */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <strong>Referência:</strong> SAATY, T. L. (1980). The Analytic Hierarchy Process. McGraw-Hill.
+                  <br />
+                  <span className="text-blue-600">
+                    Limite CR por tamanho de matriz: n=3 (5%), n=4 (8%), n≥5 (10%)
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: PESOS
+        ================================================== */}
+        {activeTab === 'weights' && (
+          <div className="space-y-6">
+            {/* Pesos BOCR - Componente Interativo */}
+            <BOCRPieChart bocrWeights={calculation.bocrWeights} />
+
+            {/* Pesos dos Subcritérios */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Pesos Globais dos Subcritérios</h3>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                {['B', 'O', 'C', 'R'].map(merit => {
+                  const weights = calculation.subWeights[merit];
+                  if (!weights) return null;
+                  
+                  const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
+                  const subs = SUBCRITERIA.filter(s => s.group === merit);
+                  const meritWeight = calculation.bocrWeights[['B', 'O', 'C', 'R'].indexOf(merit)] || 0;
+                  
+                  return (
+                    <div key={merit} className="border rounded-lg p-4">
+                      <h4 className="font-medium text-gray-700 mb-3">{meritName}</h4>
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="text-gray-500 text-xs">
+                            <th className="text-left pb-2">Subcritério</th>
+                            <th className="text-right pb-2">Local</th>
+                            <th className="text-right pb-2">Global</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {subs.map((sub, idx) => {
+                            const localWeight = weights[idx] || 0;
+                            const globalWeight = localWeight * meritWeight;
+                            return (
+                              <tr key={sub.code} className="border-t">
+                                <td className="py-2">{sub.name}</td>
+                                <td className="py-2 text-right font-mono text-gray-600">{(localWeight * 100).toFixed(1)}%</td>
+                                <td className="py-2 text-right font-mono font-medium">{(globalWeight * 100).toFixed(2)}%</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: RANKING
+        ================================================== */}
+        {activeTab === 'ranking' && (
+          <div className="space-y-6">
+            {/* Ranking por Método */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Ranking Final - 5 Métodos de Síntese</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Conforme Petrillo, Salomon & Tramarico (2023), a concordância entre múltiplos métodos aumenta a robustez da decisão.
+              </p>
+              
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700">#</th>
+                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Alternativa</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Aditivo</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Probabilístico</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700" title="Valores brutos (bB + oO - cC - rR)">Subtrativo*</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Mult. Potências</th>
+                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Mult. Simples</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...calculation.finalScores]
+                      .sort((a, b) => (b.scoreAdditive || 0) - (a.scoreAdditive || 0))
+                      .map((alt, idx) => (
+                        <tr key={idx} className={`border-b ${idx === 0 ? 'bg-green-50' : ''}`}>
+                          <td className="px-4 py-3">
+                            {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
+                          </td>
+                          <td className="px-4 py-3 font-medium">{alt.name}</td>
+                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreAdditive || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreProbabilistic || 0).toFixed(4)}</td>
+                          <td className={`px-4 py-3 text-center font-mono ${(alt.scoreSubtractiveNorm || 0) < 0 ? 'text-red-600' : ''}`}>
+                            {(alt.scoreSubtractiveNorm || 0).toFixed(4)}
+                          </td>
+                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreMultPowersNorm || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreMultSimpleNorm || 0).toFixed(4)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Fórmulas de Síntese BOCR */}
+              <div className="mt-6">
+                <h4 className="font-semibold text-gray-800 mb-4">Fórmulas de Síntese BOCR (Petrillo et al., 2023)</h4>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                    <h5 className="font-medium text-indigo-800 mb-2">1. Aditiva</h5>
+                    <p className="text-sm text-indigo-700 font-mono">
+                      Score = b·B + o·O + c·(1-C) + r·(1-R)
+                    </p>
+                    <p className="text-xs text-indigo-600 mt-2">C e R invertidos (quanto menor, melhor)</p>
+                  </div>
+                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <h5 className="font-medium text-purple-800 mb-2">2. Probabilística</h5>
+                    <p className="text-sm text-purple-700 font-mono">
+                      Score = b·B + o·O + c·(1-C) + r·(1-R)
+                    </p>
+                    <p className="text-xs text-purple-600 mt-2">Normalização probabilística</p>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <h5 className="font-medium text-blue-800 mb-2">3. Subtrativa*</h5>
+                    <p className="text-sm text-blue-700 font-mono">
+                      Score = b·B + o·O - c·C - r·R
+                    </p>
+                    <p className="text-xs text-blue-600 mt-2">
+                      Wijnmalen (2007) - <strong>Valores brutos</strong> (pode ser negativo)
+                    </p>
+                  </div>
+                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                    <h5 className="font-medium text-green-800 mb-2">4. Multiplicativa (Potências)</h5>
+                    <p className="text-sm text-green-700 font-mono">
+                      Score = B<sup>b</sup> · O<sup>o</sup> / (C<sup>c</sup> · R<sup>r</sup>)
+                    </p>
+                    <p className="text-xs text-green-600 mt-2">Pesos como expoentes</p>
+                  </div>
+                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
+                    <h5 className="font-medium text-amber-800 mb-2">5. Multiplicativa (Simples)</h5>
+                    <p className="text-sm text-amber-700 font-mono">
+                      Score = (B · O) / (C · R)
+                    </p>
+                    <p className="text-xs text-amber-600 mt-2">Razão direta sem pesos</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Nota sobre Normalização */}
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <strong>* Convenção de Normalização:</strong><br />
+                  • <strong>Aditivo, Probabilístico, Multiplicativos:</strong> Modo Distributivo (Σ = 1). Permite comparar proporções entre alternativas.<br />
+                  • <strong>Subtrativo:</strong> Valores brutos (Raw Scores). Pode ser negativo, indicando "Prejuízo Líquido" de utilidade. Conforme Wijnmalen (2007), a magnitude absoluta é preservada para análise científica.
+                </p>
+              </div>
+
+              {/* Referência */}
+              <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-sm text-gray-700">
+                  <strong>Referências Metodológicas:</strong><br />
+                  • SAATY, T.L. (1980). The Analytic Hierarchy Process. McGraw-Hill, New York.<br />
+                  • WIJNMALEN, D.J.D. (2007). Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP. 
+                  <em>Mathematical and Computer Modelling</em>, 46(7-8), 892-905.<br />
+                  • PETRILLO, A.; SALOMON, V.A.P.; TRAMARICO, C.L. (2023). State-of-the-Art Review on Analytic Hierarchy Process with Benefits, Opportunities, Costs and Risks. <em>JRFM</em>, 16(8), 372.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* ==================================================
+            TAB: QUALIDADE DA DECISÃO
+        ================================================== */}
+        {activeTab === 'quality' && calculation && (
+          <QualityAnalysis 
+            results={calculation}
+            responseCount={calculation.responseCount || 0}
+          />
+        )}
+
+        {/* ==================================================
+            TAB: SENSIBILIDADE
+        ================================================== */}
+        {activeTab === 'sensitivity' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Análise de Sensibilidade</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Mostra como o ranking mudaria se os pesos dos méritos fossem alterados. 
+                Pontos de inflexão indicam onde ocorreria inversão no ranking.
+              </p>
+              
+              {/* Pontos de Inflexão */}
+              <div className="grid md:grid-cols-4 gap-4 mb-6">
+                {['B', 'O', 'C', 'R'].map(merit => {
+                  const inflection = calculation.sensitivityInflections?.[merit] ?? null;
+                  const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
+                  const currentWeight = (calculation.bocrWeights?.[['B', 'O', 'C', 'R'].indexOf(merit)] || 0) * 100;
+                  
+                  return (
+                    <div key={merit} className={`p-4 rounded-lg border-2 ${inflection !== null ? 'border-amber-300 bg-amber-50' : 'border-green-300 bg-green-50'}`}>
+                      <h4 className="font-medium text-gray-700">{meritName}</h4>
+                      <p className="text-sm text-gray-500">Peso atual: {currentWeight.toFixed(1)}%</p>
+                      {inflection !== null ? (
+                        <p className="text-amber-700 font-medium mt-2">
+                          ⚠️ Inversão em {inflection}%
+                        </p>
+                      ) : (
+                        <p className="text-green-700 font-medium mt-2">
+                          ✓ Estável (sem inversão)
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Gráfico de Sensibilidade Simplificado */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-medium text-gray-700 mb-4">Variação do Score por Peso do Mérito</h4>
+                <div className="space-y-6">
+                  {['B', 'O', 'C', 'R'].map(merit => {
+                    const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
+                    const currentWeight = calculation.bocrWeights?.[['B', 'O', 'C', 'R'].indexOf(merit)] || 0;
+                    const inflection = calculation.sensitivityInflections?.[merit] ?? null;
+                    
+                    // Calcular scores para diferentes pesos (simulação simplificada)
+                    const sortedAlts = [...(calculation.finalScores || [])].sort((a, b) => 
+                      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+                    );
+                    const winner = sortedAlts[0];
+                    const runnerUp = sortedAlts[1];
+                    
+                    return (
+                      <div key={merit}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">{meritName}</span>
+                          <span className="text-xs text-gray-500">Peso atual: {(currentWeight * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="relative h-12 bg-gray-100 rounded overflow-hidden">
+                          {/* Barra de sensibilidade */}
+                          <div className="absolute inset-0 flex">
+                            {inflection !== null ? (
+                              <>
+                                <div 
+                                  className="bg-green-400 h-full"
+                                  style={{ width: `${inflection}%` }}
+                                  title={`${winner?.name} vence até ${inflection}%`}
+                                ></div>
+                                <div 
+                                  className="bg-amber-400 h-full"
+                                  style={{ width: `${100 - inflection}%` }}
+                                  title={`${runnerUp?.name} vence após ${inflection}%`}
+                                ></div>
+                              </>
+                            ) : (
+                              <div className="bg-green-400 h-full w-full" title={`${winner?.name} vence em qualquer peso`}></div>
+                            )}
+                          </div>
+                          {/* Marcador do peso atual */}
+                          <div 
+                            className="absolute top-0 bottom-0 w-1 bg-indigo-600"
+                            style={{ left: `${currentWeight * 100}%` }}
+                          >
+                            <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-indigo-600 rounded-full"></div>
+                          </div>
+                          {/* Marcador de inflexão */}
+                          {inflection !== null && (
+                            <div 
+                              className="absolute top-0 bottom-0 w-0.5 bg-red-500 border-l border-dashed"
+                              style={{ left: `${inflection}%` }}
+                            >
+                              <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-red-600 whitespace-nowrap">
+                                {inflection}%
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex justify-between text-xs text-gray-400 mt-1">
+                          <span>0%</span>
+                          <span>100%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                
+                {/* Legenda */}
+                <div className="flex gap-6 mt-6 justify-center text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-green-400 rounded"></div>
+                    <span>Ranking estável</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-amber-400 rounded"></div>
+                    <span>Ranking inverte</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-indigo-600 rounded"></div>
+                    <span>Peso atual</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Implicações Práticas da Sensibilidade */}
+            {(() => {
+              const meritLabels = ['B', 'O', 'C', 'R'];
+              const meritNames = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
+              const criticalMetrics = meritLabels.filter(m => {
+                const inf = calculation.sensitivityInflections?.[m];
+                return inf !== null && inf !== undefined && inf <= 10;
+              }).map(m => meritNames[meritLabels.indexOf(m)]);
+              
+              const sensitiveMetrics = meritLabels.filter(m => {
+                const inf = calculation.sensitivityInflections?.[m];
+                return inf !== null && inf !== undefined && inf > 10 && inf <= 20;
+              }).map(m => meritNames[meritLabels.indexOf(m)]);
+              
+              const isRobust = criticalMetrics.length === 0 && sensitiveMetrics.length === 0;
+              
+              return (
+                <div className={`rounded-xl shadow-sm p-6 ${
+                  isRobust ? 'bg-green-50 border border-green-200' : 
+                  criticalMetrics.length > 0 ? 'bg-red-50 border border-red-200' : 
+                  'bg-amber-50 border border-amber-200'
+                }`}>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    {isRobust ? '✅' : criticalMetrics.length > 0 ? '⚠️' : '📊'} 
+                    Implicações Práticas da Sensibilidade
+                  </h3>
+                  
+                  {isRobust ? (
+                    <div className="space-y-3">
+                      <p className="text-green-800 font-medium">
+                        O ranking é robusto: variações de até ±20% nos pesos BOCR não alteram a recomendação.
+                      </p>
+                      <p className="text-green-700 text-sm">
+                        A decisão pode ser implementada com confiança nas premissas atuais do modelo.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {criticalMetrics.length > 0 && (
+                        <div className="p-3 bg-red-100 rounded-lg">
+                          <p className="text-red-800 font-medium">
+                            ⚠️ CRÍTICO: Pequenas mudanças (≤10%) nos pesos de {criticalMetrics.join(', ')} podem inverter a recomendação.
+                          </p>
+                          <p className="text-red-700 text-sm mt-1">
+                            Recomenda-se revisão cuidadosa destes pesos antes da decisão final.
+                          </p>
+                        </div>
+                      )}
+                      {sensitiveMetrics.length > 0 && (
+                        <div className="p-3 bg-amber-100 rounded-lg">
+                          <p className="text-amber-800 font-medium">
+                            📊 SENSÍVEL: Mudanças moderadas (10-20%) nos pesos de {sensitiveMetrics.join(', ')} podem afetar o resultado.
+                          </p>
+                          <p className="text-amber-700 text-sm mt-1">
+                            Monitoramento periódico das premissas é recomendado.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
+            {/* Análise de Desempate (quando diferença < 5%) */}
+            {(() => {
+              const sorted = [...(calculation.finalScores || [])].sort((a, b) => 
+                (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+              );
+              const first = sorted[0];
+              const second = sorted[1];
+              
+              if (!first || !second) return null;
+              
+              const diff = Math.abs((first.scoreAdditive || 0) - (second.scoreAdditive || 0)) * 100;
+              
+              if (diff >= 5) return null;
+              
+              const firstPositive = (first.B || 0) + (first.O || 0);
+              const secondPositive = (second.B || 0) + (second.O || 0);
+              const firstNegative = (first.C || 0) + (first.R || 0);
+              const secondNegative = (second.C || 0) + (second.R || 0);
+              
+              return (
+                <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-indigo-200">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                    ⚖️ Análise de Desempate
+                    <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
+                      Diferença &lt; 5%
+                    </span>
+                  </h3>
+                  
+                  <p className="text-sm text-gray-600 mb-4">
+                    Como a diferença entre as alternativas é marginal ({diff.toFixed(2)}%), apresentamos critérios adicionais para auxiliar na decisão:
+                  </p>
+                  
+                  {/* Tabela de Comparação */}
+                  <div className="overflow-x-auto mb-6">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b-2 border-gray-200">
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Critério</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700">{first.name}</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700">{second.name}</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-700">Vantagem</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        <tr>
+                          <td className="px-4 py-3 text-gray-600">Score Final</td>
+                          <td className="px-4 py-3 text-center font-mono">{(first.scoreAdditive || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{(second.scoreAdditive || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">{first.name}</span>
+                          </td>
+                        </tr>
+                        <tr className="bg-gray-50">
+                          <td className="px-4 py-3 text-gray-600">Aspectos Positivos (B+O)</td>
+                          <td className="px-4 py-3 text-center font-mono">{firstPositive.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{secondPositive.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-1 rounded text-xs ${firstPositive > secondPositive ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {firstPositive > secondPositive ? first.name : second.name}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-3 text-gray-600">Aspectos Negativos (C+R)</td>
+                          <td className="px-4 py-3 text-center font-mono">{firstNegative.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{secondNegative.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-1 rounded text-xs ${firstNegative < secondNegative ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {firstNegative < secondNegative ? first.name : second.name} (menor)
+                            </span>
+                          </td>
+                        </tr>
+                        <tr className="bg-gray-50">
+                          <td className="px-4 py-3 text-gray-600">Benefícios (B)</td>
+                          <td className="px-4 py-3 text-center font-mono">{(first.B || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{(second.B || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-1 rounded text-xs ${(first.B || 0) > (second.B || 0) ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {(first.B || 0) > (second.B || 0) ? first.name : second.name}
+                            </span>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-4 py-3 text-gray-600">Riscos (R) - menor é melhor</td>
+                          <td className="px-4 py-3 text-center font-mono">{(first.R || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{(second.R || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-1 rounded text-xs ${(first.R || 0) < (second.R || 0) ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                              {(first.R || 0) < (second.R || 0) ? first.name : second.name}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  {/* Recomendação */}
+                  <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                    <h4 className="font-semibold text-indigo-800 mb-2">💡 Recomendação de Desempate</h4>
+                    <p className="text-indigo-700 text-sm">
+                      {firstPositive > secondPositive && firstNegative <= secondNegative ? (
+                        <><strong>{first.name}</strong> apresenta perfil mais favorável: maiores benefícios/oportunidades E menores custos/riscos.</>
+                      ) : firstPositive > secondPositive ? (
+                        <><strong>{first.name}</strong> tem vantagem em aspectos positivos (B+O), mas <strong>{second.name}</strong> tem menores aspectos negativos (C+R). A decisão depende do perfil de risco do decisor.</>
+                      ) : (
+                        <>As alternativas são genuinamente equivalentes. A decisão pode considerar fatores não modelados (facilidade de implementação, preferências organizacionais, timing, etc.).</>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: PARECER IA
+        ================================================== */}
+        {activeTab === 'audit' && (
+          <div className="space-y-6">
+            {audit ? (
+              <>
+                {/* Resumo Executivo */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-800">Parecer Técnico - Validação Científica</h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Sistema de Classificação v3.0 • Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)
+                      </p>
+                    </div>
+                    <div className={`px-6 py-3 rounded-xl text-white font-bold text-lg ${getGradeColor(audit.validacao_cientifica?.nota_metodologica)}`}>
+                      {audit.validacao_cientifica?.nota_metodologica || '?'} - {audit.validacao_cientifica?.score || 0}/100
+                    </div>
+                  </div>
+
+                  {/* Status Geral */}
+                  <div className={`p-4 rounded-lg mb-6 ${
+                    audit.validacao_cientifica?.score >= 90 ? 'bg-green-50 border border-green-200' :
+                    audit.validacao_cientifica?.score >= 75 ? 'bg-blue-50 border border-blue-200' :
+                    audit.validacao_cientifica?.score >= 60 ? 'bg-yellow-50 border border-yellow-200' :
+                    'bg-red-50 border border-red-200'
+                  }`}>
+                    <p className={`font-semibold ${
+                      audit.validacao_cientifica?.score >= 90 ? 'text-green-800' :
+                      audit.validacao_cientifica?.score >= 75 ? 'text-blue-800' :
+                      audit.validacao_cientifica?.score >= 60 ? 'text-yellow-800' :
+                      'text-red-800'
+                    }`}>
+                      {audit.validacao_cientifica?.score >= 90 ? '✅ ' : 
+                       audit.validacao_cientifica?.score >= 75 ? '👍 ' : 
+                       audit.validacao_cientifica?.score >= 60 ? '⚠️ ' : '❌ '}
+                      {audit.validacao_cientifica?.mensagem || 'Status não disponível'}
+                    </p>
+                  </div>
+
+                  {/* Cards de Verificação */}
+                  <div className="grid md:grid-cols-3 gap-4">
+                    {/* Matemática */}
+                    <div className={`p-4 rounded-lg border ${
+                      audit.verificacao_matematica?.consistencia_ok 
+                        ? 'bg-green-50 border-green-200' 
+                        : 'bg-red-50 border-red-200'
+                    }`}>
+                      <h4 className="font-semibold text-gray-800 mb-2">🧮 Verificação Matemática</h4>
+                      <div className="space-y-1 text-sm">
+                        <p>CR Global: <strong>{audit.verificacao_matematica?.cr_global}</strong></p>
+                        <p>Consistência: {audit.verificacao_matematica?.consistencia_ok ? '✅ OK' : '❌ Falha'}</p>
+                        <p>Pesos: {audit.verificacao_matematica?.pesos_somam_100 ? '✅ 100%' : '⚠️ Verificar'}</p>
+                      </div>
+                    </div>
+
+                    {/* Lógica */}
+                    <div className={`p-4 rounded-lg border ${
+                      audit.verificacao_logica?.formula_correta && audit.verificacao_logica?.sinais_bocr_corretos && audit.verificacao_logica?.ranking_coerente
+                        ? 'bg-green-50 border-green-200' 
+                        : 'bg-yellow-50 border-yellow-200'
+                    }`}>
+                      <h4 className="font-semibold text-gray-800 mb-2">🔍 Verificação Lógica</h4>
+                      <div className="space-y-1 text-sm">
+                        <p>Fórmulas: {audit.verificacao_logica?.formula_correta ? '✅ OK' : '⚠️ Verificar'}</p>
+                        <p>Sinais BOCR: {audit.verificacao_logica?.sinais_bocr_corretos ? '✅ OK' : '⚠️ Verificar'}</p>
+                        <p>Ranking: {audit.verificacao_logica?.ranking_coerente ? '✅ Coerente' : '⚠️ Divergente'}</p>
+                      </div>
+                    </div>
+
+                    {/* Robustez */}
+                    <div className={`p-4 rounded-lg border ${
+                      audit.robustez?.metodos_concordantes >= 4 
+                        ? 'bg-green-50 border-green-200' 
+                        : audit.robustez?.metodos_concordantes >= 3
+                        ? 'bg-yellow-50 border-yellow-200'
+                        : 'bg-red-50 border-red-200'
+                    }`}>
+                      <h4 className="font-semibold text-gray-800 mb-2">💪 Robustez</h4>
+                      <div className="space-y-1 text-sm">
+                        <p>Métodos concordantes: <strong>{audit.robustez?.metodos_concordantes}/5</strong></p>
+                        <p>Δ 1º-2º: {audit.robustez?.diferenca_1o_2o}</p>
+                        <p>Sensibilidade: {audit.robustez?.classificacao_sensibilidade}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Problemas de Verificação Lógica */}
+                {audit.verificacao_logica?.problemas && audit.verificacao_logica.problemas.length > 0 && (
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-orange-800 mb-4">🔍 Problemas de Verificação Lógica</h3>
+                    <div className="space-y-3">
+                      {audit.verificacao_logica.problemas.map((p: any, idx: number) => (
+                        <div key={idx} className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                          <p className="font-semibold text-orange-800 mb-2">⚠️ {p.problem}</p>
+                          <div className="bg-white p-3 rounded-lg">
+                            <p className="text-sm text-orange-700">
+                              <strong>Ação necessária:</strong> {p.action}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Validações Detalhadas */}
+                {audit.validacoes && audit.validacoes.length > 0 && (
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Detalhamento da Pontuação</h3>
+                    <div className="space-y-3">
+                      {audit.validacoes.map((v: any, idx: number) => {
+                        const statusColors: Record<string, string> = {
+                          'PASS': 'bg-green-50 border-green-200',
+                          'ALERT': 'bg-yellow-50 border-yellow-200',
+                          'FAIL': 'bg-orange-50 border-orange-200',
+                          'CRITICAL': 'bg-red-50 border-red-200'
+                        };
+                        const statusIcons: Record<string, string> = {
+                          'PASS': '✅',
+                          'ALERT': '⚠️',
+                          'FAIL': '❌',
+                          'CRITICAL': '🚫'
+                        };
+                        return (
+                          <div key={idx} className={`p-4 rounded-lg border ${statusColors[v.status] || 'bg-gray-50 border-gray-200'}`}>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span>{statusIcons[v.status] || '?'}</span>
+                                <span className="font-semibold text-gray-800">{v.test}</span>
+                              </div>
+                              <span className="text-sm font-bold text-gray-600">{v.score}/{v.maxScore} pts</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mb-2">{v.message}</p>
+                            {v.action && (
+                              <div className="bg-white/70 p-2 rounded text-sm">
+                                <strong className="text-gray-700">💡 Ação:</strong> <span className="text-gray-600">{v.action}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Pontos Fortes e Recomendações */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Pontos Fortes */}
+                  {audit.pontos_fortes && audit.pontos_fortes.length > 0 && (
+                    <div className="bg-white rounded-xl shadow-sm p-6">
+                      <h3 className="text-lg font-semibold text-green-800 mb-4">✅ Pontos Fortes</h3>
+                      <ul className="space-y-2">
+                        {audit.pontos_fortes.map((ponto: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-green-700">
+                            <span className="text-green-500 mt-0.5">•</span>
+                            {ponto}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Recomendações */}
+                  {audit.recomendacoes && audit.recomendacoes.length > 0 && (
+                    <div className="bg-white rounded-xl shadow-sm p-6">
+                      <h3 className="text-lg font-semibold text-amber-800 mb-4">💡 Recomendações</h3>
+                      <ul className="space-y-2">
+                        {audit.recomendacoes.map((rec: string, idx: number) => (
+                          <li key={idx} className="flex items-start gap-2 text-sm text-amber-700">
+                            <span className="text-amber-500 mt-0.5">•</span>
+                            {rec}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Adequação para Periódicos - DETALHADA */}
+                <div className="bg-white rounded-xl shadow-sm p-6">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">📚 Adequação para Periódicos A1</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Avaliação baseada nos requisitos de cada periódico: tamanho da amostra, consistência, concordância entre métodos e score total.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {(audit.detalhes_periodicos || [
+                      { journal: 'PPC', fullName: 'Production Planning & Control', impactFactor: 12.5, adequate: audit.adequacao_periodicos?.PPC, missing: [], reasons: [] },
+                      { journal: 'IJPE', fullName: 'International Journal of Production Economics', impactFactor: 12.0, adequate: audit.adequacao_periodicos?.IJPE, missing: [], reasons: [] },
+                      { journal: 'JCP', fullName: 'Journal of Cleaner Production', impactFactor: 10.0, adequate: audit.adequacao_periodicos?.JCP, missing: [], reasons: [] },
+                      { journal: 'IMM', fullName: 'Industrial Marketing Management', impactFactor: 10.4, adequate: audit.adequacao_periodicos?.IMM, missing: [], reasons: [] },
+                      { journal: 'OMR', fullName: 'Operations Management Research', impactFactor: 6.9, adequate: audit.adequacao_periodicos?.OMR, missing: [], reasons: [] }
+                    ]).map((j: any) => (
+                      <div 
+                        key={j.journal}
+                        className={`p-4 rounded-lg border ${
+                          j.adequate ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">{j.adequate ? '✅' : '⭕'}</span>
+                            <div>
+                              <span className={`font-bold ${j.adequate ? 'text-green-800' : 'text-gray-600'}`}>
+                                {j.journal}
+                              </span>
+                              <span className="text-gray-500 text-sm ml-2">IF: {j.impactFactor}</span>
+                            </div>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            j.adequate ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-600'
+                          }`}>
+                            {j.adequate ? 'ADEQUADO' : 'NÃO ADEQUADO'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-2">{j.fullName}</p>
+                        
+                        {/* Razões de aprovação */}
+                        {j.adequate && j.reasons && j.reasons.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {j.reasons.map((r: string, idx: number) => (
+                              <p key={idx} className="text-xs text-green-700 flex items-center gap-1">
+                                <span>✓</span> {r}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Razões de reprovação */}
+                        {!j.adequate && j.missing && j.missing.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {j.missing.map((m: string, idx: number) => (
+                              <p key={idx} className="text-xs text-red-600 flex items-center gap-1">
+                                <span>✗</span> {m}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Legenda */}
+                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-xs text-gray-500 mb-2"><strong>Legenda de Requisitos:</strong></p>
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs text-gray-500">
+                      <span>PPC: n≥6, Score≥85</span>
+                      <span>IJPE: n≥12, Score≥85</span>
+                      <span>JCP: n≥10, Score≥75</span>
+                      <span>IMM: n≥8, Score≥75</span>
+                      <span>OMR: n≥7, Score≥65</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Relatório Técnico Completo */}
+                {audit.relatorio_tecnico && (
+                  <div className="bg-white rounded-xl shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-800">📄 Relatório Técnico Completo</h3>
+                      <button
+                        onClick={() => {
+                          const blob = new Blob([audit.relatorio_tecnico], { type: 'text/markdown' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `parecer-ahp-bocr-${projectId}.md`;
+                          a.click();
+                        }}
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium"
+                      >
+                        📥 Download .MD
+                      </button>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+                      <pre className="text-sm text-gray-700 whitespace-pre-wrap font-mono">
+                        {audit.relatorio_tecnico}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">🤖</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Parecer não disponível</h3>
+                <p className="text-gray-500 mb-4">
+                  A análise automática não pôde ser gerada para este projeto.
+                </p>
+                <p className="text-sm text-gray-400">
+                  Verifique se todos os dados foram calculados corretamente.
+                </p>
+              </div>
+            )}
+
+            {/* Revisão Profunda com IA - VERSÃO HÍBRIDA */}
+            {/* Resolve problema de alucinação numérica: valores do SISTEMA, análise da IA */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800">🔬 Revisão Profunda com IA</h3>
+                  <p className="text-sm text-gray-500">
+                    Análise especializada como revisor de periódico A1 em MCDM/AHP-BOCR
+                  </p>
+                  <p className="text-xs text-blue-600 mt-1">
+                    ✓ Valores numéricos calculados pelo sistema | ✓ Análise qualitativa por IA
+                  </p>
+                </div>
+                <button
+                  onClick={runAiReview}
+                  disabled={aiReviewLoading}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    aiReviewLoading 
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
+                  }`}
+                >
+                  {aiReviewLoading ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      Analisando...
+                    </span>
+                  ) : (
+                    '🤖 Executar Revisão IA'
+                  )}
+                </button>
+              </div>
+
+              {/* COMPONENTE HÍBRIDO - Valores do SISTEMA + Análise da IA */}
+              <AIReviewCard
+                aiReview={aiReview}
+                calculationData={{
+                  finalScores: calculation?.finalScores || [],
+                  bocrWeights: calculation?.bocrWeights || [],
+                  bocrConsistency: calculation?.bocrConsistency || { cr: 0, lambda: 0 },
+                  responseCount: calculation?.responseCount || 0,
+                  subWeights: calculation?.subWeights || {},
+                  subConsistency: calculation?.subConsistency || {},
+                }}
+                audit={audit}
+                isLoading={aiReviewLoading}
+                onRetry={runAiReview}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: TEXTO ACADÊMICO (A1)
+        ================================================== */}
+        {activeTab === 'academic' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">✍️ Gerador de Texto Acadêmico Q1/A1</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Gere seções prontas para periódicos como Energy Policy, Omega, IJPE
+                  </p>
+                </div>
+                <button
+                  onClick={generateAcademicText}
+                  disabled={generatingText}
+                  className={`px-6 py-3 rounded-lg font-medium ${
+                    generatingText
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                  }`}
+                >
+                  {generatingText ? (
+                    <span className="flex items-center gap-2">
+                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                      </svg>
+                      Gerando (~30s)...
+                    </span>
+                  ) : '🤖 Gerar Texto com IA'}
+                </button>
+              </div>
+
+              {/* Requisitos do texto */}
+              <div className="grid md:grid-cols-4 gap-4 mt-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-blue-800 mb-1">📚 Estilo Q1/A1</h4>
+                  <p className="text-xs text-blue-600">
+                    Alizadeh (2020), Wijnmalen (2007), Demirtas & Ustun (2008)
+                  </p>
+                </div>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-green-800 mb-1">📝 Resultados</h4>
+                  <p className="text-xs text-green-600">
+                    Mínimo 1.500 palavras de análise densa
+                  </p>
+                </div>
+                <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-purple-800 mb-1">🎯 Conclusão</h4>
+                  <p className="text-xs text-purple-600">
+                    Mínimo 350 palavras com recomendações
+                  </p>
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                  <h4 className="font-semibold text-amber-800 mb-1">🔢 Precisão</h4>
+                  <p className="text-xs text-amber-600">
+                    4 casas decimais para todos os valores
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Error message */}
+            {textError && (
+              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                <p className="text-red-800">❌ {textError}</p>
+              </div>
+            )}
+
+            {/* Generated text */}
+            {academicText ? (
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                {/* Header com estatísticas */}
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800">Texto Gerado</h3>
+                    {textStats && (
+                      <div className="flex items-center gap-4 mt-1">
+                        <span className={`text-sm px-2 py-0.5 rounded ${textStats.meetsMinimum ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {textStats.wordCount.toLocaleString()} palavras
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {textStats.charCount.toLocaleString()} caracteres
+                        </span>
+                        {textStats.meetsMinimum ? (
+                          <span className="text-sm text-green-600">✅ Extensão adequada</span>
+                        ) : (
+                          <span className="text-sm text-yellow-600">⚠️ Abaixo do mínimo recomendado</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(academicText);
+                        alert('Texto copiado!');
+                      }}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium"
+                    >
+                      📋 Copiar
+                    </button>
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([academicText], { type: 'text/markdown' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `texto-academico-${projectId}.md`;
+                        a.click();
+                      }}
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium"
+                    >
+                      📥 Download .MD
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Render markdown-like text */}
+                <div className="prose prose-sm max-w-none bg-gray-50 rounded-lg p-6 overflow-auto max-h-[600px]">
+                  <div className="whitespace-pre-wrap font-serif text-gray-800 leading-relaxed">
+                    {academicText.split('\n').map((line, idx) => {
+                      // Headers
+                      if (line.startsWith('## ')) {
+                        return <h2 key={idx} className="text-xl font-bold text-gray-900 mt-6 mb-3 border-b pb-2">{line.replace('## ', '')}</h2>;
+                      }
+                      if (line.startsWith('### ')) {
+                        return <h3 key={idx} className="text-lg font-semibold text-gray-800 mt-4 mb-2">{line.replace('### ', '')}</h3>;
+                      }
+                      if (line.startsWith('# ')) {
+                        return <h1 key={idx} className="text-2xl font-bold text-gray-900 mt-6 mb-4">{line.replace('# ', '')}</h1>;
+                      }
+                      // Bold text
+                      if (line.includes('**')) {
+                        const parts = line.split(/\*\*(.*?)\*\*/g);
+                        return (
+                          <p key={idx} className="mb-3">
+                            {parts.map((part, i) => 
+                              i % 2 === 1 ? <strong key={i}>{part}</strong> : part
+                            )}
+                          </p>
+                        );
+                      }
+                      // Empty lines
+                      if (line.trim() === '') {
+                        return <div key={idx} className="h-2"></div>;
+                      }
+                      // Regular paragraphs
+                      return <p key={idx} className="mb-3 text-justify">{line}</p>;
+                    })}
+                  </div>
+                </div>
+
+                {/* Tips */}
+                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <h4 className="font-semibold text-amber-800 mb-2">💡 Dicas para Publicação Q1/A1</h4>
+                  <div className="grid md:grid-cols-2 gap-4 text-sm text-amber-700">
+                    <div>
+                      <p className="font-medium mb-1">Antes de usar:</p>
+                      <p>• Revise se o texto reflete sua interpretação dos dados</p>
+                      <p>• Adicione tabelas e figuras referenciadas</p>
+                      <p>• Inclua as referências no formato do periódico</p>
+                    </div>
+                    <div>
+                      <p className="font-medium mb-1">Estilo esperado:</p>
+                      <p>• Prosa acadêmica sem bullets (conforme gerado)</p>
+                      <p>• 4 casas decimais para valores numéricos</p>
+                      <p>• Análise de sensibilidade detalhada</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : !generatingText && (
+              <div className="bg-white rounded-xl shadow-sm p-12 text-center">
+                <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">✍️</span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Pronto para Gerar Texto Q1/A1</h3>
+                <p className="text-gray-500 mb-6 max-w-lg mx-auto">
+                  Clique no botão acima para gerar automaticamente as seções de 
+                  <strong> Resultados e Discussão</strong> (mín. 1.500 palavras) e <strong>Conclusão</strong> (mín. 350 palavras)
+                  no estilo de periódicos como Energy Policy, Omega e IJPE.
+                </p>
+                <div className="flex justify-center gap-4 text-sm text-gray-400">
+                  <span>🕐 ~30 segundos</span>
+                  <span>📄 ~2.000 palavras</span>
+                  <span>🔢 4 casas decimais</span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ==================================================
+            TAB: EXPORTAR
+        ================================================== */}
+        {activeTab === 'export' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Exportar Resultados</h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Exporte os resultados em diferentes formatos para uso em artigos científicos e dissertações.
+              </p>
+              
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* CSV */}
+                <div className="border rounded-xl p-6 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">📄</span>
+                  </div>
+                  <h4 className="font-semibold text-gray-800 mb-2">CSV</h4>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Arquivo único com todas as seções: Pesos, Subcritérios, Ranking, Consistência, Sensibilidade, Demográficos e Respostas. Compatível com Excel, SPSS, R.
+                  </p>
+                  <button
+                    onClick={exportCSV}
+                    className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                  >
+                    Baixar CSV
+                  </button>
+                </div>
+
+                {/* LaTeX */}
+                <div className="border rounded-xl p-6 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
+                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">📐</span>
+                  </div>
+                  <h4 className="font-semibold text-gray-800 mb-2">LaTeX</h4>
+                  <p className="text-sm text-gray-500 mb-4">
+                    7 tabelas formatadas: Pesos BOCR, Subcritérios, Desempenho, Ranking, Consistência, Sensibilidade e Demográficos. Pronto para Overleaf.
+                  </p>
+                  <button
+                    onClick={exportLatex}
+                    className="w-full py-2 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                  >
+                    Baixar .tex
+                  </button>
+                </div>
+
+                {/* XLSX */}
+                <div className="border rounded-xl p-6 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
+                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">📊</span>
+                  </div>
+                  <h4 className="font-semibold text-gray-800 mb-2">Excel (XLSX)</h4>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Planilha completa com 10 abas: Visão Geral, Pesos BOCR, Subcritérios, Desempenho, Ranking, Consistência, Sensibilidade, Demográficos, Respostas e Referências
+                  </p>
+                  <button
+                    onClick={exportXLSX}
+                    className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  >
+                    Baixar .xlsx
+                  </button>
+                </div>
+              </div>
+
+              {/* Preview LaTeX */}
+              <div className="mt-8">
+                <h4 className="font-medium text-gray-700 mb-3">Preview das Tabelas LaTeX</h4>
+                <div className="bg-gray-900 text-green-400 p-4 rounded-lg font-mono text-xs overflow-x-auto">
+                  <pre>{`% Exemplo de tabela gerada
+\\begin{table}[htbp]
+\\centering
+\\caption{Pesos estratégicos dos méritos BOCR}
+\\begin{tabular}{lcc}
+\\toprule
+\\textbf{Mérito} & \\textbf{Peso} & \\textbf{Peso (\\%)} \\\\
+\\midrule
+${['Benefícios', 'Oportunidades', 'Custos', 'Riscos'].map((l, i) => 
+  `${l} & ${(calculation.bocrWeights[i] || 0).toFixed(4)} & ${((calculation.bocrWeights[i] || 0) * 100).toFixed(2)}\\%`
+).join(' \\\\\n')} \\\\
+\\bottomrule
+\\end{tabular}
+\\end{table}`}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t bg-white mt-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
+          <p>Sistema AHP-BOCR v2.1 | Metodologia: Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)</p>
+          <p className="mt-1">Desenvolvido para dissertação de mestrado em Engenharia de Produção - UNESP</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
