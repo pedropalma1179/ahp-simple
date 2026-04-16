@@ -2052,22 +2052,24 @@ function AvaliacaoProjectPageInner() {
                   scrollbarColor: 'rgba(255,255,255,0.2) transparent',
                 }}>
 
+                <p className="text-sm font-semibold text-cyan-400 uppercase tracking-wider mb-3">Termo de Consentimento Livre e Esclarecido (TCLE)</p>
+
                 <p>Você está sendo convidado(a) a participar de uma pesquisa acadêmica intitulada <strong className="text-white">"ANÁLISE MULTICRITÉRIO DE INVESTIMENTOS NA INDÚSTRIA 4.0 EM UMA MONTADORA DE AUTOMÓVEIS"</strong>, conduzida por Pedro Luis Tozoni Palma, aluno do Mestrado Profissional em Engenharia de Produção da Universidade Estadual Paulista (UNESP), campus de Guaratinguetá, sob orientação do Prof. Dr. Valério Antonio Pamplona Salomon.</p>
 
                 <div className="space-y-3">
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Objetivo da pesquisa</p>
-                    <p>Desenvolver e aplicar um modelo de decisão multicritério (AHP-BOCR) para priorizar investimentos em tecnologias de Indústria 4.0 no contexto do setor automotivo brasileiro.</p>
+                    <p>Desenvolver e aplicar um modelo estruturado de apoio à decisão para avaliação de investimentos em tecnologias da Indústria 4.0 no setor automotivo brasileiro, considerando benefícios, oportunidades, custos e riscos associados.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Sua participação</p>
-                    <p>Consiste em realizar comparações pareadas entre critérios e alternativas tecnológicas, utilizando a escala fundamental de Saaty (1–9), por meio deste sistema web. O tempo estimado de participação é de aproximadamente 20 minutos.</p>
+                    <p>Consiste no preenchimento de um questionário online onde você avaliará, com base na sua experiência profissional, a importância relativa de critérios de decisão e de duas alternativas tecnológicas para otimização do consumo de gás natural em estufas de cura de pintura automotiva. O sistema apresentará pares de critérios e você indicará qual considera mais importante e em que intensidade. O tempo estimado de participação é de aproximadamente 20 minutos.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Confidencialidade</p>
-                    <p>Suas respostas serão mantidas em estrita confidencialidade. Os dados coletados serão utilizados exclusivamente para fins acadêmicos e os resultados serão apresentados de forma agregada, sem identificação individual dos participantes.</p>
+                    <p>Suas respostas serão mantidas em estrita confidencialidade. Os dados coletados serão utilizados exclusivamente para fins acadêmicos e os resultados serão apresentados de forma agregada, sem identificação individual dos participantes. Os dados serão armazenados em ambiente digital seguro e mantidos pelo período necessário à conclusão da pesquisa.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -2077,7 +2079,12 @@ function AvaliacaoProjectPageInner() {
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Riscos e benefícios</p>
-                    <p>A pesquisa não apresenta riscos previsíveis além do tempo dedicado ao preenchimento. Os resultados contribuirão para o aprimoramento dos processos de decisão de investimento em tecnologia na organização.</p>
+                    <p>A pesquisa não apresenta riscos previsíveis além do tempo dedicado ao preenchimento. Como benefício indireto, os participantes contribuirão para o desenvolvimento de um modelo de apoio à decisão aplicável a contextos similares de investimento em tecnologias Indústria 4.0 no setor automotivo.</p>
+                  </div>
+
+                  <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Acesso aos resultados</p>
+                    <p>Após a conclusão da pesquisa, os resultados agregados poderão ser disponibilizados aos participantes interessados mediante solicitação ao pesquisador responsável.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
