@@ -88,9 +88,9 @@ export interface Respondent {
   tempoGestor?: '0' | '<10' | '11-20' | '21-30' | '>30';
 
   // Atuação Atual
-  areaAtuacao?: 'gerencial' | 'engenharia_processos' | 'planejamento_logistica' | 'producao' | 'projetos' | 'qualidade' | 'manutencao' | 'outra';
+  areaAtuacao?: 'operacoes' | 'manufatura' | 'qualidade' | 'financeiro' | 'otimizacao_custos' | 'outro' | 'gerencial' | 'engenharia_processos' | 'planejamento_logistica' | 'producao' | 'projetos' | 'manutencao' | 'outra';
   areaAtuacaoOutra?: string;
-  funcao?: 'c_level' | 'diretor' | 'gerente' | 'supervisor' | 'analista_especialista';
+  funcao?: 'c_level' | 'diretor' | 'gerente' | 'supervisor' | 'outro' | 'analista_especialista';
 
   // Controle
   perfilCompleto?: boolean;

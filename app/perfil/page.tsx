@@ -55,22 +55,20 @@ const TEMPO_GESTOR = [
 ];
 
 const AREAS_ATUACAO = [
-  { value: 'gerencial', label: 'Gerencial' },
-  { value: 'engenharia_processos', label: 'Engenharia de Processos/Produção' },
-  { value: 'planejamento_logistica', label: 'Planejamento e Logística' },
-  { value: 'producao', label: 'Produção' },
-  { value: 'projetos', label: 'Projetos' },
-  { value: 'qualidade', label: 'Qualidade / Melhoria Contínua' },
-  { value: 'manutencao', label: 'Manutenção' },
-  { value: 'outra', label: 'Outra' },
+  { value: 'operacoes', label: 'Operações' },
+  { value: 'manufatura', label: 'Manufatura' },
+  { value: 'qualidade', label: 'Qualidade' },
+  { value: 'financeiro', label: 'Financeiro' },
+  { value: 'otimizacao_custos', label: 'Otimização e Custos' },
+  { value: 'outro', label: 'Outro' },
 ];
 
 const FUNCOES = [
-  { value: 'c_level', label: 'C-Level (CEO, CFO, COO, etc.)' },
+  { value: 'c_level', label: 'C-Level' },
   { value: 'diretor', label: 'Diretor' },
   { value: 'gerente', label: 'Gerente' },
-  { value: 'supervisor', label: 'Supervisor / Coordenador' },
-  { value: 'analista_especialista', label: 'Analista / Especialista / Engenheiro' },
+  { value: 'supervisor', label: 'Supervisor' },
+  { value: 'outro', label: 'Outro' },
 ];
 
 function PerfilContent() {

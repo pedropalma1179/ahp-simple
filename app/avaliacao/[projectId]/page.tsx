@@ -94,13 +94,11 @@ const DEMOGRAPHIC_OPTIONS = {
     label: 'Área de Atuação',
     hint: 'Caso se identifique com mais de uma opção, marque apenas a que considera mais representativa.',
     options: [
-      { value: 'eng_processos', label: 'Eng. Processos' },
-      { value: 'financas', label: 'Finanças' },
-      { value: 'logistica', label: 'Logística' },
-      { value: 'manutencao', label: 'Manutenção' },
-      { value: 'producao', label: 'Produção' },
+      { value: 'operacoes', label: 'Operações' },
+      { value: 'manufatura', label: 'Manufatura' },
       { value: 'qualidade', label: 'Qualidade' },
-      { value: 'ti', label: 'Tecnologia da Informação' },
+      { value: 'financeiro', label: 'Financeiro' },
+      { value: 'otimizacao_custos', label: 'Otimização e Custos' },
       { value: 'outro', label: 'Outro' }
     ]
   },
@@ -108,7 +106,6 @@ const DEMOGRAPHIC_OPTIONS = {
     label: 'Função / Cargo',
     hint: 'Caso se identifique com mais de uma opção, marque apenas a que considera mais representativa.',
     options: [
-      { value: 'analista', label: 'Analista / Especialista / Engenheiro' },
       { value: 'c_level', label: 'C-Level' },
       { value: 'diretor', label: 'Diretor' },
       { value: 'gerente', label: 'Gerente' },

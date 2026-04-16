@@ -157,8 +157,8 @@ const DISTRIBUICOES = {
   areaFormacao: { administracao: 0.12, engenharias: 0.58, logistica: 0.08, ti_sistemas: 0.12, ciencias_exatas: 0.07, outra: 0.03 },
   tempoTrabalho: { menos_10: 0.22, '11_20': 0.38, '21_30': 0.28, mais_30: 0.12 },
   tempoGestor: { nao_atua: 0.15, menos_10: 0.42, '11_20': 0.28, '21_30': 0.12, mais_30: 0.03 },
-  areaAtuacao: { producao: 0.22, eng_processos: 0.25, financas: 0.08, qualidade: 0.15, manutencao: 0.12, logistica: 0.10, ti: 0.08 },
-  funcao: { c_level: 0.05, diretor: 0.12, gerente: 0.32, supervisor: 0.23, analista: 0.28 },
+  areaAtuacao: { manufatura: 0.47, operacoes: 0.22, financeiro: 0.08, qualidade: 0.15, otimizacao_custos: 0.05, outro: 0.03 },
+  funcao: { c_level: 0.05, diretor: 0.12, gerente: 0.60, supervisor: 0.23 },
 };
 
 // ============================================================

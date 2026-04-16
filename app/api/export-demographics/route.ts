@@ -52,20 +52,19 @@ const LABELS = {
     'mais_30': 'Mais de 30 anos'
   },
   areaAtuacao: {
-    'producao': 'Produção',
-    'eng_processos': 'Eng. Processos',
-    'financas': 'Finanças',
+    'operacoes': 'Operações',
+    'manufatura': 'Manufatura',
     'qualidade': 'Qualidade',
-    'manutencao': 'Manutenção',
-    'logistica': 'Logística',
-    'ti': 'Tecnologia da Informação'
+    'financeiro': 'Financeiro',
+    'otimizacao_custos': 'Otimização e Custos',
+    'outro': 'Outro'
   },
   funcao: {
     'c_level': 'C-Level',
     'diretor': 'Diretor',
     'gerente': 'Gerente',
     'supervisor': 'Supervisor',
-    'analista': 'Analista / Especialista / Engenheiro'
+    'outro': 'Outro'
   }
 };
 

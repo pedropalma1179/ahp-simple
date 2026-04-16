@@ -1989,13 +1989,13 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
         '21_30': '21 a 30 anos', 'mais_30': 'Mais de 30 anos'
       };
       const mapArea: Record<string, string> = {
-        'producao': 'Produção/Manufatura', 'eng_processos': 'Eng. Processos',
-        'qualidade': 'Qualidade', 'manutencao': 'Manutenção',
-        'logistica': 'Logística', 'ti': 'TI/Automação', 'financas': 'Finanças'
+        'operacoes': 'Operações', 'manufatura': 'Manufatura',
+        'qualidade': 'Qualidade', 'financeiro': 'Financeiro',
+        'otimizacao_custos': 'Otimização e Custos', 'outro': 'Outro'
       };
       const mapFuncao: Record<string, string> = {
         'c_level': 'C-Level/Diretoria', 'diretor': 'Diretor', 'gerente': 'Gerente',
-        'supervisor': 'Supervisor', 'analista': 'Analista'
+        'supervisor': 'Supervisor', 'outro': 'Outro'
       };
 
       const countField = (field: string, mapping: Record<string, string>) => {
@@ -2181,13 +2181,13 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
         '21_30': '21 a 30 anos', 'mais_30': 'Mais de 30 anos'
       };
       const mapArea: Record<string, string> = {
-        'producao': 'Produção/Manufatura', 'eng_processos': 'Engenharia de Processos',
-        'qualidade': 'Qualidade', 'manutencao': 'Manutenção',
-        'logistica': 'Logística/Supply Chain', 'ti': 'TI/Automação', 'financas': 'Finanças/Controladoria'
+        'operacoes': 'Operações', 'manufatura': 'Manufatura',
+        'qualidade': 'Qualidade', 'financeiro': 'Financeiro',
+        'otimizacao_custos': 'Otimização e Custos', 'outro': 'Outro'
       };
       const mapFuncao: Record<string, string> = {
         'c_level': 'C-Level/Diretoria', 'diretor': 'Diretor', 'gerente': 'Gerente',
-        'supervisor': 'Supervisor/Coordenador', 'analista': 'Analista/Especialista'
+        'supervisor': 'Supervisor', 'outro': 'Outro'
       };
 
       const countField = (field: string, mapping: Record<string, string>) => {
@@ -2570,20 +2570,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
         'mais_30': 'Mais de 30 anos'
       };
       const mapArea: Record<string, string> = {
-        'producao': 'Produção/Manufatura',
-        'eng_processos': 'Engenharia de Processos',
+        'operacoes': 'Operações',
+        'manufatura': 'Manufatura',
         'qualidade': 'Qualidade',
-        'manutencao': 'Manutenção',
-        'logistica': 'Logística/Supply Chain',
-        'ti': 'TI/Automação',
-        'financas': 'Finanças/Controladoria'
+        'financeiro': 'Financeiro',
+        'otimizacao_custos': 'Otimização e Custos',
+        'outro': 'Outro'
       };
       const mapFuncao: Record<string, string> = {
         'c_level': 'C-Level/Diretoria Executiva',
         'diretor': 'Diretor',
         'gerente': 'Gerente',
         'supervisor': 'Supervisor/Coordenador',
-        'analista': 'Analista/Especialista'
+        'outro': 'Outro'
       };
 
       // Função para contar
@@ -3596,13 +3595,12 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                         {/* Área de Atuação */}
                         {(() => {
                           const options = [
-                            { value: 'producao', label: 'Produção' },
-                            { value: 'eng_processos', label: 'Engenharia de Processos' },
+                            { value: 'operacoes', label: 'Operações' },
+                            { value: 'manufatura', label: 'Manufatura' },
                             { value: 'qualidade', label: 'Qualidade' },
-                            { value: 'manutencao', label: 'Manutenção' },
-                            { value: 'logistica', label: 'Logística' },
-                            { value: 'ti', label: 'Tecnologia da Informação' },
-                            { value: 'financas', label: 'Finanças' }
+                            { value: 'financeiro', label: 'Financeiro' },
+                            { value: 'otimizacao_custos', label: 'Otimização e Custos' },
+                            { value: 'outro', label: 'Outro' }
                           ];
                           return options.map((opt, idx, arr) => {
                             const count = respondentsDemographics.filter(d => d.areaAtuacao === opt.value).length;
@@ -3629,7 +3627,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                             { value: 'diretor', label: 'Diretor' },
                             { value: 'gerente', label: 'Gerente' },
                             { value: 'supervisor', label: 'Supervisor / Coordenador' },
-                            { value: 'analista', label: 'Analista / Engenheiro / Especialista' }
+                            { value: 'outro', label: 'Outro' }
                           ];
                           return options.map((opt, idx, arr) => {
                             const count = respondentsDemographics.filter(d => d.funcao === opt.value).length;
