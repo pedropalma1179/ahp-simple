@@ -52,12 +52,71 @@ const MERIT_LABELS: Record<Merit, string> = {
 // HEURISTIC MATCHERS
 // ============================================================
 
-const COST_FUNCTIONS = ['financ', 'controller', 'controlad', 'contábil', 'contabil', 'procurement', 'compras', 'supply', 'supriment', 'tesour', 'orçament'];
+const COST_FUNCTIONS = ['financ', 'financeiro', 'controller', 'controlad', 'contábil', 'contabil', 'procurement', 'compras', 'supply', 'supriment', 'tesour', 'orçament', 'otimiz', 'custo', 'manufatura', 'produç', 'producao', 'operaç', 'operacoes'];
 const RISK_FUNCTIONS = ['safety', 'segurança', 'seguranca', 'quality', 'qualidade', 'compliance', 'audit', 'risk', 'risco', 'manutenç', 'manutenc'];
-const BENEFIT_FUNCTIONS = ['sales', 'vendas', 'commercial', 'comercial', 'marketing', 'product', 'produto', 'innovation', 'inovaç', 'inovac', 'p&d', 'r&d'];
+const BENEFIT_FUNCTIONS = ['sales', 'vendas', 'commercial', 'comercial', 'marketing', 'product', 'produto', 'innovation', 'inovaç', 'inovac', 'p&d', 'r&d', 'manufatura', 'produç', 'producao', 'operaç', 'operacoes'];
 const OPPORTUNITY_FUNCTIONS = ['strategy', 'estratég', 'estrateg', 'planning', 'planejament', 'development', 'desenvolviment', 'business dev'];
 
-const COST_DOMINANT_INDUSTRIES = ['automotiv', 'automotive', 'manufactur', 'manufatur', 'industry 4', 'indústria 4', 'industria 4', 'paint shop', 'pintura', 'assembly', 'montagem', 'metalurg', 'siderurg'];
+const COST_DOMINANT_INDUSTRIES = ['automotiv', 'automotive', 'manufactur', 'manufatur', 'industry 4', 'indústria 4', 'industria 4', 'paint shop', 'pintura', 'assembly', 'montagem', 'metalurg', 'siderurg', 'estufa', 'cura', 'gás natural', 'gas natural', 'energia', 'energy'];
+
+
+// ============================================================
+// CARGO / HIERARCHY LEVEL (Saiyed et al., 2023; Neely et al., 2020)
+// ============================================================
+
+/** Cargos estratégicos: alto poder, amplificam viés por selective perception (Neely 2020) e cognitive bias (Saiyed 2023) */
+const STRATEGIC_CARGOS = ['c_level', 'c-level', 'ceo', 'cfo', 'cto', 'coo', 'vp', 'vice', 'diretor', 'director'];
+
+/** Cargos táticos: poder moderado, mais receptivos a alternativas (Saiyed 2023, p. 1780) */
+const TACTICAL_CARGOS = ['gerente', 'manager', 'coordenador', 'coordinator'];
+
+/** Cargos operacionais: baixo poder, foco em execução, managerial discretion limitada (Neely 2020, p. 1042) */
+const OPERATIONAL_CARGOS = ['supervisor', 'líder', 'lider', 'encarregado', 'analista', 'técnico', 'tecnico'];
+
+/**
+ * Analisa a distribuição hierárquica do painel e retorna insight sobre concentração de poder.
+ * Retorna: { level: 'strategic' | 'tactical' | 'operational' | 'mixed' | 'unknown', insight: string }
+ */
+function analyzeHierarchy(panelFunctions: string[]): { level: string; insight: string } {
+  if (!panelFunctions || panelFunctions.length === 0) {
+    return { level: 'unknown', insight: '' };
+  }
+
+  const terms = panelFunctions.join(' ').toLowerCase();
+  const hasStrategic = STRATEGIC_CARGOS.some(c => terms.includes(c));
+  const hasTactical = TACTICAL_CARGOS.some(c => terms.includes(c));
+  const hasOperational = OPERATIONAL_CARGOS.some(c => terms.includes(c));
+
+  if (hasStrategic && !hasTactical && !hasOperational) {
+    return {
+      level: 'strategic',
+      insight: 'O painel é composto exclusivamente por cargos estratégicos (C-Level/Diretores), o que amplifica o efeito de viés cognitivo por concentração de poder. Conforme Saiyed et al. (2023), executivos com alto poder tendem a "shut out" perspectivas alternativas e concentrar-se no upside potential das decisões, especialmente em contextos de alta volatilidade.',
+    };
+  }
+
+  if (hasStrategic && hasTactical && !hasOperational) {
+    return {
+      level: 'mixed',
+      insight: 'O painel combina cargos estratégicos (C-Level/Diretores) e táticos (Gerentes). Conforme Neely et al. (2020), a diversidade de nível hierárquico pode mitigar parcialmente o viés de selective perception, pois gestores táticos tendem a ser mais receptivos a alternativas (Saiyed et al., 2023). Contudo, se os cargos estratégicos dominam a hierarquia organizacional, sua influência na ponderação pode ser desproporcional ao seu número no painel.',
+    };
+  }
+
+  if (!hasStrategic && hasTactical && !hasOperational) {
+    return {
+      level: 'tactical',
+      insight: 'O painel é composto predominantemente por cargos táticos (Gerentes). Conforme Saiyed et al. (2023), gestores com poder moderado tendem a exercer julgamento mais prudente e são mais receptivos a alternativas, o que reduz a amplificação de viés individual na ponderação.',
+    };
+  }
+
+  if (hasOperational) {
+    return {
+      level: 'operational',
+      insight: 'O painel inclui cargos operacionais (Supervisores). Conforme Neely et al. (2020), o efeito executivo (managerial discretion) é menor em níveis operacionais — supervisores tendem a priorizar Costs e Risks pela proximidade com a realidade do chão de fábrica.',
+    };
+  }
+
+  return { level: 'unknown', insight: '' };
+}
 
 function matchesAny(text: string, patterns: string[]): boolean {
   const lower = text.toLowerCase();
@@ -99,8 +158,9 @@ export function analyzeDominance(
   let panelInsight = 'Dados de composição do painel não disponíveis.';
   let contextInsight = 'Contexto setorial não determinado.';
 
-  // ── Layer 1: Panel Profile ──
+  // ── Layer 1: Panel Profile (functional area + hierarchy level) ──
   const allPanelTerms = [...(panelFunctions || []), ...(panelAreas || [])].join(' ');
+  const hierarchy = analyzeHierarchy(panelFunctions || []);
 
   if (allPanelTerms.length > 0) {
     const meritMatchMap: Record<Merit, string[]> = {
@@ -113,10 +173,16 @@ export function analyzeDominance(
     const targetPatterns = meritMatchMap[dominant];
     if (targetPatterns && matchesAny(allPanelTerms, targetPatterns)) {
       classification = 'professional_bias_supported';
-      panelInsight = `A composição funcional do painel (funções: ${(panelFunctions || []).join(', ')}) apresenta alinhamento com a dimensão dominante (${MERIT_LABELS[dominant]}). Conforme Upper Echelons Theory (Neely et al., 2020), especialistas filtram decisões pela lente de sua experiência profissional — o campo de visão limitado (limited field of vision) e a percepção seletiva (selective perception) direcionam naturalmente a priorização para a dimensão mais familiar à sua função. Saiyed et al. (2023) demonstraram empiricamente que este efeito é amplificado em contextos de alta volatilidade e incerteza.`;
-      recommendedRefs.push('neely2020_upperEchelonsMetacritiques', 'saiyed2023_ceoPowerUET');
+      panelInsight = `A composição do painel (áreas: ${(panelAreas || []).join(', ')}; cargos: ${(panelFunctions || []).join(', ')}) apresenta alinhamento com a dimensão dominante (${MERIT_LABELS[dominant]}). Conforme a Upper Echelons Theory (Neely et al., 2020), especialistas de funções throughput (manufatura, produção, operações) filtram decisões pela lente de eficiência do processo de transformação, priorizando naturalmente as dimensões de Costs e Benefits. Ayan et al. (2023) demonstram que métodos subjetivos de ponderação (como AHP) incorporam o perfil cognitivo do painel — a distribuição de pesos reflete método + composição, não verdade estratégica absoluta.`;
+      if (hierarchy.insight) {
+        panelInsight += ` ${hierarchy.insight}`;
+      }
+      recommendedRefs.push('neely2020_upperEchelonsMetacritiques', 'saiyed2023_ceoPowerUET', 'ayan2023_weightingMethodsMCDM');
     } else {
-      panelInsight = `A composição funcional do painel (funções: ${(panelFunctions || []).join(', ')}) não apresenta alinhamento direto com a dimensão dominante (${MERIT_LABELS[dominant]}). A dominância pode refletir prioridade estratégica genuína ou necessita de investigação adicional.`;
+      panelInsight = `A composição funcional do painel (áreas: ${(panelAreas || []).join(', ')}; cargos: ${(panelFunctions || []).join(', ')}) não apresenta alinhamento direto com a dimensão dominante (${MERIT_LABELS[dominant]}). A dominância pode refletir prioridade estratégica genuína ou necessita de investigação adicional.`;
+      if (hierarchy.insight) {
+        panelInsight += ` ${hierarchy.insight}`;
+      }
     }
   } else {
     recommendedRefs.push('ayan2023_weightingMethodsMCDM');
@@ -125,9 +191,10 @@ export function analyzeDominance(
   // ── Layer 2: Industry/Market Context ──
   const contextText = [projectContext?.name || '', projectContext?.description || ''].join(' ');
 
-  if (dominant === 'Costs' && matchesAny(contextText, COST_DOMINANT_INDUSTRIES)) {
+  if ((dominant === 'Costs' || dominant === 'Benefits') && matchesAny(contextText, COST_DOMINANT_INDUSTRIES)) {
     if (classification === 'unexplained') classification = 'contextualized';
-    contextInsight = `O contexto do projeto ("${projectContext?.name || 'N/A'}") pertence a um setor industrial (automotivo/manufatura/Indústria 4.0) onde a dominância de Custos é um padrão empírico recorrente documentado na literatura. Em estudos MCDM aplicados a este domínio, implementation cost emerge consistentemente como dimensão prioritária.`;
+    const dominantLabel = dominant === 'Costs' ? 'Custos de implementação' : 'Benefícios operacionais (eficiência, otimização)';
+    contextInsight = `O contexto do projeto ("${projectContext?.name || 'N/A'}") pertence a um setor industrial (automotivo/manufatura/Indústria 4.0/energia) onde a priorização de ${dominantLabel} é um padrão empírico recorrente. Em estudos MCDM aplicados a contextos de transformação digital industrial, as dimensões de Costs e Benefits emergem consistentemente como prioritárias por decisores de funções throughput (Neely et al., 2020 via Hambrick & Mason, 1984).`;
     if (!recommendedRefs.includes('neely2020_upperEchelonsMetacritiques')) {
       recommendedRefs.push('neely2020_upperEchelonsMetacritiques');
     }
