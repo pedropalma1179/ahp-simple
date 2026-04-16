@@ -7,12 +7,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import { getKnowledgeContext, getKnowledgeStats, getCriticalRefs, getRefsByTopic, getRAGThresholds, getRAGFormulas, getRAGBenchmarks } from './knowledge';
 import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-detection';
+import { analyzeDominance, buildDominancePromptSection } from '@/lib/analysis/dominanceAnalyzer';
 
 // ============================================================
 // VERSÃO E LOGGING (fonte única de verdade)
 // ============================================================
-const API_VERSION = '7.1.6';
-const API_TAG = 'anti-hallucination-v2';
+const API_VERSION = '7.2.0';
+const API_TAG = 'dominance-analysis';
 const LOG_PREFIX = `[AI-REVIEWER v${API_VERSION}]`;
 
 // ============================================================
@@ -593,7 +594,10 @@ Use SOMENTE estas referências autorizadas. NUNCA invente autores ou anos:
 - Crawford & Williams (1985) — LLSM original
 - Saaty & Ozdemir (2003) — Fadiga cognitiva (7±2 critérios)
 - Escobar (2004) — Propriedade de inconsistência do grupo com média geométrica (AIJ)
-Se precisar mencionar conceitos de outras áreas (ex: viés cognitivo), use "conforme a literatura de [área]" SEM inventar autor.
+- Neely, Lovelace, Cowen & Hiller (2020) — Metacritiques of Upper Echelons Theory: cognitive black box (field of vision, selective perception, interpretation), managerial discretion, contingencies
+- Saiyed, Tatoglu, Ali & Dutta (2023) — CEO power and cognitive bias in volatile/emerging market contexts, double-edged sword of upper echelons factors
+- Ayan, Abacıoğlu & Basilio (2023) — Weighting methods in MCDM: subjective vs. objective vs. combinative; bounded rationality; weight distributions are method- and panel-dependent
+Se precisar mencionar conceitos de outras áreas (ex: viés cognitivo), use "conforme a literatura de [área]" SEM inventar autor. EXCEÇÃO: para viés profissional em painéis MCDM, pode citar diretamente Neely et al. (2020), Saiyed et al. (2023) e Ayan et al. (2023), que estão no RAG e são autorizados.
 
 **REGRA CRÍTICA — LIMIARES:**
 Use APENAS limiares publicados:
@@ -690,8 +694,18 @@ MITIGAÇÃO: Se completude < 60% → "Considerar solicitar comparações adicion
 Padrão de análise:
 1. Origem dos pesos: SEMPRE mencionar que os pesos foram derivados de comparações pareadas entre os méritos BOCR na hierarquia de controle, conforme Saaty (2003) e Lee (2009). NÃO são arbitrários — resultam de julgamentos dos especialistas.
 2. Distribuição de pesos: valores → ratio máx/mín → citar Lee (2009) sobre hierarquia de controle
-3. Dominância: se uma dimensão > 50% → discutir implicações com Petrillo et al. (2023)
-3. Fórmula de síntese utilizada → validar com Wijnmalen (2007)
+3. Dominância de mérito: se uma dimensão > 50% → discutir implicações com Petrillo et al. (2023)
+4. **Análise de dominância estruturada (se seção "ANÁLISE DE DOMINÂNCIA" presente nos dados):**
+   Se os dados do sistema incluem a seção "⚖️ ANÁLISE DE DOMINÂNCIA DE MÉRITO BOCR", você DEVE:
+   a) Reportar o ratio e a dimensão dominante factualmente
+   b) Aplicar as TRÊS CAMADAS de análise fornecidas:
+      - Camada 1 (Perfil do Painel): composição funcional explica a dominância? Citar Neely et al. (2020) sobre selective perception e limited field of vision
+      - Camada 2 (Contexto Setorial): o setor/mercado apresenta padrão de dominância documentado? Citar evidência empírica
+      - Camada 3 (Classificação Final): com base nas camadas, classificar como (a) contextualizada, (b) viés profissional suportado, ou (c) sem explicação
+   c) NÃO tratar dominância contextualizada ou suportada como "limitação" — reportar como CARACTERÍSTICA METODOLÓGICA
+   d) Dominância sem explicação → AÍ SIM tratar como limitação, recomendando painel diversificado (Ayan et al., 2023) e análise de sensibilidade
+   e) Citar obrigatoriamente as referências indicadas na seção de dominância
+5. Fórmula de síntese utilizada → validar com Wijnmalen (2007)
 
 ### Análise de Sensibilidade
 Padrão de análise:
@@ -1033,6 +1047,28 @@ Score_i = vb × sb × B_i + vo × so × O_i − vc × sc × C_i − vr × sr × 
   }
 
   // ============================================================
+  // ANÁLISE DE DOMINÂNCIA DE MÉRITO (Neely 2020 + Saiyed 2023 + Ayan 2023)
+  // ============================================================
+  const weightsForDominance = pw || data.bocrWeights || { Benefits: 0.25, Opportunities: 0.25, Costs: 0.25, Risks: 0.25 };
+  const panelFunctions = data.demographicsSummary?.fields?.funcao || [];
+  const panelAreas = data.demographicsSummary?.fields?.areaAtuacao || [];
+
+  const dominanceResult = analyzeDominance(
+    weightsForDominance,
+    panelFunctions,
+    panelAreas,
+    { name: data.projectName, description: data.projectDescription }
+  );
+
+  const dominanceSection = buildDominancePromptSection(dominanceResult);
+
+  if (dominanceResult.isDominance) {
+    console.log(`${LOG_PREFIX} Dominância detectada: ${dominanceResult.dominantMerit} (ratio=${dominanceResult.ratio.toFixed(2)}:1, classificação=${dominanceResult.classification})`);
+  } else {
+    console.log(`${LOG_PREFIX} Sem dominância significativa (ratio=${dominanceResult.ratio.toFixed(2)}:1)`);
+  }
+
+  // ============================================================
   // ANTI-ALUCINAÇÃO: Ranking final das alternativas
   // ============================================================
   let finalScoresSection = '';
@@ -1167,6 +1203,8 @@ ${rStats.avgCR ? `- CR médio da dimensão: ${safePercent(rStats.avgCR, 2)}` : '
   if (weights.length < 2) return 'N/A';
   return (Math.max(...weights) / Math.min(...weights)).toFixed(2);
 })()}:1
+
+${dominanceSection}
 
 ---
 

@@ -24,6 +24,7 @@ import type {
 // ============================================================
 import alizadeh2020_energy from './articles/alizadeh2020_energy';
 import aullhyde2006_experiment from './articles/aullhyde2006_experiment';
+import ayan2023_weightingMethodsMCDM from './articles/ayan2023_weightingMethodsMCDM';
 import demirtas2008_integrated from './articles/demirtas2008_integrated';
 import dodevska2023when from './articles/dodevska2023when';
 import escobar2004_note from './articles/escobar2004_note';
@@ -35,6 +36,7 @@ import lee2009_wind from './articles/lee2009_wind';
 import lee2024_project from './articles/lee2024_project';
 import liang2022_ahp_undesirable from './articles/liang2022_ahp_undesirable';
 import mu2016_bocr from './articles/mu2016_bocr';
+import neely2020_upperEchelonsMetacritiques from './articles/neely2020_upperEchelonsMetacritiques';
 import ossadnik2016_group_aggregation from './articles/ossadnik2016_group_aggregation';
 import petrillo2023state from './articles/petrillo2023state';
 import saaty1977_scaling from './articles/saaty1977_scaling';
@@ -43,6 +45,7 @@ import saaty1990_howtomake from './articles/saaty1990_howtomake';
 import saaty2003_eigenvector from './articles/saaty2003_eigenvector';
 import saaty2015_trustworthy from './articles/saaty2015_trustworthy';
 import saatyVargas2012 from './articles/saatyVargas2012';
+import saiyed2023_ceoPowerUET from './articles/saiyed2023_ceoPowerUET';
 import salomon2016_absolute from './articles/salomon2016_absolute';
 import salomon2024_consistency from './articles/salomon2024_consistency';
 import schmidt2015_review from './articles/schmidt2015_review';
@@ -58,6 +61,7 @@ import xu2000_consistency from './articles/xu2000_consistency';
 const ARTICLES: ArticleExtraction[] = [
   alizadeh2020_energy,
   aullhyde2006_experiment,
+  ayan2023_weightingMethodsMCDM,
   demirtas2008_integrated,
   dodevska2023when,
   escobar2004_note,
@@ -69,6 +73,7 @@ const ARTICLES: ArticleExtraction[] = [
   lee2024_project,
   liang2022_ahp_undesirable,
   mu2016_bocr,
+  neely2020_upperEchelonsMetacritiques,
   ossadnik2016_group_aggregation,
   petrillo2023state,
   saaty1977_scaling,
@@ -77,6 +82,7 @@ const ARTICLES: ArticleExtraction[] = [
   saaty2003_eigenvector,
   saaty2015_trustworthy,
   saatyVargas2012,
+  saiyed2023_ceoPowerUET,
   salomon2016_absolute,
   salomon2024_consistency,
   schmidt2015_review,
