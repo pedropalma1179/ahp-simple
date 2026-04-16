@@ -1137,7 +1137,7 @@ return (
                             areaFormacao: { 'administracao': 'Administração', 'engenharias': 'Engenharias', 'logistica': 'Logística', 'marketing': 'Marketing', 'ti_sistemas': 'TI / Sistemas', 'ciencias_exatas': 'Ciências Exatas', 'outra': 'Outra' },
                             tempoTrabalho: { '<10': 'Menos de 10 anos', '11-20': '11 a 20 anos', '21-30': '21 a 30 anos', '>30': 'Mais de 30 anos' },
                             tempoGestor: { '0': 'Não atua como gestor', '<10': 'Menos de 10 anos', '11-20': '11 a 20 anos', '21-30': '21 a 30 anos', '>30': 'Mais de 30 anos' },
-                            areaAtuacao: { 'operacoes': 'Operações', 'manufatura': 'Manufatura', 'qualidade': 'Qualidade', 'financeiro': 'Financeiro', 'otimizacao_custos': 'Otimização e Custos', 'outro': 'Outro' },
+                            areaAtuacao: { 'operacoes': 'Operações', 'manufatura': 'Manufatura', 'qualidade': 'Qualidade', 'financeiro': 'Financeiro', 'otimizacao_custos': 'Otimização e Custos', 'p_and_d': 'P&D / Inovação', 'outro': 'Outro' },
                             funcao: { 'c_level': 'C-Level', 'diretor': 'Diretor', 'gerente': 'Gerente', 'supervisor': 'Supervisor/Coord.', 'outro': 'Outro' },
                         };
 

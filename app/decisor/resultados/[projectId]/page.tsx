@@ -1991,7 +1991,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       const mapArea: Record<string, string> = {
         'operacoes': 'Operações', 'manufatura': 'Manufatura',
         'qualidade': 'Qualidade', 'financeiro': 'Financeiro',
-        'otimizacao_custos': 'Otimização e Custos', 'outro': 'Outro'
+        'otimizacao_custos': 'Otimização e Custos', 'p_and_d': 'P&D / Inovação', 'outro': 'Outro'
       };
       const mapFuncao: Record<string, string> = {
         'c_level': 'C-Level/Diretoria', 'diretor': 'Diretor', 'gerente': 'Gerente',
@@ -2183,7 +2183,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       const mapArea: Record<string, string> = {
         'operacoes': 'Operações', 'manufatura': 'Manufatura',
         'qualidade': 'Qualidade', 'financeiro': 'Financeiro',
-        'otimizacao_custos': 'Otimização e Custos', 'outro': 'Outro'
+        'otimizacao_custos': 'Otimização e Custos', 'p_and_d': 'P&D / Inovação', 'outro': 'Outro'
       };
       const mapFuncao: Record<string, string> = {
         'c_level': 'C-Level/Diretoria', 'diretor': 'Diretor', 'gerente': 'Gerente',
@@ -2575,6 +2575,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
         'qualidade': 'Qualidade',
         'financeiro': 'Financeiro',
         'otimizacao_custos': 'Otimização e Custos',
+        'p_and_d': 'P&D / Inovação',
         'outro': 'Outro'
       };
       const mapFuncao: Record<string, string> = {
@@ -3600,6 +3601,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                             { value: 'qualidade', label: 'Qualidade' },
                             { value: 'financeiro', label: 'Financeiro' },
                             { value: 'otimizacao_custos', label: 'Otimização e Custos' },
+                            { value: 'p_and_d', label: 'P&D / Inovação' },
                             { value: 'outro', label: 'Outro' }
                           ];
                           return options.map((opt, idx, arr) => {

@@ -54,8 +54,8 @@ const MERIT_LABELS: Record<Merit, string> = {
 
 const COST_FUNCTIONS = ['financ', 'financeiro', 'controller', 'controlad', 'contábil', 'contabil', 'procurement', 'compras', 'supply', 'supriment', 'tesour', 'orçament', 'otimiz', 'custo', 'manufatura', 'produç', 'producao', 'operaç', 'operacoes'];
 const RISK_FUNCTIONS = ['safety', 'segurança', 'seguranca', 'quality', 'qualidade', 'compliance', 'audit', 'risk', 'risco', 'manutenç', 'manutenc'];
-const BENEFIT_FUNCTIONS = ['sales', 'vendas', 'commercial', 'comercial', 'marketing', 'product', 'produto', 'innovation', 'inovaç', 'inovac', 'p&d', 'r&d', 'manufatura', 'produç', 'producao', 'operaç', 'operacoes'];
-const OPPORTUNITY_FUNCTIONS = ['strategy', 'estratég', 'estrateg', 'planning', 'planejament', 'development', 'desenvolviment', 'business dev'];
+const BENEFIT_FUNCTIONS = ['sales', 'vendas', 'commercial', 'comercial', 'marketing', 'product', 'produto', 'innovation', 'inovaç', 'inovac', 'p&d', 'r&d', 'p_and_d', 'manufatura', 'produç', 'producao', 'operaç', 'operacoes'];
+const OPPORTUNITY_FUNCTIONS = ['strategy', 'estratég', 'estrateg', 'planning', 'planejament', 'development', 'desenvolviment', 'business dev', 'p&d', 'r&d', 'p_and_d', 'inovaç', 'inovac', 'innovation'];
 
 const COST_DOMINANT_INDUSTRIES = ['automotiv', 'automotive', 'manufactur', 'manufatur', 'industry 4', 'indústria 4', 'industria 4', 'paint shop', 'pintura', 'assembly', 'montagem', 'metalurg', 'siderurg', 'estufa', 'cura', 'gás natural', 'gas natural', 'energia', 'energy'];
 

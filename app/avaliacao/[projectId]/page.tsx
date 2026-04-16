@@ -99,6 +99,7 @@ const DEMOGRAPHIC_OPTIONS = {
       { value: 'qualidade', label: 'Qualidade' },
       { value: 'financeiro', label: 'Financeiro' },
       { value: 'otimizacao_custos', label: 'Otimização e Custos' },
+      { value: 'p_and_d', label: 'P&D / Inovação' },
       { value: 'outro', label: 'Outro' }
     ]
   },

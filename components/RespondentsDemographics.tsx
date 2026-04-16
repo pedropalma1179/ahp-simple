@@ -58,6 +58,7 @@ const LABELS = {
     'qualidade': 'Qualidade',
     'financeiro': 'Financeiro',
     'otimizacao_custos': 'Otimização e Custos',
+    'p_and_d': 'P&D / Inovação',
     'outro': 'Outro',
   },
   funcao: {
