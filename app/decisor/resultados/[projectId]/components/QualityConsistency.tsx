@@ -4,7 +4,6 @@
  * 
  * Componente principal para análise de consistência com:
  * - CR Table por respondente (com grupos)
- * - Heatmap visual de CR
  * - Distribuição estatística
  * - Identificação de outliers
  * - Análise de convergência do grupo
@@ -18,7 +17,6 @@ import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ScatterChart, Scatter, ZAxis } from 'recharts';
 import { AlertTriangle, CheckCircle, TrendingUp, Users, Download } from 'lucide-react';
 import CRTableExpanded from '@/components/CRTableExpanded';
-import CRHeatmap from '@/components/CRHeatmap';
 import * as XLSX from 'xlsx';
 
 // ============================================================
@@ -319,7 +317,7 @@ export default function QualityConsistency({
         )}
 
         {/* View: Heatmap */}
-        {activeView === 'heatmap' && (
+        {/* {activeView === 'heatmap' && (
           <div className="space-y-6 animate-fade-in">
             <CRHeatmap 
               data={heatmapData}
@@ -327,7 +325,7 @@ export default function QualityConsistency({
               showGroups={groups.length > 1}
             />
           </div>
-        )}
+        )} */}
 
         {/* View: Distribuição e Análise */}
         {activeView === 'distribution' && (

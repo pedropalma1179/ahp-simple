@@ -1,8 +1,21 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Roboto_Mono } from 'next/font/google'
 import './globals.css'
+import './design-system.css'
 
-const inter = Inter({ subsets: ['latin'] })
+// Fonte principal (UI/Interface)
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+})
+
+// Fonte monoespaçada (dados numéricos, matrizes, CR)
+const robotoMono = Roboto_Mono({ 
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'AHP-BOCR | Avaliação de Investimentos I4.0',
@@ -23,7 +36,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className}>{children}</body>
+      <body className={`${inter.variable} ${robotoMono.variable} ${inter.className}`}>
+        {children}
+      </body>
     </html>
   )
 }

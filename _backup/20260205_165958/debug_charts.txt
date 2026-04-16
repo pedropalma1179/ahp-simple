@@ -1,0 +1,3 @@
+
+app\decisor\resultados\[projectId]\page.tsx:218:const BOCRPieChart: React.FC<BOCRPieChartProps> = ({ bocrWeights }) => {
+

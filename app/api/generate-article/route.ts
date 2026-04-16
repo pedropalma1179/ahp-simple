@@ -10,9 +10,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const MODELS = {
   claude: {
-    name: 'Claude Sonnet 4',
+    name: 'Claude Sonnet 4.5',
     provider: 'anthropic',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-5-20250929',
     maxTokens: 4096
   },
   gemini: {

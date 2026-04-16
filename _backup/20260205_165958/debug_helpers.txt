@@ -1,0 +1,3 @@
+
+app\decisor\resultados\[projectId]\page.tsx:1027:  const formatNumber = (value: number) => value.toFixed(4);
+

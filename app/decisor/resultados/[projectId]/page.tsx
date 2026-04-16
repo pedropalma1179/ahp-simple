@@ -3,12 +3,13 @@
 // Baseado em: Wijnmalen (2007), Demirtas & Üstün (2008), Lee (2009)
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { BOCR_CRITERIA, SUBCRITERIA } from '@/lib/data';
 import * as XLSX from 'xlsx';
+import { toPng, toJpeg } from 'html-to-image';
 import {
   PieChart,
   Pie,
@@ -22,33 +23,162 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+// Base de conhecimento teórico BOCR
+import {
+  SYNTHESIS_METHODS,
+  LITERATURE_DIVERGENCES,
+  WEIGHT_TYPES,
+  QUALITY_THRESHOLDS,
+  MERIT_LABELS,
+  interpretConsistencyRatio,
+  interpretSensitivity,
+  interpretMethodAgreement,
+  interpretDominanceGap,
+  generateExecutiveSummary
+} from '@/lib/knowledge';
+
 // Componente híbrido para Revisão IA (resolve problema de alucinação numérica)
 // Valores numéricos do SISTEMA + análise qualitativa da IA
 import AIReviewCard from '@/components/AIReviewCard';
 import QualityDashboard from '@/components/QualityDashboard';
-import QualityAnalysis from './QualityAnalysis';
+import ParecerAISection from '@/components/ParecerAISection';
+import ExternalValidation from '@/components/ExternalValidation';
+import BiasAnalysisCard from '@/components/BiasAnalysisCard';
+
+// Componentes Q1/A1
+import BOCRPrioritiesTable from '@/components/BOCRPrioritiesTable';
+import MethodComparisonTable from '@/components/MethodComparisonTable';
+import SensitivityAnalysisPanel from '@/components/SensitivityAnalysisPanel';
+import NegativePriorityAlert from '@/components/NegativePriorityAlert';
+
+// Charts ECharts - Enterprise Grade
+import {
+  BOCRSunburstChart,
+  BOCRWaterfallChart,
+  ConsistencyGaugeChart,
+  BOCRRadarChart
+} from '@/components/charts';
+import BentoGridDashboard from '@/components/BentoGridDashboard';
+import CRTable from '@/components/CRTable';
+
+// Force reload
 
 // ============================================================
-// TIPOS
+// TIPOS - ATUALIZADO PARA v5.0 Q1/A1
 // ============================================================
 
 interface Project {
   id: string;
   name: string;
   description?: string;
-  alternatives: { code: string; name: string; description: string }[];
+  alternatives: Array<{
+    code: string;
+    name: string;
+    description?: string;
+  }>;
+  sensitiveGroups?: {
+    attribute: string;
+    discriminated: string[];
+    privileged: string[];
+  };
   status: string;
 }
 
+// Interface BOCR Priorities [Lee 2009a]
+interface BOCRPriority {
+  code: string;
+  name: string;
+  B: number;
+  O: number;
+  C: number;
+  R: number;
+  C_reciprocal: number;
+  R_reciprocal: number;
+}
+
+// Interface de Concordância entre Métodos [Lee 2009, Alizadeh 2020]
+interface MethodConcordance {
+  totalMethods: number;
+  agreeMethods: number;
+  agreementPercent: number;
+  consensusWinner: string | null;
+  divergentMethods: string[];
+  rankingsByMethod: Record<string, string[]>;
+  robustnessLevel: 'excellent' | 'good' | 'acceptable' | 'poor';
+  robustnessLabel: string;
+}
+
+// Interface de Análise de Sensibilidade [Alizadeh 2020]
+import { SensitivityItem } from '@/components/SensitivityAnalysisPanel';
+
+interface SensitivityAnalysisItem extends SensitivityItem {
+  // Campos herdados de SensitivityItem:
+  // merit, meritName, inflectionPoint, classification, currentWeight?, description?
+
+  // Campos específicos da página:
+  classificationLabel: string;
+  currentWinner: string;
+  newWinner: string | null;
+  changeDescription: string;
+}
+
+// Interface de Alternativa com Prioridade Negativa [Lee 2009a]
+interface NegativeAlternative {
+  code: string;
+  name: string;
+  score: number;
+  message: string;
+}
+
+// Interface de Alertas Q1/A1
+interface Q1Alerts {
+  hasNegativePriorities: boolean;
+  negativeAlternatives: NegativeAlternative[];
+  sensitivityCritical: SensitivityAnalysisItem[];
+  lowConcordance: boolean;
+}
+
+// Interface Principal de Resultado - ATUALIZADA v5.0
 interface CalculationResult {
+  // Campos existentes
   bocrWeights: number[];
   bocrConsistency: { cr: number; lambda: number; ci: number };
+  rescalingWeights?: { sb: number; so: number; sc: number; sr: number };
+  magnitudeConsistency?: { cr: number; lambda: number; ci: number };
   subWeights: Record<string, number[]>;
   subConsistency: Record<string, { cr: number; lambda: number }>;
   altScores: Record<string, Record<string, number>>;
+  altMeritScores?: { code: string; name: string; B: number; O: number; C: number; R: number }[];
   finalScores: any[];
+  ranking?: { position: number; code: string; name: string }[];
   sensitivityInflections: Record<string, number | null>;
   responseCount: number;
+
+  // === NOVOS CAMPOS v5.0 Q1/A1 ===
+
+  // Tabela BOCR Priorities [Lee 2009a Table 6]
+  bocrPrioritiesTable?: BOCRPriority[];
+
+  // Análise de Concordância [Lee 2009, Alizadeh 2020]
+  methodConcordance?: MethodConcordance;
+
+  // Análise de Sensibilidade com Classificação [Alizadeh 2020]
+  sensitivityAnalysis?: SensitivityAnalysisItem[];
+
+  // Alertas Q1/A1
+  alerts?: Q1Alerts;
+
+  // Metadados
+  metadata?: {
+    projectName: string;
+    alternativesCount: number;
+    methodsCount: number;
+    primaryMethod: string;
+    version: string;
+    q1Features?: string[];
+    references?: Record<string, string>;
+    excludedRespondentIds?: string[]; // Adicionado para persistência
+  };
 }
 
 // ============================================================
@@ -63,12 +193,12 @@ function calculateAltBOCR(
 ): { B: number; O: number; C: number; R: number } {
   const merits = ['B', 'O', 'C', 'R'];
   const result = { B: 0, O: 0, C: 0, R: 0 };
-  
+
   merits.forEach((merit, idx) => {
     const subScores = altScores[merit];
     const weights = subWeights[merit];
     const meritWeight = bocrWeights[idx] || 0;
-    
+
     if (subScores && weights && subScores[altCode] !== undefined) {
       // Se temos scores por subcritério
       const subKeys = Object.keys(subScores).filter(k => k.startsWith(altCode.replace(/[0-9]/g, '')));
@@ -86,8 +216,109 @@ function calculateAltBOCR(
       }
     }
   });
-  
+
   return result;
+}
+
+// ============================================================
+// COMPONENTE: ChartDownloadWrapper
+// Envoltório com botão de download para exportar gráficos como PNG/JPEG
+// ============================================================
+
+function ChartDownloadWrapper({
+  children,
+  filename,
+  title
+}: {
+  children: React.ReactNode;
+  filename: string;
+  title?: string;
+}) {
+  const chartRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [showFormat, setShowFormat] = useState(false);
+
+  const handleDownload = async (format: 'png' | 'jpeg') => {
+    if (!chartRef.current) return;
+    setDownloading(true);
+    setShowFormat(false);
+    try {
+      const scale = 3;
+      const options = {
+        cacheBust: true,
+        pixelRatio: scale,
+        backgroundColor: '#ffffff',
+      };
+
+      let dataUrl: string;
+      let extension: string;
+
+      if (format === 'jpeg') {
+        dataUrl = await toJpeg(chartRef.current, { ...options, quality: 0.95 });
+        extension = 'jpg';
+      } else {
+        dataUrl = await toPng(chartRef.current, options);
+        extension = 'png';
+      }
+
+      const link = document.createElement('a');
+      link.download = `${filename}.${extension}`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('Erro ao exportar gráfico:', err);
+    }
+    setDownloading(false);
+  };
+
+  return (
+    <div className="relative group">
+      <div ref={chartRef} className="bg-white p-4 rounded-lg">
+        {title && (
+          <p className="text-sm font-semibold text-gray-700 mb-2 text-center">{title}</p>
+        )}
+        {children}
+      </div>
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        {showFormat ? (
+          <div className="flex gap-1 bg-white rounded-lg shadow-lg border p-1">
+            <button
+              onClick={() => handleDownload('png')}
+              className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded"
+              disabled={downloading}
+            >
+              PNG
+            </button>
+            <button
+              onClick={() => handleDownload('jpeg')}
+              className="px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded"
+              disabled={downloading}
+            >
+              JPEG
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowFormat(true)}
+            className="p-1.5 bg-white/90 hover:bg-white rounded-lg shadow border border-gray-200 text-gray-500 hover:text-gray-700 transition-all"
+            title="Baixar gráfico"
+            disabled={downloading}
+          >
+            {downloading ? (
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ============================================================
@@ -150,7 +381,7 @@ const BOCRPieChart: React.FC<BOCRPieChartProps> = ({ bocrWeights }) => {
         largeArc,
         color: colors[idx],
         label: labels[idx],
-        percentage: (weight * 100).toFixed(1),
+        percentage: ((weight || 0) * 100).toFixed(1),
       };
     });
   };
@@ -178,13 +409,12 @@ const BOCRPieChart: React.FC<BOCRPieChartProps> = ({ bocrWeights }) => {
               {labels.map((label, idx) => (
                 <tr
                   key={idx}
-                  className={`border-b cursor-pointer transition-all duration-200 ${
-                    hoveredIndex === idx
-                      ? `${hoverBgColors[idx]} font-semibold`
-                      : hoveredIndex !== null
+                  className={`border-b cursor-pointer transition-all duration-200 ${hoveredIndex === idx
+                    ? `${hoverBgColors[idx]} font-semibold`
+                    : hoveredIndex !== null
                       ? 'opacity-50'
                       : ''
-                  }`}
+                    }`}
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
                 >
@@ -241,7 +471,7 @@ const BOCRPieChart: React.FC<BOCRPieChartProps> = ({ bocrWeights }) => {
             {slices.map((slice) => {
               // Só mostra label se a fatia for grande o suficiente
               if (slice.weight < 0.08) return null;
-              
+
               return (
                 <g
                   key={`label-${slice.idx}`}
@@ -273,13 +503,12 @@ const BOCRPieChart: React.FC<BOCRPieChartProps> = ({ bocrWeights }) => {
         {labels.map((label, idx) => (
           <div
             key={idx}
-            className={`flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer transition-all duration-200 ${
-              hoveredIndex === idx
-                ? `${hoverBgColors[idx]} ring-2 ring-offset-1`
-                : hoveredIndex !== null
+            className={`flex items-center gap-2 px-3 py-1 rounded-full cursor-pointer transition-all duration-200 ${hoveredIndex === idx
+              ? `${hoverBgColors[idx]} ring-2 ring-offset-1`
+              : hoveredIndex !== null
                 ? 'opacity-50'
                 : 'hover:bg-gray-100'
-            }`}
+              }`}
             onMouseEnter={() => setHoveredIndex(idx)}
             onMouseLeave={() => setHoveredIndex(null)}
           >
@@ -307,10 +536,40 @@ export default function ResultadosPage() {
   const [audit, setAudit] = useState<any>(null);
   const [aiReview, setAiReview] = useState<any>(null);
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
+  const [biasAnalysis, setBiasAnalysis] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'demographics' | 'quality' | 'consistency' | 'weights' | 'ranking' | 'sensitivity' | 'audit' | 'academic' | 'export'>('overview');
-  
+
+  // Configuração de Disparate Impact (Dodevska et al., 2023)
+  // Opcional — o pesquisador define atributo sensível e agrupamento
+  const [sensitiveGroups, setSensitiveGroups] = useState<{
+    attribute: string;
+    discriminated: string[];
+    privileged: string[];
+  } | null>(null);
+
+  // Implementação de aba persistente via URL hash
+  const validTabs = ['executive', 'results', 'quality', 'robustness', 'review', 'bibliography', 'export'] as const;
+  type TabId = typeof validTabs[number];
+
+  const getInitialTab = (): TabId => {
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '');
+      if ((validTabs as readonly string[]).includes(hash)) {
+        return hash as TabId;
+      }
+    }
+    return 'executive';
+  };
+
+  const [activeTab, setActiveTab] = useState<TabId>(getInitialTab);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.location.hash = activeTab;
+    }
+  }, [activeTab]);
+
   // Estados para texto acadêmico
   const [academicText, setAcademicText] = useState<string | null>(null);
   const [generatingText, setGeneratingText] = useState(false);
@@ -319,6 +578,15 @@ export default function ResultadosPage() {
 
   // Estado para dados demográficos dos respondentes
   const [respondentsDemographics, setRespondentsDemographics] = useState<any[]>([]);
+
+  // Mapa respondentId → email
+  const [respondentEmails, setRespondentEmails] = useState<Record<string, string>>({});
+
+  // Estado para exclusão de respondentes
+  const [excludedIds, setExcludedIds] = useState<string[]>([]);
+  const [selectedForExclusion, setSelectedForExclusion] = useState<string[]>([]);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+
   const [demographicView, setDemographicView] = useState<'dashboard' | 'table'>('dashboard');
 
   // Estados para análise de qualidade das respostas
@@ -329,9 +597,9 @@ export default function ResultadosPage() {
   // Dados formatados para o Dashboard Demográfico
   const demographicDashboardData = useMemo(() => {
     if (respondentsDemographics.length === 0) return null;
-    
+
     const total = respondentsDemographics.length;
-    
+
     // Mapear valores para labels amigáveis
     const mapAge = (val: string) => {
       const map: Record<string, string> = {
@@ -342,7 +610,7 @@ export default function ResultadosPage() {
       };
       return map[val] || val;
     };
-    
+
     const mapEducation = (val: string) => {
       const map: Record<string, string> = {
         'superior': 'Graduação',
@@ -352,7 +620,7 @@ export default function ResultadosPage() {
       };
       return map[val] || val;
     };
-    
+
     const mapExperience = (val: string) => {
       const map: Record<string, string> = {
         'menos_10': '< 10 anos',
@@ -362,7 +630,7 @@ export default function ResultadosPage() {
       };
       return map[val] || val;
     };
-    
+
     const mapRole = (val: string) => {
       const map: Record<string, string> = {
         'c_level': 'C-Level',
@@ -373,7 +641,7 @@ export default function ResultadosPage() {
       };
       return map[val] || val;
     };
-    
+
     const mapArea = (val: string) => {
       const map: Record<string, string> = {
         'producao': 'Produção',
@@ -386,7 +654,7 @@ export default function ResultadosPage() {
       };
       return map[val] || val;
     };
-    
+
     // Contar por categoria
     const countBy = (field: string, mapper?: (v: string) => string) => {
       const counts: Record<string, number> = {};
@@ -399,7 +667,7 @@ export default function ResultadosPage() {
       });
       return Object.entries(counts).map(([name, value]) => ({ name, value }));
     };
-    
+
     return {
       total,
       age: countBy('idade', mapAge),
@@ -414,70 +682,270 @@ export default function ResultadosPage() {
     };
   }, [respondentsDemographics]);
   // Dados formatados para o componente de filtro de qualidade
-  const qualityRespondentsData = useMemo(() => {
-    if (!qualityAnalysis?.respondents) return [];
-    
-    return qualityAnalysis.respondents.map((r: any) => ({
-      id: r.respondentId || r.id || String(Math.random()),
-      name: r.name || `Respondente ${(r.respondentId || r.id || '').slice(0, 6)}`,
-      cr: r.metrics?.avgCR || 0,
-      status: r.status || 'REVISAR',
-      overallScore: r.overallScore || 0,
-      isSimulated: r.isSimulated || false,
-      metrics: r.metrics,
-      flags: r.flags || []
-    }));
-  }, [qualityAnalysis]);
+  // Unifica dados de qualityAnalysis.respondents + processedRespondents + excludedIds
+  // FILTRO DEFENSIVO: apenas respondentes com response finalizada (completedAt) em projectResponses
+  const getRespondentsList = useMemo(() => {
+    // IDs válidos = respondentes que possuem response com completedAt (já filtrado em projectResponses)
+    const validResponseIds = new Set(
+      projectResponses.map((r: any) => r.respondentId || r.visitorId || r.id || '').filter(Boolean)
+    );
+
+    // Fonte primária: qualityAnalysis (tem Score, Flags, Recomendação)
+    const qaRespondents = qualityAnalysis?.respondents || [];
+
+    // Se qualityAnalysis não disponível, usar dados básicos de projectResponses
+    if (qaRespondents.length === 0 && projectResponses.length > 0) {
+      return projectResponses.map((r: any) => ({
+        respondentId: r.visitorId || r.respondentId || r.id || '',
+        isSimulated: r.isSimulated ?? false,
+        score: null,
+        cr: r.responses?.avgCR || 0,
+        status: (r.responses?.avgCR || 0) > 0.20 ? 'CRÍTICO' :
+          (r.responses?.avgCR || 0) > 0.15 ? 'SUSPEITO' :
+            (r.responses?.avgCR || 0) > 0.10 ? 'REVISAR' : 'CONFIÁVEL',
+        flags: [],
+        recommendation: '',
+        overallScore: null,
+      }));
+    }
+
+    // Filtrar qaRespondents: apenas quem tem response finalizada
+    const filteredQaRespondents = qaRespondents.filter((r: any) => {
+      const rid = r.respondentId || r.id || r.visitorId || '';
+      return validResponseIds.has(rid);
+    });
+
+    // Mapear para formato unificado
+    return filteredQaRespondents.map((r: any) => {
+      const respondentId = r.respondentId || r.id || r.visitorId || '';
+      const cr = r.metrics?.avgCR || r.avgCR || 0;
+
+      return {
+        respondentId,
+        isSimulated: r.isSimulated ?? false,
+        score: r.overallScore ?? r.score ?? null,
+        cr,
+        status: r.status || (cr > 0.20 ? 'CRÍTICO' : cr > 0.15 ? 'SUSPEITO' : cr > 0.10 ? 'REVISAR' : 'CONFIÁVEL'),
+        flags: r.flags || [],
+        recommendation: r.recommendation || '',
+        overallScore: r.overallScore,
+      };
+    });
+  }, [qualityAnalysis, projectResponses]);
+
+  // ============================================================
+  // Gerar dados de trajetória para gráficos de sensibilidade
+  // Simula variação de pesos (0-100%) para cada mérito BOCR
+  // Ref: Alizadeh et al. (2020) Section 5.7, Figures 6-7
+  // ============================================================
+  const sensitivityTrajectories = useMemo(() => {
+    if (!calculation?.finalScores || calculation.finalScores.length === 0 || !calculation.bocrWeights) {
+      return undefined;
+    }
+
+    const merits = ['B', 'O', 'C', 'R'];
+    const weights = calculation.bocrWeights; // [b, o, c, r] normalized
+    const alts = calculation.finalScores;
+
+    // Verificar se alternativas têm scores por mérito
+    if (!alts[0]?.B && alts[0]?.B !== 0) {
+      return undefined;
+    }
+
+    const trajectories: Record<string, Array<{
+      weight: number;
+      scores: Record<string, number>;
+      winner: string;
+      inflection: boolean;
+    }>> = {};
+
+    // Rescaling weights (magnitude) — FIXOS durante variação de pesos pessoais
+    // Ref: Wijnmalen (2007) p.899 — magnitude comparisons for commensurability
+    const rwObj = calculation.rescalingWeights;
+    let rw: number[];
+    if (Array.isArray(rwObj)) {
+      rw = [rwObj[0] || 1, rwObj[1] || 1, rwObj[2] || 1, rwObj[3] || 1];
+    } else if (rwObj && typeof rwObj === 'object') {
+      // @ts-ignore
+      rw = [rwObj.sb || 1, rwObj.so || 1, rwObj.sc || 1, rwObj.sr || 1];
+    } else {
+      rw = [1, 1, 1, 1];
+    }
+
+    // DEBUG — executa 1 vez só (fora dos loops)
+    const debugRw = (() => {
+      const rwObj = calculation.rescalingWeights;
+      if (Array.isArray(rwObj)) return [rwObj[0] || 1, rwObj[1] || 1, rwObj[2] || 1, rwObj[3] || 1];
+      if (rwObj && typeof rwObj === 'object') return [(rwObj as any).sb || 1, (rwObj as any).so || 1, (rwObj as any).sc || 1, (rwObj as any).sr || 1];
+      return [1, 1, 1, 1];
+    })();
+    console.log('📊 [SENSITIVITY] rescalingWeights raw:', calculation.rescalingWeights);
+    console.log('📊 [SENSITIVITY] rw resolved:', debugRw);
+    console.log('📊 [SENSITIVITY] alts[0] B/O/C/R:', alts[0]?.B, alts[0]?.O, alts[0]?.C, alts[0]?.R);
+
+    merits.forEach((merit, meritIdx) => {
+      const points: typeof trajectories[string] = [];
+      let prevWinner = '';
+
+      // Simular de 0% a 100% em passos de 2%
+      for (let pct = 0; pct <= 100; pct += 2) {
+        const variedWeight = pct / 100;
+
+        // Redistribuir peso restante proporcionalmente entre outros méritos
+        const remaining = 1 - variedWeight;
+        const otherWeightsSum = weights.reduce((sum, w, i) => i !== meritIdx ? sum + w : sum, 0);
+
+        const adjustedWeights = weights.map((w, i) => {
+          if (i === meritIdx) return variedWeight;
+          if (otherWeightsSum === 0) return remaining / 3;
+          return (w / otherWeightsSum) * remaining;
+        });
+
+        // Calcular score subtrativo para cada alternativa
+        const scores: Record<string, number> = {};
+        let maxScore = -Infinity;
+        let winnerName = '';
+
+        alts.forEach((alt: any) => {
+          const name = alt.name || alt.code || 'Alt';
+          const meritScores = [alt.B || 0, alt.O || 0, alt.C || 0, alt.R || 0];
+
+          // Subtrativo com rescaling: v_b·s_b·B + v_o·s_o·O - v_c·s_c·C - v_r·s_r·R
+          // Wijnmalen (2007) Eq.17 completa
+          const score = adjustedWeights[0] * rw[0] * meritScores[0]
+            + adjustedWeights[1] * rw[1] * meritScores[1]
+            - adjustedWeights[2] * rw[2] * meritScores[2]
+            - adjustedWeights[3] * rw[3] * meritScores[3];
+
+          if (pct === 0 && meritIdx === 0) {
+            console.log('📊 [SENSITIVITY] First calculation:', {
+              adjustedWeights,
+              rw,
+              meritScores,
+              score
+            });
+          }
+
+          scores[name] = score;
+          if (score > maxScore) {
+            maxScore = score;
+            winnerName = name;
+          }
+        });
+
+        const isInflection = prevWinner !== '' && winnerName !== prevWinner;
+        points.push({ weight: pct, scores, winner: winnerName, inflection: isInflection });
+        prevWinner = winnerName;
+      }
+
+      trajectories[merit] = points;
+    });
+
+    return trajectories;
+  }, [calculation?.finalScores, calculation?.bocrWeights, calculation?.rescalingWeights]);
 
 
   // Função para executar revisão profunda com IA
   const runAiReview = async () => {
     console.log('🚀 [AI-REVIEW] Função chamada!');
-    console.log('🔍 [AI-REVIEW] calculation:', !!calculation, 'project:', !!project);
-    
+    console.log('🔍 [AI-REVIEW] calculation:', !!calculation, 'project:', !!project, 'qualityAnalysis:', !!qualityAnalysis);
+
     if (!calculation || !project) {
       console.error('❌ [AI-REVIEW] Abortando - dados faltando');
       return;
     }
-    
+
     setAiReviewLoading(true);
     setAiReview(null);
-    
+    setBiasAnalysis(null);
+
     try {
+      // ============================================================
+      // CORREÇÃO v6.5: Garantir análise de qualidade antes da revisão IA
+      // ============================================================
+      let currentQualityAnalysis = qualityAnalysis;
+
+      // Se não há análise de qualidade, executar agora
+      if (!currentQualityAnalysis && projectResponses.length > 0) {
+        console.log('⚠️ [AI-REVIEW] Análise de qualidade não disponível, executando agora...');
+        try {
+          const qualityResponse = await fetch('/api/response-quality', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              responses: projectResponses,
+              includeSimulated: true
+            })
+          });
+
+          const qualityData = await qualityResponse.json();
+
+          if (qualityData.success) {
+            currentQualityAnalysis = qualityData.analysis;
+            setQualityAnalysis(currentQualityAnalysis);
+            console.log('✅ [AI-REVIEW] Análise de qualidade executada:', currentQualityAnalysis.statistics);
+          } else {
+            console.error('❌ [AI-REVIEW] Erro na análise de qualidade:', qualityData.error);
+          }
+        } catch (qualityError) {
+          console.error('❌ [AI-REVIEW] Falha ao executar análise de qualidade:', qualityError);
+        }
+      }
+
       console.log('📤 [AI-REVIEW] Preparando payload...');
-      
+      console.log('📤 [AI-REVIEW] qualityAnalysis.respondents count:', currentQualityAnalysis?.respondents?.length || 0);
+
+      // ------------------------------------------------------------
+      // CORREÇÃO: FILTRAR RESPONDENTES EXCLUÍDOS ANTES DO CÁLCULO
+      // ------------------------------------------------------------
+      const activeRespondents = currentQualityAnalysis?.respondents
+        ? currentQualityAnalysis.respondents.filter((r: any) => {
+          const id = r.respondentId || r.id || r.visitorId || '';
+          return !excludedIds.includes(id);
+        })
+        : [];
+
+      const activeProjectResponses = projectResponses.filter((r: any) => {
+        const id = r.respondentId || r.id || r.visitorId || '';
+        return !excludedIds.includes(id);
+      });
+      // ------------------------------------------------------------
+
+      console.log('📤 [AI-REVIEW] activeRespondents count:', activeRespondents.length);
+      console.log('📤 [AI-REVIEW] activeProjectResponses count:', activeProjectResponses.length);
+
       // ------------------------------------------------------------
       // CORREÇÃO CRÍTICA: CÁLCULO DE QUALIDADE ROBUSTO
       // ------------------------------------------------------------
       let individualStats = { valid: 0, warning: 0, critical: 0, total: 0, avgCR: 0 };
-      
+
       // Tentar usar dados da análise de qualidade primeiro
-      if (qualityAnalysis?.respondents && qualityAnalysis.respondents.length > 0) {
-        console.log('📊 [AI-REVIEW] Usando dados de qualityAnalysis:', qualityAnalysis.respondents.length, 'respondentes');
-        
+      if (activeRespondents.length > 0) {
+        console.log('📊 [AI-REVIEW] Usando dados de qualityAnalysis:', activeRespondents.length, 'respondentes ativos (de', currentQualityAnalysis?.respondents?.length || 0, 'total)');
+
         let totalCR = 0;
-        individualStats = qualityAnalysis.respondents.reduce((acc: any, r: any) => {
+        individualStats = activeRespondents.reduce((acc: any, r: any) => {
           // 1. Tenta encontrar o CR em qualquer lugar possível
           let crValue = 0;
-          
+
           if (typeof r.cr === 'number') crValue = r.cr;
           else if (r.metrics && typeof r.metrics.avgCR === 'number') crValue = r.metrics.avgCR;
           else if (r.consistency && typeof r.consistency.cr === 'number') crValue = r.consistency.cr;
           else if (typeof r.cr_mean === 'number') crValue = r.cr_mean;
-          
+
           totalCR += crValue;
-          
+
           // 2. Classificação Agressiva (Mesma régua do Menu Qualidade)
           const isExplicitlyBad = r.status === 'SUSPEITO' || r.status === 'CRÍTICO';
           const isMathematicallyBad = crValue > 0.20; // CR > 20% = CRÍTICO
           const isMathematicallySuspect = crValue > 0.10; // CR > 10% = SUSPEITO
 
           if (isExplicitlyBad || isMathematicallyBad) {
-            acc.critical++; 
-            console.log(`⚠️ [QUALITY] Respondente CRÍTICO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue*100).toFixed(1)}%, Status: ${r.status || 'N/A'})`);
+            acc.critical++;
+            console.log(`⚠️ [QUALITY] Respondente CRÍTICO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue * 100).toFixed(1)}%, Status: ${r.status || 'N/A'})`);
           } else if (isMathematicallySuspect) {
             acc.warning++;
-            console.log(`🔸 [QUALITY] Respondente SUSPEITO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue*100).toFixed(1)}%)`);
+            console.log(`🔸 [QUALITY] Respondente SUSPEITO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue * 100).toFixed(1)}%)`);
           } else {
             acc.valid++;
           }
@@ -485,32 +953,95 @@ export default function ResultadosPage() {
           acc.total++;
           return acc;
         }, { valid: 0, warning: 0, critical: 0, total: 0 });
-        
+
         individualStats.avgCR = individualStats.total > 0 ? totalCR / individualStats.total : 0;
-        
-      } else if (projectResponses && projectResponses.length > 0) {
-        // Fallback: usar projectResponses diretamente
-        console.log('📊 [AI-REVIEW] Fallback: usando projectResponses:', projectResponses.length, 'respostas');
-        
-        // Aqui precisaríamos calcular o CR de cada resposta
-        // Por ora, marcamos todos como válidos (será melhorado)
+
+      } else if (activeProjectResponses.length > 0) {
+        // Fallback: calcular CR diretamente das respostas
+        console.log('📊 [AI-REVIEW] Fallback: calculando CR de', activeProjectResponses.length, 'respostas ativas');
+
+        let totalCR = 0;
+        let validCount = 0;
+        let warningCount = 0;
+        let criticalCount = 0;
+
+        activeProjectResponses.forEach((response: any) => {
+          // Tentar extrair CR de várias estruturas possíveis
+          let cr = 0;
+
+          // Estrutura 1: response.consistency.cr
+          if (response.consistency?.cr !== undefined) {
+            cr = response.consistency.cr;
+          }
+          // Estrutura 2: response.cr
+          else if (response.cr !== undefined) {
+            cr = response.cr;
+          }
+          // Estrutura 3: response.metrics?.avgCR
+          else if (response.metrics?.avgCR !== undefined) {
+            cr = response.metrics.avgCR;
+          }
+          // Estrutura 4: Calcular média dos CRs de cada matriz
+          else if (response.bocrJudgments || response.subJudgments) {
+            // Se tem dados brutos, não conseguimos calcular sem mais processamento
+            // Assumir como válido se não há CR explícito
+            validCount++;
+            return;
+          }
+
+          totalCR += cr;
+
+          // Classificar respondente
+          if (cr > 0.20) {
+            criticalCount++;
+            console.log(`❌ [QUALITY] Resposta CRÍTICA: CR = ${(cr * 100).toFixed(1)}%`);
+          } else if (cr > 0.10) {
+            warningCount++;
+            console.log(`⚠️ [QUALITY] Resposta SUSPEITA: CR = ${(cr * 100).toFixed(1)}%`);
+          } else {
+            validCount++;
+          }
+        });
+
+        // Se não conseguimos extrair CR de nenhuma resposta, usar CR global
+        if (validCount + warningCount + criticalCount === 0) {
+          console.log('📊 [AI-REVIEW] Sem CR individual, usando CR global do projeto');
+          const globalCR = calculation.bocrConsistency?.cr || 0;
+
+          if (globalCR <= 0.10) {
+            // CR global excelente = assumir todas respostas válidas
+            validCount = activeProjectResponses.length;
+            console.log(`✅ [QUALITY] CR global ${(globalCR * 100).toFixed(2)}% - todas respostas consideradas válidas`);
+          } else if (globalCR <= 0.20) {
+            // CR global aceitável = assumir maioria válida
+            validCount = Math.floor(activeProjectResponses.length * 0.7);
+            warningCount = activeProjectResponses.length - validCount;
+          } else {
+            // CR global ruim = assumir maioria problemática
+            validCount = Math.floor(activeProjectResponses.length * 0.4);
+            warningCount = Math.floor(activeProjectResponses.length * 0.3);
+            criticalCount = activeProjectResponses.length - validCount - warningCount;
+          }
+        }
+
         individualStats = {
-          valid: projectResponses.length,
-          warning: 0,
-          critical: 0,
-          total: projectResponses.length,
-          avgCR: 0
+          valid: validCount,
+          warning: warningCount,
+          critical: criticalCount,
+          total: activeProjectResponses.length,
+          avgCR: activeProjectResponses.length > 0 ? totalCR / activeProjectResponses.length : 0
         };
-        console.log('⚠️ [AI-REVIEW] Análise de qualidade não executada - usando fallback');
+
+        console.log(`📊 [AI-REVIEW] Qualidade calculada: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌ de ${activeProjectResponses.length} respostas`);
       }
-      
+
       console.log('📉 [AI-REVIEW] RESUMO DE QUALIDADE:', individualStats);
-      
+
       // Calcular % de problemáticos
-      const badRatio = individualStats.total > 0 
-        ? (individualStats.warning + individualStats.critical) / individualStats.total 
+      const badRatio = individualStats.total > 0
+        ? (individualStats.warning + individualStats.critical) / individualStats.total
         : 0;
-      
+
       if (badRatio >= 0.3) {
         console.warn(`🚨 [AI-REVIEW] ALERTA: ${(badRatio * 100).toFixed(0)}% dos respondentes são problemáticos! Quality Gate será ativado.`);
       } else if (badRatio >= 0.2) {
@@ -518,59 +1049,200 @@ export default function ResultadosPage() {
       }
       // ------------------------------------------------------------
 
+      // ============================================================
+      // CONSTRUIR RESPONDENTES PARA ANÁLISE DE VIÉS
+      // Garante que o bias-detection.ts sempre recebe dados individuais
+      // ============================================================
+      let biasRespondents: any[] = [];
+
+      if (activeRespondents.length > 0) {
+        // Usar respondentes da análise de qualidade (já processados)
+        biasRespondents = activeRespondents.map((r: any) => ({
+          ...r,
+          cr: typeof r.cr === 'number' ? r.cr
+            : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
+          isSimulated: r.isSimulated === true, // Strict boolean
+        }));
+        console.log(`📊 [AI-REVIEW] Bias: ${biasRespondents.length} respondentes de qualityAnalysis`);
+      } else if (activeProjectResponses.length > 0) {
+        // Fallback: construir respondentes a partir das respostas brutas do Firestore
+        biasRespondents = activeProjectResponses.map((response: any, idx: number) => {
+          let cr = 0;
+          if (response.consistency?.cr !== undefined) cr = response.consistency.cr;
+          else if (response.cr !== undefined) cr = response.cr;
+          else if (response.metrics?.avgCR !== undefined) cr = response.metrics.avgCR;
+
+          let status = 'CONFIÁVEL';
+          if (cr > 0.20) status = 'CRÍTICO';
+          else if (cr > 0.10) status = 'SUSPEITO';
+
+          return {
+            id: response.visitorId || response.id || `resp-${idx + 1}`,
+            name: response.respondentName || response.name || `Respondente ${idx + 1}`,
+            cr: cr,
+            status: status,
+            isSimulated: response.isSimulated === true,
+            metrics: { avgCR: cr },
+          };
+        });
+        console.log(`📊 [AI-REVIEW] Bias: ${biasRespondents.length} respondentes de projectResponses (fallback)`);
+      }
+
       // Preparar payload
       const payload = {
         projectName: project.name || 'Projeto sem nome',
         projectDescription: project.description || '',
         alternatives: project.alternatives || [],
         bocrWeights: calculation.bocrWeights || [],
+        // ANTI-ALUCINAÇÃO: pesos pessoais (v) e rescaling weights (s) para fórmula Wijnmalen (2007, Eq. 17)
+        // O backend (normalizeBOCRWeights) aceita ambos os formatos: array [b,o,c,r] ou objeto {sb,so,sc,sr}
+        personalWeights: Array.isArray(calculation.bocrWeights) && calculation.bocrWeights.length >= 4
+          ? {
+              Benefits: calculation.bocrWeights[0],
+              Opportunities: calculation.bocrWeights[1],
+              Costs: calculation.bocrWeights[2],
+              Risks: calculation.bocrWeights[3],
+            }
+          : undefined,
+        rescalingWeights: calculation.rescalingWeights
+          ? {
+              // @ts-ignore
+              Benefits: calculation.rescalingWeights.sb,
+              // @ts-ignore
+              Opportunities: calculation.rescalingWeights.so,
+              // @ts-ignore
+              Costs: calculation.rescalingWeights.sc,
+              // @ts-ignore
+              Risks: calculation.rescalingWeights.sr,
+            }
+          : undefined,
         bocrConsistency: calculation.bocrConsistency || { cr: 0, lambda: 0 },
         subWeights: calculation.subWeights || {},
         subConsistency: calculation.subConsistency || {},
         finalScores: calculation.finalScores || [],
-        responseCount: calculation.responseCount || 0,
+        responseCount: calculation.responseCount || activeProjectResponses.length || 0,
         sensitivityInflections: calculation.sensitivityInflections || {},
+        // CORREÇÃO v6.5: Enviar qualityAnalysis COMPLETO (com statistics.byStatus)
+        qualityAnalysis: currentQualityAnalysis ? {
+          respondents: biasRespondents,
+          statistics: {
+            byStatus: {
+              'CONFIÁVEL': individualStats.valid || 0,
+              'REVISAR': 0,
+              'SUSPEITO': individualStats.warning || 0,
+              'CRÍTICO': individualStats.critical || 0
+            },
+            total: individualStats.total || 0,
+            avgCR: individualStats.avgCR || 0
+          },
+          overall: currentQualityAnalysis.overall || {},
+          summary: {
+            total: individualStats.total || calculation.responseCount || 0,
+            ok: individualStats.valid || 0,
+            suspicious: individualStats.warning || 0,
+            critical: individualStats.critical || 0
+          }
+        } : {
+          respondents: biasRespondents,
+          statistics: {
+            byStatus: {
+              'CONFIÁVEL': individualStats.valid || calculation.responseCount || 0,
+              'REVISAR': 0,
+              'SUSPEITO': individualStats.warning || 0,
+              'CRÍTICO': individualStats.critical || 0
+            },
+            total: individualStats.total || calculation.responseCount || 0,
+            avgCR: individualStats.avgCR || 0
+          },
+          summary: {
+            total: calculation.responseCount || activeProjectResponses.length || 0,
+            ok: individualStats.valid || calculation.responseCount || 0,
+            suspicious: individualStats.warning || 0,
+            critical: individualStats.critical || 0
+          }
+        },
+        // overallStats para compatibilidade
+        overallStats: {
+          total: individualStats.total || calculation.responseCount || activeProjectResponses.length || 0,
+          valid: individualStats.valid || 0,
+          warning: individualStats.warning || 0,
+          critical: individualStats.critical || 0
+        },
         individualStats: individualStats.total > 0 ? individualStats : undefined
       };
-      
-      console.log('📤 [AI-REVIEW] Chamando /api/ai-reviewer...');
-      console.log('📤 [AI-REVIEW] individualStats enviado:', payload.individualStats);
-      
+
+      // Adicionar dados demográficos ao payload
+      const demographicsSummary = respondentsDemographics.length > 0 ? {
+        total: respondentsDemographics.length,
+        hasData: true,
+        fields: {
+          idade: [...new Set(respondentsDemographics.map(d => d.idade).filter(Boolean))],
+          genero: [...new Set(respondentsDemographics.map(d => d.genero).filter(Boolean))],
+          formacao: [...new Set(respondentsDemographics.map(d => d.formacao).filter(Boolean))],
+          tempoTrabalho: [...new Set(respondentsDemographics.map(d => d.tempoTrabalho).filter(Boolean))],
+          funcao: [...new Set(respondentsDemographics.map(d => d.funcao).filter(Boolean))],
+          areaAtuacao: [...new Set(respondentsDemographics.map(d => d.areaAtuacao).filter(Boolean))]
+        }
+      } : { total: 0, hasData: false };
+
+      // Adicionar ao payload
+      const finalPayload = {
+        ...payload,
+        demographicsSummary,
+        // Disparate Impact (Dodevska et al., 2023) — opcional
+        sensitiveGroups: sensitiveGroups || undefined,
+        // NOVO: Informação de exclusão para contextualizar a IA
+        exclusionInfo: excludedIds.length > 0 ? {
+          totalCollected: projectResponses.length,
+          activeCount: activeProjectResponses.length,
+          excludedCount: excludedIds.length,
+          reason: 'Filtragem por consistência (CR > 0.10, Saaty 1977)'
+        } : undefined
+      };
+
+
+      console.log('📤 [AI-REVIEW] demographicsSummary:', demographicsSummary);
+
+      console.log('📤 [AI-REVIEW] personalWeights:', finalPayload.personalWeights);
+      console.log('📤 [AI-REVIEW] rescalingWeights:', finalPayload.rescalingWeights);
+
       const response = await fetch('/api/ai-reviewer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(finalPayload)
       });
-      
+
       console.log('📥 [AI-REVIEW] Response status:', response.status);
       const data = await response.json();
-      console.log('📥 [AI-REVIEW] Response data (v6.4.5):', data);
-      
+      console.log('📥 [AI-REVIEW] Response data:', { success: data.success, hasReview: !!data.review, error: data.error });
+      console.log('📥 [AI-REVIEW] biasAnalysis in response:', data.biasAnalysis ? `${data.biasAnalysis.overallRiskLevel} (${data.biasAnalysis.totalIndicators} indicators)` : 'NULL');
+      console.log('📥 [AI-REVIEW] metadata.biasDetection:', data.metadata?.biasDetection);
+
       if (data.success && data.review) {
-        // API v6.4.5 retorna: { success, nota, veredicto, review (markdown string), metadata }
         console.log('✅ [AI-REVIEW] Sucesso! Nota:', data.nota, 'Veredicto:', data.veredicto);
-        
-        // Montar objeto compatível com AIReviewCard
-        const reviewObject = {
-          nota_geral: data.nota,
-          veredito: data.veredicto,
-          texto_completo: data.review,
-          metadata: data.metadata,
-          version: data.metadata?.version || '6.4.5'
-        };
-        
-        setAiReview(reviewObject);
+        // Setar objeto completo com nota, veredicto e review
+        setAiReview({
+          nota: data.nota,
+          veredicto: data.veredicto,
+          review: data.review,
+          metadata: data.metadata
+        });
+        // Capturar análise de viés (Dodevska et al., 2023)
+        if (data.biasAnalysis) {
+          setBiasAnalysis(data.biasAnalysis);
+          console.log('✅ [AI-REVIEW] Bias analysis:', data.biasAnalysis.overallRiskLevel, `(${data.biasAnalysis.overallScore}/100)`);
+        }
       } else {
-        console.error('❌ [AI-REVIEW] Erro na resposta:', data.error || data.details);
-        setAiReview({ 
-          error: true, 
-          message: data.error || data.details || 'Erro ao executar revisão' 
+        console.error('❌ [AI-REVIEW] Erro na resposta:', data.error);
+        setAiReview({
+          error: true,
+          message: data.error || 'Erro ao executar revisão'
         });
       }
     } catch (e: any) {
       console.error('❌ [AI-REVIEW] Exceção:', e);
-      setAiReview({ 
-        error: true, 
+      setAiReview({
+        error: true,
         message: 'Erro de conexão: ' + (e.message || String(e))
       });
     } finally {
@@ -579,10 +1251,43 @@ export default function ResultadosPage() {
     }
   };
 
+  // ============================================================
+  // Disparate Impact — Salvar/Remover configuração
+  // ============================================================
+
+  const saveSensitiveGroups = async (config: {
+    attribute: string;
+    discriminated: string[];
+    privileged: string[];
+  } | null) => {
+    if (!projectId) return;
+
+    try {
+      const { doc, updateDoc } = await import('firebase/firestore');
+      const { db } = await import('@/lib/firebase');
+
+      const projectRef = doc(db, 'projects', projectId);
+
+      if (config) {
+        await updateDoc(projectRef, { sensitiveGroups: config });
+        setSensitiveGroups(config);
+        console.log('✅ [DI] Configuração salva:', config);
+      } else {
+        // Remover configuração
+        const { deleteField } = await import('firebase/firestore');
+        await updateDoc(projectRef, { sensitiveGroups: deleteField() });
+        setSensitiveGroups(null);
+        console.log('🗑️ [DI] Configuração removida');
+      }
+    } catch (err) {
+      console.error('❌ [DI] Erro ao salvar:', err);
+    }
+  };
+
   // Função para analisar qualidade das respostas
   const runQualityAnalysis = async () => {
     if (projectResponses.length === 0) return;
-    
+
     setQualityLoading(true);
     try {
       const response = await fetch('/api/response-quality', {
@@ -593,8 +1298,9 @@ export default function ResultadosPage() {
           includeSimulated: true
         })
       });
-      
+
       const data = await response.json();
+
       if (data.success) {
         setQualityAnalysis(data.analysis);
       } else {
@@ -604,6 +1310,97 @@ export default function ResultadosPage() {
       console.error('Erro ao analisar qualidade:', e);
     } finally {
       setQualityLoading(false);
+    }
+  };
+
+  // ============================================================
+  // RECÁLCULO COM EXCLUSÕES
+  // ============================================================
+
+  // Batch Exclusion Logic
+  const handleToggleSelection = (respondentId: string) => {
+    setSelectedForExclusion(prev =>
+      prev.includes(respondentId)
+        ? prev.filter(id => id !== respondentId)
+        : [...prev, respondentId]
+    );
+  };
+
+  const handleSelectAll = (isChecked: boolean, availableRespondents: string[]) => {
+    if (isChecked) {
+      setSelectedForExclusion(availableRespondents);
+    } else {
+      setSelectedForExclusion([]);
+    }
+  };
+
+  const handleBatchExclusion = async () => {
+    if (selectedForExclusion.length === 0) return;
+
+    const newExcludedIds = [...new Set([...excludedIds, ...selectedForExclusion])];
+    setExcludedIds(newExcludedIds);
+    await recalculateResults(newExcludedIds);
+    setSelectedForExclusion([]); // Clear selection after exclusion
+  };
+
+  const handleRestoreAll = async () => {
+    setExcludedIds([]);
+    await recalculateResults([]);
+    setSelectedForExclusion([]);
+  };
+
+  // Kept for compatibility if needed, but not used in UI anymore
+  const handleToggleExclusion = async (respondentId: string) => {
+    const newExcludedIds = excludedIds.includes(respondentId)
+      ? excludedIds.filter(id => id !== respondentId)
+      : [...excludedIds, respondentId];
+    setExcludedIds(newExcludedIds);
+    await recalculateResults(newExcludedIds);
+  };
+
+  const recalculateResults = async (exclusions: string[]) => {
+    setIsRecalculating(true);
+    setLoading(true); // Bloquear UI geral
+    try {
+      const response = await fetch('/api/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId,
+          excludedRespondentIds: exclusions
+        })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Atualizar calculation com o novo resultado (incluindo metadados atualizados)
+        setCalculation(data.calculation);
+
+        // Re-executar auditoria com novos dados
+        const auditResponse = await fetch('/api/audit-decision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ calculationData: data.calculation })
+        });
+        const auditData = await auditResponse.json();
+        if (auditData.success) setAudit(auditData.audit);
+
+        // Limpar AI review anterior pois dados mudaram
+        setAiReview(null);
+
+      } else {
+        setError(data.error || 'Erro ao recalcular');
+        // Reverter estado local em caso de erro
+        setExcludedIds(calculation?.metadata?.excludedRespondentIds || []);
+      }
+    } catch (e: any) {
+      console.error('Erro no recálculo:', e);
+      setError('Erro de conexão ao recalcular: ' + e.message);
+      setExcludedIds(calculation?.metadata?.excludedRespondentIds || []);
+    } finally {
+      setIsRecalculating(false);
+      setLoading(false);
     }
   };
 
@@ -625,12 +1422,26 @@ export default function ResultadosPage() {
           return;
         }
         setProject({ id: projectDoc.id, ...projectDoc.data() } as Project);
+        const projectData = { id: projectDoc.id, ...projectDoc.data() } as Project;
+        setProject(projectData);
 
         // 2. Carregar cálculo salvo
         const calcDoc = await getDoc(doc(db, 'calculations', projectId));
         if (calcDoc.exists()) {
           const calcData = calcDoc.data() as CalculationResult;
+
+          // Carregar configuração de Disparate Impact (se existir)
+          if (projectData.sensitiveGroups) {
+            setSensitiveGroups(projectData.sensitiveGroups);
+            console.log('📊 [DI] Configuração carregada:', projectData.sensitiveGroups);
+          }
+
           setCalculation(calcData);
+
+          // Inicializar excluídos a partir do metadata salvo
+          if (calcData.metadata?.excludedRespondentIds) {
+            setExcludedIds(calcData.metadata.excludedRespondentIds);
+          }
 
           // 3. Executar auditoria
           try {
@@ -651,6 +1462,7 @@ export default function ResultadosPage() {
         }
 
         // 4. Carregar dados demográficos dos respondentes
+        let validRespondentIds = new Set<string>();
         try {
           const respondentsQuery = query(
             collection(db, 'respondents'),
@@ -658,36 +1470,76 @@ export default function ResultadosPage() {
           );
           const respondentsSnapshot = await getDocs(respondentsQuery);
           console.log('Total respondents found:', respondentsSnapshot.docs.length);
-          
+
+          validRespondentIds = new Set(respondentsSnapshot.docs.map(doc => doc.id));
+
+          // Criar mapa respondentId → email
+          const emailMap: Record<string, string> = {};
+          respondentsSnapshot.docs.forEach(d => {
+            const data = d.data();
+            if (data.email) {
+              emailMap[d.id] = data.email;
+            }
+          });
+          setRespondentEmails(emailMap);
+
+          // Filtrar apenas respondentes com status completed (possuem response finalizada)
           const demographics = respondentsSnapshot.docs
+            .filter(doc => {
+              const data = doc.data();
+              return data.status === 'completed' || data.completedAt;
+            })
             .map(doc => {
               const data = doc.data();
-              console.log('Respondent data:', doc.id, data.status, data.demographics ? 'has demographics' : 'no demographics');
-              // Retorna demographics se existir, independente do status
               return data.demographics || null;
             })
             .filter((d): d is NonNullable<typeof d> => d !== null && Object.keys(d).length > 0);
-          
+
           console.log('Demographics loaded:', demographics.length, 'with data');
           setRespondentsDemographics(demographics);
         } catch (demoErr) {
           console.error('Erro ao carregar dados demográficos:', demoErr);
         }
 
-        // 5. Carregar respostas para análise de qualidade
+        // 5. Carregar respostas para análise de qualidade (filtradas)
         try {
           const responsesQuery = query(
             collection(db, 'responses'),
             where('projectId', '==', projectId)
           );
           const responsesSnapshot = await getDocs(responsesQuery);
-          console.log('Total responses found:', responsesSnapshot.docs.length);
-          
-          const responses = responsesSnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-          }));
-          
+          console.log('Total responses found (raw):', responsesSnapshot.docs.length);
+
+          // Filtro 1: apenas respostas finalizadas (com completedAt)
+          const completedDocs = responsesSnapshot.docs.filter(doc => {
+            const data = doc.data();
+            return data.completedAt != null && data.completedAt !== '';
+          });
+          console.log('Completed responses:', completedDocs.length);
+
+          // Filtro 2: respondentId deve existir na collection respondents
+          const validatedDocs = completedDocs.filter(doc => {
+            const data = doc.data();
+            if (!validRespondentIds.has(data.respondentId)) {
+              console.warn('Ignorando response órfã:', data.respondentId);
+              return false;
+            }
+            return true;
+          });
+          console.log('Validated responses:', validatedDocs.length);
+
+          // Filtro 3: deduplicar por respondentId (manter mais recente)
+          const uniqueMap = new Map();
+          validatedDocs.forEach(doc => {
+            const data = doc.data();
+            const existing = uniqueMap.get(data.respondentId);
+            if (!existing || (data.completedAt > existing.completedAt)) {
+              uniqueMap.set(data.respondentId, { id: doc.id, ...data });
+            }
+          });
+          const responses = Array.from(uniqueMap.values());
+          console.log('Final unique responses:', responses.length);
+
           setProjectResponses(responses);
         } catch (respErr) {
           console.error('Erro ao carregar respostas:', respErr);
@@ -705,11 +1557,20 @@ export default function ResultadosPage() {
   }, [projectId]);
 
   // ============================================================
+  // AUTO-EXECUTAR ANÁLISE DE QUALIDADE QUANDO DADOS CARREGAREM
+  // ============================================================
+  useEffect(() => {
+    if (projectResponses.length > 0 && !qualityAnalysis && !qualityLoading) {
+      runQualityAnalysis();
+    }
+  }, [projectResponses]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ============================================================
   // FUNÇÕES AUXILIARES
   // ============================================================
 
-  const formatPercent = (value: number) => `${(value * 100).toFixed(2)}%`;
-  const formatNumber = (value: number) => value.toFixed(4);
+  const formatPercent = (value: number | undefined | null) => `${((value || 0) * 100).toFixed(2)}%`;
+  const formatNumber = (value: number | undefined | null) => (value || 0).toFixed(4);
 
   const getGradeColor = (grade: string) => {
     const colors: Record<string, string> = {
@@ -732,13 +1593,113 @@ export default function ResultadosPage() {
   // GERAÇÃO DE TEXTO ACADÊMICO
   // ============================================================
 
+  const buildMarkdownTables = () => {
+    if (!calculation || !project) return {};
+
+    // Helpers: 4 casas / 2 casas com vírgula decimal (pt-BR)
+    const fmt4 = (n: number) => (Number.isFinite(n) ? n : 0).toFixed(4).replace('.', ',');
+    const fmt2 = (n: number) => (Number.isFinite(n) ? n : 0).toFixed(2).replace('.', ',');
+    const fmtPct2 = (n: number) => `${fmt2((Number.isFinite(n) ? n : 0) * 100)}%`;
+
+    const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
+    const meritKeys = ['B', 'O', 'C', 'R'] as const;
+
+    // ========== TABELA 1: Pesos Estratégicos BOCR ==========
+    let table1 = `**Tabela 1.** Pesos estratégicos dos méritos BOCR\n\n`;
+    table1 += `| Mérito | Peso | Peso (%) |\n|--------|------|----------|\n`;
+    (calculation.bocrWeights || []).forEach((w: number, i: number) => {
+      table1 += `| ${bocrLabels[i]} | ${fmt4(w)} | ${fmtPct2(w)} |\n`;
+    });
+    table1 += `| **Total** | **1,0000** | **100,00%** |\n\n`;
+    table1 += `*Nota:* λmax = ${fmt4(calculation.bocrConsistency?.lambda || 0)}; `;
+    table1 += `CR = ${fmt2((calculation.bocrConsistency?.cr || 0) * 100)}% `;
+    table1 += `(${(calculation.bocrConsistency?.cr || 0) <= 0.10 ? 'Consistente' : 'Inconsistente'}); `;
+    table1 += `RI = 0,90 (n=4, Saaty, 1980).\n`;
+
+    // ========== TABELA 2: Pesos Locais e Globais ==========
+    let table2 = `**Tabela 2.** Pesos locais e globais dos subcritérios\n\n`;
+    table2 += `| Mérito | Subcritério | Peso Local | Peso Mérito | Peso Global |\n`;
+    table2 += `|--------|------------|------------|-------------|-------------|\n`;
+    meritKeys.forEach((merit, mIdx) => {
+      const meritWeight = calculation.bocrWeights?.[mIdx] || 0;
+      const weights = calculation.subWeights?.[merit] || [];
+      // Usar SUBCRITERIA existente no arquivo (mesma lógica da exportação LaTeX, linha ~1402)
+      const subs = SUBCRITERIA.filter((s: any) => s.group === merit);
+      subs.forEach((sub: any, idx: number) => {
+        const localW = weights[idx] || 0;
+        const globalW = localW * meritWeight;
+        table2 += `| ${bocrLabels[mIdx]} | ${sub.name} | ${fmt4(localW)} | ${fmt4(meritWeight)} | ${fmt4(globalW)} |\n`;
+      });
+    });
+    table2 += `\n*Nota:* Peso Global = Peso Local × Peso do Mérito.\n`;
+
+    // ========== TABELA 3: Desempenho BOCR ==========
+    let table3 = `**Tabela 3.** Desempenho das alternativas nos méritos BOCR\n\n`;
+    table3 += `| Alternativa | B | O | C | R |\n|-------------|------|------|------|------|\n`;
+    (calculation.finalScores || []).forEach((alt: any) => {
+      table3 += `| ${alt.name} | ${fmt4(alt.B || 0)} | ${fmt4(alt.O || 0)} | ${fmt4(alt.C || 0)} | ${fmt4(alt.R || 0)} |\n`;
+    });
+    table3 += `\n*Nota:* B = Benefícios, O = Oportunidades, C = Custos, R = Riscos. Prioridades locais normalizadas.\n`;
+
+    // ========== TABELA 4: Ranking por Método ==========
+    const getSubtractive = (alt: any) => (alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0);
+    let table4 = `**Tabela 4.** Ranking final das alternativas por método de síntese\n\n`;
+    table4 += `| Alternativa | Adit. Residual | Recíprocos | Subtrativo* | Mult. Potências | Mult. Simples |\n`;
+    table4 += `|-------------|---------|----------------|-------------|-----------------|---------------|\n`;
+    const sortedAlts = [...(calculation.finalScores || [])].sort((a: any, b: any) => getSubtractive(b) - getSubtractive(a));
+    sortedAlts.forEach((alt: any) => {
+      table4 += `| ${alt.name} | ${fmt4(alt.scoreAdditiveResidualNorm || 0)} | ${fmt4(alt.scoreQuotientSumsNorm || 0)} | ${fmt4(getSubtractive(alt))} | ${fmt4(alt.scoreMultiplicativeNorm || 0)} | ${fmt4(alt.scoreMultSimpleNorm || 0)} |\n`;
+    });
+    table4 += `\n*Nota:* (*) Método primário conforme Wijnmalen (2007). Fórmulas conforme Petrillo et al. (2023).\n`;
+
+    // ========== TABELA 5: Índices de Consistência ==========
+    const calcCIFromLambda = (lambda: number, n: number) => {
+      if (!Number.isFinite(lambda) || n <= 1) return 0;
+      return (lambda - n) / (n - 1);
+    };
+    let table5 = `**Tabela 5.** Índices de consistência das matrizes agregadas\n\n`;
+    table5 += `| Matriz | λmax | CI | CR (%) | Status |\n|--------|------|------|--------|--------|\n`;
+    const bocrLambda = calculation.bocrConsistency?.lambda || 0;
+    const bocrCI = calcCIFromLambda(bocrLambda, 4);
+    const bocrCR = calculation.bocrConsistency?.cr || 0;
+    table5 += `| BOCR (n=4) | ${fmt4(bocrLambda)} | ${fmt4(bocrCI)} | ${fmt2(bocrCR * 100)}% | ${bocrCR <= 0.10 ? 'Consistente' : 'Inconsistente'} |\n`;
+    meritKeys.forEach((merit) => {
+      const cons = calculation.subConsistency?.[merit];
+      if (cons) {
+        const meritName: Record<string, string> = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' };
+        const ciSub = calcCIFromLambda(cons.lambda || 0, 5);
+        table5 += `| ${meritName[merit]} (n=5) | ${fmt4(cons.lambda || 0)} | ${fmt4(ciSub)} | ${fmt2((cons.cr || 0) * 100)}% | ${(cons.cr || 0) <= 0.10 ? 'Consistente' : 'Inconsistente'} |\n`;
+      }
+    });
+    table5 += `\n*Nota:* CI = (λmax − n)/(n − 1); CR = CI/RI; Limite: CR ≤ 10% (Saaty, 1977). RI(4) = 0,90; RI(5) = 1,12.\n`;
+
+    // ========== TABELA 6: Sensibilidade ==========
+    let table6 = `**Tabela 6.** Análise de sensibilidade dos pesos BOCR\n\n`;
+    table6 += `| Mérito | Peso Atual (%) | Ponto de Inflexão (%) | Classificação |\n`;
+    table6 += `|--------|----------------|----------------------|---------------|\n`;
+    meritKeys.forEach((merit, idx) => {
+      const currentWeight = (calculation.bocrWeights?.[idx] || 0) * 100;
+      const inflection = calculation.sensitivityInflections?.[merit] ?? null;
+      let classification = 'Estável';
+      if (inflection !== null) {
+        if (inflection <= 10) classification = 'Crítico';
+        else if (inflection <= 20) classification = 'Sensível';
+        else if (inflection <= 50) classification = 'Moderado';
+      }
+      table6 += `| ${bocrLabels[idx]} | ${fmt2(currentWeight)}% | ${inflection !== null ? `${fmt2(inflection)}%` : 'Sem inversão'} | ${classification} |\n`;
+    });
+    table6 += `\n*Nota:* Ponto de inflexão = peso para inversão de ranking. Variações testadas: ±5%, ±10%, ±20%.\n`;
+
+    return { table1, table2, table3, table4, table5, table6 };
+  };
+
   const generateAcademicText = async () => {
     if (!calculation) return;
-    
+
     setGeneratingText(true);
     setTextError(null);
     setTextStats(null);
-    
+
     try {
       const response = await fetch('/api/generate-academic', {
         method: 'POST',
@@ -748,12 +1709,18 @@ export default function ResultadosPage() {
           projectContext: {
             name: project?.name,
             description: project?.description
-          }
+          },
+          exclusionInfo: excludedIds.length > 0 ? {
+            totalCollected: projectResponses.length,
+            activeCount: projectResponses.length - excludedIds.length,
+            excludedCount: excludedIds.length,
+          } : undefined,
+          markdownTables: buildMarkdownTables()
         })
       });
-      
+
       const data = await response.json();
-      
+
       if (data.success) {
         setAcademicText(data.text);
         if (data.statistics) {
@@ -785,7 +1752,7 @@ export default function ResultadosPage() {
     let latex = `% Tabelas LaTeX - Resultados AHP-BOCR
 % Projeto: ${project.name}
 % Gerado em: ${new Date().toLocaleString('pt-BR')}
-% Software: AHP-BOCR Decision Support System v2.1
+% Software: AHP-BOCR Decision Support System v5.0
 
 % ==================================================
 % TABELA 1: PESOS ESTRATÉGICOS BOCR
@@ -802,7 +1769,7 @@ export default function ResultadosPage() {
 
     const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
     calculation.bocrWeights.forEach((w, i) => {
-      latex += `${bocrLabels[i]} & ${w.toFixed(4)} & ${(w * 100).toFixed(2)}\\% \\\\\n`;
+      latex += `${bocrLabels[i]} & ${(w || 0).toFixed(4)} & ${((w || 0) * 100).toFixed(2)}\\% \\\\\n`;
     });
 
     const ciBocr = calcCI(calculation.bocrConsistency.cr, calculation.bocrConsistency.lambda, 4);
@@ -812,9 +1779,9 @@ export default function ResultadosPage() {
 \\end{tabular}
 \\begin{tablenotes}
 \\small
-\\item $\\lambda_{max}$ = ${calculation.bocrConsistency.lambda.toFixed(4)}
-\\item CI = ${ciBocr.toFixed(4)} (Índice de Consistência)
-\\item CR = ${(calculation.bocrConsistency.cr * 100).toFixed(2)}\\% (${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'})
+\\item $\\lambda_{max}$ = ${(calculation.bocrConsistency.lambda || 0).toFixed(4)}
+\\item CI = ${(ciBocr || 0).toFixed(4)} (Índice de Consistência)
+\\item CR = ${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}\\% (${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'})
 \\item RI = 0.90 (Índice Aleatório para n=4, Saaty 1980)
 \\end{tablenotes}
 \\end{table}
@@ -838,7 +1805,7 @@ export default function ResultadosPage() {
       const meritWeight = calculation.bocrWeights[mIdx] || 0;
       const weights = calculation.subWeights[merit];
       const subs = SUBCRITERIA.filter(s => s.group === merit);
-      
+
       if (weights && subs.length > 0) {
         subs.forEach((sub, idx) => {
           const localWeight = weights[idx] || 0;
@@ -899,16 +1866,16 @@ export default function ResultadosPage() {
 \\label{tab:ranking-final}
 \\begin{tabular}{lccccc}
 \\toprule
-\\textbf{Alternativa} & \\textbf{Aditivo} & \\textbf{Probabilístico} & \\textbf{Subtrativo*} & \\textbf{Mult. Potências} & \\textbf{Mult. Simples} \\\\
+\\textbf{Alternativa} & \\textbf{Adit. Residual} & \\textbf{Recíprocos} & \\textbf{Subtrativo*} & \\textbf{Mult. Potências} & \\textbf{Mult. Simples} \\\\
 \\midrule
 `;
 
-    const sortedAlts = [...calculation.finalScores].sort((a, b) => 
-      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+    const sortedAlts = [...calculation.finalScores].sort((a, b) =>
+      (b.scoreSubtractive ?? b.scores?.subtractive ?? 0) - (a.scoreSubtractive ?? a.scores?.subtractive ?? 0)
     );
 
     sortedAlts.forEach(alt => {
-      latex += `${alt.name} & ${(alt.scoreAdditive || 0).toFixed(4)} & ${(alt.scoreProbabilistic || 0).toFixed(4)} & ${(alt.scoreSubtractiveNorm || 0).toFixed(4)} & ${(alt.scoreMultPowersNorm || 0).toFixed(4)} & ${(alt.scoreMultSimpleNorm || 0).toFixed(4)} \\\\\n`;
+      latex += `${alt.name} & ${(alt.scoreAdditiveResidualNorm || 0).toFixed(4)} & ${(alt.scoreQuotientSumsNorm || 0).toFixed(4)} & ${(alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0).toFixed(4)} & ${(alt.scoreMultiplicativeNorm || 0).toFixed(4)} & ${(alt.scoreMultSimpleNorm || 0).toFixed(4)} \\\\\n`;
     });
 
     latex += `\\bottomrule
@@ -932,7 +1899,7 @@ export default function ResultadosPage() {
 \\toprule
 \\textbf{Matriz} & \\textbf{$\\lambda_{max}$} & \\textbf{CI} & \\textbf{CR} & \\textbf{Status} \\\\
 \\midrule
-BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed(4)} & ${(calculation.bocrConsistency.cr * 100).toFixed(2)}\\% & ${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\
+BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI(calculation.bocrConsistency.cr, calculation.bocrConsistency.lambda, 4) || 0).toFixed(4)} & ${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}\\% & ${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\
 `;
 
     ['B', 'O', 'C', 'R'].forEach(merit => {
@@ -940,7 +1907,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       if (cons) {
         const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
         const ciSub = calcCI(cons.cr, cons.lambda, 5);
-        latex += `${meritName} (n=5) & ${cons.lambda.toFixed(4)} & ${ciSub.toFixed(4)} & ${(cons.cr * 100).toFixed(2)}\\% & ${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\\n`;
+        latex += `${meritName} (n=5) & ${(cons.lambda || 0).toFixed(4)} & ${(ciSub || 0).toFixed(4)} & ${((cons.cr || 0) * 100).toFixed(2)}\\% & ${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\\n`;
       }
     });
 
@@ -1059,7 +2026,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       variables.forEach((v, vIdx) => {
         const counts = countField(v.field, v.map);
         counts.forEach((c, idx) => {
-          const pct = ((c.count / respondentsDemographics.length) * 100).toFixed(1);
+          const pct = ((c.count / (respondentsDemographics.length || 1)) * 100).toFixed(1);
           if (idx === 0) {
             latex += `${v.title} & ${c.label} & ${c.count} & ${pct} \\\\\n`;
           } else {
@@ -1109,21 +2076,21 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
     csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
     csv += `Número de especialistas:,${calculation.responseCount}\n`;
-    csv += `Software:,AHP-BOCR Decision Support System v2.1\n\n`;
+    csv += `Software:,AHP-BOCR Decision Support System v5.0\n\n`;
 
     // Pesos BOCR
     csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
     csv += `Mérito,Peso,Peso (%)\n`;
     const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
     calculation.bocrWeights.forEach((w, i) => {
-      csv += `${bocrLabels[i]},${w.toFixed(6)},${(w * 100).toFixed(2)}%\n`;
+      csv += `${bocrLabels[i]},${(w || 0).toFixed(6)},${((w || 0) * 100).toFixed(2)}%\n`;
     });
-    
+
     const ciBocr = calcCI(calculation.bocrConsistency.cr, 4);
     csv += `\nÍndices de Consistência BOCR:\n`;
-    csv += `Lambda max:,${calculation.bocrConsistency.lambda.toFixed(6)}\n`;
-    csv += `CI:,${ciBocr.toFixed(6)}\n`;
-    csv += `CR:,${(calculation.bocrConsistency.cr * 100).toFixed(2)}%\n`;
+    csv += `Lambda max:,${(calculation.bocrConsistency.lambda || 0).toFixed(6)}\n`;
+    csv += `CI:,${(ciBocr || 0).toFixed(6)}\n`;
+    csv += `CR:,${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%\n`;
     csv += `RI (n=4):,0.90\n\n`;
 
     // Pesos dos Subcritérios
@@ -1134,7 +2101,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       const meritWeight = calculation.bocrWeights[mIdx] || 0;
       const weights = calculation.subWeights[merit];
       const subs = SUBCRITERIA.filter(s => s.group === merit);
-      
+
       if (weights && subs.length > 0) {
         subs.forEach((sub, idx) => {
           const localWeight = weights[idx] || 0;
@@ -1155,25 +2122,25 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
 
     // Ranking
     csv += `===== RANKING FINAL =====\n`;
-    csv += `Alternativa,Aditivo (Σ=1),Probabilístico (Σ=1),Subtrativo (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
-    const sortedAlts = [...calculation.finalScores].sort((a, b) => 
-      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+    csv += `Alternativa,Adit. Residual (Σ=1),Recíprocos (Σ=1),Subtrativo (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+    const sortedAlts = [...calculation.finalScores].sort((a, b) =>
+      (b.scoreSubtractive ?? b.scores?.subtractive ?? 0) - (a.scoreSubtractive ?? a.scores?.subtractive ?? 0)
     );
     sortedAlts.forEach(alt => {
-      csv += `${alt.name},${(alt.scoreAdditive || 0).toFixed(6)},${(alt.scoreProbabilistic || 0).toFixed(6)},${(alt.scoreSubtractiveNorm || 0).toFixed(6)},${(alt.scoreMultPowersNorm || 0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+      csv += `${alt.name},${(alt.scoreAdditiveResidualNorm || 0).toFixed(6)},${(alt.scoreQuotientSumsNorm || 0).toFixed(6)},${(alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0).toFixed(6)},${(alt.scoreMultiplicativeNorm || 0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
     });
     csv += `\n`;
 
     // Consistência de todas as matrizes
     csv += `===== ÍNDICES DE CONSISTÊNCIA =====\n`;
     csv += `Matriz,n,Lambda max,CI,CR,Status\n`;
-    csv += `BOCR,4,${calculation.bocrConsistency.lambda.toFixed(6)},${ciBocr.toFixed(6)},${(calculation.bocrConsistency.cr * 100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
-    
+    csv += `BOCR,4,${(calculation.bocrConsistency.lambda || 0).toFixed(6)},${(calcCI(calculation.bocrConsistency.cr, 4) || 0).toFixed(6)},${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
+
     ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
       const cons = calculation.subConsistency[merit];
       if (cons) {
         const ciSub = calcCI(cons.cr, 5);
-        csv += `${bocrLabels[idx]},5,${cons.lambda.toFixed(6)},${ciSub.toFixed(6)},${(cons.cr * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
+        csv += `${bocrLabels[idx]},5,${(cons.lambda || 0).toFixed(6)},${(ciSub || 0).toFixed(6)},${((cons.cr || 0) * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
       }
     });
     csv += `\n`;
@@ -1198,7 +2165,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
     if (respondentsDemographics.length > 0) {
       csv += `===== PERFIL DEMOGRÁFICO DOS ESPECIALISTAS =====\n`;
       csv += `Total de respondentes:,${respondentsDemographics.length}\n\n`;
-      
+
       // Mapeamentos
       const mapIdade: Record<string, string> = {
         'menos_30': 'Menos de 30 anos', '31_40': '31 a 40 anos',
@@ -1258,18 +2225,18 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
     if (projectResponses.length > 0) {
       csv += `===== RESUMO DAS RESPOSTAS =====\n`;
       csv += `Total de respostas:,${projectResponses.length}\n`;
-      
+
       const realResponses = projectResponses.filter(r => !r.isSimulated);
       const simulatedResponses = projectResponses.filter(r => r.isSimulated);
       const avgCR = projectResponses.reduce((sum, r) => sum + (r.responses?.bocrConsistency?.cr || 0), 0) / projectResponses.length;
       const consistentCount = projectResponses.filter(r => (r.responses?.bocrConsistency?.cr || 0) <= 0.10).length;
-      
+
       csv += `Respostas reais:,${realResponses.length}\n`;
       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
       csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
       csv += `Respostas consistentes:,${consistentCount} (${((consistentCount / projectResponses.length) * 100).toFixed(0)}%)\n`;
       csv += `\n`;
-      
+
       csv += `Detalhamento por resposta:\n`;
       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
       projectResponses.forEach((resp, idx) => {
@@ -1294,13 +2261,13 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
   // ============================================================
   // EXPORTAÇÃO XLSX - PLANILHA COMPLETA COM MÚLTIPLAS SHEETS
   // ============================================================
-  
+
   const exportXLSX = () => {
     if (!calculation || !project) return;
 
     const wb = XLSX.utils.book_new();
     const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
-    
+
     // Função auxiliar para calcular CI
     const calcCI = (cr: number, n: number): number => {
       const RI: Record<number, number> = { 1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
@@ -1322,7 +2289,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       ...project.alternatives.map(alt => [alt.code, alt.name, alt.description || '-']),
       [''],
       ['SOFTWARE'],
-      ['Sistema:', 'AHP-BOCR Decision Support System v2.1'],
+      ['Sistema:', 'AHP-BOCR Decision Support System v5.0'],
       ['Metodologia:', 'Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)'],
       ['Instituição:', 'UNESP - Engenharia de Produção'],
     ];
@@ -1337,23 +2304,26 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       ['Mérito', 'Peso', 'Peso (%)', 'Interpretação'],
       ...bocrLabels.map((label, i) => {
         const w = calculation.bocrWeights[i] || 0;
-        const interp = w >= 0.30 ? 'Alta prioridade' : w >= 0.20 ? 'Média prioridade' : 'Baixa prioridade';
+        let interp = '';
+        if (i === 0 || i === 1) interp = 'Maximizar (Positivo)';
+        else interp = 'Minimizar (Negativo)';
+
         return [label, w.toFixed(6), `${(w * 100).toFixed(2)}%`, interp];
       }),
       ['TOTAL', '1.000000', '100.00%', ''],
       [''],
       ['ÍNDICES DE CONSISTÊNCIA'],
-      ['λmax (autovalor máximo):', calculation.bocrConsistency.lambda.toFixed(6)],
+      ['λmax (autovalor máximo):', (calculation.bocrConsistency.lambda || 0).toFixed(6)],
       ['CI (Índice de Consistência):', calcCI(calculation.bocrConsistency.cr, 4).toFixed(6)],
-      ['RI (Índice Aleatório, n=4):', '0.90'],
-      ['CR (Razão de Consistência):', `${(calculation.bocrConsistency.cr * 100).toFixed(2)}%`],
+      ['RI (Índice Aleatório):', '0.90'],
+      ['CR (Razão de Consistência):', `${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%`],
       ['Status:', calculation.bocrConsistency.cr <= 0.10 ? 'CONSISTENTE (CR ≤ 10%)' : 'INCONSISTENTE (CR > 10%)'],
       [''],
       ['INTERPRETAÇÃO'],
-      ['Aspectos Positivos (B+O):', `${((calculation.bocrWeights[0] + calculation.bocrWeights[1]) * 100).toFixed(2)}%`],
-      ['Aspectos Negativos (C+R):', `${((calculation.bocrWeights[2] + calculation.bocrWeights[3]) * 100).toFixed(2)}%`],
-      ['Perfil de Decisão:', (calculation.bocrWeights[0] + calculation.bocrWeights[1]) > 0.6 ? 'Orientado a Valor' : 
-                            (calculation.bocrWeights[2] + calculation.bocrWeights[3]) > 0.6 ? 'Conservador/Cauteloso' : 'Balanceado'],
+      ['Aspectos Positivos (B+O):', `${(((calculation.bocrWeights[0] || 0) + (calculation.bocrWeights[1] || 0)) * 100).toFixed(2)}%`],
+      ['Aspectos Negativos (C+R):', `${(((calculation.bocrWeights[2] || 0) + (calculation.bocrWeights[3] || 0)) * 100).toFixed(2)}%`],
+      ['Perfil de Decisão:', ((calculation.bocrWeights[0] || 0) + (calculation.bocrWeights[1] || 0)) > 0.6 ? 'Orientado a Valor' :
+        ((calculation.bocrWeights[2] || 0) + (calculation.bocrWeights[3] || 0)) > 0.6 ? 'Conservador/Cauteloso' : 'Balanceado'],
     ];
     const wsBocr = XLSX.utils.aoa_to_sheet(bocrData);
     wsBocr['!cols'] = [{ wch: 30 }, { wch: 15 }, { wch: 12 }, { wch: 25 }];
@@ -1370,7 +2340,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       const meritWeight = calculation.bocrWeights[mIdx] || 0;
       const weights = calculation.subWeights[merit];
       const subs = SUBCRITERIA.filter(s => s.group === merit);
-      
+
       if (weights && subs.length > 0) {
         subs.forEach((sub, idx) => {
           const localWeight = weights[idx] || 0;
@@ -1398,9 +2368,9 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         subData.push([
           bocrLabels[idx],
           '5',
-          cons.lambda.toFixed(6),
-          ciSub.toFixed(6),
-          `${(cons.cr * 100).toFixed(2)}%`,
+          (cons.lambda || 0).toFixed(6),
+          (ciSub || 0).toFixed(6),
+          `${((cons.cr || 0) * 100).toFixed(2)}%`,
           cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'
         ]);
       }
@@ -1441,35 +2411,35 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
     XLSX.utils.book_append_sheet(wb, wsPerf, 'Desempenho BOCR');
 
     // ===== SHEET 5: RANKING =====
-    const sortedAlts = [...calculation.finalScores].sort((a, b) => 
-      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+    const sortedAlts = [...calculation.finalScores].sort((a, b) =>
+      (b.scoreSubtractive ?? b.scores?.subtractive ?? 0) - (a.scoreSubtractive ?? a.scores?.subtractive ?? 0)
     );
     const rankData = [
       ['RANKING FINAL - COMPARATIVO DE MÉTODOS'],
       [''],
-      ['Posição', 'Alternativa', 'Aditivo', 'Probabilístico', 'Subtrativo', 'Mult. Potências', 'Mult. Simples'],
+      ['Posição', 'Alternativa', 'Adit. Residual', 'Recíprocos', 'Subtrativo', 'Mult. Potências', 'Mult. Simples'],
       ...sortedAlts.map((alt, idx) => [
         `${idx + 1}º`,
         alt.name,
-        (alt.scoreAdditive || 0).toFixed(6),
-        (alt.scoreProbabilistic || 0).toFixed(6),
-        (alt.scoreSubtractiveNorm || 0).toFixed(6),
-        (alt.scoreMultPowersNorm || 0).toFixed(6),
+        (alt.scoreAdditiveResidualNorm || 0).toFixed(6),
+        (alt.scoreQuotientSumsNorm || 0).toFixed(6),
+        (alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0).toFixed(6),
+        (alt.scoreMultiplicativeNorm || 0).toFixed(6),
         (alt.scoreMultSimpleNorm || 0).toFixed(6)
       ]),
       [''],
       ['VERIFICAÇÃO DAS SOMAS (métodos distributivos devem somar 1.0)'],
       ['Método', 'Soma', 'Status'],
-      ['Aditivo', calculation.finalScores.reduce((s, a) => s + (a.scoreAdditive || 0), 0).toFixed(6), 
-       Math.abs(calculation.finalScores.reduce((s, a) => s + (a.scoreAdditive || 0), 0) - 1) < 0.001 ? 'OK' : 'ERRO'],
-      ['Probabilístico', calculation.finalScores.reduce((s, a) => s + (a.scoreProbabilistic || 0), 0).toFixed(6),
-       Math.abs(calculation.finalScores.reduce((s, a) => s + (a.scoreProbabilistic || 0), 0) - 1) < 0.001 ? 'OK' : 'ERRO'],
+      ['Aditivo Residual', calculation.finalScores.reduce((s, a) => s + (a.scoreAdditiveResidualNorm || 0), 0).toFixed(6),
+        Math.abs(calculation.finalScores.reduce((s, a) => s + (a.scoreAdditiveResidualNorm || 0), 0) - 1) < 0.001 ? 'OK' : 'ERRO'],
+      ['Quociente de Somas', calculation.finalScores.reduce((s, a) => s + (a.scoreQuotientSumsNorm || 0), 0).toFixed(6),
+        Math.abs(calculation.finalScores.reduce((s, a) => s + (a.scoreQuotientSumsNorm || 0), 0) - 1) < 0.001 ? 'OK' : 'ERRO'],
       [''],
       ['VENCEDOR'],
       ['Alternativa recomendada:', sortedAlts[0]?.name || '-'],
-      ['Score (Aditivo):', (sortedAlts[0]?.scoreAdditive || 0).toFixed(6)],
-      ['Diferença para 2º lugar:', sortedAlts.length >= 2 ? 
-        `${(Math.abs((sortedAlts[0]?.scoreAdditive || 0) - (sortedAlts[1]?.scoreAdditive || 0)) * 100).toFixed(2)}%` : '-'],
+      ['Score (Aditivo Residual):', (sortedAlts[0]?.scoreAdditiveResidualNorm || 0).toFixed(6)],
+      ['Diferença para 2º lugar:', sortedAlts.length >= 2 ?
+        `${(Math.abs((sortedAlts[0]?.scoreAdditiveResidualNorm || 0) - (sortedAlts[1]?.scoreAdditiveResidualNorm || 0)) * 100).toFixed(2)}%` : '-'],
     ];
     const wsRank = XLSX.utils.aoa_to_sheet(rankData);
     wsRank['!cols'] = [{ wch: 12 }, { wch: 25 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }, { wch: 14 }];
@@ -1482,10 +2452,10 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       ['Referência: Saaty (1980) - CR ≤ 0.10 (10%) indica julgamentos consistentes'],
       [''],
       ['Matriz', 'Tamanho (n)', 'λmax', 'CI', 'RI', 'CR', 'Status'],
-      ['BOCR (Méritos)', '4', calculation.bocrConsistency.lambda.toFixed(6), 
-       calcCI(calculation.bocrConsistency.cr, 4).toFixed(6), '0.90',
-       `${(calculation.bocrConsistency.cr * 100).toFixed(2)}%`,
-       calculation.bocrConsistency.cr <= 0.10 ? '✓ Consistente' : '✗ Inconsistente'],
+      ['BOCR (Méritos)', '4', (calculation.bocrConsistency.lambda || 0).toFixed(6),
+        calcCI(calculation.bocrConsistency.cr, 4).toFixed(6), '0.90',
+        `${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%`,
+        calculation.bocrConsistency.cr <= 0.10 ? '✓ Consistente' : '✗ Inconsistente'],
     ];
     ['B', 'O', 'C', 'R'].forEach((merit, idx) => {
       const cons = calculation.subConsistency[merit];
@@ -1493,10 +2463,10 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         consData.push([
           `${bocrLabels[idx]} (Subcritérios)`,
           '5',
-          cons.lambda.toFixed(6),
+          (cons.lambda || 0).toFixed(6),
           calcCI(cons.cr, 5).toFixed(6),
           '1.12',
-          `${(cons.cr * 100).toFixed(2)}%`,
+          `${((cons.cr || 0) * 100).toFixed(2)}%`,
           cons.cr <= 0.10 ? '✓ Consistente' : '✗ Inconsistente'
         ]);
       }
@@ -1544,7 +2514,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         interpretation
       ]);
     });
-    
+
     // Resumo da robustez
     const criticalCount = ['B', 'O', 'C', 'R'].filter(m => {
       const inf = calculation.sensitivityInflections?.[m];
@@ -1554,15 +2524,15 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       const inf = calculation.sensitivityInflections?.[m];
       return inf !== null && inf > 10 && inf <= 20;
     }).length;
-    
+
     sensData.push(['']);
     sensData.push(['RESUMO DA ROBUSTEZ']);
     sensData.push(['Méritos críticos:', criticalCount.toString()]);
     sensData.push(['Méritos sensíveis:', sensitiveCount.toString()]);
-    sensData.push(['Classificação geral:', 
+    sensData.push(['Classificação geral:',
       criticalCount === 0 && sensitiveCount === 0 ? 'ALTAMENTE ROBUSTO' :
-      criticalCount === 0 ? 'ROBUSTO' :
-      criticalCount <= 1 ? 'MODERADAMENTE SENSÍVEL' : 'SENSÍVEL']);
+        criticalCount === 0 ? 'ROBUSTO' :
+          criticalCount <= 1 ? 'MODERADAMENTE SENSÍVEL' : 'SENSÍVEL']);
     const wsSens = XLSX.utils.aoa_to_sheet(sensData);
     wsSens['!cols'] = [{ wch: 15 }, { wch: 12 }, { wch: 18 }, { wch: 15 }, { wch: 50 }];
     XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
@@ -1574,7 +2544,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       [`Total de respondentes: ${respondentsDemographics.length}`],
       [''],
     ];
-    
+
     if (respondentsDemographics.length > 0) {
       // Mapeamentos
       const mapIdade: Record<string, string> = {
@@ -1653,13 +2623,13 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       });
 
       // Estatísticas de qualificação
-      const posGrad = respondentsDemographics.filter(d => 
+      const posGrad = respondentsDemographics.filter(d =>
         ['especializacao', 'mestrado', 'doutorado'].includes(d.formacao)
       ).length;
-      const experientes = respondentsDemographics.filter(d => 
+      const experientes = respondentsDemographics.filter(d =>
         ['11_20', '21_30', 'mais_30'].includes(d.tempoTrabalho)
       ).length;
-      const gestores = respondentsDemographics.filter(d => 
+      const gestores = respondentsDemographics.filter(d =>
         ['c_level', 'diretor', 'gerente'].includes(d.funcao)
       ).length;
 
@@ -1707,7 +2677,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         const submittedAt = resp.submittedAt ? new Date(resp.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '-';
         const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
         const tipo = resp.isSimulated ? 'Simulada' : 'Real';
-        
+
         responsesData.push([
           `R${idx + 1}`,
           submittedAt,
@@ -1772,8 +2742,8 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       ['Nível 3:', 'Alternativas de decisão'],
       [''],
       ['FÓRMULAS DE SÍNTESE (Petrillo et al., 2023)'],
-      ['Aditivo:', 'Score = b·B + o·O + c·(1-C) + r·(1-R)'],
-      ['Probabilístico:', 'Score = (b/Σ)·B + (o/Σ)·O + (c/Σ)·(1-C) + (r/Σ)·(1-R)'],
+      ['Adit. Residual:', 'Score = b·B + o·O + c·(1-C) + r·(1-R) — Demirtas & Üstün (2008)'],
+      ['Recíprocos:', 'Score = b·B + o·O + c·(1/C) + r·(1/R) — Saaty & Peniwati (2008)'],
       ['Subtrativo:', 'Score = b·B + o·O - c·C - r·R (Wijnmalen, 2007)'],
       ['Mult. Potências:', 'Score = (B^b · O^o) / (C^c · R^r)'],
       ['Mult. Simples:', 'Score = (B · O) / (C · R)'],
@@ -1786,7 +2756,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       ['  Analytic Hierarchy Process with BOCR. JRFM, 16(8), 372.'],
       [''],
       ['SOFTWARE'],
-      ['Sistema:', 'AHP-BOCR Decision Support System v2.1'],
+      ['Sistema:', 'AHP-BOCR Decision Support System v5.0'],
       ['Desenvolvido para:', 'Dissertação de Mestrado em Engenharia de Produção'],
       ['Instituição:', 'UNESP - Universidade Estadual Paulista'],
       ['Campus:', 'Guaratinguetá'],
@@ -1841,7 +2811,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
           <div className="text-6xl mb-4">📊</div>
           <h2 className="text-xl font-bold text-gray-800 mb-2">Nenhum Resultado Disponível</h2>
           <p className="text-gray-600 mb-6">
-            {!project 
+            {!project
               ? 'Projeto não encontrado.'
               : 'Este projeto ainda não possui resultados calculados. Execute uma simulação ou colete respostas reais primeiro.'}
           </p>
@@ -1879,11 +2849,6 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
               <p className="text-gray-500 text-sm mt-1">{project.name}</p>
             </div>
             <div className="flex items-center gap-3">
-              {audit && (
-                <div className={`px-4 py-2 rounded-lg text-white font-bold ${getGradeColor(audit.validacao_cientifica?.nota_metodologica)}`}>
-                  Nota: {audit.validacao_cientifica?.nota_metodologica} ({audit.validacao_cientifica?.score}%)
-                </div>
-              )}
               <button
                 onClick={() => window.location.href = '/decisor/projetos'}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -1896,29 +2861,25 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       </header>
 
       {/* Tabs */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-4">
-          <nav className="flex gap-1 overflow-x-auto">
+          <nav className="flex gap-2 overflow-x-auto py-1">
             {[
-              { id: 'overview', label: '📋 Visão Geral', icon: '📋' },
-              { id: 'demographics', label: '👥 Perfil Demográfico', icon: '👥' },
-              { id: 'quality', label: '🔍 Qualidade', icon: '🔍' },
-              { id: 'consistency', label: '✓ Consistência', icon: '✓' },
-              { id: 'weights', label: '⚖️ Pesos', icon: '⚖️' },
-              { id: 'ranking', label: '🏆 Ranking', icon: '🏆' },
-              { id: 'sensitivity', label: '📈 Sensibilidade', icon: '📈' },
-              { id: 'audit', label: '🤖 Parecer IA', icon: '🤖' },
-              { id: 'academic', label: '✍️ Texto A1', icon: '✍️' },
-              { id: 'export', label: '📥 Exportar', icon: '📥' }
+              { id: 'executive', label: '📊 Dashboard Executivo', description: 'Visão geral e KPIs' },
+              { id: 'results', label: '📈 Resultados & Análise', description: 'Pesos e rankings' },
+              { id: 'quality', label: '✓ Qualidade & Consistência', description: 'CR individual e validação' },
+              { id: 'robustness', label: '🔬 Robustez & Validação', description: 'Sensibilidade e confiabilidade' },
+              { id: 'review', label: '🤖 Revisão & Documentação', description: 'IA e texto acadêmico' },
+              { id: 'bibliography', label: '📚 Bibliografia', description: 'Referências e metodologia' },
+              { id: 'export', label: '📥 Exportar & Relatórios', description: 'Downloads e relatórios' }
             ].map(tab => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-                  activeTab === tab.id 
-                    ? 'border-indigo-600 text-indigo-600' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
+                className={`group relative px-5 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all ${activeTab === tab.id
+                  ? 'border-indigo-600 text-indigo-600 bg-indigo-50/50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
               >
                 {tab.label}
               </button>
@@ -1928,221 +2889,125 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
       </div>
 
       {/* Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        
+      <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+
         {/* ==================================================
-            TAB: VISÃO GERAL
+            TAB: DASHBOARD EXECUTIVO (Combina Visão Geral + Demographics + Bento Grid)
         ================================================== */}
-        {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Cards de Resumo */}
-            <div className="grid md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-indigo-500">
-                <p className="text-gray-500 text-sm">Especialistas</p>
-                <p className="text-3xl font-bold text-gray-900">{calculation.responseCount}</p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-green-500">
-                <p className="text-gray-500 text-sm">CR Global</p>
-                <p className="text-3xl font-bold text-gray-900">{formatPercent(calculation.bocrConsistency.cr)}</p>
-                <p className={`text-xs ${getCRStatus(calculation.bocrConsistency.cr).color}`}>
-                  {getCRStatus(calculation.bocrConsistency.cr).status}
-                </p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-purple-500">
-                <p className="text-gray-500 text-sm">Alternativas</p>
-                <p className="text-3xl font-bold text-gray-900">{project.alternatives.length}</p>
-              </div>
-              <div className="bg-white rounded-xl shadow-sm p-5 border-l-4 border-amber-500">
-                <p className="text-gray-500 text-sm">Métodos de Síntese</p>
-                <p className="text-3xl font-bold text-gray-900">5</p>
-              </div>
-            </div>
-
-            {/* Vencedor com Análise de Diferença */}
-            {calculation.finalScores.length > 0 && (() => {
-              const sorted = [...calculation.finalScores].sort((a, b) => 
-                (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
-              );
-              const first = sorted[0];
-              const second = sorted[1];
-              const diff = second ? Math.abs((first?.scoreAdditive || 0) - (second?.scoreAdditive || 0)) : 0;
-              const diffPercent = diff * 100;
-              
-              // Classificação da diferença
-              let diffStatus = { label: '', color: '', icon: '' };
-              if (diffPercent < 2) {
-                diffStatus = { label: 'Empate Técnico', color: 'bg-amber-500', icon: '⚠️' };
-              } else if (diffPercent < 5) {
-                diffStatus = { label: 'Diferença Marginal', color: 'bg-yellow-500', icon: '📊' };
-              } else if (diffPercent < 10) {
-                diffStatus = { label: 'Diferença Moderada', color: 'bg-blue-500', icon: '✓' };
-              } else {
-                diffStatus = { label: 'Diferença Significativa', color: 'bg-green-500', icon: '✓✓' };
-              }
-              
-              return (
-                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl shadow-lg p-6 text-white">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
-                        <span className="text-4xl">🏆</span>
-                      </div>
-                      <div>
-                        <p className="text-white/80 text-sm">Alternativa Recomendada</p>
-                        <h2 className="text-2xl font-bold">{first?.name}</h2>
-                        <p className="text-white/70 text-sm mt-1">
-                          Score: {(first?.scoreAdditive || 0).toFixed(4)} (Método Aditivo)
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Indicador de Diferença */}
-                    {second && (
-                      <div className="text-right">
-                        <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${diffStatus.color} text-white`}>
-                          <span>{diffStatus.icon}</span>
-                          <span>{diffStatus.label}</span>
-                        </div>
-                        <p className="text-white/60 text-xs mt-2">
-                          Δ vs {second.name}: {diffPercent.toFixed(2)}%
-                        </p>
-                        {diffPercent < 5 && (
-                          <p className="text-amber-200 text-xs mt-1">
-                            ⚡ Consulte análise de sensibilidade
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })()}
-
-            {/* Gráfico de Pesos BOCR - Barras Horizontais */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Pesos Estratégicos BOCR</h3>
-              <div className="space-y-4">
-                {['Benefícios', 'Oportunidades', 'Custos', 'Riscos'].map((label, idx) => {
-                  const weight = calculation.bocrWeights[idx] || 0;
-                  const colors = ['bg-green-500', 'bg-blue-500', 'bg-orange-500', 'bg-red-500'];
-                  return (
-                    <div key={idx} className="flex items-center gap-4">
-                      <div className="w-32 text-sm font-medium text-gray-700">{label}</div>
-                      <div className="flex-1 h-8 bg-gray-100 rounded-full overflow-hidden">
-                        <div 
-                          className={`h-full ${colors[idx]} transition-all duration-500 flex items-center justify-end pr-3`}
-                          style={{ width: `${weight * 100}%` }}
-                        >
-                          <span className="text-white text-xs font-bold">{formatPercent(weight)}</span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+        {activeTab === 'executive' && (
+          <div className="space-y-8">
+            {/* Bento Grid Dashboard Principal */}
+            <BentoGridDashboard
+              projectName={project.name}
+              bocrWeights={calculation.bocrWeights}
+              finalScores={calculation.finalScores}
+              bocrConsistency={calculation.bocrConsistency}
+              responseCount={calculation.responseCount}
+            />
 
             {/* Perfil BOCR por Alternativa */}
             <div className="bg-white rounded-xl shadow-sm p-6">
-  <h3 className="text-lg font-semibold text-gray-800 mb-4">Perfil BOCR por Alternativa</h3>
-  <p className="text-sm text-gray-500 mb-4">
-    Baseado em Wijnmalen (2007): B+O crescem para direita (positivo), C+R crescem para esquerda (negativo)
-  </p>
-  <div className="space-y-6">
-    {(() => {
-      // PRÉ-CALCULAR valores BOCR para todas as alternativas
-      const altBOCRData = calculation.finalScores.map((alt) => {
-        let b = alt.B || 0;
-        let o = alt.O || 0;
-        let c = alt.C || 0;
-        let r = alt.R || 0;
-        
-        // Se não tiver valores diretos, calcular a partir de altScores
-        if (b === 0 && o === 0 && c === 0 && r === 0 && calculation.altScores) {
-          const bocrVals = calculateAltBOCR(
-            alt.code,
-            calculation.altScores,
-            calculation.subWeights,
-            calculation.bocrWeights
-          );
-          b = bocrVals.B;
-          o = bocrVals.O;
-          c = bocrVals.C;
-          r = bocrVals.R;
-        }
-        
-        // Se ainda não tiver valores, usar os scores como proxy
-        if (b === 0 && o === 0 && c === 0 && r === 0) {
-          const total = Math.abs(alt.scoreAdditive || 1);
-          b = total * (calculation.bocrWeights[0] || 0.25);
-          o = total * (calculation.bocrWeights[1] || 0.25);
-          c = total * (calculation.bocrWeights[2] || 0.25);
-          r = total * (calculation.bocrWeights[3] || 0.25);
-        }
-        
-        return {
-          name: alt.name,
-          b, o, c, r,
-          positive: b + o,
-          negative: c + r
-        };
-      });
-      
-      // ESCALA GLOBAL - máximo entre todas as alternativas
-      const globalMax = Math.max(
-        ...altBOCRData.map(d => d.positive),
-        ...altBOCRData.map(d => d.negative),
-        0.01
-      );
-      
-      return altBOCRData.map((data, idx) => (
-        <div key={idx} className="relative">
-          <div className="text-sm font-medium text-gray-700 mb-2">{data.name}</div>
-          <div className="flex items-center h-10">
-            {/* Lado negativo (C+R) - cresce para esquerda */}
-            <div className="flex-1 flex justify-end">
-              <div 
-                className="h-8 bg-red-400 rounded-l flex items-center justify-start pl-2"
-                style={{ 
-                  width: `${(data.negative / globalMax) * 100}%`, 
-                  minWidth: data.negative > 0.001 ? '20px' : '0' 
-                }}
-              >
-                {data.negative > 0.01 && (
-                  <span className="text-white text-xs font-medium">
-                    C+R: {data.negative.toFixed(4)}
-                  </span>
-                )}
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">Perfil BOCR por Alternativa</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                Baseado em Wijnmalen (2007): B+O crescem para direita (positivo), C+R crescem para esquerda (negativo)
+              </p>
+              <ChartDownloadWrapper filename="bocr-profile" title="Perfil BOCR por Alternativa">
+              <div className="space-y-6">
+                {(() => {
+                  // PRÉ-CALCULAR valores BOCR para todas as alternativas
+                  const altBOCRData = calculation.finalScores.map((alt) => {
+                    let b = alt.B || 0;
+                    let o = alt.O || 0;
+                    let c = alt.C || 0;
+                    let r = alt.R || 0;
+
+                    // Se não tiver valores diretos, calcular a partir de altScores
+                    if (b === 0 && o === 0 && c === 0 && r === 0 && calculation.altScores) {
+                      const bocrVals = calculateAltBOCR(
+                        alt.code,
+                        calculation.altScores,
+                        calculation.subWeights,
+                        calculation.bocrWeights
+                      );
+                      b = bocrVals.B;
+                      o = bocrVals.O;
+                      c = bocrVals.C;
+                      r = bocrVals.R;
+                    }
+
+                    // Se ainda não tiver valores, usar os scores como proxy
+                    if (b === 0 && o === 0 && c === 0 && r === 0) {
+                      const total = Math.abs(alt.scoreAdditive || 1);
+                      b = total * (calculation.bocrWeights[0] || 0.25);
+                      o = total * (calculation.bocrWeights[1] || 0.25);
+                      c = total * (calculation.bocrWeights[2] || 0.25);
+                      r = total * (calculation.bocrWeights[3] || 0.25);
+                    }
+
+                    return {
+                      name: alt.name,
+                      b, o, c, r,
+                      positive: b + o,
+                      negative: c + r
+                    };
+                  });
+
+                  // ESCALA GLOBAL - máximo entre todas as alternativas
+                  const globalMax = Math.max(
+                    ...altBOCRData.map(d => d.positive),
+                    ...altBOCRData.map(d => d.negative),
+                    0.01
+                  );
+
+                  return altBOCRData.map((data, idx) => (
+                    <div key={idx} className="relative">
+                      <div className="text-sm font-medium text-gray-700 mb-2">{data.name}</div>
+                      <div className="flex items-center h-10">
+                        {/* Lado negativo (C+R) - cresce para esquerda */}
+                        <div className="flex-1 flex justify-end">
+                          <div
+                            className="h-8 bg-red-400 rounded-l flex items-center justify-start pl-2"
+                            style={{
+                              width: `${(data.negative / globalMax) * 100}%`,
+                              minWidth: data.negative > 0.001 ? '20px' : '0'
+                            }}
+                          >
+                            {data.negative > 0.01 && (
+                              <span className="text-white text-xs font-medium">
+                                C+R: {(data.negative || 0).toFixed(4)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {/* Centro */}
+                        <div className="w-1 h-12 bg-gray-400 flex-shrink-0"></div>
+                        {/* Lado positivo (B+O) - cresce para direita */}
+                        <div className="flex-1">
+                          <div
+                            className="h-8 bg-green-400 rounded-r flex items-center justify-end pr-2"
+                            style={{
+                              width: `${(data.positive / globalMax) * 100}%`,
+                              minWidth: data.positive > 0.001 ? '20px' : '0'
+                            }}
+                          >
+                            {data.positive > 0.01 && (
+                              <span className="text-white text-xs font-medium">
+                                B+O: {(data.positive || 0).toFixed(4)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ));
+                })()}
               </div>
-            </div>
-            {/* Centro */}
-            <div className="w-1 h-12 bg-gray-400 flex-shrink-0"></div>
-            {/* Lado positivo (B+O) - cresce para direita */}
-            <div className="flex-1">
-              <div 
-                className="h-8 bg-green-400 rounded-r flex items-center justify-end pr-2"
-                style={{ 
-                  width: `${(data.positive / globalMax) * 100}%`, 
-                  minWidth: data.positive > 0.001 ? '20px' : '0' 
-                }}
-              >
-                {data.positive > 0.01 && (
-                  <span className="text-white text-xs font-medium">
-                    B+O: {data.positive.toFixed(4)}
-                  </span>
-                )}
+              <div className="flex justify-center gap-8 mt-4 text-xs text-gray-500">
+                <span>← Custos + Riscos (negativo)</span>
+                <span>Benefícios + Oportunidades (positivo) →</span>
               </div>
+              </ChartDownloadWrapper>
             </div>
-          </div>
-        </div>
-      ));
-    })()}
-  </div>
-  <div className="flex justify-center gap-8 mt-4 text-xs text-gray-500">
-    <span>← Custos + Riscos (negativo)</span>
-    <span>Benefícios + Oportunidades (positivo) →</span>
-  </div>
-</div>
 
             {/* Gráfico de Radar Comparativo - Alizadeh (2020) */}
             <div className="bg-white rounded-xl shadow-sm p-6">
@@ -2150,7 +3015,8 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
               <p className="text-sm text-gray-500 mb-4">
                 Visualização de trade-offs entre alternativas nos 4 méritos BOCR (Alizadeh et al., 2020)
               </p>
-              
+
+              <ChartDownloadWrapper filename="bocr-radar" title="Radar Comparativo BOCR">
               <div className="flex justify-center">
                 <svg viewBox="0 0 500 420" className="w-full max-w-md">
                   {(() => {
@@ -2159,11 +3025,11 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                     const CY = 200;  // Centro Y
                     const MAX_R = 140;  // Raio máximo
                     const ANGLES = [-90, 0, 90, 180];  // Topo, Direita, Baixo, Esquerda
-                    
+
                     const toRad = (deg: number) => (deg * Math.PI) / 180;
                     const getX = (angle: number, r: number) => CX + r * Math.cos(toRad(angle));
                     const getY = (angle: number, r: number) => CY + r * Math.sin(toRad(angle));
-                    
+
                     return (
                       <>
                         {/* Grid concêntrico */}
@@ -2180,7 +3046,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                             />
                           );
                         })}
-                        
+
                         {/* Eixos */}
                         {ANGLES.map((angle, i) => (
                           <line
@@ -2193,35 +3059,35 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                             strokeWidth="1"
                           />
                         ))}
-                        
+
                         {/* Labels */}
                         <text x={CX} y={CY - MAX_R - 15} textAnchor="middle" className="text-sm fill-green-600 font-semibold">Benefícios</text>
                         <text x={CX + MAX_R + 15} y={CY + 5} textAnchor="start" className="text-sm fill-blue-600 font-semibold">Oportunidades</text>
                         <text x={CX} y={CY + MAX_R + 25} textAnchor="middle" className="text-sm fill-orange-600 font-semibold">Custos</text>
                         <text x={CX - MAX_R - 15} y={CY + 5} textAnchor="end" className="text-sm fill-red-600 font-semibold">Riscos</text>
-                        
+
                         {/* Polígonos e pontos das alternativas */}
                         {calculation.finalScores.map((alt, altIdx) => {
                           const b = alt.B || 0;
                           const o = alt.O || 0;
                           const c = alt.C || 0;
                           const altR = alt.R || 0;
-                          
+
                           const maxVal = Math.max(
                             ...calculation.finalScores.flatMap(a => [a.B || 0, a.O || 0, a.C || 0, a.R || 0]),
                             0.01
                           );
-                          
+
                           const values = [b, o, c, altR].map(v => Math.min(v / maxVal, 1));
                           const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
                           const color = colors[altIdx % colors.length];
-                          
+
                           // Calcular pontos do polígono
                           const polygonPoints = ANGLES.map((angle, i) => {
                             const r = values[i] * MAX_R;
                             return `${getX(angle, r)},${getY(angle, r)}`;
                           }).join(' ');
-                          
+
                           return (
                             <g key={altIdx}>
                               <polygon
@@ -2254,15 +3120,15 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   })()}
                 </svg>
               </div>
-              
+
               {/* Legenda */}
               <div className="flex justify-center gap-6 mt-4">
                 {calculation.finalScores.map((alt, idx) => {
                   const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
                   return (
                     <div key={idx} className="flex items-center gap-2">
-                      <div 
-                        className="w-4 h-4 rounded" 
+                      <div
+                        className="w-4 h-4 rounded"
                         style={{ backgroundColor: colors[idx % colors.length] }}
                       ></div>
                       <span className="text-sm text-gray-700">{alt.name}</span>
@@ -2270,10 +3136,11 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   );
                 })}
               </div>
-              
+
               <p className="text-xs text-gray-400 text-center mt-4">
                 Nota: Quanto maior a área do polígono nos quadrantes B e O, e menor em C e R, melhor o desempenho global.
               </p>
+              </ChartDownloadWrapper>
             </div>
           </div>
         )}
@@ -2281,8 +3148,8 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         {/* ==================================================
             TAB: PERFIL DEMOGRÁFICO - DASHBOARD VISUAL
         ================================================== */}
-        {activeTab === 'demographics' && (
-          <div className="space-y-6">
+        {activeTab === 'executive' && (
+          <div className="space-y-6 mt-12 pt-8 border-t border-slate-200">
             {/* Header com Toggle */}
             <div className="flex items-center justify-between">
               <div>
@@ -2294,21 +3161,19 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
               <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => setDemographicView('dashboard')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    demographicView === 'dashboard' 
-                      ? 'bg-white text-indigo-600 shadow-sm' 
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${demographicView === 'dashboard'
+                    ? 'bg-white text-indigo-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                    }`}
                 >
                   📊 Dashboard
                 </button>
                 <button
                   onClick={() => setDemographicView('table')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    demographicView === 'table' 
-                      ? 'bg-white text-indigo-600 shadow-sm' 
-                      : 'text-gray-600 hover:text-gray-800'
-                  }`}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${demographicView === 'table'
+                    ? 'bg-white text-indigo-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                    }`}
                 >
                   📋 Tabela
                 </button>
@@ -2342,14 +3207,14 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
                     <p className="text-gray-500 text-sm">+20 anos experiência</p>
                     {(() => {
-                      const experientes = respondentsDemographics.filter(d => 
+                      const experientes = respondentsDemographics.filter(d =>
                         ['21_30', 'mais_30'].includes(d.tempoTrabalho)
                       ).length;
                       const total = respondentsDemographics.length;
                       return (
                         <>
                           <p className="text-3xl font-bold text-gray-800 mt-1">
-                            {experientes} <span className="text-lg font-normal text-gray-500">({(experientes/total*100).toFixed(0)}%)</span>
+                            {experientes} <span className="text-lg font-normal text-gray-500">({((experientes / (total || 1)) * 100).toFixed(0)}%)</span>
                           </p>
                           <div className="flex items-center gap-1 mt-2 text-sm text-green-600">
                             <span>✓</span> Profissionais experientes
@@ -2363,14 +3228,14 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
                     <p className="text-gray-500 text-sm">Pós-graduados</p>
                     {(() => {
-                      const posGrad = respondentsDemographics.filter(d => 
+                      const posGrad = respondentsDemographics.filter(d =>
                         ['especializacao', 'mestrado', 'doutorado'].includes(d.formacao)
                       ).length;
                       const total = respondentsDemographics.length;
                       return (
                         <>
                           <p className="text-3xl font-bold text-indigo-600 mt-1">
-                            {posGrad} <span className="text-lg font-normal text-gray-500">({(posGrad/total*100).toFixed(0)}%)</span>
+                            {posGrad} <span className="text-lg font-normal text-gray-500">({((posGrad / (total || 1)) * 100).toFixed(0)}%)</span>
                           </p>
                           <p className="text-sm text-gray-500 mt-2">Alta qualificação</p>
                         </>
@@ -2382,14 +3247,14 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
                     <p className="text-gray-500 text-sm">Gestores (Ger+Dir+C)</p>
                     {(() => {
-                      const gestores = respondentsDemographics.filter(d => 
+                      const gestores = respondentsDemographics.filter(d =>
                         ['gerente', 'diretor', 'c_level'].includes(d.funcao)
                       ).length;
                       const total = respondentsDemographics.length;
                       return (
                         <>
                           <p className="text-3xl font-bold text-amber-600 mt-1">
-                            {gestores} <span className="text-lg font-normal text-gray-500">({(gestores/total*100).toFixed(0)}%)</span>
+                            {gestores} <span className="text-lg font-normal text-gray-500">({((gestores / (total || 1)) * 100).toFixed(0)}%)</span>
                           </p>
                           <p className="text-sm text-gray-500 mt-2">Poder de decisão</p>
                         </>
@@ -2408,6 +3273,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       </h4>
                     </div>
                     <div className="p-5">
+                      <ChartDownloadWrapper filename="demographics-gender" title="Distribuição por Gênero">
                       <div className="flex items-center justify-between">
                         <ResponsiveContainer width="50%" height={180}>
                           <PieChart>
@@ -2424,7 +3290,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                                 <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#EC4899'} />
                               ))}
                             </Pie>
-                            <Tooltip 
+                            <Tooltip
                               formatter={(value) => {
                                 const v = Number(value) || 0;
                                 return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes'];
@@ -2435,8 +3301,8 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                         <div className="flex flex-col gap-3 pr-4">
                           {demographicDashboardData.gender.map((item, index) => (
                             <div key={item.name} className="flex items-center gap-3">
-                              <div 
-                                className="w-4 h-4 rounded-full" 
+                              <div
+                                className="w-4 h-4 rounded-full"
                                 style={{ backgroundColor: index === 0 ? '#3B82F6' : '#EC4899' }}
                               />
                               <div>
@@ -2449,6 +3315,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                           ))}
                         </div>
                       </div>
+                      </ChartDownloadWrapper>
                     </div>
                   </div>
 
@@ -2460,6 +3327,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       </h4>
                     </div>
                     <div className="p-5">
+                      <ChartDownloadWrapper filename="demographics-age" title="Distribuição por Faixa Etária">
                       <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={demographicDashboardData.age} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
@@ -2469,6 +3337,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                           <Bar dataKey="value" fill="#60A5FA" radius={[4, 4, 0, 0]} maxBarSize={50} />
                         </BarChart>
                       </ResponsiveContainer>
+                      </ChartDownloadWrapper>
                     </div>
                   </div>
 
@@ -2480,6 +3349,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       </h4>
                     </div>
                     <div className="p-5">
+                      <ChartDownloadWrapper filename="demographics-education" title="Nível de Formação Acadêmica">
                       <ResponsiveContainer width="100%" height={demographicDashboardData.education.length * 40 + 20}>
                         <BarChart data={demographicDashboardData.education} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
@@ -2493,6 +3363,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
+                      </ChartDownloadWrapper>
                     </div>
                   </div>
 
@@ -2504,6 +3375,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       </h4>
                     </div>
                     <div className="p-5">
+                      <ChartDownloadWrapper filename="demographics-experience" title="Tempo de Experiência Profissional">
                       <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={demographicDashboardData.experience} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
@@ -2513,6 +3385,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                           <Bar dataKey="value" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={50} />
                         </BarChart>
                       </ResponsiveContainer>
+                      </ChartDownloadWrapper>
                     </div>
                   </div>
 
@@ -2527,6 +3400,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       {(() => {
                         const sortedRoles = [...demographicDashboardData.role].sort((a, b) => b.value - a.value);
                         return (
+                          <ChartDownloadWrapper filename="demographics-roles" title="Distribuição por Cargo">
                           <ResponsiveContainer width="100%" height={sortedRoles.length * 40 + 20}>
                             <BarChart data={sortedRoles} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
@@ -2540,6 +3414,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                               </Bar>
                             </BarChart>
                           </ResponsiveContainer>
+                          </ChartDownloadWrapper>
                         );
                       })()}
                     </div>
@@ -2557,6 +3432,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                         const sortedAreas = [...demographicDashboardData.area].sort((a, b) => b.value - a.value);
                         const areaColors = ['#10B981', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#94A3B8'];
                         return (
+                          <ChartDownloadWrapper filename="demographics-areas" title="Área de Atuação">
                           <ResponsiveContainer width="100%" height={sortedAreas.length * 40 + 20}>
                             <BarChart data={sortedAreas} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
@@ -2570,6 +3446,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                               </Bar>
                             </BarChart>
                           </ResponsiveContainer>
+                          </ChartDownloadWrapper>
                         );
                       })()}
                     </div>
@@ -2584,8 +3461,8 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   <p className="text-gray-600 leading-relaxed">
                     A amostra é composta por <strong>{demographicDashboardData.total} especialistas</strong>
                     {demographicDashboardData.gender.length > 0 && (
-                      <>, predominantemente do gênero {demographicDashboardData.gender[0].value > (demographicDashboardData.gender[1]?.value || 0) ? demographicDashboardData.gender[0].name.toLowerCase() : demographicDashboardData.gender[1]?.name.toLowerCase()} 
-                      ({((Math.max(demographicDashboardData.gender[0].value, demographicDashboardData.gender[1]?.value || 0) / demographicDashboardData.total) * 100).toFixed(0)}%)</>
+                      <>, predominantemente do gênero {demographicDashboardData.gender[0].value > (demographicDashboardData.gender[1]?.value || 0) ? demographicDashboardData.gender[0].name.toLowerCase() : demographicDashboardData.gender[1]?.name.toLowerCase()}
+                        ({((Math.max(demographicDashboardData.gender[0].value, demographicDashboardData.gender[1]?.value || 0) / demographicDashboardData.total) * 100).toFixed(0)}%)</>
                     )}
                     {demographicDashboardData.age.length > 0 && (
                       <>. A faixa etária mais representativa é de <strong>{[...demographicDashboardData.age].sort((a, b) => b.value - a.value)[0]?.name}</strong></>
@@ -2604,136 +3481,42 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
               </div>
             ) : (
               /* ========== TABELA ACADÊMICA CLÁSSICA ========== */
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                {/* Título da Tabela */}
-                <div className="px-6 py-4 border-b border-gray-200">
-                  <p className="text-sm text-gray-800">
-                    <strong>Tabela 1</strong> – Caracterização sociodemográfica e profissional dos especialistas participantes (n = {respondentsDemographics.length})
-                  </p>
-                </div>
+              <>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                  {/* Título da Tabela */}
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <p className="text-sm text-gray-800">
+                      <strong>Tabela 1</strong> – Caracterização sociodemográfica e profissional dos especialistas participantes (n = {respondentsDemographics.length})
+                    </p>
+                  </div>
 
-                {/* Tabela */}
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    {/* Cabeçalho */}
-                    <thead>
-                      <tr className="border-t-2 border-b-2 border-gray-800">
-                        <th className="px-4 py-3 text-left font-semibold text-gray-800">Variável</th>
-                        <th className="px-4 py-3 text-left font-semibold text-gray-800">Categoria</th>
-                        <th className="px-4 py-3 text-center font-semibold text-gray-800 w-16">n</th>
-                        <th className="px-4 py-3 text-center font-semibold text-gray-800 w-20">%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* Faixa Etária */}
-                      {[
-                        { value: 'menos_30', label: 'Menos de 30 anos' },
-                        { value: '31_40', label: '31 a 40 anos' },
-                        { value: '41_50', label: '41 a 50 anos' },
-                        { value: 'mais_50', label: 'Mais de 50 anos' }
-                      ].map((opt, idx, arr) => {
-                        const count = respondentsDemographics.filter(d => d.idade === opt.value).length;
-                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
-                        return (
-                          <tr key={`idade-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
-                            {idx === 0 && (
-                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
-                                Faixa Etária
-                              </td>
-                            )}
-                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
-                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
-                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
-                          </tr>
-                        );
-                      })}
-
-                      {/* Gênero */}
-                      {[
-                        { value: 'masculino', label: 'Masculino' },
-                        { value: 'feminino', label: 'Feminino' }
-                      ].map((opt, idx, arr) => {
-                        const count = respondentsDemographics.filter(d => d.genero === opt.value).length;
-                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
-                        return (
-                          <tr key={`genero-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
-                            {idx === 0 && (
-                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
-                                Gênero
-                              </td>
-                            )}
-                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
-                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
-                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
-                          </tr>
-                        );
-                      })}
-
-                      {/* Nível de Formação */}
-                      {[
-                        { value: 'superior', label: 'Graduação' },
-                        { value: 'especializacao', label: 'Especialização / MBA' },
-                        { value: 'mestrado', label: 'Mestrado' },
-                        { value: 'doutorado', label: 'Doutorado ou superior' }
-                      ].map((opt, idx, arr) => {
-                        const count = respondentsDemographics.filter(d => d.formacao === opt.value).length;
-                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
-                        return (
-                          <tr key={`formacao-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
-                            {idx === 0 && (
-                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
-                                Nível de Formação
-                              </td>
-                            )}
-                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
-                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
-                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
-                          </tr>
-                        );
-                      })}
-
-                      {/* Tempo de Experiência */}
-                      {[
-                        { value: 'menos_10', label: 'Menos de 10 anos' },
-                        { value: '11_20', label: '11 a 20 anos' },
-                        { value: '21_30', label: '21 a 30 anos' },
-                        { value: 'mais_30', label: 'Mais de 30 anos' }
-                      ].map((opt, idx, arr) => {
-                        const count = respondentsDemographics.filter(d => d.tempoTrabalho === opt.value).length;
-                        const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
-                        return (
-                          <tr key={`exp-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
-                            {idx === 0 && (
-                              <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
-                                Tempo de Experiência
-                              </td>
-                            )}
-                            <td className="px-4 py-2 text-gray-600">{opt.label}</td>
-                            <td className="px-4 py-2 text-center text-gray-700">{count}</td>
-                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
-                          </tr>
-                        );
-                      })}
-
-                      {/* Área de Atuação */}
-                      {(() => {
-                        const options = [
-                          { value: 'producao', label: 'Produção' },
-                          { value: 'eng_processos', label: 'Engenharia de Processos' },
-                          { value: 'qualidade', label: 'Qualidade' },
-                          { value: 'manutencao', label: 'Manutenção' },
-                          { value: 'logistica', label: 'Logística' },
-                          { value: 'ti', label: 'Tecnologia da Informação' },
-                          { value: 'financas', label: 'Finanças' }
-                        ];
-                        return options.map((opt, idx, arr) => {
-                          const count = respondentsDemographics.filter(d => d.areaAtuacao === opt.value).length;
+                  {/* Tabela */}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      {/* Cabeçalho */}
+                      <thead>
+                        <tr className="border-t-2 border-b-2 border-gray-800">
+                          <th className="px-4 py-3 text-left font-semibold text-gray-800">Variável</th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-800">Categoria</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-800 w-16">n</th>
+                          <th className="px-4 py-3 text-center font-semibold text-gray-800 w-20">%</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Faixa Etária */}
+                        {[
+                          { value: 'menos_30', label: 'Menos de 30 anos' },
+                          { value: '31_40', label: '31 a 40 anos' },
+                          { value: '41_50', label: '41 a 50 anos' },
+                          { value: 'mais_50', label: 'Mais de 50 anos' }
+                        ].map((opt, idx, arr) => {
+                          const count = respondentsDemographics.filter(d => d.idade === opt.value).length;
                           const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
                           return (
-                            <tr key={`area-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                            <tr key={`idade-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
                               {idx === 0 && (
                                 <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
-                                  Área de Atuação
+                                  Faixa Etária
                                 </td>
                               )}
                               <td className="px-4 py-2 text-gray-600">{opt.label}</td>
@@ -2741,26 +3524,20 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                               <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
                             </tr>
                           );
-                        });
-                      })()}
+                        })}
 
-                      {/* Função / Cargo */}
-                      {(() => {
-                        const options = [
-                          { value: 'c_level', label: 'C-Level (CEO, CFO, CTO)' },
-                          { value: 'diretor', label: 'Diretor' },
-                          { value: 'gerente', label: 'Gerente' },
-                          { value: 'supervisor', label: 'Supervisor / Coordenador' },
-                          { value: 'analista', label: 'Analista / Engenheiro / Especialista' }
-                        ];
-                        return options.map((opt, idx, arr) => {
-                          const count = respondentsDemographics.filter(d => d.funcao === opt.value).length;
+                        {/* Gênero */}
+                        {[
+                          { value: 'masculino', label: 'Masculino' },
+                          { value: 'feminino', label: 'Feminino' }
+                        ].map((opt, idx, arr) => {
+                          const count = respondentsDemographics.filter(d => d.genero === opt.value).length;
                           const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
                           return (
-                            <tr key={`funcao-${idx}`}>
+                            <tr key={`genero-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
                               {idx === 0 && (
                                 <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
-                                  Cargo / Função
+                                  Gênero
                                 </td>
                               )}
                               <td className="px-4 py-2 text-gray-600">{opt.label}</td>
@@ -2768,34 +3545,148 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                               <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
                             </tr>
                           );
-                        });
-                      })()}
-                    </tbody>
+                        })}
 
-                    {/* Rodapé */}
-                    <tfoot>
-                      <tr className="border-t-2 border-gray-800">
-                        <td colSpan={2} className="px-4 py-3 text-gray-800 font-semibold">
-                          Total
-                        </td>
-                        <td className="px-4 py-3 text-center text-gray-800 font-semibold">
-                          {respondentsDemographics.length}
-                        </td>
-                        <td className="px-4 py-3 text-center text-gray-800 font-semibold">
-                          100,0
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
+                        {/* Nível de Formação */}
+                        {[
+                          { value: 'superior', label: 'Graduação' },
+                          { value: 'especializacao', label: 'Especialização / MBA' },
+                          { value: 'mestrado', label: 'Mestrado' },
+                          { value: 'doutorado', label: 'Doutorado ou superior' }
+                        ].map((opt, idx, arr) => {
+                          const count = respondentsDemographics.filter(d => d.formacao === opt.value).length;
+                          const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                          return (
+                            <tr key={`formacao-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                              {idx === 0 && (
+                                <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                  Nível de Formação
+                                </td>
+                              )}
+                              <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                              <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                              <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                            </tr>
+                          );
+                        })}
+
+                        {/* Tempo de Experiência */}
+                        {[
+                          { value: 'menos_10', label: 'Menos de 10 anos' },
+                          { value: '11_20', label: '11 a 20 anos' },
+                          { value: '21_30', label: '21 a 30 anos' },
+                          { value: 'mais_30', label: 'Mais de 30 anos' }
+                        ].map((opt, idx, arr) => {
+                          const count = respondentsDemographics.filter(d => d.tempoTrabalho === opt.value).length;
+                          const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                          return (
+                            <tr key={`exp-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                              {idx === 0 && (
+                                <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                  Tempo de Experiência
+                                </td>
+                              )}
+                              <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                              <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                              <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                            </tr>
+                          );
+                        })}
+
+                        {/* Área de Atuação */}
+                        {(() => {
+                          const options = [
+                            { value: 'producao', label: 'Produção' },
+                            { value: 'eng_processos', label: 'Engenharia de Processos' },
+                            { value: 'qualidade', label: 'Qualidade' },
+                            { value: 'manutencao', label: 'Manutenção' },
+                            { value: 'logistica', label: 'Logística' },
+                            { value: 'ti', label: 'Tecnologia da Informação' },
+                            { value: 'financas', label: 'Finanças' }
+                          ];
+                          return options.map((opt, idx, arr) => {
+                            const count = respondentsDemographics.filter(d => d.areaAtuacao === opt.value).length;
+                            const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                            return (
+                              <tr key={`area-${idx}`} className={idx === arr.length - 1 ? 'border-b border-gray-200' : ''}>
+                                {idx === 0 && (
+                                  <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                    Área de Atuação
+                                  </td>
+                                )}
+                                <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                                <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                                <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                              </tr>
+                            );
+                          });
+                        })()}
+
+                        {/* Função / Cargo */}
+                        {(() => {
+                          const options = [
+                            { value: 'c_level', label: 'C-Level (CEO, CFO, CTO)' },
+                            { value: 'diretor', label: 'Diretor' },
+                            { value: 'gerente', label: 'Gerente' },
+                            { value: 'supervisor', label: 'Supervisor / Coordenador' },
+                            { value: 'analista', label: 'Analista / Engenheiro / Especialista' }
+                          ];
+                          return options.map((opt, idx, arr) => {
+                            const count = respondentsDemographics.filter(d => d.funcao === opt.value).length;
+                            const pct = respondentsDemographics.length > 0 ? (count / respondentsDemographics.length) * 100 : 0;
+                            return (
+                              <tr key={`funcao-${idx}`}>
+                                {idx === 0 && (
+                                  <td className="px-4 py-2 text-gray-700 font-medium align-top" rowSpan={arr.length}>
+                                    Cargo / Função
+                                  </td>
+                                )}
+                                <td className="px-4 py-2 text-gray-600">{opt.label}</td>
+                                <td className="px-4 py-2 text-center text-gray-700">{count}</td>
+                                <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+                              </tr>
+                            );
+                          });
+                        })()}
+                      </tbody>
+
+                      {/* Rodapé */}
+                      <tfoot>
+                        <tr className="border-t-2 border-gray-800">
+                          <td colSpan={2} className="px-4 py-3 text-gray-800 font-semibold">
+                            Total
+                          </td>
+                          <td className="px-4 py-3 text-center text-gray-800 font-semibold">
+                            {respondentsDemographics.length}
+                          </td>
+                          <td className="px-4 py-3 text-center text-gray-800 font-semibold">
+                            100,0
+                          </td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  {/* Nota de Rodapé */}
+                  <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
+                    <p className="text-xs text-gray-500">
+                      <strong>Fonte:</strong> Dados primários da pesquisa ({new Date().getFullYear()}).
+                    </p>
+                  </div>
                 </div>
 
-                {/* Nota de Rodapé */}
-                <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
-                  <p className="text-xs text-gray-500">
-                    <strong>Fonte:</strong> Dados primários da pesquisa ({new Date().getFullYear()}).
-                  </p>
-                </div>
-              </div>
+                {/* Nota metodológica sobre exclusões (visível apenas se houver excluídos) */}
+                {excludedIds.length > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 mt-4">
+                    <strong>⚠️ Nota metodológica:</strong> Dos {respondentsDemographics.length} especialistas consultados,
+                    {' '}{respondentsDemographics.length - excludedIds.length} foram incluídos na análise final
+                    após filtragem por consistência (CR ≤ 0.10, Saaty 1980).
+                    {' '}{excludedIds.length} respondente{excludedIds.length > 1 ? 's' : ''}
+                    {' '}fo{excludedIds.length > 1 ? 'ram' : 'i'} excluído{excludedIds.length > 1 ? 's' : ''} por
+                    apresentar{excludedIds.length > 1 ? 'em' : ''} índice de consistência acima do limiar aceitável.
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -2805,103 +3696,162 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         ================================================== */}
         {activeTab === 'quality' && (
           <div className="space-y-6">
-            {/* Header */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-800">🔍 Análise de Qualidade das Respostas</h3>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Detecta padrões suspeitos que podem comprometer a validade científica
-                  </p>
-                </div>
-                <button
-                  onClick={runQualityAnalysis}
-                  disabled={qualityLoading || projectResponses.length === 0}
-                  className={`px-6 py-3 rounded-lg font-medium ${
-                    qualityLoading || projectResponses.length === 0
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                  }`}
-                >
-                  {qualityLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                      </svg>
-                      Analisando...
-                    </span>
-                  ) : '🔬 Analisar Qualidade'}
-                </button>
-              </div>
 
-              <div className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <strong>O que esta análise detecta:</strong>
-                <ul className="mt-2 space-y-1 ml-4 list-disc">
-                  <li>CR individual alto (&gt; 10% alerta, &gt; 20% crítico)</li>
-                  <li>Respostas muito uniformes (todas iguais ou pouca variação)</li>
-                  <li>Uso excessivo de valores extremos (1 ou 9)</li>
-                  <li>Contradições lógicas (violações de transitividade)</li>
-                </ul>
-              </div>
-            </div>
+
+            {/* ========================================
+                SEÇÃO 2: ANÁLISE DE QUALIDADE
+            ======================================== */}
+            {/* Header */}
+
 
             {/* Resultados da Análise */}
             {qualityAnalysis && (
               <>
-                {/* Painel de Filtro de Respondentes */}
-                <QualityDashboard respondents={qualityRespondentsData || []} />
 
-                {/* Status Geral */}
-                <div className={`rounded-xl p-6 border-2 ${
-                  qualityAnalysis.overall?.status === 'EXCELENTE' ? 'bg-green-50 border-green-300' :
-                  qualityAnalysis.overall?.status === 'BOA' ? 'bg-blue-50 border-blue-300' :
-                  qualityAnalysis.overall?.status === 'ACEITÁVEL' ? 'bg-yellow-50 border-yellow-300' :
-                  qualityAnalysis.overall?.status === 'PROBLEMÁTICA' ? 'bg-orange-50 border-orange-300' :
-                  'bg-red-50 border-red-300'
-                }`}>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-4xl">
-                        {qualityAnalysis.overall?.status === 'EXCELENTE' ? '✅' :
-                         qualityAnalysis.overall?.status === 'BOA' ? '👍' :
-                         qualityAnalysis.overall?.status === 'ACEITÁVEL' ? '⚠️' :
-                         qualityAnalysis.overall?.status === 'PROBLEMÁTICA' ? '⚠️' : '❌'}
-                      </span>
-                      <div>
-                        <p className="font-bold text-xl">Qualidade {qualityAnalysis.overall?.status}</p>
-                        <p className="text-sm text-gray-600">{qualityAnalysis.overall?.recommendation}</p>
+
+                {/* Status Geral (Calculado via adjustedQualityScore) */}
+                {(() => {
+                  const adjustedQualityScore = (() => {
+                    if (!qualityAnalysis?.respondents) return null;
+
+                    // IDs válidos = respondentes com response finalizada
+                    const validIds = new Set(
+                      projectResponses.map((r: any) => r.respondentId || r.visitorId || r.id || '').filter(Boolean)
+                    );
+
+                    const activeRespondents = qualityAnalysis.respondents.filter((r: any) => {
+                      const rid = r.respondentId || r.id || r.visitorId || '';
+                      return rid && validIds.has(rid) && !excludedIds.includes(rid);
+                    });
+
+                    if (activeRespondents.length === 0) return null;
+
+                    const scores = activeRespondents
+                      .map((r: any) => r.overallScore ?? r.score ?? null)
+                      .filter((s: any) => s !== null);
+
+                    const avgScore =
+                      scores.length > 0
+                        ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length)
+                        : 0;
+
+                    const status =
+                      avgScore >= 90 ? 'EXCELENTE' :
+                        avgScore >= 80 ? 'BOA' :
+                          avgScore >= 60 ? 'ACEITÁVEL' :
+                            avgScore >= 40 ? 'PROBLEMÁTICA' : 'CRÍTICA';
+
+                    const statusMessages: Record<string, string> = {
+                      'EXCELENTE': 'Todos os respondentes apresentam alta consistência nos julgamentos.',
+                      'BOA': 'A maioria dos respondentes está dentro dos parâmetros aceitáveis.',
+                      'ACEITÁVEL': 'Alguns respondentes requerem atenção, mas a maioria está dentro dos parâmetros.',
+                      'PROBLEMÁTICA': 'Parcela significativa dos respondentes apresenta inconsistências.',
+                      'CRÍTICA': 'A maioria dos respondentes apresenta inconsistências graves.'
+                    };
+
+                    return {
+                      score: avgScore,
+                      status,
+                      message: statusMessages[status],
+                      totalRespondents: qualityAnalysis.respondents.length,
+                      activeRespondents: activeRespondents.length,
+                      excludedCount: excludedIds.length
+                    };
+                  })();
+
+                  if (!adjustedQualityScore) return null;
+
+                  return (
+                    <div className={`rounded-xl p-6 border-2 ${adjustedQualityScore.status === 'EXCELENTE' ? 'bg-green-50 border-green-300' :
+                      adjustedQualityScore.status === 'BOA' ? 'bg-blue-50 border-blue-300' :
+                        adjustedQualityScore.status === 'ACEITÁVEL' ? 'bg-yellow-50 border-yellow-300' :
+                          adjustedQualityScore.status === 'PROBLEMÁTICA' ? 'bg-orange-50 border-orange-300' :
+                            'bg-red-50 border-red-300'
+                      }`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-4xl">
+                            {adjustedQualityScore.status === 'EXCELENTE' ? '✅' :
+                              adjustedQualityScore.status === 'BOA' ? '👍' :
+                                adjustedQualityScore.status === 'ACEITÁVEL' ? '⚠️' :
+                                  adjustedQualityScore.status === 'PROBLEMÁTICA' ? '⚠️' : '❌'}
+                          </span>
+                          <div>
+                            <p className="font-bold text-xl">Qualidade {adjustedQualityScore.status}</p>
+                            <p className="text-sm text-gray-600">{adjustedQualityScore.message}</p>
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <p className={`text-4xl font-bold ${adjustedQualityScore.score >= 80 ? 'text-green-600' :
+                            adjustedQualityScore.score >= 60 ? 'text-yellow-600' : 'text-red-600'
+                            }`}>{adjustedQualityScore.score}/100</p>
+                          <p className="text-sm text-gray-500">Score Médio</p>
+                        </div>
+                      </div>
+
+                      {adjustedQualityScore.excludedCount > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200 text-sm text-gray-600">
+                          📊 Score calculado com <strong>{adjustedQualityScore.activeRespondents}</strong> de {adjustedQualityScore.totalRespondents} respondentes
+                          ({adjustedQualityScore.excludedCount} excluído{adjustedQualityScore.excludedCount > 1 ? 's' : ''} por inconsistência).
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Estatísticas (Calculado via adjustedStatusCounts) */}
+                {(() => {
+                  const adjustedStatusCounts = (() => {
+                    if (!qualityAnalysis?.respondents) {
+                      return qualityAnalysis?.statistics?.byStatus || {};
+                    }
+
+                    // IDs válidos = respondentes com response finalizada
+                    const validIds = new Set(
+                      projectResponses.map((r: any) => r.respondentId || r.visitorId || r.id || '').filter(Boolean)
+                    );
+
+                    const counts: Record<string, number> = {
+                      'CONFIÁVEL': 0,
+                      'REVISAR': 0,
+                      'SUSPEITO': 0,
+                      'CRÍTICO': 0
+                    };
+
+                    qualityAnalysis.respondents.forEach((r: any) => {
+                      const id = r.respondentId || r.id || r.visitorId || '';
+                      if (!id || !validIds.has(id)) return;
+
+                      if (!excludedIds.includes(id)) {
+                        const status = r.status || 'CONFIÁVEL';
+                        counts[status] = (counts[status] || 0) + 1;
+                      }
+                    });
+
+                    return counts;
+                  })();
+
+                  return (
+                    <div className="grid md:grid-cols-4 gap-4">
+                      <div className="bg-green-50 rounded-xl p-4 border border-green-200 text-center">
+                        <p className="text-3xl font-bold text-green-600">{adjustedStatusCounts['CONFIÁVEL'] || 0}</p>
+                        <p className="text-sm text-green-700">🟢 Confiáveis</p>
+                      </div>
+                      <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-center">
+                        <p className="text-3xl font-bold text-yellow-600">{adjustedStatusCounts['REVISAR'] || 0}</p>
+                        <p className="text-sm text-yellow-700">🟡 A Revisar</p>
+                      </div>
+                      <div className="bg-orange-50 rounded-xl p-4 border border-orange-200 text-center">
+                        <p className="text-3xl font-bold text-orange-600">{adjustedStatusCounts['SUSPEITO'] || 0}</p>
+                        <p className="text-sm text-orange-700">🟠 Suspeitos</p>
+                      </div>
+                      <div className="bg-red-50 rounded-xl p-4 border border-red-200 text-center">
+                        <p className="text-3xl font-bold text-red-600">{adjustedStatusCounts['CRÍTICO'] || 0}</p>
+                        <p className="text-sm text-red-700">🔴 Críticos</p>
                       </div>
                     </div>
-                    <div className="text-center">
-                      <p className={`text-4xl font-bold ${
-                        qualityAnalysis.overall?.qualityScore >= 80 ? 'text-green-600' :
-                        qualityAnalysis.overall?.qualityScore >= 60 ? 'text-yellow-600' : 'text-red-600'
-                      }`}>{qualityAnalysis.overall?.qualityScore}/100</p>
-                      <p className="text-sm text-gray-500">Score Médio</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Estatísticas */}
-                <div className="grid md:grid-cols-4 gap-4">
-                  <div className="bg-green-50 rounded-xl p-4 border border-green-200 text-center">
-                    <p className="text-3xl font-bold text-green-600">{qualityAnalysis.statistics?.byStatus?.CONFIÁVEL || 0}</p>
-                    <p className="text-sm text-green-700">🟢 Confiáveis</p>
-                  </div>
-                  <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-center">
-                    <p className="text-3xl font-bold text-yellow-600">{qualityAnalysis.statistics?.byStatus?.REVISAR || 0}</p>
-                    <p className="text-sm text-yellow-700">🟡 A Revisar</p>
-                  </div>
-                  <div className="bg-orange-50 rounded-xl p-4 border border-orange-200 text-center">
-                    <p className="text-3xl font-bold text-orange-600">{qualityAnalysis.statistics?.byStatus?.SUSPEITO || 0}</p>
-                    <p className="text-sm text-orange-700">🟠 Suspeitos</p>
-                  </div>
-                  <div className="bg-red-50 rounded-xl p-4 border border-red-200 text-center">
-                    <p className="text-3xl font-bold text-red-600">{qualityAnalysis.statistics?.byStatus?.CRÍTICO || 0}</p>
-                    <p className="text-sm text-red-700">🔴 Críticos</p>
-                  </div>
-                </div>
+                  );
+                })()}
 
                 {/* Tipos de Problemas Detectados */}
                 <div className="bg-white rounded-xl shadow-sm p-6">
@@ -2911,11 +3861,11 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       <div key={flag} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <span className="text-sm text-gray-600">
                           {flag === 'CR_ALTO' ? '⚠️ CR Alto' :
-                           flag === 'TUDO_IGUAL' ? '🔁 Tudo Igual' :
-                           flag === 'PADRAO_UNIFORME' ? '📏 Padrão Uniforme' :
-                           flag === 'VALORES_EXTREMOS' ? '📊 Valores Extremos' :
-                           flag === 'CONTRADICAO' ? '🔄 Contradições' :
-                           flag === 'POUCOS_JULGAMENTOS' ? '📝 Poucos Julgamentos' : flag}
+                            flag === 'TUDO_IGUAL' ? '🔁 Tudo Igual' :
+                              flag === 'PADRAO_UNIFORME' ? '📏 Padrão Uniforme' :
+                                flag === 'VALORES_EXTREMOS' ? '📊 Valores Extremos' :
+                                  flag === 'CONTRADICAO' ? '🔄 Contradições' :
+                                    flag === 'POUCOS_JULGAMENTOS' ? '📝 Poucos Julgamentos' : flag}
                         </span>
                         <span className={`font-bold ${(count as number) > 0 ? 'text-red-600' : 'text-green-600'}`}>
                           {count as number}
@@ -2925,71 +3875,193 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   </div>
                 </div>
 
-                {/* Lista de Respondentes */}
+
+                {/* ============================================ */}
+                {/* TABELA UNIFICADA DE RESPONDENTES             */}
+                {/* ============================================ */}
                 <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h4 className="font-semibold text-gray-800 mb-4">👥 Análise por Respondente</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-semibold text-gray-800">👥 Análise Individual dos Especialistas</h4>
+                    <p className="text-sm text-gray-500">
+                      Tabela de CR por respondente — essencial para dissertação
+                    </p>
+                  </div>
+
+                  {/* Barra de Ações (exclusão em lote) */}
+                  <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {selectedForExclusion.length > 0 && (
+                        <span className="text-sm text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full">
+                          {selectedForExclusion.length} selecionado(s)
+                        </span>
+                      )}
+                      {excludedIds.length > 0 && (
+                        <span className="text-sm text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
+                          ⚠️ {excludedIds.length} excluído(s)
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {selectedForExclusion.length > 0 && (
+                        <button
+                          onClick={handleBatchExclusion}
+                          disabled={isRecalculating}
+                          className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                        >
+                          🗑 Excluir {selectedForExclusion.length} Resposta(s)
+                        </button>
+                      )}
+                      {excludedIds.length > 0 && (
+                        <button
+                          onClick={handleRestoreAll}
+                          disabled={isRecalculating}
+                          className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 disabled:opacity-50"
+                        >
+                          ↩ Restaurar Todos ({excludedIds.length})
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tabela */}
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gray-50">
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">ID</th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700">Status</th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700">Score</th>
-                          <th className="px-4 py-3 text-center font-semibold text-gray-700">CR Médio</th>
+                          <th className="px-3 py-3 text-center w-10">
+                            <input
+                              type="checkbox"
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  // Selecionar apenas os não excluídos
+                                  const allActiveIds = getRespondentsList
+                                    .filter((r: any) => !excludedIds.includes(r.respondentId))
+                                    .map((r: any) => r.respondentId);
+                                  setSelectedForExclusion(allActiveIds);
+                                } else {
+                                  setSelectedForExclusion([]);
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-gray-300 text-indigo-600"
+                              title="Selecionar todos"
+                            />
+                          </th>
+                          <th className="px-4 py-3 text-left font-semibold text-gray-700">ID Respondente</th>
+                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Tipo</th>
+                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Score</th>
+                          <th className="px-3 py-3 text-center font-semibold text-gray-700">CR Médio</th>
+                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Status</th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">Problemas</th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">Recomendação</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {qualityAnalysis.respondents?.map((r: any, idx: number) => (
-                          <tr key={idx} className={`border-t ${
-                            r.status === 'CRÍTICO' ? 'bg-red-50' :
-                            r.status === 'SUSPEITO' ? 'bg-orange-50' :
-                            r.status === 'REVISAR' ? 'bg-yellow-50' : ''
-                          }`}>
-                            <td className="px-4 py-3 font-mono text-xs">
-                              {r.respondentId?.slice(0, 8)}...
-                              {r.isSimulated && <span className="ml-1 text-orange-500">(sim)</span>}
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                r.status === 'CONFIÁVEL' ? 'bg-green-100 text-green-800' :
-                                r.status === 'REVISAR' ? 'bg-yellow-100 text-yellow-800' :
-                                r.status === 'SUSPEITO' ? 'bg-orange-100 text-orange-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                                {r.status}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-center font-bold">{r.overallScore}</td>
-                            <td className={`px-4 py-3 text-center ${r.metrics?.avgCR > 0.10 ? 'text-red-600' : 'text-green-600'}`}>
-                              {(r.metrics?.avgCR * 100).toFixed(1)}%
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex flex-wrap gap-1">
-                                {r.flags?.map((f: any, fIdx: number) => (
-                                  <span key={fIdx} className={`px-2 py-0.5 rounded text-xs ${
-                                    f.severity === 'GRAVE' ? 'bg-red-100 text-red-700' :
-                                    f.severity === 'ALERTA' ? 'bg-yellow-100 text-yellow-700' :
-                                    'bg-gray-100 text-gray-700'
-                                  }`} title={f.details}>
-                                    {f.type.replace(/_/g, ' ')}
+                        {[...getRespondentsList]
+                          .sort((a: any, b: any) => (b.cr || 0) - (a.cr || 0))
+                          .map((r: any, idx: number) => {
+                            const isExcluded = excludedIds.includes(r.respondentId);
+                            const isSelected = selectedForExclusion.includes(r.respondentId);
+
+                            return (
+                              <tr key={idx} className={`border-t ${isExcluded ? 'opacity-40 bg-gray-50' :
+                                r.status === 'CRÍTICO' ? 'bg-red-50' :
+                                  r.status === 'SUSPEITO' ? 'bg-orange-50' :
+                                    r.status === 'REVISAR' ? 'bg-yellow-50' : ''
+                                }`}>
+                                {/* Checkbox */}
+                                <td className="px-3 py-3 text-center">
+                                  {isExcluded ? (
+                                    <span className="text-xs text-red-400">—</span>
+                                  ) : (
+                                    <input
+                                      type="checkbox"
+                                      checked={isSelected}
+                                      onChange={() => handleToggleSelection(r.respondentId)}
+                                      disabled={isRecalculating}
+                                      className="w-4 h-4 rounded border-gray-300 text-indigo-600"
+                                    />
+                                  )}
+                                </td>
+
+                                {/* ID / Email */}
+                                <td className="px-4 py-3">
+                                  <div className="flex flex-col">
+                                    <span className="font-medium text-sm truncate max-w-[220px]" title={respondentEmails[r.respondentId] || r.respondentId}>
+                                      {respondentEmails[r.respondentId] || r.respondentId}
+                                    </span>
+                                    {respondentEmails[r.respondentId] && (
+                                      <span className="text-xs text-gray-400 font-mono">#{r.respondentId?.slice(-6)}</span>
+                                    )}
+                                  </div>
+                                  {isExcluded && <span className="ml-2 text-red-500 font-medium text-xs">(Excluído)</span>}
+                                  {r.isSimulated && <span className="ml-1 text-orange-400 text-xs">(sim)</span>}
+                                </td>
+
+                                {/* Tipo */}
+                                <td className="px-3 py-3 text-center">
+                                  <span className="px-2 py-0.5 rounded text-xs bg-blue-50 text-blue-700">
+                                    {r.isSimulated ? 'Simulado' : 'Real'}
                                   </span>
-                                ))}
-                                {(!r.flags || r.flags.length === 0) && (
-                                  <span className="text-green-600">✓ Sem problemas</span>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 text-xs text-gray-600 max-w-xs">
-                              {r.recommendation}
-                            </td>
-                          </tr>
-                        ))}
+                                </td>
+
+                                {/* Score */}
+                                <td className="px-3 py-3 text-center font-bold">
+                                  {r.score ?? r.overallScore ?? '—'}
+                                </td>
+
+                                {/* CR Médio */}
+                                <td className={`px-3 py-3 text-center font-mono ${r.cr > 0.15 ? 'text-red-600 font-bold' :
+                                  r.cr > 0.10 ? 'text-yellow-600' : 'text-green-600'
+                                  }`}>
+                                  {((r.cr || 0) * 100).toFixed(2)}%
+                                </td>
+
+                                {/* Status */}
+                                <td className="px-3 py-3 text-center">
+                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.status === 'CONFIÁVEL' ? 'bg-green-100 text-green-800' :
+                                    r.status === 'REVISAR' ? 'bg-yellow-100 text-yellow-800' :
+                                      r.status === 'SUSPEITO' ? 'bg-orange-100 text-orange-800' :
+                                        'bg-red-100 text-red-800'
+                                    }`}>
+                                    {r.status}
+                                  </span>
+                                </td>
+
+                                {/* Problemas */}
+                                <td className="px-4 py-3">
+                                  <div className="flex flex-wrap gap-1">
+                                    {r.flags?.map((f: any, fIdx: number) => (
+                                      <span key={fIdx} className={`px-2 py-0.5 rounded text-xs ${f.severity === 'GRAVE' ? 'bg-red-100 text-red-700' :
+                                        f.severity === 'ALERTA' ? 'bg-yellow-100 text-yellow-700' :
+                                          'bg-gray-100 text-gray-700'
+                                        }`} title={f.details}>
+                                        {f.type?.replace(/_/g, ' ')}
+                                      </span>
+                                    ))}
+                                    {(!r.flags || r.flags.length === 0) && (
+                                      <span className="text-green-600 text-xs text-nowrap">✓ OK</span>
+                                    )}
+                                  </div>
+                                </td>
+
+                                {/* Recomendação */}
+                                <td className="px-4 py-3 text-xs text-gray-600 max-w-xs">
+                                  {r.recommendation || '—'}
+                                </td>
+                              </tr>
+                            );
+                          })}
                       </tbody>
                     </table>
                   </div>
+
+                  {/* Referência metodológica */}
+                  <p className="mt-4 text-xs text-gray-400">
+                    CR &gt; 10%: Inconsistente (Saaty, 1980) | CR &gt; 20%: Suspeito | Padrões uniformes: Gaming/desatenção (Forman &amp; Peniwati, 1998)
+                  </p>
                 </div>
+
+
               </>
             )}
 
@@ -2998,7 +4070,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
               <div className="text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-300">
                 <p className="text-4xl mb-4">🔍</p>
                 <p className="text-gray-600 mb-2">
-                  {projectResponses.length > 0 
+                  {projectResponses.length > 0
                     ? `${projectResponses.length} respostas disponíveis para análise`
                     : 'Nenhuma resposta encontrada para este projeto'}
                 </p>
@@ -3013,15 +4085,56 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         {/* ==================================================
             TAB: CONSISTÊNCIA
         ================================================== */}
-        {activeTab === 'consistency' && (
+        {activeTab === 'quality' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Dashboard de Consistência</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Índice de Consistência (CR) ≤ 10% é aceitável segundo Saaty (1980). 
+                Índice de Consistência (CR) ≤ 10% é aceitável segundo Saaty (1980).
                 Resultados em <span className="text-red-600 font-medium">vermelho</span> requerem revisão.
               </p>
-              
+
+              {/* Gauge Visual - Consistência Global */}
+              <div className="grid md:grid-cols-2 gap-8 mb-8">
+                <div className="flex items-center justify-center">
+                  <ChartDownloadWrapper filename="consistency-gauge" title="Consistência Global (CR)">
+                  <ConsistencyGaugeChart
+                    cr={calculation.bocrConsistency.cr}
+                    lambda={calculation.bocrConsistency.lambda}
+                    ci={calculation.bocrConsistency.ci}
+                    height={280}
+                    showDetails={true}
+                  />
+                  </ChartDownloadWrapper>
+                </div>
+                <div className="flex flex-col justify-center space-y-4">
+                  <h4 className="font-semibold text-gray-800">Interpretação do CR</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg">
+                      <div className="w-4 h-4 rounded-full bg-emerald-500" />
+                      <div>
+                        <p className="font-medium text-emerald-800">CR ≤ 10%</p>
+                        <p className="text-xs text-emerald-600">Consistência aceitável</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg">
+                      <div className="w-4 h-4 rounded-full bg-amber-500" />
+                      <div>
+                        <p className="font-medium text-amber-800">10% &lt; CR ≤ 15%</p>
+                        <p className="text-xs text-amber-600">Consistência marginal - considere revisão</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
+                      <div className="w-4 h-4 rounded-full bg-red-500" />
+                      <div>
+                        <p className="font-medium text-red-800">CR &gt; 15%</p>
+                        <p className="text-xs text-red-600">Inconsistência alta - revisão necessária</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -3039,14 +4152,14 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       <td className={`px-4 py-3 text-center font-mono ${calculation.bocrConsistency.cr > 0.10 ? 'text-red-600 font-bold' : ''}`}>
                         {formatPercent(calculation.bocrConsistency.cr)}
                       </td>
-                      <td className="px-4 py-3 text-center font-mono">{calculation.bocrConsistency.lambda.toFixed(4)}</td>
+                      <td className="px-4 py-3 text-center font-mono">{(calculation.bocrConsistency.lambda || 0).toFixed(4)}</td>
                       <td className="px-4 py-3 text-center">
                         <span className={`px-2 py-1 rounded text-xs font-medium ${getCRStatus(calculation.bocrConsistency.cr).bg} ${getCRStatus(calculation.bocrConsistency.cr).color}`}>
                           {getCRStatus(calculation.bocrConsistency.cr).status}
                         </span>
                       </td>
                     </tr>
-                    
+
                     {/* Subcritérios */}
                     {['B', 'O', 'C', 'R'].map(merit => {
                       const cons = calculation.subConsistency[merit];
@@ -3058,7 +4171,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                           <td className={`px-4 py-3 text-center font-mono ${cons.cr > 0.10 ? 'text-red-600 font-bold' : ''}`}>
                             {formatPercent(cons.cr)}
                           </td>
-                          <td className="px-4 py-3 text-center font-mono">{cons.lambda.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{(cons.lambda || 0).toFixed(4)}</td>
                           <td className="px-4 py-3 text-center">
                             <span className={`px-2 py-1 rounded text-xs font-medium ${getCRStatus(cons.cr).bg} ${getCRStatus(cons.cr).color}`}>
                               {getCRStatus(cons.cr).status}
@@ -3088,24 +4201,36 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         {/* ==================================================
             TAB: PESOS
         ================================================== */}
-        {activeTab === 'weights' && (
+        {activeTab === 'results' && (
           <div className="space-y-6">
-            {/* Pesos BOCR - Componente Interativo */}
-            <BOCRPieChart bocrWeights={calculation.bocrWeights} />
+            {/* Sunburst - Hierarquia BOCR Interativa */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                Vetor de Prioridades Estratégicas (BOCR)
+              </h3>
+              <ChartDownloadWrapper filename="bocr-sunburst" title="Vetor de Prioridades Estratégicas (BOCR)">
+              <BOCRSunburstChart
+                bocrWeights={calculation.bocrWeights}
+                subWeights={calculation.subWeights}
+                height={550}
+                showLabels={true}
+              />
+              </ChartDownloadWrapper>
+            </div>
 
             {/* Pesos dos Subcritérios */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Pesos Globais dos Subcritérios</h3>
-              
+
               <div className="grid md:grid-cols-2 gap-6">
                 {['B', 'O', 'C', 'R'].map(merit => {
                   const weights = calculation.subWeights[merit];
                   if (!weights) return null;
-                  
+
                   const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
                   const subs = SUBCRITERIA.filter(s => s.group === merit);
                   const meritWeight = calculation.bocrWeights[['B', 'O', 'C', 'R'].indexOf(merit)] || 0;
-                  
+
                   return (
                     <div key={merit} className="border rounded-lg p-4">
                       <h4 className="font-medium text-gray-700 mb-3">{meritName}</h4>
@@ -3135,256 +4260,83 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   );
                 })}
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* ==================================================
-            TAB: RANKING
-        ================================================== */}
-        {activeTab === 'ranking' && (
-          <div className="space-y-6">
-            {/* Ranking por Método */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Ranking Final - 5 Métodos de Síntese</h3>
-              <p className="text-sm text-gray-500 mb-4">
-                Conforme Petrillo, Salomon & Tramarico (2023), a concordância entre múltiplos métodos aumenta a robustez da decisão.
-              </p>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">#</th>
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Alternativa</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Aditivo</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Probabilístico</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700" title="Valores brutos (bB + oO - cC - rR)">Subtrativo*</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Mult. Potências</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Mult. Simples</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {[...calculation.finalScores]
-                      .sort((a, b) => (b.scoreAdditive || 0) - (a.scoreAdditive || 0))
-                      .map((alt, idx) => (
-                        <tr key={idx} className={`border-b ${idx === 0 ? 'bg-green-50' : ''}`}>
-                          <td className="px-4 py-3">
-                            {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : idx + 1}
-                          </td>
-                          <td className="px-4 py-3 font-medium">{alt.name}</td>
-                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreAdditive || 0).toFixed(4)}</td>
-                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreProbabilistic || 0).toFixed(4)}</td>
-                          <td className={`px-4 py-3 text-center font-mono ${(alt.scoreSubtractiveNorm || 0) < 0 ? 'text-red-600' : ''}`}>
-                            {(alt.scoreSubtractiveNorm || 0).toFixed(4)}
-                          </td>
-                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreMultPowersNorm || 0).toFixed(4)}</td>
-                          <td className="px-4 py-3 text-center font-mono">{(alt.scoreMultSimpleNorm || 0).toFixed(4)}</td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
 
-              {/* Fórmulas de Síntese BOCR */}
-              <div className="mt-6">
-                <h4 className="font-semibold text-gray-800 mb-4">Fórmulas de Síntese BOCR (Petrillo et al., 2023)</h4>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
-                    <h5 className="font-medium text-indigo-800 mb-2">1. Aditiva</h5>
-                    <p className="text-sm text-indigo-700 font-mono">
-                      Score = b·B + o·O + c·(1-C) + r·(1-R)
-                    </p>
-                    <p className="text-xs text-indigo-600 mt-2">C e R invertidos (quanto menor, melhor)</p>
-                  </div>
-                  <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h5 className="font-medium text-purple-800 mb-2">2. Probabilística</h5>
-                    <p className="text-sm text-purple-700 font-mono">
-                      Score = b·B + o·O + c·(1-C) + r·(1-R)
-                    </p>
-                    <p className="text-xs text-purple-600 mt-2">Normalização probabilística</p>
-                  </div>
-                  <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <h5 className="font-medium text-blue-800 mb-2">3. Subtrativa*</h5>
-                    <p className="text-sm text-blue-700 font-mono">
-                      Score = b·B + o·O - c·C - r·R
-                    </p>
-                    <p className="text-xs text-blue-600 mt-2">
-                      Wijnmalen (2007) - <strong>Valores brutos</strong> (pode ser negativo)
-                    </p>
-                  </div>
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <h5 className="font-medium text-green-800 mb-2">4. Multiplicativa (Potências)</h5>
-                    <p className="text-sm text-green-700 font-mono">
-                      Score = B<sup>b</sup> · O<sup>o</sup> / (C<sup>c</sup> · R<sup>r</sup>)
-                    </p>
-                    <p className="text-xs text-green-600 mt-2">Pesos como expoentes</p>
-                  </div>
-                  <div className="p-4 bg-amber-50 rounded-lg border border-amber-200">
-                    <h5 className="font-medium text-amber-800 mb-2">5. Multiplicativa (Simples)</h5>
-                    <p className="text-sm text-amber-700 font-mono">
-                      Score = (B · O) / (C · R)
-                    </p>
-                    <p className="text-xs text-amber-600 mt-2">Razão direta sem pesos</p>
-                  </div>
+              {/* TABELA BOCR PRIORITIES */}
+              {calculation.bocrPrioritiesTable && (
+                <div className="mt-8 bg-slate-50 rounded-xl p-6">
+                  <BOCRPrioritiesTable
+                    priorities={calculation.bocrPrioritiesTable}
+                    showReciprocals={true}
+                  />
                 </div>
-              </div>
+              )}
 
-              {/* Nota sobre Normalização */}
+              {/* ALERTA DE PRIORIDADES NEGATIVAS */}
+              {calculation.alerts?.hasNegativePriorities && (
+                <div className="mt-8">
+                  <NegativePriorityAlert
+                    negativeAlternatives={calculation.alerts.negativeAlternatives}
+                    totalAlternatives={calculation.finalScores.length}
+                  />
+                </div>
+              )}
+
+              {/* TABELA COMPARATIVA DE MÉTODOS */}
+              {calculation.finalScores && (
+                <div className="mt-8 bg-slate-50 rounded-xl p-6">
+                  <MethodComparisonTable
+                    scores={calculation.finalScores}
+                    concordance={calculation.methodConcordance}
+                  />
+                </div>
+              )}
+
+              {/* ANÁLISE DE SENSIBILIDADE (REMOVIDO - DUPLICIDADE) */}
+              {/* O componente foi movido para a aba Robustez conforme solicitação do usuário */}
+
+              {/* Nota sobre Normalização e Referências */}
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
-                  <strong>* Convenção de Normalização:</strong><br />
-                  • <strong>Aditivo, Probabilístico, Multiplicativos:</strong> Modo Distributivo (Σ = 1). Permite comparar proporções entre alternativas.<br />
-                  • <strong>Subtrativo:</strong> Valores brutos (Raw Scores). Pode ser negativo, indicando "Prejuízo Líquido" de utilidade. Conforme Wijnmalen (2007), a magnitude absoluta é preservada para análise científica.
-                </p>
-              </div>
-
-              {/* Referência */}
-              <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-700">
-                  <strong>Referências Metodológicas:</strong><br />
-                  • SAATY, T.L. (1980). The Analytic Hierarchy Process. McGraw-Hill, New York.<br />
-                  • WIJNMALEN, D.J.D. (2007). Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP. 
-                  <em>Mathematical and Computer Modelling</em>, 46(7-8), 892-905.<br />
-                  • PETRILLO, A.; SALOMON, V.A.P.; TRAMARICO, C.L. (2023). State-of-the-Art Review on Analytic Hierarchy Process with Benefits, Opportunities, Costs and Risks. <em>JRFM</em>, 16(8), 372.
+                  <strong>Convenções e Referências — Petrillo et al. (2023):</strong><br />
+                  • <strong>⭐ Subtrativo (Eq.1, Principal):</strong> b·B + o·O − c·C − r·R. Valor bruto (pode ser negativo). Único com consenso. <em>Wijnmalen (2007)</em><br />
+                  • <strong>Recíprocos (Eq.2):</strong> b·B + o·O + c·(1/C) + r·(1/R). Inversão de C e R. <em>Saaty & Peniwati (2008)</em><br />
+                  • <strong>Adit. Residual (Eq.3):</strong> b·B + o·O + c·(1−C) + r·(1−R). Sempre positivo. <em>Demirtas & Üstün (2008)</em><br />
+                  • <strong>Mult. Potências (Eq.4):</strong> B<sup>b</sup>·O<sup>o</sup> / C<sup>c</sup>·R<sup>r</sup>. Tradeoff exponencial. <em>Saaty (2005)</em><br />
+                  • <strong>Mult. Simples (Eq.5):</strong> (B·O) / (C·R). Ratio direto sem pesos. <em>Petrillo et al. (2023)</em>
                 </p>
               </div>
             </div>
           </div>
-        )}
-        {/* ==================================================
-            TAB: QUALIDADE DA DECISÃO
-        ================================================== */}
-        {activeTab === 'quality' && calculation && (
-          <QualityAnalysis 
-            results={calculation}
-            responseCount={calculation.responseCount || 0}
-          />
         )}
 
         {/* ==================================================
             TAB: SENSIBILIDADE
         ================================================== */}
-        {activeTab === 'sensitivity' && (
+        {activeTab === 'robustness' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Análise de Sensibilidade</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Mostra como o ranking mudaria se os pesos dos méritos fossem alterados. 
+                Mostra como o ranking mudaria se os pesos dos méritos fossem alterados.
                 Pontos de inflexão indicam onde ocorreria inversão no ranking.
               </p>
-              
-              {/* Pontos de Inflexão */}
-              <div className="grid md:grid-cols-4 gap-4 mb-6">
-                {['B', 'O', 'C', 'R'].map(merit => {
-                  const inflection = calculation.sensitivityInflections?.[merit] ?? null;
-                  const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
-                  const currentWeight = (calculation.bocrWeights?.[['B', 'O', 'C', 'R'].indexOf(merit)] || 0) * 100;
-                  
-                  return (
-                    <div key={merit} className={`p-4 rounded-lg border-2 ${inflection !== null ? 'border-amber-300 bg-amber-50' : 'border-green-300 bg-green-50'}`}>
-                      <h4 className="font-medium text-gray-700">{meritName}</h4>
-                      <p className="text-sm text-gray-500">Peso atual: {currentWeight.toFixed(1)}%</p>
-                      {inflection !== null ? (
-                        <p className="text-amber-700 font-medium mt-2">
-                          ⚠️ Inversão em {inflection}%
-                        </p>
-                      ) : (
-                        <p className="text-green-700 font-medium mt-2">
-                          ✓ Estável (sem inversão)
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
 
-              {/* Gráfico de Sensibilidade Simplificado */}
-              <div className="border rounded-lg p-4">
-                <h4 className="font-medium text-gray-700 mb-4">Variação do Score por Peso do Mérito</h4>
-                <div className="space-y-6">
-                  {['B', 'O', 'C', 'R'].map(merit => {
-                    const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
-                    const currentWeight = calculation.bocrWeights?.[['B', 'O', 'C', 'R'].indexOf(merit)] || 0;
-                    const inflection = calculation.sensitivityInflections?.[merit] ?? null;
-                    
-                    // Calcular scores para diferentes pesos (simulação simplificada)
-                    const sortedAlts = [...(calculation.finalScores || [])].sort((a, b) => 
-                      (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
-                    );
-                    const winner = sortedAlts[0];
-                    const runnerUp = sortedAlts[1];
-                    
-                    return (
-                      <div key={merit}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium">{meritName}</span>
-                          <span className="text-xs text-gray-500">Peso atual: {(currentWeight * 100).toFixed(1)}%</span>
-                        </div>
-                        <div className="relative h-12 bg-gray-100 rounded overflow-hidden">
-                          {/* Barra de sensibilidade */}
-                          <div className="absolute inset-0 flex">
-                            {inflection !== null ? (
-                              <>
-                                <div 
-                                  className="bg-green-400 h-full"
-                                  style={{ width: `${inflection}%` }}
-                                  title={`${winner?.name} vence até ${inflection}%`}
-                                ></div>
-                                <div 
-                                  className="bg-amber-400 h-full"
-                                  style={{ width: `${100 - inflection}%` }}
-                                  title={`${runnerUp?.name} vence após ${inflection}%`}
-                                ></div>
-                              </>
-                            ) : (
-                              <div className="bg-green-400 h-full w-full" title={`${winner?.name} vence em qualquer peso`}></div>
-                            )}
-                          </div>
-                          {/* Marcador do peso atual */}
-                          <div 
-                            className="absolute top-0 bottom-0 w-1 bg-indigo-600"
-                            style={{ left: `${currentWeight * 100}%` }}
-                          >
-                            <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-indigo-600 rounded-full"></div>
-                          </div>
-                          {/* Marcador de inflexão */}
-                          {inflection !== null && (
-                            <div 
-                              className="absolute top-0 bottom-0 w-0.5 bg-red-500 border-l border-dashed"
-                              style={{ left: `${inflection}%` }}
-                            >
-                              <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs text-red-600 whitespace-nowrap">
-                                {inflection}%
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex justify-between text-xs text-gray-400 mt-1">
-                          <span>0%</span>
-                          <span>100%</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                
-                {/* Legenda */}
-                <div className="flex gap-6 mt-6 justify-center text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-green-400 rounded"></div>
-                    <span>Ranking estável</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-amber-400 rounded"></div>
-                    <span>Ranking inverte</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 bg-indigo-600 rounded"></div>
-                    <span>Peso atual</span>
-                  </div>
-                </div>
-              </div>
+              <ChartDownloadWrapper filename="sensitivity-analysis" title="Análise de Sensibilidade">
+              <SensitivityAnalysisPanel
+                sensitivityAnalysis={(calculation.sensitivityAnalysis || []).map((item, idx) => ({
+                  ...item,
+                  currentWeight: item.currentWeight ?? (
+                    item.merit === 'B' ? (calculation.bocrWeights[0] || 0) * 100 :
+                      item.merit === 'O' ? (calculation.bocrWeights[1] || 0) * 100 :
+                        item.merit === 'C' ? (calculation.bocrWeights[2] || 0) * 100 :
+                          item.merit === 'R' ? (calculation.bocrWeights[3] || 0) * 100 : undefined
+                  )
+                }))}
+                sensitivityTrajectories={sensitivityTrajectories}
+                currentWinner={calculation.ranking?.[0]?.code || ''}
+              />
+              </ChartDownloadWrapper>
             </div>
 
             {/* Implicações Práticas da Sensibilidade */}
@@ -3395,25 +4347,24 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                 const inf = calculation.sensitivityInflections?.[m];
                 return inf !== null && inf !== undefined && inf <= 10;
               }).map(m => meritNames[meritLabels.indexOf(m)]);
-              
+
               const sensitiveMetrics = meritLabels.filter(m => {
                 const inf = calculation.sensitivityInflections?.[m];
                 return inf !== null && inf !== undefined && inf > 10 && inf <= 20;
               }).map(m => meritNames[meritLabels.indexOf(m)]);
-              
+
               const isRobust = criticalMetrics.length === 0 && sensitiveMetrics.length === 0;
-              
+
               return (
-                <div className={`rounded-xl shadow-sm p-6 ${
-                  isRobust ? 'bg-green-50 border border-green-200' : 
-                  criticalMetrics.length > 0 ? 'bg-red-50 border border-red-200' : 
-                  'bg-amber-50 border border-amber-200'
-                }`}>
+                <div className={`rounded-xl shadow-sm p-6 ${isRobust ? 'bg-green-50 border border-green-200' :
+                  criticalMetrics.length > 0 ? 'bg-red-50 border border-red-200' :
+                    'bg-amber-50 border border-amber-200'
+                  }`}>
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    {isRobust ? '✅' : criticalMetrics.length > 0 ? '⚠️' : '📊'} 
+                    {isRobust ? '✅' : criticalMetrics.length > 0 ? '⚠️' : '📊'}
                     Implicações Práticas da Sensibilidade
                   </h3>
-                  
+
                   {isRobust ? (
                     <div className="space-y-3">
                       <p className="text-green-800 font-medium">
@@ -3453,23 +4404,26 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
 
             {/* Análise de Desempate (quando diferença < 5%) */}
             {(() => {
-              const sorted = [...(calculation.finalScores || [])].sort((a, b) => 
-                (b.scoreAdditive || 0) - (a.scoreAdditive || 0)
+              // CORRIGIDO: Usar scoreSubtractiveNorm (método principal com consenso)
+              const sorted = [...(calculation.finalScores || [])].sort((a, b) =>
+                (b.scoreSubtractiveNorm ?? b.scoreSubtractive ?? 0) - (a.scoreSubtractiveNorm ?? a.scoreSubtractive ?? 0)
               );
               const first = sorted[0];
               const second = sorted[1];
-              
+
               if (!first || !second) return null;
-              
-              const diff = Math.abs((first.scoreAdditive || 0) - (second.scoreAdditive || 0)) * 100;
-              
+
+              const firstScore = first.scoreSubtractiveNorm ?? first.scoreSubtractive ?? 0;
+              const secondScore = second.scoreSubtractiveNorm ?? second.scoreSubtractive ?? 0;
+              const diff = Math.abs(firstScore - secondScore) * 100;
+
               if (diff >= 5) return null;
-              
+
               const firstPositive = (first.B || 0) + (first.O || 0);
               const secondPositive = (second.B || 0) + (second.O || 0);
               const firstNegative = (first.C || 0) + (first.R || 0);
               const secondNegative = (second.C || 0) + (second.R || 0);
-              
+
               return (
                 <div className="bg-white rounded-xl shadow-sm p-6 border-2 border-indigo-200">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -3478,11 +4432,11 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       Diferença &lt; 5%
                     </span>
                   </h3>
-                  
+
                   <p className="text-sm text-gray-600 mb-4">
                     Como a diferença entre as alternativas é marginal ({diff.toFixed(2)}%), apresentamos critérios adicionais para auxiliar na decisão:
                   </p>
-                  
+
                   {/* Tabela de Comparação */}
                   <div className="overflow-x-auto mb-6">
                     <table className="w-full text-sm">
@@ -3496,9 +4450,9 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       </thead>
                       <tbody className="divide-y divide-gray-100">
                         <tr>
-                          <td className="px-4 py-3 text-gray-600">Score Final</td>
-                          <td className="px-4 py-3 text-center font-mono">{(first.scoreAdditive || 0).toFixed(4)}</td>
-                          <td className="px-4 py-3 text-center font-mono">{(second.scoreAdditive || 0).toFixed(4)}</td>
+                          <td className="px-4 py-3 text-gray-600">Score Final (Subtrativo)</td>
+                          <td className="px-4 py-3 text-center font-mono">{firstScore.toFixed(4)}</td>
+                          <td className="px-4 py-3 text-center font-mono">{secondScore.toFixed(4)}</td>
                           <td className="px-4 py-3 text-center">
                             <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs">{first.name}</span>
                           </td>
@@ -3546,7 +4500,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       </tbody>
                     </table>
                   </div>
-                  
+
                   {/* Recomendação */}
                   <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
                     <h4 className="font-semibold text-indigo-800 mb-2">💡 Recomendação de Desempate</h4>
@@ -3563,58 +4517,524 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                 </div>
               );
             })()}
+
+            {/* ==================================================
+                SUMÁRIO DE VALIDAÇÃO - Interpretação Automática
+            ================================================== */}
+            <div className="bg-gradient-to-br from-slate-50 to-indigo-50 rounded-xl shadow-sm p-6 border border-indigo-100">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                <span className="text-2xl">🎯</span> Sumário de Validação
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Interpretação automática baseada na análise crítica da literatura BOCR
+              </p>
+
+              {(() => {
+                // Preparar dados para interpretação
+                const sortedAlts = [...(calculation.finalScores || [])]
+                  .sort((a, b) => (b.scoreSubtractive || b.scoreSubtractiveNorm || 0) - (a.scoreSubtractive || a.scoreSubtractiveNorm || 0));
+                const winner = sortedAlts[0];
+                const second = sortedAlts[1];
+
+                // FIX BUG 2: Usar scores brutos para calcular gap real (evita inflação do min-max)
+                const winnerScore = winner?.scoreSubtractive ?? 0;
+                const secondScore = second?.scoreSubtractive ?? 0;
+
+                // Usar funções do knowledge.ts
+                const gapAnalysis = interpretDominanceGap(winnerScore, secondScore);
+
+                // Consistência
+                const avgCR = calculation.bocrConsistency?.cr || 0;
+                const crAnalysis = interpretConsistencyRatio(avgCR);
+
+                // Sensibilidade
+                const sensitivityResults = ['B', 'O', 'C', 'R'].map(merit => ({
+                  merit,
+                  name: MERIT_LABELS[merit]?.name || merit,
+                  ...interpretSensitivity(
+                    calculation.sensitivityInflections?.[merit] ?? null,
+                    MERIT_LABELS[merit]?.name || merit
+                  )
+                }));
+
+                // FIX BUG 1: Contar todos os status não-robustos (crítico, sensível, moderado)
+                const nonRobustMerits = sensitivityResults.filter(s =>
+                  ['critical', 'sensitive', 'moderate'].includes(s.status)
+                );
+                const hasCritical = sensitivityResults.some(s => s.status === 'critical');
+                const robustMerits = sensitivityResults.filter(s => s.status === 'robust');
+
+                // Concordância entre métodos
+                const methodsConfig = [
+                  { id: 'subtractive', key: 'scoreSubtractive' },
+                  { id: 'additiveResidual', key: 'scoreAdditiveResidual' },
+                  { id: 'multiplicative', key: 'scoreMultiplicative' },
+                  { id: 'reciprocal', key: 'scoreQuotientSums' },
+                  { id: 'multSimple', key: 'scoreMultSimple' }
+                ];
+
+                const rankings: Record<string, string[]> = {};
+                methodsConfig.forEach(config => {
+                  const sorted = [...(calculation.finalScores || [])]
+                    .sort((a, b) => {
+                      // Tentar encontrar score na propriedade direta ou no objeto scores
+                      const scoreA = (a as any)[config.key] ?? (a as any)[config.key + 'Norm'] ?? 0;
+                      const scoreB = (b as any)[config.key] ?? (b as any)[config.key + 'Norm'] ?? 0;
+                      return scoreB - scoreA;
+                    });
+                  rankings[config.id] = sorted.map(s => s.code || s.name);
+                });
+                const methodAgreement = interpretMethodAgreement(rankings);
+
+                // Score negativo?
+                const negativeScores = calculation.finalScores?.filter(
+                  (s: any) => (s.scoreSubtractive || 0) < 0
+                ) || [];
+
+                return (
+                  <div className="space-y-4">
+                    {/* Indicadores Principais */}
+                    <div className="grid md:grid-cols-4 gap-4">
+                      {/* Resultado Principal */}
+                      <div className={`p-4 rounded-lg border-2 ${gapAnalysis.status === 'clear' ? 'border-emerald-300 bg-emerald-50' :
+                        gapAnalysis.status === 'moderate' ? 'border-blue-300 bg-blue-50' :
+                          'border-amber-300 bg-amber-50'
+                        }`}>
+                        <div className="text-xs text-gray-500 mb-1">Dominância</div>
+                        <div className="text-2xl font-bold text-gray-800">{(gapAnalysis?.gap || 0).toFixed(1)}%</div>
+                        <div className={`text-sm font-medium ${gapAnalysis.status === 'clear' ? 'text-emerald-700' :
+                          gapAnalysis.status === 'moderate' ? 'text-blue-700' :
+                            'text-amber-700'
+                          }`}>
+                          {gapAnalysis.status === 'clear' ? '✅ Clara' :
+                            gapAnalysis.status === 'moderate' ? '👍 Moderada' : '⚠️ Empate'}
+                        </div>
+                      </div>
+
+                      {/* Consistência */}
+                      <div className={`p-4 rounded-lg border-2 ${crAnalysis.status === 'excellent' ? 'border-emerald-300 bg-emerald-50' :
+                        crAnalysis.status === 'acceptable' ? 'border-blue-300 bg-blue-50' :
+                          'border-red-300 bg-red-50'
+                        }`}>
+                        <div className="text-xs text-gray-500 mb-1">Consistência (CR)</div>
+                        <div className="text-2xl font-bold text-gray-800">{(avgCR * 100).toFixed(1)}%</div>
+                        <div className={`text-sm font-medium ${crAnalysis.status === 'excellent' ? 'text-emerald-700' :
+                          crAnalysis.status === 'acceptable' ? 'text-blue-700' :
+                            'text-red-700'
+                          }`}>
+                          {crAnalysis.status === 'excellent' ? '✅ Excelente' :
+                            crAnalysis.status === 'acceptable' ? '👍 Aceitável' : '❌ Inconsistente'}
+                        </div>
+                      </div>
+
+                      {/* Concordância Métodos */}
+                      <div className={`p-4 rounded-lg border-2 ${methodAgreement.agreementLevel === 'full' ? 'border-emerald-300 bg-emerald-50' :
+                        methodAgreement.agreementLevel === 'majority' ? 'border-blue-300 bg-blue-50' :
+                          'border-amber-300 bg-amber-50'
+                        }`}>
+                        <div className="text-xs text-gray-500 mb-1">Concordância</div>
+                        <div className="text-2xl font-bold text-gray-800">{(methodAgreement?.percentage || 0).toFixed(0)}%</div>
+                        <div className={`text-sm font-medium ${methodAgreement.agreementLevel === 'full' ? 'text-emerald-700' :
+                          methodAgreement.agreementLevel === 'majority' ? 'text-blue-700' :
+                            'text-amber-700'
+                          }`}>
+                          {methodAgreement.agreementLevel === 'full' ? '✅ Total' :
+                            methodAgreement.agreementLevel === 'majority' ? '👍 Majoritária' : '⚠️ Parcial'}
+                        </div>
+                      </div>
+
+                      {/* Robustez */}
+                      <div className={`p-4 rounded-lg border-2 ${nonRobustMerits.length === 0 ? 'border-emerald-300 bg-emerald-50' :
+                        !hasCritical ? 'border-amber-300 bg-amber-50' :
+                          'border-red-300 bg-red-50'
+                        }`}>
+                        <div className="text-xs text-gray-500 mb-1">Sensibilidade</div>
+                        <div className="text-2xl font-bold text-gray-800">{nonRobustMerits.length}/4</div>
+                        <div className={`text-sm font-medium ${nonRobustMerits.length === 0 ? 'text-emerald-700' :
+                          !hasCritical ? 'text-amber-700' :
+                            'text-red-700'
+                          }`}>
+                          {hasCritical ? '❌ Crítico' :
+                            nonRobustMerits.length > 0 ? '⚠️ Sensível' :
+                              '✅ Robusto'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Interpretação Textual Automática */}
+                    <div className="p-4 bg-white rounded-lg border border-gray-200">
+                      <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <span>📝</span> Interpretação Automática
+                      </h4>
+                      <div className="space-y-3 text-sm text-gray-700">
+                        {/* Resultado Principal */}
+                        <p>
+                          <strong>Resultado:</strong> A alternativa <strong className="text-emerald-700">"{winner?.name}"</strong> é
+                          a recomendação pelo método Subtrativo (consenso na literatura), com score
+                          normalizado de <strong>{(winnerScore * 100).toFixed(1)}%</strong>.
+                          {gapAnalysis.status === 'clear' && (
+                            <span className="text-emerald-600"> Dominância clara com gap de {(gapAnalysis?.gap || 0).toFixed(1)}% sobre o segundo colocado.</span>
+                          )}
+                          {gapAnalysis.status === 'tie' && (
+                            <span className="text-amber-600"> ⚠️ Empate técnico - considerar análise qualitativa adicional.</span>
+                          )}
+                        </p>
+
+                        {/* Consistência */}
+                        <p>
+                          <strong>Qualidade dos dados:</strong> {crAnalysis.message}
+                          {crAnalysis.status === 'critical' && (
+                            <span className="text-red-600"> Recomenda-se revisão dos julgamentos inconsistentes.</span>
+                          )}
+                        </p>
+
+                        {/* Concordância */}
+                        <p>
+                          <strong>Validação cruzada:</strong> {(methodAgreement?.percentage || 0).toFixed(0)}% dos métodos
+                          ({methodsConfig.length - methodAgreement.divergences.length} de {methodsConfig.length})
+                          concordam com a recomendação.
+                          {methodAgreement.agreementLevel === 'full' && (
+                            <span className="text-emerald-600"> Alta confiança na decisão.</span>
+                          )}
+                          {methodAgreement.divergences.length > 0 && (
+                            <span className="text-gray-500"> Métodos divergentes: {methodAgreement.divergences.join(', ')}.</span>
+                          )}
+                        </p>
+
+                        {/* Sensibilidade */}
+                        {(() => {
+                          if (hasCritical) {
+                            const criticalNames = sensitivityResults
+                              .filter(s => s.status === 'critical')
+                              .map(s => `${s.name} (${s.inflectionPoint}%)`)
+                              .join(', ');
+                            return (
+                              <p className="text-red-700">
+                                <strong>⚠️ ATENÇÃO:</strong> {nonRobustMerits.length} de {sensitivityResults.length} méritos apresentam sensibilidade.
+                                Pontos de inflexão críticos em: {criticalNames}. Pequenas variações podem inverter o ranking.
+                              </p>
+                            );
+                          } else if (nonRobustMerits.length > 0) {
+                            return (
+                              <p className="text-amber-700">
+                                <strong>⚠️ Atenção:</strong> O ranking apresenta sensibilidade moderada em {nonRobustMerits.length} de {sensitivityResults.length} méritos.
+                              </p>
+                            );
+                          } else {
+                            return (
+                              <p className="text-emerald-700">
+                                <strong>✅ Robustez:</strong> O ranking é estável para variações nos pesos BOCR.
+                              </p>
+                            );
+                          }
+                        })()}
+
+                        {/* Scores Negativos */}
+                        {negativeScores.length > 0 && (
+                          <p className="text-red-700">
+                            <strong>⚠️ Alerta:</strong> {negativeScores.length} alternativa(s) apresentam score
+                            subtrativo negativo ({negativeScores.map((s: any) => s.name).join(', ')}),
+                            indicando que custos e riscos superam os benefícios esperados.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Fundamentação Metodológica Resumida */}
+                    <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                      <h4 className="font-semibold text-indigo-800 mb-2 flex items-center gap-2">
+                        <span>📚</span> Fundamentação Metodológica
+                      </h4>
+                      <p className="text-sm text-indigo-700">
+                        O método <strong>Subtrativo</strong> (Score = b·B + o·O - c·C - r·R) foi utilizado
+                        como principal por ser o <strong>único com consenso total</strong> na literatura AHP-BOCR:
+                        Wijnmalen (2007) Eq. 17, Demirtas & Ustun (2008) Eq. 3, e Petrillo et al. (2023).
+                        Este método é particularmente adequado para avaliação de investimentos em Indústria 4.0
+                        pois permite identificar alternativas com valor líquido negativo (prejuízo).
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* ==================================================
+                VALIDAÇÃO METODOLÓGICA - Fundamentação Acadêmica
+            ================================================== */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">📚 Validação Metodológica</h3>
+              <p className="text-sm text-gray-500 mb-6">
+                Fundamentação acadêmica dos métodos de síntese BOCR utilizados
+              </p>
+
+              {/* Análise Crítica da Literatura - Baseado em Petrillo et al. (2023) */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <span className="text-xl">📖</span> Análise Crítica da Literatura
+                </h4>
+                <p className="text-xs text-gray-500 mb-3">
+                  Métodos selecionados conforme revisão state-of-the-art de Petrillo, Salomon & Tramarico (2023)
+                </p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-gray-100">
+                        <th className="px-3 py-2 text-left font-semibold text-gray-700 border">Método</th>
+                        <th className="px-3 py-2 text-center font-semibold text-gray-700 border">Petrillo (2023)</th>
+                        <th className="px-3 py-2 text-center font-semibold text-gray-700 border">Wijnmalen (2007)</th>
+                        <th className="px-3 py-2 text-center font-semibold text-gray-700 border">Demirtas (2008)</th>
+                        <th className="px-3 py-2 text-center font-semibold text-gray-700 border">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="bg-emerald-50">
+                        <td className="px-3 py-2 border font-medium">⭐ Subtrativo</td>
+                        <td className="px-3 py-2 border text-center">✅ Citado</td>
+                        <td className="px-3 py-2 border text-center">✅ Eq. 17</td>
+                        <td className="px-3 py-2 border text-center">✅ Eq. 3</td>
+                        <td className="px-3 py-2 border text-center">
+                          <span className="px-2 py-1 bg-emerald-200 text-emerald-800 rounded text-xs font-bold">CONSENSO</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 border font-medium">Aditivo Residual</td>
+                        <td className="px-3 py-2 border text-center">✅ Eq. 3</td>
+                        <td className="px-3 py-2 border text-center text-gray-400">—</td>
+                        <td className="px-3 py-2 border text-center">✅ Eq. 2</td>
+                        <td className="px-3 py-2 border text-center">
+                          <span className="px-2 py-1 bg-purple-200 text-purple-800 rounded text-xs">Referência</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 border font-medium">Multiplicativo Potências</td>
+                        <td className="px-3 py-2 border text-center">✅ Eq. 4</td>
+                        <td className="px-3 py-2 border text-center text-amber-600">⚠️ "Ambiguous"</td>
+                        <td className="px-3 py-2 border text-center text-gray-400">—</td>
+                        <td className="px-3 py-2 border text-center">
+                          <span className="px-2 py-1 bg-blue-200 text-blue-800 rounded text-xs">Referência</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="px-3 py-2 border font-medium">Recíprocos</td>
+                        <td className="px-3 py-2 border text-center">✅ Eq. 2</td>
+                        <td className="px-3 py-2 border text-center text-amber-600">⚠️ "Distorts scale"</td>
+                        <td className="px-3 py-2 border text-center text-gray-400">—</td>
+                        <td className="px-3 py-2 border text-center">
+                          <span className="px-2 py-1 bg-amber-200 text-amber-800 rounded text-xs">Referência</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 italic">
+                  Nota: Os métodos Multiplicativo e Recíprocos são incluídos como referência para validação cruzada,
+                  conforme citados em Petrillo et al. (2023), apesar das ressalvas de Wijnmalen (2007).
+                </p>
+              </div>
+
+              {/* Justificativa do Método Principal */}
+              <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200 mb-6">
+                <h4 className="font-semibold text-emerald-800 mb-2 flex items-center gap-2">
+                  ⭐ Justificativa do Método Principal (Subtrativo)
+                </h4>
+                <div className="text-sm text-emerald-700 space-y-2">
+                  <p>
+                    <strong>Fórmula:</strong> <code className="bg-white px-2 py-1 rounded">Score = b·B + o·O - c·C - r·R</code>
+                  </p>
+                  <p>
+                    <strong>Fundamentação:</strong> O método Subtrativo foi adotado como principal por ser o <strong>único com consenso total</strong> na literatura AHP-BOCR:
+                  </p>
+                  <ul className="list-disc list-inside pl-4 space-y-1">
+                    <li>Wijnmalen (2007), Eq. 17 - Validação matemática formal</li>
+                    <li>Demirtas & Ustun (2008), Eq. 3 - Aplicação em seleção de fornecedores</li>
+                    <li>Petrillo et al. (2023) - Revisão do estado da arte, cita ambos</li>
+                  </ul>
+                  <p>
+                    <strong>Adequação ao contexto:</strong> Para avaliação de investimentos em Indústria 4.0, o método Subtrativo é particularmente adequado pois:
+                  </p>
+                  <ul className="list-disc list-inside pl-4 space-y-1">
+                    <li>Permite identificar alternativas com valor líquido negativo (prejuízo)</li>
+                    <li>Interpretação intuitiva como "valor líquido" (positivos - negativos)</li>
+                    <li>Preserva magnitude absoluta das diferenças entre alternativas</li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Validação Cruzada entre Métodos */}
+              <div className="mb-6">
+                <h4 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <span className="text-xl">🔄</span> Validação Cruzada entre Métodos
+                </h4>
+                {(() => {
+                  const methods = [
+                    { id: 'subtractive', name: 'Subtrativo', key: 'scoreSubtractive' },
+                    { id: 'additiveResidual', name: 'Adit. Residual', key: 'scoreAdditiveResidualNorm' },
+                    { id: 'multiplicative', name: 'Mult. Potências', key: 'scoreMultiplicativeNorm' },
+                    { id: 'reciprocal', name: 'Recíprocos', key: 'scoreQuotientSumsNorm' },
+                    { id: 'multSimple', name: 'Mult. Simples', key: 'scoreMultSimpleNorm' }
+                  ];
+
+                  // Calcular ranking por cada método
+                  const rankings: Record<string, string[]> = {};
+                  methods.forEach(method => {
+                    const sorted = [...(calculation.finalScores || [])]
+                      .sort((a, b) => {
+                        // Tentar encontrar score na propriedade direta ou no objeto scores
+                        const scoreA = a[method.key] ?? a.scores?.[method.id] ?? a[method.key + 'Norm'] ?? 0;
+                        const scoreB = b[method.key] ?? b.scores?.[method.id] ?? b[method.key + 'Norm'] ?? 0;
+                        return scoreB - scoreA;
+                      });
+                    rankings[method.id] = sorted.map(s => s.code || s.name);
+                  });
+
+                  // Encontrar vencedor do método principal
+                  const principalWinner = rankings.subtractive?.[0] || rankings.additiveResidual?.[0];
+
+                  // Contar concordância
+                  const agreementCount = Object.values(rankings).filter(r => r[0] === principalWinner).length;
+                  const agreementPct = (agreementCount / methods.length) * 100;
+
+                  return (
+                    <div className="space-y-4">
+                      {/* Indicador de Concordância */}
+                      <div className={`p-4 rounded-lg border-2 ${agreementPct === 100 ? 'border-emerald-300 bg-emerald-50' :
+                        agreementPct >= 75 ? 'border-blue-300 bg-blue-50' :
+                          agreementPct >= 50 ? 'border-amber-300 bg-amber-50' :
+                            'border-red-300 bg-red-50'
+                        }`}>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-semibold text-gray-800">
+                              {agreementPct === 100 ? '✅ Consenso Total' :
+                                agreementPct >= 75 ? '👍 Alta Concordância' :
+                                  agreementPct >= 50 ? '⚠️ Concordância Parcial' :
+                                    '❌ Divergência Significativa'}
+                            </h5>
+                            <p className="text-sm text-gray-600">
+                              {agreementCount} de {methods.length} métodos indicam "{principalWinner}" como vencedor
+                            </p>
+                          </div>
+                          <div className="text-3xl font-bold text-gray-800">
+                            {(agreementPct || 0).toFixed(0)}%
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Tabela de Rankings por Método */}
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="bg-gray-100">
+                              <th className="px-3 py-2 text-left font-semibold text-gray-700">Posição</th>
+                              {methods.map(m => (
+                                <th key={m.id} className={`px-3 py-2 text-center font-semibold ${m.id === 'subtractive' ? 'text-emerald-700 bg-emerald-100' : 'text-gray-700'
+                                  }`}>
+                                  {m.id === 'subtractive' ? '⭐ ' : ''}{m.name}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {[0, 1, 2].map(pos => (
+                              <tr key={pos} className={pos === 0 ? 'bg-green-50' : ''}>
+                                <td className="px-3 py-2 font-medium">
+                                  {pos === 0 ? '🥇 1º' : pos === 1 ? '🥈 2º' : '🥉 3º'}
+                                </td>
+                                {methods.map(m => (
+                                  <td key={m.id} className={`px-3 py-2 text-center ${m.id === 'subtractive' ? 'bg-emerald-50 font-medium' : ''
+                                    } ${rankings[m.id]?.[pos] === principalWinner && pos === 0 ? 'text-emerald-700' : ''
+                                    }`}>
+                                    {rankings[m.id]?.[pos] || '-'}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Interpretação */}
+                      <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
+                        <strong>Interpretação:</strong> {
+                          agreementPct === 100 ?
+                            'Todos os métodos convergem para a mesma recomendação. Alta confiança na decisão.' :
+                            agreementPct >= 75 ?
+                              'A maioria dos métodos concorda. A recomendação é robusta com ressalvas menores.' :
+                              agreementPct >= 50 ?
+                                'Concordância parcial entre métodos. Recomenda-se análise de sensibilidade detalhada.' :
+                                'Divergência significativa entre métodos. A decisão requer análise qualitativa adicional.'
+                        }
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Tipos de Pesos */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
+                  <h5 className="font-semibold text-indigo-800 mb-2">Personal Weights (Importância)</h5>
+                  <p className="text-sm text-indigo-700 mb-2">
+                    <strong>Variáveis:</strong> vb, vo, vc, vr
+                  </p>
+                  <p className="text-sm text-indigo-600">
+                    Obtidos de comparações BOCR: "Qual mérito é mais <em>importante</em> para esta decisão?"
+                  </p>
+                  <p className="text-xs text-indigo-500 mt-2">
+                    Ref: Demirtas & Ustun (2008) - "rating results of BOCR"
+                  </p>
+                </div>
+                <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
+                  <h5 className="font-semibold text-purple-800 mb-2">Rescaling Weights (Magnitude)</h5>
+                  <p className="text-sm text-purple-700 mb-2">
+                    <strong>Variáveis:</strong> sb, so, sc, sr
+                  </p>
+                  <p className="text-sm text-purple-600">
+                    Obtidos de comparações de magnitude: "Qual mérito tem <em>maior valor absoluto</em>?"
+                  </p>
+                  <p className="text-xs text-purple-500 mt-2">
+                    Ref: Wijnmalen (2007) p.899 - "magnitude comparisons for commensurability"
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ================================================== 
+                VALIDAÇÃO EXTERNA — AhpAnpLib (Creative Decisions Foundation)
+            ================================================== */}
+            <ExternalValidation
+              calculation={calculation}
+              project={project}
+            />
           </div>
         )}
 
         {/* ==================================================
             TAB: PARECER IA
         ================================================== */}
-        {activeTab === 'audit' && (
+        {activeTab === 'review' && (
           <div className="space-y-6">
             {audit ? (
               <>
-                {/* Resumo Executivo */}
+                {/* Verificações Matemáticas e Lógicas */}
                 <div className="bg-white rounded-xl shadow-sm p-6">
-                  <div className="flex items-start justify-between mb-6">
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800">Parecer Técnico - Validação Científica</h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Sistema de Classificação v3.0 • Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)
-                      </p>
-                    </div>
-                    <div className={`px-6 py-3 rounded-xl text-white font-bold text-lg ${getGradeColor(audit.validacao_cientifica?.nota_metodologica)}`}>
-                      {audit.validacao_cientifica?.nota_metodologica || '?'} - {audit.validacao_cientifica?.score || 0}/100
-                    </div>
-                  </div>
-
-                  {/* Status Geral */}
-                  <div className={`p-4 rounded-lg mb-6 ${
-                    audit.validacao_cientifica?.score >= 90 ? 'bg-green-50 border border-green-200' :
-                    audit.validacao_cientifica?.score >= 75 ? 'bg-blue-50 border border-blue-200' :
-                    audit.validacao_cientifica?.score >= 60 ? 'bg-yellow-50 border border-yellow-200' :
-                    'bg-red-50 border border-red-200'
-                  }`}>
-                    <p className={`font-semibold ${
-                      audit.validacao_cientifica?.score >= 90 ? 'text-green-800' :
-                      audit.validacao_cientifica?.score >= 75 ? 'text-blue-800' :
-                      audit.validacao_cientifica?.score >= 60 ? 'text-yellow-800' :
-                      'text-red-800'
-                    }`}>
-                      {audit.validacao_cientifica?.score >= 90 ? '✅ ' : 
-                       audit.validacao_cientifica?.score >= 75 ? '👍 ' : 
-                       audit.validacao_cientifica?.score >= 60 ? '⚠️ ' : '❌ '}
-                      {audit.validacao_cientifica?.mensagem || 'Status não disponível'}
+                  <div className="mb-6">
+                    <h3 className="text-xl font-bold text-gray-800">🔬 Verificações Automáticas</h3>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Checklist de validação matemática e lógica • Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)
+                    </p>
+                    <p className="text-xs text-gray-400 mt-2">
+                      A nota final do estudo é emitida exclusivamente pelo Parecer Científico IA abaixo.
                     </p>
                   </div>
 
                   {/* Cards de Verificação */}
                   <div className="grid md:grid-cols-3 gap-4">
                     {/* Matemática */}
-                    <div className={`p-4 rounded-lg border ${
-                      audit.verificacao_matematica?.consistencia_ok 
-                        ? 'bg-green-50 border-green-200' 
-                        : 'bg-red-50 border-red-200'
-                    }`}>
+                    <div className={`p-4 rounded-lg border ${audit.verificacao_matematica?.consistencia_ok
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-red-50 border-red-200'
+                      }`}>
                       <h4 className="font-semibold text-gray-800 mb-2">🧮 Verificação Matemática</h4>
                       <div className="space-y-1 text-sm">
                         <p>CR Global: <strong>{audit.verificacao_matematica?.cr_global}</strong></p>
@@ -3624,11 +5044,10 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                     </div>
 
                     {/* Lógica */}
-                    <div className={`p-4 rounded-lg border ${
-                      audit.verificacao_logica?.formula_correta && audit.verificacao_logica?.sinais_bocr_corretos && audit.verificacao_logica?.ranking_coerente
-                        ? 'bg-green-50 border-green-200' 
-                        : 'bg-yellow-50 border-yellow-200'
-                    }`}>
+                    <div className={`p-4 rounded-lg border ${audit.verificacao_logica?.formula_correta && audit.verificacao_logica?.sinais_bocr_corretos && audit.verificacao_logica?.ranking_coerente
+                      ? 'bg-green-50 border-green-200'
+                      : 'bg-yellow-50 border-yellow-200'
+                      }`}>
                       <h4 className="font-semibold text-gray-800 mb-2">🔍 Verificação Lógica</h4>
                       <div className="space-y-1 text-sm">
                         <p>Fórmulas: {audit.verificacao_logica?.formula_correta ? '✅ OK' : '⚠️ Verificar'}</p>
@@ -3638,13 +5057,12 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                     </div>
 
                     {/* Robustez */}
-                    <div className={`p-4 rounded-lg border ${
-                      audit.robustez?.metodos_concordantes >= 4 
-                        ? 'bg-green-50 border-green-200' 
-                        : audit.robustez?.metodos_concordantes >= 3
+                    <div className={`p-4 rounded-lg border ${audit.robustez?.metodos_concordantes >= 4
+                      ? 'bg-green-50 border-green-200'
+                      : audit.robustez?.metodos_concordantes >= 3
                         ? 'bg-yellow-50 border-yellow-200'
                         : 'bg-red-50 border-red-200'
-                    }`}>
+                      }`}>
                       <h4 className="font-semibold text-gray-800 mb-2">💪 Robustez</h4>
                       <div className="space-y-1 text-sm">
                         <p>Métodos concordantes: <strong>{audit.robustez?.metodos_concordantes}/5</strong></p>
@@ -3753,7 +5171,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                   <p className="text-sm text-gray-500 mb-4">
                     Avaliação baseada nos requisitos de cada periódico: tamanho da amostra, consistência, concordância entre métodos e score total.
                   </p>
-                  
+
                   <div className="space-y-4">
                     {(audit.detalhes_periodicos || [
                       { journal: 'PPC', fullName: 'Production Planning & Control', impactFactor: 12.5, adequate: audit.adequacao_periodicos?.PPC, missing: [], reasons: [] },
@@ -3762,11 +5180,10 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                       { journal: 'IMM', fullName: 'Industrial Marketing Management', impactFactor: 10.4, adequate: audit.adequacao_periodicos?.IMM, missing: [], reasons: [] },
                       { journal: 'OMR', fullName: 'Operations Management Research', impactFactor: 6.9, adequate: audit.adequacao_periodicos?.OMR, missing: [], reasons: [] }
                     ]).map((j: any) => (
-                      <div 
+                      <div
                         key={j.journal}
-                        className={`p-4 rounded-lg border ${
-                          j.adequate ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
-                        }`}
+                        className={`p-4 rounded-lg border ${j.adequate ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
+                          }`}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-3">
@@ -3778,14 +5195,13 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                               <span className="text-gray-500 text-sm ml-2">IF: {j.impactFactor}</span>
                             </div>
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            j.adequate ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-600'
-                          }`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${j.adequate ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-600'
+                            }`}>
                             {j.adequate ? 'ADEQUADO' : 'NÃO ADEQUADO'}
                           </span>
                         </div>
                         <p className="text-sm text-gray-500 mb-2">{j.fullName}</p>
-                        
+
                         {/* Razões de aprovação */}
                         {j.adequate && j.reasons && j.reasons.length > 0 && (
                           <div className="mt-2 space-y-1">
@@ -3796,7 +5212,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                             ))}
                           </div>
                         )}
-                        
+
                         {/* Razões de reprovação */}
                         {!j.adequate && j.missing && j.missing.length > 0 && (
                           <div className="mt-2 space-y-1">
@@ -3866,65 +5282,29 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
               </div>
             )}
 
-            {/* Revisão Profunda com IA - VERSÃO HÍBRIDA */}
-            {/* Resolve problema de alucinação numérica: valores do SISTEMA, análise da IA */}
-            <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800">🔬 Revisão Profunda com IA</h3>
-                  <p className="text-sm text-gray-500">
-                    Análise especializada como revisor de periódico A1 em MCDM/AHP-BOCR
-                  </p>
-                  <p className="text-xs text-blue-600 mt-1">
-                    ✓ Valores numéricos calculados pelo sistema | ✓ Análise qualitativa por IA
-                  </p>
-                </div>
-                <button
-                  onClick={runAiReview}
-                  disabled={aiReviewLoading}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                    aiReviewLoading 
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                  }`}
-                >
-                  {aiReviewLoading ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                      </svg>
-                      Analisando...
-                    </span>
-                  ) : (
-                    '🤖 Executar Revisão IA'
-                  )}
-                </button>
-              </div>
+            {/* ⭐ NOVO - Parecer AI Estilizado */}
+            <ParecerAISection
+              aiReview={aiReview}
+              loading={aiReviewLoading}
+              onExecute={runAiReview}
+            />
 
-              {/* COMPONENTE HÍBRIDO - Valores do SISTEMA + Análise da IA */}
-              <AIReviewCard
-                aiReview={aiReview}
-                calculationData={{
-                  finalScores: calculation?.finalScores || [],
-                  bocrWeights: calculation?.bocrWeights || [],
-                  bocrConsistency: calculation?.bocrConsistency || { cr: 0, lambda: 0 },
-                  responseCount: calculation?.responseCount || 0,
-                  subWeights: calculation?.subWeights || {},
-                  subConsistency: calculation?.subConsistency || {},
-                }}
-                audit={audit}
-                isLoading={aiReviewLoading}
-                onRetry={runAiReview}
+            {/* 🔍 Análise de Viés nos Julgamentos (Dodevska et al., 2023) */}
+            {biasAnalysis && (
+              <BiasAnalysisCard
+                biasAnalysis={biasAnalysis}
+                alternatives={project?.alternatives || []}
+                sensitiveGroups={sensitiveGroups}
+                onSaveSensitiveGroups={saveSensitiveGroups}
               />
-            </div>
+            )}
           </div>
         )}
 
         {/* ==================================================
             TAB: TEXTO ACADÊMICO (A1)
         ================================================== */}
-        {activeTab === 'academic' && (
+        {activeTab === 'review' && (
           <div className="space-y-6">
             {/* Header */}
             <div className="bg-white rounded-xl shadow-sm p-6">
@@ -3938,17 +5318,16 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                 <button
                   onClick={generateAcademicText}
                   disabled={generatingText}
-                  className={`px-6 py-3 rounded-lg font-medium ${
-                    generatingText
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                  }`}
+                  className={`px-6 py-3 rounded-lg font-medium ${generatingText
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                    }`}
                 >
                   {generatingText ? (
                     <span className="flex items-center gap-2">
                       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
                       Gerando (~30s)...
                     </span>
@@ -4040,39 +5419,111 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                     </button>
                   </div>
                 </div>
-                
+
                 {/* Render markdown-like text */}
                 <div className="prose prose-sm max-w-none bg-gray-50 rounded-lg p-6 overflow-auto max-h-[600px]">
                   <div className="whitespace-pre-wrap font-serif text-gray-800 leading-relaxed">
-                    {academicText.split('\n').map((line, idx) => {
-                      // Headers
-                      if (line.startsWith('## ')) {
-                        return <h2 key={idx} className="text-xl font-bold text-gray-900 mt-6 mb-3 border-b pb-2">{line.replace('## ', '')}</h2>;
-                      }
-                      if (line.startsWith('### ')) {
-                        return <h3 key={idx} className="text-lg font-semibold text-gray-800 mt-4 mb-2">{line.replace('### ', '')}</h3>;
-                      }
-                      if (line.startsWith('# ')) {
-                        return <h1 key={idx} className="text-2xl font-bold text-gray-900 mt-6 mb-4">{line.replace('# ', '')}</h1>;
-                      }
-                      // Bold text
-                      if (line.includes('**')) {
-                        const parts = line.split(/\*\*(.*?)\*\*/g);
-                        return (
-                          <p key={idx} className="mb-3">
-                            {parts.map((part, i) => 
-                              i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-                            )}
-                          </p>
-                        );
-                      }
-                      // Empty lines
-                      if (line.trim() === '') {
-                        return <div key={idx} className="h-2"></div>;
-                      }
-                      // Regular paragraphs
-                      return <p key={idx} className="mb-3 text-justify">{line}</p>;
-                    })}
+                    {(() => {
+                      const allLines = academicText.split('\n');
+                      return allLines.map((line, idx) => {
+                        const trimmed = line.trim();
+
+                        // Headers (manter lógica existente)
+                        if (trimmed.startsWith('# ') && !trimmed.startsWith('## ') && !trimmed.startsWith('### ')) {
+                          return <h1 key={idx} className="text-2xl font-bold text-gray-900 mt-6 mb-4">{trimmed.replace('# ', '')}</h1>;
+                        }
+                        if (trimmed.startsWith('## ')) {
+                          return <h2 key={idx} className="text-xl font-bold text-gray-900 mt-6 mb-3 border-b pb-2">{trimmed.replace('## ', '')}</h2>;
+                        }
+                        if (trimmed.startsWith('### ')) {
+                          return <h3 key={idx} className="text-lg font-semibold text-gray-800 mt-4 mb-2">{trimmed.replace('### ', '')}</h3>;
+                        }
+
+                        // Linhas vazias
+                        if (!trimmed) return <div key={idx} className="h-2" />;
+
+                        // Tabelas Markdown (pipe tables)
+                        if (trimmed.startsWith('|') && trimmed.includes('|')) {
+                          // Renderizar apenas na primeira linha do bloco
+                          const prevIsTable = idx > 0 && allLines[idx - 1]?.trim().startsWith('|');
+                          if (prevIsTable) return null;
+
+                          const tableLines: string[] = [];
+                          let j = idx;
+                          while (j < allLines.length && allLines[j].trim().startsWith('|')) {
+                            tableLines.push(allLines[j].trim());
+                            j++;
+                          }
+                          if (tableLines.length < 2) return null;
+
+                          const headers = tableLines[0].split('|').filter(Boolean).map(h => h.trim());
+                          const rows = tableLines.slice(2).map(row =>
+                            row.split('|').filter(Boolean).map(c => c.trim())
+                          );
+
+                          return (
+                            <div key={idx} className="overflow-x-auto my-4">
+                              <table className="min-w-full text-sm border-collapse border border-gray-300">
+                                <thead className="bg-gray-100">
+                                  <tr>
+                                    {headers.map((h, hi) => (
+                                      <th key={hi} className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                                        {h.replace(/\*\*/g, '')}
+                                      </th>
+                                    ))}
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {rows.map((row, ri) => (
+                                    <tr key={ri} className={ri % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                      {row.map((cell, ci) => {
+                                        const isBold = cell.startsWith('**') && cell.endsWith('**');
+                                        const content = cell.replace(/\*\*/g, '');
+                                        return (
+                                          <td key={ci} className="border border-gray-300 px-3 py-1.5">
+                                            {isBold ? <strong>{content}</strong> : content}
+                                          </td>
+                                        );
+                                      })}
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          );
+                        }
+
+                        // Italic (*texto*)
+                        if (trimmed.startsWith('*') && !trimmed.startsWith('**')) {
+                          const parts = trimmed.split(/\*(.*?)\*/g);
+                          return (
+                            <p key={idx} className="mb-2 text-sm text-gray-600 italic">
+                              {parts.map((part, i) => i % 2 === 1 ? <em key={i}>{part}</em> : part)}
+                            </p>
+                          );
+                        }
+
+                        // Bold (**texto**)
+                        if (trimmed.includes('**')) {
+                          const parts = trimmed.split(/\*\*(.*?)\*\*/g);
+                          return (
+                            <p key={idx} className="mb-3 text-justify">
+                              {parts.map((part, i) =>
+                                i % 2 === 1
+                                  ? <strong key={i} className="font-semibold">{part}</strong>
+                                  : <span key={i}>{part}</span>
+                              )}
+                            </p>
+                          );
+                        }
+                        // Empty lines
+                        if (line.trim() === '') {
+                          return <div key={idx} className="h-2"></div>;
+                        }
+                        // Regular paragraphs
+                        return <p key={idx} className="mb-3 text-justify">{line}</p>;
+                      })
+                    })()}
                   </div>
                 </div>
 
@@ -4102,7 +5553,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Pronto para Gerar Texto Q1/A1</h3>
                 <p className="text-gray-500 mb-6 max-w-lg mx-auto">
-                  Clique no botão acima para gerar automaticamente as seções de 
+                  Clique no botão acima para gerar automaticamente as seções de
                   <strong> Resultados e Discussão</strong> (mín. 1.500 palavras) e <strong>Conclusão</strong> (mín. 350 palavras)
                   no estilo de periódicos como Energy Policy, Omega e IJPE.
                 </p>
@@ -4117,6 +5568,402 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
         )}
 
         {/* ==================================================
+            TAB: BIBLIOGRAFIA
+        ================================================== */}
+        {activeTab === 'bibliography' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                📚 Referências Bibliográficas
+              </h2>
+              <p className="text-gray-600">
+                Fundamentação teórica e metodológica do sistema AHP-BOCR Decision Support System
+              </p>
+
+              {/* Botões de ação */}
+              <div className="flex flex-wrap gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    const refs = `@book{saaty1980,
+  author = {Saaty, Thomas L.},
+  title = {The Analytic Hierarchy Process},
+  publisher = {McGraw-Hill},
+  year = {1980},
+  address = {New York}
+}
+@article{saaty1990,
+  author = {Saaty, Thomas L.},
+  title = {How to make a decision: The analytic hierarchy process},
+  journal = {European Journal of Operational Research},
+  volume = {48},
+  number = {1},
+  pages = {9--26},
+  year = {1990}
+}
+@article{wijnmalen2007,
+  author = {Wijnmalen, Diederik J. D.},
+  title = {Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP: A critical validation},
+  journal = {Mathematical and Computer Modelling},
+  volume = {46},
+  number = {7-8},
+  pages = {892--905},
+  year = {2007},
+  doi = {10.1016/j.mcm.2007.03.020}
+}
+@article{demirtas2008,
+  author = {Demirtas, Ezgi A. and Üstün, Özden},
+  title = {An integrated multiobjective decision making process for supplier selection and order allocation},
+  journal = {Omega},
+  volume = {36},
+  number = {1},
+  pages = {76--90},
+  year = {2008}
+}
+@article{petrillo2023,
+  author = {Petrillo, Antonella and Salomon, Valerio A. P. and Tramarico, Claudemir L.},
+  title = {State-of-the-Art Review on Analytic Hierarchy Process with BOCR},
+  journal = {Journal of Risk and Financial Management},
+  volume = {16},
+  number = {8},
+  pages = {372},
+  year = {2023},
+  doi = {10.3390/jrfm16080372}
+}
+@article{alizadeh2020,
+  author = {Alizadeh, Rahim and others},
+  title = {Improving renewable energy policy planning and decision-making through a hybrid MCDM method},
+  journal = {Energy Policy},
+  volume = {137},
+  pages = {111174},
+  year = {2020},
+  doi = {10.1016/j.enpol.2019.111174}
+}
+@article{bozoki2010,
+  author = {Boz\'{o}ki, S\'{a}ndor and F\"{u}l\"{o}p, J\'{a}nos and R\'{o}nyai, Lajos},
+  title = {On optimal completion of incomplete pairwise comparison matrices},
+  journal = {Mathematical and Computer Modelling},
+  volume = {52},
+  number = {1-2},
+  pages = {318--333},
+  year = {2010},
+  doi = {10.1016/j.mcm.2010.02.047}
+}`;
+                    navigator.clipboard.writeText(refs);
+                    alert('BibTeX copiado!');
+                  }}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm"
+                >
+                  📄 Exportar BibTeX
+                </button>
+                <button
+                  onClick={() => {
+                    const abnt = `ALIZADEH, R. et al. Improving renewable energy policy planning and decision-making through a hybrid MCDM method. Energy Policy, v. 137, 111174, 2020.
+
+DEMIRTAS, E. A.; ÜSTÜN, Ö. An integrated multiobjective decision making process for supplier selection and order allocation. Omega, v. 36, n. 1, p. 76-90, 2008.
+
+PETRILLO, A.; SALOMON, V. A. P.; TRAMARICO, C. L. State-of-the-Art Review on the Analytic Hierarchy Process with Benefits, Opportunities, Costs, and Risks. Journal of Risk and Financial Management, v. 16, n. 8, p. 372, 2023.
+
+SAATY, T. L. The Analytic Hierarchy Process: Planning, Priority Setting, Resource Allocation. New York: McGraw-Hill, 1980.
+
+SAATY, T. L. How to make a decision: The analytic hierarchy process. European Journal of Operational Research, v. 48, n. 1, p. 9-26, 1990.
+
+SAATY, T. L. Decision making with the analytic hierarchy process. International Journal of Services Sciences, v. 1, n. 1, p. 83-98, 2008.
+
+SAATY, T. L.; VARGAS, L. G. Uncertainty and rank order in the analytic hierarchy process. European Journal of Operational Research, v. 32, n. 1, p. 107-117, 1987.
+
+WIJNMALEN, D. J. D. Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP: A critical validation. Mathematical and Computer Modelling, v. 46, n. 7-8, p. 892-905, 2007.
+
+BOZÓKI, S.; FÜLÖP, J.; RÓNYAI, L. On optimal completion of incomplete pairwise comparison matrices. Mathematical and Computer Modelling, v. 52, n. 1-2, p. 318-333, 2010.`;
+                    navigator.clipboard.writeText(abnt);
+                    alert('Referências ABNT copiadas!');
+                  }}
+                  className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm"
+                >
+                  📋 Copiar ABNT
+                </button>
+              </div>
+            </div>
+
+            {/* 1. Metodologia Base (AHP) */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-indigo-600 mb-4 flex items-center gap-2">
+                <span>📘</span> 1. Metodologia Base (AHP — Analytic Hierarchy Process)
+              </h3>
+              <div className="space-y-4">
+                <div className="pl-4 border-l-4 border-indigo-400 bg-indigo-50/30 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Saaty, T. L. (1980).</strong> <em>The Analytic Hierarchy Process: Planning, Priority Setting, Resource Allocation.</em> McGraw-Hill, New York.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-indigo-600 text-white text-xs rounded font-medium">⭐ FUNDAMENTAL</span>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Citações: 50.000+</span>
+                  </div>
+                </div>
+
+                <div className="pl-4 border-l-2 border-indigo-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Saaty, T. L. (1990).</strong> How to make a decision: The analytic hierarchy process. <em>European Journal of Operational Research</em>, 48(1), 9-26.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded">Artigo Seminal</span>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Citações: 25.000+</span>
+                  </div>
+                </div>
+
+                <div className="pl-4 border-l-2 border-indigo-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Saaty, T. L. (2008).</strong> Decision making with the analytic hierarchy process. <em>International Journal of Services Sciences</em>, 1(1), 83-98.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Tutorial/Review</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. BOCR Framework */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-blue-600 mb-4 flex items-center gap-2">
+                <span>📗</span> 2. BOCR Framework (Benefits, Opportunities, Costs, Risks)
+              </h3>
+              <div className="space-y-4">
+                <div className="pl-4 border-l-4 border-blue-400 bg-blue-50/30 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Wijnmalen, D. J. D. (2007).</strong> Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP: A critical validation. <em>Mathematical and Computer Modelling</em>, 46(7-8), 892-905.
+                    <a href="https://doi.org/10.1016/j.mcm.2007.03.020" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">DOI ↗</a>
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-blue-600 text-white text-xs rounded font-medium">⭐ FUNDAMENTAL</span>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Eq. 17 (Subtrativo) • Eq. 19 (Multiplicativo)</span>
+                  </div>
+                </div>
+
+                <div className="pl-4 border-l-2 border-blue-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Lee, J. W., & Kim, S. H. (2009).</strong> An integrated approach for interdependent information system project selection. <em>International Journal of Project Management</em>, 27(1), 111-115.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">Framework de Investimentos</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Métodos de Síntese BOCR */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-emerald-600 mb-4 flex items-center gap-2">
+                <span>📕</span> 3. Métodos de Síntese BOCR
+              </h3>
+              <div className="space-y-4">
+                <div className="pl-4 border-l-4 border-emerald-400 bg-emerald-50/30 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Petrillo, A., Salomon, V. A. P., & Tramarico, C. L. (2023).</strong> State-of-the-Art Review on Analytic Hierarchy Process with BOCR. <em>Journal of Risk and Financial Management</em>, 16(8), 372.
+                    <a href="https://doi.org/10.3390/jrfm16080372" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">DOI ↗</a>
+                  </p>
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    <span className="px-2 py-1 bg-emerald-600 text-white text-xs rounded font-medium">⭐ FUNDAMENTAL</span>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">5 métodos de síntese</span>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">UNESP Guaratinguetá</span>
+                  </div>
+                </div>
+
+                <div className="pl-4 border-l-2 border-emerald-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Demirtaş, E. A., & Üstün, Ö. (2008).</strong> An integrated multiobjective decision making process for supplier selection and order allocation. <em>Omega</em>, 36(1), 76-90.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-emerald-50 text-emerald-700 text-xs rounded">Eq. 3 — Método Subtrativo</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Análise de Consistência */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-amber-600 mb-4 flex items-center gap-2">
+                <span>📙</span> 4. Análise de Consistência
+              </h3>
+              <div className="space-y-4">
+                <div className="pl-4 border-l-2 border-amber-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Saaty, T. L., & Vargas, L. G. (1987).</strong> Uncertainty and rank order in the analytic hierarchy process. <em>European Journal of Operational Research</em>, 32(1), 107-117.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-amber-50 text-amber-700 text-xs rounded">CR ≤ 0.10</span>
+                  </div>
+                </div>
+
+                <div className="pl-4 border-l-2 border-amber-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Ishizaka, A., & Labib, A. (2011).</strong> Review of the main developments in the analytic hierarchy process. <em>Expert Systems with Applications</em>, 38(11), 14336-14345.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-amber-50 text-amber-700 text-xs rounded">Review AHP</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 4.5 Incomplete Pairwise Comparison (IPC) */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-teal-600 mb-4 flex items-center gap-2">
+                <span>📗</span> 4.5 Incomplete Pairwise Comparison (IPC)
+              </h3>
+              <div className="space-y-4">
+                <div className="pl-4 border-l-4 border-teal-400 bg-teal-50/30 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Bozóki, S., Fülöp, J., & Rónyai, L. (2010).</strong> On optimal completion of incomplete pairwise comparison matrices. <em>Mathematical and Computer Modelling</em>, 52(1-2), 318-333.
+                    <a href="https://doi.org/10.1016/j.mcm.2010.02.047" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">DOI ↗</a>
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-teal-600 text-white text-xs rounded font-medium">⭐ FUNDAMENTAL</span>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Teoremas 1-3 • LLSM generalizado</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Análise de Sensibilidade e Robustez */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-red-600 mb-4 flex items-center gap-2">
+                <span>📓</span> 5. Análise de Sensibilidade e Robustez
+              </h3>
+              <div className="space-y-4">
+                <div className="pl-4 border-l-2 border-red-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Triantaphyllou, E., & Sánchez, A. (1997).</strong> A sensitivity analysis approach for some deterministic multi-criteria decision-making methods. <em>Decision Sciences</em>, 28(1), 151-194.
+                  </p>
+                </div>
+
+                <div className="pl-4 border-l-4 border-red-400 bg-red-50/30 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Alizadeh, R. et al. (2020).</strong> Improving renewable energy policy planning and decision-making through a hybrid MCDM method. <em>Energy Policy</em>, 137, 111174.
+                    <a href="https://doi.org/10.1016/j.enpol.2019.111174" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">DOI ↗</a>
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-red-50 text-red-700 text-xs rounded">Section 5.7 — Pontos de Inflexão</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 6. Aplicações em Decisões de Investimento */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-violet-600 mb-4 flex items-center gap-2">
+                <span>📔</span> 6. Aplicações em Decisões de Investimento
+              </h3>
+              <div className="space-y-4">
+                <div className="pl-4 border-l-2 border-violet-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Almeida, R. P. et al. (2023).</strong> How to assess investments in industry 4.0 technologies? A multiple-criteria framework. <em>Production Planning and Control</em>, 34(16), 1583-1602.
+                  </p>
+                </div>
+
+                <div className="pl-4 border-l-2 border-violet-200 p-3 rounded-r">
+                  <p className="text-gray-800 text-sm leading-relaxed">
+                    <strong>Palma, P., Bianco, R., & Salomon, V. (2024).</strong> Bibliometric Study on AHP and Investment Decisions in Industry 4.0. In: <em>Proceedings of the 18th International Symposium on the Analytic Hierarchy Process</em>, p. 71-72.
+                  </p>
+                  <div className="flex gap-2 mt-2">
+                    <span className="px-2 py-1 bg-violet-50 text-violet-700 text-xs rounded">Autoria própria</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Metodologia Implementada */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                🔬 Metodologia Implementada neste Sistema
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="font-medium text-gray-700">Método de Agregação:</p>
+                  <p className="text-gray-600">Média Geométrica (Saaty, 1980)</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700">Métodos de Síntese:</p>
+                  <p className="text-gray-600">5 métodos (Petrillo et al., 2023)</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700">Índice de Consistência:</p>
+                  <p className="text-gray-600">CR ≤ 10% (Saaty, 1980)</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700">Análise de Sensibilidade:</p>
+                  <p className="text-gray-600">Pontos de inflexão (Alizadeh et al., 2020)</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700">Matrizes Incompletas:</p>
+                  <p className="text-gray-600">LLSM-IPC (Bozóki et al., 2010)</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700">Método Principal:</p>
+                  <p className="text-gray-600">Subtrativo — Eq. 17 (Wijnmalen, 2007)</p>
+                </div>
+                <div>
+                  <p className="font-medium text-gray-700">Validação:</p>
+                  <p className="text-gray-600">Cross-validation 5 métodos + AI Review</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Software e Ferramentas */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                💻 Software e Ferramentas Utilizadas
+              </h3>
+              <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-700">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-indigo-400 rounded-full"></span>
+                  <strong>Framework:</strong> Next.js 14 (React 18)
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-amber-400 rounded-full"></span>
+                  <strong>Banco de Dados:</strong> Firebase Firestore
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                  <strong>Visualizações:</strong> Recharts
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full"></span>
+                  <strong>Exportação:</strong> XLSX.js, jsPDF
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-violet-400 rounded-full"></span>
+                  <strong>IA Review:</strong> Claude Sonnet 4.5 (Anthropic)
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
+                  <strong>Deploy:</strong> Vercel
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 bg-red-400 rounded-full"></span>
+                  <strong>Validação Externa:</strong> AhpAnpLib (Creative Decisions Foundation)
+                </div>
+              </div>
+            </div>
+
+            {/* Rodapé Acadêmico */}
+            <div className="bg-white rounded-xl shadow-sm p-6 text-center">
+              <p className="text-sm text-gray-500">
+                Sistema desenvolvido para pesquisa em Engenharia de Produção
+              </p>
+              <p className="text-sm font-semibold text-gray-700 mt-1">
+                UNESP — Universidade Estadual Paulista
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                Campus de Guaratinguetá • Programa de Pós-Graduação em Engenharia de Produção
+              </p>
+              <p className="text-xs text-gray-400 mt-2">
+                PALMA, P. Análise Multicritério de Investimentos na Indústria 4.0 em uma Montadora de Automóveis. Dissertação (Mestrado) — UNESP, 2026.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================
             TAB: EXPORTAR
         ================================================== */}
         {activeTab === 'export' && (
@@ -4126,7 +5973,7 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
               <p className="text-sm text-gray-500 mb-6">
                 Exporte os resultados em diferentes formatos para uso em artigos científicos e dissertações.
               </p>
-              
+
               <div className="grid md:grid-cols-3 gap-4">
                 {/* CSV */}
                 <div className="border rounded-xl p-6 hover:border-indigo-300 hover:bg-indigo-50 transition-colors">
@@ -4192,9 +6039,9 @@ BOCR (n=4) & ${calculation.bocrConsistency.lambda.toFixed(4)} & ${ciBocr.toFixed
 \\toprule
 \\textbf{Mérito} & \\textbf{Peso} & \\textbf{Peso (\\%)} \\\\
 \\midrule
-${['Benefícios', 'Oportunidades', 'Custos', 'Riscos'].map((l, i) => 
-  `${l} & ${(calculation.bocrWeights[i] || 0).toFixed(4)} & ${((calculation.bocrWeights[i] || 0) * 100).toFixed(2)}\\%`
-).join(' \\\\\n')} \\\\
+${['Benefícios', 'Oportunidades', 'Custos', 'Riscos'].map((l, i) =>
+                    `${l} & ${(calculation.bocrWeights[i] || 0).toFixed(4)} & ${((calculation.bocrWeights[i] || 0) * 100).toFixed(2)}\\%`
+                  ).join(' \\\\\n')} \\\\
 \\bottomrule
 \\end{tabular}
 \\end{table}`}</pre>
@@ -4209,7 +6056,7 @@ ${['Benefícios', 'Oportunidades', 'Custos', 'Riscos'].map((l, i) =>
       {/* Footer */}
       <footer className="border-t bg-white mt-8 py-4">
         <div className="max-w-7xl mx-auto px-4 text-center text-sm text-gray-500">
-          <p>Sistema AHP-BOCR v2.1 | Metodologia: Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)</p>
+          <p>Sistema AHP-BOCR v5.0</p>
           <p className="mt-1">Desenvolvido para dissertação de mestrado em Engenharia de Produção - UNESP</p>
         </div>
       </footer>

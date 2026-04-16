@@ -1,11 +1,100 @@
 // app/page.tsx
 // Tela de Login - Sistema AHP-BOCR Indústria 4.0
-// Design: Clean Corporate Tech com Glassmorphism
-// Layout: Desktop Only - Versão v3 (Layout Corrigido)
+// Design: Clean Corporate Tech com Glassmorphism e refinamentos visuais
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { VideoBackground } from '@/components/VideoBackground';
+
+/**
+ * Partículas flutuantes estilo "network" sobre o vídeo.
+ * Canvas leve com pontos conectados, reforça tema tecnológico.
+ */
+const ParticlesBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId: number;
+    let particles: { x: number; y: number; vx: number; vy: number; size: number }[] = [];
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    // Criar partículas — poucas para não competir
+    const PARTICLE_COUNT = 40;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 1.5 + 0.5,
+      });
+    }
+
+    const CONNECTION_DIST = 120;
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Mover e desenhar partículas
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap around
+        if (p.x < 0) p.x = canvas.width;
+        if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height;
+        if (p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(6, 182, 212, 0.15)';
+        ctx.fill();
+      });
+
+      // Conectar partículas próximas
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < CONNECTION_DIST) {
+            const opacity = 0.06 * (1 - dist / CONNECTION_DIST);
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(6, 182, 212, ${opacity})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      animationId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    return () => {
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none" style={{ zIndex: 2 }} />;
+};
 
 export default function Home() {
   const router = useRouter();
@@ -19,234 +108,225 @@ export default function Home() {
     setError('');
     setLoading(true);
 
+    // Simulando delay de rede para ver o spinner
+    await new Promise(resolve => setTimeout(resolve, 800));
+
     if (userId === 'decisor' && password === 'ahp2024') {
       sessionStorage.setItem('isAuthenticated', 'true');
       sessionStorage.setItem('userRole', 'decisor');
       router.push('/decisor/projetos');
     } else {
       setError('Credenciais inválidas. Verifique usuário e senha.');
+      setLoading(false);
     }
-    
-    setLoading(false);
   };
 
   return (
-    <div 
-      className="bg-[#0B1C2C] relative overflow-hidden"
-      style={{ 
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        paddingBottom: '48px'
-      }}
-    >
-      {/* ============================================= */}
-      {/* BACKGROUND                                   */}
-      {/* ============================================= */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1C2C] via-[#0f2744] to-[#0B1C2C]"></div>
-        
-        <div 
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(0, 229, 255, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0, 229, 255, 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px'
-          }}
-        ></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <VideoBackground />
+      <ParticlesBackground />
 
-        <div className="absolute top-1/4 -left-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-[100px]"></div>
-        <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-blue-500/10 rounded-full blur-[120px]"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-[150px]"></div>
+      {/* Configuração de animações e estilos globais para esta página */}
+      <style jsx>{`
+        @keyframes iconGlow {
+          0%, 100% {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 40px rgba(6, 182, 212, 0.05);
+          }
+          50% {
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.3), 0 0 50px rgba(6, 182, 212, 0.1);
+          }
+        }
+        .animate-icon-glow {
+          animation: iconGlow 3s ease-in-out infinite;
+        }
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-slide-in {
+          animation: slideInUp 0.7s ease-out forwards;
+        }
+      `}</style>
 
-        <svg className="absolute inset-0 w-full h-full opacity-[0.04]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="network" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-              <circle cx="50" cy="50" r="1" fill="#00E5FF"/>
-              <line x1="50" y1="50" x2="100" y2="0" stroke="#00E5FF" strokeWidth="0.5"/>
-              <line x1="50" y1="50" x2="100" y2="100" stroke="#00E5FF" strokeWidth="0.5"/>
-              <line x1="50" y1="50" x2="0" y2="100" stroke="#00E5FF" strokeWidth="0.5"/>
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#network)"/>
-        </svg>
+      {/* Branding sutil */}
+      <div className="text-center mb-8 relative animate-slide-in" style={{ zIndex: 10, animationDelay: '0.1s', opacity: 0 }}>
+        <h1 className="text-lg sm:text-xl font-medium text-white/60 tracking-wide">
+          Sistema de Apoio à Decisão
+        </h1>
+        <p className="text-xs text-cyan-400/60 mt-1 tracking-widest uppercase">
+          Investimentos em Indústria 4.0
+        </p>
       </div>
 
-      {/* ============================================= */}
-      {/* MAIN CONTENT - Flex grow para ocupar espaço  */}
-      {/* ============================================= */}
-      <div 
-        className="relative z-10 w-full px-8"
+      {/* Card de Login — Glassmorphism Refinado */}
+      <div
+        className="w-full max-w-md relative animate-slide-in"
         style={{
-          flex: '1 1 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          paddingTop: '48px',
-          paddingBottom: '32px'
+          zIndex: 10,
+          background: 'rgba(255, 255, 255, 0.07)',
+          backdropFilter: 'blur(24px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(180%)',
+          border: '1px solid rgba(255, 255, 255, 0.18)',
+          borderRadius: '24px',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255,255,255,0.05)',
         }}
       >
-        {/* ------------------------------------------- */}
-        {/* TÍTULO                                     */}
-        {/* ------------------------------------------- */}
-        <div className="w-full max-w-4xl text-center" style={{ marginBottom: '48px' }}>
-          <h1 className="text-4xl font-bold leading-tight tracking-tight bg-gradient-to-r from-cyan-400 via-blue-400 to-cyan-400 bg-clip-text text-transparent">
-            Sistema de Apoio à Decisão de Investimentos em Indústria 4.0
-          </h1>
-        </div>
+        <div className="p-8 sm:p-10">
+          {/* Ícone com glow */}
+          <div className="flex justify-center mb-6">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center animate-icon-glow"
+              style={{
+                background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2))',
+                border: '1px solid rgba(6,182,212,0.3)',
+                // Sombra agora controlada pela animação CSS
+              }}
+            >
+              <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+            </div>
+          </div>
 
-        {/* ------------------------------------------- */}
-        {/* LOGIN CARD                                 */}
-        {/* ------------------------------------------- */}
-        <div className="w-full max-w-md relative">
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-2xl blur-xl"></div>
-          
-          <div className="relative bg-white/[0.05] backdrop-blur-xl border border-white/[0.1] rounded-2xl p-10 shadow-2xl">
-            <div className="text-center" style={{ marginBottom: '40px' }}>
-              <div 
-                className="w-16 h-16 mx-auto bg-gradient-to-br from-cyan-500/20 to-blue-500/20 rounded-xl flex items-center justify-center border border-cyan-500/30"
-                style={{ marginBottom: '20px' }}
-              >
-                <svg className="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+          {/* Título e subtítulo */}
+          <div className="text-center mb-8">
+            <h2 className="text-xl font-bold text-white mb-1">Painel de Decisão</h2>
+            <p className="text-sm text-white/70">Gerencie projetos e analise resultados</p>
+          </div>
+
+          {/* Formulário */}
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* Campo Usuário */}
+            <div>
+              <label className="block text-sm font-semibold text-white/80 mb-2">Usuário</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={userId}
+                  onChange={(e) => { setUserId(e.target.value); setError(''); }}
+                  placeholder="Digite seu usuário"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl text-white placeholder-white/40 outline-none transition-all duration-200"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'rgba(6, 182, 212, 0.5)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(6, 182, 212, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                  autoFocus
+                  autoComplete="username"
+                />
               </div>
-              <h2 className="text-2xl font-semibold text-white" style={{ marginBottom: '8px' }}>Área do Decisor</h2>
-              <p className="text-gray-400">Acesse o painel de gerenciamento</p>
             </div>
 
-            <form onSubmit={handleLogin}>
-              <div style={{ marginBottom: '24px' }}>
-                <label className="block text-sm font-medium text-gray-300" style={{ marginBottom: '8px' }}>
-                  Usuário
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    value={userId}
-                    onChange={(e) => { setUserId(e.target.value); setError(''); }}
-                    placeholder="Digite seu usuário"
-                    className="w-full pl-12 pr-4 py-4 bg-white/[0.05] border border-white/[0.1] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-base"
-                    autoComplete="username"
-                  />
+            {/* Campo Senha */}
+            <div>
+              <label className="block text-sm font-semibold text-white/80 mb-2">Senha</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                  </svg>
                 </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => { setPassword(e.target.value); setError(''); }}
+                  placeholder="Digite sua senha"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-xl text-white placeholder-white/40 outline-none transition-all duration-200"
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = 'rgba(6, 182, 212, 0.5)';
+                    e.target.style.boxShadow = '0 0 0 3px rgba(6, 182, 212, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+                    e.target.style.boxShadow = 'none';
+                  }}
+                  autoComplete="current-password"
+                />
               </div>
+            </div>
 
-              <div style={{ marginBottom: '24px' }}>
-                <label className="block text-sm font-medium text-gray-300" style={{ marginBottom: '8px' }}>
-                  Senha
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => { setPassword(e.target.value); setError(''); }}
-                    placeholder="Digite sua senha"
-                    className="w-full pl-12 pr-4 py-4 bg-white/[0.05] border border-white/[0.1] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all text-base"
-                    autoComplete="current-password"
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl" style={{ marginBottom: '24px' }}>
-                  <p className="text-red-400 text-sm text-center flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    {error}
-                  </p>
-                </div>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading || !userId || !password}
-                className={`w-full py-4 rounded-xl font-semibold text-base tracking-wide transition-all duration-300 ${
-                  loading || !userId || !password
-                    ? 'bg-gray-700/50 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-cyan-500 to-blue-500 text-white hover:from-cyan-400 hover:to-blue-400 hover:shadow-lg hover:shadow-cyan-500/25 active:scale-[0.98]'
-                }`}
+            {/* Mensagem de erro */}
+            {error && (
+              <div className="p-3 rounded-xl text-sm flex items-center gap-2"
+                style={{
+                  background: 'rgba(239, 68, 68, 0.15)',
+                  border: '1px solid rgba(239, 68, 68, 0.3)',
+                }}
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                    </svg>
-                    Entrando...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    Entrar
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </span>
-                )}
-              </button>
-            </form>
+                <span>⚠️</span>
+                <span className="text-red-300">{error}</span>
+              </div>
+            )}
+
+            {/* Botão CTA */}
+            <button
+              type="submit"
+              disabled={loading || !userId || !password}
+              className="w-full py-3.5 text-white font-semibold rounded-xl transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              style={{
+                background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                boxShadow: '0 4px 15px rgba(6, 182, 212, 0.3)',
+              }}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.boxShadow = '0 6px 20px rgba(6, 182, 212, 0.45)';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.boxShadow = '0 4px 15px rgba(6, 182, 212, 0.3)';
+              }}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Autenticando...
+                </span>
+              ) : (
+                'Acessar Painel →'
+              )}
+            </button>
+          </form>
+
+          {/* Link de ajuda */}
+          <div className="mt-6 pt-5 border-t border-white/10 text-center">
+            <a
+              href="mailto:pedro.palma@unesp.br"
+              className="text-sm text-cyan-400/70 hover:text-cyan-300 transition-colors"
+            >
+              Precisa de ajuda? Contate o pesquisador
+            </a>
           </div>
         </div>
       </div>
 
-      {/* ============================================= */}
-      {/* FOOTER - Flex shrink 0, não encolhe          */}
-      {/* ============================================= */}
-      <div 
-        className="relative z-10 w-full border-t border-white/[0.05]"
-        style={{
-          flex: '0 0 auto',
-          paddingTop: '32px',
-          paddingBottom: '16px',
-          marginTop: 'auto'
-        }}
-      >
-        <div className="flex flex-col items-center" style={{ gap: '20px' }}>
-          {/* Logo UNESP */}
-          <img 
-            src="/unesp-seeklogo.png" 
-            alt="UNESP" 
-            style={{ height: '36px', width: 'auto', opacity: 0.85 }}
-          />
-          
-          {/* Texto Institucional */}
-          <div className="text-center">
-            <p className="text-gray-400 text-sm">
-              Universidade Estadual Paulista (UNESP) | Faculdade de Engenharia e Ciências | Guaratinguetá/SP
-            </p>
-            <p className="text-gray-500 text-sm" style={{ marginTop: '4px' }}>
-              MePEP — Mestrado Profissional em Engenharia de Produção
-            </p>
-            <p className="text-gray-600 text-xs" style={{ marginTop: '8px' }}>
-              2026
-            </p>
-          </div>
-
-          {/* Contato */}
-          <p className="text-gray-500 text-xs">
-            Em caso de dúvidas, entre em contato:{' '}
-            <a 
-              href="mailto:pedro.palma@unesp.br" 
-              className="text-cyan-400 hover:text-cyan-300 transition-colors"
-            >
-              pedro.palma@unesp.br
-            </a>
-          </p>
-        </div>
+      {/* Footer institucional */}
+      <div className="mt-8 text-center relative animate-slide-in" style={{ zIndex: 10, animationDelay: '0.3s', opacity: 0 }}>
+        <p className="text-xs text-white/25 tracking-wide">
+          UNESP · FEG · Mestrado Profissional em Engenharia de Produção
+        </p>
       </div>
     </div>
   );

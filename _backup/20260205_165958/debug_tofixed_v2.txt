@@ -1,0 +1,132 @@
+269:        percentage: ((weight || 0) * 100).toFixed(1),
+313:                    {(bocrWeights[idx] || 0).toFixed(4)}
+316:                    {((bocrWeights[idx] || 0) * 100).toFixed(2)}%
+402:              {label}: {((bocrWeights[idx] || 0) * 100).toFixed(1)}%
+653:            console.log(`⚠️ [QUALITY] Respondente CRÍTICO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue * 100).toFixed(1)}%, Status: ${r.status || 'N/A'})`);
+656:            console.log(`🔸 [QUALITY] Respondente SUSPEITO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue * 100).toFixed(1)}%)`);
+705:            console.log(`❌ [QUALITY] Resposta CRÍTICA: CR = ${(cr * 100).toFixed(1)}%`);
+708:            console.log(`⚠️ [QUALITY] Resposta SUSPEITA: CR = ${(cr * 100).toFixed(1)}%`);
+722:            console.log(`✅ [QUALITY] CR global ${(globalCR * 100).toFixed(2)}% - todas respostas consideradas válidas`);
+754:        console.warn(`🚨 [AI-REVIEW] ALERTA: ${(badRatio * 100).toFixed(0)}% dos respondentes são problemáticos! Quality Gate será ativado.`);
+756:        console.warn(`⚠️ [AI-REVIEW] ATENÇÃO: ${(badRatio * 100).toFixed(0)}% dos respondentes requerem revisão.`);
+1024:  const formatPercent = (value: number | undefined | null) => `${((value || 0) * 100).toFixed(2)}%`;
+1025:  const formatNumber = (value: number | undefined | null) => (value || 0).toFixed(4);
+1118:      latex += `${bocrLabels[i]} & ${(w || 0).toFixed(4)} & ${((w || 0) * 100).toFixed(2)}\\% \\\\\n`;
+1128:\\item $\\lambda_{max}$ = ${(calculation.bocrConsistency.lambda || 0).toFixed(4)}
+1129:\\item CI = ${(ciBocr || 0).toFixed(4)} (Índice de Consistência)
+1130:\\item CR = ${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}\\% (${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'})
+1159:          latex += `${meritName} & ${sub.name} & ${localWeight.toFixed(4)} & ${meritWeight.toFixed(4)} & ${globalWeight.toFixed(4)} \\\\\n`;
+1193:      latex += `${alt.name} & ${b.toFixed(4)} & ${o.toFixed(4)} & ${c.toFixed(4)} & ${r.toFixed(4)} \\\\\n`;
+1224:      latex += `${alt.name} & ${(alt.scoreAdditiveResidualNorm || 0).toFixed(4)} & ${(alt.scoreQuotientSumsNorm || 0).toFixed(4)} & ${(alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0).toFixed(4)} & ${(alt.scoreMultiplicativeNorm || 0).toFixed(4)} & ${(alt.scoreMultSimpleNorm || 0).toFixed(4)} \\\\\n`;
+1248:BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(ciBocr || 0).toFixed(4)} & ${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}\\% & ${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\
+1256:        latex += `${meritName} (n=5) & ${(cons.lambda || 0).toFixed(4)} & ${(ciSub || 0).toFixed(4)} & ${((cons.cr || 0) * 100).toFixed(2)}\\% & ${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'} \\\\\n`;
+1294:      latex += `${meritName} & ${currentWeight.toFixed(1)} & ${inflection !== null ? inflection + '\\%' : 'Sem inversão'} & ${classification} \\\\\n`;
+1375:          const pct = ((c.count / (respondentsDemographics.length || 1)) * 100).toFixed(1);
+1432:      csv += `${bocrLabels[i]},${(w || 0).toFixed(6)},${((w || 0) * 100).toFixed(2)}%\n`;
+1437:    csv += `Lambda max:,${(calculation.bocrConsistency.lambda || 0).toFixed(6)}\n`;
+1438:    csv += `CI:,${(ciBocr || 0).toFixed(6)}\n`;
+1439:    csv += `CR:,${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%\n`;
+1455:          csv += `${meritName},${sub.name},${localWeight.toFixed(6)},${meritWeight.toFixed(6)},${globalWeight.toFixed(6)}\n`;
+1465:      csv += `${alt.name},${(alt.B || 0).toFixed(6)},${(alt.O || 0).toFixed(6)},${(alt.C || 0).toFixed(6)},${(alt.R || 0).toFixed(6)}\n`;
+1476:      csv += `${alt.name},${(alt.scoreAdditiveResidualNorm || 0).toFixed(6)},${(alt.scoreQuotientSumsNorm || 0).toFixed(6)},${(alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0).toFixed(6)},${(alt.scoreMultiplicativeNorm || 0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+1483:    csv += `BOCR,4,${(calculation.bocrConsistency.lambda || 0).toFixed(6)},${(ciBocr || 0).toFixed(6)},${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
+1489:        csv += `${bocrLabels[idx]},5,${(cons.lambda || 0).toFixed(6)},${(ciSub || 0).toFixed(6)},${((cons.cr || 0) * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
+1506:      csv += `${bocrLabels[idx]},${currentWeight.toFixed(1)},${inflection !== null ? inflection : 'Sem inversão'},${classification}\n`;
+1564:          csv += `${label},${count},${((count / respondentsDemographics.length) * 100).toFixed(1)}%\n`;
+1582:      csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
+1583:      csv += `Respostas consistentes:,${consistentCount} (${((consistentCount / projectResponses.length) * 100).toFixed(0)}%)\n`;
+1591:        const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
+1593:        csv += `R${idx + 1},${submittedAt},${duration},${(crBocr * 100).toFixed(2)}%,${crBocr <= 0.10 ? 'Consistente' : 'Inconsistente'},${tipo}\n`;
+1657:        return [label, w.toFixed(6), `${(w * 100).toFixed(2)}%`, interp];
+1662:      ['λmax (autovalor máximo):', (calculation.bocrConsistency.lambda || 0).toFixed(6)],
+1663:      ['CI (Índice de Consistência):', calcCI(calculation.bocrConsistency.cr, 4).toFixed(6)],
+1665:      ['CR (Razão de Consistência):', `${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%`],
+1669:      ['Aspectos Positivos (B+O):', `${(((calculation.bocrWeights[0] || 0) + (calculation.bocrWeights[1] || 0)) * 100).toFixed(2)}%`],
+1670:      ['Aspectos Negativos (C+R):', `${(((calculation.bocrWeights[2] || 0) + (calculation.bocrWeights[3] || 0)) * 100).toFixed(2)}%`],
+1699:            localWeight.toFixed(6),
+1700:            meritWeight.toFixed(6),
+1701:            globalWeight.toFixed(6)
+1717:          (cons.lambda || 0).toFixed(6),
+1718:          (ciSub || 0).toFixed(6),
+1719:          `${((cons.cr || 0) * 100).toFixed(2)}%`,
+1740:          b.toFixed(6),
+1741:          o.toFixed(6),
+1742:          c.toFixed(6),
+1743:          r.toFixed(6),
+1744:          (b + o).toFixed(6),
+1745:          (c + r).toFixed(6),
+1746:          (b + o - c - r).toFixed(6)
+1770:        (alt.scoreAdditiveResidualNorm || 0).toFixed(6),
+1771:        (alt.scoreQuotientSumsNorm || 0).toFixed(6),
+1772:        (alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0).toFixed(6),
+1773:        (alt.scoreMultiplicativeNorm || 0).toFixed(6),
+1774:        (alt.scoreMultSimpleNorm || 0).toFixed(6)
+1779:      ['Aditivo Residual', calculation.finalScores.reduce((s, a) => s + (a.scoreAdditiveResidualNorm || 0), 0).toFixed(6),
+1781:      ['Quociente de Somas', calculation.finalScores.reduce((s, a) => s + (a.scoreQuotientSumsNorm || 0), 0).toFixed(6),
+1786:      ['Score (Aditivo Residual):', (sortedAlts[0]?.scoreAdditiveResidualNorm || 0).toFixed(6)],
+1788:        `${(Math.abs((sortedAlts[0]?.scoreAdditiveResidualNorm || 0) - (sortedAlts[1]?.scoreAdditiveResidualNorm || 0)) * 100).toFixed(2)}%` : '-'],
+1801:      ['BOCR (Méritos)', '4', (calculation.bocrConsistency.lambda || 0).toFixed(6),
+1802:        calcCI(calculation.bocrConsistency.cr, 4).toFixed(6), '0.90',
+1803:        `${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}%`,
+1812:          (cons.lambda || 0).toFixed(6),
+1813:          calcCI(cons.cr, 5).toFixed(6),
+1815:          `${((cons.cr || 0) * 100).toFixed(2)}%`,
+1857:        `${currentWeight.toFixed(1)}%`,
+1947:          pct: ((count / respondentsDemographics.length) * 100).toFixed(1)
+1987:        `${((posGrad / respondentsDemographics.length) * 100).toFixed(1)}%`,
+1993:        `${((experientes / respondentsDemographics.length) * 100).toFixed(1)}%`,
+1999:        `${((gestores / respondentsDemographics.length) * 100).toFixed(1)}%`,
+2024:        const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
+2031:          (crBocr * 100).toFixed(2) + '%',
+2047:      responsesData.push(['CR médio:', (avgCR * 100).toFixed(2) + '%']);
+2048:      responsesData.push(['Respostas consistentes:', `${consistentCount} (${((consistentCount / projectResponses.length) * 100).toFixed(0)}%)`]);
+2326:                                C+R: {(data.negative || 0).toFixed(4)}
+2344:                                B+O: {(data.positive || 0).toFixed(4)}
+2563:                            {experientes} <span className="text-lg font-normal text-gray-500">({((experientes / (total || 1)) * 100).toFixed(0)}%)</span>
+2584:                            {posGrad} <span className="text-lg font-normal text-gray-500">({((posGrad / (total || 1)) * 100).toFixed(0)}%)</span>
+2603:                            {gestores} <span className="text-lg font-normal text-gray-500">({((gestores / (total || 1)) * 100).toFixed(0)}%)</span>
+2641:                                return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes'];
+2656:                                  {item.value} ({((item.value / demographicDashboardData.total) * 100).toFixed(1)}%)
+2679:                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+2699:                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+2723:                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+2746:                              <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+2776:                              <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+2799:                        ({((Math.max(demographicDashboardData.gender[0].value, demographicDashboardData.gender[1]?.value || 0) / demographicDashboardData.total) * 100).toFixed(0)}%)</>
+2807:                        <>. Em termos de formação, <strong>{((posGrad / demographicDashboardData.total) * 100).toFixed(0)}%</strong> possuem pós-graduação</>
+2857:                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+2878:                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+2901:                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+2924:                            <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+2952:                              <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+2979:                              <td className="px-4 py-2 text-center text-gray-600">{pct.toFixed(1)}</td>
+3222:                              {((r.metrics?.avgCR || 0) * 100).toFixed(1)}%
+3336:                      <td className="px-4 py-3 text-center font-mono">{calculation.bocrConsistency.lambda.toFixed(4)}</td>
+3355:                          <td className="px-4 py-3 text-center font-mono">{cons.lambda.toFixed(4)}</td>
+3431:                                <td className="py-2 text-right font-mono text-gray-600">{(localWeight * 100).toFixed(1)}%</td>
+3432:                                <td className="py-2 text-right font-mono font-medium">{(globalWeight * 100).toFixed(2)}%</td>
+3474:                            {(alt.scoreSubtractive ?? alt.scores?.subtractive ?? alt.scoreSubtractiveNorm ?? 0).toFixed(4)}
+3478:                            {(alt.scoreAdditiveResidualNorm ?? alt.scoreAdditiveResidual ?? alt.scoreAdditive ?? 0).toFixed(4)}
+3482:                            {(alt.scoreMultiplicativeNorm ?? alt.scoreMultiplicative ?? 0).toFixed(4)}
+3486:                            {(alt.scoreQuotientSumsNorm ?? alt.scoreQuotientSums ?? 0).toFixed(4)}
+3687:                      <p className="text-sm text-gray-500">Peso atual: {currentWeight.toFixed(1)}%</p>
+3722:                          <span className="text-xs text-gray-500">Peso atual: {(currentWeight * 100).toFixed(1)}%</span>
+3885:                    Como a diferença entre as alternativas é marginal ({diff.toFixed(2)}%), apresentamos critérios adicionais para auxiliar na decisão:
+3902:                          <td className="px-4 py-3 text-center font-mono">{firstScore.toFixed(4)}</td>
+3903:                          <td className="px-4 py-3 text-center font-mono">{secondScore.toFixed(4)}</td>
+3910:                          <td className="px-4 py-3 text-center font-mono">{firstPositive.toFixed(4)}</td>
+3911:                          <td className="px-4 py-3 text-center font-mono">{secondPositive.toFixed(4)}</td>
+3920:                          <td className="px-4 py-3 text-center font-mono">{firstNegative.toFixed(4)}</td>
+3921:                          <td className="px-4 py-3 text-center font-mono">{secondNegative.toFixed(4)}</td>
+3930:                          <td className="px-4 py-3 text-center font-mono">{(first.B || 0).toFixed(4)}</td>
+3931:                          <td className="px-4 py-3 text-center font-mono">{(second.B || 0).toFixed(4)}</td>
+3940:                          <td className="px-4 py-3 text-center font-mono">{(first.R || 0).toFixed(4)}</td>
+3941:                          <td className="px-4 py-3 text-center font-mono">{(second.R || 0).toFixed(4)}</td>
+4036:                        <div className="text-2xl font-bold text-gray-800">{gapAnalysis.gap.toFixed(1)}%</div>
+4052:                        <div className="text-2xl font-bold text-gray-800">{(avgCR * 100).toFixed(1)}%</div>
+4068:                        <div className="text-2xl font-bold text-gray-800">{methodAgreement.percentage.toFixed(0)}%</div>
+4105:                          normalizado de <strong>{(winnerScore * 100).toFixed(1)}%</strong>.
+4107:                            <span className="text-emerald-600"> Dominância clara com gap de {gapAnalysis.gap.toFixed(1)}% sobre o segundo colocado.</span>
+4124:                          <strong>Validação cruzada:</strong> {methodAgreement.percentage.toFixed(0)}% dos métodos
+4334:                            {(agreementPct || 0).toFixed(0)}%
+5004:                    `${l} & ${(calculation.bocrWeights[i] || 0).toFixed(4)} & ${((calculation.bocrWeights[i] || 0) * 100).toFixed(2)}\\%`

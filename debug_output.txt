@@ -1,0 +1,13 @@
+Last 10 lines of truncated content:
+\\centering
+\\caption{Pesos locais e globais dos subcritérios}
+\\label{tab:subcriteria-weights}
+\\begin{tabular}{llccc}
+\\toprule
+\\textbf{Mérito} & \\textbf{Subcritério} & \\textbf{Peso Local} & \\textbf{Peso Mérito} & \\textbf{Peso Global} \\\\
+\\midrule
+`;
+
+    // Adicionar pesos dos subcritérios
+
+Diff at line 1170: 2

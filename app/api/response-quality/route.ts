@@ -1,572 +1,489 @@
 // app/api/response-quality/route.ts
-// Detector de Respostas Suspeitas - Análise de Qualidade dos Dados AHP
-// Identifica respondentes com padrões suspeitos que podem comprometer a análise
+// API para análise de qualidade das respostas - v5.2 com fallback de cálculo
+// Extrai CRs individuais de cada respondente corretamente
+// Correções: IDs undefined, CR NaN, formatos variados, fallback para judgments brutos
 
 import { NextRequest, NextResponse } from 'next/server';
+import { calculateAllWeights } from '@/lib/ahp-ipc';
+import type { Judgment } from '@/lib/ahp-ipc';
 
 // ============================================================
-// TIPOS
+// CONSTANTES AHP - Saaty (1980)
 // ============================================================
 
-interface Judgment {
-  type: string;
-  group: string;
-  itemA: string;
-  itemB: string;
-  saatyValue: number;
-  favors: string;
+const RANDOM_INDEX: Record<number, number> = {
+  1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12,
+  6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
+};
+
+// ============================================================
+// EXTRAÇÃO DE CRs DO RESPONDENTE - v5.1
+// ============================================================
+
+interface RespondentCRs {
+  bocr: number;
+  benefits: number;
+  opportunities: number;
+  costs: number;
+  risks: number;
+  avgCR: number;
 }
 
-interface Response {
-  respondentId: string;
-  projectId: string;
-  judgments: Judgment[];
-  completedAt?: string;
-  updatedAt?: string;
-  isSimulated?: boolean;
-}
-
-interface RespondentQuality {
-  respondentId: string;
-  isSimulated: boolean;
-  overallScore: number; // 0-100
-  status: 'CONFIÁVEL' | 'REVISAR' | 'SUSPEITO' | 'CRÍTICO';
-  flags: QualityFlag[];
-  metrics: {
-    avgCR: number;
-    maxCR: number;
-    uniformityScore: number; // 0-1, quanto maior mais uniforme (suspeito)
-    extremeValueRatio: number; // % de valores 1 ou 9
-    contradictionCount: number;
-    totalJudgments: number;
+/**
+ * Extrai CRs de uma resposta individual
+ * Suporta múltiplos formatos de dados (simulador v5, respondente real, etc.)
+ * v5.1: Correção para evitar NaN e melhor extração
+ */
+function extractRespondentCRs(response: any): RespondentCRs {
+  const crs: RespondentCRs = {
+    bocr: 0,
+    benefits: 0,
+    opportunities: 0,
+    costs: 0,
+    risks: 0,
+    avgCR: 0
   };
-  recommendation: string;
-}
-
-interface QualityFlag {
-  type: 'CR_ALTO' | 'PADRAO_UNIFORME' | 'VALORES_EXTREMOS' | 'CONTRADICAO' | 'TUDO_IGUAL' | 'POUCOS_JULGAMENTOS';
-  severity: 'INFO' | 'ALERTA' | 'GRAVE';
-  message: string;
-  details?: string;
-}
-
-// ============================================================
-// CONSTANTES
-// ============================================================
-
-const RI_TABLE: Record<number, number> = {
-  1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
-};
-
-const THRESHOLDS = {
-  CR_WARNING: 0.12,      // CR > 12% = alerta (ajustado de 10% - arredondamento causa ~8-12% naturalmente)
-  CR_CRITICAL: 0.20,     // CR > 20% = crítico
-  UNIFORMITY_WARNING: 0.75, // > 75% uniformidade = suspeito (stdDev < 1.5)
-  EXTREME_WARNING: 0.50, // > 50% valores extremos (1 ou 9) = suspeito
-  EXTREME_CRITICAL: 0.80, // > 80% valores extremos = crítico
-};
-
-// ============================================================
-// FUNÇÕES DE ANÁLISE
-// ============================================================
-
-/**
- * Constrói matriz de comparação a partir dos julgamentos
- */
-function buildMatrix(judgments: Judgment[], type: string, group: string | null, items: string[]): number[][] {
-  const n = items.length;
-  const matrix: number[][] = Array(n).fill(null).map(() => Array(n).fill(1));
   
-  const itemIndex: Record<string, number> = {};
-  items.forEach((item, idx) => { itemIndex[item] = idx; });
+  // Helper para garantir número válido
+  const safeNumber = (val: any): number => {
+    if (val === undefined || val === null) return 0;
+    const num = Number(val);
+    return isNaN(num) ? 0 : num;
+  };
   
-  judgments.forEach(j => {
-    if (j.type !== type) return;
-    if (group !== null && j.group !== group) return;
-    
-    const i = itemIndex[j.itemA];
-    const k = itemIndex[j.itemB];
-    if (i === undefined || k === undefined) return;
-    
-    let value = j.saatyValue || 1;
-    if (j.favors === 'B' || j.favors === j.itemB) {
-      value = 1 / value;
+  // ============================================================
+  // FORMATO v5: response.responses.bocrConsistency
+  // ============================================================
+  if (response.responses) {
+    // CR BOCR
+    if (response.responses.bocrConsistency?.cr !== undefined) {
+      crs.bocr = safeNumber(response.responses.bocrConsistency.cr);
     }
     
-    matrix[i][k] = value;
-    matrix[k][i] = 1 / value;
-  });
-  
-  return matrix;
-}
-
-/**
- * Calcula autovetor usando média geométrica das linhas
- */
-function calculateEigenvector(matrix: number[][]): number[] {
-  const n = matrix.length;
-  const weights: number[] = [];
-  
-  for (let i = 0; i < n; i++) {
-    let product = 1;
-    for (let j = 0; j < n; j++) {
-      product *= matrix[i][j];
-    }
-    weights.push(Math.pow(product, 1/n));
-  }
-  
-  const sum = weights.reduce((a, b) => a + b, 0);
-  return weights.map(w => w / sum);
-}
-
-/**
- * Calcula Consistency Ratio (CR)
- */
-function calculateCR(matrix: number[][]): number {
-  const n = matrix.length;
-  if (n < 3) return 0;
-  
-  const weights = calculateEigenvector(matrix);
-  
-  // Calcular λmax
-  let lambdaMax = 0;
-  for (let i = 0; i < n; i++) {
-    let rowSum = 0;
-    for (let j = 0; j < n; j++) {
-      rowSum += matrix[i][j] * weights[j];
-    }
-    lambdaMax += rowSum / weights[i];
-  }
-  lambdaMax /= n;
-  
-  const CI = (lambdaMax - n) / (n - 1);
-  const RI = RI_TABLE[n] || 1.49;
-  
-  return RI > 0 ? CI / RI : 0;
-}
-
-/**
- * Analisa uniformidade dos valores (suspeito se muito uniforme)
- * Usa desvio padrão como métrica - valores AHP saudáveis devem ter variação
- */
-function analyzeUniformity(judgments: Judgment[]): number {
-  if (judgments.length === 0) return 0;
-  
-  const values = judgments.map(j => j.saatyValue);
-  const uniqueValues = new Set(values);
-  
-  // Se todos os valores são exatamente iguais = 1.0 (máxima uniformidade)
-  if (uniqueValues.size === 1) return 1.0;
-  
-  // Calcular desvio padrão
-  const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-  const stdDev = Math.sqrt(variance);
-  
-  // Desvio padrão esperado para respostas AHP saudáveis: ~1.5 a ~3.0
-  // stdDev < 0.5: Muito uniforme (suspeito) → uniformityScore = 0.95
-  // stdDev 0.5-1.0: Uniforme (alerta) → uniformityScore = 0.85
-  // stdDev 1.0-1.5: Baixa variação → uniformityScore = 0.70
-  // stdDev 1.5-2.5: Normal → uniformityScore = 0.40
-  // stdDev > 2.5: Boa variação → uniformityScore = 0.20
-  
-  if (stdDev < 0.5) return 0.95;
-  if (stdDev < 1.0) return 0.85;
-  if (stdDev < 1.5) return 0.70;
-  if (stdDev < 2.0) return 0.50;
-  if (stdDev < 2.5) return 0.35;
-  return 0.20;
-}
-
-/**
- * Conta valores extremos (1 ou 9)
- */
-function countExtremeValues(judgments: Judgment[]): number {
-  if (judgments.length === 0) return 0;
-  
-  const extremeCount = judgments.filter(j => j.saatyValue === 1 || j.saatyValue === 9).length;
-  return extremeCount / judgments.length;
-}
-
-/**
- * Detecta contradições lógicas (transitividade violada)
- * Ex: A > B, B > C, mas C > A
- */
-function detectContradictions(judgments: Judgment[]): number {
-  let contradictions = 0;
-  
-  // Agrupar por tipo de comparação
-  const groupedJudgments: Record<string, Judgment[]> = {};
-  judgments.forEach(j => {
-    const key = `${j.type}-${j.group}`;
-    if (!groupedJudgments[key]) groupedJudgments[key] = [];
-    groupedJudgments[key].push(j);
-  });
-  
-  // Para cada grupo, verificar transitividade
-  Object.values(groupedJudgments).forEach(group => {
-    // Construir grafo de preferências
-    const preferences: Record<string, Record<string, number>> = {};
-    
-    group.forEach(j => {
-      if (!preferences[j.itemA]) preferences[j.itemA] = {};
-      if (!preferences[j.itemB]) preferences[j.itemB] = {};
+    // CRs dos subcritérios
+    const subCons = response.responses.subConsistency;
+    if (subCons) {
+      if (subCons.B?.cr !== undefined) crs.benefits = safeNumber(subCons.B.cr);
+      if (subCons.O?.cr !== undefined) crs.opportunities = safeNumber(subCons.O.cr);
+      if (subCons.C?.cr !== undefined) crs.costs = safeNumber(subCons.C.cr);
+      if (subCons.R?.cr !== undefined) crs.risks = safeNumber(subCons.R.cr);
       
-      const value = j.favors === j.itemB ? 1 / j.saatyValue : j.saatyValue;
-      preferences[j.itemA][j.itemB] = value;
-      preferences[j.itemB][j.itemA] = 1 / value;
-    });
-    
-    // Verificar ciclos de preferência forte
-    const items = Object.keys(preferences);
-    for (let i = 0; i < items.length; i++) {
-      for (let j = i + 1; j < items.length; j++) {
-        for (let k = j + 1; k < items.length; k++) {
-          const a = items[i], b = items[j], c = items[k];
-          
-          const ab = preferences[a]?.[b] || 1;
-          const bc = preferences[b]?.[c] || 1;
-          const ac = preferences[a]?.[c] || 1;
-          
-          // Se A >> B e B >> C, então A deveria ser >> C
-          // Contradição se A >> B >> C mas C > A
-          if (ab > 3 && bc > 3 && ac < 1/3) {
-            contradictions++;
-          }
-          if (ab < 1/3 && bc < 1/3 && ac > 3) {
-            contradictions++;
-          }
-        }
-      }
+      // Fallback: subcritérios com nomes completos
+      if (subCons.Benefits?.cr !== undefined) crs.benefits = safeNumber(subCons.Benefits.cr);
+      if (subCons.Opportunities?.cr !== undefined) crs.opportunities = safeNumber(subCons.Opportunities.cr);
+      if (subCons.Costs?.cr !== undefined) crs.costs = safeNumber(subCons.Costs.cr);
+      if (subCons.Risks?.cr !== undefined) crs.risks = safeNumber(subCons.Risks.cr);
     }
-  });
+    
+    // CR médio já calculado
+    if (response.responses.avgCR !== undefined) {
+      crs.avgCR = safeNumber(response.responses.avgCR);
+      if (crs.avgCR > 0) return crs; // Já temos tudo!
+    }
+  }
   
-  return contradictions;
+  // ============================================================
+  // FORMATO LEGADO: response.bocrConsistency direto
+  // ============================================================
+  if (response.bocrConsistency?.cr !== undefined) {
+    crs.bocr = safeNumber(response.bocrConsistency.cr);
+  }
+  
+  if (response.subConsistency) {
+    if (response.subConsistency.B?.cr !== undefined) crs.benefits = safeNumber(response.subConsistency.B.cr);
+    if (response.subConsistency.O?.cr !== undefined) crs.opportunities = safeNumber(response.subConsistency.O.cr);
+    if (response.subConsistency.C?.cr !== undefined) crs.costs = safeNumber(response.subConsistency.C.cr);
+    if (response.subConsistency.R?.cr !== undefined) crs.risks = safeNumber(response.subConsistency.R.cr);
+  }
+  
+  // ============================================================
+  // FORMATO metrics (fallback)
+  // ============================================================
+  if (response.metrics) {
+    if (response.metrics.crBOCR !== undefined) crs.bocr = safeNumber(response.metrics.crBOCR);
+    if (response.metrics.crBenefits !== undefined) crs.benefits = safeNumber(response.metrics.crBenefits);
+    if (response.metrics.crOpportunities !== undefined) crs.opportunities = safeNumber(response.metrics.crOpportunities);
+    if (response.metrics.crCosts !== undefined) crs.costs = safeNumber(response.metrics.crCosts);
+    if (response.metrics.crRisks !== undefined) crs.risks = safeNumber(response.metrics.crRisks);
+    if (response.metrics.avgCR !== undefined) {
+      crs.avgCR = safeNumber(response.metrics.avgCR);
+      if (crs.avgCR > 0) return crs;
+    }
+  }
+  
+  // ============================================================
+  // FORMATO: CR direto na resposta (simulador simplificado)
+  // ============================================================
+  if (response.cr !== undefined) {
+    crs.avgCR = safeNumber(response.cr);
+    if (crs.avgCR > 0) return crs;
+  }
+  
+  if (response.consistency?.cr !== undefined) {
+    crs.avgCR = safeNumber(response.consistency.cr);
+    if (crs.avgCR > 0) return crs;
+  }
+  
+  // ============================================================
+  // FORMATO: Dados aninhados em "data"
+  // ============================================================
+  if (response.data) {
+    const data = response.data;
+    if (data.bocrConsistency?.cr !== undefined) {
+      crs.bocr = safeNumber(data.bocrConsistency.cr);
+    }
+    if (data.avgCR !== undefined) {
+      crs.avgCR = safeNumber(data.avgCR);
+      if (crs.avgCR > 0) return crs;
+    }
+  }
+  
+  // ============================================================
+  // CALCULAR CR MÉDIO se não encontrado
+  // ============================================================
+  const validCRs = [crs.bocr, crs.benefits, crs.opportunities, crs.costs, crs.risks]
+    .filter(cr => cr > 0);
+  
+  if (validCRs.length > 0) {
+    crs.avgCR = validCRs.reduce((a, b) => a + b, 0) / validCRs.length;
+  } else {
+    // Se não encontrou nenhum CR, retornar 0 (será classificado como desconhecido)
+    crs.avgCR = 0;
+  }
+  
+  // Garantir que avgCR não é NaN
+  if (isNaN(crs.avgCR)) {
+    crs.avgCR = 0;
+  }
+  
+  return crs;
 }
 
 /**
- * Analisa qualidade de um único respondente
+ * Fallback: calcula CRs a partir dos judgments brutos quando o campo responses não existe.
+ * Usa calculateAllWeights da lib ahp-ipc (mesma lógica do frontend e simulador).
  */
-function analyzeRespondent(response: Response): RespondentQuality {
-  const judgments = response.judgments || [];
-  const flags: QualityFlag[] = [];
-  
-  // Verificar se há julgamentos suficientes
-  if (judgments.length < 10) {
-    flags.push({
-      type: 'POUCOS_JULGAMENTOS',
-      severity: 'ALERTA',
-      message: `Apenas ${judgments.length} julgamentos registrados`,
-      details: 'Resposta pode estar incompleta'
-    });
+function computeCRsFromJudgments(response: any): RespondentCRs | null {
+  const judgments = response.judgments || response.responses?.judgments;
+  if (!judgments || !Array.isArray(judgments) || judgments.length === 0) return null;
+
+  // Extrair códigos de alternativas dos judgments de tipo 'alternatives'
+  const altJudgments = judgments.filter((j: any) => j.type === 'alternatives');
+  const altCodes = [...new Set(altJudgments.flatMap((j: any) => [j.itemA, j.itemB]).filter(Boolean))] as string[];
+  if (altCodes.length === 0) {
+    // Fallback: usar A1, A2 como default (projeto com 2 alternativas)
+    altCodes.push('A1', 'A2');
   }
-  
-  // 1. Calcular CRs das matrizes
-  const crs: number[] = [];
-  
-  // CR da matriz BOCR
-  const bocrJudgments = judgments.filter(j => j.type === 'bocr');
-  if (bocrJudgments.length >= 3) {
-    const bocrMatrix = buildMatrix(judgments, 'bocr', null, ['B', 'O', 'C', 'R']);
-    const cr = calculateCR(bocrMatrix);
-    if (!isNaN(cr) && isFinite(cr)) crs.push(cr);
+
+  try {
+    const result = calculateAllWeights(judgments as Judgment[], altCodes);
+
+    return {
+      bocr: result.bocrWeights.cr,
+      benefits: result.subWeights['B']?.cr || 0,
+      opportunities: result.subWeights['O']?.cr || 0,
+      costs: result.subWeights['C']?.cr || 0,
+      risks: result.subWeights['R']?.cr || 0,
+      avgCR: result.avgCR,
+    };
+  } catch (e) {
+    console.warn('[QUALITY] Fallback CR computation failed:', e);
+    return null;
   }
+}
+
+/**
+ * Extrai ID do respondente de várias fontes possíveis
+ */
+function extractRespondentId(response: any, idx: number): string {
+  // Tentar várias fontes de ID
+  const possibleIds = [
+    response.respondentId,
+    response.visitorId,
+    response.id,
+    response.responses?.respondentId,
+    response.responses?.visitorId,
+    response.data?.respondentId,
+    response.userId,
+    response.email?.split('@')[0], // Usar parte do email como fallback
+  ];
   
-  // CRs das matrizes de subcritérios
-  ['B', 'O', 'C', 'R'].forEach(merit => {
-    const subJudgments = judgments.filter(j => j.type === 'subcriteria' && j.group === merit);
-    if (subJudgments.length >= 3) {
-      const items = Array.from(new Set(subJudgments.flatMap(j => [j.itemA, j.itemB])));
-      if (items.length >= 3) {
-        const matrix = buildMatrix(judgments, 'subcriteria', merit, items);
-        const cr = calculateCR(matrix);
-        if (!isNaN(cr) && isFinite(cr)) crs.push(cr);
-      }
+  for (const id of possibleIds) {
+    if (id && id !== 'undefined' && id !== 'null') {
+      return String(id);
     }
-  });
-  
-  const avgCR = crs.length > 0 ? crs.reduce((a, b) => a + b, 0) / crs.length : 0;
-  const maxCR = crs.length > 0 ? Math.max(...crs) : 0;
-  
-  // 2. Analisar uniformidade
-  const uniformityScore = analyzeUniformity(judgments);
-  
-  // 3. Contar valores extremos
-  const extremeValueRatio = countExtremeValues(judgments);
-  
-  // 4. Detectar contradições
-  const contradictionCount = detectContradictions(judgments);
-  
-  // 5. Verificar se todos os valores são iguais
-  const allSameValue = judgments.length > 0 && new Set(judgments.map(j => j.saatyValue)).size === 1;
-  
-  // ============================================================
-  // GERAR FLAGS
-  // ============================================================
-  
-  // Flag: CR alto
-  if (maxCR > THRESHOLDS.CR_CRITICAL) {
-    flags.push({
-      type: 'CR_ALTO',
-      severity: 'GRAVE',
-      message: `CR máximo de ${(maxCR * 100).toFixed(1)}% (crítico > 20%)`,
-      details: 'Indica julgamentos altamente inconsistentes, possível aleatoriedade'
-    });
-  } else if (maxCR > THRESHOLDS.CR_WARNING) {
-    flags.push({
-      type: 'CR_ALTO',
-      severity: 'ALERTA',
-      message: `CR máximo de ${(maxCR * 100).toFixed(1)}% (alerta > 12%)`,
-      details: 'Inconsistência moderada nos julgamentos'
-    });
   }
   
-  // Flag: Todos valores iguais
-  if (allSameValue && judgments.length > 5) {
-    flags.push({
-      type: 'TUDO_IGUAL',
-      severity: 'GRAVE',
-      message: `Todos os ${judgments.length} julgamentos têm o mesmo valor`,
-      details: 'Padrão altamente improvável, sugere resposta automática ou desinteresse'
-    });
-  }
-  
-  // Flag: Padrão uniforme (stdDev baixo)
-  if (uniformityScore > THRESHOLDS.UNIFORMITY_WARNING && !allSameValue) {
-    flags.push({
-      type: 'PADRAO_UNIFORME',
-      severity: uniformityScore > 0.90 ? 'GRAVE' : 'ALERTA',
-      message: `Baixa variação nos valores (stdDev baixo)`,
-      details: 'Pouca diferenciação nas respostas, possível desatenção ou padrão robótico'
-    });
-  }
-  
-  // Flag: Valores extremos
-  if (extremeValueRatio > THRESHOLDS.EXTREME_CRITICAL) {
-    flags.push({
-      type: 'VALORES_EXTREMOS',
-      severity: 'GRAVE',
-      message: `${(extremeValueRatio * 100).toFixed(0)}% dos valores são extremos (1 ou 9)`,
-      details: 'Uso excessivo de extremos, falta de nuance nos julgamentos'
-    });
-  } else if (extremeValueRatio > THRESHOLDS.EXTREME_WARNING) {
-    flags.push({
-      type: 'VALORES_EXTREMOS',
-      severity: 'ALERTA',
-      message: `${(extremeValueRatio * 100).toFixed(0)}% dos valores são extremos (1 ou 9)`,
-      details: 'Tendência a usar valores extremos'
-    });
-  }
-  
-  // Flag: Contradições
-  if (contradictionCount > 3) {
-    flags.push({
-      type: 'CONTRADICAO',
-      severity: 'GRAVE',
-      message: `${contradictionCount} contradições lógicas detectadas`,
-      details: 'Violações de transitividade (A>B>C mas C>A)'
-    });
-  } else if (contradictionCount > 0) {
-    flags.push({
-      type: 'CONTRADICAO',
-      severity: 'ALERTA',
-      message: `${contradictionCount} contradição(ões) lógica(s) detectada(s)`,
-      details: 'Possíveis violações de transitividade'
-    });
-  }
-  
-  // ============================================================
-  // CALCULAR SCORE E STATUS
-  // ============================================================
-  
-  let score = 100;
-  
-  // Penalidades por flags (mais graduais)
-  flags.forEach(flag => {
-    if (flag.severity === 'GRAVE') score -= 25;
-    else if (flag.severity === 'ALERTA') score -= 12;
-    else score -= 3;
-  });
-  
-  // Penalidade adicional por CR (mais gradual)
-  // CR 12-15%: penalidade leve | CR 15-20%: moderada | CR > 20%: pesada
-  if (avgCR > 0.12 && avgCR <= 0.15) score -= (avgCR - 0.12) * 100; // até -3
-  else if (avgCR > 0.15 && avgCR <= 0.20) score -= 3 + (avgCR - 0.15) * 150; // até -10.5
-  else if (avgCR > 0.20) score -= 11 + Math.min(20, (avgCR - 0.20) * 80); // até -31
-  
-  // Penalidade por uniformidade (stdDev baixo)
-  // uniformityScore > 0.75 indica baixa variação
-  if (uniformityScore > 0.85) score -= 15; // Muito uniforme
-  else if (uniformityScore > 0.75) score -= 8; // Uniforme
-  else if (uniformityScore > 0.60) score -= 3; // Levemente uniforme
-  
-  score = Math.max(0, Math.min(100, score));
-  
-  // Determinar status
-  let status: RespondentQuality['status'];
-  if (score >= 80) status = 'CONFIÁVEL';
-  else if (score >= 60) status = 'REVISAR';
-  else if (score >= 40) status = 'SUSPEITO';
-  else status = 'CRÍTICO';
-  
-  // Gerar recomendação
-  let recommendation: string;
-  if (status === 'CONFIÁVEL') {
-    recommendation = 'Respostas dentro dos parâmetros aceitáveis. Incluir na análise.';
-  } else if (status === 'REVISAR') {
-    recommendation = 'Revisar manualmente os julgamentos. Considerar inclusão condicional.';
-  } else if (status === 'SUSPEITO') {
-    recommendation = 'Alta probabilidade de respostas de baixa qualidade. Recomenda-se exclusão.';
-  } else {
-    recommendation = 'Respostas claramente problemáticas. Excluir da análise para preservar rigor científico.';
-  }
-  
-  return {
-    respondentId: response.respondentId,
-    isSimulated: response.isSimulated || false,
-    overallScore: Math.round(score),
-    status,
-    flags,
-    metrics: {
-      avgCR,
-      maxCR,
-      uniformityScore,
-      extremeValueRatio,
-      contradictionCount,
-      totalJudgments: judgments.length
-    },
-    recommendation
-  };
+  // Fallback: gerar ID baseado no índice
+  return `respondente_${idx + 1}`;
 }
 
 // ============================================================
-// API ENDPOINT
+// CLASSIFICAÇÃO DE RESPONDENTE - Saaty (1980)
+// ============================================================
+
+function classifyRespondent(avgCR: number): { status: string; score: number } {
+  // Se CR = 0 (não encontrado), classificar como desconhecido
+  if (avgCR === 0) {
+    return { status: 'DESCONHECIDO', score: 50 };
+  }
+  
+  if (avgCR <= 0.05) {
+    return { status: 'CONFIÁVEL', score: 100 };
+  } else if (avgCR <= 0.10) {
+    return { status: 'CONFIÁVEL', score: Math.round(95 - (avgCR - 0.05) * 140) };
+  } else if (avgCR <= 0.15) {
+    return { status: 'REVISAR', score: Math.round(87 - (avgCR - 0.10) * 340) };
+  } else if (avgCR <= 0.20) {
+    return { status: 'SUSPEITO', score: Math.round(69 - (avgCR - 0.15) * 380) };
+  } else {
+    return { status: 'CRÍTICO', score: Math.max(0, Math.round(49 - (avgCR - 0.20) * 200)) };
+  }
+}
+
+// ============================================================
+// DETECÇÃO DE PADRÕES SUSPEITOS
+// ============================================================
+
+interface Flag {
+  type: string;
+  severity: 'INFO' | 'ALERTA' | 'GRAVE';
+  details: string;
+}
+
+function detectPatterns(response: any, crs: RespondentCRs): Flag[] {
+  const flags: Flag[] = [];
+  
+  // 1. CR Alto (apenas se > 10%, conforme Saaty 1980)
+  if (crs.avgCR > 0.20) {
+    flags.push({
+      type: 'CR_ALTO',
+      severity: 'GRAVE',
+      details: `CR médio de ${(crs.avgCR * 100).toFixed(1)}% está muito acima do limite de 10%`
+    });
+  } else if (crs.avgCR > 0.10) {
+    flags.push({
+      type: 'CR_ALTO',
+      severity: 'ALERTA',
+      details: `CR médio de ${(crs.avgCR * 100).toFixed(1)}% está acima do limite de 10%`
+    });
+  }
+  
+  // 2. CR = 0 (não foi possível extrair)
+  if (crs.avgCR === 0) {
+    flags.push({
+      type: 'CR_DESCONHECIDO',
+      severity: 'INFO',
+      details: 'Não foi possível extrair CR individual desta resposta'
+    });
+  }
+  
+  // 3. Verificar padrões uniformes nos julgamentos
+  const judgments = response.judgments || response.responses?.judgments || [];
+  if (judgments.length > 0) {
+    const values = judgments
+      .map((j: any) => j.saatyValue || j.value)
+      .filter((v: any) => v !== undefined);
+    
+    if (values.length > 0) {
+      const uniqueValues = new Set(values);
+      
+      // Tudo igual
+      if (uniqueValues.size === 1) {
+        flags.push({
+          type: 'TUDO_IGUAL',
+          severity: 'GRAVE',
+          details: `Todas as ${values.length} comparações têm o mesmo valor (${values[0]})`
+        });
+      }
+      
+      // Padrão muito uniforme
+      else if (uniqueValues.size <= 2 && values.length > 10) {
+        flags.push({
+          type: 'PADRAO_UNIFORME',
+          severity: 'ALERTA',
+          details: `Apenas ${uniqueValues.size} valores diferentes em ${values.length} comparações`
+        });
+      }
+      
+      // 4. Uso excessivo de extremos
+      const extremeCount = values.filter((v: number) => v === 1 || v === 9).length;
+      const extremeRatio = extremeCount / values.length;
+      if (extremeRatio > 0.7 && values.length > 5) {
+        flags.push({
+          type: 'VALORES_EXTREMOS',
+          severity: 'ALERTA',
+          details: `${(extremeRatio * 100).toFixed(0)}% das respostas são valores extremos (1 ou 9)`
+        });
+      }
+    }
+  }
+  
+  return flags;
+}
+
+// ============================================================
+// HANDLER PRINCIPAL
 // ============================================================
 
 export async function POST(request: NextRequest) {
   try {
-    const { responses, includeSimulated = true } = await request.json();
+    const body = await request.json();
+    const { responses, includeSimulated = true } = body;
     
     if (!responses || !Array.isArray(responses)) {
       return NextResponse.json({
         success: false,
-        error: 'Array de respostas é obrigatório'
+        error: 'Parâmetro "responses" é obrigatório e deve ser um array'
       }, { status: 400 });
     }
     
-    // Filtrar simulados se necessário
+    console.log(`[QUALITY v5.1] Analisando ${responses.length} respostas`);
+    
+    // Filtrar respostas se necessário
     const filteredResponses = includeSimulated 
       ? responses 
-      : responses.filter((r: Response) => !r.isSimulated);
+      : responses.filter((r: any) => !r.isSimulated);
     
     // Analisar cada respondente
-    const analyses: RespondentQuality[] = filteredResponses.map((r: Response) => analyzeRespondent(r));
+    const respondentAnalysis = filteredResponses.map((response: any, idx: number) => {
+      // CORREÇÃO: Extrair ID de forma robusta
+      const respondentId = extractRespondentId(response, idx);
+      const isSimulated = response.isSimulated || false;
+      
+      // Extrair CRs individuais
+      let crs = extractRespondentCRs(response);
+
+      // Fallback: se avgCR === 0 (campo responses ausente), calcular a partir dos judgments brutos
+      if (crs.avgCR === 0) {
+        const fallbackCRs = computeCRsFromJudgments(response);
+        if (fallbackCRs && fallbackCRs.avgCR > 0) {
+          crs = fallbackCRs;
+          console.log(`[QUALITY v5.2] Fallback: calculado CR de judgments para ${respondentId}`);
+        }
+      }
+
+      // Log para debug
+      console.log(`[QUALITY v5.2] Respondente ${respondentId}: avgCR = ${(crs.avgCR * 100).toFixed(2)}%`);
+      
+      // Classificar respondente
+      const { status, score } = classifyRespondent(crs.avgCR);
+      
+      // Detectar padrões suspeitos
+      const flags = detectPatterns(response, crs);
+      
+      // Gerar recomendação
+      let recommendation = '';
+      if (status === 'CONFIÁVEL') {
+        recommendation = 'Respostas dentro dos parâmetros aceitáveis. Incluir na análise.';
+      } else if (status === 'REVISAR') {
+        recommendation = 'CR marginalmente alto. Revisar julgamentos antes de incluir.';
+      } else if (status === 'SUSPEITO') {
+        recommendation = 'Padrões suspeitos detectados. Considerar exclusão ou solicitar nova resposta.';
+      } else if (status === 'DESCONHECIDO') {
+        recommendation = 'CR individual não disponível. Verificar dados da resposta.';
+      } else {
+        recommendation = 'CR crítico ou padrões inválidos. Recomenda-se exclusão da análise.';
+      }
+      
+      return {
+        respondentId,
+        isSimulated,
+        status,
+        overallScore: score,
+        cr: crs.avgCR,
+        metrics: {
+          avgCR: crs.avgCR,
+          crBOCR: crs.bocr,
+          crBenefits: crs.benefits,
+          crOpportunities: crs.opportunities,
+          crCosts: crs.costs,
+          crRisks: crs.risks
+        },
+        flags,
+        recommendation
+      };
+    });
     
-    // Estatísticas gerais
-    const stats = {
-      total: analyses.length,
-      byStatus: {
-        CONFIÁVEL: analyses.filter(a => a.status === 'CONFIÁVEL').length,
-        REVISAR: analyses.filter(a => a.status === 'REVISAR').length,
-        SUSPEITO: analyses.filter(a => a.status === 'SUSPEITO').length,
-        CRÍTICO: analyses.filter(a => a.status === 'CRÍTICO').length
-      },
-      avgScore: analyses.length > 0 
-        ? Math.round(analyses.reduce((sum, a) => sum + a.overallScore, 0) / analyses.length)
-        : 0,
-      avgCR: analyses.length > 0
-        ? analyses.reduce((sum, a) => sum + a.metrics.avgCR, 0) / analyses.length
-        : 0,
+    // Calcular estatísticas gerais
+    const total = respondentAnalysis.length;
+    const byStatus = {
+      'CONFIÁVEL': respondentAnalysis.filter((r: any) => r.status === 'CONFIÁVEL').length,
+      'REVISAR': respondentAnalysis.filter((r: any) => r.status === 'REVISAR').length,
+      'SUSPEITO': respondentAnalysis.filter((r: any) => r.status === 'SUSPEITO').length,
+      'CRÍTICO': respondentAnalysis.filter((r: any) => r.status === 'CRÍTICO').length,
+      'DESCONHECIDO': respondentAnalysis.filter((r: any) => r.status === 'DESCONHECIDO').length
+    };
+    
+    // Calcular médias apenas de respondentes com CR conhecido
+    const knownCRs = respondentAnalysis.filter((r: any) => r.cr > 0);
+    const avgCR = knownCRs.length > 0 
+      ? knownCRs.reduce((sum: number, r: any) => sum + r.cr, 0) / knownCRs.length 
+      : 0;
+    
+    const avgScore = total > 0 
+      ? respondentAnalysis.reduce((sum: number, r: any) => sum + r.overallScore, 0) / total 
+      : 0;
+    
+    const statistics = {
+      total,
+      byStatus,
+      avgCR,
+      avgScore,
+      knownCRCount: knownCRs.length,
       flagCounts: {
-        CR_ALTO: analyses.filter(a => a.flags.some(f => f.type === 'CR_ALTO')).length,
-        TUDO_IGUAL: analyses.filter(a => a.flags.some(f => f.type === 'TUDO_IGUAL')).length,
-        PADRAO_UNIFORME: analyses.filter(a => a.flags.some(f => f.type === 'PADRAO_UNIFORME')).length,
-        VALORES_EXTREMOS: analyses.filter(a => a.flags.some(f => f.type === 'VALORES_EXTREMOS')).length,
-        CONTRADICAO: analyses.filter(a => a.flags.some(f => f.type === 'CONTRADICAO')).length,
-        POUCOS_JULGAMENTOS: analyses.filter(a => a.flags.some(f => f.type === 'POUCOS_JULGAMENTOS')).length
+        CR_ALTO: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'CR_ALTO')).length,
+        TUDO_IGUAL: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'TUDO_IGUAL')).length,
+        PADRAO_UNIFORME: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'PADRAO_UNIFORME')).length,
+        VALORES_EXTREMOS: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'VALORES_EXTREMOS')).length,
+        CR_DESCONHECIDO: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'CR_DESCONHECIDO')).length
       }
     };
     
-    // Recomendação geral
-    // Considerar que REVISAR não é "problemático", apenas requer atenção
-    const criticalCount = stats.byStatus.CRÍTICO;
-    const suspectCount = stats.byStatus.SUSPEITO;
-    const reliableCount = stats.byStatus.CONFIÁVEL + stats.byStatus.REVISAR;
+    console.log(`[QUALITY v5.1] Resultado: ${byStatus['CONFIÁVEL']} confiáveis, ${byStatus['REVISAR']} revisar, ${byStatus['SUSPEITO']} suspeitos, ${byStatus['CRÍTICO']} críticos, ${byStatus['DESCONHECIDO']} desconhecidos`);
     
-    const criticalRatio = analyses.length > 0 ? criticalCount / analyses.length : 0;
-    const suspectRatio = analyses.length > 0 ? suspectCount / analyses.length : 0;
-    const reliableRatio = analyses.length > 0 ? reliableCount / analyses.length : 0;
+    // Determinar status geral
+    const problematicRatio = (byStatus['SUSPEITO'] + byStatus['CRÍTICO']) / total;
+    const unknownRatio = byStatus['DESCONHECIDO'] / total;
     
-    let overallRecommendation: string;
-    let overallStatus: 'EXCELENTE' | 'BOA' | 'ACEITÁVEL' | 'PROBLEMÁTICA' | 'CRÍTICA';
+    let overallStatus = 'EXCELENTE';
+    let overallRecommendation = 'Qualidade excelente. Todos os respondentes dentro dos parâmetros.';
     
-    if (criticalRatio === 0 && suspectRatio === 0 && stats.avgScore >= 80) {
-      overallStatus = 'EXCELENTE';
-      overallRecommendation = 'Qualidade excelente dos dados. Todos os respondentes apresentam padrões confiáveis.';
-    } else if (criticalRatio === 0 && suspectRatio < 0.15 && stats.avgScore >= 70) {
-      overallStatus = 'BOA';
-      overallRecommendation = 'Qualidade boa dos dados. Poucos respondentes requerem atenção.';
-    } else if (criticalRatio < 0.10 && suspectRatio < 0.30 && stats.avgScore >= 55) {
-      overallStatus = 'ACEITÁVEL';
-      overallRecommendation = 'Qualidade aceitável. Recomenda-se revisar respondentes sinalizados antes da análise final.';
-    } else if (criticalRatio < 0.20 && reliableRatio >= 0.40) {
-      overallStatus = 'PROBLEMÁTICA';
-      overallRecommendation = 'Qualidade problemática. Considere excluir respondentes críticos e suspeitos para preservar rigor científico.';
-    } else {
+    if (unknownRatio > 0.5) {
+      overallStatus = 'DADOS INCOMPLETOS';
+      overallRecommendation = 'Mais de 50% das respostas não possuem CR individual. Verificar formato dos dados.';
+    } else if (problematicRatio > 0.3) {
       overallStatus = 'CRÍTICA';
-      overallRecommendation = 'Qualidade crítica dos dados. A maioria dos respondentes apresenta padrões suspeitos. Recomenda-se nova coleta de dados.';
+      overallRecommendation = 'Mais de 30% dos respondentes apresentam problemas. Revisão urgente necessária.';
+    } else if (problematicRatio > 0.2) {
+      overallStatus = 'PROBLEMÁTICA';
+      overallRecommendation = 'Mais de 20% dos respondentes apresentam problemas. Considere exclusões.';
+    } else if (problematicRatio > 0.1) {
+      overallStatus = 'ACEITÁVEL';
+      overallRecommendation = 'Alguns respondentes requerem atenção, mas a maioria está dentro dos parâmetros.';
+    } else if (byStatus['REVISAR'] > 0) {
+      overallStatus = 'BOA';
+      overallRecommendation = 'Qualidade boa. Alguns respondentes com CR marginal, mas aceitável.';
     }
     
     return NextResponse.json({
       success: true,
       analysis: {
-        respondents: analyses.sort((a, b) => a.overallScore - b.overallScore), // Piores primeiro
-        statistics: stats,
+        respondents: respondentAnalysis,
+        statistics,
         overall: {
           status: overallStatus,
-          recommendation: overallRecommendation,
-          qualityScore: stats.avgScore,
-          reliableCount: stats.byStatus.CONFIÁVEL,
-          problematicCount: criticalCount + suspectCount
+          qualityScore: Math.round(avgScore),
+          recommendation: overallRecommendation
         }
-      },
-      metadata: {
-        analyzedAt: new Date().toISOString(),
-        version: '1.1',
-        thresholds: THRESHOLDS
       }
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro na análise de qualidade:', error);
     return NextResponse.json({
       success: false,
-      error: 'Erro ao analisar qualidade das respostas',
-      details: error instanceof Error ? error.message : 'Unknown error'
+      error: error.message || 'Erro interno ao analisar qualidade das respostas'
     }, { status: 500 });
   }
-}
-
-// GET - Documentação
-export async function GET() {
-  return NextResponse.json({
-    description: 'API de Análise de Qualidade de Respostas AHP',
-    version: '1.0',
-    features: [
-      'Calcula CR individual por respondente',
-      'Detecta padrões uniformes suspeitos',
-      'Identifica uso excessivo de valores extremos',
-      'Detecta contradições lógicas (transitividade)',
-      'Gera score de qualidade 0-100',
-      'Classifica: CONFIÁVEL / REVISAR / SUSPEITO / CRÍTICO'
-    ],
-    thresholds: THRESHOLDS,
-    usage: {
-      method: 'POST',
-      body: {
-        responses: 'Array de objetos de resposta com judgments',
-        includeSimulated: 'boolean (default: true)'
-      }
-    }
-  });
 }

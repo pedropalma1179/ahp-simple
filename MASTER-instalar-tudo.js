@@ -175,7 +175,7 @@ export async function POST(request: NextRequest) {
     const userPrompt = \`## DADOS\\n**Projeto:** \${data.projectName}\\n**Respondentes:** \${data.responseCount}\\n\\n## BLOCOS\\n\${blocks.BLOCO_CONSISTENCIA}\\n\\n\${blocks.BLOCO_AMOSTRA}\\n\\n\${blocks.BLOCO_QUALIDADE}\\n\\n\${blocks.BLOCO_RANKING}\\n\\n\${blocks.BLOCO_CLASSIFICACAO}\\n\\n\${blocks.BLOCO_VEREDITO}\\n\\nGere a revisão:\`;
     
     const anthropic = new Anthropic();
-    const message = await anthropic.messages.create({ model: 'claude-sonnet-4-20250514', max_tokens: 5000, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: userPrompt }] });
+    const message = await anthropic.messages.create({ model: 'claude-sonnet-4-5-20250929', max_tokens: 5000, system: SYSTEM_PROMPT, messages: [{ role: 'user', content: userPrompt }] });
     const reviewText = message.content.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('\\n');
     
     return NextResponse.json({
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
         _sistema: classification, _qualityStats: data.individualStats
       },
       classification, blocks,
-      metadata: { timestamp: new Date().toISOString(), model: 'claude-sonnet-4-20250514', inputTokens: message.usage?.input_tokens, outputTokens: message.usage?.output_tokens }
+      metadata: { timestamp: new Date().toISOString(), model: 'claude-sonnet-4-5-20250929', inputTokens: message.usage?.input_tokens, outputTokens: message.usage?.output_tokens }
     });
   } catch (error: any) {
     console.error('Erro API v6.1:', error);

@@ -1,12 +1,16 @@
 // app/decisor/simulacao/page.tsx
 // Página para simulação de respondentes e testes de stress
-// Versão corrigida: autenticação + campos demográficos compatíveis
+// Versão 2.0: CR Realista baseado em literatura empírica (BPMSG, Lukinskiy, Frish)
 
 'use client';
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs, deleteDoc, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, deleteDoc, doc, getDoc, orderBy } from 'firebase/firestore';
+
+// ============================================
+// TIPOS E INTERFACES
+// ============================================
 
 interface SimulationResult {
   success: boolean;
@@ -16,6 +20,14 @@ interface SimulationResult {
     responsesCreated: number;
     patternDistribution: Record<string, number>;
     demographicsGenerated?: number;
+    crDistribution?: {
+      modo: string;
+      mediaCR: string;
+      medianaCR: string;
+      taxaAprovacao: string;
+      minCR: string;
+      maxCR: string;
+    };
   };
   calculation?: {
     bocrWeights: string[];
@@ -57,12 +69,75 @@ interface Project {
   responseCount?: number;
 }
 
+// ============================================
+// TIPOS PARA MODO DE CONSISTÊNCIA (CR REALISTA)
+// ============================================
+
+type ModoConsistenciaCR = 'pessimista' | 'moderado' | 'especialista';
+
+interface ConfiguracaoModoCR {
+  nome: string;
+  emoji: string;
+  descricao: string;
+  descricaoLonga: string;
+  taxaAprovacao: string;
+  medianaCR: string;
+  fonte: string;
+  cor: string;
+  corBg: string;
+  corBorder: string;
+}
+
+// Configuração dos modos baseada em literatura empírica
+const MODOS_CR: Record<ModoConsistenciaCR, ConfiguracaoModoCR> = {
+  pessimista: {
+    nome: 'Realista Pessimista',
+    emoji: '📊',
+    descricao: 'Decisores não-treinados',
+    descricaoLonga: 'Simula respondentes sem treinamento em AHP. Reflete pesquisas com público geral onde poucos atingem CR ≤ 10%.',
+    taxaAprovacao: '~25-30%',
+    medianaCR: '~16%',
+    fonte: 'BPMSG (~100 resp.) + Ishizaka & Siraj 2018',
+    cor: 'text-red-700',
+    corBg: 'bg-red-50',
+    corBorder: 'border-red-300',
+  },
+  moderado: {
+    nome: 'Realista Moderado',
+    emoji: '⚖️',
+    descricao: 'Decisores orientados',
+    descricaoLonga: 'Simula respondentes com orientação básica sobre comparações pareadas e consistência.',
+    taxaAprovacao: '~45%',
+    medianaCR: '~11%',
+    fonte: 'Lukinskiy et al. 2021 (292 matrizes)',
+    cor: 'text-amber-700',
+    corBg: 'bg-amber-50',
+    corBorder: 'border-amber-300',
+  },
+  especialista: {
+    nome: 'Especialistas Treinados',
+    emoji: '🎓',
+    descricao: 'Experts com treinamento AHP',
+    descricaoLonga: 'Simula especialistas com treinamento formal em AHP. Alta taxa de aprovação e CR baixo.',
+    taxaAprovacao: '~65-70%',
+    medianaCR: '~7%',
+    fonte: 'Frish et al. 2025 (21 oficiais seniores)',
+    cor: 'text-green-700',
+    corBg: 'bg-green-50',
+    corBorder: 'border-green-300',
+  },
+};
+
+// ============================================
+// COMPONENTE PRINCIPAL
+// ============================================
+
 export default function SimulacaoPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
   const [count, setCount] = useState(10);
   const [pattern, setPattern] = useState('mixed');
-  const [consistencyFactor, setConsistencyFactor] = useState(0.8);
+  const [modoConsistencia, setModoConsistencia] = useState<ModoConsistenciaCR>('moderado');
   const [loading, setLoading] = useState(false);
   const [loadingProjects, setLoadingProjects] = useState(true);
   const [result, setResult] = useState<SimulationResult | null>(null);
@@ -93,7 +168,13 @@ export default function SimulacaoPage() {
 
   const loadProjects = async () => {
     try {
-      const projectsSnapshot = await getDocs(collection(db, 'projects'));
+      const userId = sessionStorage.getItem('userId') || 'default';
+      const q = query(
+        collection(db, 'projects'),
+        where('ownerId', '==', userId),
+        orderBy('createdAt', 'desc')
+      );
+      const projectsSnapshot = await getDocs(q);
       const projectsList = projectsSnapshot.docs.map(d => ({
         id: d.id,
         ...d.data(),
@@ -111,7 +192,7 @@ export default function SimulacaoPage() {
 
   const loadStats = async () => {
     if (!selectedProject) return;
-    
+
     try {
       // Buscar respondentes
       const respondentsQuery = query(
@@ -120,7 +201,7 @@ export default function SimulacaoPage() {
       );
       const respondentsSnapshot = await getDocs(respondentsQuery);
       const respondents = respondentsSnapshot.docs.map(d => d.data());
-      
+
       // Buscar respostas
       const responsesQuery = query(
         collection(db, 'responses'),
@@ -158,7 +239,7 @@ export default function SimulacaoPage() {
           projectId: selectedProject,
           count,
           pattern,
-          consistencyFactor,
+          modoConsistencia, // Novo: envia modo ao invés de consistencyFactor
         }),
       });
 
@@ -179,7 +260,7 @@ export default function SimulacaoPage() {
 
   const handleCleanup = async () => {
     if (!selectedProject) return;
-    
+
     if (!confirm('⚠️ ATENÇÃO: Isso irá EXCLUIR:\n\n• Todos os dados simulados (respondentes e respostas)\n• Os resultados calculados (precisarão ser recalculados)\n\nDados REAIS NÃO serão afetados. Continuar?')) {
       return;
     }
@@ -195,7 +276,7 @@ export default function SimulacaoPage() {
         where('isSimulated', '==', true)
       );
       const respondentsSnapshot = await getDocs(respondentsQuery);
-      
+
       for (const docSnap of respondentsSnapshot.docs) {
         await deleteDoc(doc(db, 'respondents', docSnap.id));
       }
@@ -207,7 +288,7 @@ export default function SimulacaoPage() {
         where('isSimulated', '==', true)
       );
       const responsesSnapshot = await getDocs(responsesQuery);
-      
+
       for (const docSnap of responsesSnapshot.docs) {
         await deleteDoc(doc(db, 'responses', docSnap.id));
       }
@@ -241,9 +322,9 @@ export default function SimulacaoPage() {
   // Limpar TODOS os dados do projeto (simulados + reais/órfãos)
   const handleCleanupAll = async () => {
     if (!selectedProject) return;
-    
+
     const confirmText = `⚠️ ATENÇÃO MÁXIMA!\n\nIsso irá EXCLUIR TODOS os dados do projeto:\n- Todos os respondentes (simulados E reais)\n- Todas as respostas (simuladas E reais)\n- Todos os resultados calculados\n\nEsta ação NÃO pode ser desfeita!\n\nDigite "CONFIRMAR" para prosseguir:`;
-    
+
     const userInput = prompt(confirmText);
     if (userInput !== 'CONFIRMAR') {
       alert('Operação cancelada. Digite exatamente "CONFIRMAR" para prosseguir.');
@@ -260,7 +341,7 @@ export default function SimulacaoPage() {
         where('projectId', '==', selectedProject)
       );
       const respondentsSnapshot = await getDocs(respondentsQuery);
-      
+
       for (const docSnap of respondentsSnapshot.docs) {
         await deleteDoc(doc(db, 'respondents', docSnap.id));
       }
@@ -271,7 +352,7 @@ export default function SimulacaoPage() {
         where('projectId', '==', selectedProject)
       );
       const responsesSnapshot = await getDocs(responsesQuery);
-      
+
       for (const docSnap of responsesSnapshot.docs) {
         await deleteDoc(doc(db, 'responses', docSnap.id));
       }
@@ -306,33 +387,33 @@ export default function SimulacaoPage() {
   const selectedProjectData = projects.find(p => p.id === selectedProject);
 
   const PATTERN_INFO = {
-    mixed: { 
-      label: '🎲 Misto (Realista)', 
-      desc: 'Mistura de todos os padrões com distribuição realista' 
+    mixed: {
+      label: '🎲 Misto (Realista)',
+      desc: 'Mistura de todos os padrões com distribuição realista'
     },
-    consistent: { 
-      label: '✓ Consistente', 
-      desc: 'Respostas logicamente consistentes (B>O>C>R)' 
+    consistent: {
+      label: '✓ Consistente',
+      desc: 'Respostas logicamente consistentes (B>O>C>R)'
     },
-    random: { 
-      label: '🎰 Aleatório', 
-      desc: 'Respostas completamente aleatórias' 
+    random: {
+      label: '🎰 Aleatório',
+      desc: 'Respostas completamente aleatórias'
     },
-    biased_benefits: { 
-      label: '📈 Pró-Benefícios', 
-      desc: 'Favorece Benefícios e Oportunidades' 
+    biased_benefits: {
+      label: '📈 Pró-Benefícios',
+      desc: 'Favorece Benefícios e Oportunidades'
     },
-    biased_costs: { 
-      label: '📉 Pró-Custos', 
-      desc: 'Favorece Custos e Riscos (conservador)' 
+    biased_costs: {
+      label: '📉 Pró-Custos',
+      desc: 'Favorece Custos e Riscos (conservador)'
     },
-    moderate: { 
-      label: '⚖️ Moderado', 
-      desc: 'Valores baixos na escala Saaty (1-3)' 
+    moderate: {
+      label: '⚖️ Moderado',
+      desc: 'Valores baixos na escala Saaty (1-3)'
     },
-    extreme: { 
-      label: '⚡ Extremo', 
-      desc: 'Valores altos na escala Saaty (7-9)' 
+    extreme: {
+      label: '⚡ Extremo',
+      desc: 'Valores altos na escala Saaty (7-9)'
     },
   };
 
@@ -356,10 +437,10 @@ export default function SimulacaoPage() {
             <span className="text-2xl">🧪</span>
             <div>
               <h1 className="text-xl font-bold text-gray-800">Simulação de Respondentes</h1>
-              <p className="text-sm text-gray-500">Stress Test do Motor AHP-BOCR</p>
+              <p className="text-sm text-gray-500">Stress Test do Motor AHP-BOCR com CR Realista</p>
             </div>
           </div>
-          <a 
+          <a
             href="/decisor/projetos"
             className="text-sm text-gray-500 hover:text-gray-700"
           >
@@ -372,7 +453,7 @@ export default function SimulacaoPage() {
         {/* Seleção de Projeto */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">1. Selecionar Projeto</h2>
-          
+
           {projects.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
               <p>Nenhum projeto encontrado.</p>
@@ -400,13 +481,13 @@ export default function SimulacaoPage() {
                     <strong>Alternativas:</strong>{' '}
                     {selectedProjectData.alternatives?.map(a => a.name).join(', ') || 'Nenhuma'}
                   </p>
-                  
+
                   {stats && (
                     <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <p className="text-gray-500">Respondentes</p>
                         <p className="font-semibold">
-                          {stats.totalRespondents} total 
+                          {stats.totalRespondents} total
                           <span className="text-orange-500 ml-1">({stats.simulatedRespondents} simulados)</span>
                           {stats.totalRespondents > stats.simulatedRespondents && (
                             <span className="text-red-500 ml-1">
@@ -438,74 +519,110 @@ export default function SimulacaoPage() {
         {/* Configuração da Simulação */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">2. Configurar Simulação</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Quantidade */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Quantidade de Respondentes
-              </label>
-              <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <input
-                    type="range"
-                    min="1"
-                    max="100"
-                    value={count}
-                    onChange={(e) => setCount(parseInt(e.target.value))}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-gray-400 mt-1 px-1">
-                    <span>1</span>
-                    <span>25</span>
-                    <span>50</span>
-                    <span>75</span>
-                    <span>100</span>
-                  </div>
+
+          {/* Quantidade */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Quantidade de Respondentes
+            </label>
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  value={count}
+                  onChange={(e) => setCount(parseInt(e.target.value))}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-gray-400 mt-1 px-1">
+                  <span>1</span>
+                  <span>25</span>
+                  <span>50</span>
+                  <span>75</span>
+                  <span>100</span>
                 </div>
-                <span className="w-12 text-center font-bold text-lg text-blue-600">{count}</span>
               </div>
+              <span className="w-12 text-center font-bold text-lg text-blue-600">{count}</span>
+            </div>
+          </div>
+
+          {/* NOVO: Modo de Consistência (CR Realista) */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              📐 Modo de Consistência (CR Realista)
+              <span className="ml-2 text-xs font-normal text-gray-500">
+                Baseado em literatura empírica AHP
+              </span>
+            </label>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {(Object.entries(MODOS_CR) as [ModoConsistenciaCR, ConfiguracaoModoCR][]).map(([modo, config]) => (
+                <button
+                  key={modo}
+                  onClick={() => setModoConsistencia(modo)}
+                  className={`p-4 rounded-xl border-2 text-left transition-all ${modoConsistencia === modo
+                      ? `${config.corBorder} ${config.corBg} ring-2 ring-offset-1`
+                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                    }`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl">{config.emoji}</span>
+                    <span className={`font-semibold ${modoConsistencia === modo ? config.cor : 'text-gray-800'}`}>
+                      {config.nome}
+                    </span>
+                  </div>
+
+                  <p className="text-sm text-gray-600 mb-3">{config.descricao}</p>
+
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Taxa CR ≤ 10%:</span>
+                      <span className={`font-semibold ${modoConsistencia === modo ? config.cor : 'text-gray-700'}`}>
+                        {config.taxaAprovacao}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Mediana CR:</span>
+                      <span className={`font-semibold ${modoConsistencia === modo ? config.cor : 'text-gray-700'}`}>
+                        {config.medianaCR}
+                      </span>
+                    </div>
+                  </div>
+
+                  {modoConsistencia === modo && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <p className="text-[10px] text-gray-500 italic">
+                        📚 {config.fonte}
+                      </p>
+                    </div>
+                  )}
+                </button>
+              ))}
             </div>
 
-            {/* Fator de Consistência */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fator de Consistência
-              </label>
-              <div className="flex items-center gap-3">
-                <div className="flex-1">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={consistencyFactor * 100}
-                    onChange={(e) => setConsistencyFactor(parseInt(e.target.value) / 100)}
-                    className="w-full"
-                  />
-                  <p className="text-xs text-gray-400 mt-1">
-                    Maior = respostas mais consistentes (CR menor)
-                  </p>
-                </div>
-                <span className="w-12 text-center font-bold text-lg text-blue-600">{Math.round(consistencyFactor * 100)}%</span>
-              </div>
+            {/* Descrição expandida do modo selecionado */}
+            <div className={`mt-4 p-4 rounded-lg ${MODOS_CR[modoConsistencia].corBg} border ${MODOS_CR[modoConsistencia].corBorder}`}>
+              <p className="text-sm text-gray-700">
+                <strong>ℹ️ Sobre este modo:</strong> {MODOS_CR[modoConsistencia].descricaoLonga}
+              </p>
             </div>
           </div>
 
           {/* Padrão de Resposta */}
           <div className="mt-6">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Padrão de Resposta
+              Padrão de Resposta (Distribuição de Pesos BOCR)
             </label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {Object.entries(PATTERN_INFO).map(([key, info]) => (
                 <button
                   key={key}
                   onClick={() => setPattern(key)}
-                  className={`p-3 rounded-lg border-2 text-left transition-all ${
-                    pattern === key 
-                      ? 'border-blue-500 bg-blue-50' 
+                  className={`p-3 rounded-lg border-2 text-left transition-all ${pattern === key
+                      ? 'border-blue-500 bg-blue-50'
                       : 'border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   <p className="font-medium text-sm">{info.label}</p>
                   <p className="text-xs text-gray-500 mt-1">{info.desc}</p>
@@ -518,7 +635,17 @@ export default function SimulacaoPage() {
         {/* Botões de Ação */}
         <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">3. Executar</h2>
-          
+
+          {/* Preview da simulação */}
+          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
+            <p className="text-sm text-blue-800">
+              <strong>📋 Preview:</strong> Serão criados <strong>{count} respondentes</strong> com
+              padrão <strong>{PATTERN_INFO[pattern as keyof typeof PATTERN_INFO]?.label}</strong> e
+              consistência <strong>{MODOS_CR[modoConsistencia].nome}</strong>
+              (esperado {MODOS_CR[modoConsistencia].taxaAprovacao} com CR ≤ 10%)
+            </p>
+          </div>
+
           <div className="flex flex-wrap gap-4">
             <button
               onClick={handleSimulate}
@@ -602,6 +729,43 @@ export default function SimulacaoPage() {
                   </div>
                 )}
 
+                {/* NOVO: Distribuição de CR */}
+                {result.results.crDistribution && (
+                  <div className="mt-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-4 border border-purple-200">
+                    <p className="text-sm font-bold text-purple-800 mb-3">📐 Distribuição de CR (Baseado em Literatura)</p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <span className="text-gray-500">Modo:</span>
+                        <span className="font-semibold ml-1">{result.results.crDistribution.modo}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Média CR:</span>
+                        <span className="font-semibold ml-1">{result.results.crDistribution.mediaCR}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Mediana CR:</span>
+                        <span className="font-semibold ml-1">{result.results.crDistribution.medianaCR}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Taxa ≤10%:</span>
+                        <span className={`font-semibold ml-1 ${parseFloat(result.results.crDistribution.taxaAprovacao) >= 50 ? 'text-green-600' :
+                            parseFloat(result.results.crDistribution.taxaAprovacao) >= 30 ? 'text-amber-600' : 'text-red-600'
+                          }`}>
+                          {result.results.crDistribution.taxaAprovacao}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Min CR:</span>
+                        <span className="font-semibold ml-1">{result.results.crDistribution.minCR}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Max CR:</span>
+                        <span className="font-semibold ml-1">{result.results.crDistribution.maxCR}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Métricas */}
                 {result.metrics && (
                   <div className="mt-4 bg-white rounded-lg p-4">
@@ -623,26 +787,24 @@ export default function SimulacaoPage() {
                 {result.calculation && (
                   <div className="mt-4 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-200">
                     <p className="text-sm font-bold text-blue-800 mb-3">📐 Cálculo AHP-BOCR Executado</p>
-                    
+
                     <div className="grid md:grid-cols-2 gap-4">
                       {/* Pesos BOCR */}
                       <div className="bg-white rounded-lg p-3">
                         <p className="text-xs text-gray-500 mb-2">Pesos Estratégicos (BOCR):</p>
                         <div className="grid grid-cols-4 gap-2 text-center">
                           {['B', 'O', 'C', 'R'].map((merit, idx) => (
-                            <div key={merit} className={`p-2 rounded ${
-                              merit === 'B' ? 'bg-green-100' : 
-                              merit === 'O' ? 'bg-blue-100' : 
-                              merit === 'C' ? 'bg-orange-100' : 'bg-red-100'
-                            }`}>
+                            <div key={merit} className={`p-2 rounded ${merit === 'B' ? 'bg-green-100' :
+                                merit === 'O' ? 'bg-blue-100' :
+                                  merit === 'C' ? 'bg-orange-100' : 'bg-red-100'
+                              }`}>
                               <p className="text-xs text-gray-500">{merit}</p>
                               <p className="font-bold">{result.calculation!.bocrWeights[idx]}</p>
                             </div>
                           ))}
                         </div>
-                        <p className={`text-xs mt-2 text-center ${
-                          result.calculation.bocrConsistency.status === 'VÁLIDO' ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                        <p className={`text-xs mt-2 text-center ${result.calculation.bocrConsistency.status === 'VÁLIDO' ? 'text-green-600' : 'text-red-600'
+                          }`}>
                           CR: {result.calculation.bocrConsistency.crPercent} ({result.calculation.bocrConsistency.status})
                         </p>
                       </div>
@@ -676,15 +838,14 @@ export default function SimulacaoPage() {
 
                 {/* Relatório de QA */}
                 {result.qaReport && (
-                  <div className={`mt-4 rounded-lg p-4 border ${
-                    result.qaReport.summary.failed === 0 
-                      ? 'bg-green-50 border-green-300' 
+                  <div className={`mt-4 rounded-lg p-4 border ${result.qaReport.summary.failed === 0
+                      ? 'bg-green-50 border-green-300'
                       : 'bg-red-50 border-red-300'
-                  }`}>
+                    }`}>
                     <p className="text-sm font-bold mb-3">
                       🧪 Relatório de QA - Validação Matemática
                     </p>
-                    
+
                     {/* Summary */}
                     <div className="bg-white rounded-lg p-3 mb-3">
                       <div className="flex items-center justify-between">
@@ -729,7 +890,7 @@ export default function SimulacaoPage() {
                 {result.robustnessReport && (
                   <div className="mt-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 border border-indigo-200">
                     <p className="text-sm font-bold text-indigo-800 mb-3">🔬 Relatório de Robustez (5 Fórmulas de Síntese)</p>
-                    
+
                     {/* Vencedor de Consenso */}
                     <div className="bg-white rounded-lg p-3 mb-3">
                       <p className="text-xs text-gray-500 mb-1">Vencedor de Consenso:</p>
@@ -814,7 +975,7 @@ export default function SimulacaoPage() {
         {/* Instruções */}
         <div className="bg-white rounded-xl shadow-sm p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">📖 Como Usar</h2>
-          
+
           <div className="space-y-4 text-sm text-gray-600">
             <div className="flex gap-3">
               <span className="text-lg">1️⃣</span>
@@ -822,11 +983,11 @@ export default function SimulacaoPage() {
             </div>
             <div className="flex gap-3">
               <span className="text-lg">2️⃣</span>
-              <p>Configure a quantidade de respondentes (5-100) e o padrão de respostas. O modo "Misto" é recomendado para testes realistas.</p>
+              <p>Configure a quantidade de respondentes (1-100), o <strong>modo de consistência</strong> (baseado em literatura empírica) e o padrão de respostas.</p>
             </div>
             <div className="flex gap-3">
               <span className="text-lg">3️⃣</span>
-              <p>Execute a simulação. Cada respondente terá um <strong>perfil demográfico completo</strong> gerado automaticamente.</p>
+              <p>Execute a simulação. Os CRs serão gerados seguindo <strong>distribuição Weibull</strong> calibrada com dados reais de ~400 matrizes de especialistas.</p>
             </div>
             <div className="flex gap-3">
               <span className="text-lg">4️⃣</span>
@@ -838,9 +999,20 @@ export default function SimulacaoPage() {
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          {/* Referências da Literatura */}
+          <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <p className="text-sm font-semibold text-purple-800 mb-2">📚 Fundamentação do Modo de Consistência:</p>
+            <ul className="text-xs text-purple-700 space-y-1">
+              <li>• <strong>BPMSG:</strong> ~100 respondentes, mediana CR=16%, P80=36%</li>
+              <li>• <strong>Lukinskiy et al. (2021):</strong> 292 matrizes, distribuição Weibull</li>
+              <li>• <strong>Frish et al. (2025):</strong> 21 oficiais seniores, mediana CR=8.6%</li>
+              <li>• <strong>Ishizaka & Siraj (2018):</strong> 50 participantes, 18% aprovação</li>
+            </ul>
+          </div>
+
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm text-amber-800">
-              <strong>⚠️ Importante:</strong> Os dados simulados são marcados com flag <code>isSimulated=true</code>. 
+              <strong>⚠️ Importante:</strong> Os dados simulados são marcados com flag <code>isSimulated=true</code>.
               Isso permite distingui-los dos dados reais e removê-los facilmente.
             </p>
           </div>
@@ -849,13 +1021,13 @@ export default function SimulacaoPage() {
         {/* Links */}
         {selectedProject && (
           <div className="mt-6 flex justify-center gap-6">
-            <a 
+            <a
               href={`/decisor/resultados/${selectedProject}`}
               className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
             >
               📊 Ver Resultados →
             </a>
-            <a 
+            <a
               href="/decisor/projetos"
               className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 font-medium"
             >

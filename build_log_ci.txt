@@ -1,0 +1,31 @@
+
+> ahp-simple@1.0.0 build
+> next build
+
+  Γû▓ Next.js 14.2.35
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./app/decisor/dashboard/[projectId]/page.tsx
+Error: 
+  x Unexpected token `div`. Expected jsx identifier
+     ,-[C:\AHP-BOCR\ahp-simple\app\decisor\dashboard\[projectId]\page.tsx:763:1]
+ 763 | })() : 0;
+ 764 | 
+ 765 | return (
+ 766 |     <div className="min-h-screen bg-gray-50">
+     :      ^^^
+ 767 |         <header className="bg-white shadow-sm">
+ 768 |             <div className="max-w-6xl mx-auto px-4 py-4">
+ 768 |                 <div className="flex justify-between items-center">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./app/decisor/dashboard/[projectId]/page.tsx
+
+
+> Build failed because of webpack errors

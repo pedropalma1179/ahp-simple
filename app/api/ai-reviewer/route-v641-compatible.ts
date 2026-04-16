@@ -11,7 +11,7 @@ import { getKnowledgeContext, getKnowledgeStats, getCriticalRefs } from './knowl
 // ============================================================
 
 const MODEL_CONFIG = {
-  id: 'claude-sonnet-4-20250514',  // Sonnet 4 (mais recente)
+  id: 'claude-sonnet-4-5-20250929',  // Sonnet 4.5 (mais recente)
   maxTokens: 5000,
   temperature: 0.3,  // Mais determinístico para análise técnica
 };

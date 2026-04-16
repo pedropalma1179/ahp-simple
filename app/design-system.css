@@ -1,0 +1,496 @@
+/* ============================================================================
+   DESIGN SYSTEM AHP-BOCR v3.0 - Enterprise Grade
+   
+   Filosofia: "Humanismo Tecnológico"
+   - Precisão Cirúrgica (Tech) + Fluidez Orgânica (Human)
+   - Bento Grid Layout (Apple-style)
+   - Micro-interações sutis
+   - Tipografia como Hero
+   - Cores funcionais BOCR
+   
+   IMPORTANTE: Importar DEPOIS do globals.css
+   ============================================================================ */
+
+/* ============================================================================
+   1. CSS CUSTOM PROPERTIES
+   ============================================================================ */
+
+:root {
+  /* ─────────────────────────────────────────────────────────────────────────
+     BRAND COLORS (Hyundai-inspired)
+     ───────────────────────────────────────────────────────────────────────── */
+  --brand-navy: #002C5F;
+  --brand-navy-light: #003d82;
+  --brand-active: #00AAD2;
+  --brand-active-light: #00c4f0;
+  --brand-sand: #E4DCD3;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     BOCR SEMANTIC COLORS
+     ───────────────────────────────────────────────────────────────────────── */
+  
+  /* Benefits */
+  --bocr-benefits-50:  #ECFDF5;
+  --bocr-benefits-100: #D1FAE5;
+  --bocr-benefits-200: #A7F3D0;
+  --bocr-benefits-500: #10B981;
+  --bocr-benefits-600: #059669;
+  --bocr-benefits-700: #047857;
+  
+  /* Opportunities */
+  --bocr-opportunities-50:  #FFFBEB;
+  --bocr-opportunities-100: #FEF3C7;
+  --bocr-opportunities-200: #FDE68A;
+  --bocr-opportunities-500: #F59E0B;
+  --bocr-opportunities-600: #D97706;
+  --bocr-opportunities-700: #B45309;
+  
+  /* Costs */
+  --bocr-costs-50:  #FEF2F2;
+  --bocr-costs-100: #FEE2E2;
+  --bocr-costs-200: #FECACA;
+  --bocr-costs-500: #EF4444;
+  --bocr-costs-600: #DC2626;
+  --bocr-costs-700: #B91C1C;
+  
+  /* Risks */
+  --bocr-risks-50:  #FFF7ED;
+  --bocr-risks-100: #FFEDD5;
+  --bocr-risks-200: #FED7AA;
+  --bocr-risks-500: #F97316;
+  --bocr-risks-600: #EA580C;
+  --bocr-risks-700: #C2410C;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     NEUTRALS (Slate)
+     ───────────────────────────────────────────────────────────────────────── */
+  --slate-50:  #F8FAFC;
+  --slate-100: #F1F5F9;
+  --slate-200: #E2E8F0;
+  --slate-300: #CBD5E1;
+  --slate-400: #94A3B8;
+  --slate-500: #64748B;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1E293B;
+  --slate-900: #0F172A;
+  --slate-950: #020617;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     SEMANTIC TEXT
+     ───────────────────────────────────────────────────────────────────────── */
+  --text-primary: var(--slate-900);
+  --text-secondary: var(--slate-600);
+  --text-tertiary: var(--slate-400);
+  --text-inverse: #FFFFFF;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     SURFACES
+     ───────────────────────────────────────────────────────────────────────── */
+  --bg-app: var(--slate-50);
+  --bg-card: #FFFFFF;
+  --bg-card-hover: var(--slate-50);
+  --bg-muted: var(--slate-100);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     BORDERS
+     ───────────────────────────────────────────────────────────────────────── */
+  --border-subtle: var(--slate-200);
+  --border-default: var(--slate-200);
+  --border-strong: var(--slate-300);
+  --border-focus: var(--brand-active);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     SPACING
+     ───────────────────────────────────────────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  
+  /* ─────────────────────────────────────────────────────────────────────────
+     RADII
+     ───────────────────────────────────────────────────────────────────────── */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     SHADOWS
+     ───────────────────────────────────────────────────────────────────────── */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  
+  /* Colored shadows */
+  --shadow-benefit: 0 4px 14px -3px rgb(16 185 129 / 0.25);
+  --shadow-opportunity: 0 4px 14px -3px rgb(245 158 11 / 0.25);
+  --shadow-cost: 0 4px 14px -3px rgb(239 68 68 / 0.25);
+  --shadow-risk: 0 4px 14px -3px rgb(249 115 22 / 0.25);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     TYPOGRAPHY
+     ───────────────────────────────────────────────────────────────────────── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Roboto Mono', 'JetBrains Mono', ui-monospace, monospace;
+  
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-7xl: 4.5rem;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     TRANSITIONS
+     ───────────────────────────────────────────────────────────────────────── */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slower: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     BENTO GRID
+     ───────────────────────────────────────────────────────────────────────── */
+  --bento-gap: var(--space-4);
+  --bento-radius: var(--radius-3xl);
+}
+
+/* ============================================================================
+   2. BASE CARD
+   ============================================================================ */
+
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
+  transition: 
+    box-shadow var(--transition-base),
+    transform var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
+
+/* Bento card */
+.bento-card {
+  background: var(--bg-card);
+  border-radius: var(--bento-radius);
+  padding: var(--space-8);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-sm);
+  transition: 
+    box-shadow var(--transition-slow),
+    transform var(--transition-slow);
+}
+
+.bento-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* ============================================================================
+   3. TEXT UTILITIES
+   ============================================================================ */
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+
+.text-hero {
+  font-family: var(--font-mono);
+  font-size: var(--text-6xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.text-hero-sm {
+  font-family: var(--font-mono);
+  font-size: var(--text-4xl);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.text-label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
+
+/* ============================================================================
+   4. BOCR CARDS
+   ============================================================================ */
+
+.card-benefit {
+  border-left: 4px solid var(--bocr-benefits-500);
+  background: linear-gradient(135deg, var(--bocr-benefits-50) 0%, var(--bg-card) 40%);
+}
+
+.card-benefit:hover {
+  box-shadow: var(--shadow-benefit);
+  border-left-color: var(--bocr-benefits-600);
+}
+
+.card-opportunity {
+  border-left: 4px solid var(--bocr-opportunities-500);
+  background: linear-gradient(135deg, var(--bocr-opportunities-50) 0%, var(--bg-card) 40%);
+}
+
+.card-opportunity:hover {
+  box-shadow: var(--shadow-opportunity);
+  border-left-color: var(--bocr-opportunities-600);
+}
+
+.card-cost {
+  border-left: 4px solid var(--bocr-costs-500);
+  background: linear-gradient(135deg, var(--bocr-costs-50) 0%, var(--bg-card) 40%);
+}
+
+.card-cost:hover {
+  box-shadow: var(--shadow-cost);
+  border-left-color: var(--bocr-costs-600);
+}
+
+.card-risk {
+  border-left: 4px solid var(--bocr-risks-500);
+  background: linear-gradient(135deg, var(--bocr-risks-50) 0%, var(--bg-card) 40%);
+}
+
+.card-risk:hover {
+  box-shadow: var(--shadow-risk);
+  border-left-color: var(--bocr-risks-600);
+}
+
+/* ============================================================================
+   5. BADGES
+   ============================================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  transition: transform var(--transition-fast);
+}
+
+.badge:hover { transform: scale(1.02); }
+
+.badge-benefit {
+  background: var(--bocr-benefits-100);
+  color: var(--bocr-benefits-700);
+}
+
+.badge-opportunity {
+  background: var(--bocr-opportunities-100);
+  color: var(--bocr-opportunities-700);
+}
+
+.badge-cost {
+  background: var(--bocr-costs-100);
+  color: var(--bocr-costs-700);
+}
+
+.badge-risk {
+  background: var(--bocr-risks-100);
+  color: var(--bocr-risks-700);
+}
+
+/* ============================================================================
+   6. BENTO GRID
+   ============================================================================ */
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--bento-gap);
+  grid-auto-rows: minmax(120px, auto);
+}
+
+.bento-span-3  { grid-column: span 3; }
+.bento-span-4  { grid-column: span 4; }
+.bento-span-6  { grid-column: span 6; }
+.bento-span-8  { grid-column: span 8; }
+.bento-span-12 { grid-column: span 12; }
+
+.bento-row-1 { grid-row: span 1; }
+.bento-row-2 { grid-row: span 2; }
+.bento-row-3 { grid-row: span 3; }
+
+/* Legacy support */
+.grid-bocr {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.grid-bocr.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-bocr.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-bocr.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* ============================================================================
+   7. FONTS
+   ============================================================================ */
+
+.font-sans { font-family: var(--font-sans); }
+.font-mono { 
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   8. ANIMATIONS
+   ============================================================================ */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--transition-slow) var(--ease-out) forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) var(--ease-out) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--transition-slow) var(--ease-out) forwards;
+}
+
+/* Staggered children */
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp var(--transition-slow) var(--ease-out) forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+
+/* Hover effects */
+.hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-scale {
+  transition: transform var(--transition-fast);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* ============================================================================
+   9. RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 1024px) {
+  .bento-span-8 { grid-column: span 12; }
+  .bento-span-4 { grid-column: span 6; }
+  .bento-span-3 { grid-column: span 6; }
+  
+  .grid-bocr.grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-bocr.grid-3 { grid-template-columns: repeat(2, 1fr); }
+  
+  .text-hero { font-size: var(--text-5xl); }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --bento-gap: var(--space-3);
+    --bento-radius: var(--radius-2xl);
+  }
+  
+  .bento-span-8,
+  .bento-span-6,
+  .bento-span-4,
+  .bento-span-3 { 
+    grid-column: span 12; 
+  }
+  
+  .grid-bocr.grid-4,
+  .grid-bocr.grid-3,
+  .grid-bocr.grid-2 { 
+    grid-template-columns: 1fr; 
+  }
+  
+  .text-hero { font-size: var(--text-4xl); }
+  .text-hero-sm { font-size: var(--text-3xl); }
+  
+  .bento-card { padding: var(--space-5); }
+}
+
+@media (max-width: 640px) {
+  .text-hero { font-size: var(--text-3xl); }
+}
+
+/* ============================================================================
+   10. PRINT
+   ============================================================================ */
+
+@media print {
+  .bento-card, .card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+  
+  .animate-fade-in-up,
+  .animate-fade-in,
+  .animate-scale-in {
+    animation: none;
+    opacity: 1;
+  }
+}

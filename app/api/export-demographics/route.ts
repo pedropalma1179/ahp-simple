@@ -6,6 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
+export const dynamic = 'force-dynamic';
+
 // ============================================================
 // MAPEAMENTO DE LABELS
 // ============================================================
@@ -124,11 +126,11 @@ function calculateStatistics(respondents: Respondent[]): Record<string, Record<s
 
   // Converter para formato com n e %
   const result: Record<string, Record<string, { n: number; pct: number }>> = {};
-  
+
   Object.keys(stats).forEach(key => {
     result[key] = {};
     const labels = LABELS[key as keyof typeof LABELS];
-    
+
     // Ordenar por ordem das opções
     Object.keys(labels).forEach(optValue => {
       const n = stats[key][optValue] || 0;
@@ -173,7 +175,7 @@ export async function GET(request: NextRequest) {
     const withDemographics = respondents.filter(r => r.demographics);
 
     if (withDemographics.length === 0) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Nenhum respondente com dados demográficos encontrado',
         total: respondents.length,
         withDemographics: 0
@@ -255,8 +257,8 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Erro ao exportar dados demográficos:', error);
-    return NextResponse.json({ 
-      error: error.message || 'Erro interno' 
+    return NextResponse.json({
+      error: error.message || 'Erro interno'
     }, { status: 500 });
   }
 }
