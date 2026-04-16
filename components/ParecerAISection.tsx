@@ -28,6 +28,20 @@ export default function ParecerAISection({
   loading,
   onExecute,
 }: ParecerAISectionProps) {
+  // Estado para feedback visual do botão Copiar
+  const [copied, setCopied] = React.useState(false);
+
+  // Handler para copiar o markdown do parecer
+  const handleCopy = async () => {
+    if (!aiReview?.review) return;
+    try {
+      await navigator.clipboard.writeText(aiReview.review);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Erro ao copiar parecer:', err);
+    }
+  };
   // Cores dinâmicas baseadas na nota/veredicto
   const getNotaStyle = (nota: string) => {
     switch (nota) {
@@ -84,42 +98,75 @@ export default function ParecerAISection({
           </div>
         </div>
 
-        {/* Botão Executar */}
-        <button
-          onClick={onExecute}
-          disabled={loading}
-          className={`px-6 py-3 rounded-lg font-medium transition-colors ${loading
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-indigo-600 text-white hover:bg-indigo-700'
-            }`}
-        >
-          {loading ? (
-            <span className="flex items-center gap-2">
-              <svg
-                className="animate-spin h-4 w-4"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              Analisando...
-            </span>
-          ) : (
-            '🤖 Executar Revisão IA'
+        {/* Botões de ação */}
+        <div className="flex items-center gap-2">
+          {/* Botão Copiar (só aparece quando há parecer gerado) */}
+          {aiReview?.review && (
+            <button
+              onClick={handleCopy}
+              disabled={loading}
+              className={`px-4 py-3 rounded-lg font-medium transition-colors border ${
+                copied
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title="Copiar parecer em markdown"
+            >
+              {copied ? (
+                <span className="flex items-center gap-2">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Copiado!
+                </span>
+              ) : (
+                <span className="flex items-center gap-2">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  Copiar
+                </span>
+              )}
+            </button>
           )}
-        </button>
+
+          {/* Botão Executar */}
+          <button
+            onClick={onExecute}
+            disabled={loading}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${loading
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-indigo-600 text-white hover:bg-indigo-700'
+              }`}
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="animate-spin h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Analisando...
+              </span>
+            ) : (
+              aiReview?.review ? '🔄 Reexecutar' : '🤖 Executar Revisão IA'
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Conteúdo do Parecer */}
@@ -243,8 +290,11 @@ export default function ParecerAISection({
                 </h4>
                 <div className="text-sm text-blue-700 space-y-1">
                   <p>
-                    • Esta revisão foi gerada por Claude Sonnet 4.5, baseada em {aiReview.metadata?.knowledgeBase?.refsUsed || 24}
-                    referências científicas de {aiReview.metadata?.knowledgeBase?.uniqueArticles || 29} artigos (RAG)
+                    • Esta revisão foi gerada por Claude Sonnet 4.5, baseada em{' '}
+                    {aiReview.metadata?.knowledgeBase?.refsUsed || 24}{' '}
+                    referências científicas de{' '}
+                    {aiReview.metadata?.knowledgeBase?.uniqueArticles || 29}{' '}
+                    artigos (RAG)
                   </p>
                   <p>
                     • Os valores numéricos são calculados pelo sistema AHP-BOCR
