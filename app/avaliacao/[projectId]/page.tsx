@@ -219,14 +219,14 @@ function HierarchyTreeSidebar({
 
       {/* Header */}
       <div className="p-4 border-b border-white/10">
-        <h3 className="text-sm font-semibold text-white/90 mb-2">Progresso da Avaliação</h3>
+        <h3 className="text-base font-semibold text-white/90 mb-2">Progresso da Avaliação</h3>
         <div className="relative h-2 bg-white/10 rounded-full overflow-hidden mb-1">
           <div
             className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <p className="text-xs text-white/50">{completedCount} de {totalGroups} etapas · {progressPercent}%</p>
+        <p className="text-base text-white/50">{completedCount} de {totalGroups} etapas · {progressPercent}%</p>
       </div>
 
       {/* Árvore hierárquica */}
@@ -236,7 +236,7 @@ function HierarchyTreeSidebar({
         <div className="mb-3">
           <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-white/5">
             <span className="text-sm">🎯</span>
-            <span className="text-xs font-medium text-white/80 truncate">Decisão de Investimento I4.0</span>
+            <span className="text-sm font-medium text-white/80 truncate">Decisão de Investimento I4.0</span>
           </div>
         </div>
 
@@ -258,7 +258,7 @@ function HierarchyTreeSidebar({
                   <span className={`text-xs font-bold ${statusClasses(status)}`}>
                     {status === 'pending' ? '🔒' : statusIcon(status)}
                   </span>
-                  <span className={`text-xs ${status === 'current' ? 'text-white font-medium' : 'text-white/60'}`}>
+                  <span className={`text-sm ${status === 'current' ? 'text-white font-medium' : 'text-white/60'}`}>
                     {bg.label}
                   </span>
                 </div>
@@ -283,7 +283,7 @@ function HierarchyTreeSidebar({
                 <span className={`inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold ${colors.bg} ${colors.text}`}>
                   {merit}
                 </span>
-                <span className={`text-xs font-medium ${hasCurrent ? 'text-white' : 'text-white/60'}`}>
+                <span className={`text-sm font-medium ${hasCurrent ? 'text-white' : 'text-white/60'}`}>
                   {meritLabels[merit]}
                 </span>
                 {allCompleted && <span className="text-emerald-400 text-[10px] ml-auto">✓</span>}
@@ -300,7 +300,7 @@ function HierarchyTreeSidebar({
                     <div
                       key={g.id}
                       onClick={() => isClickable && onNavigate(idx)}
-                      className={`flex items-center gap-2 px-2 py-1 rounded text-xs transition-all ${status === 'current' ? 'bg-indigo-500/15 text-white font-medium' :
+                      className={`flex items-center gap-2 px-2 py-1 rounded text-sm transition-all ${status === 'current' ? 'bg-indigo-500/15 text-white font-medium' :
                         status === 'completed' ? 'text-white/50' : 'text-white/30'
                         } ${isClickable ? 'cursor-pointer hover:bg-white/10' : 'cursor-not-allowed opacity-60'}`}
                     >
@@ -928,7 +928,7 @@ function AvaliacaoProjectPageInner() {
                   style={{ background: badgeColor, minWidth: '28px', paddingLeft: '4px', paddingRight: '4px' }}>{code}</span>
                 <span className="text-sm font-semibold text-white">{name}</span>
               </div>
-              {description && <p className="text-xs text-gray-300 leading-relaxed">{description}</p>}
+              {description && <p className="text-sm text-gray-300 leading-relaxed">{description}</p>}
               <div className="absolute w-2.5 h-2.5 rotate-45"
                 style={{ [pos === 'above' ? 'bottom' : 'top']: '-5px', [side === 'left' ? 'right' : 'left']: '16px', background: '#1e293b' }} />
             </div>
@@ -979,12 +979,12 @@ function AvaliacaoProjectPageInner() {
                     style={{ background: badgeColor, minWidth: '28px', paddingLeft: '4px', paddingRight: '4px' }}>{code}</span>
                   <div className="min-w-0">
                     <span className="text-sm font-medium text-gray-800">{name}</span>
-                    {desc && <p className="text-xs text-gray-500 leading-relaxed mt-0.5">{desc}</p>}
+                    {desc && <p className="text-sm text-gray-500 leading-relaxed mt-0.5">{desc}</p>}
                   </div>
                 </div>
               );
             })}
-            <p className="text-xs text-gray-400 italic pt-1">💡 Toque nos badges coloridos nas comparações para ver definições rápidas.</p>
+            <p className="text-sm text-gray-400 italic pt-1">💡 Toque nos badges coloridos nas comparações para ver definições rápidas.</p>
           </div>
         )}
       </div>
@@ -1797,7 +1797,7 @@ function AvaliacaoProjectPageInner() {
             {/* Título e subtítulo */}
             <div className="text-center mb-6">
               <h1 className="text-xl font-bold text-white mb-1">Acesso à Pesquisa</h1>
-              <p className="text-sm text-white/50">
+              <p className="text-base text-white/50">
                 {project?.name || 'Pesquisa AHP-BOCR'}
               </p>
             </div>
@@ -1833,9 +1833,9 @@ function AvaliacaoProjectPageInner() {
                 border: '1px solid rgba(6, 182, 212, 0.2)',
               }}
             >
-              <p className="text-sm text-cyan-300">
+              <p className="text-base text-cyan-300">
                 <strong>🔐 Verificação de identidade</strong><br />
-                <span className="text-cyan-300/70">Digite seu email e o código de acesso que você recebeu.</span>
+                <span className="text-sm text-cyan-300/70">Digite seu email e o código de acesso que você recebeu.</span>
               </p>
             </div>
 
@@ -1843,7 +1843,7 @@ function AvaliacaoProjectPageInner() {
             <div className="space-y-5">
               {/* Campo Email */}
               <div>
-                <label className="block text-sm font-semibold text-white/80 mb-2">
+                <label className="block text-base font-semibold text-white/80 mb-2">
                   Seu email
                 </label>
                 <input
@@ -1871,7 +1871,7 @@ function AvaliacaoProjectPageInner() {
 
               {/* Campo Código de Acesso */}
               <div>
-                <label className="block text-sm font-semibold text-white/80 mb-2">
+                <label className="block text-base font-semibold text-white/80 mb-2">
                   Código de acesso
                 </label>
                 <input
@@ -1896,7 +1896,7 @@ function AvaliacaoProjectPageInner() {
                   }}
                   disabled={validating}
                 />
-                <p className="text-xs text-white/40 mt-2 text-center">
+                <p className="text-sm text-white/40 mt-2 text-center">
                   Código de 6 dígitos enviado com seu link de acesso
                 </p>
               </div>
@@ -1949,7 +1949,7 @@ function AvaliacaoProjectPageInner() {
 
         {/* Footer institucional */}
         <div className="mt-8 text-center relative animate-slide-in" style={{ zIndex: 10, animationDelay: '0.3s', opacity: 0 }}>
-          <p className="text-xs text-white/25 tracking-wide">
+          <p className="text-sm text-white/25 tracking-wide">
             UNESP · FEG · Mestrado Profissional em Engenharia de Produção
           </p>
         </div>
@@ -2025,28 +2025,28 @@ function AvaliacaoProjectPageInner() {
             <div className="flex items-center justify-center py-4 bg-white/5 border-b border-white/10">
               <div className="flex items-center">
                 <div className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">✓</div>
-                <span className="ml-1.5 text-xs text-green-400">Login</span>
+                <span className="ml-1.5 text-sm text-green-400">Login</span>
               </div>
               <div className="w-5 h-px bg-cyan-500 mx-1.5"></div>
               <div className="flex items-center">
                 <div className="w-7 h-7 bg-cyan-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg shadow-cyan-500/30">2</div>
-                <span className="ml-1.5 text-xs font-medium text-cyan-300">Consentimento</span>
+                <span className="ml-1.5 text-sm font-medium text-cyan-300">Termo</span>
               </div>
               <div className="w-5 h-px bg-white/20 mx-1.5"></div>
               <div className="flex items-center opacity-50">
                 <div className="w-7 h-7 bg-white/15 text-white/40 rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                <span className="ml-1.5 text-xs text-white/40">Perfil</span>
+                <span className="ml-1.5 text-sm text-white/40">Perfil</span>
               </div>
               <div className="w-5 h-px bg-white/20 mx-1.5"></div>
               <div className="flex items-center opacity-50">
                 <div className="w-7 h-7 bg-white/15 text-white/40 rounded-full flex items-center justify-center text-xs font-bold">4</div>
-                <span className="ml-1.5 text-xs text-white/40">Pesquisa</span>
+                <span className="ml-1.5 text-sm text-white/40">Pesquisa</span>
               </div>
             </div>
 
             {/* Corpo do Termo */}
             <div className="p-6">
-              <div className="max-h-[50vh] overflow-y-auto pr-2 space-y-4 text-sm text-white/80 leading-relaxed"
+              <div className="max-h-[50vh] overflow-y-auto pr-2 space-y-4 text-base text-white/80 leading-relaxed"
                 style={{
                   scrollbarWidth: 'thin',
                   scrollbarColor: 'rgba(255,255,255,0.2) transparent',
@@ -2056,32 +2056,32 @@ function AvaliacaoProjectPageInner() {
 
                 <div className="space-y-3">
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-1">Objetivo da pesquisa</p>
+                    <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Objetivo da pesquisa</p>
                     <p>Desenvolver e aplicar um modelo de decisão multicritério (AHP-BOCR) para priorizar investimentos em tecnologias de Indústria 4.0 no contexto do setor automotivo brasileiro.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-1">Sua participação</p>
+                    <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Sua participação</p>
                     <p>Consiste em realizar comparações pareadas entre critérios e alternativas tecnológicas, utilizando a escala fundamental de Saaty (1–9), por meio deste sistema web. O tempo estimado de participação é de aproximadamente 20 minutos.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-1">Confidencialidade</p>
+                    <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Confidencialidade</p>
                     <p>Suas respostas serão mantidas em estrita confidencialidade. Os dados coletados serão utilizados exclusivamente para fins acadêmicos e os resultados serão apresentados de forma agregada, sem identificação individual dos participantes.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-1">Voluntariedade</p>
+                    <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Voluntariedade</p>
                     <p>Sua participação é voluntária. Você pode interromper o preenchimento a qualquer momento, sem necessidade de justificativa e sem qualquer prejuízo.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-1">Riscos e benefícios</p>
+                    <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Riscos e benefícios</p>
                     <p>A pesquisa não apresenta riscos previsíveis além do tempo dedicado ao preenchimento. Os resultados contribuirão para o aprimoramento dos processos de decisão de investimento em tecnologia na organização.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                    <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-1">Contato</p>
+                    <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Contato</p>
                     <p>Em caso de dúvidas, entre em contato com o pesquisador responsável: <a href="mailto:pedro.palma@unesp.br" className="text-cyan-400 hover:text-cyan-300 underline">pedro.palma@unesp.br</a></p>
                   </div>
                 </div>
@@ -2096,7 +2096,7 @@ function AvaliacaoProjectPageInner() {
                     onChange={(e) => setConsentAccepted(e.target.checked)}
                     className="mt-1 w-5 h-5 rounded border-white/30 bg-white/10 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-0 cursor-pointer flex-shrink-0"
                   />
-                  <span className="text-sm text-white/70 group-hover:text-white/90 transition-colors">
+                  <span className="text-base text-white/70 group-hover:text-white/90 transition-colors">
                     Declaro que li e compreendi as informações acima e concordo em participar voluntariamente desta pesquisa.
                   </span>
                 </label>
@@ -2137,7 +2137,7 @@ function AvaliacaoProjectPageInner() {
                       window.location.href = '/';
                     }
                   }}
-                  className="text-xs text-white/30 hover:text-white/50 transition-colors underline"
+                  className="text-sm text-white/30 hover:text-white/50 transition-colors underline"
                 >
                   Não desejo participar
                 </button>
@@ -2308,7 +2308,7 @@ function AvaliacaoProjectPageInner() {
                   <label className="block text-sm font-medium text-white/80 mb-1">
                     {DEMOGRAPHIC_OPTIONS.areaAtuacao.label} <span className="text-red-400">*</span>
                   </label>
-                  <p className="text-xs text-white/40 mb-2 italic">{DEMOGRAPHIC_OPTIONS.areaAtuacao.hint}</p>
+                  <p className="text-sm text-white/40 mb-2 italic">{DEMOGRAPHIC_OPTIONS.areaAtuacao.hint}</p>
                   <select
                     value={demographics.areaAtuacao}
                     onChange={(e) => setDemographics({ ...demographics, areaAtuacao: e.target.value })}
@@ -2338,7 +2338,7 @@ function AvaliacaoProjectPageInner() {
                   <label className="block text-sm font-medium text-white/80 mb-1">
                     {DEMOGRAPHIC_OPTIONS.funcao.label} <span className="text-red-400">*</span>
                   </label>
-                  <p className="text-xs text-white/40 mb-2 italic">{DEMOGRAPHIC_OPTIONS.funcao.hint}</p>
+                  <p className="text-sm text-white/40 mb-2 italic">{DEMOGRAPHIC_OPTIONS.funcao.hint}</p>
                   <select
                     value={demographics.funcao}
                     onChange={(e) => setDemographics({ ...demographics, funcao: e.target.value })}
@@ -2373,7 +2373,7 @@ function AvaliacaoProjectPageInner() {
 
               {/* Informação de privacidade */}
               <div className="mt-6 p-4 bg-white/10 border border-white/10 rounded-lg">
-                <p className="text-xs text-white/50">
+                <p className="text-sm text-white/50">
                   <strong>🔒 Privacidade:</strong> Seus dados são confidenciais e serão utilizados apenas para fins estatísticos
                   da pesquisa acadêmica. Os resultados serão apresentados de forma agregada, sem identificação individual.
                 </p>
@@ -2422,7 +2422,7 @@ function AvaliacaoProjectPageInner() {
 
             {/* Alternativas (antes dos critérios — o especialista precisa saber O QUÊ avalia antes de HOW) */}
             <div>
-              <p className="text-sm text-white/60 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
+              <p className="text-base text-white/60 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
               <div className="space-y-2">
                 {(project?.alternatives || alternatives || []).map((alt: any, i: number) => (
                   <div key={alt.code || i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
@@ -2432,7 +2432,7 @@ function AvaliacaoProjectPageInner() {
                     <div className="min-w-0">
                       <p className="text-base font-semibold text-white">{alt.name}</p>
                       {alt.description && (
-                        <p className="text-sm text-white/60 mt-1 leading-relaxed">{alt.description}</p>
+                        <p className="text-base text-white/60 mt-1 leading-relaxed">{alt.description}</p>
                       )}
                     </div>
                   </div>
@@ -2442,7 +2442,7 @@ function AvaliacaoProjectPageInner() {
 
             {/* Critérios BOCR */}
             <div>
-              <p className="text-sm text-white/60 uppercase tracking-wider mb-2">Critérios de Avaliação (BOCR)</p>
+              <p className="text-base text-white/60 uppercase tracking-wider mb-2">Critérios de Avaliação (BOCR)</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { code: 'B', label: 'Benefícios', color: '#10b981' },
@@ -2573,7 +2573,7 @@ function AvaliacaoProjectPageInner() {
                     style={{ background: 'rgba(99,102,241,0.2)', color: '#a5b4fc' }}>{item.val}</span>
                   <div>
                     <span className="text-base font-medium text-white">{item.label}</span>
-                    <p className="text-sm text-white/60 mt-0.5">{item.desc}</p>
+                    <p className="text-base text-white/60 mt-0.5">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -2582,7 +2582,7 @@ function AvaliacaoProjectPageInner() {
                   style={{ background: 'rgba(99,102,241,0.1)', color: '#a5b4fc' }}>2,4,6,8</span>
                 <div>
                   <span className="text-base font-medium text-white">Valores intermediários</span>
-                  <p className="text-sm text-white/60 mt-0.5">Use quando sua opinião está entre dois níveis adjacentes</p>
+                  <p className="text-base text-white/60 mt-0.5">Use quando sua opinião está entre dois níveis adjacentes</p>
                 </div>
               </div>
             </div>
@@ -2649,22 +2649,22 @@ function AvaliacaoProjectPageInner() {
             <div className="flex items-center justify-center py-4 bg-white/5 border-b border-white/10">
               <div className="flex items-center">
                 <div className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">✓</div>
-                <span className="ml-1.5 text-xs text-green-400">Login</span>
+                <span className="ml-1.5 text-sm text-green-400">Login</span>
               </div>
               <div className="w-5 h-px bg-green-500 mx-1.5"></div>
               <div className="flex items-center">
                 <div className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">✓</div>
-                <span className="ml-1.5 text-xs text-green-400">Consentimento</span>
+                <span className="ml-1.5 text-sm text-green-400">Termo</span>
               </div>
               <div className="w-5 h-px bg-green-500 mx-1.5"></div>
               <div className="flex items-center">
                 <div className="w-7 h-7 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">✓</div>
-                <span className="ml-1.5 text-xs text-green-400">Perfil</span>
+                <span className="ml-1.5 text-sm text-green-400">Perfil</span>
               </div>
               <div className="w-5 h-px bg-cyan-500 mx-1.5"></div>
               <div className="flex items-center">
                 <div className="w-7 h-7 bg-cyan-500 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg shadow-cyan-500/30">4</div>
-                <span className="ml-1.5 text-xs font-medium text-cyan-300">Pesquisa</span>
+                <span className="ml-1.5 text-sm font-medium text-cyan-300">Pesquisa</span>
               </div>
             </div>
 
@@ -2706,7 +2706,7 @@ function AvaliacaoProjectPageInner() {
                   ← Anterior
                 </button>
 
-                <span className="text-xs text-white/30">{instructionStep + 1} / {instructionSteps.length}</span>
+                <span className="text-sm text-white/30">{instructionStep + 1} / {instructionSteps.length}</span>
 
                 {isLastStep ? (
                   <button
@@ -2739,7 +2739,7 @@ function AvaliacaoProjectPageInner() {
               {!isLastStep && (
                 <div className="text-center mt-3">
                   <button onClick={handleStartSurvey}
-                    className="text-xs text-white/30 hover:text-white/50 transition-colors underline">
+                    className="text-sm text-white/30 hover:text-white/50 transition-colors underline">
                     Pular instruções e iniciar pesquisa
                   </button>
                 </div>
@@ -2829,7 +2829,7 @@ function AvaliacaoProjectPageInner() {
                 <p className="text-gray-400 text-sm">
                   UNESP — Universidade Estadual Paulista | Guaratinguetá
                 </p>
-                <p className="text-gray-500 text-xs mt-1">
+                <p className="text-gray-500 text-sm mt-1">
                   Mestrado Profissional em Engenharia de Produção
                 </p>
               </div>
@@ -2877,13 +2877,13 @@ function AvaliacaoProjectPageInner() {
 
             {/* Info box */}
             <div className="p-4 rounded-xl mb-6" style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
-              <p className="text-sm text-cyan-200">
+              <p className="text-base text-cyan-200">
                 Os dados coletados serão tratados com total confidencialidade e utilizados exclusivamente para fins acadêmicos, conforme o Termo de Consentimento aceito.
               </p>
             </div>
 
             {/* Pesquisador */}
-            <div className="text-white/40 text-xs space-y-1">
+            <div className="text-white/40 text-sm space-y-1">
               <p>Pesquisa conduzida por <strong className="text-white/60">Pedro Henrique Palma</strong></p>
               <p>Mestrado Profissional em Engenharia de Produção — UNESP Guaratinguetá</p>
               <p>Contato: <a href="mailto:pedro.palma@unesp.br" className="text-cyan-400 hover:text-cyan-300">pedro.palma@unesp.br</a></p>
@@ -3010,16 +3010,16 @@ function AvaliacaoProjectPageInner() {
             <div className="p-5 space-y-5">
               {/* Meta */}
               <div className="p-4 rounded-xl" style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
-                <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wider mb-1">Meta da Pesquisa</p>
+                <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Meta da Pesquisa</p>
                 <p className="text-white font-medium">{project?.name || 'Pesquisa AHP-BOCR'}</p>
                 {project?.description && (
-                  <p className="text-sm text-white/60 mt-1">{project.description}</p>
+                  <p className="text-base text-white/60 mt-1">{project.description}</p>
                 )}
               </div>
 
               {/* Alternativas */}
               <div>
-                <p className="text-xs text-white/50 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
+                <p className="text-sm text-white/50 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
                 <div className="space-y-2">
                   {(project?.alternatives || alternatives || []).map((alt: any, i: number) => (
                     <div key={alt.code || i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
@@ -3028,7 +3028,7 @@ function AvaliacaoProjectPageInner() {
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-white">{alt.name}</p>
-                        {alt.description && <p className="text-xs text-white/50 mt-0.5">{alt.description}</p>}
+                        {alt.description && <p className="text-sm text-white/50 mt-0.5">{alt.description}</p>}
                       </div>
                     </div>
                   ))}
@@ -3038,7 +3038,7 @@ function AvaliacaoProjectPageInner() {
               {/* Impactos Detalhados (se disponíveis) */}
               {(project?.alternatives || []).some((alt: any) => alt.impacts && Object.keys(alt.impacts).length > 0) && (
                 <div>
-                  <p className="text-xs text-white/50 uppercase tracking-wider mb-3">Impactos por Subcritério</p>
+                  <p className="text-sm text-white/50 uppercase tracking-wider mb-3">Impactos por Subcritério</p>
 
                   {[
                     { code: 'B', label: 'Benefícios', color: '#10b981' },
@@ -3069,7 +3069,7 @@ function AvaliacaoProjectPageInner() {
                               <div key={sub.code} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                                 <div className="flex items-center gap-1.5 mb-2">
                                   <span className="text-xs font-bold px-1.5 py-0.5 rounded text-white" style={{ background: merit.color }}>{sub.code}</span>
-                                  <span className="text-xs font-medium text-white/80">{sub.name}</span>
+                                  <span className="text-sm font-medium text-white/80">{sub.name}</span>
                                 </div>
                                 <div className="space-y-1.5">
                                   {(project?.alternatives || []).map((alt: any) => {
@@ -3079,7 +3079,7 @@ function AvaliacaoProjectPageInner() {
                                       <div key={alt.code} className="flex items-start gap-2">
                                         <span className="inline-flex items-center justify-center w-6 h-5 rounded text-[10px] font-bold text-white flex-shrink-0 mt-0.5"
                                           style={{ background: '#8b5cf6' }}>{alt.code}</span>
-                                        <p className="text-xs text-white/60 leading-relaxed">{impactText}</p>
+                                        <p className="text-base text-white/60 leading-relaxed">{impactText}</p>
                                       </div>
                                     );
                                   })}
@@ -3111,7 +3111,7 @@ function AvaliacaoProjectPageInner() {
                 <span className="text-white/70">{respondentData?.email || 'Respondente'}</span>
               </span>
             </div>
-            <div className="text-white/50 text-xs flex items-center gap-3">
+            <div className="text-white/50 text-sm flex items-center gap-3">
               {saving && <span className="text-yellow-300">💾 Salvando...</span>}
               {lastSaved && !saving && <span className="text-green-300">✓ Salvo às {lastSaved.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>}
               <button
@@ -3151,7 +3151,7 @@ function AvaliacaoProjectPageInner() {
                     Contexto
                   </button>
                 </div>
-                <span className="text-white/40 text-xs">{globalAnswered}/{globalTotal} respostas</span>
+                <span className="text-white/40 text-sm">{globalAnswered}/{globalTotal} respostas</span>
               </div>
 
               <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
@@ -3170,7 +3170,7 @@ function AvaliacaoProjectPageInner() {
                 <span className="text-red-400 text-lg">⚠️</span>
                 <div>
                   <p className="text-sm font-semibold text-red-300">Responda mais comparações antes de finalizar</p>
-                  <p className="text-xs text-red-300/80 mt-1">
+                  <p className="text-sm text-red-300/80 mt-1">
                     {blockValidation.filter(v => !v.connected).length === 1
                       ? 'Há 1 bloco com comparações em destaque ainda não respondidas.'
                       : `Há ${blockValidation.filter(v => !v.connected).length} blocos com comparações em destaque ainda não respondidas.`}
@@ -3256,7 +3256,7 @@ function AvaliacaoProjectPageInner() {
                             background: validation?.isComplete ? '#10b981' : validation?.connected ? block.color : '#ef4444',
                           }} />
                       </div>
-                      <div className="flex justify-between text-xs text-gray-400 mt-1">
+                      <div className="flex justify-between text-sm text-gray-400 mt-1">
                         <span>{validation?.answeredTotal || 0} de {block.comparisons.length} respondidas</span>
                         {validation?.connected && !validation?.isComplete && (
                           <span className="text-blue-500 font-medium">✓ Próximo bloco desbloqueado</span>
@@ -3266,7 +3266,7 @@ function AvaliacaoProjectPageInner() {
                   )}
 
                   {/* Legenda da escala */}
-                  <div className="flex items-center justify-center mb-3 px-2 text-xs text-gray-400">
+                  <div className="flex items-center justify-center mb-3 px-2 text-sm text-gray-400">
                     <span className="hidden sm:block flex-1 text-right pr-2">← mais importante</span>
                     <div className="flex items-center gap-0.5">
                       {[9, 7, 5, 3, 1, 3, 5, 7, 9].map((v, i) => (
@@ -3318,7 +3318,7 @@ function AvaliacaoProjectPageInner() {
 
                             {/* Lado esquerdo */}
                             <div className="flex-1 text-right min-w-0 flex items-center justify-end gap-1.5">
-                              <span className="text-xs sm:text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal text-right">
+                              <span className="text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal text-right">
                                 {getItemName(comp.itemA)}
                               </span>
                               <CriterionBadge code={comp.itemA} side="left" color={block.color} />
@@ -3360,7 +3360,7 @@ function AvaliacaoProjectPageInner() {
                             {/* Lado direito */}
                             <div className="flex-1 text-left min-w-0 flex items-center gap-1.5">
                               <CriterionBadge code={comp.itemB} side="right" color={block.color} />
-                              <span className="text-xs sm:text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal">
+                              <span className="text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal">
                                 {getItemName(comp.itemB)}
                               </span>
                             </div>
@@ -3369,7 +3369,7 @@ function AvaliacaoProjectPageInner() {
                           {/* Feedback textual — terminologia verbal de Saaty (1977) */}
                           {currentValue !== null && !isSkipped && (
                             <div className="text-center mt-0.5 mb-1">
-                              <span className="text-xs text-gray-400">
+                              <span className="text-sm text-gray-400">
                                 {currentValue === 0
                                   ? 'Ambos são igualmente importantes'
                                   : `${currentValue < 0 ? getItemName(comp.itemA) : getItemName(comp.itemB)} é ${getSaatyVerbalLabel(Math.abs(sliderToSaaty(currentValue).saatyValue))} que ${currentValue < 0 ? getItemName(comp.itemB) : getItemName(comp.itemA)}`}
@@ -3378,7 +3378,7 @@ function AvaliacaoProjectPageInner() {
                           )}
                           {isSkipped && (
                             <div className="text-center mt-0.5 mb-1">
-                              <span className="text-xs text-gray-400 italic">⏭️ Pulada</span>
+                              <span className="text-sm text-gray-400 italic">⏭️ Pulada</span>
                             </div>
                           )}
                         </div>
