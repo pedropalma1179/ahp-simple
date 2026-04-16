@@ -2069,7 +2069,7 @@ function AvaliacaoProjectPageInner() {
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
                     <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Confidencialidade</p>
-                    <p>Suas respostas serão mantidas em estrita confidencialidade. Os dados coletados serão utilizados exclusivamente para fins acadêmicos e os resultados serão apresentados de forma agregada, sem identificação individual dos participantes. Os dados serão armazenados em ambiente digital seguro e mantidos pelo período necessário à conclusão da pesquisa.</p>
+                    <p>Suas respostas serão mantidas em estrita confidencialidade. Os dados coletados serão utilizados exclusivamente para fins acadêmicos e os resultados serão apresentados de forma agregada, sem identificação individual dos participantes. Os dados serão armazenados em ambiente digital seguro e mantidos pelo período necessário à conclusão da pesquisa. Os valores de consumo energético e indicadores financeiros apresentados no questionário são estimativas paramétricas baseadas em literatura científica, não representando dados reais ou confidenciais da empresa.</p>
                   </div>
 
                   <div className="p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
