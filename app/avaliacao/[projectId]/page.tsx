@@ -3303,7 +3303,7 @@ function AvaliacaoProjectPageInner() {
                                   {sub.name}
                                 </span>
                                 <span className="ml-2 text-sm font-medium text-gray-400">
-                                  {sub.code}
+                                  ({sub.code})
                                 </span>
                               </div>
                             ) : null;
@@ -3324,7 +3324,7 @@ function AvaliacaoProjectPageInner() {
 
                             {/* Lado esquerdo */}
                             <div className="flex-1 text-right min-w-0 flex items-center justify-end gap-1.5">
-                              <span className="text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal text-right">
+                              <span className="text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal text-left">
                                 {getItemName(comp.itemA)}
                               </span>
                               <CriterionBadge code={comp.itemA} side="left" color={block.color} />
