@@ -378,7 +378,7 @@ function BlockContextCard({
     if (block.type === 'alternatives') {
       const subCode = block.comparisons?.[0]?.group;
       const sub = SUBCRITERIA.find(s => s.code === subCode);
-      const subName = sub?.name || subCode || 'este critério';
+      const subName = sub?.name || subCode || 'este subcritério';
 
       return {
         main: `Agora sim — compare as alternativas diretamente: qual delas atende melhor a "${subName}"?`,
@@ -451,7 +451,7 @@ function BlockContextCard({
             return (
               <div className="mt-2 pt-2 border-t border-gray-100">
                 <p className="text-sm text-gray-500 mb-2 font-medium">
-                  Como cada alternativa impacta este critério:
+                  Como cada alternativa impacta este subcritério:
                 </p>
                 <div className="space-y-2">
                   {altsWithImpact.map((alt: any) => (
