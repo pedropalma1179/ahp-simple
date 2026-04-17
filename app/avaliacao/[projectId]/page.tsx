@@ -3220,7 +3220,17 @@ function AvaliacaoProjectPageInner() {
                           ? '"Pensando especificamente no problema das estufas de cura, qual dos dois critérios tem maior impacto real na escolha entre as alternativas, e com que intensidade?"'
                           : block.type === 'subcriteria'
                             ? `"Dentro de ${block.title?.replace('Subcritérios de ', '') || 'este mérito'}, qual subcritério é mais importante para a decisão e com que intensidade?"`
-                            : `"Considerando o critério ${block.comparisons?.[0]?.group || ''}, qual alternativa entrega mais valor e com que intensidade?"`
+                            : (() => {
+                                const m = block.id?.charAt(0) || '';
+                                const group = block.comparisons?.[0]?.group || '';
+                                const qMap: Record<string, string> = {
+                                  'B': `"Considerando o critério ${group}, qual alternativa entrega mais valor e com que intensidade?"`,
+                                  'O': `"Considerando o critério ${group}, qual alternativa tem maior potencial e com que intensidade?"`,
+                                  'C': `"Considerando o critério ${group}, qual alternativa gera maior impacto financeiro e com que intensidade?"`,
+                                  'R': `"Considerando o critério ${group}, qual alternativa apresenta maior exposição ao risco e com que intensidade?"`,
+                                };
+                                return qMap[m] || `"Considerando o critério ${group}, qual alternativa entrega mais valor e com que intensidade?"`;
+                              })()
                       }
                     </p>
                   </div>
@@ -3259,14 +3269,14 @@ function AvaliacaoProjectPageInner() {
 
                   {/* Legenda da escala */}
                   <div className="flex items-center justify-center mb-3 px-2 text-sm text-gray-400">
-                    <span className="hidden sm:block flex-1 text-right pr-2">← mais importante</span>
+                    <span className="hidden sm:block flex-1 text-right pr-2">← {block.type === 'alternatives' ? (['C','R'].includes(block.id?.charAt(0) || '') ? 'maior impacto' : 'mais favorável') : 'mais importante'}</span>
                     <div className="flex items-center gap-0.5">
                       {[9, 7, 5, 3, 1, 3, 5, 7, 9].map((v, i) => (
                         <span key={i} className="font-mono font-bold text-gray-300 text-center"
                           style={{ width: i === 4 ? '28px' : `${20 + v * 0.7}px`, display: 'inline-block' }}>{v}</span>
                       ))}
                     </div>
-                    <span className="hidden sm:block flex-1 text-left pl-2">mais importante →</span>
+                    <span className="hidden sm:block flex-1 text-left pl-2">{block.type === 'alternatives' ? (['C','R'].includes(block.id?.charAt(0) || '') ? 'maior impacto' : 'mais favorável') : 'mais importante'} →</span>
                   </div>
 
                   {/* === COMPARAÇÕES EMPILHADAS === */}
@@ -3365,9 +3375,32 @@ function AvaliacaoProjectPageInner() {
                           {currentValue !== null && !isSkipped && (
                             <div className="text-center mt-0.5 mb-1">
                               <span className="text-sm text-gray-400">
-                                {currentValue === 0
-                                  ? 'Ambos são igualmente importantes'
-                                  : `${currentValue < 0 ? getItemName(comp.itemA) : getItemName(comp.itemB)} é ${getSaatyVerbalLabel(Math.abs(sliderToSaaty(currentValue).saatyValue))} que ${currentValue < 0 ? getItemName(comp.itemB) : getItemName(comp.itemA)}`}
+                                {(() => {
+                                  const isAlt = block.type === 'alternatives';
+                                  const m = block.id?.charAt(0) || '';
+                                  const isCR = isAlt && ['C','R'].includes(m);
+                                  const isBO = isAlt && ['B','O'].includes(m);
+
+                                  if (currentValue === 0) {
+                                    if (isCR) return 'Ambas têm o mesmo nível de impacto';
+                                    if (isBO) return 'Ambas são igualmente favoráveis';
+                                    return 'Ambos são igualmente importantes';
+                                  }
+
+                                  const winner = currentValue < 0 ? getItemName(comp.itemA) : getItemName(comp.itemB);
+                                  const loser = currentValue < 0 ? getItemName(comp.itemB) : getItemName(comp.itemA);
+                                  const raw = getSaatyVerbalLabel(Math.abs(sliderToSaaty(currentValue).saatyValue));
+
+                                  if (isCR) {
+                                    const adj = raw.replace('mais importante', 'maior').replace('igualmente importantes', 'igual');
+                                    return `${winner} tem nível ${adj} que ${loser}`;
+                                  }
+                                  if (isBO) {
+                                    const adj = raw.replace('importantes', 'favoráveis').replace('importante', 'favorável');
+                                    return `${winner} é ${adj} que ${loser}`;
+                                  }
+                                  return `${winner} é ${raw} que ${loser}`;
+                                })()}
                               </span>
                             </div>
                           )}
