@@ -3202,10 +3202,6 @@ function AvaliacaoProjectPageInner() {
                       <p className="text-white/80 text-sm mt-0.5">{block.subtitle}</p>
                     </div>
                   </div>
-                  <div className="h-1 bg-white/20 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-500 bg-white"
-                      style={{ width: `${block.comparisons.length > 0 ? ((validation?.answeredTotal || 0) / block.comparisons.length) * 100 : 0}%` }} />
-                  </div>
                 </div>
 
                 {/* Corpo */}
@@ -3268,14 +3264,14 @@ function AvaliacaoProjectPageInner() {
 
                   {/* Legenda da escala */}
                   <div className="flex items-center justify-center mb-3 px-2 text-sm text-gray-400">
-                    <span className="hidden sm:block flex-1 text-right pr-2">← {block.type === 'alternatives' ? (['C','R'].includes(block.id?.charAt(0) || '') ? 'maior impacto' : 'mais favorável') : 'mais importante'}</span>
+                    <span className="hidden sm:block flex-1 text-right pr-2">← {block.type === 'alternatives' ? (['C','R'].includes(block.comparisons?.[0]?.group?.charAt(0) || '') ? 'maior impacto' : 'mais favorável') : 'mais importante'}</span>
                     <div className="flex items-center gap-0.5">
                       {[9, 7, 5, 3, 1, 3, 5, 7, 9].map((v, i) => (
                         <span key={i} className="font-mono font-bold text-gray-300 text-center"
                           style={{ width: i === 4 ? '28px' : `${20 + v * 0.7}px`, display: 'inline-block' }}>{v}</span>
                       ))}
                     </div>
-                    <span className="hidden sm:block flex-1 text-left pl-2">{block.type === 'alternatives' ? (['C','R'].includes(block.id?.charAt(0) || '') ? 'maior impacto' : 'mais favorável') : 'mais importante'} →</span>
+                    <span className="hidden sm:block flex-1 text-left pl-2">{block.type === 'alternatives' ? (['C','R'].includes(block.comparisons?.[0]?.group?.charAt(0) || '') ? 'maior impacto' : 'mais favorável') : 'mais importante'} →</span>
                   </div>
 
                   {/* === COMPARAÇÕES EMPILHADAS === */}
@@ -3376,7 +3372,7 @@ function AvaliacaoProjectPageInner() {
                               <span className="text-sm text-gray-400">
                                 {(() => {
                                   const isAlt = block.type === 'alternatives';
-                                  const m = block.id?.charAt(0) || '';
+                                  const m = block.comparisons?.[0]?.group?.charAt(0) || '';
                                   const isCR = isAlt && ['C','R'].includes(m);
                                   const isBO = isAlt && ['B','O'].includes(m);
 
