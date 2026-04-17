@@ -431,6 +431,12 @@ function BlockContextCard({
           <p className="text-base text-gray-700 leading-relaxed">{ctx.main}</p>
           <p className="text-sm text-gray-500 leading-relaxed">{ctx.detail}</p>
 
+          {(block.type === 'magnitude' || block.type === 'rescaling') && (
+            <p className="text-sm text-white/50 italic mt-2">
+              Caso precise relembrar os detalhes das alternativas, clique no ícone "contexto" no alto da página.
+            </p>
+          )}
+
           {/* Alternativas em badges (para blocos de alternativas) */}
           {block.type === 'alternatives' && alternatives.length > 0 && (
             <div className="mt-2 pt-2 border-t border-gray-100">
