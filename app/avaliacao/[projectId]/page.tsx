@@ -3221,15 +3221,14 @@ function AvaliacaoProjectPageInner() {
                           : block.type === 'subcriteria'
                             ? `"Dentro de ${block.title?.replace('Subcritérios de ', '') || 'este mérito'}, qual subcritério é mais importante para a decisão e com que intensidade?"`
                             : (() => {
-                                const m = block.id?.charAt(0) || '';
-                                const group = block.comparisons?.[0]?.group || '';
+                                const m = block.comparisons?.[0]?.group?.charAt(0) || '';
                                 const qMap: Record<string, string> = {
-                                  'B': `"Considerando o critério ${group}, qual alternativa entrega mais valor e com que intensidade?"`,
-                                  'O': `"Considerando o critério ${group}, qual alternativa tem maior potencial e com que intensidade?"`,
-                                  'C': `"Considerando o critério ${group}, qual alternativa gera maior impacto financeiro e com que intensidade?"`,
-                                  'R': `"Considerando o critério ${group}, qual alternativa apresenta maior exposição ao risco e com que intensidade?"`,
+                                  'B': '"Para cada subcritério de Benefícios abaixo, qual alternativa entrega mais valor e com que intensidade?"',
+                                  'O': '"Para cada subcritério de Oportunidades abaixo, qual alternativa oferece maior potencial e com que intensidade?"',
+                                  'C': '"Para cada subcritério de Custos abaixo, qual alternativa apresenta maior impacto financeiro e com que intensidade?"',
+                                  'R': '"Para cada subcritério de Riscos abaixo, qual alternativa apresenta maior exposição ao risco e com que intensidade?"',
                                 };
-                                return qMap[m] || `"Considerando o critério ${group}, qual alternativa entrega mais valor e com que intensidade?"`;
+                                return qMap[m] || '"Para cada subcritério abaixo, compare as alternativas com base na sua experiência."';
                               })()
                       }
                     </p>
