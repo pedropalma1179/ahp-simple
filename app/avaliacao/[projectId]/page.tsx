@@ -206,7 +206,7 @@ function HierarchyTreeSidebar({
   const statusClasses = (status: string) => {
     if (status === 'completed') return 'text-emerald-400';
     if (status === 'current') return 'text-indigo-400 animate-pulse';
-    return 'text-white/30';
+    return 'text-white/60';
   };
 
   // Progresso geral
@@ -226,7 +226,7 @@ function HierarchyTreeSidebar({
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <p className="text-base text-white/50">{completedCount} de {totalGroups} etapas · {progressPercent}%</p>
+        <p className="text-base text-white/70">{completedCount} de {totalGroups} etapas · {progressPercent}%</p>
       </div>
 
       {/* Árvore hierárquica */}
@@ -301,7 +301,7 @@ function HierarchyTreeSidebar({
                       key={g.id}
                       onClick={() => isClickable && onNavigate(idx)}
                       className={`flex items-center gap-2 px-2 py-1 rounded text-sm transition-all ${status === 'current' ? 'bg-indigo-500/15 text-white font-medium' :
-                        status === 'completed' ? 'text-white/50' : 'text-white/30'
+                        status === 'completed' ? 'text-white/70' : 'text-white/60'
                         } ${isClickable ? 'cursor-pointer hover:bg-white/10' : 'cursor-not-allowed opacity-60'}`}
                     >
                       <span className={`text-[10px] ${statusClasses(status)}`}>
@@ -1789,7 +1789,7 @@ function AvaliacaoProjectPageInner() {
             {/* Título e subtítulo */}
             <div className="text-center mb-6">
               <h1 className="text-xl font-bold text-white mb-1">Acesso à Pesquisa</h1>
-              <p className="text-base text-white/50">
+              <p className="text-base text-white/70">
                 {project?.name || 'Pesquisa AHP-BOCR'}
               </p>
             </div>
@@ -1802,18 +1802,18 @@ function AvaliacaoProjectPageInner() {
               </div>
               <div className="w-6 h-px bg-white/20 mx-2"></div>
               <div className="flex items-center">
-                <div className="w-7 h-7 bg-white/15 text-white/40 rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                <span className="ml-1.5 text-sm text-white/40">Consentimento</span>
+                <div className="w-7 h-7 bg-white/15 text-white/60 rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                <span className="ml-1.5 text-sm text-white/60">Consentimento</span>
               </div>
               <div className="w-6 h-px bg-white/20 mx-2"></div>
               <div className="flex items-center">
-                <div className="w-7 h-7 bg-white/15 text-white/40 rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                <span className="ml-1.5 text-sm text-white/40">Perfil</span>
+                <div className="w-7 h-7 bg-white/15 text-white/60 rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                <span className="ml-1.5 text-sm text-white/60">Perfil</span>
               </div>
               <div className="w-6 h-px bg-white/20 mx-2"></div>
               <div className="flex items-center">
-                <div className="w-7 h-7 bg-white/15 text-white/40 rounded-full flex items-center justify-center text-xs font-bold">4</div>
-                <span className="ml-1.5 text-sm text-white/40">Pesquisa</span>
+                <div className="w-7 h-7 bg-white/15 text-white/60 rounded-full flex items-center justify-center text-xs font-bold">4</div>
+                <span className="ml-1.5 text-sm text-white/60">Pesquisa</span>
               </div>
             </div>
 
@@ -1843,7 +1843,7 @@ function AvaliacaoProjectPageInner() {
                   value={emailInput}
                   onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="seu.email@exemplo.com"
-                  className="w-full px-4 py-3.5 rounded-xl text-white placeholder-white/35 outline-none transition-all duration-200"
+                  className="w-full px-4 py-3.5 rounded-xl text-white placeholder-white/60 outline-none transition-all duration-200"
                   style={{
                     background: 'rgba(255, 255, 255, 0.06)',
                     border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -1873,7 +1873,7 @@ function AvaliacaoProjectPageInner() {
                   onKeyDown={(e) => e.key === 'Enter' && handleEmailValidation()}
                   placeholder="000000"
                   maxLength={6}
-                  className="w-full px-4 py-3.5 rounded-xl text-white placeholder-white/35 outline-none transition-all duration-200 text-center text-2xl font-mono tracking-[0.5em]"
+                  className="w-full px-4 py-3.5 rounded-xl text-white placeholder-white/60 outline-none transition-all duration-200 text-center text-2xl font-mono tracking-[0.5em]"
                   style={{
                     background: 'rgba(255, 255, 255, 0.06)',
                     border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -1888,7 +1888,7 @@ function AvaliacaoProjectPageInner() {
                   }}
                   disabled={validating}
                 />
-                <p className="text-sm text-white/40 mt-2 text-center">
+                <p className="text-sm text-white/60 mt-2 text-center">
                   Código de 6 dígitos enviado com seu link de acesso
                 </p>
               </div>
@@ -2026,13 +2026,13 @@ function AvaliacaoProjectPageInner() {
               </div>
               <div className="w-5 h-px bg-white/20 mx-1.5"></div>
               <div className="flex items-center opacity-50">
-                <div className="w-7 h-7 bg-white/15 text-white/40 rounded-full flex items-center justify-center text-xs font-bold">3</div>
-                <span className="ml-1.5 text-sm text-white/40">Perfil</span>
+                <div className="w-7 h-7 bg-white/15 text-white/60 rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                <span className="ml-1.5 text-sm text-white/60">Perfil</span>
               </div>
               <div className="w-5 h-px bg-white/20 mx-1.5"></div>
               <div className="flex items-center opacity-50">
-                <div className="w-7 h-7 bg-white/15 text-white/40 rounded-full flex items-center justify-center text-xs font-bold">4</div>
-                <span className="ml-1.5 text-sm text-white/40">Pesquisa</span>
+                <div className="w-7 h-7 bg-white/15 text-white/60 rounded-full flex items-center justify-center text-xs font-bold">4</div>
+                <span className="ml-1.5 text-sm text-white/60">Pesquisa</span>
               </div>
             </div>
 
@@ -2136,7 +2136,7 @@ function AvaliacaoProjectPageInner() {
                       window.location.href = '/';
                     }
                   }}
-                  className="text-sm text-white/30 hover:text-white/50 transition-colors underline"
+                  className="text-sm text-white/60 hover:text-white/70 transition-colors underline"
                 >
                   Não desejo participar
                 </button>
@@ -2192,8 +2192,8 @@ function AvaliacaoProjectPageInner() {
               </div>
               <div className="w-8 h-px bg-white/30 mx-2"></div>
               <div className="flex items-center opacity-50">
-                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold text-white/40">4</div>
-                <span className="ml-2 text-sm text-white/40">Pesquisa</span>
+                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold text-white/60">4</div>
+                <span className="ml-2 text-sm text-white/60">Pesquisa</span>
               </div>
             </div>
 
@@ -2307,7 +2307,7 @@ function AvaliacaoProjectPageInner() {
                   <label className="block text-sm font-medium text-white/80 mb-1">
                     {DEMOGRAPHIC_OPTIONS.areaAtuacao.label} <span className="text-red-400">*</span>
                   </label>
-                  <p className="text-sm text-white/40 mb-2 italic">{DEMOGRAPHIC_OPTIONS.areaAtuacao.hint}</p>
+                  <p className="text-sm text-white/60 mb-2 italic">{DEMOGRAPHIC_OPTIONS.areaAtuacao.hint}</p>
                   <select
                     value={demographics.areaAtuacao}
                     onChange={(e) => setDemographics({ ...demographics, areaAtuacao: e.target.value })}
@@ -2325,7 +2325,7 @@ function AvaliacaoProjectPageInner() {
                         value={areaOutro}
                         onChange={(e) => setAreaOutro(e.target.value)}
                         placeholder="Especifique sua área de atuação"
-                        className="w-full px-4 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                        className="w-full px-4 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                         required
                       />
                     </div>
@@ -2337,7 +2337,7 @@ function AvaliacaoProjectPageInner() {
                   <label className="block text-sm font-medium text-white/80 mb-1">
                     {DEMOGRAPHIC_OPTIONS.funcao.label} <span className="text-red-400">*</span>
                   </label>
-                  <p className="text-sm text-white/40 mb-2 italic">{DEMOGRAPHIC_OPTIONS.funcao.hint}</p>
+                  <p className="text-sm text-white/60 mb-2 italic">{DEMOGRAPHIC_OPTIONS.funcao.hint}</p>
                   <select
                     value={demographics.funcao}
                     onChange={(e) => setDemographics({ ...demographics, funcao: e.target.value })}
@@ -2355,7 +2355,7 @@ function AvaliacaoProjectPageInner() {
                         value={funcaoOutro}
                         onChange={(e) => setFuncaoOutro(e.target.value)}
                         placeholder="Especifique seu cargo/função"
-                        className="w-full px-4 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                        className="w-full px-4 py-2 rounded-lg border border-white/20 bg-white/10 text-white placeholder-white/60 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
                         required
                       />
                     </div>
@@ -2372,7 +2372,7 @@ function AvaliacaoProjectPageInner() {
 
               {/* Informação de privacidade */}
               <div className="mt-6 p-4 bg-white/10 border border-white/10 rounded-lg">
-                <p className="text-sm text-white/50">
+                <p className="text-sm text-white/70">
                   <strong>🔒 Privacidade:</strong> Seus dados são confidenciais e serão utilizados apenas para fins estatísticos
                   da pesquisa acadêmica. Os resultados serão apresentados de forma agregada, sem identificação individual.
                 </p>
@@ -2458,7 +2458,7 @@ function AvaliacaoProjectPageInner() {
                       </div>
                       <ul className="space-y-0.5">
                         {items.slice(0, 5).map((item, i) => (
-                          <li key={i} className="text-sm text-white/50 flex items-start gap-1.5">
+                          <li key={i} className="text-sm text-white/70 flex items-start gap-1.5">
                             <span className="flex-shrink-0 mt-0.5">•</span>
                             <span>{item.name}</span>
                           </li>
@@ -2470,7 +2470,7 @@ function AvaliacaoProjectPageInner() {
               </div>
             </div>
 
-            <p className="text-sm text-white/50 italic">
+            <p className="text-sm text-white/70 italic">
               Seus julgamentos de preferência entre critérios e alternativas serão utilizados para calcular a prioridade de cada alternativa, auxiliando na tomada de decisão.
             </p>
           </div>
@@ -2705,7 +2705,7 @@ function AvaliacaoProjectPageInner() {
                   ← Anterior
                 </button>
 
-                <span className="text-sm text-white/30">{instructionStep + 1} / {instructionSteps.length}</span>
+                <span className="text-sm text-white/60">{instructionStep + 1} / {instructionSteps.length}</span>
 
                 {isLastStep ? (
                   <button
@@ -2738,7 +2738,7 @@ function AvaliacaoProjectPageInner() {
               {!isLastStep && (
                 <div className="text-center mt-3">
                   <button onClick={handleStartSurvey}
-                    className="text-sm text-white/30 hover:text-white/50 transition-colors underline">
+                    className="text-sm text-white/60 hover:text-white/70 transition-colors underline">
                     Pular instruções e iniciar pesquisa
                   </button>
                 </div>
@@ -2882,7 +2882,7 @@ function AvaliacaoProjectPageInner() {
             </div>
 
             {/* Pesquisador */}
-            <div className="text-white/40 text-sm space-y-1">
+            <div className="text-white/60 text-sm space-y-1">
               <p>Pesquisa conduzida por <strong className="text-white/60">Pedro Henrique Palma</strong></p>
               <p>Mestrado Profissional em Engenharia de Produção — UNESP Guaratinguetá</p>
               <p>Contato: <a href="mailto:pedro.palma@unesp.br" className="text-cyan-400 hover:text-cyan-300">pedro.palma@unesp.br</a></p>
@@ -3000,7 +3000,7 @@ function AvaliacaoProjectPageInner() {
               </div>
               <button
                 onClick={() => setShowContextModal(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all"
               >
                 ✕
               </button>
@@ -3018,7 +3018,7 @@ function AvaliacaoProjectPageInner() {
 
               {/* Alternativas */}
               <div>
-                <p className="text-sm text-white/50 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
+                <p className="text-sm text-white/70 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
                 <div className="space-y-2">
                   {(project?.alternatives || alternatives || []).map((alt: any, i: number) => (
                     <div key={alt.code || i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
@@ -3027,7 +3027,7 @@ function AvaliacaoProjectPageInner() {
                       </span>
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-white">{alt.name}</p>
-                        {alt.description && <p className="text-sm text-white/50 mt-0.5">{alt.description}</p>}
+                        {alt.description && <p className="text-sm text-white/70 mt-0.5">{alt.description}</p>}
                       </div>
                     </div>
                   ))}
@@ -3037,7 +3037,7 @@ function AvaliacaoProjectPageInner() {
               {/* Impactos Detalhados (se disponíveis) */}
               {(project?.alternatives || []).some((alt: any) => alt.impacts && Object.keys(alt.impacts).length > 0) && (
                 <div>
-                  <p className="text-sm text-white/50 uppercase tracking-wider mb-3">Impactos por Subcritério</p>
+                  <p className="text-sm text-white/70 uppercase tracking-wider mb-3">Impactos por Subcritério</p>
 
                   {[
                     { code: 'B', label: 'Benefícios', color: '#10b981' },
@@ -3110,7 +3110,7 @@ function AvaliacaoProjectPageInner() {
                 <span className="text-white/70">{respondentData?.email || 'Respondente'}</span>
               </span>
             </div>
-            <div className="text-white/50 text-sm flex items-center gap-3">
+            <div className="text-white/70 text-sm flex items-center gap-3">
               {saving && <span className="text-yellow-300">💾 Salvando...</span>}
               {lastSaved && !saving && <span className="text-green-300">✓ Salvo às {lastSaved.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>}
               <button
@@ -3122,7 +3122,7 @@ function AvaliacaoProjectPageInner() {
                   sessionStorage.removeItem(`validatedRespondentId_${projectId}`);
                   window.location.reload();
                 }}
-                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
                 title="Salvar progresso e sair"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3141,7 +3141,7 @@ function AvaliacaoProjectPageInner() {
                   <span className="text-white/80 text-sm font-medium">Avaliação AHP-BOCR</span>
                   <button
                     onClick={() => setShowContextModal(true)}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs text-white/40 hover:text-white/70 hover:bg-white/10 transition-all"
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs text-white/60 hover:text-white/70 hover:bg-white/10 transition-all"
                     title="Ver contexto da decisão"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3150,7 +3150,7 @@ function AvaliacaoProjectPageInner() {
                     Contexto
                   </button>
                 </div>
-                <span className="text-white/40 text-sm">{globalAnswered}/{globalTotal} respostas</span>
+                <span className="text-white/60 text-sm">{globalAnswered}/{globalTotal} respostas</span>
               </div>
 
               <div className="h-1.5 bg-white/10 rounded-full overflow-hidden mb-2">
@@ -3248,13 +3248,6 @@ function AvaliacaoProjectPageInner() {
                               : `Responda todas as comparações para maior precisão dos resultados. Para prosseguir, é necessário responder ao menos as sinalizadas em destaque (faltam ${Math.max(1, (validation?.minRequired || 0) - (validation?.answeredCount || 0))}).`}
                         </span>
                       </div>
-                      <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full transition-all duration-500"
-                          style={{
-                            width: `${block.comparisons.length > 0 ? ((validation?.answeredTotal || 0) / block.comparisons.length) * 100 : 0}%`,
-                            background: validation?.isComplete ? '#10b981' : validation?.connected ? block.color : '#ef4444',
-                          }} />
-                      </div>
                       <div className="flex justify-between text-sm text-gray-400 mt-1">
                         <span>{validation?.answeredTotal || 0} de {block.comparisons.length} respondidas</span>
                         {validation?.connected && !validation?.isComplete && (
@@ -3293,10 +3286,13 @@ function AvaliacaoProjectPageInner() {
                             if (prevComp && prevComp.group === comp.group) return null;
                             const sub = SUBCRITERIA.find(s => s.code === comp.group);
                             return sub ? (
-                              <div className="text-center mb-1 mt-3 first:mt-0">
-                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium"
-                                  style={{ background: `${block.color}15`, color: block.color }}>
-                                  em relação a {sub.name} ({sub.code})
+                              <div className="mb-2 mt-5 first:mt-0 mx-3 sm:mx-4 border-l-4 pl-3 py-1"
+                                style={{ borderColor: block.color }}>
+                                <span className="text-base font-bold text-gray-800">
+                                  {sub.name}
+                                </span>
+                                <span className="ml-2 text-sm font-medium text-gray-400">
+                                  {sub.code}
                                 </span>
                               </div>
                             ) : null;
@@ -3444,11 +3440,11 @@ function AvaliacaoProjectPageInner() {
           {/* Salvar progresso */}
           <div className="mt-3 flex items-center justify-center gap-3">
             <button onClick={saveProgress} disabled={saving || globalAnswered === 0}
-              className="text-white/40 hover:text-white/70 text-xs transition-colors disabled:opacity-30 flex items-center gap-1">
+              className="text-white/60 hover:text-white/70 text-xs transition-colors disabled:opacity-30 flex items-center gap-1">
               💾 Salvar progresso
             </button>
             {lastSaved && (
-              <span className="text-white/30 text-xs">
+              <span className="text-white/60 text-xs">
                 Salvo às {lastSaved.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
               </span>
             )}
