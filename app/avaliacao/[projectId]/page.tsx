@@ -360,26 +360,33 @@ function BlockContextCard({
 
     if (block.type === 'bocr' || block.type === 'merits') {
       return {
-        main: 'Você está avaliando, de modo geral, quais critérios devem ter mais peso em decisões de investimento em tecnologia de Indústria 4.0.',
-        detail: `Seus julgamentos definirão a importância relativa de Benefícios, Oportunidades, Custos e Riscos como princípio para avaliar as alternativas: ${altNames}.`,
+        main: 'Nesta etapa, você NÃO está comparando as alternativas tecnológicas entre si. Você está definindo, de modo geral, quais critérios pesam mais em decisões de investimento.',
+        detail: 'Avalie a importância relativa entre Benefícios, Oportunidades, Custos e Riscos como princípios gerais de decisão. Por exemplo: ao decidir sobre qualquer investimento em tecnologia, o que pesa mais para você — os benefícios esperados ou os riscos envolvidos? Na próxima etapa, você contextualizará esses critérios para o caso específico das estufas.',
       };
     }
 
     if (block.type === 'magnitude' || block.type === 'rescaling') {
       return {
-        main: 'Na etapa anterior, você avaliou quais critérios devem ter mais peso de modo geral em decisões de investimento em tecnologia.',
-        detail: `Agora, considere o caso específico das estufas de cura da linha de pintura. Neste contexto concreto, o impacto real de cada critério pode ser diferente da importância geral que você atribuiu. Por exemplo: de modo geral, Riscos podem ser muito relevantes, mas no caso particular das estufas, o impacto dos Custos pode ser mais determinante. Compare a intensidade do efeito prático de cada critério sobre a escolha entre as alternativas: ${altNames}.\n\nCaso precise relembrar os detalhes das alternativas, clique no ícone "contexto" no alto da página.`,
+        main: 'Você continua comparando critérios entre si — ainda NÃO está comparando as alternativas tecnológicas.',
+        detail: 'Na etapa anterior, você definiu quais critérios pesam mais de modo geral. Agora, avalie a intensidade do impacto prático de cada critério no contexto específico das estufas de cura da linha de pintura. Por exemplo: de modo geral, Riscos podem ser muito relevantes, mas no caso particular das estufas, o impacto dos Custos pode ser mais determinante.\n\nCaso precise relembrar os detalhes das alternativas, clique no ícone "contexto" no alto da página.',
       };
     }
 
     if (block.type === 'subcriteria') {
       const meritMap: Record<string, string> = { 'B': 'Benefícios', 'O': 'Oportunidades', 'C': 'Custos', 'R': 'Riscos' };
+      const meritExamples: Record<string, string> = {
+        'B': 'Por exemplo: na sua visão como gestor, ganhos de produtividade são mais ou menos importantes que ganhos de qualidade?',
+        'O': 'Por exemplo: transformação digital é mais ou menos importante que maturidade tecnológica?',
+        'C': 'Por exemplo: o valor do investimento inicial pesa mais ou menos que o custo de operação contínua?',
+        'R': 'Por exemplo: o risco de segurança cibernética é mais preocupante que o risco de complexidade de integração?',
+      };
       const meritCode = block.id?.charAt(0) || block.nodes?.[0]?.charAt(0) || '?';
       const meritName = meritMap[meritCode] || block.title;
+      const example = meritExamples[meritCode] || '';
 
       return {
-        main: `Você está comparando subcritérios de ${meritName} entre si.`,
-        detail: `Seus julgamentos definirão quais ${meritName.toLowerCase()} são mais relevantes ao avaliar as alternativas: ${altNames}.`,
+        main: `Você NÃO está comparando as alternativas entre si. Avalie quais aspectos de ${meritName} pesam mais na sua decisão como gestor.`,
+        detail: `Compare os subcritérios de ${meritName.toLowerCase()} com base nos seus critérios de decisão — independentemente de qual alternativa se sai melhor em cada aspecto. ${example} Na próxima etapa, você comparará as alternativas diretamente.\n\nAs informações sobre o impacto de cada alternativa nos subcritérios são apenas de referência e não devem influenciar esta comparação.`,
       };
     }
 
@@ -389,8 +396,8 @@ function BlockContextCard({
       const subName = sub?.name || subCode || 'este critério';
 
       return {
-        main: `Você está comparando as alternativas em relação a "${subName}".`,
-        detail: `Para cada par, considere: qual alternativa entrega mais valor em termos de ${subName.toLowerCase()}?`,
+        main: `Agora sim — compare as alternativas diretamente: qual delas atende melhor a "${subName}"?`,
+        detail: `Nas etapas anteriores, você definiu quais critérios pesam mais na sua decisão. Agora, avalie qual alternativa entrega mais valor em ${subName.toLowerCase()}. Considere as informações técnicas e financeiras disponíveis no ícone "contexto" no alto da página.`,
       };
     }
 
