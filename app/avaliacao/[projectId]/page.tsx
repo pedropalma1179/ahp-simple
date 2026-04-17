@@ -368,7 +368,7 @@ function BlockContextCard({
     if (block.type === 'magnitude' || block.type === 'rescaling') {
       return {
         main: 'Na etapa anterior, você avaliou quais critérios devem ter mais peso de modo geral em decisões de investimento em tecnologia.',
-        detail: `Agora, considere o caso específico das estufas de cura da linha de pintura. Neste contexto concreto, o impacto real de cada critério pode ser diferente da importância geral que você atribuiu. Por exemplo: de modo geral, Riscos podem ser muito relevantes, mas no caso particular das estufas, o impacto dos Custos pode ser mais determinante. Compare a intensidade do efeito prático de cada critério sobre a escolha entre as alternativas: ${altNames}.`,
+        detail: `Agora, considere o caso específico das estufas de cura da linha de pintura. Neste contexto concreto, o impacto real de cada critério pode ser diferente da importância geral que você atribuiu. Por exemplo: de modo geral, Riscos podem ser muito relevantes, mas no caso particular das estufas, o impacto dos Custos pode ser mais determinante. Compare a intensidade do efeito prático de cada critério sobre a escolha entre as alternativas: ${altNames}.\n\nCaso precise relembrar os detalhes das alternativas, clique no ícone "contexto" no alto da página.`,
       };
     }
 
@@ -430,12 +430,6 @@ function BlockContextCard({
         <div className="px-4 pb-3 border-t pt-3 space-y-2" style={{ borderColor: 'rgba(6, 182, 212, 0.1)' }}>
           <p className="text-base text-gray-700 leading-relaxed">{ctx.main}</p>
           <p className="text-sm text-gray-500 leading-relaxed">{ctx.detail}</p>
-
-          {(block.type === 'magnitude' || block.type === 'rescaling') && (
-            <p className="text-sm text-white/50 italic mt-2">
-              Caso precise relembrar os detalhes das alternativas, clique no ícone "contexto" no alto da página.
-            </p>
-          )}
 
           {/* Alternativas em badges (para blocos de alternativas) */}
           {block.type === 'alternatives' && alternatives.length > 0 && (
