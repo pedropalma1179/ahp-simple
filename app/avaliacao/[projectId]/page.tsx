@@ -337,22 +337,7 @@ function BlockContextCard({
   projectName: string;
   project: Project | null;
 }) {
-  const [expanded, setExpanded] = useState(true);
-  const [hasBeenSeen, setHasBeenSeen] = useState(false);
-
-  // Auto-colapsar após 8 segundos na primeira visualização de cada bloco
-  useEffect(() => {
-    setExpanded(true);
-    setHasBeenSeen(false);
-  }, [block.id]);
-
-  useEffect(() => {
-    if (!hasBeenSeen && expanded) {
-      setHasBeenSeen(true);
-      const timer = setTimeout(() => setExpanded(false), 8000);
-      return () => clearTimeout(timer);
-    }
-  }, [hasBeenSeen, expanded, block.id]);
+  const [expanded, setExpanded] = useState(false);
 
   // Gerar texto contextual baseado no tipo do bloco
   const getContextText = (): { main: string; detail: string } => {
@@ -360,33 +345,33 @@ function BlockContextCard({
 
     if (block.type === 'bocr' || block.type === 'merits') {
       return {
-        main: 'Nesta etapa, você NÃO está comparando as alternativas tecnológicas entre si. Você está definindo, de modo geral, quais critérios pesam mais em decisões de investimento.',
-        detail: 'Avalie a importância relativa entre Benefícios, Oportunidades, Custos e Riscos como princípios gerais de decisão. Por exemplo: ao decidir sobre qualquer investimento em tecnologia, o que pesa mais para você — os benefícios esperados ou os riscos envolvidos? Na próxima etapa, você contextualizará esses critérios para o caso específico das estufas.',
+        main: 'Nesta fase, defina suas prioridades gerais para investimentos em tecnologia. Não tente antecipar qual alternativa é a "vencedora" — a priorização deve refletir sua visão estratégica sobre o peso de Benefícios, Oportunidades, Custos e Riscos.',
+        detail: 'Os dados técnicos das alternativas servem para contextualizar o problema, mas nesta etapa a priorização deve refletir seus princípios gerais de decisão. Por exemplo: ao decidir sobre qualquer investimento em tecnologia, o que pesa mais para você — os benefícios esperados ou os riscos envolvidos? Os custos de implementação ou as oportunidades de longo prazo? Na próxima etapa, você contextualizará esses critérios para o caso específico das estufas.',
       };
     }
 
     if (block.type === 'magnitude' || block.type === 'rescaling') {
       return {
-        main: 'Você continua comparando critérios entre si — ainda NÃO está comparando as alternativas tecnológicas.',
-        detail: 'Na etapa anterior, você definiu quais critérios pesam mais de modo geral. Agora, avalie a intensidade do impacto prático de cada critério no contexto específico das estufas de cura da linha de pintura. Por exemplo: de modo geral, Riscos podem ser muito relevantes, mas no caso particular das estufas, o impacto dos Custos pode ser mais determinante.\n\nCaso precise relembrar os detalhes das alternativas, clique no ícone "contexto" no alto da página.',
+        main: 'Agora, traga sua visão para o cenário das estufas de cura. Não tente antecipar qual alternativa é a "vencedora" — avalie a relevância de cada critério especificamente para este projeto.',
+        detail: 'Um critério pode ser importante em tese, mas pouco decisivo neste caso concreto. Por exemplo: de modo geral, Riscos podem ser críticos, mas se as tecnologias forem maduras e seguras, o impacto dos Custos pode ser o real diferencial estratégico deste projeto. Ajuste os pesos conforme a realidade deste investimento.\n\nCaso precise relembrar os detalhes das alternativas, clique no ícone "contexto" no alto da página.',
       };
     }
 
     if (block.type === 'subcriteria') {
       const meritMap: Record<string, string> = { 'B': 'Benefícios', 'O': 'Oportunidades', 'C': 'Custos', 'R': 'Riscos' };
-      const meritExamples: Record<string, string> = {
-        'B': 'Por exemplo: na sua visão como gestor, ganhos de produtividade são mais ou menos importantes que ganhos de qualidade?',
-        'O': 'Por exemplo: transformação digital é mais ou menos importante que maturidade tecnológica?',
-        'C': 'Por exemplo: o valor do investimento inicial pesa mais ou menos que o custo de operação contínua?',
-        'R': 'Por exemplo: o risco de segurança cibernética é mais preocupante que o risco de complexidade de integração?',
+      const meritMains: Record<string, string> = {
+        'B': 'Nesta fase, avalie apenas quais Benefícios são mais críticos para o negócio. Não tente antecipar qual alternativa é a "vencedora". Qual destes fatores é mais impactante — ganhos de produtividade ou ganhos de qualidade?',
+        'O': 'Prosseguindo, avalie quais Oportunidades são mais relevantes para o negócio. Não tente antecipar qual alternativa é a "vencedora". Qual destes fatores é mais relevante estrategicamente — transformação digital ou maturidade tecnológica?',
+        'C': 'Olhando para o lado financeiro, avalie quais Custos são mais sensíveis para a viabilidade. Não tente antecipar qual alternativa é a "vencedora". Qual destes fatores tem maior impacto — o investimento inicial (CAPEX) ou o custo de operação contínua (OPEX)?',
+        'R': 'Por fim, identifique quais Riscos representam a maior ameaça estratégica. Não tente antecipar qual alternativa é a "vencedora". O que mais preocupa sua gestão — a vulnerabilidade cibernética ou a complexidade de integração com a linha atual?',
       };
       const meritCode = block.id?.charAt(0) || block.nodes?.[0]?.charAt(0) || '?';
       const meritName = meritMap[meritCode] || block.title;
-      const example = meritExamples[meritCode] || '';
+      const mainText = meritMains[meritCode] || `Avalie quais ${meritName} são mais críticos para o negócio. Não tente antecipar qual alternativa é a "vencedora".`;
 
       return {
-        main: `Você NÃO está comparando as alternativas entre si. Avalie quais aspectos de ${meritName} pesam mais na sua decisão como gestor.`,
-        detail: `Compare os subcritérios de ${meritName.toLowerCase()} com base nos seus critérios de decisão — independentemente de qual alternativa se sai melhor em cada aspecto. ${example} Na próxima etapa, você comparará as alternativas diretamente.\n\nAs informações sobre o impacto de cada alternativa nos subcritérios são apenas de referência e não devem influenciar esta comparação.`,
+        main: mainText,
+        detail: `Os dados técnicos exibidos servem para contextualizar o problema, mas a priorização deve refletir sua visão estratégica sobre cada tipo de ${meritName.toLowerCase().replace(/s$/, '')}. Na próxima etapa, você comparará as alternativas diretamente sob cada subcritério.\n\nAs informações sobre o impacto de cada alternativa nos subcritérios são apenas de referência e não devem influenciar esta comparação.`,
       };
     }
 
@@ -397,7 +382,7 @@ function BlockContextCard({
 
       return {
         main: `Agora sim — compare as alternativas diretamente: qual delas atende melhor a "${subName}"?`,
-        detail: `Nas etapas anteriores, você definiu quais critérios pesam mais na sua decisão. Agora, avalie qual alternativa entrega mais valor em ${subName.toLowerCase()}. Considere as informações técnicas e financeiras disponíveis no ícone "contexto" no alto da página.`,
+        detail: `Com base nos dados técnicos e na sua experiência, avalie qual alternativa entrega o resultado mais favorável em ${subName.toLowerCase()}. Utilize o ícone "contexto" no alto da página para consultar as especificações técnicas se necessário.`,
       };
     }
 
