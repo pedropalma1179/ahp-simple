@@ -443,37 +443,6 @@ function BlockContextCard({
             </div>
           )}
 
-          {/* Impactos específicos (para blocos de alternativas, se cadastrados pelo decisor) */}
-          {block.type === 'alternatives' && (() => {
-            const subCode = block.comparisons?.[0]?.group;
-            if (!subCode) return null;
-
-            const altsWithImpact = (project?.alternatives || []).filter(
-              (alt: any) => getImpactText(alt.impacts?.[subCode])
-            );
-            if (altsWithImpact.length === 0) return null;
-
-            return (
-              <div className="mt-2 pt-2 border-t border-gray-100">
-                <p className="text-sm text-gray-500 mb-2 font-medium">
-                  Como cada alternativa impacta este subcritério:
-                </p>
-                <div className="space-y-2">
-                  {altsWithImpact.map((alt: any) => (
-                    <div key={alt.code} className="flex items-start gap-2 p-2 rounded-lg bg-gray-50">
-                      <span className="inline-flex items-center justify-center w-6 h-5 rounded text-[10px] font-bold text-white flex-shrink-0 mt-0.5"
-                        style={{ background: '#8b5cf6' }}>{alt.code}</span>
-                      <div className="min-w-0">
-                        <span className="text-sm font-medium text-gray-700">{alt.name}</span>
-                        <p className="text-sm text-gray-600 leading-relaxed mt-0.5">{getImpactText(alt.impacts?.[subCode])}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-
           {/* Impactos das alternativas nos subcritérios comparados (para blocos de subcritérios) */}
           {block.type === 'subcriteria' && (() => {
             const subCodes = block.nodes || [];
