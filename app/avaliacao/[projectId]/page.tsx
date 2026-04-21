@@ -844,7 +844,7 @@ function AvaliacaoProjectPageInner() {
   // ================================================================
 
   /** Badge interativo: hover (desktop) ou tap (mobile) mostra tooltip com definição. */
-  function CriterionBadge({ code, side, color }: { code: string; side: 'left' | 'right'; color: string }) {
+  function CriterionBadge({ code, side, color, subcode }: { code: string; side: 'left' | 'right'; color: string; subcode?: string }) {
     const [show, setShow] = useState(false);
     const [pos, setPos] = useState<'above' | 'below'>('above');
     const badgeRef = useRef<HTMLSpanElement>(null);
@@ -855,7 +855,8 @@ function AvaliacaoProjectPageInner() {
     const def = allCriteria.find(c => c.code === code);
     const altDef = alternatives.find(a => a.code === code);
     const name = def?.name || altDef?.name || code;
-    const description = def?.description || altDef?.description || '';
+    const altImpact = altDef && subcode ? altDef.impacts?.[subcode] : undefined;
+    const description = def?.description || altImpact || altDef?.description || '';
     const badgeColor = def?.color || (altDef ? '#8b5cf6' : color);
 
     // Posicionamento dinâmico
@@ -3326,7 +3327,7 @@ function AvaliacaoProjectPageInner() {
                               <span className="text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal text-left">
                                 {getItemName(comp.itemA)}
                               </span>
-                              <CriterionBadge code={comp.itemA} side="left" color={block.color} />
+                              <CriterionBadge code={comp.itemA} side="left" color={block.color} subcode={comp.group} />
                             </div>
 
                             {/* Botões da escala Saaty */}
@@ -3364,7 +3365,7 @@ function AvaliacaoProjectPageInner() {
 
                             {/* Lado direito */}
                             <div className="flex-1 text-left min-w-0 flex items-center gap-1.5">
-                              <CriterionBadge code={comp.itemB} side="right" color={block.color} />
+                              <CriterionBadge code={comp.itemB} side="right" color={block.color} subcode={comp.group} />
                               <span className="text-sm font-medium text-gray-700 hidden sm:inline whitespace-normal">
                                 {getItemName(comp.itemB)}
                               </span>
