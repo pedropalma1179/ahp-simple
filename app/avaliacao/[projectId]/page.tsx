@@ -376,19 +376,18 @@ function BlockContextCard({
     }
 
     if (block.type === 'alternatives') {
-      const subCode = block.comparisons?.[0]?.group;
-      const sub = SUBCRITERIA.find(s => s.code === subCode);
-      const subName = sub?.name || subCode || 'este subcritério';
       const meritChar = block.comparisons?.[0]?.group?.charAt(0) || '';
+      const meritMap: Record<string, string> = { 'B': 'Benefícios', 'O': 'Oportunidades', 'C': 'Custos', 'R': 'Riscos' };
+      const meritName = meritMap[meritChar] || 'este mérito';
       const isCR = ['C', 'R'].includes(meritChar);
 
       return {
         main: isCR
-          ? `Agora sim — compare as alternativas diretamente: qual delas apresenta maior impacto em "${subName}"?`
-          : `Agora sim — compare as alternativas diretamente: qual delas é mais favorável em "${subName}"?`,
+          ? `Agora sim — compare as alternativas diretamente: para cada subcritério de ${meritName} abaixo, qual delas apresenta maior impacto?`
+          : `Agora sim — compare as alternativas diretamente: para cada subcritério de ${meritName} abaixo, qual delas é mais favorável?`,
         detail: isCR
-          ? `Com base nos dados técnicos e na sua experiência, avalie qual alternativa apresenta maior ônus ou exposição em ${subName.toLowerCase()}. Utilize o ícone "contexto" no alto da página para consultar as especificações técnicas se necessário.`
-          : `Com base nos dados técnicos e na sua experiência, avalie qual alternativa entrega o resultado mais favorável em ${subName.toLowerCase()}. Utilize o ícone "contexto" no alto da página para consultar as especificações técnicas se necessário.`,
+          ? `Com base nos dados técnicos e na sua experiência, avalie qual alternativa apresenta maior ônus ou exposição em cada subcritério. Utilize o ícone "contexto" no alto da página para consultar as especificações técnicas se necessário.`
+          : `Com base nos dados técnicos e na sua experiência, avalie qual alternativa entrega o resultado mais favorável em cada subcritério. Utilize o ícone "contexto" no alto da página para consultar as especificações técnicas se necessário.`,
       };
     }
 
