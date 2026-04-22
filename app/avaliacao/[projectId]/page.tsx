@@ -807,6 +807,8 @@ function AvaliacaoProjectPageInner() {
   const [submitError, setSubmitError] = useState(false);
   const blockContentRef = useRef<HTMLDivElement>(null);
   const [showContextModal, setShowContextModal] = useState(false);
+  const [showInstructionsModal, setShowInstructionsModal] = useState(false);
+  const [modalInstructionStep, setModalInstructionStep] = useState(0);
 
   // ================================================================
   // STUBS — Substituídos nas Etapas 3/4. NÃO editar nesta etapa.
@@ -2376,7 +2378,11 @@ function AvaliacaoProjectPageInner() {
   // TELA DE INSTRUÇÕES — Como responder a pesquisa
   // ============================================================
 
-  if (authStep === 'instructions') {
+  // ============================================================
+  // CONSTRUÇÃO DAS 5 ABAS DE INSTRUÇÕES (reutilizada na tela
+  // pré-questionário e no modal "Rever instruções" do questionário)
+  // ============================================================
+  const buildInstructionSteps = () => {
     // Helpers para apresentação da ficha técnica das alternativas
     const trlDescription = (trl?: number): string => {
       const map: Record<number, string> = {
@@ -2830,6 +2836,11 @@ function AvaliacaoProjectPageInner() {
       },
     ];
 
+    return instructionSteps;
+  };
+
+  if (authStep === 'instructions') {
+    const instructionSteps = buildInstructionSteps();
     const currentInstruction = instructionSteps[instructionStep];
     const isLastStep = instructionStep === instructionSteps.length - 1;
 
@@ -3310,6 +3321,104 @@ function AvaliacaoProjectPageInner() {
         </div>
       )}
 
+      {/* Modal "Rever Instruções" (reutiliza buildInstructionSteps) */}
+      {showInstructionsModal && (() => {
+        const steps = buildInstructionSteps();
+        const current = steps[modalInstructionStep];
+        const isFirst = modalInstructionStep === 0;
+        const isLast = modalInstructionStep === steps.length - 1;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowInstructionsModal(false)}>
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <div
+              className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl"
+              style={{
+                background: 'rgba(15, 23, 42, 0.95)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                backdropFilter: 'blur(20px)',
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-white/10"
+                style={{ background: 'rgba(15, 23, 42, 0.98)' }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">📖</span>
+                  <h3 className="text-lg font-bold text-white">Instruções da pesquisa</h3>
+                </div>
+                <button
+                  onClick={() => setShowInstructionsModal(false)}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                  aria-label="Fechar instruções"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Stepper */}
+              <div className="flex items-center justify-center gap-2 py-4 px-4 border-b border-white/5">
+                {steps.map((step, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setModalInstructionStep(i)}
+                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all flex-1 min-w-0"
+                    style={{
+                      background: i === modalInstructionStep ? 'rgba(6,182,212,0.2)' : 'rgba(255,255,255,0.05)',
+                      color: i === modalInstructionStep ? '#67e8f9' : 'rgba(255,255,255,0.6)',
+                      border: `1px solid ${i === modalInstructionStep ? 'rgba(6,182,212,0.3)' : 'transparent'}`,
+                    }}
+                  >
+                    <span className="flex-shrink-0">{step.icon}</span>
+                    <span className="hidden sm:inline truncate">{step.title}</span>
+                    <span className="sm:hidden">{i + 1}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Content */}
+              <div className="px-5 py-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-3xl">{current.icon}</span>
+                  <h2 className="text-xl font-bold text-white">{current.title}</h2>
+                </div>
+                {current.content}
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between p-4 border-t border-white/10"
+                style={{ background: 'rgba(15, 23, 42, 0.98)' }}>
+                <button
+                  onClick={() => setModalInstructionStep(Math.max(0, modalInstructionStep - 1))}
+                  disabled={isFirst}
+                  className="px-4 py-2 rounded-xl text-sm font-medium transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ background: 'rgba(255,255,255,0.08)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)' }}
+                >
+                  ← Anterior
+                </button>
+                <span className="text-sm text-white/60">{modalInstructionStep + 1} / {steps.length}</span>
+                <button
+                  onClick={() => {
+                    if (isLast) {
+                      setShowInstructionsModal(false);
+                    } else {
+                      setModalInstructionStep(modalInstructionStep + 1);
+                    }
+                  }}
+                  className="px-5 py-2 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
+                  style={{
+                    background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                    color: '#fff',
+                    boxShadow: '0 4px 15px rgba(6, 182, 212, 0.3)',
+                  }}
+                >
+                  {isLast ? 'Fechar' : 'Próximo →'}
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* TOAST DE NOTIFICAÇÃO (Fixo no canto inferior direito) */}
       <div className="flex-1 overflow-y-auto py-4 sm:py-8 px-3 sm:px-4">
         <div className="max-w-5xl mx-auto">
@@ -3361,6 +3470,17 @@ function AvaliacaoProjectPageInner() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     Contexto
+                  </button>
+                  <button
+                    onClick={() => {
+                      setModalInstructionStep(0);
+                      setShowInstructionsModal(true);
+                    }}
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs text-white/60 hover:text-white/70 hover:bg-white/10 transition-all"
+                    title="Rever instruções da pesquisa"
+                  >
+                    <span>📖</span>
+                    <span>Instruções</span>
                   </button>
                 </div>
                 <span className="text-white/60 text-sm">{globalAnswered}/{globalTotal} respostas</span>
