@@ -322,57 +322,65 @@ const deriveNameFromEmail = (email: string): string => {
         .join(' ');
 };
 
-const buildInviteText = (respondent: Respondent & { id: string }): string => {
+const generateInviteText = (respondent: Respondent & { id: string }): { subject: string; body: string } => {
     const nome = respondent.nome || deriveNameFromEmail(respondent.email);
-    const surveyLink = `${window.location.origin}/avaliacao/${projectId}`;
+    const surveyLink = `https://ahp-simple.vercel.app/avaliacao/${projectId}`;
     const dataLimite = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR');
 
-    return `Assunto: Convite para participação em pesquisa acadêmica — Mestrado UNESP — decisão sobre tecnologias Indústria 4.0
+    const subject = 'Convite para participação em pesquisa acadêmica — Mestrado UNESP — decisão sobre tecnologias Indústria 4.0';
 
-Prezado(a) ${nome},
+    const body = [
+        `Prezado(a) ${nome},`,
+        '',
+        'Espero que esta mensagem o(a) encontre bem. Sou Pedro Luis Tozoni Palma, aluno do Mestrado Profissional em Engenharia de Produção da UNESP Guaratinguetá. Minha pesquisa investiga a aplicação do método multicritério AHP-BOCR para apoiar decisões de investimento em tecnologias de Indústria 4.0 no setor automotivo.',
+        '',
+        'Gostaria de convidá-lo(a) a compor o painel de especialistas desta pesquisa. Sua experiência profissional é valiosa para o julgamento comparativo entre duas alternativas tecnológicas voltadas à otimização energética de estufas de cura em linha de pintura automotiva.',
+        '',
+        'Sobre a participação:',
+        '- Tempo estimado: 20 a 30 minutos.',
+        '- Formato: questionário online, preenchível no navegador, sem necessidade de instalação.',
+        '- Progresso salvo automaticamente — pode interromper e retomar.',
+        `- Prazo para resposta: até ${dataLimite}.`,
+        '',
+        'Acesso ao questionário:',
+        `- Link: ${surveyLink}`,
+        `- Código de acesso pessoal: ${respondent.accessCode}`,
+        '',
+        'Importante: Os dados financeiros e energéticos apresentados no questionário são estimativas paramétricas baseadas em literatura científica, não representam dados reais ou confidenciais de qualquer empresa. Os dados coletados serão tratados com total confidencialidade e utilizados exclusivamente para fins acadêmicos.',
+        '',
+        'Qualquer dúvida, estou à disposição pelo e-mail pedro.palma@unesp.br.',
+        '',
+        'Agradeço desde já pela atenção e contribuição.',
+        '',
+        'Cordialmente,',
+        '',
+        'Pedro Luis Tozoni Palma',
+        'Mestrado Profissional em Engenharia de Produção',
+        'UNESP — Faculdade de Engenharia de Guaratinguetá',
+    ].join('\r\n');
 
-Espero que esta mensagem o(a) encontre bem. Sou Pedro Luis Tozoni Palma, aluno do Mestrado Profissional em Engenharia de Produção da UNESP Guaratinguetá. Minha pesquisa investiga a aplicação do método multicritério AHP-BOCR para apoiar decisões de investimento em tecnologias de Indústria 4.0 no setor automotivo.
-
-Gostaria de convidá-lo(a) a compor o painel de especialistas desta pesquisa. Sua experiência profissional é valiosa para o julgamento comparativo entre duas alternativas tecnológicas voltadas à otimização energética de estufas de cura em linha de pintura automotiva.
-
-Sobre a participação:
-- Tempo estimado: 20 a 30 minutos.
-- Formato: questionário online, preenchível no navegador, sem necessidade de instalação.
-- Progresso salvo automaticamente — pode interromper e retomar.
-- Prazo para resposta: até ${dataLimite}.
-
-Acesso ao questionário:
-- Link da pesquisa: ${surveyLink}
-- Código de acesso pessoal: ${respondent.accessCode}
-
-Importante: Os dados financeiros e energéticos apresentados no questionário são estimativas paramétricas baseadas em literatura científica, não representam dados reais ou confidenciais de qualquer empresa. Os dados coletados serão tratados com total confidencialidade e utilizados exclusivamente para fins acadêmicos.
-
-Qualquer dúvida, estou à disposição pelo e-mail pedro.palma@unesp.br.
-
-Agradeço desde já pela atenção e contribuição.
-
-Cordialmente,
-
-Pedro Luis Tozoni Palma
-Mestrado Profissional em Engenharia de Produção
-UNESP — Faculdade de Engenharia de Guaratinguetá`;
+    return { subject, body };
 };
 
-const handleCopyInvite = async (respondent: Respondent & { id: string }) => {
-    const text = buildInviteText(respondent);
+const handleSendInvite = (respondent: Respondent & { id: string }) => {
+    const { subject, body } = generateInviteText(respondent);
+    const mailtoUrl = `mailto:${respondent.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
     try {
-        await navigator.clipboard.writeText(text);
+        window.location.href = mailtoUrl;
         setCopiedInviteId(respondent.id);
         setTimeout(() => setCopiedInviteId(null), 2000);
-        alert(`Convite copiado. Cole no Outlook e envie para ${respondent.email}.`);
     } catch (err) {
-        console.error('Falha ao copiar convite:', err);
-        alert('Não foi possível copiar para a área de transferência. Tente novamente.');
+        console.error('Falha ao abrir cliente de email:', err);
+        navigator.clipboard.writeText(`Para: ${respondent.email}\r\nAssunto: ${subject}\r\n\r\n${body}`).then(
+            () => alert(`Não foi possível abrir o Outlook. Convite copiado — cole manualmente em um novo email para ${respondent.email}.`),
+            () => alert('Não foi possível abrir o Outlook nem copiar o convite. Tente novamente.')
+        );
     }
 };
 
 const handleResendInvite = (respondent: Respondent & { id: string }) => {
-    handleCopyInvite(respondent);
+    handleSendInvite(respondent);
 };
 
 const normalizeWeights = (changed: keyof typeof customWeights, value: number) => {
@@ -1124,7 +1132,7 @@ return (
                                                 <td className="py-2 px-3 text-center">
                                                     {resp.status === 'pending' && (
                                                         <button
-                                                            onClick={() => handleCopyInvite(resp)}
+                                                            onClick={() => handleSendInvite(resp)}
                                                             className={`text-xs font-medium ${copiedInviteId === resp.id ? 'text-green-600' : 'text-blue-500 hover:text-blue-700'}`}
                                                         >
                                                             {copiedInviteId === resp.id ? '✓ Copiado!' : '📋 Copiar Convite'}
