@@ -2858,7 +2858,7 @@ function AvaliacaoProjectPageInner() {
 
             {/* Pesquisador */}
             <div className="text-white/60 text-sm space-y-1">
-              <p>Pesquisa conduzida por <strong className="text-white/60">Pedro Henrique Palma</strong></p>
+              <p>Pesquisa conduzida por <strong className="text-white/60">Pedro Luis Tozoni Palma</strong></p>
               <p>Mestrado Profissional em Engenharia de Produção — UNESP Guaratinguetá</p>
               <p>Contato: <a href="mailto:pedro.palma@unesp.br" className="text-cyan-400 hover:text-cyan-300">pedro.palma@unesp.br</a></p>
             </div>
