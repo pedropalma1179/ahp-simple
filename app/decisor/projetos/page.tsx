@@ -1050,9 +1050,21 @@ export default function ProjetosPage() {
                   });
                 }
 
-                // Remover especialistas deletados
-                for (const id of deletedRespondentIds) {
-                  await deleteDoc(doc(db, 'respondents', id));
+                // Remover especialistas deletados — hard delete atômico:
+                // respondent + suas responses + invalidação do cache de cálculo
+                if (deletedRespondentIds.length > 0) {
+                  const deleteBatch = writeBatch(db);
+                  for (const id of deletedRespondentIds) {
+                    const responsesSnap = await getDocs(
+                      query(collection(db, 'responses'), where('respondentId', '==', id))
+                    );
+                    responsesSnap.docs.forEach(d => deleteBatch.delete(d.ref));
+                    deleteBatch.delete(doc(db, 'respondents', id));
+                  }
+                  // Invalida o cálculo em cache para que a próxima execução
+                  // não inclua os respondentes excluídos
+                  deleteBatch.delete(doc(db, 'calculations', editingProject.id));
+                  await deleteBatch.commit();
                 }
               } else {
                 // [C1] Criar novo projeto com ownerId
@@ -1198,10 +1210,11 @@ function EditProjectModal({
   const removeEmail = (email: string) => {
     const respondent = existingRespondents.find(r => r.email === email);
     if (respondent) {
-      // É um respondente existente - marcar para deleção
-      if (respondent.completedAt || respondent.status === 'completed') {
-        if (!confirm(`${email} já respondeu a pesquisa. Excluir mesmo assim?`)) return;
-      }
+      const hasSubmitted = respondent.completedAt || respondent.status === 'completed';
+      const msg = hasSubmitted
+        ? `Excluir respondente ${email}?\n\nEste especialista já submeteu julgamentos. Os dados serão permanentemente removidos e deixarão de ser utilizados nos cálculos. Esta ação é irreversível.`
+        : `Excluir respondente ${email}?\n\nO acesso deste especialista à pesquisa será revogado. Esta ação é irreversível.`;
+      if (!confirm(msg)) return;
       setDeletedRespondentIds([...deletedRespondentIds, respondent.id]);
     }
     setEmails(emails.filter(e => e !== email));
