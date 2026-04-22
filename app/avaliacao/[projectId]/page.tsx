@@ -2863,13 +2863,6 @@ function AvaliacaoProjectPageInner() {
               <p>Contato: <a href="mailto:pedro.palma@unesp.br" className="text-cyan-400 hover:text-cyan-300">pedro.palma@unesp.br</a></p>
             </div>
 
-            {/* Botão fechar */}
-            <button
-              onClick={() => window.close()}
-              className="mt-8 px-6 py-2.5 rounded-xl text-sm font-medium text-white/60 hover:text-white hover:bg-white/10 transition-all border border-white/10"
-            >
-              Fechar janela
-            </button>
           </div>
         </div>
       </div>
