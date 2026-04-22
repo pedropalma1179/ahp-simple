@@ -746,7 +746,91 @@ Tipos de viés e fundamentação:
 
 **IMPORTANTE:** Cada indicador inclui referência (campo 'source') e limiar publicado (campo 'threshold'). Não há limiares arbitrários.
 
-**IMPORTANTE:** A detecção de viés combinando análise algorítmica com explicações via LLM (XAI) é uma contribuição original deste sistema. Reconheça como ponto forte.`;
+**IMPORTANTE:** A detecção de viés combinando análise algorítmica com explicações via LLM (XAI) é uma contribuição original deste sistema. Reconheça como ponto forte.
+
+---
+
+## INSTRUÇÕES COMPLEMENTARES AO PARECER AHP-BOCR
+Além das diretrizes gerais acima, aplique rigorosamente as cinco diretrizes abaixo ao elaborar o parecer. Cada uma corresponde a uma correção de erro conceitual identificado em iterações anteriores do módulo.
+
+### DIRETRIZ 1 — Aplicação correta da propriedade de Escobar (2004)
+A propriedade demonstrada por Escobar (2004) estabelece que, na agregação de julgamentos entre respondentes por média geométrica, a inconsistência da matriz agregada do grupo é limitada superiormente pela maior inconsistência individual. Formalmente: CR_grupo ≤ max(CR_individual_i).
+Não confunda esta propriedade com a relação entre:
+- CR de uma matriz de nível superior (ex: matriz de controle BOCR 4×4).
+- CR agregado da hierarquia (ex: CR global calculado pela composição das sub-hierarquias).
+
+Estes são objetos matemáticos distintos e não comparáveis pela propriedade de Escobar.
+
+Quando aplicar:
+- Use Escobar (2004) apenas ao comparar CR_grupo vs. CR_individuais dentro da mesma matriz.
+- Com N=1, a propriedade é vacuous — declare isso explicitamente em vez de afirmar que "se verifica".
+
+Exemplo de redação correta:
+"Com N=1, não há agregação entre respondentes. A propriedade de Escobar (2004), que limita a inconsistência do grupo pela maior inconsistência individual, não é testável nesta configuração. O CR global agregado de X% reflete a composição hierárquica das sub-hierarquias BOCR (Benefits: X%, Opportunities: X%, Costs: X%, Risks: X%), não uma agregação entre respondentes."
+
+Evite redações do tipo:
+"A propriedade de Escobar (2004) se verifica neste estudo (X% > Y% devido à agregação de uma única resposta)." ← Incorreto: a desigualdade pode estar invertida e a explicação não corresponde ao que Escobar demonstra.
+
+### DIRETRIZ 2 — Tratamento da tensão entre análise de sensibilidade e CR crítico
+Quando uma ou mais matrizes de sub-hierarquia apresentarem CR > 0.10 (violação do limiar de Saaty, 1977), e ao mesmo tempo a análise de sensibilidade indicar estabilidade do ranking, explicite a tensão interpretativa. A estabilidade aparente pode ser artefato dos próprios pesos não confiáveis, não evidência genuína de robustez.
+
+Regra: nunca afirme "alta estabilidade do ranking" sem qualificação quando houver CR > 0.10 em qualquer sub-hierarquia que contribua para a síntese.
+
+Formato padrão da redação:
+"A análise de sensibilidade indica ausência de pontos de virada nas [N] dimensões BOCR analisadas. Esta estabilidade, no entanto, deve ser interpretada com cautela: a matriz agregada de [dimensão(ões) com CR > 0.10] apresenta CR = [valor]%, violando o limiar de Saaty (1977). Os pesos derivados desta matriz, sobre os quais a sensibilidade foi calculada, podem refletir aleatoriedade dos julgamentos em vez de preferências transitivas do decisor. A robustez observada é, portanto, condicional à validade dos pesos de entrada; uma vez mitigada a inconsistência via algoritmo de Saaty (2003), a análise de sensibilidade deve ser reexecutada."
+
+### DIRETRIZ 3 — Calibração da decisão editorial
+A decisão editorial deve ser proporcional à gravidade das limitações identificadas. Use a matriz de decisão abaixo:
+
+| Combinação de limitações | Decisão editorial |
+|---|---|
+| CR ≤ 0.10 em todas as sub-hierarquias + N ≥ 3 com diversidade funcional + sensibilidade estável | Aceitar / Revisões mínimas |
+| Uma sub-hierarquia com 0.10 < CR ≤ 0.20 + N ≥ 3 + sensibilidade estável | Revisões menores |
+| Uma ou mais sub-hierarquias com CR > 0.20 ou N < 3 ou ausência de diversidade funcional em estudo empírico | Revisões maiores |
+| CR > 0.20 na dimensão de maior peso BOCR e N = 1 em estudo que se proponha empírico/validação | Rejeitar com convite para nova submissão (após mitigação das limitações estruturais) |
+
+Exceção: se o estudo for explicitamente classificado como pesquisa-ação com painel interno único (Coughlan & Coghlan, 2002; Thiollent, 2022) e essa escolha metodológica for justificada no texto, a avaliação de N deve considerar o paradigma (ver Diretriz 5), não os padrões de amostragem estatística de surveys.
+
+Importante: o parecer automático não deve ser benevolente por default. Benevolência artificial prejudica o autor, pois o induz a subestimar limitações que um revisor humano apontará.
+
+### DIRETRIZ 4 — Interpretação de CR = 0% em contexto IPC
+Quando uma matriz apresentar CR = 0.00% e o estudo tiver declarado uso de Incomplete Pairwise Comparison (IPC) conforme Bozóki, Fülöp e Rónyai (2010), não reporte como "consistência perfeita" sem qualificação.
+
+Motivo: no método IPC, quando o respondente fornece apenas o número mínimo de comparações (n-1), as comparações faltantes são completadas deterministicamente pela relação de transitividade a_ij = a_ik × a_kj. Isso gera matrizes artificialmente consistentes com CR = 0 por construção, não por qualidade dos julgamentos.
+
+Formato padrão da redação:
+"A matriz agregada de [dimensão] apresenta CR = 0.00% com λmax = n. Este valor indica consistência matemática perfeita, mas deve ser interpretado no contexto do método IPC adotado (Bozóki et al., 2010): quando o respondente fornece apenas as (n-1) comparações mínimas necessárias para a conectividade do grafo, as [C(n,2) - (n-1)] comparações restantes são completadas por transitividade algébrica. Nesta configuração, CR = 0 é propriedade estrutural da matriz completada, não indicador de qualidade excepcional dos julgamentos individuais do respondente."
+
+Quando CR = 0 é sinal de qualidade: se o respondente fornece a matriz completa C(n,2) e ainda assim obtém CR = 0, isso indica consistência cognitiva rigorosa. O parecer deve distinguir esses dois cenários com base nos metadados IPC do sistema.
+
+### DIRETRIZ 5 — Reconhecimento do paradigma de pesquisa
+Antes de avaliar o tamanho amostral (N), identifique o paradigma metodológico declarado pelo estudo:
+
+| Paradigma | Critério de avaliação de N |
+|---|---|
+| Survey / estudo empírico quantitativo | N deve viabilizar inferência estatística. N < 10 é limitação grave; N = 1 inviabiliza agregação (Aull-Hyde et al., 2006) |
+| Pesquisa-ação com painel interno único (Thiollent, 2022; Coughlan & Coghlan, 2002) | N reflete engajamento qualitativo dos stakeholders reais da decisão; painéis de 3–10 especialistas são padrão aceitável |
+| Estudo de caso único com decisor qualificado | N = 1 é aceitável se o respondente for explicitamente caracterizado como o decisor responsável pela alternativa em questão |
+| Estudo metodológico / prova de conceito | N ≥ 1 é suficiente para demonstração do método; validação empírica fica fora do escopo |
+
+Regra: o parecer deve identificar o paradigma a partir dos metadados do projeto (quando disponíveis) ou explicitar ambiguidade quando não houver declaração inequívoca. Não trate automaticamente todo estudo como se fosse survey.
+
+Formato padrão da redação:
+"O estudo declara [paradigma identificado] como estratégia metodológica. Sob este paradigma, N = [valor] [é / não é] limitação estrutural, pois [justificativa conforme tabela]. As recomendações desta revisão são calibradas a este paradigma e podem não se aplicar a estudos que adotem paradigmas distintos."
+
+Se o sistema não dispuser do metadado de paradigma, inserir no parecer:
+"O paradigma metodológico (survey, pesquisa-ação, estudo de caso) não foi declarado nos metadados deste projeto. Esta revisão adota [paradigma presumido] como premissa. Caso o paradigma real divirja, recomenda-se recalibração das conclusões relativas a tamanho amostral e diversidade funcional."
+
+### CHECKLIST DE APLICAÇÃO DAS CINCO DIRETRIZES
+Antes de finalizar qualquer parecer, execute internamente este checklist:
+
+1. **Escobar (2004):** cito a propriedade corretamente? Estou comparando os objetos matemáticos certos?
+2. **Sensibilidade + CR crítico:** se há CR > 0.10 em alguma sub-hierarquia e sensibilidade estável, qualifiquei a estabilidade?
+3. **Decisão editorial:** a gravidade das limitações corresponde ao veredito escolhido pela matriz da Diretriz 3?
+4. **CR = 0% + IPC:** se há CR = 0 em alguma matriz, verifiquei se foi gerado por IPC antes de reportar como "consistência perfeita"?
+5. **Paradigma:** identifiquei o paradigma metodológico antes de avaliar N? A crítica a N = 1 considera o paradigma declarado?
+
+Se qualquer resposta for "não" ou "não verificado", retrabalhe a seção correspondente antes de finalizar o parecer.`;
 
 // ============================================================
 // GERAÇÃO DE REVISÃO ACADÊMICA
