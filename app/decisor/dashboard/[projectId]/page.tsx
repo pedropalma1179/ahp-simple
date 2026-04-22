@@ -313,18 +313,62 @@ const handleDeleteResponse = async (responseId: string) => {
     }
 };
 
-const handleCopyInvite = (respondent: Respondent & { id: string }) => {
+const deriveNameFromEmail = (email: string): string => {
+    const localPart = (email || '').split('@')[0] || '';
+    return localPart
+        .split(/[._-]+/)
+        .filter(p => p.length > 0)
+        .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+        .join(' ');
+};
+
+const buildInviteText = (respondent: Respondent & { id: string }): string => {
+    const nome = respondent.nome || deriveNameFromEmail(respondent.email);
     const surveyLink = `${window.location.origin}/avaliacao/${projectId}`;
-    const text = `Olá! Você foi convidado(a) para participar da pesquisa "${project?.name || 'AHP-BOCR'}".
+    const dataLimite = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR');
 
-📋 Link: ${surveyLink}
-🔑 Código de acesso: ${respondent.accessCode}
+    return `Assunto: Convite para participação em pesquisa acadêmica — Mestrado UNESP — decisão sobre tecnologias Indústria 4.0
 
-Obrigado pela participação!`;
+Prezado(a) ${nome},
 
-    navigator.clipboard.writeText(text);
-    setCopiedInviteId(respondent.id);
-    setTimeout(() => setCopiedInviteId(null), 2000);
+Espero que esta mensagem o(a) encontre bem. Sou Pedro Luis Tozoni Palma, aluno do Mestrado Profissional em Engenharia de Produção da UNESP Guaratinguetá. Minha pesquisa investiga a aplicação do método multicritério AHP-BOCR para apoiar decisões de investimento em tecnologias de Indústria 4.0 no setor automotivo.
+
+Gostaria de convidá-lo(a) a compor o painel de especialistas desta pesquisa. Sua experiência profissional é valiosa para o julgamento comparativo entre duas alternativas tecnológicas voltadas à otimização energética de estufas de cura em linha de pintura automotiva.
+
+Sobre a participação:
+- Tempo estimado: 20 a 30 minutos.
+- Formato: questionário online, preenchível no navegador, sem necessidade de instalação.
+- Progresso salvo automaticamente — pode interromper e retomar.
+- Prazo para resposta: até ${dataLimite}.
+
+Acesso ao questionário:
+- Link da pesquisa: ${surveyLink}
+- Código de acesso pessoal: ${respondent.accessCode}
+
+Importante: Os dados financeiros e energéticos apresentados no questionário são estimativas paramétricas baseadas em literatura científica, não representam dados reais ou confidenciais de qualquer empresa. Os dados coletados serão tratados com total confidencialidade e utilizados exclusivamente para fins acadêmicos.
+
+Qualquer dúvida, estou à disposição pelo e-mail pedro.palma@unesp.br.
+
+Agradeço desde já pela atenção e contribuição.
+
+Cordialmente,
+
+Pedro Luis Tozoni Palma
+Mestrado Profissional em Engenharia de Produção
+UNESP — Faculdade de Engenharia de Guaratinguetá`;
+};
+
+const handleCopyInvite = async (respondent: Respondent & { id: string }) => {
+    const text = buildInviteText(respondent);
+    try {
+        await navigator.clipboard.writeText(text);
+        setCopiedInviteId(respondent.id);
+        setTimeout(() => setCopiedInviteId(null), 2000);
+        alert(`Convite copiado. Cole no Outlook e envie para ${respondent.email}.`);
+    } catch (err) {
+        console.error('Falha ao copiar convite:', err);
+        alert('Não foi possível copiar para a área de transferência. Tente novamente.');
+    }
 };
 
 const handleResendInvite = (respondent: Respondent & { id: string }) => {
