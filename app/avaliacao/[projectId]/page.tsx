@@ -2377,12 +2377,67 @@ function AvaliacaoProjectPageInner() {
   // ============================================================
 
   if (authStep === 'instructions') {
+    // Helpers para apresentação da ficha técnica das alternativas
+    const trlDescription = (trl?: number): string => {
+      const map: Record<number, string> = {
+        1: 'TRL 1 — princípios básicos observados',
+        2: 'TRL 2 — conceito tecnológico formulado',
+        3: 'TRL 3 — prova de conceito experimental',
+        4: 'TRL 4 — validada em laboratório',
+        5: 'TRL 5 — validada em ambiente relevante',
+        6: 'TRL 6 — demonstrada em ambiente industrial',
+        7: 'TRL 7 — demonstrada em ambiente operacional',
+        8: 'TRL 8 — sistema completo qualificado',
+        9: 'TRL 9 — sistema operacional comprovado',
+      };
+      return (trl && map[trl]) || 'TRL não informado';
+    };
+
+    const timelineLabel = (t?: string): string => {
+      const map: Record<string, string> = {
+        '3-6': '3 a 6 meses',
+        '6-12': '6 a 12 meses',
+        '12-24': '12 a 24 meses',
+        '24+': 'Mais de 24 meses',
+      };
+      return (t && map[t]) || t || 'Não informado';
+    };
+
+    const parseInvestmentRange = (str?: string): { capex?: string; opex?: string } => {
+      if (!str) return {};
+      const capexMatch = str.match(/(R\$[\s.\d,]+)\s*\(CAPEX\)/i);
+      const opexMatch = str.match(/(R\$[\s.\d,/a-z]+?)\s*\(OPEX\)/i);
+      return {
+        capex: capexMatch?.[1]?.trim(),
+        opex: opexMatch?.[1]?.trim(),
+      };
+    };
+
+    const parsePayback = (c3?: string): string | undefined => {
+      if (!c3) return undefined;
+      const m = c3.match(/(\d+[.,]?\d*)\s*anos?/i);
+      return m ? `~${m[1]} anos` : undefined;
+    };
+
+    const SHORT_SUMMARIES: Record<string, string> = {
+      A1: 'Sensores inteligentes e IA ajustam automaticamente a mistura ar-combustível nos queimadores em tempo real, sem necessidade de intervenções físicas na estufa.',
+      A2: 'Simulação computacional de alta fidelidade identifica ineficiências de projeto das estufas e orienta otimizações estruturais de geometria e fluxo de ar.',
+    };
+
     const instructionSteps = [
       {
         icon: '🗺️',
         title: 'Contexto da Decisão',
         content: (
           <div className="space-y-4">
+            {/* Contexto industrial (do Firestore) */}
+            {project?.industrialContext && (
+              <div className="p-4 rounded-xl" style={{ background: 'rgba(148, 163, 184, 0.08)', border: '1px solid rgba(148, 163, 184, 0.2)' }}>
+                <p className="text-sm text-slate-300 font-semibold uppercase tracking-wider mb-1">Contexto industrial</p>
+                <p className="text-base text-white/80 leading-relaxed whitespace-pre-line">{project.industrialContext}</p>
+              </div>
+            )}
+
             {/* Meta */}
             <div className="p-4 rounded-xl" style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
               <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Meta da Pesquisa</p>
@@ -2392,31 +2447,137 @@ function AvaliacaoProjectPageInner() {
               {project?.description && (
                 <p className="text-base text-white/70 mt-1 leading-relaxed">{project.description}</p>
               )}
+              <p className="text-base text-white/70 mt-2 leading-relaxed">
+                A avaliação é estruturada em quatro dimensões (<strong className="text-white">Benefícios, Oportunidades, Custos e Riscos</strong>), organizadas sob as perspectivas de competitividade, aspectos sociotécnicos e sustentabilidade.
+              </p>
             </div>
 
-            {/* Alternativas (antes dos critérios — o especialista precisa saber O QUÊ avalia antes de HOW) */}
+            {/* Alternativas — resumo executivo (camada 1) + detalhes técnicos (camada 2) */}
             <div>
               <p className="text-base text-white/60 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
-              <div className="space-y-2">
-                {(project?.alternatives || alternatives || []).map((alt: any, i: number) => (
-                  <div key={alt.code || i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
-                    <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold text-white flex-shrink-0" style={{ background: '#8b5cf6' }}>
-                      {alt.code || `A${i + 1}`}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-base font-semibold text-white">{alt.name}</p>
-                      {alt.description && (
-                        <p className="text-base text-white/60 mt-1 leading-relaxed">{alt.description}</p>
+              <div className="space-y-3">
+                {(project?.alternatives || alternatives || []).map((alt: any, i: number) => {
+                  const code = alt.code || `A${i + 1}`;
+                  const shortSummary = SHORT_SUMMARIES[code] || (alt.description ? alt.description.split('.')[0] + '.' : '');
+                  const { capex, opex } = parseInvestmentRange(alt.investmentRange);
+                  const payback = parsePayback(alt.impacts?.C3);
+                  const trlText = trlDescription(alt.trl);
+                  const timelineText = timelineLabel(alt.timeline);
+
+                  return (
+                    <div key={code} className="p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
+                      {/* Cabeçalho: badge + nome */}
+                      <div className="flex items-start gap-3 mb-2">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold text-white flex-shrink-0" style={{ background: '#8b5cf6' }}>
+                          {code}
+                        </span>
+                        <p className="text-base font-semibold text-white">{alt.name}</p>
+                      </div>
+
+                      {/* Resumo curto */}
+                      {shortSummary && (
+                        <p className="text-base text-white/75 leading-relaxed mb-3">{shortSummary}</p>
                       )}
+
+                      {/* Ficha técnica (grid com ícones) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                        {capex && (
+                          <div>
+                            <p className="text-xs text-white/50 uppercase tracking-wider">💰 Investimento (CAPEX)</p>
+                            <p className="text-sm text-white font-medium mt-0.5">{capex}</p>
+                          </div>
+                        )}
+                        {opex && (
+                          <div>
+                            <p className="text-xs text-white/50 uppercase tracking-wider">🔄 Operação anual (OPEX)</p>
+                            <p className="text-sm text-white font-medium mt-0.5">{opex}</p>
+                          </div>
+                        )}
+                        {payback && (
+                          <div>
+                            <p className="text-xs text-white/50 uppercase tracking-wider">⏱️ Payback estimado</p>
+                            <p className="text-sm text-white font-medium mt-0.5">{payback}</p>
+                          </div>
+                        )}
+                        {alt.trl != null && (
+                          <div>
+                            <p className="text-xs text-white/50 uppercase tracking-wider">🔧 Maturidade (TRL)</p>
+                            <p className="text-sm text-white font-medium mt-0.5">{trlText}</p>
+                          </div>
+                        )}
+                        {alt.timeline && (
+                          <div className="sm:col-span-2">
+                            <p className="text-xs text-white/50 uppercase tracking-wider">📅 Prazo de implementação</p>
+                            <p className="text-sm text-white font-medium mt-0.5">{timelineText}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Camada 2: detalhes técnicos (recolhidos) */}
+                      {alt.description && (
+                        <details className="mt-3 group">
+                          <summary className="cursor-pointer text-sm text-purple-300 hover:text-purple-200 font-medium list-none flex items-center gap-1.5 select-none">
+                            <span className="transition-transform group-open:rotate-90">▸</span>
+                            <span>Ver detalhes técnicos</span>
+                          </summary>
+                          <p className="text-base text-white/65 leading-relaxed mt-2 pl-5">{alt.description}</p>
+                        </details>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* BOCR — bloco explicativo */}
+            <div>
+              <p className="text-base text-white/60 uppercase tracking-wider mb-2">Entendendo as 4 dimensões de avaliação (BOCR)</p>
+              <div className="space-y-2">
+                {[
+                  {
+                    code: 'B',
+                    label: 'Benefícios',
+                    color: '#10b981',
+                    desc: 'Ganhos tangíveis e mensuráveis que a tecnologia entrega de forma direta e contínua durante sua operação.',
+                    example: 'Economia de combustível, aumento de produtividade.',
+                  },
+                  {
+                    code: 'O',
+                    label: 'Oportunidades',
+                    color: '#3b82f6',
+                    desc: 'Ganhos estratégicos, intangíveis ou de longo prazo que a tecnologia viabiliza além do benefício operacional direto.',
+                    example: 'Posicionamento como smart factory, geração de dados para certificações ESG.',
+                  },
+                  {
+                    code: 'C',
+                    label: 'Custos',
+                    color: '#f59e0b',
+                    desc: 'Desembolsos financeiros planejados e quantificáveis necessários para implementar e operar a tecnologia.',
+                    example: 'Investimento inicial (CAPEX), custo operacional anual (OPEX), capacitação de equipe.',
+                  },
+                  {
+                    code: 'R',
+                    label: 'Riscos',
+                    color: '#ef4444',
+                    desc: 'Impactos negativos incertos ou contingentes, cuja probabilidade e magnitude dependem de fatores externos ou internos não totalmente controláveis.',
+                    example: 'Vulnerabilidade cibernética, dependência de fornecedor, resistência organizacional.',
+                  },
+                ].map(merit => (
+                  <div key={merit.code} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: `${merit.color}10`, border: `1px solid ${merit.color}25` }}>
+                    <span className="inline-flex items-center justify-center w-7 h-7 rounded text-xs font-bold text-white flex-shrink-0" style={{ background: merit.color }}>{merit.code}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-white">{merit.label}</p>
+                      <p className="text-base text-white/75 leading-relaxed mt-0.5">{merit.desc}</p>
+                      <p className="text-sm text-white/55 leading-relaxed mt-1 italic">Exemplo: {merit.example}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Critérios BOCR */}
+            {/* Critérios BOCR — subcritérios */}
             <div>
-              <p className="text-base text-white/60 uppercase tracking-wider mb-2">Critérios de Avaliação (BOCR)</p>
+              <p className="text-base text-white/60 uppercase tracking-wider mb-2">Subcritérios por dimensão</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { code: 'B', label: 'Benefícios', color: '#10b981' },
@@ -2467,6 +2628,55 @@ function AvaliacaoProjectPageInner() {
                 "Qual dos dois é mais importante para a decisão de investimento em Indústria 4.0, e com que intensidade?"
               </p>
             </div>
+
+            {/* O que esperar */}
+            <div className="p-4 rounded-xl" style={{ background: 'rgba(148, 163, 184, 0.08)', border: '1px solid rgba(148, 163, 184, 0.2)' }}>
+              <p className="text-sm text-slate-300 font-semibold uppercase tracking-wider mb-2">O que esperar</p>
+              <ul className="space-y-2 text-base text-white/80 leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">⏱️</span>
+                  <span><strong className="text-white">Duração estimada:</strong> 20 a 30 minutos.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">🔢</span>
+                  <span>Você fará <strong className="text-white">72 comparações</strong> entre pares, organizadas em 10 blocos sequenciais. Graças ao método de comparação incompleta (IPC), o número mínimo necessário é de <strong className="text-white">42</strong>.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">📊</span>
+                  <span>Cada comparação pergunta <em>"qual elemento é mais importante/impactante e com que intensidade"</em>, usando uma escala de <strong className="text-white">1</strong> (igual importância) a <strong className="text-white">9</strong> (extrema importância).</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">🔒</span>
+                  <span>Os julgamentos são <strong className="text-white">anônimos</strong> e agregados aos dos demais especialistas via média geométrica.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">💾</span>
+                  <span>Seu progresso é <strong className="text-white">salvo automaticamente</strong> — você pode interromper a qualquer momento e retomar depois.</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* As 4 etapas de julgamento */}
+            <div className="p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.2)' }}>
+              <p className="text-sm text-purple-300 font-semibold uppercase tracking-wider mb-2">As 4 etapas de julgamento</p>
+              <ol className="space-y-2 text-base text-white/80 leading-relaxed">
+                {[
+                  { title: 'Dimensões BOCR', desc: 'Comparar as 4 dimensões entre si para definir qual é mais importante na decisão de investimento.' },
+                  { title: 'Magnitude dos méritos', desc: 'Comparar a intensidade com que cada dimensão impacta a decisão.' },
+                  { title: 'Subcritérios dentro de cada dimensão', desc: 'Para cada dimensão (B, O, C e R), comparar os 5 subcritérios entre si para estabelecer a importância relativa dentro daquela dimensão.' },
+                  { title: 'Alternativas em cada subcritério', desc: 'Comparar A1 vs A2 em cada um dos 20 subcritérios, indicando qual alternativa entrega maior valor (para Benefícios e Oportunidades) ou apresenta maior impacto negativo (para Custos e Riscos).' },
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white flex-shrink-0 mt-0.5" style={{ background: '#8b5cf6' }}>{i + 1}</span>
+                    <div className="min-w-0">
+                      <p className="text-white font-medium">{step.title}</p>
+                      <p className="text-base text-white/70 mt-0.5">{step.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+
             <div className="p-4 rounded-xl" style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
               <p className="text-cyan-300 text-base">
                 💡 Não existe resposta certa ou errada. Use sua experiência profissional e seu julgamento pessoal.
@@ -2534,6 +2744,15 @@ function AvaliacaoProjectPageInner() {
             <p className="text-white/80 text-base leading-relaxed">
               Os números representam <strong className="text-white">intensidade da preferência</strong>, conforme a Escala Saaty:
             </p>
+
+            {/* Analogia: régua de preferência */}
+            <div className="p-4 rounded-xl" style={{ background: 'rgba(99, 102, 241, 0.10)', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
+              <p className="text-sm text-indigo-300 font-semibold uppercase tracking-wider mb-1">📏 Régua de preferência</p>
+              <p className="text-base text-white/80 leading-relaxed">
+                Pense na escala como uma régua de preferência entre dois elementos: <strong className="text-white">1</strong> significa empate total, <strong className="text-white">3</strong> uma vantagem discreta mas clara, <strong className="text-white">5</strong> uma vantagem expressiva, <strong className="text-white">7</strong> dominância demonstrável na prática, e <strong className="text-white">9</strong> preferência sem comparação possível. Os valores pares (<strong className="text-white">2, 4, 6, 8</strong>) permitem calibrar posições intermediárias quando sua opinião está entre dois níveis adjacentes.
+              </p>
+            </div>
+
             <div className="space-y-1.5">
               {[
                 { val: '1', label: 'Igual importância', desc: 'Ambos contribuem igualmente' },
@@ -2560,6 +2779,32 @@ function AvaliacaoProjectPageInner() {
                 </div>
               </div>
             </div>
+
+            {/* Exemplo aplicado */}
+            <div className="p-4 rounded-xl" style={{ background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)' }}>
+              <p className="text-sm text-amber-300 font-semibold uppercase tracking-wider mb-2">📌 Exemplo aplicado</p>
+              <p className="text-base text-white/80 leading-relaxed mb-2">
+                Suponha que você está comparando <strong className="text-white">Payback (C3)</strong> com <strong className="text-white">Valor do Investimento (C1)</strong>, dentro da dimensão de Custos.
+              </p>
+              <ul className="space-y-1.5 text-base text-white/75 leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">•</span>
+                  <span>Se para você ambos importam igualmente na decisão → selecione <strong className="text-white">1</strong>.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">•</span>
+                  <span>Se o Payback é marcadamente mais decisivo, mas o Valor do Investimento também pesa → selecione <strong className="text-white">3</strong> ou <strong className="text-white">5</strong> para Payback.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">•</span>
+                  <span>Se, na sua experiência, o Payback é praticamente o único fator relevante e o Valor do Investimento tem peso desprezível → selecione <strong className="text-white">9</strong> para Payback.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="flex-shrink-0 mt-0.5">•</span>
+                  <span>Se você hesita entre "moderado" (3) e "forte" (5) → use <strong className="text-white">4</strong>.</span>
+                </li>
+              </ul>
+            </div>
           </div>
         ),
       },
@@ -2571,9 +2816,9 @@ function AvaliacaoProjectPageInner() {
             {[
               { icon: '🔄', text: 'Você pode alterar qualquer resposta a qualquer momento — basta clicar em outro botão, ou clicar no mesmo botão para limpar.' },
               { icon: '💾', text: 'Seu progresso é salvo automaticamente a cada 30 segundos. Se fechar o navegador, pode retomar de onde parou.' },
-              { icon: '📖', text: 'Toque nos badges coloridos (ex: B, O, C, R) para ver a definição de cada critério. Use o glossário no topo de cada bloco para consultar todos.' },
-              { icon: '⏭️', text: 'Nem todas as comparações são obrigatórias. O sistema indica quais são essenciais com uma barra vermelha lateral.' },
-              { icon: '🧭', text: 'Use os botões no topo para navegar entre os blocos de comparação. Você não precisa seguir uma ordem fixa.' },
+              { icon: '📖', text: 'Clique nos badges coloridos (ex: B, O, C, R) para ver a definição de cada critério. Use o glossário no topo de cada bloco para consultar todos.' },
+              { icon: '⏭️', text: 'Comparações obrigatórias vs. complementares: 42 das 72 comparações são obrigatórias para validade do cálculo (marcadas com barra vermelha à esquerda), conforme o método IPC. As demais são complementares — responda se quiser aumentar a precisão.' },
+              { icon: '🧭', text: 'A navegação segue uma ordem lógica (Dimensões → Magnitude → Subcritérios → Alternativas). Você pode voltar a qualquer bloco anterior para revisar suas respostas usando a barra lateral de progresso.' },
             ].map((tip, i) => (
               <div key={i} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <span className="text-lg flex-shrink-0">{tip.icon}</span>
