@@ -495,6 +495,7 @@ export function groupComparisonsByBlock(
     R: { name: 'Riscos', icon: '⚠️', color: '#ef4444' },
   };
 
+  // Extract subcriteria blocks for all groups first (cursor must follow flat comparisons order)
   ['B', 'O', 'C', 'R'].forEach(group => {
     const subs = SUBCRITERIA.filter(s => s.group === group);
     const subNodes = subs.map(s => s.code);
@@ -510,6 +511,7 @@ export function groupComparisonsByBlock(
   const altCodes = alternatives ? alternatives.map(a => a.code) : ALTERNATIVES.map(a => a.code);
   const altPairCount = (altCodes.length * (altCodes.length - 1)) / 2;
 
+  // Extract alternatives blocks for all groups (cursor follows flat comparisons order)
   ['B', 'O', 'C', 'R'].forEach(group => {
     const subs = SUBCRITERIA.filter(s => s.group === group);
     const totalInBlock = subs.length * altPairCount;
@@ -521,7 +523,21 @@ export function groupComparisonsByBlock(
     );
   });
 
-  return blocks;
+  // Reorder to interleaved display: bocr, magnitude, sub-b, alt-b, sub-o, alt-o, sub-c, alt-c, sub-r, alt-r
+  // Extraction order (and startIndex values) must follow the flat comparisons array; only display order changes here.
+  const fixedBlocks = blocks.filter(b => b.type === 'bocr' || b.type === 'magnitude');
+  const subBlocks = blocks.filter(b => b.type === 'subcriteria');
+  const altBlocks = blocks.filter(b => b.type === 'alternatives');
+
+  const ordered: ComparisonBlock[] = [...fixedBlocks];
+  ['B', 'O', 'C', 'R'].forEach(group => {
+    const sub = subBlocks.find(b => b.parentGroup === group);
+    const alt = altBlocks.find(b => b.parentGroup === group);
+    if (sub) ordered.push(sub);
+    if (alt) ordered.push(alt);
+  });
+
+  return ordered;
 }
 
 // Labels para horizonte temporal
