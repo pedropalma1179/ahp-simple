@@ -806,7 +806,6 @@ function AvaliacaoProjectPageInner() {
 
   const [submitError, setSubmitError] = useState(false);
   const blockContentRef = useRef<HTMLDivElement>(null);
-  const [showContextModal, setShowContextModal] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
   const [modalInstructionStep, setModalInstructionStep] = useState(0);
 
@@ -3199,128 +3198,6 @@ function AvaliacaoProjectPageInner() {
         }}
       />
 
-      {/* Modal de Contexto da Decisão */}
-      {showContextModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowContextModal(false)}>
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-          {/* Conteúdo */}
-          <div
-            className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl"
-            style={{
-              background: 'rgba(15, 23, 42, 0.95)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(20px)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header do modal */}
-            <div className="sticky top-0 z-10 flex items-center justify-between p-4 border-b border-white/10"
-              style={{ background: 'rgba(15, 23, 42, 0.98)' }}>
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🗺️</span>
-                <h3 className="text-lg font-bold text-white">Contexto da Decisão</h3>
-              </div>
-              <button
-                onClick={() => setShowContextModal(false)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition-all"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-5 space-y-5">
-              {/* Meta */}
-              <div className="p-4 rounded-xl" style={{ background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
-                <p className="text-sm text-cyan-400 font-semibold uppercase tracking-wider mb-1">Meta da Pesquisa</p>
-                <p className="text-white font-medium">{project?.name || 'Pesquisa AHP-BOCR'}</p>
-                {project?.description && (
-                  <p className="text-base text-white/60 mt-1">{project.description}</p>
-                )}
-              </div>
-
-              {/* Alternativas */}
-              <div>
-                <p className="text-sm text-white/70 uppercase tracking-wider mb-2">Alternativas em Avaliação</p>
-                <div className="space-y-2">
-                  {(project?.alternatives || alternatives || []).map((alt: any, i: number) => (
-                    <div key={alt.code || i} className="flex items-start gap-3 p-3 rounded-lg" style={{ background: 'rgba(139, 92, 246, 0.08)', border: '1px solid rgba(139, 92, 246, 0.15)' }}>
-                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold text-white flex-shrink-0" style={{ background: '#8b5cf6' }}>
-                        {alt.code || `A${i + 1}`}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-white">{alt.name}</p>
-                        {alt.description && <p className="text-sm text-white/70 mt-0.5">{alt.description}</p>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Impactos Detalhados (se disponíveis) */}
-              {(project?.alternatives || []).some((alt: any) => alt.impacts && Object.keys(alt.impacts).length > 0) && (
-                <div>
-                  <p className="text-sm text-white/70 uppercase tracking-wider mb-3">Impactos por Subcritério</p>
-
-                  {[
-                    { code: 'B', label: 'Benefícios', color: '#10b981' },
-                    { code: 'O', label: 'Oportunidades', color: '#3b82f6' },
-                    { code: 'C', label: 'Custos', color: '#f59e0b' },
-                    { code: 'R', label: 'Riscos', color: '#ef4444' },
-                  ].map(merit => {
-                    const meritSubs = SUBCRITERIA.filter(s => s.group === merit.code || s.code.startsWith(merit.code));
-                    const hasAnyImpact = meritSubs.some(sub =>
-                      (project?.alternatives || []).some((alt: any) => getImpactText(alt.impacts?.[sub.code]))
-                    );
-                    if (!hasAnyImpact) return null;
-
-                    return (
-                      <div key={merit.code} className="mb-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="inline-flex items-center justify-center w-5 h-5 rounded text-[10px] font-bold text-white"
-                            style={{ background: merit.color }}>{merit.code}</span>
-                          <span className="text-sm font-semibold text-white">{merit.label}</span>
-                        </div>
-
-                        <div className="space-y-2">
-                          {meritSubs.map(sub => {
-                            const altsWithImpact = (project?.alternatives || []).filter((alt: any) => getImpactText(alt.impacts?.[sub.code]));
-                            if (altsWithImpact.length === 0) return null;
-
-                            return (
-                              <div key={sub.code} className="rounded-lg p-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                                <div className="flex items-center gap-1.5 mb-2">
-                                  <span className="text-xs font-bold px-1.5 py-0.5 rounded text-white" style={{ background: merit.color }}>{sub.code}</span>
-                                  <span className="text-sm font-medium text-white/80">{sub.name}</span>
-                                </div>
-                                <div className="space-y-1.5">
-                                  {(project?.alternatives || []).map((alt: any) => {
-                                    const impactText = getImpactText(alt.impacts?.[sub.code]);
-                                    if (!impactText) return null;
-                                    return (
-                                      <div key={alt.code} className="flex items-start gap-2">
-                                        <span className="inline-flex items-center justify-center w-6 h-5 rounded text-[10px] font-bold text-white flex-shrink-0 mt-0.5"
-                                          style={{ background: '#8b5cf6' }}>{alt.code}</span>
-                                        <p className="text-base text-white/60 leading-relaxed">{impactText}</p>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Modal "Rever Instruções" (reutiliza buildInstructionSteps) */}
       {showInstructionsModal && (() => {
         const steps = buildInstructionSteps();
@@ -3461,16 +3338,6 @@ function AvaliacaoProjectPageInner() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <span className="text-white/80 text-sm font-medium">Avaliação AHP-BOCR</span>
-                  <button
-                    onClick={() => setShowContextModal(true)}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-md text-xs text-white/60 hover:text-white/70 hover:bg-white/10 transition-all"
-                    title="Ver contexto da decisão"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Contexto
-                  </button>
                   <button
                     onClick={() => {
                       setModalInstructionStep(0);
