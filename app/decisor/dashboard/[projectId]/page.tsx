@@ -367,15 +367,22 @@ const handleSendInvite = (respondent: Respondent & { id: string }) => {
     const mailtoUrl = `mailto:${respondent.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     try {
-        window.location.href = mailtoUrl;
+        const link = document.createElement('a');
+        link.href = mailtoUrl;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
         setCopiedInviteId(respondent.id);
         setTimeout(() => setCopiedInviteId(null), 2000);
     } catch (err) {
         console.error('Falha ao abrir cliente de email:', err);
-        navigator.clipboard.writeText(`Para: ${respondent.email}\r\nAssunto: ${subject}\r\n\r\n${body}`).then(
-            () => alert(`Não foi possível abrir o Outlook. Convite copiado — cole manualmente em um novo email para ${respondent.email}.`),
-            () => alert('Não foi possível abrir o Outlook nem copiar o convite. Tente novamente.')
-        );
+        navigator.clipboard.writeText(`Para: ${respondent.email}\r\nAssunto: ${subject}\r\n\r\n${body}`).then(() => {
+            alert(`Não foi possível abrir o Outlook automaticamente. O convite foi copiado para a área de transferência. Cole em um novo email para ${respondent.email}.`);
+        }).catch(() => {
+            alert('Falha ao abrir o Outlook e ao copiar o convite. Verifique as permissões do navegador.');
+        });
     }
 };
 
