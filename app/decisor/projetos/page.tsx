@@ -1858,17 +1858,80 @@ function ManageProjectModal({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const copyInvite = (respondent: Respondent & { id: string }) => {
-    const text = `Olá! Você foi convidado(a) para participar da pesquisa "${project.name}".
+  const deriveNameFromEmail = (email: string): string => {
+    const localPart = (email || '').split('@')[0] || '';
+    return localPart
+      .split(/[._-]+/)
+      .filter(p => p.length > 0)
+      .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+      .join(' ');
+  };
 
-📋 Link: ${surveyLink}
-🔑 Código de acesso: ${respondent.accessCode}
+  const generateInviteText = (
+    respondent: Respondent & { id: string },
+    projectId: string
+  ): { subject: string; body: string } => {
+    const nome = respondent.nome || deriveNameFromEmail(respondent.email);
+    const linkPesquisa = `https://ahp-simple.vercel.app/avaliacao/${projectId}`;
+    const dataLimite = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR');
 
-Obrigado pela participação!`;
+    const subject = 'Convite para participação em pesquisa acadêmica — Mestrado UNESP — decisão sobre tecnologias Indústria 4.0';
 
-    navigator.clipboard.writeText(text);
-    setCopiedId(respondent.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    const body = [
+      `Prezado(a) ${nome},`,
+      '',
+      'Espero que esta mensagem o(a) encontre bem. Sou Pedro Luis Tozoni Palma, aluno do Mestrado Profissional em Engenharia de Produção da UNESP Guaratinguetá. Minha pesquisa investiga a aplicação do método multicritério AHP-BOCR para apoiar decisões de investimento em tecnologias de Indústria 4.0 no setor automotivo.',
+      '',
+      'Gostaria de convidá-lo(a) a compor o painel de especialistas desta pesquisa. Sua experiência profissional é valiosa para o julgamento comparativo entre duas alternativas tecnológicas voltadas à otimização energética de estufas de cura em linha de pintura automotiva.',
+      '',
+      'Sobre a participação:',
+      '- Tempo estimado: 20 a 30 minutos.',
+      '- Formato: questionário online, preenchível no navegador, sem necessidade de instalação.',
+      '- Progresso salvo automaticamente — pode interromper e retomar.',
+      `- Prazo para resposta: até ${dataLimite}.`,
+      '',
+      'Acesso ao questionário:',
+      `- Link: ${linkPesquisa}`,
+      `- Código de acesso pessoal: ${respondent.accessCode}`,
+      '',
+      'Importante: Os dados financeiros e energéticos apresentados no questionário são estimativas paramétricas baseadas em literatura científica, não representam dados reais ou confidenciais de qualquer empresa. Os dados coletados serão tratados com total confidencialidade e utilizados exclusivamente para fins acadêmicos.',
+      '',
+      'Qualquer dúvida, estou à disposição pelo e-mail pedro.palma@unesp.br.',
+      '',
+      'Agradeço desde já pela atenção e contribuição.',
+      '',
+      'Cordialmente,',
+      '',
+      'Pedro Luis Tozoni Palma',
+      'Mestrado Profissional em Engenharia de Produção',
+      'UNESP — Faculdade de Engenharia de Guaratinguetá',
+    ].join('\r\n');
+
+    return { subject, body };
+  };
+
+  const handleSendInvite = (respondent: Respondent & { id: string }) => {
+    const { subject, body } = generateInviteText(respondent, project.id);
+    const mailtoUrl = `mailto:${respondent.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    try {
+      const link = document.createElement('a');
+      link.href = mailtoUrl;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setCopiedId(respondent.id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      console.error('Falha ao abrir cliente de email:', err);
+      navigator.clipboard.writeText(`Para: ${respondent.email}\r\nAssunto: ${subject}\r\n\r\n${body}`).then(() => {
+        alert(`Não foi possível abrir o Outlook. O convite foi copiado para a área de transferência. Cole em um novo email para ${respondent.email}.`);
+      }).catch(() => {
+        alert('Falha ao abrir o Outlook e ao copiar o convite. Verifique as permissões do navegador.');
+      });
+    }
   };
 
   const resetRespondent = async (respondent: Respondent & { id: string }) => {
@@ -1995,13 +2058,13 @@ Obrigado pela participação!`;
                     </div>
                     <div className="flex items-center gap-1 ml-2">
                       <button
-                        onClick={() => copyInvite(respondent)}
+                        onClick={() => handleSendInvite(respondent)}
                         className={`px-3 py-1.5 rounded text-xs font-medium ${copiedId === respondent.id
                           ? 'bg-green-500 text-white'
                           : 'bg-indigo-100 text-indigo-700 hover:bg-indigo-200'
                           }`}
                       >
-                        {copiedId === respondent.id ? '✓' : '📋 Convite'}
+                        {copiedId === respondent.id ? '✓ Enviado' : '✉️ Enviar Convite'}
                       </button>
                       {(respondent.completedAt || respondent.status === 'completed' || respondent.startedAt) && (
                         <button
@@ -2022,8 +2085,8 @@ Obrigado pela participação!`;
           {/* Dica */}
           <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
             <p className="text-sm text-amber-800">
-              💡 <strong>Como enviar convites:</strong> Clique em "📋 Convite" ao lado do especialista,
-              depois cole a mensagem no WhatsApp ou Email.
+              💡 <strong>Como enviar convites:</strong> Clique em "✉️ Enviar Convite" ao lado do especialista.
+              O Outlook será aberto com a mensagem pronta para revisão e envio.
             </p>
           </div>
         </div>
