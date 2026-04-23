@@ -2909,7 +2909,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Perfil BOCR por Alternativa</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Baseado em Wijnmalen (2007): B+O crescem para direita (positivo), C+R crescem para esquerda (negativo)
+                Baseado em Wijnmalen (2007): B e O entram com sinal positivo na síntese subtrativa; C e R entram com sinal negativo (subtraídos). Os eixos representam a contribuição bruta de cada mérito, pré-ponderação. O Score Final aplica os pesos v·s conforme Eq. 17 (Wijnmalen, 2007).
               </p>
               <ChartDownloadWrapper filename="bocr-profile" title="Perfil BOCR por Alternativa">
               <div className="space-y-6">
@@ -3009,11 +3009,11 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               </ChartDownloadWrapper>
             </div>
 
-            {/* Gráfico de Radar Comparativo - Alizadeh (2020) */}
+            {/* Gráfico Radar Comparativo — visualização adaptada de Alizadeh (2020) */}
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Gráfico de Radar Comparativo</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Visualização de trade-offs entre alternativas nos 4 méritos BOCR (Alizadeh et al., 2020)
+                Visualização de trade-offs entre alternativas nos 4 méritos BOCR. Adaptação para BOCR seguindo Alizadeh et al. (2020, Figure 6).
               </p>
 
               <ChartDownloadWrapper filename="bocr-radar" title="Radar Comparativo BOCR">
@@ -4216,6 +4216,9 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                 showLabels={true}
               />
               </ChartDownloadWrapper>
+              <p className="text-xs text-gray-500 mt-2 italic">
+                ℹ️ Os percentuais exibidos representam os pesos pessoais (v) derivados da hierarquia de controle. Na Equação 17 de Wijnmalen (2007), são multiplicados pelos rescaling weights (s) para compor os pesos efetivos (v·s) usados na síntese subtrativa.
+              </p>
             </div>
 
             {/* Pesos dos Subcritérios */}
@@ -4298,12 +4301,12 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               {/* Nota sobre Normalização e Referências */}
               <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800">
-                  <strong>Convenções e Referências — Petrillo et al. (2023):</strong><br />
-                  • <strong>⭐ Subtrativo (Eq.1, Principal):</strong> b·B + o·O − c·C − r·R. Valor bruto (pode ser negativo). Único com consenso. <em>Wijnmalen (2007)</em><br />
-                  • <strong>Recíprocos (Eq.2):</strong> b·B + o·O + c·(1/C) + r·(1/R). Inversão de C e R. <em>Saaty & Peniwati (2008)</em><br />
-                  • <strong>Adit. Residual (Eq.3):</strong> b·B + o·O + c·(1−C) + r·(1−R). Sempre positivo. <em>Demirtas & Üstün (2008)</em><br />
-                  • <strong>Mult. Potências (Eq.4):</strong> B<sup>b</sup>·O<sup>o</sup> / C<sup>c</sup>·R<sup>r</sup>. Tradeoff exponencial. <em>Saaty (2005)</em><br />
-                  • <strong>Mult. Simples (Eq.5):</strong> (B·O) / (C·R). Ratio direto sem pesos. <em>Petrillo et al. (2023)</em>
+                  <strong>Convenções e Referências:</strong><br />
+                  • <strong>⭐ Subtrativo (Principal):</strong> v<sub>b</sub>·s<sub>b</sub>·B + v<sub>o</sub>·s<sub>o</sub>·O − v<sub>c</sub>·s<sub>c</sub>·C − v<sub>r</sub>·s<sub>r</sub>·R. Valor líquido (pode ser negativo); v = pesos pessoais, s = rescaling weights. <em>Wijnmalen (2007, Eq. 17)</em><br />
+                  • <strong>Quociente de Somas:</strong> (s<sub>b</sub>·B + s<sub>o</sub>·O) / (s<sub>c</sub>·C + s<sub>r</sub>·R). Razão benefício-custo com rescaling weights. <em>Wijnmalen (2007, Eq. 12)</em><br />
+                  • <strong>Adit. Residual:</strong> b·B + o·O + c·(1−C) + r·(1−R). Probabilistic additive; sempre positivo. <em>Saaty (2005); Lee (2009, Eq. 13); Demirtas & Üstün (2008)</em><br />
+                  • <strong>Mult. Potências:</strong> (B<sup>v<sub>b</sub></sup>·O<sup>v<sub>o</sub></sup>) / (C<sup>v<sub>c</sub></sup>·R<sup>v<sub>r</sub></sup>). Tradeoff exponencial. <em>Saaty (2005); Lee (2009, Eq. 15)</em><br />
+                  • <strong>Mult. Simples:</strong> (B·O) / (C·R). Sem pesos dos méritos; benchmarking. <em>Saaty (2005); Lee (2009, Eq. 16)</em>
                 </p>
               </div>
             </div>
@@ -4746,8 +4749,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                         <span>📚</span> Fundamentação Metodológica
                       </h4>
                       <p className="text-sm text-indigo-700">
-                        O método <strong>Subtrativo</strong> (Score = b·B + o·O - c·C - r·R) foi utilizado
-                        como principal por ser o <strong>único com consenso total</strong> na literatura AHP-BOCR:
+                        O método <strong>Subtrativo</strong> (Score = v<sub>b</sub>·s<sub>b</sub>·B + v<sub>o</sub>·s<sub>o</sub>·O − v<sub>c</sub>·s<sub>c</sub>·C − v<sub>r</sub>·s<sub>r</sub>·R) foi utilizado
+                        como principal por sua <strong>coerência matemática</strong> (Wijnmalen, 2007, Eq. 17), aplicação validada em Demirtas & Üstün (2008) e inclusão no state-of-the-art de Petrillo et al. (2023):
                         Wijnmalen (2007) Eq. 17, Demirtas & Ustun (2008) Eq. 3, e Petrillo et al. (2023).
                         Este método é particularmente adequado para avaliação de investimentos em Indústria 4.0
                         pois permite identificar alternativas com valor líquido negativo (prejuízo).
@@ -4793,7 +4796,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                         <td className="px-3 py-2 border text-center">✅ Eq. 17</td>
                         <td className="px-3 py-2 border text-center">✅ Eq. 3</td>
                         <td className="px-3 py-2 border text-center">
-                          <span className="px-2 py-1 bg-emerald-200 text-emerald-800 rounded text-xs font-bold">CONSENSO</span>
+                          <span className="px-2 py-1 bg-emerald-200 text-emerald-800 rounded text-xs font-bold">Recomendado</span>
                         </td>
                       </tr>
                       <tr>
@@ -4839,10 +4842,10 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                 </h4>
                 <div className="text-sm text-emerald-700 space-y-2">
                   <p>
-                    <strong>Fórmula:</strong> <code className="bg-white px-2 py-1 rounded">Score = b·B + o·O - c·C - r·R</code>
+                    <strong>Fórmula:</strong> <code className="bg-white px-2 py-1 rounded">Score = v<sub>b</sub>·s<sub>b</sub>·B + v<sub>o</sub>·s<sub>o</sub>·O − v<sub>c</sub>·s<sub>c</sub>·C − v<sub>r</sub>·s<sub>r</sub>·R</code>
                   </p>
                   <p>
-                    <strong>Fundamentação:</strong> O método Subtrativo foi adotado como principal por ser o <strong>único com consenso total</strong> na literatura AHP-BOCR:
+                    <strong>Fundamentação:</strong> O método Subtrativo foi adotado como principal por sua <strong>coerência matemática</strong> (Wijnmalen, 2007, Eq. 17), aplicação validada em Demirtas & Üstün (2008) e inclusão no state-of-the-art de Petrillo et al. (2023):
                   </p>
                   <ul className="list-disc list-inside pl-4 space-y-1">
                     <li>Wijnmalen (2007), Eq. 17 - Validação matemática formal</li>
@@ -4971,6 +4974,9 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               </div>
 
               {/* Tipos de Pesos */}
+              <p className="text-xs text-gray-500 mb-2 italic">
+                ℹ️ Os percentuais exibidos representam os pesos pessoais (v) derivados da hierarquia de controle. Na Equação 17 de Wijnmalen (2007), são multiplicados pelos rescaling weights (s) para compor os pesos efetivos (v·s) usados na síntese subtrativa.
+              </p>
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="p-4 bg-indigo-50 rounded-lg border border-indigo-200">
                   <h5 className="font-semibold text-indigo-800 mb-2">Personal Weights (Importância)</h5>
@@ -4981,7 +4987,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     Obtidos de comparações BOCR: "Qual mérito é mais <em>importante</em> para esta decisão?"
                   </p>
                   <p className="text-xs text-indigo-500 mt-2">
-                    Ref: Demirtas & Ustun (2008) - "rating results of BOCR"
+                    Ref: Saaty & Ozdemir (2003); Saaty (2005). Aplicação em Demirtas & Üstün (2008).
                   </p>
                 </div>
                 <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
@@ -5891,7 +5897,7 @@ BOZÓKI, S.; FÜLÖP, J.; RÓNYAI, L. On optimal completion of incomplete pairwi
                 </div>
                 <div>
                   <p className="font-medium text-gray-700">Análise de Sensibilidade:</p>
-                  <p className="text-gray-600">Pontos de inflexão (Alizadeh et al., 2020)</p>
+                  <p className="text-gray-600">Pontos de inflexão conforme Triantaphyllou & Sánchez (1997), classificação de estabilidade adaptada de Alizadeh et al. (2020).</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-700">Matrizes Incompletas:</p>

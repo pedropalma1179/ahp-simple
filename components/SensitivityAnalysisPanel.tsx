@@ -141,7 +141,7 @@ export default function SensitivityAnalysisPanel({
       </div>
 
       <p className="text-sm text-gray-500 mb-6">
-        Simulação da variação de pesos (0% a 100%) para cada mérito BOCR, conforme <strong>Alizadeh et al. (2020) Section 5.7</strong>.
+        Análise de sensibilidade por variação de pesos (0% a 100%) para cada mérito BOCR. Técnica estabelecida em AHP por <strong>Triantaphyllou & Sánchez (1997)</strong> e aplicada a BOCR por <strong>Alizadeh et al. (2020, Section 5.7)</strong>.
       </p>
 
       {hasTrajectoryData ? (

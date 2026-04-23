@@ -85,9 +85,9 @@ export default function MethodComparisonTable({
       id: 'subtractive',
       name: 'Subtrativo',
       shortName: 'Subtrativo ⭐',
-      formula: 'b·B + o·O − c·C − r·R',
-      ref: 'Wijnmalen (2007)',
-      note: 'Único com consenso',
+      formula: 'vb·sb·B + vo·so·O − vc·sc·C − vr·sr·R',
+      ref: 'Wijnmalen (2007, Eq. 17)',
+      note: 'Valor líquido; v = pesos pessoais, s = rescaling weights',
       isPrimary: true,
       scoreKey: 'scoreSubtractive' as const,
       rankKey: 'rankSubtractive' as const,
@@ -96,9 +96,9 @@ export default function MethodComparisonTable({
       id: 'quotientSums',
       name: 'Quociente de Somas',
       shortName: 'Q. Somas',
-      formula: '(b·B + o·O) / (c·C + r·R)',
-      ref: 'Saaty (2001)',
-      note: 'Razão positivos/negativos',
+      formula: '(sb·B + so·O) / (sc·C + sr·R)',
+      ref: 'Wijnmalen (2007, Eq. 12)',
+      note: 'Razão benefício-custo com rescaling weights',
       isPrimary: false,
       scoreKey: 'scoreQuotientSums' as const,
       rankKey: 'rankQuotientSums' as const,
@@ -108,8 +108,8 @@ export default function MethodComparisonTable({
       name: 'Aditivo Residual',
       shortName: 'Adit. Residual',
       formula: 'b·B + o·O + c·(1−C) + r·(1−R)',
-      ref: 'Demirtas & Ustun (2008)',
-      note: 'Sempre positivo',
+      ref: 'Saaty (2005); Lee (2009, Eq. 13); Demirtas & Üstün (2008)',
+      note: 'Probabilistic additive; sempre positivo',
       isPrimary: false,
       scoreKey: 'scoreAdditiveResidual' as const,
       rankKey: 'rankAdditiveResidual' as const,
@@ -118,8 +118,8 @@ export default function MethodComparisonTable({
       id: 'multiplicative',
       name: 'Multiplicativo Potências',
       shortName: 'Mult. Potências',
-      formula: 'B^b · O^o / C^c · R^r',
-      ref: 'Saaty (2001)',
+      formula: '(B^vb · O^vo) / (C^vc · R^vr)',
+      ref: 'Saaty (2005); Lee (2009, Eq. 15)',
       note: 'Tradeoff exponencial',
       isPrimary: false,
       scoreKey: 'scoreMultiplicative' as const,
@@ -130,8 +130,8 @@ export default function MethodComparisonTable({
       name: 'Multiplicativo Simples',
       shortName: 'Mult. Simples',
       formula: '(B · O) / (C · R)',
-      ref: 'Saaty (2001)',
-      note: 'Produto direto',
+      ref: 'Saaty (2005); Lee (2009, Eq. 16)',
+      note: 'Sem pesos dos méritos; benchmarking',
       isPrimary: false,
       scoreKey: 'scoreMultSimple' as const,
       rankKey: 'rankMultSimple' as const,
@@ -183,7 +183,7 @@ export default function MethodComparisonTable({
       </div>
 
       <p className="text-sm text-gray-500 mb-4">
-        Conforme <strong>Lee (2009a) Table 7</strong> e <strong>Alizadeh et al. (2020) Table 10</strong>
+        Conforme <strong>Lee (2009, Table 7)</strong>. Validação cruzada entre os 5 métodos de síntese BOCR: análise de concordância e dominância.
       </p>
 
       {/* Botão para mostrar/ocultar fórmulas */}

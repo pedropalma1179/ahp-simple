@@ -612,6 +612,13 @@ export default function BentoGridDashboard({
           </div>
         ))}
 
+        {/* Nota M11 — Personal vs Effective weights */}
+        <div className="col-span-12">
+          <p className="text-xs text-gray-500 italic">
+            ℹ️ Os percentuais exibidos representam os pesos pessoais (v) derivados da hierarquia de controle. Na Equação 17 de Wijnmalen (2007), são multiplicados pelos rescaling weights (s) para compor os pesos efetivos (v·s) usados na síntese subtrativa.
+          </p>
+        </div>
+
         {/* Card 7: Ranking List (8 cols, 3 rows) */}
         <div
           className="col-span-12 lg:col-span-8 row-span-3 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-300"

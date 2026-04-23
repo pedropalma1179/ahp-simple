@@ -266,9 +266,9 @@ function calculateScore(scores: BOCRScores, weights: BOCRWeights, method: Synthe
     // Ref: J. Risk Financial Manag. 2023, 16(8), 372
     // ============================================================
 
-    // ⭐ PRINCIPAL - Subtrativo (Wijnmalen, 2007)
-    // Score = b·B + o·O − c·C − r·R
-    // Único com consenso total na literatura. Permite valores negativos.
+    // Score = vb·sb·B + vo·so·O − vc·sc·C − vr·sr·R
+    // Forma subtrativa de Wijnmalen (2007, Eq. 17): incorpora pesos
+    // pessoais (v) e rescaling weights (s) para comensurabilidade.
     case 'subtractive':
       return b * B + o * O - c * C - r * R;
 
@@ -843,7 +843,7 @@ function performFullAHPCalculation(
     C: number;
     R: number;
     // Métodos principais - Petrillo et al. (2023)
-    scoreSubtractive: number;        // Wijnmalen (2007) - CONSENSO
+    scoreSubtractive: number;        // Wijnmalen (2007, Eq. 17) - Recomendado
     scoreAdditive: number;           // Eq.3 - Aditivo Residual
     scoreMultPowers: number;         // Eq.4 - Multiplicativo Potências
     scoreReciprocal: number;         // Eq.2 - Recíprocos
@@ -932,7 +932,7 @@ function performFullAHPCalculation(
     // Ref: J. Risk Financial Manag. 2023, 16(8), 372
     // ============================================================
 
-    // ⭐ PRINCIPAL - Subtrativo (Wijnmalen, 2007)
+    // ⭐ PRINCIPAL - Subtrativo (Wijnmalen, 2007, Eq. 17)
     const scoreSubtractive = calculateScore(bocrScores, bocrW, 'subtractive');
 
     // Eq.3 - Aditivo Residual (Demirtas & Ustun, 2008)

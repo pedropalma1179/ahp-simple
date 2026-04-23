@@ -95,7 +95,7 @@ export default function BOCRPrioritiesTable({
       </div>
       
       <p className="text-sm text-gray-500 mb-4">
-        Conforme <strong>Lee (2009a) Table 6</strong> e <strong>Alizadeh et al. (2020) Figure 6</strong>
+        Conforme <strong>Lee (2009, Table 6)</strong>. Formato de apresentação inspirado em Alizadeh et al. (2020, Figure 6).
       </p>
 
       <div className="overflow-x-auto">
