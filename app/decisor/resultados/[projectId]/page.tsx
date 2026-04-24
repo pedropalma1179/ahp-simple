@@ -1572,17 +1572,6 @@ export default function ResultadosPage() {
   const formatPercent = (value: number | undefined | null) => `${((value || 0) * 100).toFixed(2)}%`;
   const formatNumber = (value: number | undefined | null) => (value || 0).toFixed(4);
 
-  const getGradeColor = (grade: string) => {
-    const colors: Record<string, string> = {
-      'A': 'bg-green-500',
-      'B': 'bg-blue-500',
-      'C': 'bg-yellow-500',
-      'D': 'bg-orange-500',
-      'E': 'bg-red-500'
-    };
-    return colors[grade] || 'bg-gray-500';
-  };
-
   const getCRStatus = (cr: number) => {
     if (cr <= 0.08) return { status: 'Excelente', color: 'text-green-600', bg: 'bg-green-100' };
     if (cr <= 0.10) return { status: 'Aceitável', color: 'text-blue-600', bg: 'bg-blue-100' };
@@ -5101,7 +5090,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                 {/* Validações Detalhadas */}
                 {audit.validacoes && audit.validacoes.length > 0 && (
                   <div className="bg-white rounded-xl shadow-sm p-6">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Detalhamento da Pontuação</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Detalhamento das Validações</h3>
                     <div className="space-y-3">
                       {audit.validacoes.map((v: any, idx: number) => {
                         const statusColors: Record<string, string> = {
@@ -5123,7 +5112,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                                 <span>{statusIcons[v.status] || '?'}</span>
                                 <span className="font-semibold text-gray-800">{v.test}</span>
                               </div>
-                              <span className="text-sm font-bold text-gray-600">{v.score}/{v.maxScore} pts</span>
+                              <span className={`text-sm font-bold px-2 py-0.5 rounded ${v.status === 'PASS' ? 'bg-green-100 text-green-700' : v.status === 'ALERT' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>{v.status}</span>
                             </div>
                             <p className="text-sm text-gray-600 mb-2">{v.message}</p>
                             {v.action && (
@@ -5171,80 +5160,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   )}
                 </div>
 
-                {/* Adequação para Periódicos - DETALHADA */}
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">📚 Adequação para Periódicos A1</h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    Avaliação baseada nos requisitos de cada periódico: tamanho da amostra, consistência, concordância entre métodos e score total.
-                  </p>
 
-                  <div className="space-y-4">
-                    {(audit.detalhes_periodicos || [
-                      { journal: 'PPC', fullName: 'Production Planning & Control', impactFactor: 12.5, adequate: audit.adequacao_periodicos?.PPC, missing: [], reasons: [] },
-                      { journal: 'IJPE', fullName: 'International Journal of Production Economics', impactFactor: 12.0, adequate: audit.adequacao_periodicos?.IJPE, missing: [], reasons: [] },
-                      { journal: 'JCP', fullName: 'Journal of Cleaner Production', impactFactor: 10.0, adequate: audit.adequacao_periodicos?.JCP, missing: [], reasons: [] },
-                      { journal: 'IMM', fullName: 'Industrial Marketing Management', impactFactor: 10.4, adequate: audit.adequacao_periodicos?.IMM, missing: [], reasons: [] },
-                      { journal: 'OMR', fullName: 'Operations Management Research', impactFactor: 6.9, adequate: audit.adequacao_periodicos?.OMR, missing: [], reasons: [] }
-                    ]).map((j: any) => (
-                      <div
-                        key={j.journal}
-                        className={`p-4 rounded-lg border ${j.adequate ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
-                          }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl">{j.adequate ? '✅' : '⭕'}</span>
-                            <div>
-                              <span className={`font-bold ${j.adequate ? 'text-green-800' : 'text-gray-600'}`}>
-                                {j.journal}
-                              </span>
-                              <span className="text-gray-500 text-sm ml-2">IF: {j.impactFactor}</span>
-                            </div>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${j.adequate ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-600'
-                            }`}>
-                            {j.adequate ? 'ADEQUADO' : 'NÃO ADEQUADO'}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-500 mb-2">{j.fullName}</p>
-
-                        {/* Razões de aprovação */}
-                        {j.adequate && j.reasons && j.reasons.length > 0 && (
-                          <div className="mt-2 space-y-1">
-                            {j.reasons.map((r: string, idx: number) => (
-                              <p key={idx} className="text-xs text-green-700 flex items-center gap-1">
-                                <span>✓</span> {r}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Razões de reprovação */}
-                        {!j.adequate && j.missing && j.missing.length > 0 && (
-                          <div className="mt-2 space-y-1">
-                            {j.missing.map((m: string, idx: number) => (
-                              <p key={idx} className="text-xs text-red-600 flex items-center gap-1">
-                                <span>✗</span> {m}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Legenda */}
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-500 mb-2"><strong>Legenda de Requisitos:</strong></p>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs text-gray-500">
-                      <span>PPC: n≥6, Score≥85</span>
-                      <span>IJPE: n≥12, Score≥85</span>
-                      <span>JCP: n≥10, Score≥75</span>
-                      <span>IMM: n≥8, Score≥75</span>
-                      <span>OMR: n≥7, Score≥65</span>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Relatório Técnico Completo */}
                 {audit.relatorio_tecnico && (

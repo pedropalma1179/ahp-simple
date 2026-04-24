@@ -1,12 +1,11 @@
 // app/api/audit-decision/route.ts
-// AHP-BOCR Scientific Validator v3.0
-// Sistema de Classificação baseado em 5 Periódicos A1
-// PPC, IJPE, JCP, IMM, OMR
+// AHP-BOCR Scientific Validator v3.1
+// Validações qualitativas de Matemática, Lógica e Robustez
 
 import { NextRequest, NextResponse } from 'next/server';
 
 // ============================================================
-// CONSTANTES E CONFIGURAÇÕES v3.0
+// CONSTANTES E CONFIGURAÇÕES
 // ============================================================
 
 // Random Index (RI) - Saaty (1980)
@@ -16,95 +15,6 @@ const RANDOM_INDEX: Record<number, number> = {
   11: 1.52, 12: 1.54, 13: 1.56, 14: 1.58, 15: 1.59
 };
 
-// Periódicos e seus requisitos
-const JOURNALS = {
-  PPC: {
-    name: 'Production Planning & Control',
-    shortName: 'PPC',
-    impactFactor: 12.5,
-    minExperts: 6,
-    maxCR: 0.10,
-    minMethods: 4,
-    minScore: 85,
-    requirements: [
-      'Mínimo 6 especialistas',
-      'CR ≤ 10% em todas as matrizes',
-      '4/5 métodos concordantes',
-      'Score ≥ 85 pontos'
-    ]
-  },
-  IJPE: {
-    name: 'International Journal of Production Economics',
-    shortName: 'IJPE',
-    impactFactor: 12.0,
-    minExperts: 12,
-    maxCR: 0.10,
-    minMethods: 4,
-    minScore: 85,
-    requirements: [
-      'Mínimo 12 especialistas',
-      'CR ≤ 10% em todas as matrizes',
-      '4/5 métodos concordantes',
-      'Score ≥ 85 pontos'
-    ]
-  },
-  JCP: {
-    name: 'Journal of Cleaner Production',
-    shortName: 'JCP',
-    impactFactor: 10.0,
-    minExperts: 10,
-    maxCR: 0.10,
-    minMethods: 3,
-    minScore: 75,
-    requirements: [
-      'Mínimo 10 especialistas',
-      'CR ≤ 10% em todas as matrizes',
-      '3/5 métodos concordantes',
-      'Score ≥ 75 pontos'
-    ]
-  },
-  IMM: {
-    name: 'Industrial Marketing Management',
-    shortName: 'IMM',
-    impactFactor: 10.4,
-    minExperts: 8,
-    maxCR: 0.10,
-    minMethods: 3,
-    minScore: 75,
-    requirements: [
-      'Mínimo 8 especialistas',
-      'CR ≤ 10% em todas as matrizes',
-      '3/5 métodos concordantes',
-      'Score ≥ 75 pontos'
-    ]
-  },
-  OMR: {
-    name: 'Operations Management Research',
-    shortName: 'OMR',
-    impactFactor: 6.9,
-    minExperts: 7,
-    maxCR: 0.10,
-    minMethods: 3,
-    minScore: 65,
-    requirements: [
-      'Mínimo 7 especialistas',
-      'CR ≤ 10% em todas as matrizes',
-      '3/5 métodos concordantes',
-      'Score ≥ 65 pontos'
-    ]
-  }
-};
-
-// Sistema de pontuação (100 pontos total)
-const SCORING = {
-  consistency: { max: 25, label: 'Consistência (CR)' },
-  sampleSize: { max: 20, label: 'Tamanho da Amostra' },
-  methodsAgreement: { max: 20, label: 'Concordância entre Métodos' },
-  sensitivity: { max: 15, label: 'Análise de Sensibilidade' },
-  discrimination: { max: 10, label: 'Poder de Discriminação' },
-  dataQuality: { max: 10, label: 'Qualidade dos Dados' }
-};
-
 // ============================================================
 // INTERFACES
 // ============================================================
@@ -112,20 +22,9 @@ const SCORING = {
 interface ValidationResult {
   test: string;
   status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL';
-  score: number;
-  maxScore: number;
   message: string;
   details?: any;
   action?: string; // Ação recomendada
-}
-
-interface JournalAdequacy {
-  adequate: boolean;
-  journal: string;
-  fullName: string;
-  impactFactor: number;
-  reasons: string[];
-  missing: string[];
 }
 
 // ============================================================
@@ -136,30 +35,24 @@ function validateConsistency(data: any): ValidationResult {
   const cr = data.bocrConsistency?.cr || 0;
   const crPercent = (cr * 100).toFixed(2);
 
-  let score = 0;
   let status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL' = 'CRITICAL';
   let message = '';
   let action = '';
 
   if (cr <= 0.05) {
-    score = 25;
     status = 'PASS';
     message = `CR = ${crPercent}% - Consistência excelente (< 5%)`;
   } else if (cr <= 0.08) {
-    score = 22;
     status = 'PASS';
     message = `CR = ${crPercent}% - Consistência muito boa (< 8%)`;
   } else if (cr <= 0.10) {
-    score = 18;
     status = 'PASS';
     message = `CR = ${crPercent}% - Consistência aceitável (≤ 10%)`;
   } else if (cr <= 0.15) {
-    score = 10;
     status = 'ALERT';
     message = `CR = ${crPercent}% - Consistência marginal (> 10%)`;
     action = 'Revisar julgamentos inconsistentes. Considere re-coletar respostas dos especialistas com maior desvio.';
   } else {
-    score = 0;
     status = 'CRITICAL';
     message = `CR = ${crPercent}% - Consistência inaceitável (> 15%)`;
     action = 'OBRIGATÓRIO: Re-coletar dados. Julgamentos altamente inconsistentes invalidam a análise.';
@@ -168,8 +61,6 @@ function validateConsistency(data: any): ValidationResult {
   return {
     test: 'Consistência (CR)',
     status,
-    score,
-    maxScore: 25,
     message,
     action,
     details: { cr, crPercent }
@@ -179,35 +70,28 @@ function validateConsistency(data: any): ValidationResult {
 function validateSampleSize(data: any): ValidationResult {
   const n = data.responseCount || 0;
 
-  let score = 0;
   let status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL' = 'CRITICAL';
   let message = '';
   let action = '';
 
   if (n >= 15) {
-    score = 20;
     status = 'PASS';
     message = `n = ${n} especialistas - Amostra excelente (≥ 15)`;
   } else if (n >= 12) {
-    score = 18;
     status = 'PASS';
     message = `n = ${n} especialistas - Amostra muito boa (≥ 12)`;
   } else if (n >= 10) {
-    score = 15;
     status = 'PASS';
     message = `n = ${n} especialistas - Amostra adequada (≥ 10)`;
   } else if (n >= 7) {
-    score = 12;
     status = 'ALERT';
     message = `n = ${n} especialistas - Amostra mínima (≥ 7)`;
     action = 'Considere expandir o painel de especialistas para maior representatividade.';
   } else if (n >= 5) {
-    score = 8;
     status = 'ALERT';
     message = `n = ${n} especialistas - Amostra limitada (≥ 5)`;
-    action = 'Amostra no limite mínimo acadêmico. Expanda para pelo menos 10 especialistas para periódicos de alto impacto.';
+    action = 'Amostra no limite mínimo acadêmico. Expanda para pelo menos 10 especialistas.';
   } else {
-    score = Math.max(0, n * 1.5 - 4);
     status = 'CRITICAL';
     message = `n = ${n} especialistas - Amostra insuficiente (< 5)`;
     action = 'OBRIGATÓRIO: Mínimo de 5 especialistas requerido. Amostra atual invalida a pesquisa.';
@@ -216,21 +100,10 @@ function validateSampleSize(data: any): ValidationResult {
   return {
     test: 'Tamanho da Amostra',
     status,
-    score,
-    maxScore: 20,
     message,
     action,
-    details: { n, adequateFor: getAdequateJournalsForSample(n) }
+    details: { n }
   };
-}
-
-function getAdequateJournalsForSample(n: number): string[] {
-  const adequate: string[] = [];
-  if (n >= 12) adequate.push('PPC', 'IJPE');
-  if (n >= 10) adequate.push('JCP');
-  if (n >= 8) adequate.push('IMM');
-  if (n >= 7) adequate.push('OMR');
-  return adequate;
 }
 
 function validateMethodsAgreement(data: any): ValidationResult {
@@ -239,8 +112,6 @@ function validateMethodsAgreement(data: any): ValidationResult {
     return {
       test: 'Concordância entre Métodos',
       status: 'CRITICAL',
-      score: 0,
-      maxScore: 20,
       message: 'Dados insuficientes para análise',
       action: 'Verifique se há pelo menos 2 alternativas no projeto.'
     };
@@ -289,26 +160,21 @@ function validateMethodsAgreement(data: any): ValidationResult {
   const maxAgreement = Math.max(...Object.values(winnerCounts));
   const dominantWinner = Object.keys(winnerCounts).find(k => winnerCounts[k] === maxAgreement);
 
-  let score = 0;
   let status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL' = 'CRITICAL';
   let message = '';
   let action = '';
 
   if (maxAgreement === 5) {
-    score = 20;
     status = 'PASS';
     message = `5/5 métodos concordam - ${dominantWinner} é vencedor unânime`;
   } else if (maxAgreement === 4) {
-    score = 16;
     status = 'PASS';
     message = `4/5 métodos concordam - ${dominantWinner} é vencedor predominante`;
   } else if (maxAgreement === 3) {
-    score = 12;
     status = 'ALERT';
     message = `3/5 métodos concordam - Concordância moderada para ${dominantWinner}`;
     action = 'Justifique a escolha do método de síntese no artigo. Discuta as diferenças entre os métodos.';
   } else {
-    score = 6;
     status = 'FAIL';
     message = `${maxAgreement}/5 métodos concordam - Baixa concordância`;
     action = 'Analise por que os métodos divergem. Considere usar votação (Borda Count) ou justificar metodologicamente a escolha.';
@@ -322,8 +188,6 @@ function validateMethodsAgreement(data: any): ValidationResult {
   return {
     test: 'Concordância entre Métodos',
     status,
-    score,
-    maxScore: 20,
     message,
     action,
     details: {
@@ -366,26 +230,21 @@ function validateSensitivity(data: any): ValidationResult {
     }
   });
 
-  let score = 0;
   let status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL' = 'CRITICAL';
   let message = '';
   let action = '';
 
   if (criticalCount === 0 && sensitiveCount === 0) {
-    score = 15;
     status = 'PASS';
     message = 'Ranking altamente estável - sem pontos críticos de inversão';
   } else if (criticalCount === 0 && sensitiveCount <= 1) {
-    score = 12;
     status = 'PASS';
     message = `Ranking estável - ${sensitiveCount} mérito(s) com sensibilidade moderada`;
   } else if (criticalCount <= 1) {
-    score = 8;
     status = 'ALERT';
     message = `${criticalCount} mérito(s) crítico(s), ${sensitiveCount} sensível(is)`;
     action = 'Documente a sensibilidade no artigo. Discuta cenários alternativos e suas implicações.';
   } else {
-    score = 4;
     status = 'FAIL';
     message = `Alta sensibilidade - ${criticalCount} méritos críticos`;
     action = 'ATENÇÃO: Ranking muito instável. Considere expandir subcritérios para maior discriminação ou coletar mais dados.';
@@ -398,8 +257,6 @@ function validateSensitivity(data: any): ValidationResult {
   return {
     test: 'Análise de Sensibilidade',
     status,
-    score,
-    maxScore: 15,
     message,
     action,
     details: {
@@ -418,8 +275,6 @@ function validateDiscrimination(data: any): ValidationResult {
     return {
       test: 'Poder de Discriminação',
       status: 'CRITICAL',
-      score: 0,
-      maxScore: 10,
       message: 'Dados insuficientes',
       action: 'Verifique se há pelo menos 2 alternativas.'
     };
@@ -436,26 +291,21 @@ function validateDiscrimination(data: any): ValidationResult {
   const denominator = Math.max(Math.abs(first), Math.abs(second), 0.0001);
   const diff = ((Math.abs(first - second)) / denominator) * 100;
 
-  let score = 0;
   let status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL' = 'CRITICAL';
   let message = '';
   let action = '';
 
   if (diff >= 20) {
-    score = 10;
     status = 'PASS';
     message = `Diferença de ${diff.toFixed(1)}% - Excelente discriminação`;
   } else if (diff >= 10) {
-    score = 8;
     status = 'PASS';
     message = `Diferença de ${diff.toFixed(1)}% - Boa discriminação`;
   } else if (diff >= 5) {
-    score = 5;
     status = 'ALERT';
     message = `Diferença de ${diff.toFixed(1)}% - Discriminação moderada`;
     action = 'Considere discutir no artigo se a diferença é suficiente para uma decisão definitiva.';
   } else {
-    score = 2;
     status = 'FAIL';
     message = `Diferença de ${diff.toFixed(1)}% - Empate técnico`;
     action = 'Alternativas muito próximas. Considere critérios adicionais de desempate ou análise qualitativa complementar.';
@@ -464,8 +314,6 @@ function validateDiscrimination(data: any): ValidationResult {
   return {
     test: 'Poder de Discriminação',
     status,
-    score,
-    maxScore: 10,
     message,
     action,
     details: {
@@ -480,43 +328,42 @@ function validateDiscrimination(data: any): ValidationResult {
 
 function validateDataQuality(data: any): ValidationResult {
   let issues: string[] = [];
-  let score = 10;
+  // Contador interno para determinar status — não exposto na resposta
+  let qualityScore = 10;
 
   // Verificar se há dados BOCR
   if (!data.bocrWeights || data.bocrWeights.length !== 4) {
     issues.push('Pesos BOCR incompletos');
-    score -= 3;
+    qualityScore -= 3;
   }
 
   // Verificar se pesos somam 1
   const weightSum = (data.bocrWeights || []).reduce((a: number, b: number) => a + b, 0);
   if (Math.abs(weightSum - 1.0) > 0.01) {
     issues.push(`Pesos não somam 100% (${(weightSum * 100).toFixed(1)}%)`);
-    score -= 2;
+    qualityScore -= 2;
   }
 
   // Verificar se há scores finais
   if (!data.finalScores || data.finalScores.length === 0) {
     issues.push('Scores finais não calculados');
-    score -= 3;
+    qualityScore -= 3;
   }
 
   // Verificar consistência dos dados
   if (!data.bocrConsistency) {
     issues.push('Índices de consistência não calculados');
-    score -= 2;
+    qualityScore -= 2;
   }
 
-  score = Math.max(0, score);
+  qualityScore = Math.max(0, qualityScore);
 
   let status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL' =
-    score >= 8 ? 'PASS' : score >= 5 ? 'ALERT' : 'FAIL';
+    qualityScore >= 8 ? 'PASS' : qualityScore >= 5 ? 'ALERT' : 'FAIL';
 
   return {
     test: 'Qualidade dos Dados',
     status,
-    score,
-    maxScore: 10,
     message: issues.length === 0 ? 'Dados completos e bem formatados' : `${issues.length} problema(s) encontrado(s)`,
     action: issues.length > 0 ? `Corrija: ${issues.join('; ')}` : undefined,
     details: { issues, weightSum }
@@ -605,87 +452,12 @@ function validateLogic(data: any): {
 }
 
 // ============================================================
-// ADEQUAÇÃO POR PERIÓDICO
-// ============================================================
-
-function evaluateJournalAdequacy(
-  score: number,
-  sampleSize: number,
-  cr: number,
-  methodsAgreement: number
-): JournalAdequacy[] {
-  const results: JournalAdequacy[] = [];
-
-  Object.entries(JOURNALS).forEach(([key, journal]) => {
-    const reasons: string[] = [];
-    const missing: string[] = [];
-
-    // Verificar cada requisito
-    if (score >= journal.minScore) {
-      reasons.push(`Score ${score} ≥ ${journal.minScore} pontos`);
-    } else {
-      missing.push(`Score ${score} < ${journal.minScore} pontos necessários`);
-    }
-
-    if (sampleSize >= journal.minExperts) {
-      reasons.push(`${sampleSize} especialistas ≥ mínimo de ${journal.minExperts}`);
-    } else {
-      missing.push(`Apenas ${sampleSize} especialistas (mínimo: ${journal.minExperts})`);
-    }
-
-    if (cr <= journal.maxCR) {
-      reasons.push(`CR ${(cr * 100).toFixed(1)}% ≤ ${(journal.maxCR * 100)}%`);
-    } else {
-      missing.push(`CR ${(cr * 100).toFixed(1)}% > limite de ${(journal.maxCR * 100)}%`);
-    }
-
-    if (methodsAgreement >= journal.minMethods) {
-      reasons.push(`${methodsAgreement}/5 métodos concordantes ≥ ${journal.minMethods}/5`);
-    } else {
-      missing.push(`Apenas ${methodsAgreement}/5 métodos concordantes (mínimo: ${journal.minMethods}/5)`);
-    }
-
-    const adequate = missing.length === 0;
-
-    results.push({
-      adequate,
-      journal: key,
-      fullName: journal.name,
-      impactFactor: journal.impactFactor,
-      reasons: adequate ? reasons : [],
-      missing
-    });
-  });
-
-  // Ordenar: adequados primeiro, depois por IF
-  return results.sort((a, b) => {
-    if (a.adequate !== b.adequate) return a.adequate ? -1 : 1;
-    return b.impactFactor - a.impactFactor;
-  });
-}
-
-// ============================================================
-// CLASSIFICAÇÃO FINAL
-// ============================================================
-
-function getGradeInfo(score: number): { grade: string; status: string; color: string } {
-  if (score >= 90) return { grade: 'A', status: 'EXCELENTE', color: 'green' };
-  if (score >= 75) return { grade: 'B', status: 'BOM', color: 'blue' };
-  if (score >= 60) return { grade: 'C', status: 'REGULAR', color: 'yellow' };
-  if (score >= 40) return { grade: 'D', status: 'INSUFICIENTE', color: 'orange' };
-  return { grade: 'E', status: 'INADEQUADO', color: 'red' };
-}
-
-// ============================================================
 // GERADOR DE RELATÓRIO TÉCNICO
 // ============================================================
 
 function generateTechnicalReport(
   data: any,
   validations: ValidationResult[],
-  score: number,
-  gradeInfo: any,
-  journalAdequacy: JournalAdequacy[],
   logicValidation: any
 ): string {
   const projectName = data.metadata?.projectName || 'Projeto AHP-BOCR';
@@ -696,30 +468,16 @@ function generateTechnicalReport(
 ## ${projectName}
 
 **Data da Auditoria:** ${timestamp}
-**Versão do Validador:** 3.0
-**Normas de Referência:** Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)
+**Versão do Validador:** 3.1
+**Normas de Referência:** Saaty (1980), Wijnmalen (2007)
 
 ---
 
-## 🎯 RESUMO EXECUTIVO
+## 📊 VALIDAÇÕES
 
-**Nota Final: ${gradeInfo.grade} (${score}/100 pontos)**
-**Status: ${gradeInfo.status}**
-
-${score >= 75
-      ? '✅ Metodologia adequada para publicação em periódicos de alto impacto.'
-      : score >= 60
-        ? '⚠️ Metodologia requer ajustes antes da submissão.'
-        : '❌ Correções significativas necessárias.'}
-
----
-
-## 📊 DETALHAMENTO DA PONTUAÇÃO
-
-| Critério | Pontos | Máximo | Status |
-|----------|--------|--------|--------|
-${validations.map(v => `| ${v.test} | ${v.score} | ${v.maxScore} | ${v.status} |`).join('\n')}
-| **TOTAL** | **${score}** | **100** | **${gradeInfo.grade}** |
+| Critério | Status |
+|----------|--------|
+${validations.map(v => `| ${v.test} | ${v.status} |`).join('\n')}
 
 ---
 
@@ -728,7 +486,6 @@ ${validations.map(v => `| ${v.test} | ${v.score} | ${v.maxScore} | ${v.status} |
 ${validations.map(v => `
 ### ${v.test}
 - **Status:** ${v.status}
-- **Pontuação:** ${v.score}/${v.maxScore}
 - **Resultado:** ${v.message}
 ${v.action ? `- **Ação Recomendada:** ${v.action}` : ''}
 `).join('\n')}
@@ -746,28 +503,14 @@ ${logicValidation.issues.length === 0
 
 ---
 
-## 📚 ADEQUAÇÃO PARA PERIÓDICOS
-
-${journalAdequacy.map(j => `
-### ${j.fullName} (IF: ${j.impactFactor})
-**Status:** ${j.adequate ? '✅ ADEQUADO' : '❌ NÃO ADEQUADO'}
-
-${j.adequate
-          ? `**Requisitos atendidos:**\n${j.reasons.map(r => `- ✅ ${r}`).join('\n')}`
-          : `**Requisitos não atendidos:**\n${j.missing.map(m => `- ❌ ${m}`).join('\n')}`}
-`).join('\n')}
-
----
-
 ## 📚 REFERÊNCIAS METODOLÓGICAS
 
 - SAATY, T. L. The Analytic Hierarchy Process. McGraw-Hill, New York, 1980.
 - WIJNMALEN, D. J. D. Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP–ANP. Mathematical and Computer Modelling, v. 46, n. 7-8, p. 892-905, 2007.
-- PETRILLO, A.; SALOMON, V. A. P.; TRAMARICO, C. L. State-of-the-Art Review on the Analytic Hierarchy Process with Benefits, Opportunities, Costs, and Risks. Journal of Risk and Financial Management, v. 16, n. 8, 372, 2023.
 
 ---
 
-*Parecer gerado automaticamente pelo AHP-BOCR Scientific Validator v3.0*
+*Parecer gerado automaticamente pelo AHP-BOCR Scientific Validator v3.1*
 `;
 
   return report;
@@ -805,28 +548,13 @@ export async function POST(request: NextRequest) {
       dataQualityResult
     ];
 
-    // Calcular score total
-    const totalScore = validations.reduce((sum, v) => sum + v.score, 0);
-    const gradeInfo = getGradeInfo(totalScore);
-
     // Validação lógica
     const logicValidation = validateLogic(calculationData);
-
-    // Adequação por periódico
-    const journalAdequacy = evaluateJournalAdequacy(
-      totalScore,
-      calculationData.responseCount || 0,
-      calculationData.bocrConsistency?.cr || 0,
-      methodsResult.details?.agreement || 0
-    );
 
     // Gerar relatório técnico
     const technicalReport = generateTechnicalReport(
       calculationData,
       validations,
-      totalScore,
-      gradeInfo,
-      journalAdequacy,
       logicValidation
     );
 
@@ -835,8 +563,8 @@ export async function POST(request: NextRequest) {
     if (consistencyResult.status === 'PASS') {
       pontosFortes.push(`Consistência excelente (CR = ${consistencyResult.details.crPercent}%)`);
     }
-    if (sampleResult.score >= 15) {
-      pontosFortes.push(`Amostra excelente (n=${calculationData.responseCount}). Adequada para todos os periódicos-alvo.`);
+    if ((calculationData.responseCount || 0) >= 10) {
+      pontosFortes.push(`Amostra adequada (n=${calculationData.responseCount}).`);
     }
     if (methodsResult.details?.agreement === 5) {
       pontosFortes.push(`Concordância perfeita: 5/5 métodos indicam ${methodsResult.details.dominantWinner} como vencedor.`);
@@ -844,7 +572,7 @@ export async function POST(request: NextRequest) {
     if (sensitivityResult.details?.criticalCount === 0) {
       pontosFortes.push('Robustez excelente: ranking estável para todas as variações.');
     }
-    if (dataQualityResult.score === 10) {
+    if (dataQualityResult.status === 'PASS' && (!dataQualityResult.details?.issues || dataQualityResult.details.issues.length === 0)) {
       pontosFortes.push('Dados completos e bem formatados.');
     }
 
@@ -859,20 +587,6 @@ export async function POST(request: NextRequest) {
 
     // Montar resposta
     const auditResponse = {
-      validacao_cientifica: {
-        status: gradeInfo.status,
-        nota_metodologica: gradeInfo.grade,
-        score: totalScore,
-        apto_publicacao: totalScore >= 75,
-        mensagem: totalScore >= 90
-          ? 'Metodologia exemplar. Pronto para submissão em periódicos de alto impacto.'
-          : totalScore >= 75
-            ? 'Metodologia sólida. Adequada para publicação com pequenos ajustes.'
-            : totalScore >= 60
-              ? 'Metodologia requer melhorias antes da submissão.'
-              : 'Correções significativas necessárias antes da publicação.'
-      },
-
       verificacao_matematica: {
         cr_global: `${(calculationData.bocrConsistency?.cr * 100 || 0).toFixed(2)}%`,
         consistencia_ok: (calculationData.bocrConsistency?.cr || 0) <= 0.10,
@@ -895,12 +609,6 @@ export async function POST(request: NextRequest) {
       pontos_fortes: pontosFortes,
       recomendacoes: recomendacoes.filter((r, i, arr) => arr.indexOf(r) === i), // Remove duplicatas
 
-      adequacao_periodicos: Object.fromEntries(
-        journalAdequacy.map(j => [j.journal, j.adequate])
-      ),
-
-      detalhes_periodicos: journalAdequacy,
-
       validacoes: validations,
 
       relatorio_tecnico: technicalReport
@@ -909,7 +617,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       audit: auditResponse,
-      method: 'local-scientific-validator-v3'
+      method: 'local-scientific-validator-v3.1'
     });
 
   } catch (error: any) {
@@ -924,16 +632,15 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     name: 'AHP-BOCR Scientific Validator',
-    version: '3.0',
-    description: 'Validador científico para estudos AHP-BOCR baseado em Saaty (1980), Wijnmalen (2007) e Petrillo et al. (2023)',
-    scoring: SCORING,
-    journals: Object.keys(JOURNALS),
-    gradeScale: [
-      { grade: 'A', range: '90-100', status: 'EXCELENTE' },
-      { grade: 'B', range: '75-89', status: 'BOM' },
-      { grade: 'C', range: '60-74', status: 'REGULAR' },
-      { grade: 'D', range: '40-59', status: 'INSUFICIENTE' },
-      { grade: 'E', range: '0-39', status: 'INADEQUADO' }
+    version: '3.1',
+    description: 'Validador científico qualitativo para estudos AHP-BOCR baseado em Saaty (1980) e Wijnmalen (2007)',
+    validations: [
+      'Consistência (CR)',
+      'Tamanho da Amostra',
+      'Concordância entre Métodos',
+      'Análise de Sensibilidade',
+      'Poder de Discriminação',
+      'Qualidade dos Dados'
     ]
   });
 }
