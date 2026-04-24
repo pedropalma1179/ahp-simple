@@ -1,6 +1,41 @@
 // app/api/simulate/route.ts
-// API de Simulação e QA Completo para Sistema AHP-BOCR
-// Versão 6.0: ⭐ CR REALISTA baseado em literatura empírica (BPMSG, Lukinskiy, Frish, Ishizaka)
+// API de Simulação e QA para Sistema AHP-BOCR
+// Versão 6.0: CR REALISTA baseado em literatura empírica (BPMSG, Lukinskiy, Frish, Ishizaka)
+//
+// ═══════════════════════════════════════════════════════════════════
+// ⚠️ AVISO METODOLÓGICO — NÃO É O MOTOR OFICIAL DE CÁLCULO
+// ═══════════════════════════════════════════════════════════════════
+// Este arquivo gera DADOS SINTÉTICOS para testes internos do sistema.
+// Contém implementação AHP-BOCR paralela ao motor oficial em
+// app/api/calculate/route.ts.
+//
+// DIVERGÊNCIAS CONHECIDAS vs motor oficial:
+// 1. Subtrativo usa pesos pessoais sem rescaling weights (v·B em vez
+//    de v·s·B). Motor oficial: Wijnmalen (2007, Eq. 17) completo.
+// 2. Não implementa Q. Somas (Wijnmalen 2007, Eq. 12).
+// 3. Implementa Recíprocos e Probabilístico — métodos extras não
+//    presentes no motor oficial.
+// 4. Análise de sensibilidade interna também omite rescaling weights.
+//
+// USO PERMITIDO:
+// - Gerar respondentes fake para validação de UI/UX
+// - Testes de performance e carga
+// - Debug de cenários de consistência (CR realista)
+//
+// USO PROIBIDO:
+// - Processar respondentes reais (usar calculate/route.ts)
+// - Gerar dados para publicação ou dissertação
+// - Comparar resultados com motor oficial sem considerar divergências
+//
+// Este endpoint é chamado exclusivamente por app/decisor/simulacao/page.tsx
+// (tela administrativa de geração de dados sintéticos).
+//
+// TODO (refatoração pós-defesa): unificar os dois motores, eliminando
+// duplicação. Estratégias possíveis:
+//   (a) simulate gera apenas matrizes de comparação, delegando cálculo
+//       ao /api/calculate.
+//   (b) extrair funções de cálculo para lib/ahp-bocr.ts compartilhada.
+// ═══════════════════════════════════════════════════════════════════
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
@@ -261,34 +296,36 @@ function calculateScore(scores: BOCRScores, weights: BOCRWeights, method: Synthe
   const { b, o, c, r } = weights;
 
   switch (method) {
-    // ============================================================
-    // MÉTODOS DE SÍNTESE BOCR - Petrillo et al. (2023)
-    // Ref: J. Risk Financial Manag. 2023, 16(8), 372
-    // ============================================================
+    // MÉTODOS DE SÍNTESE BOCR — IMPLEMENTAÇÃO SIMPLIFICADA PARA TESTES
+    // Atribuições bibliográficas canônicas estão no motor oficial:
+    // app/api/calculate/route.ts.
+    // Esta versão omite rescaling weights para simplicidade na geração
+    // de dados sintéticos.
 
-    // Score = vb·sb·B + vo·so·O − vc·sc·C − vr·sr·R
-    // Forma subtrativa de Wijnmalen (2007, Eq. 17): incorpora pesos
-    // pessoais (v) e rescaling weights (s) para comensurabilidade.
+    // Score = b·B + o·O − c·C − r·R (versão simplificada)
+    // ⚠️ Diverge de Wijnmalen (2007, Eq. 17), que usa:
+    // vb·sb·B + vo·so·O − vc·sc·C − vr·sr·R
+    // O motor oficial implementa Wijnmalen (2007) corretamente.
     case 'subtractive':
       return b * B + o * O - c * C - r * R;
 
-    // Eq.3 - Aditivo Residual (Demirtas & Ustun, 2008)
-    // Score = b·B + o·O + c·(1−C) + r·(1−R)
-    // Interpreta (1-C) como "benefício residual" de baixo custo
+    // Aditivo Residual: Score = b·B + o·O + c·(1−C) + r·(1−R)
+    // Interpreta (1-C) como "benefício residual" de baixo custo.
+    // Atribuição canônica no motor oficial.
     case 'additive':
       return b * B + o * O + c * (1 - C) + r * (1 - R);
 
-    // Eq.4 - Multiplicativo Potências (Saaty, 2001)
-    // Score = B^b · O^o / C^c · R^r
-    // Tradeoff exponencial entre positivos e negativos
+    // Multiplicativo Potências: Score = (B^b · O^o) / (C^c · R^r)
+    // Tradeoff exponencial entre positivos e negativos.
+    // Atribuição canônica no motor oficial.
     case 'multiplicative_power':
       const numerator = Math.pow(Math.max(B, EPSILON), b) * Math.pow(Math.max(O, EPSILON), o);
       const denominator = Math.pow(Math.max(C, EPSILON), c) * Math.pow(Math.max(R, EPSILON), r);
       return numerator / Math.max(denominator, EPSILON);
 
-    // Eq.2 - Recíprocos (Saaty, 2001; Petrillo 2023)
-    // Score = b·B + o·O + c·(1/C) + r·(1/R)
-    // Usa inversão para transformar custos/riscos em "benefícios"
+    // Recíprocos: Score = b·B + o·O + c·(1/C) + r·(1/R)
+    // Usa inversão para transformar custos/riscos em "benefícios".
+    // Atribuição canônica no motor oficial.
     case 'reciprocal':
       const invC = 1 / Math.max(C, EPSILON);
       const invR = 1 / Math.max(R, EPSILON);
@@ -842,10 +879,10 @@ function performFullAHPCalculation(
     O: number;
     C: number;
     R: number;
-    // Métodos principais - Petrillo et al. (2023)
-    scoreSubtractive: number;        // Wijnmalen (2007, Eq. 17) - Recomendado
-    scoreAdditive: number;           // Eq.3 - Aditivo Residual
-    scoreMultPowers: number;         // Eq.4 - Multiplicativo Potências
+    // Métodos de síntese — versão simplificada para dados sintéticos
+    scoreSubtractive: number;        // Subtrativo simplificado
+    scoreAdditive: number;           // Aditivo Residual
+    scoreMultPowers: number;         // Multiplicativo Potências
     scoreReciprocal: number;         // Eq.2 - Recíprocos
     // Aliases e compatibilidade
     scoreAdditiveResidual: number;   // Alias para scoreAdditive
@@ -927,21 +964,19 @@ function performFullAHPCalculation(
       r: bocrWeights[3] || 0
     };
 
-    // ============================================================
-    // MÉTODOS DE SÍNTESE BOCR - Petrillo et al. (2023)
-    // Ref: J. Risk Financial Manag. 2023, 16(8), 372
-    // ============================================================
+    // Métodos de síntese BOCR — versão simplificada para dados sintéticos.
+    // Atribuições bibliográficas canônicas estão no motor oficial.
 
-    // ⭐ PRINCIPAL - Subtrativo (Wijnmalen, 2007, Eq. 17)
+    // Subtrativo simplificado, sem rescaling weights
     const scoreSubtractive = calculateScore(bocrScores, bocrW, 'subtractive');
 
-    // Eq.3 - Aditivo Residual (Demirtas & Ustun, 2008)
+    // Aditivo Residual
     const scoreAdditive = calculateScore(bocrScores, bocrW, 'additive');
 
-    // Eq.4 - Multiplicativo Potências (Saaty, 2001)
+    // Multiplicativo Potências
     const scoreMultPowers = calculateScore(bocrScores, bocrW, 'multiplicative_power');
 
-    // Eq.2 - Recíprocos (Saaty, 2001)
+    // Recíprocos
     const scoreReciprocal = calculateScore(bocrScores, bocrW, 'reciprocal');
 
     // Métodos auxiliares (para compatibilidade)
@@ -952,13 +987,11 @@ function performFullAHPCalculation(
       code: alt.code,
       name: alt.name,
       B, O, C, R,
-      // ============================================================
-      // SCORES DOS 4 MÉTODOS PRINCIPAIS (Petrillo et al., 2023)
-      // ============================================================
-      scoreSubtractive,           // ⭐ PRINCIPAL - Wijnmalen (2007)
-      scoreAdditiveResidual: scoreAdditive, // Eq.3 - Demirtas & Ustun (2008)
-      scoreMultPowers,            // Eq.4 - Saaty (2001)
-      scoreReciprocal,            // Eq.2 - Saaty (2001)
+      // Scores dos métodos de síntese (versão simplificada para QA)
+      scoreSubtractive,           // Subtrativo simplificado
+      scoreAdditiveResidual: scoreAdditive, // Aditivo Residual
+      scoreMultPowers,            // Multiplicativo Potências
+      scoreReciprocal,            // Recíprocos
 
       // Valores para normalização
       scoreAdditive,
