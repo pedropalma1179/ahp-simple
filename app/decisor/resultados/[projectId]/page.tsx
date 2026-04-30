@@ -1633,13 +1633,13 @@ export default function ResultadosPage() {
     // ========== TABELA 4: Ranking por Método ==========
     const getSubtractive = (alt: any) => (alt.scoreSubtractive ?? alt.scores?.subtractive ?? 0);
     let table4 = `**Tabela 4.** Ranking final das alternativas por método de síntese\n\n`;
-    table4 += `| Alternativa | Adit. Residual | Recíprocos | Subtrativo* | Mult. Potências | Mult. Simples |\n`;
+    table4 += `| Alternativa | Adit. Residual | Q. Somas | Subtrativo* | Mult. Potências | Mult. Simples |\n`;
     table4 += `|-------------|---------|----------------|-------------|-----------------|---------------|\n`;
     const sortedAlts = [...(calculation.finalScores || [])].sort((a: any, b: any) => getSubtractive(b) - getSubtractive(a));
     sortedAlts.forEach((alt: any) => {
       table4 += `| ${alt.name} | ${fmt4(alt.scoreAdditiveResidualNorm || 0)} | ${fmt4(alt.scoreQuotientSumsNorm || 0)} | ${fmt4(getSubtractive(alt))} | ${fmt4(alt.scoreMultiplicativeNorm || 0)} | ${fmt4(alt.scoreMultSimpleNorm || 0)} |\n`;
     });
-    table4 += `\n*Nota:* (*) Método primário conforme Wijnmalen (2007). Fórmulas conforme Petrillo et al. (2023).\n`;
+    table4 += `\n*Nota:* (*) Método primário: síntese subtrativa com pesos pessoais (v) e rescaling weights (s) — Wijnmalen (2007, Eq. 17). Q. Somas: razão com rescaling weights — Wijnmalen (2007, Eq. 12). Demais formas: Saaty (2005); aplicação em Lee (2009) e Demirtas & Üstün (2008). Adit. Residual e Q. Somas em forma normalizada (Σ=1); Subtrativo em valor bruto.\n`;
 
     // ========== TABELA 5: Índices de Consistência ==========
     const calcCIFromLambda = (lambda: number, n: number) => {
@@ -1855,7 +1855,7 @@ export default function ResultadosPage() {
 \\label{tab:ranking-final}
 \\begin{tabular}{lccccc}
 \\toprule
-\\textbf{Alternativa} & \\textbf{Adit. Residual} & \\textbf{Recíprocos} & \\textbf{Subtrativo*} & \\textbf{Mult. Potências} & \\textbf{Mult. Simples} \\\\
+\\textbf{Alternativa} & \\textbf{Adit. Residual} & \\textbf{Q. Somas} & \\textbf{Subtrativo*} & \\textbf{Mult. Potências} & \\textbf{Mult. Simples} \\\\
 \\midrule
 `;
 
@@ -2111,7 +2111,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
     // Ranking
     csv += `===== RANKING FINAL =====\n`;
-    csv += `Alternativa,Adit. Residual (Σ=1),Recíprocos (Σ=1),Subtrativo (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+    csv += `Alternativa,Adit. Residual (Σ=1),Q. Somas (Σ=1),Subtrativo (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
     const sortedAlts = [...calculation.finalScores].sort((a, b) =>
       (b.scoreSubtractive ?? b.scores?.subtractive ?? 0) - (a.scoreSubtractive ?? a.scores?.subtractive ?? 0)
     );
@@ -2406,7 +2406,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
     const rankData = [
       ['RANKING FINAL - COMPARATIVO DE MÉTODOS'],
       [''],
-      ['Posição', 'Alternativa', 'Adit. Residual', 'Recíprocos', 'Subtrativo', 'Mult. Potências', 'Mult. Simples'],
+      ['Posição', 'Alternativa', 'Adit. Residual', 'Q. Somas', 'Subtrativo', 'Mult. Potências', 'Mult. Simples'],
       ...sortedAlts.map((alt, idx) => [
         `${idx + 1}º`,
         alt.name,
@@ -2730,12 +2730,12 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       ['Nível 2:', '20 Subcritérios (5 por mérito)'],
       ['Nível 3:', 'Alternativas de decisão'],
       [''],
-      ['FÓRMULAS DE SÍNTESE (Petrillo et al., 2023)'],
-      ['Adit. Residual:', 'Score = b·B + o·O + c·(1-C) + r·(1-R) — Demirtas & Üstün (2008)'],
-      ['Recíprocos:', 'Score = b·B + o·O + c·(1/C) + r·(1/R) — Saaty & Peniwati (2008)'],
-      ['Subtrativo:', 'Score = b·B + o·O - c·C - r·R (Wijnmalen, 2007)'],
-      ['Mult. Potências:', 'Score = (B^b · O^o) / (C^c · R^r)'],
-      ['Mult. Simples:', 'Score = (B · O) / (C · R)'],
+      ['FÓRMULAS DE SÍNTESE (Saaty 2005; Wijnmalen 2007; Lee 2009)'],
+      ['Adit. Residual:', 'Score = b·B + o·O + c·(1−C) + r·(1−R) — Saaty (2005); Demirtas & Üstün (2008); Lee (2009, Eq. 13)'],
+      ['Q. Somas:', 'Score = (s_b·B + s_o·O) / (s_c·C + s_r·R) — Wijnmalen (2007, Eq. 12)'],
+      ['Subtrativo:', 'Score = v_b·s_b·B + v_o·s_o·O − v_c·s_c·C − v_r·s_r·R — Wijnmalen (2007, Eq. 17)'],
+      ['Mult. Potências:', 'Score = (B^v_b · O^v_o) / (C^v_c · R^v_r) — Saaty (2005); Lee (2009, Eq. 15)'],
+      ['Mult. Simples:', 'Score = (B · O) / (C · R) — Saaty (2005); Lee (2009, Eq. 16)'],
       [''],
       ['REFERÊNCIAS'],
       ['SAATY, T.L. (1980). The Analytic Hierarchy Process. McGraw-Hill, New York.'],
@@ -4561,6 +4561,10 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   { id: 'subtractive', key: 'scoreSubtractive' },
                   { id: 'additiveResidual', key: 'scoreAdditiveResidual' },
                   { id: 'multiplicative', key: 'scoreMultiplicative' },
+                  // TODO pós-defesa: refatorar id para 'quotientSums'. Mantido como
+                  // 'reciprocal' por compatibilidade interna. Representa o método
+                  // Q. Somas (Wijnmalen 2007, Eq. 12) — ver scoreQuotientSums em
+                  // calculate/route.ts.
                   { id: 'reciprocal', key: 'scoreQuotientSums' },
                   { id: 'multSimple', key: 'scoreMultSimple' }
                 ];
@@ -4807,20 +4811,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                         </td>
                       </tr>
                       <tr>
-                        <td className="px-3 py-2 border font-medium">Recíprocos</td>
-                        <td className="px-3 py-2 border text-center">✅ Eq. 2</td>
-                        <td className="px-3 py-2 border text-center text-amber-600">⚠️ "Distorts scale"</td>
+                        <td className="px-3 py-2 border font-medium">Quociente de Somas</td>
+                        <td className="px-3 py-2 border text-center">✅ Eq. 12 (Wijnmalen 2007)</td>
+                        <td className="px-3 py-2 border text-center text-emerald-700">✅ Mantém comensurabilidade</td>
                         <td className="px-3 py-2 border text-center text-gray-400">—</td>
                         <td className="px-3 py-2 border text-center">
-                          <span className="px-2 py-1 bg-amber-200 text-amber-800 rounded text-xs">Referência</span>
+                          <span className="px-2 py-1 bg-emerald-200 text-emerald-800 rounded text-xs">Comparativo</span>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
                 <p className="text-xs text-gray-500 mt-2 italic">
-                  Nota: Os métodos Multiplicativo e Recíprocos são incluídos como referência para validação cruzada,
-                  conforme citados em Petrillo et al. (2023), apesar das ressalvas de Wijnmalen (2007).
+                  Nota: Os métodos Multiplicativo Potências, Multiplicativo Simples e Quociente de Somas são incluídos como referência para validação cruzada da síntese subtrativa principal (Wijnmalen, 2007, Eq. 17). As fórmulas seguem Saaty (2005) e Wijnmalen (2007).
                 </p>
               </div>
 
@@ -4862,7 +4865,9 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     { id: 'subtractive', name: 'Subtrativo', key: 'scoreSubtractive' },
                     { id: 'additiveResidual', name: 'Adit. Residual', key: 'scoreAdditiveResidualNorm' },
                     { id: 'multiplicative', name: 'Mult. Potências', key: 'scoreMultiplicativeNorm' },
-                    { id: 'reciprocal', name: 'Recíprocos', key: 'scoreQuotientSumsNorm' },
+                    // TODO pós-defesa: refatorar id para 'quotientSums'. Mantido como
+                    // 'reciprocal' por compatibilidade interna.
+                    { id: 'reciprocal', name: 'Q. Somas', key: 'scoreQuotientSumsNorm' },
                     { id: 'multSimple', name: 'Mult. Simples', key: 'scoreMultSimpleNorm' }
                   ];
 
