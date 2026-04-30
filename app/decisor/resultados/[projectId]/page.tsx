@@ -5019,7 +5019,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                       Checklist de validação matemática e lógica • Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)
                     </p>
                     <p className="text-xs text-gray-400 mt-2">
-                      A nota final do estudo é emitida exclusivamente pelo Parecer Científico IA abaixo.
+                      As verificações automáticas abaixo são diagnósticos técnicos descritivos. A avaliação qualitativa do estudo é emitida pelo Parecer Científico IA abaixo.
                     </p>
                   </div>
 
