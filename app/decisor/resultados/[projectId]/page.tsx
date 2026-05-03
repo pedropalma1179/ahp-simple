@@ -306,8 +306,8 @@ function ChartDownloadWrapper({
           >
             {downloading ? (
               <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
               </svg>
             ) : (
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1098,23 +1098,23 @@ export default function ResultadosPage() {
         // O backend (normalizeBOCRWeights) aceita ambos os formatos: array [b,o,c,r] ou objeto {sb,so,sc,sr}
         personalWeights: Array.isArray(calculation.bocrWeights) && calculation.bocrWeights.length >= 4
           ? {
-              Benefits: calculation.bocrWeights[0],
-              Opportunities: calculation.bocrWeights[1],
-              Costs: calculation.bocrWeights[2],
-              Risks: calculation.bocrWeights[3],
-            }
+            Benefits: calculation.bocrWeights[0],
+            Opportunities: calculation.bocrWeights[1],
+            Costs: calculation.bocrWeights[2],
+            Risks: calculation.bocrWeights[3],
+          }
           : undefined,
         rescalingWeights: calculation.rescalingWeights
           ? {
-              // @ts-ignore
-              Benefits: calculation.rescalingWeights.sb,
-              // @ts-ignore
-              Opportunities: calculation.rescalingWeights.so,
-              // @ts-ignore
-              Costs: calculation.rescalingWeights.sc,
-              // @ts-ignore
-              Risks: calculation.rescalingWeights.sr,
-            }
+            // @ts-ignore
+            Benefits: calculation.rescalingWeights.sb,
+            // @ts-ignore
+            Opportunities: calculation.rescalingWeights.so,
+            // @ts-ignore
+            Costs: calculation.rescalingWeights.sc,
+            // @ts-ignore
+            Risks: calculation.rescalingWeights.sr,
+          }
           : undefined,
         bocrConsistency: calculation.bocrConsistency || { cr: 0, lambda: 0 },
         subWeights: calculation.subWeights || {},
@@ -2898,103 +2898,110 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Perfil BOCR por Alternativa</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Baseado em Wijnmalen (2007): B e O entram com sinal positivo na síntese subtrativa; C e R entram com sinal negativo (subtraídos). Os eixos representam a contribuição bruta de cada mérito, pré-ponderação. O Score Final aplica os pesos v·s conforme Eq. 17 (Wijnmalen, 2007).
+                Baseado em Wijnmalen (2007), Lee (2009) e Kabak & Dağdeviren (2014): B e O entram com sinal positivo na síntese subtrativa; C e R entram com sinal negativo (subtraídos). Os eixos representam a contribuição bruta de cada mérito, pré-ponderação. O Score Final aplica os pesos v·s conforme Eq. 17 (Wijnmalen, 2007).
               </p>
               <ChartDownloadWrapper filename="bocr-profile" title="Perfil BOCR por Alternativa">
-              <div className="space-y-6">
-                {(() => {
-                  // PRÉ-CALCULAR valores BOCR para todas as alternativas
-                  const altBOCRData = calculation.finalScores.map((alt) => {
-                    let b = alt.B || 0;
-                    let o = alt.O || 0;
-                    let c = alt.C || 0;
-                    let r = alt.R || 0;
+                <div className="space-y-6">
+                  {(() => {
+                    // PRÉ-CALCULAR valores BOCR para todas as alternativas
+                    const altBOCRData = calculation.finalScores.map((alt) => {
+                      let b = alt.B || 0;
+                      let o = alt.O || 0;
+                      let c = alt.C || 0;
+                      let r = alt.R || 0;
 
-                    // Se não tiver valores diretos, calcular a partir de altScores
-                    if (b === 0 && o === 0 && c === 0 && r === 0 && calculation.altScores) {
-                      const bocrVals = calculateAltBOCR(
-                        alt.code,
-                        calculation.altScores,
-                        calculation.subWeights,
-                        calculation.bocrWeights
-                      );
-                      b = bocrVals.B;
-                      o = bocrVals.O;
-                      c = bocrVals.C;
-                      r = bocrVals.R;
-                    }
+                      // Se não tiver valores diretos, calcular a partir de altScores
+                      if (b === 0 && o === 0 && c === 0 && r === 0 && calculation.altScores) {
+                        const bocrVals = calculateAltBOCR(
+                          alt.code,
+                          calculation.altScores,
+                          calculation.subWeights,
+                          calculation.bocrWeights
+                        );
+                        b = bocrVals.B;
+                        o = bocrVals.O;
+                        c = bocrVals.C;
+                        r = bocrVals.R;
+                      }
 
-                    // Se ainda não tiver valores, usar os scores como proxy
-                    if (b === 0 && o === 0 && c === 0 && r === 0) {
-                      const total = Math.abs(alt.scoreAdditive || 1);
-                      b = total * (calculation.bocrWeights[0] || 0.25);
-                      o = total * (calculation.bocrWeights[1] || 0.25);
-                      c = total * (calculation.bocrWeights[2] || 0.25);
-                      r = total * (calculation.bocrWeights[3] || 0.25);
-                    }
+                      // Se ainda não tiver valores, usar os scores como proxy
+                      if (b === 0 && o === 0 && c === 0 && r === 0) {
+                        const total = Math.abs(alt.scoreAdditive || 1);
+                        b = total * (calculation.bocrWeights[0] || 0.25);
+                        o = total * (calculation.bocrWeights[1] || 0.25);
+                        c = total * (calculation.bocrWeights[2] || 0.25);
+                        r = total * (calculation.bocrWeights[3] || 0.25);
+                      }
 
-                    return {
-                      name: alt.name,
-                      b, o, c, r,
-                      positive: b + o,
-                      negative: c + r
-                    };
-                  });
+                      return {
+                        name: alt.name,
+                        b, o, c, r,
+                        positive: b + o,
+                        negative: c + r
+                      };
+                    });
 
-                  // ESCALA GLOBAL - máximo entre todas as alternativas
-                  const globalMax = Math.max(
-                    ...altBOCRData.map(d => d.positive),
-                    ...altBOCRData.map(d => d.negative),
-                    0.01
-                  );
+                    // ESCALA GLOBAL - máximo entre todas as alternativas
+                    const globalMax = Math.max(
+                      ...altBOCRData.map(d => d.positive),
+                      ...altBOCRData.map(d => d.negative),
+                      0.01
+                    );
 
-                  return altBOCRData.map((data, idx) => (
-                    <div key={idx} className="relative">
-                      <div className="text-sm font-medium text-gray-700 mb-2">{data.name}</div>
-                      <div className="flex items-center h-10">
-                        {/* Lado negativo (C+R) - cresce para esquerda */}
-                        <div className="flex-1 flex justify-end">
-                          <div
-                            className="h-8 bg-red-400 rounded-l flex items-center justify-start pl-2"
-                            style={{
-                              width: `${(data.negative / globalMax) * 100}%`,
-                              minWidth: data.negative > 0.001 ? '20px' : '0'
-                            }}
-                          >
-                            {data.negative > 0.01 && (
-                              <span className="text-white text-xs font-medium">
-                                C+R: {(data.negative || 0).toFixed(4)}
-                              </span>
-                            )}
+                    return altBOCRData.map((data, idx) => (
+                      <div key={idx} className="relative">
+                        <div className="text-sm font-medium text-gray-700 mb-2">{data.name}</div>
+                        <div className="flex items-center h-10">
+                          {/* Barra agregada C+R — eixo esquerdo */}
+                          <div className="flex-1 flex justify-end">
+                            <div
+                              className="h-8 bg-red-400 rounded-l flex items-center justify-start pl-2"
+                              style={{
+                                width: `${(data.negative / globalMax) * 100}%`,
+                                minWidth: data.negative > 0.001 ? '20px' : '0'
+                              }}
+                            >
+                              {data.negative > 0.01 && (
+                                <span className="text-white text-xs font-medium">
+                                  C+R: {(data.negative || 0).toFixed(4)}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {/* Centro */}
+                          <div className="w-1 h-12 bg-gray-400 flex-shrink-0"></div>
+                          {/* Barra agregada B+O — eixo direito */}
+                          <div className="flex-1">
+                            <div
+                              className="h-8 bg-green-400 rounded-r flex items-center justify-end pr-2"
+                              style={{
+                                width: `${(data.positive / globalMax) * 100}%`,
+                                minWidth: data.positive > 0.001 ? '20px' : '0'
+                              }}
+                            >
+                              {data.positive > 0.01 && (
+                                <span className="text-white text-xs font-medium">
+                                  B+O: {(data.positive || 0).toFixed(4)}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                        {/* Centro */}
-                        <div className="w-1 h-12 bg-gray-400 flex-shrink-0"></div>
-                        {/* Lado positivo (B+O) - cresce para direita */}
-                        <div className="flex-1">
-                          <div
-                            className="h-8 bg-green-400 rounded-r flex items-center justify-end pr-2"
-                            style={{
-                              width: `${(data.positive / globalMax) * 100}%`,
-                              minWidth: data.positive > 0.001 ? '20px' : '0'
-                            }}
-                          >
-                            {data.positive > 0.01 && (
-                              <span className="text-white text-xs font-medium">
-                                B+O: {(data.positive || 0).toFixed(4)}
-                              </span>
-                            )}
-                          </div>
+                        {/* Valores individuais B, O, C, R conforme Lee (2009) e Kabak & Dağdeviren (2014) */}
+                        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 mt-2 text-xs text-gray-600 font-mono">
+                          <span><span className="font-semibold text-emerald-600">B</span> = {(data.b || 0).toFixed(4)}</span>
+                          <span><span className="font-semibold text-blue-600">O</span> = {(data.o || 0).toFixed(4)}</span>
+                          <span><span className="font-semibold text-amber-600">C</span> = {(data.c || 0).toFixed(4)}</span>
+                          <span><span className="font-semibold text-rose-600">R</span> = {(data.r || 0).toFixed(4)}</span>
                         </div>
                       </div>
-                    </div>
-                  ));
-                })()}
-              </div>
-              <div className="flex justify-center gap-8 mt-4 text-xs text-gray-500">
-                <span>← Custos + Riscos (negativo)</span>
-                <span>Benefícios + Oportunidades (positivo) →</span>
-              </div>
+                    ));
+                  })()}
+                </div>
+                <div className="flex justify-center gap-8 mt-4 text-xs text-gray-500">
+                  <span>← C + R (Custos + Riscos)</span>
+                  <span>B + O (Benefícios + Oportunidades) →</span>
+                </div>
               </ChartDownloadWrapper>
             </div>
 
@@ -3006,129 +3013,129 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               </p>
 
               <ChartDownloadWrapper filename="bocr-radar" title="Radar Comparativo BOCR">
-              <div className="flex justify-center">
-                <svg viewBox="0 0 500 420" className="w-full max-w-md">
-                  {(() => {
-                    // CONSTANTES CENTRALIZADAS - garante consistência
-                    const CX = 250;  // Centro X
-                    const CY = 200;  // Centro Y
-                    const MAX_R = 140;  // Raio máximo
-                    const ANGLES = [-90, 0, 90, 180];  // Topo, Direita, Baixo, Esquerda
+                <div className="flex justify-center">
+                  <svg viewBox="0 0 500 420" className="w-full max-w-md">
+                    {(() => {
+                      // CONSTANTES CENTRALIZADAS - garante consistência
+                      const CX = 250;  // Centro X
+                      const CY = 200;  // Centro Y
+                      const MAX_R = 140;  // Raio máximo
+                      const ANGLES = [-90, 0, 90, 180];  // Topo, Direita, Baixo, Esquerda
 
-                    const toRad = (deg: number) => (deg * Math.PI) / 180;
-                    const getX = (angle: number, r: number) => CX + r * Math.cos(toRad(angle));
-                    const getY = (angle: number, r: number) => CY + r * Math.sin(toRad(angle));
+                      const toRad = (deg: number) => (deg * Math.PI) / 180;
+                      const getX = (angle: number, r: number) => CX + r * Math.cos(toRad(angle));
+                      const getY = (angle: number, r: number) => CY + r * Math.sin(toRad(angle));
 
-                    return (
-                      <>
-                        {/* Grid concêntrico */}
-                        {[0.2, 0.4, 0.6, 0.8, 1.0].map((level, i) => {
-                          const r = level * MAX_R;
-                          const points = ANGLES.map(angle => `${getX(angle, r)},${getY(angle, r)}`).join(' ');
-                          return (
-                            <polygon
+                      return (
+                        <>
+                          {/* Grid concêntrico */}
+                          {[0.2, 0.4, 0.6, 0.8, 1.0].map((level, i) => {
+                            const r = level * MAX_R;
+                            const points = ANGLES.map(angle => `${getX(angle, r)},${getY(angle, r)}`).join(' ');
+                            return (
+                              <polygon
+                                key={i}
+                                points={points}
+                                fill="none"
+                                stroke="#e5e7eb"
+                                strokeWidth="1"
+                              />
+                            );
+                          })}
+
+                          {/* Eixos */}
+                          {ANGLES.map((angle, i) => (
+                            <line
                               key={i}
-                              points={points}
-                              fill="none"
-                              stroke="#e5e7eb"
+                              x1={CX}
+                              y1={CY}
+                              x2={getX(angle, MAX_R)}
+                              y2={getY(angle, MAX_R)}
+                              stroke="#d1d5db"
                               strokeWidth="1"
                             />
-                          );
-                        })}
+                          ))}
 
-                        {/* Eixos */}
-                        {ANGLES.map((angle, i) => (
-                          <line
-                            key={i}
-                            x1={CX}
-                            y1={CY}
-                            x2={getX(angle, MAX_R)}
-                            y2={getY(angle, MAX_R)}
-                            stroke="#d1d5db"
-                            strokeWidth="1"
-                          />
-                        ))}
+                          {/* Labels */}
+                          <text x={CX} y={CY - MAX_R - 15} textAnchor="middle" className="text-sm fill-green-600 font-semibold">Benefícios</text>
+                          <text x={CX + MAX_R + 15} y={CY + 5} textAnchor="start" className="text-sm fill-blue-600 font-semibold">Oportunidades</text>
+                          <text x={CX} y={CY + MAX_R + 25} textAnchor="middle" className="text-sm fill-orange-600 font-semibold">Custos</text>
+                          <text x={CX - MAX_R - 15} y={CY + 5} textAnchor="end" className="text-sm fill-red-600 font-semibold">Riscos</text>
 
-                        {/* Labels */}
-                        <text x={CX} y={CY - MAX_R - 15} textAnchor="middle" className="text-sm fill-green-600 font-semibold">Benefícios</text>
-                        <text x={CX + MAX_R + 15} y={CY + 5} textAnchor="start" className="text-sm fill-blue-600 font-semibold">Oportunidades</text>
-                        <text x={CX} y={CY + MAX_R + 25} textAnchor="middle" className="text-sm fill-orange-600 font-semibold">Custos</text>
-                        <text x={CX - MAX_R - 15} y={CY + 5} textAnchor="end" className="text-sm fill-red-600 font-semibold">Riscos</text>
+                          {/* Polígonos e pontos das alternativas */}
+                          {calculation.finalScores.map((alt, altIdx) => {
+                            const b = alt.B || 0;
+                            const o = alt.O || 0;
+                            const c = alt.C || 0;
+                            const altR = alt.R || 0;
 
-                        {/* Polígonos e pontos das alternativas */}
-                        {calculation.finalScores.map((alt, altIdx) => {
-                          const b = alt.B || 0;
-                          const o = alt.O || 0;
-                          const c = alt.C || 0;
-                          const altR = alt.R || 0;
+                            const maxVal = Math.max(
+                              ...calculation.finalScores.flatMap(a => [a.B || 0, a.O || 0, a.C || 0, a.R || 0]),
+                              0.01
+                            );
 
-                          const maxVal = Math.max(
-                            ...calculation.finalScores.flatMap(a => [a.B || 0, a.O || 0, a.C || 0, a.R || 0]),
-                            0.01
-                          );
+                            const values = [b, o, c, altR].map(v => Math.min(v / maxVal, 1));
+                            const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
+                            const color = colors[altIdx % colors.length];
 
-                          const values = [b, o, c, altR].map(v => Math.min(v / maxVal, 1));
-                          const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
-                          const color = colors[altIdx % colors.length];
+                            // Calcular pontos do polígono
+                            const polygonPoints = ANGLES.map((angle, i) => {
+                              const r = values[i] * MAX_R;
+                              return `${getX(angle, r)},${getY(angle, r)}`;
+                            }).join(' ');
 
-                          // Calcular pontos do polígono
-                          const polygonPoints = ANGLES.map((angle, i) => {
-                            const r = values[i] * MAX_R;
-                            return `${getX(angle, r)},${getY(angle, r)}`;
-                          }).join(' ');
+                            return (
+                              <g key={altIdx}>
+                                <polygon
+                                  points={polygonPoints}
+                                  fill={color}
+                                  fillOpacity="0.2"
+                                  stroke={color}
+                                  strokeWidth="2"
+                                />
+                                {/* Pontos nos vértices - mesmas coordenadas do polígono */}
+                                {ANGLES.map((angle, i) => {
+                                  const r = values[i] * MAX_R;
+                                  return (
+                                    <circle
+                                      key={i}
+                                      cx={getX(angle, r)}
+                                      cy={getY(angle, r)}
+                                      r="5"
+                                      fill={color}
+                                      stroke="white"
+                                      strokeWidth="1"
+                                    />
+                                  );
+                                })}
+                              </g>
+                            );
+                          })}
+                        </>
+                      );
+                    })()}
+                  </svg>
+                </div>
 
-                          return (
-                            <g key={altIdx}>
-                              <polygon
-                                points={polygonPoints}
-                                fill={color}
-                                fillOpacity="0.2"
-                                stroke={color}
-                                strokeWidth="2"
-                              />
-                              {/* Pontos nos vértices - mesmas coordenadas do polígono */}
-                              {ANGLES.map((angle, i) => {
-                                const r = values[i] * MAX_R;
-                                return (
-                                  <circle
-                                    key={i}
-                                    cx={getX(angle, r)}
-                                    cy={getY(angle, r)}
-                                    r="5"
-                                    fill={color}
-                                    stroke="white"
-                                    strokeWidth="1"
-                                  />
-                                );
-                              })}
-                            </g>
-                          );
-                        })}
-                      </>
+                {/* Legenda */}
+                <div className="flex justify-center gap-6 mt-4">
+                  {calculation.finalScores.map((alt, idx) => {
+                    const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
+                    return (
+                      <div key={idx} className="flex items-center gap-2">
+                        <div
+                          className="w-4 h-4 rounded"
+                          style={{ backgroundColor: colors[idx % colors.length] }}
+                        ></div>
+                        <span className="text-sm text-gray-700">{alt.name}</span>
+                      </div>
                     );
-                  })()}
-                </svg>
-              </div>
+                  })}
+                </div>
 
-              {/* Legenda */}
-              <div className="flex justify-center gap-6 mt-4">
-                {calculation.finalScores.map((alt, idx) => {
-                  const colors = ['#6366f1', '#a855f7', '#ec4899', '#f97316'];
-                  return (
-                    <div key={idx} className="flex items-center gap-2">
-                      <div
-                        className="w-4 h-4 rounded"
-                        style={{ backgroundColor: colors[idx % colors.length] }}
-                      ></div>
-                      <span className="text-sm text-gray-700">{alt.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <p className="text-xs text-gray-400 text-center mt-4">
-                Nota: Quanto maior a área do polígono nos quadrantes B e O, e menor em C e R, melhor o desempenho global.
-              </p>
+                <p className="text-xs text-gray-400 text-center mt-4">
+                  Nota: Quanto maior a área do polígono nos quadrantes B e O, e menor em C e R, melhor o desempenho global.
+                </p>
               </ChartDownloadWrapper>
             </div>
           </div>
@@ -3263,47 +3270,47 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     </div>
                     <div className="p-5">
                       <ChartDownloadWrapper filename="demographics-gender" title="Distribuição por Gênero">
-                      <div className="flex items-center justify-between">
-                        <ResponsiveContainer width="50%" height={180}>
-                          <PieChart>
-                            <Pie
-                              data={demographicDashboardData.gender}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={45}
-                              outerRadius={75}
-                              paddingAngle={3}
-                              dataKey="value"
-                            >
-                              {demographicDashboardData.gender.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#EC4899'} />
-                              ))}
-                            </Pie>
-                            <Tooltip
-                              formatter={(value) => {
-                                const v = Number(value) || 0;
-                                return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes'];
-                              }}
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                        <div className="flex flex-col gap-3 pr-4">
-                          {demographicDashboardData.gender.map((item, index) => (
-                            <div key={item.name} className="flex items-center gap-3">
-                              <div
-                                className="w-4 h-4 rounded-full"
-                                style={{ backgroundColor: index === 0 ? '#3B82F6' : '#EC4899' }}
+                        <div className="flex items-center justify-between">
+                          <ResponsiveContainer width="50%" height={180}>
+                            <PieChart>
+                              <Pie
+                                data={demographicDashboardData.gender}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={45}
+                                outerRadius={75}
+                                paddingAngle={3}
+                                dataKey="value"
+                              >
+                                {demographicDashboardData.gender.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={index === 0 ? '#3B82F6' : '#EC4899'} />
+                                ))}
+                              </Pie>
+                              <Tooltip
+                                formatter={(value) => {
+                                  const v = Number(value) || 0;
+                                  return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes'];
+                                }}
                               />
-                              <div>
-                                <p className="font-medium text-gray-700">{item.name}</p>
-                                <p className="text-sm text-gray-500">
-                                  {item.value} ({((item.value / demographicDashboardData.total) * 100).toFixed(1)}%)
-                                </p>
+                            </PieChart>
+                          </ResponsiveContainer>
+                          <div className="flex flex-col gap-3 pr-4">
+                            {demographicDashboardData.gender.map((item, index) => (
+                              <div key={item.name} className="flex items-center gap-3">
+                                <div
+                                  className="w-4 h-4 rounded-full"
+                                  style={{ backgroundColor: index === 0 ? '#3B82F6' : '#EC4899' }}
+                                />
+                                <div>
+                                  <p className="font-medium text-gray-700">{item.name}</p>
+                                  <p className="text-sm text-gray-500">
+                                    {item.value} ({((item.value / demographicDashboardData.total) * 100).toFixed(1)}%)
+                                  </p>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            ))}
+                          </div>
                         </div>
-                      </div>
                       </ChartDownloadWrapper>
                     </div>
                   </div>
@@ -3317,15 +3324,15 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     </div>
                     <div className="p-5">
                       <ChartDownloadWrapper filename="demographics-age" title="Distribuição por Faixa Etária">
-                      <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={demographicDashboardData.age} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} />
-                          <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
-                          <Bar dataKey="value" fill="#60A5FA" radius={[4, 4, 0, 0]} maxBarSize={50} />
-                        </BarChart>
-                      </ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height={200}>
+                          <BarChart data={demographicDashboardData.age} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                            <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} />
+                            <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                            <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                            <Bar dataKey="value" fill="#60A5FA" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                          </BarChart>
+                        </ResponsiveContainer>
                       </ChartDownloadWrapper>
                     </div>
                   </div>
@@ -3339,19 +3346,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     </div>
                     <div className="p-5">
                       <ChartDownloadWrapper filename="demographics-education" title="Nível de Formação Acadêmica">
-                      <ResponsiveContainer width="100%" height={demographicDashboardData.education.length * 40 + 20}>
-                        <BarChart data={demographicDashboardData.education} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
-                          <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
-                          <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={90} />
-                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
-                          <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
-                            {demographicDashboardData.education.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={['#6366F1', '#818CF8', '#A5B4FC', '#C7D2FE'][index % 4]} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height={demographicDashboardData.education.length * 40 + 20}>
+                          <BarChart data={demographicDashboardData.education} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                            <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
+                            <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={90} />
+                            <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                            <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                              {demographicDashboardData.education.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={['#6366F1', '#818CF8', '#A5B4FC', '#C7D2FE'][index % 4]} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
                       </ChartDownloadWrapper>
                     </div>
                   </div>
@@ -3365,15 +3372,15 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     </div>
                     <div className="p-5">
                       <ChartDownloadWrapper filename="demographics-experience" title="Tempo de Experiência Profissional">
-                      <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={demographicDashboardData.experience} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
-                          <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} />
-                          <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                          <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
-                          <Bar dataKey="value" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={50} />
-                        </BarChart>
-                      </ResponsiveContainer>
+                        <ResponsiveContainer width="100%" height={200}>
+                          <BarChart data={demographicDashboardData.experience} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
+                            <XAxis dataKey="name" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} />
+                            <YAxis tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                            <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                            <Bar dataKey="value" fill="#8B5CF6" radius={[4, 4, 0, 0]} maxBarSize={50} />
+                          </BarChart>
+                        </ResponsiveContainer>
                       </ChartDownloadWrapper>
                     </div>
                   </div>
@@ -3390,19 +3397,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                         const sortedRoles = [...demographicDashboardData.role].sort((a, b) => b.value - a.value);
                         return (
                           <ChartDownloadWrapper filename="demographics-roles" title="Distribuição por Cargo">
-                          <ResponsiveContainer width="100%" height={sortedRoles.length * 40 + 20}>
-                            <BarChart data={sortedRoles} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
-                              <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
-                              <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={90} />
-                              <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
-                              <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
-                                {sortedRoles.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE'][index % 5]} />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={sortedRoles.length * 40 + 20}>
+                              <BarChart data={sortedRoles} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                                <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
+                                <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={90} />
+                                <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                                  {sortedRoles.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#DBEAFE'][index % 5]} />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
                           </ChartDownloadWrapper>
                         );
                       })()}
@@ -3422,19 +3429,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                         const areaColors = ['#10B981', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE', '#94A3B8'];
                         return (
                           <ChartDownloadWrapper filename="demographics-areas" title="Área de Atuação">
-                          <ResponsiveContainer width="100%" height={sortedAreas.length * 40 + 20}>
-                            <BarChart data={sortedAreas} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
-                              <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
-                              <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={100} />
-                              <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
-                              <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
-                                {sortedAreas.map((entry, index) => (
-                                  <Cell key={`cell-${index}`} fill={areaColors[index % areaColors.length]} />
-                                ))}
-                              </Bar>
-                            </BarChart>
-                          </ResponsiveContainer>
+                            <ResponsiveContainer width="100%" height={sortedAreas.length * 40 + 20}>
+                              <BarChart data={sortedAreas} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" horizontal={false} />
+                                <XAxis type="number" tick={{ fontSize: 11, fill: '#6B7280' }} tickLine={false} axisLine={{ stroke: '#E5E7EB' }} allowDecimals={false} />
+                                <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: '#374151' }} tickLine={false} axisLine={false} width={100} />
+                                <Tooltip formatter={(value) => { const v = Number(value) || 0; return [`${v} (${((v / demographicDashboardData.total) * 100).toFixed(1)}%)`, 'Respondentes']; }} />
+                                <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={28}>
+                                  {sortedAreas.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={areaColors[index % areaColors.length]} />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
                           </ChartDownloadWrapper>
                         );
                       })()}
@@ -4087,13 +4094,13 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               <div className="grid md:grid-cols-2 gap-8 mb-8">
                 <div className="flex items-center justify-center">
                   <ChartDownloadWrapper filename="consistency-gauge" title="Consistência Global (CR)">
-                  <ConsistencyGaugeChart
-                    cr={calculation.bocrConsistency.cr}
-                    lambda={calculation.bocrConsistency.lambda}
-                    ci={calculation.bocrConsistency.ci}
-                    height={280}
-                    showDetails={true}
-                  />
+                    <ConsistencyGaugeChart
+                      cr={calculation.bocrConsistency.cr}
+                      lambda={calculation.bocrConsistency.lambda}
+                      ci={calculation.bocrConsistency.ci}
+                      height={280}
+                      showDetails={true}
+                    />
                   </ChartDownloadWrapper>
                 </div>
                 <div className="flex flex-col justify-center space-y-4">
@@ -4198,12 +4205,12 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                 Vetor de Prioridades Estratégicas (BOCR)
               </h3>
               <ChartDownloadWrapper filename="bocr-sunburst" title="Vetor de Prioridades Estratégicas (BOCR)">
-              <BOCRSunburstChart
-                bocrWeights={calculation.bocrWeights}
-                subWeights={calculation.subWeights}
-                height={550}
-                showLabels={true}
-              />
+                <BOCRSunburstChart
+                  bocrWeights={calculation.bocrWeights}
+                  subWeights={calculation.subWeights}
+                  height={550}
+                  showLabels={true}
+                />
               </ChartDownloadWrapper>
               <p className="text-xs text-gray-500 mt-2 italic">
                 ℹ️ Os percentuais exibidos representam os pesos pessoais (v) derivados da hierarquia de controle. Na Equação 17 de Wijnmalen (2007), são multiplicados pelos rescaling weights (s) para compor os pesos efetivos (v·s) usados na síntese subtrativa.
@@ -4315,19 +4322,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               </p>
 
               <ChartDownloadWrapper filename="sensitivity-analysis" title="Análise de Sensibilidade">
-              <SensitivityAnalysisPanel
-                sensitivityAnalysis={(calculation.sensitivityAnalysis || []).map((item, idx) => ({
-                  ...item,
-                  currentWeight: item.currentWeight ?? (
-                    item.merit === 'B' ? (calculation.bocrWeights[0] || 0) * 100 :
-                      item.merit === 'O' ? (calculation.bocrWeights[1] || 0) * 100 :
-                        item.merit === 'C' ? (calculation.bocrWeights[2] || 0) * 100 :
-                          item.merit === 'R' ? (calculation.bocrWeights[3] || 0) * 100 : undefined
-                  )
-                }))}
-                sensitivityTrajectories={sensitivityTrajectories}
-                currentWinner={calculation.ranking?.[0]?.code || ''}
-              />
+                <SensitivityAnalysisPanel
+                  sensitivityAnalysis={(calculation.sensitivityAnalysis || []).map((item, idx) => ({
+                    ...item,
+                    currentWeight: item.currentWeight ?? (
+                      item.merit === 'B' ? (calculation.bocrWeights[0] || 0) * 100 :
+                        item.merit === 'O' ? (calculation.bocrWeights[1] || 0) * 100 :
+                          item.merit === 'C' ? (calculation.bocrWeights[2] || 0) * 100 :
+                            item.merit === 'R' ? (calculation.bocrWeights[3] || 0) * 100 : undefined
+                    )
+                  }))}
+                  sensitivityTrajectories={sensitivityTrajectories}
+                  currentWinner={calculation.ranking?.[0]?.code || ''}
+                />
               </ChartDownloadWrapper>
             </div>
 
