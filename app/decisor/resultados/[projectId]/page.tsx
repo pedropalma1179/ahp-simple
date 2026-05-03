@@ -60,6 +60,7 @@ import {
 } from '@/components/charts';
 import BentoGridDashboard from '@/components/BentoGridDashboard';
 import CRTable from '@/components/CRTable';
+import BOCRConsistencyMatrix from '@/components/BOCRConsistencyMatrix';
 
 // Force reload
 
@@ -4191,6 +4192,15 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                 </p>
               </div>
             </div>
+            {/* ============================================================
+                Tabela de Consistência das 6 matrizes agregadas
+                Saaty (1977) — Decisão D4 do projeto
+                ============================================================ */}
+            <BOCRConsistencyMatrix
+              bocrConsistency={calculation.bocrConsistency}
+              magnitudeConsistency={calculation.magnitudeConsistency}
+              subConsistency={calculation.subConsistency}
+            />
           </div>
         )}
 
