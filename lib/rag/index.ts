@@ -40,10 +40,12 @@ import neely2020_upperEchelonsMetacritiques from './articles/neely2020_upperEche
 import ossadnik2016_group_aggregation from './articles/ossadnik2016_group_aggregation';
 import petrillo2023state from './articles/petrillo2023state';
 import saaty1977_scaling from './articles/saaty1977_scaling';
+import saaty1986_axiomatic from './articles/saaty1986_axiomatic';
 import saaty1987_whatitis from './articles/saaty1987_whatitis';
 import saaty1990_howtomake from './articles/saaty1990_howtomake';
 import saaty2003_eigenvector from './articles/saaty2003_eigenvector';
 import saaty2015_trustworthy from './articles/saaty2015_trustworthy';
+import saatyOzdemir2003_negative from './articles/saatyOzdemir2003_negative';
 import saatyVargas2012 from './articles/saatyVargas2012';
 import saiyed2023_ceoPowerUET from './articles/saiyed2023_ceoPowerUET';
 import salomon2016_absolute from './articles/salomon2016_absolute';
@@ -77,10 +79,12 @@ const ARTICLES: ArticleExtraction[] = [
   ossadnik2016_group_aggregation,
   petrillo2023state,
   saaty1977_scaling,
+  saaty1986_axiomatic,
   saaty1987_whatitis,
   saaty1990_howtomake,
   saaty2003_eigenvector,
   saaty2015_trustworthy,
+  saatyOzdemir2003_negative,
   saatyVargas2012,
   saiyed2023_ceoPowerUET,
   salomon2016_absolute,
