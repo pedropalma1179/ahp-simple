@@ -576,7 +576,7 @@ Você NÃO sugere análises que o sistema não implementa. Você valida o que j�
 Use SOMENTE estas referências autorizadas. NUNCA invente autores ou anos:
 - Saaty (1977) — CR ≤ 0.10
 - Saaty (1980) — Escala 1-9, RCI, axiomas
-- Saaty (1987) — Axiomas do AHP (reciprocidade, homogeneidade, dependência, expectativas)
+- Saaty (1986) — Axiomas do AHP (reciprocidade, homogeneidade, dependência, expectativas)
 - Saaty (1990) — Agregação por média geométrica
 - Saaty (2003) — Algoritmo de melhoria de consistência
 - Saaty & Ergu (2015) — Confiabilidade em MCDM
@@ -589,10 +589,10 @@ Use SOMENTE estas referências autorizadas. NUNCA invente autores ou anos:
 - Lee (2009) — Hierarquia de controle BOCR
 - Ishizaka & Labib (2011) — Análise de sensibilidade em AHP
 - Demirtas & Ustun (2008) — ANP-BOCR com MOMILP
-- Bozóki, Fülöp & Rónyai (2009) — Matrizes incompletas: unicidade, LLSM, grafo conectado
+- Bozóki, Fülöp & Rónyai (2010) — Matrizes incompletas: unicidade, LLSM, grafo conectado
 - Harker (1987) — Primeiro tratamento formal de IPC no AHP
 - Crawford & Williams (1985) — LLSM original
-- Saaty & Ozdemir (2003) — Fadiga cognitiva (7±2 critérios)
+- Saaty (1977) — Fadiga cognitiva (7±2 critérios, citando Miller 1956)
 - Escobar (2004) — Propriedade de inconsistência do grupo com média geométrica (AIJ)
 - Neely, Lovelace, Cowen & Hiller (2020) — Metacritiques of Upper Echelons Theory: cognitive black box (field of vision, selective perception, interpretation), managerial discretion, contingencies
 - Saiyed, Tatoglu, Ali & Dutta (2023) — CEO power and cognitive bias in volatile/emerging market contexts, double-edged sword of upper echelons factors
@@ -626,9 +626,9 @@ Se o manuscrito indica que respondentes foram excluídos por inconsistência (CR
 6. Se a taxa de exclusão for moderada (≤ 50%), não afirmar que "está dentro dos padrões empíricos" a menos que uma referência publicada específica sustente esse limiar. Em vez disso, reportar a taxa factualmente e contextualizar com o tamanho residual da amostra
 
 **AFIRMAÇÕES PROIBIDAS:**
-- ❌ Afirmar que IPC invalida os resultados — Bozóki et al. (2009) demonstram que LLSM produz solução ótima para grafos conectados
+- ❌ Afirmar que IPC invalida os resultados — Bozóki et al. (2010) demonstram que LLSM produz solução ótima para grafos conectados
 - ❌ Sugerir que todas as comparações devem ser obrigatoriamente completas — Harker (1987) e Saaty & Ozdemir (2003) justificam comparações incompletas para reduzir fadiga cognitiva
-- ❌ Tratar "análise de Disparate Impact não configurada" como limitação do estudo. DI é uma camada opcional de auditoria de fairness aplicada SOBRE o ranking final, não faz parte da metodologia base AHP-BOCR. Sua ausência NÃO viola axiomas de Saaty (1987), NÃO invalida agregação por média geométrica (Saaty, 1990), NÃO afeta síntese de Wijnmalen (2007) e NÃO compromete consistência dos julgamentos. DI deve aparecer APENAS em "AÇÕES DE MITIGAÇÃO" como recomendação opcional, NUNCA em "LIMITAÇÕES IDENTIFICADAS NOS DADOS". A ausência de configuração de DI NÃO deve fundamentar rebaixamento da nota editorial (não deve motivar transição de "ACEITO" para "REVISÕES MENORES", nem de "REVISÕES MENORES" para "REVISÕES MAIORES").
+- ❌ Tratar "análise de Disparate Impact não configurada" como limitação do estudo. DI é uma camada opcional de auditoria de fairness aplicada SOBRE o ranking final, não faz parte da metodologia base AHP-BOCR. Sua ausência NÃO viola axiomas de Saaty (1986), NÃO invalida agregação por média geométrica (Saaty, 1990), NÃO afeta síntese de Wijnmalen (2007) e NÃO compromete consistência dos julgamentos. DI deve aparecer APENAS em "AÇÕES DE MITIGAÇÃO" como recomendação opcional, NUNCA em "LIMITAÇÕES IDENTIFICADAS NOS DADOS". A ausência de configuração de DI NÃO deve fundamentar rebaixamento da nota editorial (não deve motivar transição de "ACEITO" para "REVISÕES MENORES", nem de "REVISÕES MENORES" para "REVISÕES MAIORES").
 
 ## RESTRIÇÕES ANTI-ALUCINAÇÃO (OBRIGATÓRIAS)
 
@@ -666,7 +666,7 @@ Se o manuscrito indica que respondentes foram excluídos por inconsistência (CR
 [Síntese objetiva: objetivo, método AHP-BOCR, número de especialistas, fórmula de síntese, principais achados]
 
 ## ✅ PONTOS FORTES
-[3-5 aspectos positivos verificáveis nos dados. Ex: "Axiomas de Saaty (1987) são atendidos pela estrutura do sistema"]
+[3-5 aspectos positivos verificáveis nos dados. Ex: "Axiomas de Saaty (1986) são atendidos pela estrutura do sistema"]
 Se os dados demográficos estão disponíveis (demographicsSummary.hasData = true), mencionar nos PONTOS FORTES ou na ANÁLISE DETALHADA: "O perfil dos especialistas abrange [formações, áreas, experiência], conforme documentado na caracterização da amostra." Isso atende ao requisito de qualificação do painel.
 
 ## ⚠️ LIMITAÇÕES IDENTIFICADAS NOS DADOS
@@ -686,7 +686,7 @@ Padrão de análise:
 
 ### Completude das Matrizes (se ipcMetadata disponível)
 DADO: ipcMetadata mostra método X e completude Y% para cada grupo
-REFERÊNCIA: Bozóki et al. (2009) — solução única ↔ grafo conectado (Teorema 1); mínimo n-1 comparações (Teorema 2)
+REFERÊNCIA: Bozóki et al. (2010) — solução única ↔ grafo conectado (Teorema 1); mínimo n-1 comparações (Teorema 2)
 VEREDITO: Se todos EIGENVECTOR → matrizes completas, nenhuma ação. Se algum LLSM_IPC → reportar quais grupos, completude, e implicação.
 MITIGAÇÃO: Se completude < 60% → "Considerar solicitar comparações adicionais aos respondentes"; Se grafo desconectado → "CRÍTICO: pesos não calculáveis para grupo X"
 
@@ -720,7 +720,7 @@ Padrão de análise:
 3. Se DI não configurado: informar que a infraestrutura existe mas requer configuração pelo pesquisador. Esta observação deve aparecer como RECOMENDAÇÃO em "AÇÕES DE MITIGAÇÃO" (nunca como limitação nem como fundamento de decisão editorial). A ausência de configuração de DI é uma escolha contextual do pesquisador, não uma falha metodológica do estudo.
 
 ### Fundamentação Teórica
-1. Verificar axiomas de Saaty (1987): reciprocidade, homogeneidade, dependência, expectativas
+1. Verificar axiomas de Saaty (1986): reciprocidade, homogeneidade, dependência, expectativas
 2. Validar método de agregação com Saaty (1990)
 3. Validar fórmula de síntese com Wijnmalen (2007)
 
@@ -1191,7 +1191,7 @@ ${data.projectDescription ? `\n**Descrição:** ${data.projectDescription}\n` : 
 # DADOS METODOLÓGICOS COLETADOS
 
 ## Especificações do Método
-- **Escala de Julgamento:** Escala fundamental 1-9 de Saaty (1980)
+- **Escala de Julgamento:** Escala fundamental 1-9 de Saaty (1977, 1980)
 - **Método de Agregação:** Média Geométrica (Saaty, 1990)
 - **Cálculo do Eigenvector:** Método da Média Geométrica por linha
 - **Limiar de Consistência:** CR ≤ 0.10 (Saaty, 1977)
@@ -1228,7 +1228,7 @@ ${data.ipcMetadata ? `
 ## COMPLETUDE DAS MATRIZES (IPC)
 ${JSON.stringify(data.ipcMetadata, null, 2)}
 
-Nota: Se hasIncompleteGroups = true, o método LLSM-IPC (Bozóki et al., 2009) foi utilizado para grupos com matrizes incompletas.
+Nota: Se hasIncompleteGroups = true, o método LLSM-IPC (Bozóki et al., 2010) foi utilizado para grupos com matrizes incompletas.
 Se hasIncompleteGroups = false, todas as matrizes são completas e o método clássico (Eigenvector) foi utilizado.
 ` : ''}
 
@@ -1414,7 +1414,7 @@ Recomende ao pesquisador executar a análise de sensibilidade.`;
   - NÃO simplifique para bB + oO - cC - rR (esta forma omite os rescaling weights)
 - ⚠️ Algoritmo de melhoria de consistência (disponível, requer ação do usuário)
 
-## Verificação dos Axiomas de Saaty (1987)
+## Verificação dos Axiomas de Saaty (1986)
 - ✅ **Reciprocidade:** Garantida pela estrutura da matriz de comparações pareadas
 - ✅ **Homogeneidade:** Escala 1-9 limita comparações a uma ordem de magnitude
 - ✅ **Dependência:** Estrutura hierárquica BOCR respeita dependência funcional
