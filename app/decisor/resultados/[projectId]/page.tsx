@@ -3880,7 +3880,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-gray-800">👥 Análise Individual dos Especialistas</h4>
                     <p className="text-sm text-gray-500">
-                      Tabela de CR por respondente — essencial para dissertação
+                      Tabela de CR por respondente
                     </p>
                   </div>
 
