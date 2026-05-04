@@ -641,7 +641,7 @@ export default function BentoGridDashboard({
       {/* Footer */}
       <div className="mt-6 pt-4 border-t border-slate-200">
         <div className="flex items-center justify-between text-xs text-slate-500">
-          <span>Sistema AHP-BOCR v5.0 • Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)</span>
+          <span>Sistema AHP-BOCR v5.0 • Saaty (1977, 1980), Wijnmalen (2007), Petrillo et al. (2023)</span>
           <span>Dashboard gerado em {new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
         </div>
       </div>
