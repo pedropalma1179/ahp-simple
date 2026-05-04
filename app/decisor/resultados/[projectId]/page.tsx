@@ -1604,7 +1604,7 @@ export default function ResultadosPage() {
     table1 += `*Nota:* λmax = ${fmt4(calculation.bocrConsistency?.lambda || 0)}; `;
     table1 += `CR = ${fmt2((calculation.bocrConsistency?.cr || 0) * 100)}% `;
     table1 += `(${(calculation.bocrConsistency?.cr || 0) <= 0.10 ? 'Consistente' : 'Inconsistente'}); `;
-    table1 += `RI = 0,90 (n=4, Saaty, 1980).\n`;
+    table1 += `RI = 0,90 (n=4, Saaty, 1977).\n`;
 
     // ========== TABELA 2: Pesos Locais e Globais ==========
     let table2 = `**Tabela 2.** Pesos locais e globais dos subcritérios\n\n`;
@@ -1772,7 +1772,7 @@ export default function ResultadosPage() {
 \\item $\\lambda_{max}$ = ${(calculation.bocrConsistency.lambda || 0).toFixed(4)}
 \\item CI = ${(ciBocr || 0).toFixed(4)} (Índice de Consistência)
 \\item CR = ${((calculation.bocrConsistency.cr || 0) * 100).toFixed(2)}\\% (${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' : 'Inconsistente'})
-\\item RI = 0.90 (Índice Aleatório para n=4, Saaty 1980)
+\\item RI = 0.90 (Índice Aleatório para n=4, Saaty 1977)
 \\end{tablenotes}
 \\end{table}
 
@@ -1907,7 +1907,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 \\small
 \\item CI = $(\\lambda_{max} - n) / (n - 1)$ (Índice de Consistência)
 \\item CR = CI / RI (Razão de Consistência)
-\\item Limite aceitável: CR $\\leq$ 10\\% (Saaty, 1980)
+\\item Limite aceitável: CR $\\leq$ 10\\% (Saaty, 1977)
 \\item RI(4) = 0.90, RI(5) = 1.12 (Índice Aleatório)
 \\end{tablenotes}
 \\end{table}
@@ -2280,7 +2280,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       [''],
       ['SOFTWARE'],
       ['Sistema:', 'AHP-BOCR Decision Support System v5.0'],
-      ['Metodologia:', 'Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)'],
+      ['Metodologia:', 'Saaty (1977, 1980), Wijnmalen (2007), Petrillo et al. (2023)'],
       ['Instituição:', 'UNESP - Engenharia de Produção'],
     ];
     const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
@@ -2439,7 +2439,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
     const consData = [
       ['ÍNDICES DE CONSISTÊNCIA - TODAS AS MATRIZES'],
       [''],
-      ['Referência: Saaty (1980) - CR ≤ 0.10 (10%) indica julgamentos consistentes'],
+      ['Referência: Saaty (1977) - CR ≤ 0.10 (10%) indica julgamentos consistentes'],
       [''],
       ['Matriz', 'Tamanho (n)', 'λmax', 'CI', 'RI', 'CR', 'Status'],
       ['BOCR (Méritos)', '4', (calculation.bocrConsistency.lambda || 0).toFixed(6),
@@ -2465,7 +2465,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
     consData.push(['FÓRMULAS']);
     consData.push(['CI = (λmax - n) / (n - 1)']);
     consData.push(['CR = CI / RI']);
-    consData.push(['RI (n=4) = 0.90, RI (n=5) = 1.12 (Saaty, 1980)']);
+    consData.push(['RI (n=4) = 0.90, RI (n=5) = 1.12 (Saaty, 1977)']);
     const wsCons = XLSX.utils.aoa_to_sheet(consData);
     wsCons['!cols'] = [{ wch: 25 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 10 }, { wch: 18 }];
     XLSX.utils.book_append_sheet(wb, wsCons, 'Consistência');
@@ -3677,7 +3677,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800 mt-4">
                     <strong>⚠️ Nota metodológica:</strong> Dos {respondentsDemographics.length} especialistas consultados,
                     {' '}{respondentsDemographics.length - excludedIds.length} foram incluídos na análise final
-                    após filtragem por consistência (CR ≤ 0.10, Saaty 1980).
+                    após filtragem por consistência (CR ≤ 0.10, Saaty 1977).
                     {' '}{excludedIds.length} respondente{excludedIds.length > 1 ? 's' : ''}
                     {' '}fo{excludedIds.length > 1 ? 'ram' : 'i'} excluído{excludedIds.length > 1 ? 's' : ''} por
                     apresentar{excludedIds.length > 1 ? 'em' : ''} índice de consistência acima do limiar aceitável.
@@ -4054,7 +4054,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
                   {/* Referência metodológica */}
                   <p className="mt-4 text-xs text-gray-400">
-                    CR &gt; 10%: Inconsistente (Saaty, 1980) | CR &gt; 20%: Suspeito | Padrões uniformes: Gaming/desatenção (Forman &amp; Peniwati, 1998)
+                    CR &gt; 10%: Inconsistente (Saaty, 1977) | CR &gt; 20%: Suspeito | Padrões uniformes: Gaming/desatenção (Forman &amp; Peniwati, 1998)
                   </p>
                 </div>
 
@@ -4087,7 +4087,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
             <div className="bg-white rounded-xl shadow-sm p-6">
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Dashboard de Consistência</h3>
               <p className="text-sm text-gray-500 mb-4">
-                Índice de Consistência (CR) ≤ 10% é aceitável segundo Saaty (1980).
+                Índice de Consistência (CR) ≤ 10% é aceitável segundo Saaty (1977).
                 Resultados em <span className="text-red-600 font-medium">vermelho</span> requerem revisão.
               </p>
 
@@ -4132,65 +4132,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-gray-50">
-                      <th className="px-4 py-3 text-left font-semibold text-gray-700">Matriz</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">CR</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">λmax</th>
-                      <th className="px-4 py-3 text-center font-semibold text-gray-700">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* BOCR */}
-                    <tr className="border-b">
-                      <td className="px-4 py-3 font-medium">BOCR (Méritos Estratégicos)</td>
-                      <td className={`px-4 py-3 text-center font-mono ${calculation.bocrConsistency.cr > 0.10 ? 'text-red-600 font-bold' : ''}`}>
-                        {formatPercent(calculation.bocrConsistency.cr)}
-                      </td>
-                      <td className="px-4 py-3 text-center font-mono">{(calculation.bocrConsistency.lambda || 0).toFixed(4)}</td>
-                      <td className="px-4 py-3 text-center">
-                        <span className={`px-2 py-1 rounded text-xs font-medium ${getCRStatus(calculation.bocrConsistency.cr).bg} ${getCRStatus(calculation.bocrConsistency.cr).color}`}>
-                          {getCRStatus(calculation.bocrConsistency.cr).status}
-                        </span>
-                      </td>
-                    </tr>
 
-                    {/* Subcritérios */}
-                    {['B', 'O', 'C', 'R'].map(merit => {
-                      const cons = calculation.subConsistency[merit];
-                      if (!cons) return null;
-                      const meritName = { B: 'Benefícios', O: 'Oportunidades', C: 'Custos', R: 'Riscos' }[merit];
-                      return (
-                        <tr key={merit} className="border-b">
-                          <td className="px-4 py-3">{meritName} (Subcritérios)</td>
-                          <td className={`px-4 py-3 text-center font-mono ${cons.cr > 0.10 ? 'text-red-600 font-bold' : ''}`}>
-                            {formatPercent(cons.cr)}
-                          </td>
-                          <td className="px-4 py-3 text-center font-mono">{(cons.lambda || 0).toFixed(4)}</td>
-                          <td className="px-4 py-3 text-center">
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${getCRStatus(cons.cr).bg} ${getCRStatus(cons.cr).color}`}>
-                              {getCRStatus(cons.cr).status}
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Referência */}
-              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-sm text-blue-800">
-                  <strong>Referência:</strong> SAATY, T. L. (1980). The Analytic Hierarchy Process. McGraw-Hill.
-                  <br />
-                  <span className="text-blue-600">
-                    Limite CR por tamanho de matriz: n=3 (5%), n=4 (8%), n≥5 (10%)
-                  </span>
-                </p>
-              </div>
             </div>
             {/* ============================================================
                 Tabela de Consistência das 6 matrizes agregadas
@@ -5038,7 +4980,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   <div className="mb-6">
                     <h3 className="text-xl font-bold text-gray-800">🔬 Verificações Automáticas</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      Checklist de validação matemática e lógica • Saaty (1980), Wijnmalen (2007), Petrillo et al. (2023)
+                      Checklist de validação matemática e lógica • Saaty (1977, 1980), Wijnmalen (2007), Petrillo et al. (2023)
                     </p>
                     <p className="text-xs text-gray-400 mt-2">
                       As verificações automáticas abaixo são diagnósticos técnicos descritivos. A avaliação qualitativa do estudo é emitida pelo Parecer Científico IA abaixo.
@@ -5823,7 +5765,7 @@ BOZÓKI, S.; FÜLÖP, J.; RÓNYAI, L. On optimal completion of incomplete pairwi
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p className="font-medium text-gray-700">Método de Agregação:</p>
-                  <p className="text-gray-600">Média Geométrica (Saaty, 1980)</p>
+                  <p className="text-gray-600">Média Geométrica (Saaty, 1980; Aczél & Saaty, 1983)</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-700">Métodos de Síntese:</p>
@@ -5831,7 +5773,7 @@ BOZÓKI, S.; FÜLÖP, J.; RÓNYAI, L. On optimal completion of incomplete pairwi
                 </div>
                 <div>
                   <p className="font-medium text-gray-700">Índice de Consistência:</p>
-                  <p className="text-gray-600">CR ≤ 10% (Saaty, 1980)</p>
+                  <p className="text-gray-600">CR ≤ 10% (Saaty, 1977)</p>
                 </div>
                 <div>
                   <p className="font-medium text-gray-700">Análise de Sensibilidade:</p>
