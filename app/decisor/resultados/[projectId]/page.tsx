@@ -1640,7 +1640,7 @@ export default function ResultadosPage() {
     sortedAlts.forEach((alt: any) => {
       table4 += `| ${alt.name} | ${fmt4(alt.scoreAdditiveResidualNorm || 0)} | ${fmt4(alt.scoreQuotientSumsNorm || 0)} | ${fmt4(getSubtractive(alt))} | ${fmt4(alt.scoreMultiplicativeNorm || 0)} | ${fmt4(alt.scoreMultSimpleNorm || 0)} |\n`;
     });
-    table4 += `\n*Nota:* (*) Método primário: síntese subtrativa com pesos pessoais (v) e rescaling weights (s) — Wijnmalen (2007, Eq. 17). Q. Somas: razão com rescaling weights — Wijnmalen (2007, Eq. 12). Demais formas: Saaty (2005); aplicação em Lee (2009) e Demirtas & Üstün (2008). Adit. Residual e Q. Somas em forma normalizada (Σ=1); Subtrativo em valor bruto.\n`;
+    table4 += `\n*Nota:* (*) Método primário: síntese subtrativa com pesos pessoais (v) e rescaling weights (s) — Wijnmalen (2007, Eq. 17). Q. Somas: razão com rescaling weights — Wijnmalen (2007, Eq. 12). Demais formas: Saaty & Ozdemir (2003); aplicação em Lee (2009) e Demirtas & Üstün (2008). Adit. Residual e Q. Somas em forma normalizada (Σ=1); Subtrativo em valor bruto.\n`;
 
     // ========== TABELA 5: Índices de Consistência ==========
     const calcCIFromLambda = (lambda: number, n: number) => {
@@ -2731,12 +2731,12 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       ['Nível 2:', '20 Subcritérios (5 por mérito)'],
       ['Nível 3:', 'Alternativas de decisão'],
       [''],
-      ['FÓRMULAS DE SÍNTESE (Saaty 2005; Wijnmalen 2007; Lee 2009)'],
-      ['Adit. Residual:', 'Score = b·B + o·O + c·(1−C) + r·(1−R) — Saaty (2005); Demirtas & Üstün (2008); Lee (2009, Eq. 13)'],
+      ['FÓRMULAS DE SÍNTESE (Saaty & Ozdemir 2003; Wijnmalen 2007; Lee 2009)'],
+      ['Adit. Residual:', 'Score = b·B + o·O + c·(1−C) + r·(1−R) — Saaty & Ozdemir (2003); Demirtas & Üstün (2008); Lee (2009, Eq. 13)'],
       ['Q. Somas:', 'Score = (s_b·B + s_o·O) / (s_c·C + s_r·R) — Wijnmalen (2007, Eq. 12)'],
       ['Subtrativo:', 'Score = v_b·s_b·B + v_o·s_o·O − v_c·s_c·C − v_r·s_r·R — Wijnmalen (2007, Eq. 17)'],
-      ['Mult. Potências:', 'Score = (B^v_b · O^v_o) / (C^v_c · R^v_r) — Saaty (2005); Lee (2009, Eq. 15)'],
-      ['Mult. Simples:', 'Score = (B · O) / (C · R) — Saaty (2005); Lee (2009, Eq. 16)'],
+      ['Mult. Potências:', 'Score = (B^v_b · O^v_o) / (C^v_c · R^v_r) — Saaty & Ozdemir (2003); Lee (2009, Eq. 15)'],
+      ['Mult. Simples:', 'Score = (B · O) / (C · R) — Saaty & Ozdemir (2003); Lee (2009, Eq. 16)'],
       [''],
       ['REFERÊNCIAS'],
       ['SAATY, T.L. (1980). The Analytic Hierarchy Process. McGraw-Hill, New York.'],
@@ -4252,9 +4252,9 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   <strong>Convenções e Referências:</strong><br />
                   • <strong>⭐ Subtrativo (Principal):</strong> v<sub>b</sub>·s<sub>b</sub>·B + v<sub>o</sub>·s<sub>o</sub>·O − v<sub>c</sub>·s<sub>c</sub>·C − v<sub>r</sub>·s<sub>r</sub>·R. Valor líquido (pode ser negativo); v = pesos pessoais, s = rescaling weights. <em>Wijnmalen (2007, Eq. 17)</em><br />
                   • <strong>Quociente de Somas:</strong> (s<sub>b</sub>·B + s<sub>o</sub>·O) / (s<sub>c</sub>·C + s<sub>r</sub>·R). Razão benefício-custo com rescaling weights. <em>Wijnmalen (2007, Eq. 12)</em><br />
-                  • <strong>Adit. Residual:</strong> b·B + o·O + c·(1−C) + r·(1−R). Probabilistic additive; sempre positivo. <em>Saaty (2005); Lee (2009, Eq. 13); Demirtas & Üstün (2008)</em><br />
-                  • <strong>Mult. Potências:</strong> (B<sup>v<sub>b</sub></sup>·O<sup>v<sub>o</sub></sup>) / (C<sup>v<sub>c</sub></sup>·R<sup>v<sub>r</sub></sup>). Tradeoff exponencial. <em>Saaty (2005); Lee (2009, Eq. 15)</em><br />
-                  • <strong>Mult. Simples:</strong> (B·O) / (C·R). Sem pesos dos méritos; benchmarking. <em>Saaty (2005); Lee (2009, Eq. 16)</em>
+                  • <strong>Adit. Residual:</strong> b·B + o·O + c·(1−C) + r·(1−R). Probabilistic additive; sempre positivo. <em>Saaty & Ozdemir (2003); Lee (2009, Eq. 13); Demirtas & Üstün (2008)</em><br />
+                  • <strong>Mult. Potências:</strong> (B<sup>v<sub>b</sub></sup>·O<sup>v<sub>o</sub></sup>) / (C<sup>v<sub>c</sub></sup>·R<sup>v<sub>r</sub></sup>). Tradeoff exponencial. <em>Saaty & Ozdemir (2003); Lee (2009, Eq. 15)</em><br />
+                  • <strong>Mult. Simples:</strong> (B·O) / (C·R). Sem pesos dos méritos; benchmarking. <em>Saaty & Ozdemir (2003); Lee (2009, Eq. 16)</em>
                 </p>
               </div>
             </div>
@@ -4703,7 +4703,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                       <p className="text-sm text-indigo-700">
                         O método <strong>Subtrativo</strong> (Score = v<sub>b</sub>·s<sub>b</sub>·B + v<sub>o</sub>·s<sub>o</sub>·O − v<sub>c</sub>·s<sub>c</sub>·C − v<sub>r</sub>·s<sub>r</sub>·R) foi utilizado
                         como principal por sua <strong>coerência matemática</strong> (Wijnmalen, 2007, Eq. 17), aplicação validada em Demirtas & Üstün (2008) e inclusão no state-of-the-art de Petrillo et al. (2023):
-                        Wijnmalen (2007) Eq. 17, Demirtas & Ustun (2008) Eq. 3, e Petrillo et al. (2023).
+                        Wijnmalen (2007) Eq. 17, Demirtas & Ustun (2008) Eq. 2, e Petrillo et al. (2023).
                         Este método é particularmente adequado para avaliação de investimentos em Indústria 4.0
                         pois permite identificar alternativas com valor líquido negativo (prejuízo).
                       </p>
@@ -4782,7 +4782,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   </table>
                 </div>
                 <p className="text-xs text-gray-500 mt-2 italic">
-                  Nota: Os métodos Multiplicativo Potências, Multiplicativo Simples e Quociente de Somas são incluídos como referência para validação cruzada da síntese subtrativa principal (Wijnmalen, 2007, Eq. 17). As fórmulas seguem Saaty (2005) e Wijnmalen (2007).
+                  Nota: Os métodos Multiplicativo Potências, Multiplicativo Simples e Quociente de Somas são incluídos como referência para validação cruzada da síntese subtrativa principal (Wijnmalen, 2007, Eq. 17). As fórmulas seguem Saaty & Ozdemir (2003) e Wijnmalen (2007).
                 </p>
               </div>
 
@@ -4800,7 +4800,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                   </p>
                   <ul className="list-disc list-inside pl-4 space-y-1">
                     <li>Wijnmalen (2007), Eq. 17 - Validação matemática formal</li>
-                    <li>Demirtas & Ustun (2008), Eq. 3 - Aplicação em seleção de fornecedores</li>
+                    <li>Demirtas & Ustun (2008), Eq. 2 - Aplicação em seleção de fornecedores</li>
                     <li>Petrillo et al. (2023) - Revisão do estado da arte, cita ambos</li>
                   </ul>
                   <p>
@@ -4940,7 +4940,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     Obtidos de comparações BOCR: "Qual mérito é mais <em>importante</em> para esta decisão?"
                   </p>
                   <p className="text-xs text-indigo-500 mt-2">
-                    Ref: Saaty & Ozdemir (2003); Saaty (2005). Aplicação em Demirtas & Üstün (2008).
+                    Ref: Saaty & Ozdemir (2003). Aplicação em Demirtas & Üstün (2008).
                   </p>
                 </div>
                 <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
@@ -5627,7 +5627,7 @@ BOZÓKI, S.; FÜLÖP, J.; RÓNYAI, L. On optimal completion of incomplete pairwi
 
                 <div className="pl-4 border-l-2 border-blue-200 p-3 rounded-r">
                   <p className="text-gray-800 text-sm leading-relaxed">
-                    <strong>Lee, J. W., & Kim, S. H. (2009).</strong> An integrated approach for interdependent information system project selection. <em>International Journal of Project Management</em>, 27(1), 111-115.
+                    <strong>Lee, A. H. I. (2009).</strong> A fuzzy supplier selection model with the consideration of benefits, opportunities, costs and risks. <em>Expert Systems with Applications</em>, 36(2), 2879-2893.
                   </p>
                   <div className="flex gap-2 mt-2">
                     <span className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">Framework de Investimentos</span>
