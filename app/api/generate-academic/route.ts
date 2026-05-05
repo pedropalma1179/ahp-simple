@@ -79,7 +79,7 @@ Se o input indicar exclusão, o texto DEVE:
 1) Em Resultados, logo após apresentar o CR global, incluir parágrafo com:
    - "Dos M especialistas que participaram da coleta, N foram incluídos na análise final após filtragem por consistência (CR ≤ 0.10; Saaty, 1977). A revisão individual dos julgamentos, procedimento primariamente recomendado por Saaty (2003), não foi viável após o encerramento da coleta. Considerando que na agregação por média geométrica a qualidade dos julgamentos individuais afeta diretamente o resultado do grupo (Forman & Peniwati, 1998), optou-se pela exclusão dos respondentes com CR > 0.10 antes da agregação."
 2) Em Limitações (Conclusão), mencionar a taxa de exclusão.
-3) Em Trabalhos futuros, recomendar treinamento prévio na escala de Saaty (1980) e/ou aplicação do procedimento de revisão em tempo real (Saaty, 2003).
+3) Em Trabalhos futuros, recomendar treinamento prévio na escala de Saaty (1977, 1980) e/ou aplicação do procedimento de revisão em tempo real (Saaty, 2003).
 
 ## PARÂMETROS DE EXTENSÃO
 
@@ -159,7 +159,7 @@ Use estes termos técnicos:
 
 **Parágrafo 1 - Consistência (COM INTERPRETAÇÃO DA MAGNITUDE):**
 - Informe o CR global obtido
-- Cite Saaty (1980) para validar que CR < 0,10 é aceitável
+- Cite Saaty (1977) para validar que CR < 0,10 é aceitável (origem do limiar no paper J. Math. Psychol. 15, 234-281)
 - Mencione λmax (autovalor máximo) e CI (Índice de Consistência) se disponíveis
 - NOVO: Interprete a MAGNITUDE do CR:
   - CR < 0,03: "indica julgamentos quase determinísticos, com alto grau de certeza dos especialistas"
@@ -167,7 +167,7 @@ Use estes termos técnicos:
   - CR 0,07-0,10: "dentro do limite aceitável, sugerindo maior complexidade ou nuance nas comparações"
 
 Exemplo de estilo:
-"A análise de consistência dos julgamentos resultou em Consistency Ratio (CR) de 0,0331 (3,31%), valor que atende ao critério de CR < 0,10 proposto por Saaty (1980). O autovalor máximo (λmax) de 4,0893 e o Índice de Consistência (CI) de 0,0298 confirmam a coerência lógica das comparações paritárias. A magnitude do CR indica julgamentos ponderados e coerentes por parte do painel de especialistas consultados."
+"A análise de consistência dos julgamentos resultou em Consistency Ratio (CR) de 0,0331 (3,31%), valor que atende ao critério de CR < 0,10 proposto por Saaty (1977). O autovalor máximo (λmax) de 4,0893 e o Índice de Consistência (CI) de 0,0298 confirmam a coerência lógica das comparações paritárias. A magnitude do CR indica julgamentos ponderados e coerentes por parte do painel de especialistas consultados."
 
 **Parágrafo 2 - Pesos Estratégicos (COM COMENSURABILIDADE):**
 - Apresente os pesos dos quatro méritos BOCR
@@ -228,7 +228,9 @@ Use os dados de "analise_sensibilidade_expandida" que contém cenários de varia
   - Se variar menos de 10%, afirme "zona de estabilidade restrita"
 
 Exemplo de estilo (COM ZONA DE ESTABILIDADE):
-"A análise de sensibilidade foi conduzida mediante variação sistemática univariada (OAT - One-at-a-Time) de ±5%, ±10% e ±20% nos pesos de cada mérito BOCR, com renormalização para manter a soma unitária. Foram analisados 28 cenários no total. Os resultados indicam que os méritos Benefícios e Oportunidades apresentaram comportamento estável em todos os cenários testados, enquanto Custos mostrou-se sensível, com inversão de ranking nos cenários de +15% e superiores. A zona de estabilidade pode ser considerada ampla, uma vez que variações de até 10% nos pesos não alteram a recomendação. Em síntese, o ranking demonstra robustez satisfatória para aplicações práticas, embora variações extremas nos pesos de Custos mereçam atenção gerencial."
+"A análise de sensibilidade foi conduzida mediante variação sistemática univariada (OAT - One-at-a-Time) nos pesos de cada mérito BOCR, com renormalização para manter a soma unitária (Triantaphyllou & Sánchez, 1997). Foram analisados [N_CENARIOS_REAIS] cenários no total, considerando combinações das variações [LISTAR_VARIACOES_REAIS]. Os resultados indicam que [LISTAR_MERITOS_ESTAVEIS] apresentaram comportamento estável, enquanto [LISTAR_MERITOS_SENSIVEIS] mostrou(aram) sensibilidade nos cenários de [VARIACAO_INFLEXAO_REAL]. A zona de estabilidade pode ser caracterizada como [AMPLA/MODERADA/RESTRITA] com base nos pontos de inflexão identificados. Em síntese, o ranking demonstra robustez [SATISFATORIA/MODERADA/LIMITADA] para aplicações práticas."
+
+DIRETRIZ ANTI-FABRICAÇÃO: NÃO copie o número "28 cenários" nem a variação "+15%" do exemplo acima — esses são placeholders. Use EXCLUSIVAMENTE os dados reais do JSON em "analise_sensibilidade_expandida": (a) N_CENARIOS_REAIS = length(analise_sensibilidade_expandida.cenarios); (b) LISTAR_VARIACOES_REAIS extraindo de analise_sensibilidade_expandida.variacoes_testadas (tipicamente "±5%, ±10%, ±20%"); (c) LISTAR_MERITOS_ESTAVEIS/SENSIVEIS conforme analise_sensibilidade_expandida.classificacao. Se algum dado não estiver disponível, omita a frase correspondente em vez de inventar valores.
 
 **Parágrafo 12 - Rank Reversal (OBRIGATÓRIO):**
 - Este parágrafo DEVE ser incluído no texto — NÃO é opcional.
@@ -312,9 +314,9 @@ USE APENAS:
 ## REFERÊNCIAS A CITAR
 
 Obrigatórias (DEVEM aparecer no texto):
-- Saaty (1980) - consistência, escala fundamental, CR ≤ 0.10
+- Saaty (1977, 1980) - consistência, escala fundamental, CR ≤ 0.10 (origem em Saaty 1977 J. Math. Psychol.; consolidação em Saaty 1980 livro AHP)
 - Wijnmalen (2007) - metodologia BOCR, fórmula subtrativa, comensurabilidade
-- Petrillo et al. (2023) - 5 fórmulas de síntese BOCR, state-of-the-art review
+- Petrillo et al. (2023) - state-of-the-art review BOCR (NÃO é fonte primária; fontes primárias das 5 fórmulas: Saaty & Ozdemir 2003 — Aditivo Residual, Mult. Potências, Mult. Simples; Wijnmalen 2007 Eq. 17 — Subtrativa; Lee A.H.I. 2009 — aplicação)
 
 Quando apropriado (USE SEMPRE QUE O TÓPICO FOR MENCIONADO):
 - Saaty (1977) - threshold original de CR
@@ -865,15 +867,15 @@ function prepareDataContext(calc: any, context: any) {
 
     formulas_sintese: {
       aditiva: 'Score = b×B + o×O + c×(1-C) + r×(1-R)',
-      subtrativa: 'Score = b×B + o×O - c×C - r×R (Wijnmalen, 2007)',
+      subtrativa: 'Score = vb·sb·B + vo·so·O − vc·sc·C − vr·sr·R (Wijnmalen, 2007, Eq. 17)',
       multiplicativa_potencias: 'Score = B^b × O^o / (C^c × R^r)',
       multiplicativa_simples: 'Score = (B×O) / (C×R)'
     },
 
     referencias_metodologicas: [
-      'Saaty, T.L. (1980) - Escala fundamental e limite CR ≤ 10%',
+      'Saaty, T.L. (1977, 1980) - Escala fundamental e limite CR ≤ 10%',
       'Wijnmalen, D.J.D. (2007) - Metodologia BOCR e fórmulas de síntese',
-      'Petrillo, A. et al. (2023) - 5 fórmulas de síntese BOCR',
+      'Petrillo, A. et al. (2023) - state-of-the-art review BOCR (não é fonte primária)',
       'Alizadeh, R. et al. (2020) - Estrutura de análise multicritério'
     ]
   };
@@ -1065,12 +1067,12 @@ export async function GET() {
       'Trabalhos futuros estruturados'
     ],
     references: [
-      'Saaty (1980) - Escala fundamental e CR',
+      'Saaty (1977, 1980) - Escala fundamental e CR',
       'Wijnmalen (2007) - BOCR e fórmula subtrativa',
       'Saaty & Vargas (1984) - Rank Reversal',
       'Belton & Gear (1983) - Crítica ao AHP',
       'Forman & Peniwati (1998) - Agregação AIJ/AIP',
-      'Petrillo et al. (2023) - 5 fórmulas de síntese',
+      'Petrillo et al. (2023) - state-of-the-art review BOCR',
       'Alizadeh et al. (2020) - Energia e MCDM',
       'Demirtas & Ustun (2008) - Modelo EJOR'
     ]
