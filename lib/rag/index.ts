@@ -25,6 +25,7 @@ import type {
 import alizadeh2020_energy from './articles/alizadeh2020_energy';
 import aullhyde2006_experiment from './articles/aullhyde2006_experiment';
 import ayan2023_weightingMethodsMCDM from './articles/ayan2023_weightingMethodsMCDM';
+import bozoki2010_ipc from './articles/bozoki2010_ipc';
 import demirtas2008_integrated from './articles/demirtas2008_integrated';
 import dodevska2023when from './articles/dodevska2023when';
 import escobar2004_note from './articles/escobar2004_note';
@@ -46,6 +47,7 @@ import saaty1990_howtomake from './articles/saaty1990_howtomake';
 import saaty2003_eigenvector from './articles/saaty2003_eigenvector';
 import saaty2015_trustworthy from './articles/saaty2015_trustworthy';
 import saatyOzdemir2003_negative from './articles/saatyOzdemir2003_negative';
+import saatyVargas1984_rankpreservation from './articles/saatyVargas1984_rankpreservation';
 import saatyVargas2012 from './articles/saatyVargas2012';
 import saiyed2023_ceoPowerUET from './articles/saiyed2023_ceoPowerUET';
 import salomon2016_absolute from './articles/salomon2016_absolute';
@@ -64,6 +66,7 @@ const ARTICLES: ArticleExtraction[] = [
   alizadeh2020_energy,
   aullhyde2006_experiment,
   ayan2023_weightingMethodsMCDM,
+  bozoki2010_ipc,
   demirtas2008_integrated,
   dodevska2023when,
   escobar2004_note,
@@ -85,6 +88,7 @@ const ARTICLES: ArticleExtraction[] = [
   saaty2003_eigenvector,
   saaty2015_trustworthy,
   saatyOzdemir2003_negative,
+  saatyVargas1984_rankpreservation,
   saatyVargas2012,
   saiyed2023_ceoPowerUET,
   salomon2016_absolute,
