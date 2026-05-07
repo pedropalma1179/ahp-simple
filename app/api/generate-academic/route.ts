@@ -110,7 +110,7 @@ Se o input indicar exclusão, o texto DEVE:
   - Qualquer frase que conecte resultados a conceitos teóricos (paradigma, tendência, framework, modelo) SEM citar (Autor, Ano)
 - Se você NÃO sabe qual autor citar, NÃO faça a afirmação. Omita a frase inteira.
 - Exemplo PROIBIDO: "Este achado alinha-se à literatura que identifica ganhos de produtividade"
-- Exemplo CORRETO: "Este achado corrobora os resultados de Tortorella et al. (2019), que identificaram ganhos de produtividade de 15-25% em implementações de sistemas ciberfísicos no setor automotivo"
+- Exemplo CORRETO: "Os subcritérios B1 e B3 concentram a maior parte da vantagem da Alternativa A1, sustentada pelos julgamentos do painel de especialistas e consistente com a literatura sintetizada em Petrillo et al. (2023)"
 - Exemplo ACEITÁVEL (sem citação): Simplesmente omitir a frase comparativa e seguir com a análise factual dos dados
 
 ### 2. Formatação Numérica
@@ -136,7 +136,7 @@ Use estes termos técnicos:
 - Mérito (para B, O, C, R)
 - Síntese / Agregação
 - Comensurabilidade
-- Análise de sensibilidade univariada (OAT - One-at-a-Time)
+- Análise de sensibilidade contínua por pontos de inflexão (Triantaphyllou & Sánchez, 1997; Alizadeh et al., 2020)
 
 ### 5. Qualificação de Diferenças
 - Diferença < 5%: "marginal", "ligeira"
@@ -179,13 +179,13 @@ Exemplo de estilo:
 "Os pesos estratégicos atribuídos aos méritos BOCR foram: Benefícios (0,3245), Oportunidades (0,2876), Custos (0,2134) e Riscos (0,1745). Esses pesos foram obtidos mediante comparações pareadas entre os méritos, garantindo a comensurabilidade necessária para a agregação subtrativa proposta por Wijnmalen (2007). Observa-se que os aspectos positivos (B+O = 0,6121) apresentam peso agregado superior aos aspectos negativos (C+R = 0,3879), caracterizando um perfil de decisão orientado à maximização de valor e oportunidades estratégicas."
 
 **Parágrafo 3 - Origem dos Critérios (NOVO - Exigência A1):**
-- Mencione que os 20 subcritérios foram selecionados com base em revisão sistemática: cite Petrillo et al. (2023) e Tramarico et al. (2022)
+- Mencione que os 20 subcritérios foram selecionados com base em revisão sistemática: cite Petrillo et al. (2023) como síntese secundária da literatura I4.0
 - Indique que a estrutura foi validada por especialistas do setor automotivo
 - Destaque a cobertura das três dimensões: Competitividade, Sociotécnicas e Sustentabilidade
-- Se mencionar Indústria 5.0, DEVE citar Xu et al. (2021) ou Breque et al. (2021)
+- Foco exclusivo em Indústria 4.0 e tomada de decisão multicritério AHP-BOCR
 
 Exemplo de estilo:
-"A estrutura hierárquica do modelo contempla 20 subcritérios distribuídos nos quatro méritos BOCR, selecionados com base em revisão sistemática da literatura de Indústria 4.0 e tomada de decisão multicritério (Petrillo et al., 2023; Tramarico et al., 2022). Os critérios foram validados por especialistas do setor automotivo, abrangendo as dimensões de Competitividade, Sociotécnicas e Sustentabilidade, em consonância com os pilares da Indústria 5.0 (Xu et al., 2021) que enfatizam a integração homem-máquina e a responsabilidade ambiental."
+"A estrutura hierárquica do modelo contempla 20 subcritérios distribuídos nos quatro méritos BOCR, selecionados com base em revisão sistemática da literatura de Indústria 4.0 e tomada de decisão multicritério (Petrillo et al., 2023). Os critérios foram validados por especialistas do setor automotivo, abrangendo as dimensões de Competitividade, Sociotécnicas e Sustentabilidade."
 
 **Parágrafos 4 a 7 - Análise Dimensional (um parágrafo para cada mérito):**
 
@@ -199,7 +199,7 @@ Para cada mérito (B, O, C, R):
 - Para C e R, lembre-se: MENOR valor = MELHOR desempenho
 
 Exemplo para Benefícios (COM CONEXÃO TEÓRICA):
-"A dimensão Benefícios foi estruturada em cinco subcritérios: Eficiência e Produtividade (B1), Qualidade (B2), Ergonomia, Saúde e Segurança Ocupacional (B3), Redução de Emissões (B4) e Conservação de Recursos (B5). Os subcritérios abrangem as dimensões de Competitividade, Sociotécnicas e Sustentabilidade, proporcionando avaliação multidimensional. Na análise comparativa, a Alternativa A1 obteve prioridade local de 0,5523, enquanto A2 alcançou 0,4477. A diferença de 10,46 pontos percentuais representa vantagem moderada para A1, atribuída principalmente aos subcritérios B1 (Eficiência) e B3 (Ergonomia). Este achado corrobora os resultados de Tortorella et al. (2019), que identificaram eficiência operacional e qualidade como os benefícios primários da digitalização no setor automotivo."
+"A dimensão Benefícios foi estruturada em cinco subcritérios: Eficiência e Produtividade (B1), Qualidade (B2), Ergonomia, Saúde e Segurança Ocupacional (B3), Redução de Emissões (B4) e Conservação de Recursos (B5). Os subcritérios abrangem as dimensões de Competitividade, Sociotécnicas e Sustentabilidade, proporcionando avaliação multidimensional. Na análise comparativa, a Alternativa A1 obteve prioridade local de 0,5523, enquanto A2 alcançou 0,4477. A diferença de 10,46 pontos percentuais representa vantagem moderada para A1, atribuída principalmente aos subcritérios B1 (Eficiência) e B3 (Ergonomia)."
 
 REGRA PARA CONEXÕES TEÓRICAS: Ao conectar resultados à literatura, SEMPRE cite autor+ano. Se não houver referência específica disponível na lista de REFERÊNCIAS A CITAR, NÃO faça a conexão — apenas apresente os dados factualmente.
 
@@ -216,21 +216,21 @@ Exemplo para Custos (lógica invertida):
 Exemplo de estilo:
 "A aplicação da fórmula de síntese subtrativa proposta por Wijnmalen (2007) resultou nos seguintes scores globais: A1 (0,4523) e A2 (0,3654). Os cinco métodos de síntese (Aditivo, Probabilístico, Subtrativo, Multiplicativo de Potências e Multiplicativo Simples) apresentaram convergência metodológica, indicando A1 como alternativa de maior pontuação em todos os casos. A concordância entre os métodos de Saaty e Wijnmalen confere robustez à recomendação, demonstrando que o resultado independe das preferências axiomáticas do decisor quanto à forma de agregação."
 
-**Parágrafos 9 a 11 - Análise de Sensibilidade EXPANDIDA (COM ZONA DE ESTABILIDADE):**
+**Parágrafos 9 a 11 - Análise de Sensibilidade (metodologia contínua de inflexões):**
 
-Use os dados de "analise_sensibilidade_expandida" que contém cenários de variação sistemática (±5%, ±10%, ±20%) em cada peso BOCR.
+Use os dados de "sensitivityInflections" que contêm os pontos de inflexão (em %) por mérito BOCR, isto é, o menor incremento percentual capaz de alterar o ranking.
 
-- Parágrafo 9: Apresente a metodologia de sensibilidade univariada (OAT - One-at-a-Time) com renormalização
-- Parágrafo 10: Discuta os resultados por mérito - quais são estáveis e quais são sensíveis
-- Parágrafo 11: NOVO - Discuta a ZONA DE ESTABILIDADE:
+- Parágrafo 9: Apresente a metodologia de análise contínua de inflexões (Triantaphyllou & Sánchez, 1997; adaptada por Alizadeh et al., 2020) com renormalização para soma unitária
+- Parágrafo 10: Discuta os resultados por mérito: inflexões amplas (>10%, robusto), moderadas (5-10%) e estreitas (<5%, sensível)
+- Parágrafo 11: Discuta a ZONA DE ESTABILIDADE com base nos pontos de inflexão reportados:
   - Qual é a margem de segurança percentual para que a decisão mude?
   - Se o peso precisar variar mais de 20% para inverter, afirme "zona de estabilidade ampla"
   - Se variar menos de 10%, afirme "zona de estabilidade restrita"
 
 Exemplo de estilo (COM ZONA DE ESTABILIDADE):
-"A análise de sensibilidade foi conduzida mediante variação sistemática univariada (OAT - One-at-a-Time) nos pesos de cada mérito BOCR, com renormalização para manter a soma unitária (Triantaphyllou & Sánchez, 1997). Foram analisados [N_CENARIOS_REAIS] cenários no total, considerando combinações das variações [LISTAR_VARIACOES_REAIS]. Os resultados indicam que [LISTAR_MERITOS_ESTAVEIS] apresentaram comportamento estável, enquanto [LISTAR_MERITOS_SENSIVEIS] mostrou(aram) sensibilidade nos cenários de [VARIACAO_INFLEXAO_REAL]. A zona de estabilidade pode ser caracterizada como [AMPLA/MODERADA/RESTRITA] com base nos pontos de inflexão identificados. Em síntese, o ranking demonstra robustez [SATISFATORIA/MODERADA/LIMITADA] para aplicações práticas."
+"A análise de sensibilidade foi conduzida mediante busca contínua dos pontos de inflexão nos pesos de cada mérito BOCR, isto é, o menor incremento percentual capaz de alterar o ranking, com renormalização para manter a soma unitária (Triantaphyllou & Sánchez, 1997; Alizadeh et al., 2020). Os resultados indicam que [LISTAR_MERITOS_ROBUSTOS] apresentaram zona de estabilidade ampla (inflexão > 10%), enquanto [LISTAR_MERITOS_SENSIVEIS] mostrou(aram) inflexão estreita (< 5%). A zona de estabilidade pode ser caracterizada como [AMPLA/MODERADA/RESTRITA] conforme os pontos de inflexão. Em síntese, o ranking demonstra robustez [SATISFATORIA/MODERADA/LIMITADA] para aplicações práticas."
 
-DIRETRIZ ANTI-FABRICAÇÃO: NÃO copie o número "28 cenários" nem a variação "+15%" do exemplo acima — esses são placeholders. Use EXCLUSIVAMENTE os dados reais do JSON em "analise_sensibilidade_expandida": (a) N_CENARIOS_REAIS = length(analise_sensibilidade_expandida.cenarios); (b) LISTAR_VARIACOES_REAIS extraindo de analise_sensibilidade_expandida.variacoes_testadas (tipicamente "±5%, ±10%, ±20%"); (c) LISTAR_MERITOS_ESTAVEIS/SENSIVEIS conforme analise_sensibilidade_expandida.classificacao. Se algum dado não estiver disponível, omita a frase correspondente em vez de inventar valores.
+DIRETRIZ ANTI-FABRICAÇÃO (sensibilidade): NÃO mencione "28 cenários", "21 cenários", variações discretas ou simulações por cenários percentuais fixos. Use EXCLUSIVAMENTE os dados reais do JSON em "sensitivityInflections": (a) percentual de inflexão por mérito (B, O, C, R); (b) classificação ROBUSTO se inflexão > 10%, MODERADO entre 5-10%, SENSÍVEL se < 5%; (c) LISTAR_MERITOS_ROBUSTOS/SENSIVEIS conforme essa classificação. Se algum dado não estiver disponível em "sensitivityInflections", omita a frase correspondente em vez de inventar valores. NÃO invente percentuais que não estejam no JSON.
 
 **Parágrafo 12 - Rank Reversal (OBRIGATÓRIO):**
 - Este parágrafo DEVE ser incluído no texto — NÃO é opcional.
@@ -275,12 +275,12 @@ Exemplo de estilo:
 
 **Parágrafo 4 - Limitações (OBRIGATÓRIO para A1):**
 - Reconheça que o modelo depende dos julgamentos subjetivos dos especialistas
-- Mencione a limitação da análise de sensibilidade univariada (OAT)
+- Mencione a limitação da análise local de sensibilidade (não captura interações cruzadas entre critérios)
 - Indique que a amostra de especialistas pode não representar todo o setor
 - Use tom honesto mas não autodepreciativo
 
 Exemplo de estilo:
-"As limitações do estudo devem ser reconhecidas. Primeiramente, os resultados são condicionados aos julgamentos do painel de especialistas consultados, cuja representatividade setorial, embora adequada, não é exaustiva. A análise de sensibilidade adotou abordagem univariada (OAT), que, embora apropriada para verificações práticas, não captura correlações complexas entre os critérios que poderiam ser exploradas por métodos estocásticos."
+"As limitações do estudo devem ser reconhecidas. Primeiramente, os resultados são condicionados aos julgamentos do painel de especialistas consultados, cuja representatividade setorial, embora adequada, não é exaustiva. A análise de sensibilidade adotou busca contínua dos pontos de inflexão (Triantaphyllou & Sánchez, 1997; Alizadeh et al., 2020), que, embora apropriada para verificações práticas, não captura correlações cruzadas entre os critérios que poderiam ser exploradas por métodos estocásticos como Monte Carlo ou Fuzzy-AHP."
 
 **Parágrafo 5 - Trabalhos Futuros:**
 - Sugira extensões metodológicas: Fuzzy-AHP (para incerteza), ANP (para interdependências), Simulação de Monte Carlo (para análise global)
@@ -324,11 +324,11 @@ Quando apropriado (USE SEMPRE QUE O TÓPICO FOR MENCIONADO):
 - Saaty & Vargas (1984) - Rank Reversal no AHP
 - Belton & Gear (1983) - crítica clássica de Rank Reversal
 - Forman & Peniwati (1998) - agregação AIJ/AIP, média geométrica
-- Tramarico et al. (2022) - estrutura de subcritérios I4.0 e BOCR
-- Tortorella et al. (2019) - ganhos de produtividade com I4.0 no setor automotivo
-- Ghobakhloo (2018) - barreiras e drivers da digitalização industrial
-- Xu et al. (2021) - Indústria 5.0: integração homem-máquina e sustentabilidade
-- Breque et al. (2021) - Comissão Europeia sobre Indústria 5.0
+- Petrillo et al. (2023) - revisão secundária da literatura I4.0 e BOCR
+- Alizadeh et al. (2020) - busca contínua de inflexões em AHP-BOCR
+- Ishizaka & Labib (2011) - revisão de aplicações AHP em decisão multicritério
+- Wijnmalen (2007) - síntese subtrativa BOCR e comensurabilidade entre méritos
+- Saaty (1977) - fundamentos da escala de razão e método AHP
 - Triantaphyllou & Sánchez (1997) - análise de sensibilidade em MCDM
 
 REGRA: Se o tópico exige citação e nenhuma das referências acima é aplicável, NÃO faça a afirmação. Prefira silêncio a citação vaga.
@@ -483,7 +483,7 @@ Com base nos dados acima, escreva as seções completas de:
    - Retomada e resultado principal
    - Explicação qualitativa conectada à teoria de I4.0
    - Contribuição teórica e prática
-   - Limitações metodológicas (OAT, subjetividade, amostra)
+   - Limitações metodológicas (subjetividade dos julgamentos, tamanho da amostra)
    - Trabalhos futuros (Fuzzy-AHP, ANP, Monte Carlo)
 
 ## REGRAS DE ESTILO OBRIGATÓRIAS (PADRÃO OMEGA/EJOR)
@@ -522,7 +522,7 @@ Com base nos dados acima, escreva as seções completas de:
 ### Termos Técnicos Obrigatórios:
 - Consistency Ratio (CR), Trade-off, Rank Reversal
 - Prioridade Local, Prioridade Global, Convergência metodológica
-- Zona de estabilidade, Análise univariada (OAT), Comensurabilidade
+- Zona de estabilidade, Análise contínua de inflexões, Comensurabilidade
 
 ### Formato:
 - NÃO use bullets ou listas numeradas
@@ -574,8 +574,8 @@ ${tablesBlock}`
           const sensKeywords = [
             table6Content.substring(0, 50), // Início da Tabela 6 já inserida
             'análise de sensibilidade foi conduzida',
-            'variação sistemática univariada',
-            'OAT - One-at-a-Time',
+            'pontos de inflexão',
+            'metodologia contínua',
             'sensibilidade dos pesos'
           ];
 
@@ -862,8 +862,6 @@ function prepareDataContext(calc: any, context: any) {
 
     analise_sensibilidade: sensibilidade,
 
-    // NOVO: Análise de sensibilidade expandida com cenários
-    analise_sensibilidade_expandida: generateExpandedSensitivity(calc, alternatives),
 
     formulas_sintese: {
       aditiva: 'Score = b×B + o×O + c×(1-C) + r×(1-R)',
@@ -930,117 +928,7 @@ function classifySensitivity(inflections: any): string {
 }
 
 // ============================================================
-// ANÁLISE DE SENSIBILIDADE EXPANDIDA
-// Calcula cenários de variação ±5%, ±10%, ±20% para cada peso BOCR
 // ============================================================
-
-function generateExpandedSensitivity(calc: any, alternatives: any[]): any {
-  const bocrWeights = calc.bocrWeights || [0.25, 0.25, 0.25, 0.25];
-  const finalScores = calc.finalScores || [];
-
-  if (finalScores.length < 2) {
-    return { disponivel: false, motivo: 'Necessário pelo menos 2 alternativas' };
-  }
-
-  const meritLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
-  const meritKeys = ['B', 'O', 'C', 'R'];
-  const variations = [-20, -10, -5, 0, 5, 10, 20]; // Porcentagens de variação
-
-  // Função para recalcular score com pesos modificados
-  const calculateScoreWithWeights = (alt: any, weights: number[]): number => {
-    const [b, o, c, r] = weights;
-    const B = alt.B || 0;
-    const O = alt.O || 0;
-    const C = alt.C || 0;
-    const R = alt.R || 0;
-    // Fórmula subtrativa de Wijnmalen
-    return b * B + o * O - c * C - r * R;
-  };
-
-  // Análise por mérito
-  const analise_por_merito: any = {};
-
-  meritKeys.forEach((merit, mIdx) => {
-    const cenarios: any[] = [];
-
-    variations.forEach(variation => {
-      // Criar cópia dos pesos e modificar o peso do mérito atual
-      const newWeights = [...bocrWeights];
-      const delta = bocrWeights[mIdx] * (variation / 100);
-      newWeights[mIdx] = Math.max(0.01, Math.min(0.99, bocrWeights[mIdx] + delta));
-
-      // Renormalizar para somar 1
-      const sum = newWeights.reduce((a, b) => a + b, 0);
-      const normalizedWeights = newWeights.map(w => w / sum);
-
-      // Calcular scores com novos pesos
-      type ScoreItem = { codigo: string; nome: string; score: number };
-      const scores: ScoreItem[] = finalScores.map((alt: any) => ({
-        codigo: alt.code,
-        nome: alt.name,
-        score: calculateScoreWithWeights(alt, normalizedWeights)
-      }));
-
-      // Ordenar por score (maior primeiro)
-      scores.sort((a, b) => b.score - a.score);
-
-      cenarios.push({
-        variacao: variation === 0 ? 'Base' : `${variation > 0 ? '+' : ''}${variation}%`,
-        peso_modificado: (normalizedWeights[mIdx] * 100).toFixed(1) + '%',
-        ranking: scores.map((s, idx) => `${idx + 1}º ${s.codigo}`).join(' > '),
-        vencedor: scores[0].codigo,
-        diferenca_1o_2o: scores.length >= 2
-          ? ((scores[0].score - scores[1].score) * 100).toFixed(2) + '%'
-          : 'N/A'
-      });
-    });
-
-    // Verificar se houve inversão de ranking
-    const baseWinner = cenarios.find(c => c.variacao === 'Base')?.vencedor;
-    const inversoes = cenarios.filter(c => c.vencedor !== baseWinner);
-
-    analise_por_merito[meritLabels[mIdx]] = {
-      peso_atual: (bocrWeights[mIdx] * 100).toFixed(1) + '%',
-      cenarios,
-      inversoes_detectadas: inversoes.length,
-      estabilidade: inversoes.length === 0 ? 'Estável' :
-        inversoes.length <= 2 ? 'Sensível' : 'Crítico',
-      cenarios_com_inversao: inversoes.map(i => i.variacao)
-    };
-  });
-
-  // Resumo geral
-  const totalInversoes = Object.values(analise_por_merito)
-    .reduce((sum: number, m: any) => sum + (m.inversoes_detectadas || 0), 0) as number;
-
-  const meritosEstaveis = Object.entries(analise_por_merito)
-    .filter(([_, m]: [string, any]) => m.inversoes_detectadas === 0)
-    .map(([nome]: [string, any]) => nome);
-
-  const meritosCriticos = Object.entries(analise_por_merito)
-    .filter(([_, m]: [string, any]) => m.inversoes_detectadas >= 3)
-    .map(([nome]: [string, any]) => nome);
-
-  return {
-    disponivel: true,
-    metodologia: 'Variação sistemática de ±5%, ±10% e ±20% em cada peso BOCR com renormalização',
-    analise_por_merito,
-    resumo: {
-      total_cenarios_analisados: variations.length * 4,
-      total_inversoes_detectadas: totalInversoes,
-      classificacao_geral: totalInversoes === 0 ? 'Altamente Robusto' :
-        totalInversoes <= 4 ? 'Robusto' :
-          totalInversoes <= 8 ? 'Moderadamente Sensível' : 'Sensível',
-      meritos_estaveis: meritosEstaveis.length > 0 ? meritosEstaveis : ['Nenhum'],
-      meritos_criticos: meritosCriticos.length > 0 ? meritosCriticos : ['Nenhum'],
-      interpretacao: totalInversoes === 0
-        ? 'O ranking é altamente robusto e permanece inalterado em todos os cenários de variação testados.'
-        : totalInversoes <= 4
-          ? 'O ranking apresenta boa robustez, com inversões apenas em cenários extremos de variação.'
-          : 'O ranking é sensível a variações nos pesos BOCR. Recomenda-se cautela na interpretação.'
-    }
-  };
-}
 
 export async function GET() {
   return NextResponse.json({
@@ -1078,3 +966,5 @@ export async function GET() {
     ]
   });
 }
+
+
