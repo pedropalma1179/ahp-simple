@@ -36,3 +36,11 @@ next-env.d.ts
 
 # Temporary files for Antigravity prompts
 .tmp/
+
+# Investigation artifacts (07/mai/2026)
+*.log
+/articles-list*.txt
+/env-keys*.txt
+/estrutura*.txt
+/package-real.txt
+/rag-root*.txt
