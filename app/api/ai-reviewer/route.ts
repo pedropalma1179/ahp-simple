@@ -139,7 +139,6 @@ function getValidFinalScores(
 const MODEL_CONFIG = {
   id: 'claude-opus-4-6',
   maxTokens: 16000,  // Aumentado para análise mais profunda
-  temperature: 0.4,  // Um pouco mais criativo para análise qualitativa
   thinking: { type: 'adaptive' as const },
 };
 
@@ -1534,7 +1533,6 @@ Elabore agora a revisão de validação científica.`;
   const message = await client.messages.create({
     model: MODEL_CONFIG.id,
     max_tokens: MODEL_CONFIG.maxTokens,
-    temperature: MODEL_CONFIG.temperature,
     thinking: MODEL_CONFIG.thinking,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userPrompt }],
