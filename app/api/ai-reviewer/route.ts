@@ -8,6 +8,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getKnowledgeContext, getKnowledgeStats, getCriticalRefs, getRefsByTopic, getRAGThresholds, getRAGFormulas, getRAGBenchmarks } from './knowledge';
 import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-detection';
 import { analyzeDominance, buildDominancePromptSection } from '@/lib/analysis/dominanceAnalyzer';
+import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
 
 // ============================================================
 // VERSÃO E LOGGING (fonte única de verdade)
@@ -1684,6 +1685,11 @@ function validateReviewOutput(
       }
     }
   }
+
+  // 7. Verificar citações contra whitelist canônica dos 35 articles do RAG (D2)
+  const citationResult = validateCitationsAgainstWhitelist(review);
+  for (const issue of citationResult.issues) issues.push(issue);
+  for (const warning of citationResult.warnings) warnings.push(warning);
 
   return {
     isValid: issues.length === 0,
