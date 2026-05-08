@@ -137,9 +137,10 @@ function getValidFinalScores(
 // ============================================================
 
 const MODEL_CONFIG = {
-  id: 'claude-sonnet-4-5-20250929',
-  maxTokens: 12000,  // Aumentado para análise mais profunda
+  id: 'claude-opus-4-6',
+  maxTokens: 16000,  // Aumentado para análise mais profunda
   temperature: 0.4,  // Um pouco mais criativo para análise qualitativa
+  thinking: { type: 'adaptive' as const },
 };
 
 // ============================================================
@@ -1526,10 +1527,15 @@ Elabore agora a revisão de validação científica.`;
     console.log('[AI-REVIEWER] ⚠️ Seção de demographics: NÃO DISPONÍVEL');
   }
 
+  // LLM upgrade Phase 6.3.0a (08/mai/2026): Sonnet 4.5 → Opus 4.6 + adaptive thinking
+  // Ref: docs/RAG_DECISIONS.md v3 §2.3
+  // Breaking changes do Opus 4.7 (temperature/top_p/top_k removidos, prompts mais literais)
+  // inviáveis pré-defesa; Opus 4.6 é o sweet spot transitional model.
   const message = await client.messages.create({
     model: MODEL_CONFIG.id,
     max_tokens: MODEL_CONFIG.maxTokens,
     temperature: MODEL_CONFIG.temperature,
+    thinking: MODEL_CONFIG.thinking,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userPrompt }],
   });

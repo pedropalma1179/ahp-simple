@@ -12,7 +12,7 @@
     "test:rag:all": "npm run test:rag:embed && npm run test:rag:upstash"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.71.2",
+    "@anthropic-ai/sdk": "^0.95.1",
     "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-dialog": "^1.1.15",
     "@tanstack/react-table": "^8.21.3",
