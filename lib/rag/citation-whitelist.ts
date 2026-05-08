@@ -60,11 +60,16 @@ function normalize(s: string): string {
 
 function extractSurname(authorString: string): string {
   // bibtex format: "Surname, Given Names" OR "Given Names Surname"
+  let surname: string;
   if (authorString.includes(',')) {
-    return cleanLatex(authorString.split(',')[0].trim());
+    surname = authorString.split(',')[0].trim();
+  } else {
+    const parts = authorString.split(/\s+/).filter(Boolean);
+    surname = parts[parts.length - 1];
   }
-  const parts = authorString.split(/\s+/).filter(Boolean);
-  return cleanLatex(parts[parts.length - 1]);
+  // Strip generational suffixes: "Neely Jr" -> "Neely", "Smith III" -> "Smith"
+  surname = surname.replace(/\s+(Jr\.?|Sr\.?|II|III|IV|Filho|Neto)$/i, '').trim();
+  return cleanLatex(surname);
 }
 
 // ============================================================
@@ -136,7 +141,7 @@ interface ExtractedCitation {
  *   - Surnames with internal apostrophes (e.g. O'Brien) not supported
  */
 const CITATION_REGEX =
-  /(?<![A-Za-zÀ-ú])([A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+(?:\s*&\s*[A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+)?(?:\s+e\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+)?(?:\s+et\s+al\.?)?)\s*[\(,]\s*(\d{4})\b/g;
+  /(?<![A-Za-zÀ-ú\-'])([A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+(?:\s*&\s*[A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+)?(?:\s+e\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+)?(?:\s+et\s+al\.?)?)\s*[\(,]\s*(\d{4})\b/g;
 
 function extractCitations(text: string): ExtractedCitation[] {
   const out: ExtractedCitation[] = [];
@@ -252,15 +257,23 @@ export function validateCitationsAgainstWhitelist(text: string): CitationValidat
       continue;
     }
 
-    for (const article of exactMatches) {
-      let msg: string | null = null;
-      if (article.isCoauthored && !cit.hasCoauthor && !cit.hasEtAl) {
+    // Só dispara CITACAO_INCOMPLETA se TODOS os matches (sobrenome, ano) forem
+    // multi-autor. Se algum match for single-author, "Surname (Year)" é válido
+    // (a citação pode estar referindo-se a esse paper). Disambiguação contextual
+    // fica para a Camada 2 (SUBOPTIMAL_RULES).
+    const allMultiAuthor = exactMatches.every(
+      (a) => a.isCoauthored || a.isMultiAuthor,
+    );
+    if (allMultiAuthor && !cit.hasCoauthor && !cit.hasEtAl) {
+      const article = exactMatches[0];
+      let msg: string;
+      if (article.isCoauthored) {
         const second = article.secondarySurname ?? '?';
         msg = `CITACAO_INCOMPLETA: "${cit.match}" — paper coautorado com ${second}; cite como "${cit.surname} & ${second} (${cit.year})"`;
-      } else if (article.isMultiAuthor && !cit.hasEtAl) {
+      } else {
         msg = `CITACAO_INCOMPLETA: "${cit.match}" — paper tem ${article.authors.length} autores; cite como "${cit.surname} et al. (${cit.year})"`;
       }
-      if (msg && !seenWarnings.has(msg)) {
+      if (!seenWarnings.has(msg)) {
         warnings.push(msg);
         seenWarnings.add(msg);
         violations++;
