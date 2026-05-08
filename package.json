@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:rag:embed": "tsx scripts/test-rag-embed.ts",
+    "test:rag:upstash": "tsx scripts/test-rag-upstash.ts",
+    "test:rag:all": "npm run test:rag:embed && npm run test:rag:upstash"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.2",
@@ -14,6 +17,7 @@
     "@radix-ui/react-dialog": "^1.1.15",
     "@tanstack/react-table": "^8.21.3",
     "@types/d3": "^7.4.3",
+    "@upstash/vector": "^1.2.3",
     "ahp-lite": "^1.2.1",
     "d3": "^7.9.0",
     "echarts": "^6.0.0",
@@ -29,6 +33,7 @@
     "react-dom": "^18.0.0",
     "recharts": "^3.7.0",
     "simple-statistics": "^7.8.8",
+    "voyageai": "^0.2.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -36,11 +41,13 @@
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "autoprefixer": "^10.0.0",
+    "dotenv": "^17.4.2",
     "eslint": "^10.0.1",
     "jest": "^30.2.0",
     "postcss": "^8.0.0",
     "tailwindcss": "^3.0.0",
     "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0",
     "typescript": "^5.0.0"
   }
 }
