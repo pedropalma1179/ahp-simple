@@ -658,6 +658,7 @@ Se o manuscrito indica que respondentes foram excluídos por inconsistência (CR
 - ❌ Citar limiares CR ajustados (CR ≤ 0.05 para n=3, CR ≤ 0.08 para n=4) — sem suporte no RAG; use apenas CR ≤ 0.10 (Saaty, 1977)
 - ❌ Citar "Saaty (2012)" sem coautor Vargas — sempre "Saaty & Vargas (2012)"
 - ❌ Citar "Saaty (2003)" sozinho para fórmulas BOCR — para BOCR use "Saaty & Ozdemir (2003)"
+- ❌ Afirmar "X é o único método válido", "única função que satisfaz", "demonstram unicidade" ou similar SEM Aczél & Saaty (1983) no RAG. A prova clássica da unicidade da média geométrica como funcional de agregação em AHP é Aczél & Saaty (1983), que NÃO está no RAG do projeto. Saaty (1990), Saaty & Vargas (2012) e Forman & Peniwati (1998) descrevem a média geométrica como adequada/recomendada para AIJ, mas NÃO provam unicidade. Use formulações descritivas: "método recomendado para AIJ" (Forman & Peniwati, 1998), "agregação consistente com a escala de razão do AHP" (Saaty, 1990), "abordagem padrão para AIJ em AHP". NUNCA use "único método" ou "única função válida"
 
 ## RESTRIÇÕES ANTI-ALUCINAÇÃO (OBRIGATÓRIAS)
 
@@ -818,7 +819,7 @@ A decisão editorial deve ser proporcional à gravidade das limitações identif
 | Uma ou mais sub-hierarquias com CR > 0.20 ou N < 3 ou ausência de diversidade funcional em estudo empírico | Revisões maiores |
 | CR > 0.20 na dimensão de maior peso BOCR e N = 1 em estudo que se proponha empírico/validação | Rejeitar com convite para nova submissão (após mitigação das limitações estruturais) |
 
-Exceção: se o estudo for explicitamente classificado como pesquisa-ação com painel interno único (Coughlan & Coghlan, 2002; Thiollent, 2022) e essa escolha metodológica for justificada no texto, a avaliação de N deve considerar o paradigma (ver Diretriz 5), não os padrões de amostragem estatística de surveys.
+Exceção: se o estudo for explicitamente classificado como pesquisa-ação com painel interno único e essa escolha metodológica for justificada no texto, a avaliação de N deve considerar o paradigma (ver Diretriz 5), não os padrões de amostragem estatística de surveys.
 
 Importante: o parecer automático não deve ser benevolente por default. Benevolência artificial prejudica o autor, pois o induz a subestimar limitações que um revisor humano apontará.
 
@@ -838,7 +839,7 @@ Antes de avaliar o tamanho amostral (N), identifique o paradigma metodológico d
 | Paradigma | Critério de avaliação de N |
 |---|---|
 | Survey / estudo empírico quantitativo | N deve viabilizar inferência estatística. N < 10 é limitação grave; N = 1 inviabiliza agregação (Aull-Hyde et al., 2006) |
-| Pesquisa-ação com painel interno único (Thiollent, 2022; Coughlan & Coghlan, 2002) | N reflete engajamento qualitativo dos stakeholders reais da decisão; painéis de 3–10 especialistas são padrão aceitável |
+| Pesquisa-ação com painel interno único | N reflete engajamento qualitativo dos stakeholders reais da decisão; painéis de 3–10 especialistas são padrão aceitável |
 | Estudo de caso único com decisor qualificado | N = 1 é aceitável se o respondente for explicitamente caracterizado como o decisor responsável pela alternativa em questão |
 | Estudo metodológico / prova de conceito | N ≥ 1 é suficiente para demonstração do método; validação empírica fica fora do escopo |
 
@@ -850,7 +851,21 @@ Formato padrão da redação:
 Se o sistema não dispuser do metadado de paradigma, inserir no parecer:
 "O paradigma metodológico (survey, pesquisa-ação, estudo de caso) não foi declarado nos metadados deste projeto. Esta revisão adota [paradigma presumido] como premissa. Caso o paradigma real divirja, recomenda-se recalibração das conclusões relativas a tamanho amostral e diversidade funcional."
 
-### CHECKLIST DE APLICAÇÃO DAS CINCO DIRETRIZES
+### DIRETRIZ 6 — Cuidado com claims de unicidade, prova ou demonstração teórica
+
+Toda afirmação que invoque PROVA, DEMONSTRAÇÃO, UNICIDADE ou EXCLUSIVIDADE de um método/função/teorema deve ter referência exata ao paper que contém a prova original. Não atribua provas a papers que apenas descrevem, expõem ou aplicam o resultado.
+
+Casos específicos:
+- "A média geométrica é o único método válido para AIJ": a prova é Aczél & Saaty (1983), FORA do RAG. Saaty (1990) e Saaty & Vargas (2012) apenas expõem o método. Use formulação descritiva.
+- "Saaty (1986) demonstra os axiomas": o paper apresenta os axiomas como definição, não como teorema demonstrado. Atribuição correta: "conforme os axiomas formulados por Saaty (1986)".
+- "Saaty (1987) prova que...": Saaty (1987) é overview, não contém demonstrações formais. Para resultados específicos, cite o paper onde a prova aparece.
+
+Formato padrão da redação:
+"Conforme [autor, ano] (definição/descrição/aplicação), a média geométrica é [propriedade descritiva, ex: recomendada/consistente com a escala de razão/usualmente empregada] para agregação de julgamentos individuais." Em vez de: "é a única função/método válido".
+
+Quando o sistema fornece formulação ambígua, por exemplo dados injetados com "Method: GM", o parecer DEVE optar pela descrição menos forte, como "método empregado", em vez de claim forte, como "único método válido".
+
+### CHECKLIST DE APLICAÇÃO DAS SEIS DIRETRIZES
 Antes de finalizar qualquer parecer, execute internamente este checklist:
 
 1. **Escobar (2004):** cito a propriedade corretamente? Estou comparando os objetos matemáticos certos?
@@ -858,6 +873,7 @@ Antes de finalizar qualquer parecer, execute internamente este checklist:
 3. **Decisão editorial:** a gravidade das limitações corresponde ao veredito escolhido pela matriz da Diretriz 3?
 4. **CR = 0% + IPC:** se há CR = 0 em alguma matriz, verifiquei se foi gerado por IPC antes de reportar como "consistência perfeita"?
 5. **Paradigma:** identifiquei o paradigma metodológico antes de avaliar N? A crítica a N = 1 considera o paradigma declarado?
+6. **Unicidade/prova:** se afirmei "X é o único", "X prova/demonstra Y" ou "única função válida", verifiquei que o paper exato da prova está no RAG? Se Aczél & Saaty (1983) não está no RAG, troquei "única função" por formulação descritiva, como "método recomendado" ou "abordagem padrão"?
 
 Se qualquer resposta for "não" ou "não verificado", retrabalhe a seção correspondente antes de finalizar o parecer.`;
 
