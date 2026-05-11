@@ -141,7 +141,7 @@ interface ExtractedCitation {
  *   - Surnames with internal apostrophes (e.g. O'Brien) not supported
  */
 const CITATION_REGEX =
-  /(?<![A-Za-zÀ-ú\-'])([A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+(?:\s*&\s*[A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+)?(?:\s+e\s+[A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+)?(?:\s+et\s+al\.?)?)\s*[\(,]\s*(\d{4})\b/g;
+  /(?<![\p{L}\-'])([\p{Lu}][\p{Ll}\-]+(?:,\s*[\p{Lu}][\p{Ll}\-]+)*(?:\s*&\s*[\p{Lu}][\p{Ll}\-]+)?(?:\s+e\s+[\p{Lu}][\p{Ll}\-]+)?(?:\s+et\s+al\.?)?)\s*[\(,]\s*(\d{4})\b/gu;
 
 function extractCitations(text: string): ExtractedCitation[] {
   const out: ExtractedCitation[] = [];
@@ -152,13 +152,13 @@ function extractCitations(text: string): ExtractedCitation[] {
     const year = parseInt(m[2], 10);
     if (isNaN(year) || year < 1900 || year > 2100) continue;
 
-    const surnameMatch = /^[A-ZÁÉÍÓÚÂÊÔÃÕÇÑ][a-záéíóúâêôãõçñ\-]+/.exec(full);
+    const surnameMatch = /^[\p{Lu}][\p{Ll}\-]+/u.exec(full);
     if (!surnameMatch) continue;
 
     out.push({
       match: m[0],
       surname: surnameMatch[0],
-      hasCoauthor: /\s*&\s*[A-Z]|\s+e\s+[A-Z]/.test(full),
+      hasCoauthor: /\s*&\s*\p{Lu}|\s+e\s+\p{Lu}/u.test(full),
       hasEtAl: /et\s+al/.test(full),
       year,
       index: m.index,
@@ -198,6 +198,15 @@ const SUBOPTIMAL_RULES: SuboptimalRule[] = [
     buildMessage: (m) =>
       `ATRIBUICAO_SUBOTIMA: "${m}" próximo de claim de prova/unicidade — Saaty (1987) é overview, não contém demonstração formal de unicidade. A prova clássica da média geométrica é Aczél & Saaty (1983), fora do RAG.`,
   },
+  {
+    id: 'SAATY_1990_UNICITY',
+    citationPattern: /Saaty\s*\(\s*1990\s*\)/g,
+    contextWindow: 250,
+    contextPattern:
+      /[úu]nica\s+fun[çc][ãa]o|[úu]nico\s+m[eé]todo|[úu]nica\s+abordagem|prova[mr]?\s+que|demonstram\s+que|unicidade|teorema/i,
+    buildMessage: (m) =>
+      `ATRIBUICAO_SUBOTIMA: "${m}" próximo de claim de prova/unicidade — Saaty (1990) introduz a média geométrica como método de agregação em grupo, mas NÃO prova unicidade. A prova clássica da função de agregação é Aczél & Saaty (1983), fora do RAG.`,
+  },
 ];
 
 function detectSuboptimalAttributions(text: string): string[] {
@@ -218,12 +227,47 @@ function detectSuboptimalAttributions(text: string): string[] {
 }
 
 // ============================================================
+// Layer 3: secondary citations exception ("(citando X)", "(apud Y)")
+// ============================================================
+
+/**
+ * Strips secondary citation markers from text before whitelist validation.
+ *
+ * Patterns handled (case-insensitive):
+ *   - "(citando Miller, 1956)"
+ *   - "(citado por Brown, 2020)"
+ *   - "(apud Smith, 1999)"
+ *   - "(conforme citado por Jones, 2015)"
+ *
+ * Rationale: when the LLM cites a primary author (e.g. Saaty 1977) and the
+ * primary paper itself references a secondary work (e.g. Miller 1956 for
+ * cognitive load 7±2), the SYSTEM_PROMPT explicitly authorizes mentioning
+ * the secondary. Without this strip, the validator would flag the secondary
+ * as CITACAO_FORA_WHITELIST.
+ *
+ * The primary citation (outside the parens) is NOT stripped and remains
+ * subject to whitelist + suboptimal-rule validation.
+ *
+ * Phase 6.3.0a — B3 hotfix.
+ */
+function stripSecondaryCitations(text: string): string {
+  return text.replace(
+    /\(\s*(?:citando|citado\s+por|apud|conforme\s+citado\s+por)\b[^)]*\)/gi,
+    '',
+  );
+}
+
+// ============================================================
 // Public validator
 // ============================================================
 
 export function validateCitationsAgainstWhitelist(text: string): CitationValidationResult {
   const whitelist = buildWhitelist();
-  const citations = extractCitations(text);
+  // B3: strip secondary citations ("(citando Miller, 1956)" etc.) before validation
+  // to avoid false positives when the LLM correctly mentions a secondary source
+  // authorized by the SYSTEM_PROMPT (e.g. Miller 1956 cited inside Saaty 1977).
+  const cleanedText = stripSecondaryCitations(text);
+  const citations = extractCitations(cleanedText);
 
   const issues: string[] = [];
   const warnings: string[] = [];
@@ -281,7 +325,7 @@ export function validateCitationsAgainstWhitelist(text: string): CitationValidat
     }
   }
 
-  for (const w of detectSuboptimalAttributions(text)) {
+  for (const w of detectSuboptimalAttributions(cleanedText)) {
     if (!seenWarnings.has(w)) {
       warnings.push(w);
       seenWarnings.add(w);
