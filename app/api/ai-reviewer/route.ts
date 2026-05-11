@@ -690,6 +690,54 @@ Se o manuscrito indica que respondentes foram excluídos por inconsistência (CR
 6. **RANKING FINAL:** Ao reportar o ranking das alternativas, use APENAS os scores da seção DADOS DO SISTEMA.
    NUNCA reordene, recalcule ou invente scores.
 
+## REGRA DE CITAÇÃO COM VERBATIM (Citation-Enforced Prompting)
+
+Toda referência a paper do RAG no Parecer DEVE incluir o **verbatim_quote** correspondente na PRIMEIRA APARIÇÃO daquele paper. Citações subsequentes ao mesmo paper, no mesmo Parecer, podem ser simples (sem repetir o quote). Esta regra implementa citation-enforced prompting (Pawlik & Deniziak, 2026), que demonstra redução substancial de alucinações em sistemas RAG-XAI quando o LLM ancora afirmações em verbatim textual em vez de paráfrase solta.
+
+### Onde extrair os quotes
+
+Os articles do RAG fornecem múltiplos campos com quotes textuais. Use o campo mais específico ao claim sendo feito:
+
+- "key_claims[i].verbatim_quote" — claim geral em sentença textual
+- "key_claims[i].evidence.quote" — alternativa, quando verbatim_quote ausente
+- "thresholds[i].evidence.quote" — para limiares (ex: CR ≤ 0.10)
+- "formulas[i].evidence.quote" — para fórmulas matemáticas
+- "tables_figures[i].evidence.quote" — para dados tabulares
+- "recommendations[i]" (texto direto) — quando o paper recomenda explicitamente
+
+Inclua sempre o número da página, do campo "evidence.page" ou equivalente. Se a página não está disponível no RAG, omita "p. N" mas mantenha o quote.
+
+### Formatos aceitos
+
+Escolha o formato conforme o contexto, sem restrição rígida:
+
+**(a) Inline curto** — quando o quote é breve e a frase flui:
+"Conforme Saaty (1977, p. 248), 'require the ratio to be very small; e.g., of the order of 0.1', o CR observado (1.06%) atende com folga."
+
+**(b) Blockquote** — quando o quote é longo ou requer destaque visual:
+Conforme Wijnmalen (2007, p. 250):
+
+> "synthesis requires commensurate priorities on a common scale"
+
+A fórmula implementada atende este requisito mediante rescaling weights (s).
+
+**(c) Parenthetical** — quando o quote complementa em vez de ancorar a frase:
+"A média geométrica é o método recomendado para AIJ (Forman & Peniwati, 1998, p. 167: 'the geometric mean is the only mathematically correct way to combine ratio scale judgments')."
+
+### Exceções (não exigem verbatim)
+
+1. **Aparições subsequentes**: depois da primeira aparição com verbatim, citações simples ao mesmo paper estão permitidas. Ex: "conforme Saaty (1977) discutido acima", "novamente Saaty (1977)", "(Saaty, 1977)".
+
+2. **Comparações em série**: ao comparar pesos/benchmarks com múltiplos papers já citados, citações simples sem repetir verbatim são aceitas, DESDE QUE todos os papers comparados tenham sido citados com verbatim em algum ponto anterior do Parecer. Ex: "Os pesos observados (B=37%) alinham-se com Kabak (2014) e divergem de Mu (2016)" — válido se Kabak e Mu já apareceram com verbatim acima.
+
+3. **Citações secundárias**: padrões como "(citando Miller, 1956)" não exigem verbatim — o paper primário (ex: Saaty, 1977) é que precisa de verbatim na sua primeira aparição.
+
+4. **Listas/tabelas bibliográficas**: tabelas que listam referências para auditoria não exigem verbatim em cada célula.
+
+### AFIRMAÇÃO PROIBIDA ADICIONAL
+
+- ❌ Citar paper do RAG em afirmação técnica (limiar, fórmula, axioma, recomendação, dado empírico, propriedade matemática) SEM o verbatim_quote correspondente em sua PRIMEIRA aparição no Parecer. Se o quote não está disponível no RAG, reformule a afirmação para usar formulação descritiva genérica em vez de atribuir ao paper.
+
 **ESTRUTURA OBRIGATÓRIA DA REVISÃO:**
 
 ## 📋 RESUMO DA SUBMISSÃO
@@ -865,8 +913,8 @@ Formato padrão da redação:
 
 Quando o sistema fornece formulação ambígua, por exemplo dados injetados com "Method: GM", o parecer DEVE optar pela descrição menos forte, como "método empregado", em vez de claim forte, como "único método válido".
 
-### CHECKLIST DE APLICAÇÃO DAS SEIS DIRETRIZES
-Antes de finalizar qualquer parecer, execute internamente este checklist:
+### CHECKLIST DE QUALIDADE PRÉ-FINALIZAÇÃO
+Antes de finalizar qualquer parecer, execute internamente este checklist (6 diretrizes + regra de verbatim):
 
 1. **Escobar (2004):** cito a propriedade corretamente? Estou comparando os objetos matemáticos certos?
 2. **Sensibilidade + CR crítico:** se há CR > 0.10 em alguma sub-hierarquia e sensibilidade estável, qualifiquei a estabilidade?
@@ -874,6 +922,7 @@ Antes de finalizar qualquer parecer, execute internamente este checklist:
 4. **CR = 0% + IPC:** se há CR = 0 em alguma matriz, verifiquei se foi gerado por IPC antes de reportar como "consistência perfeita"?
 5. **Paradigma:** identifiquei o paradigma metodológico antes de avaliar N? A crítica a N = 1 considera o paradigma declarado?
 6. **Unicidade/prova:** se afirmei "X é o único", "X prova/demonstra Y" ou "única função válida", verifiquei que o paper exato da prova está no RAG? Se Aczél & Saaty (1983) não está no RAG, troquei "única função" por formulação descritiva, como "método recomendado" ou "abordagem padrão"?
+7. **Verbatim:** toda referência ao RAG, em afirmação técnica, tem o verbatim_quote citado em sua primeira aparição no Parecer? Para cada paper citado pela primeira vez no texto, busquei o quote no campo apropriado (verbatim_quote em key_claims, evidence.quote em thresholds/formulas/tables_figures) e incluí com a página (quando disponível)?
 
 Se qualquer resposta for "não" ou "não verificado", retrabalhe a seção correspondente antes de finalizar o parecer.`;
 
