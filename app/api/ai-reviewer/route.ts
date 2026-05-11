@@ -11,6 +11,16 @@ import { analyzeDominance, buildDominancePromptSection } from '@/lib/analysis/do
 import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
 
 // ============================================================
+// VERCEL FUNCTION CONFIG
+// ============================================================
+// Eleva limite de execução da função serverless para o máximo permitido no
+// Vercel Pro tier (800s). Necessário porque o LLM Opus 4.6 com adaptive
+// thinking + citation-enforced prompting (D1.4) pode exigir 2-5 minutos para
+// gerar um Parecer completo com verbatim_quote em ~10-15 papers do RAG.
+// Default do Vercel é 300s — insuficiente após Commit 4 (02b4b1d3).
+export const maxDuration = 800;
+
+// ============================================================
 // VERSÃO E LOGGING (fonte única de verdade)
 // ============================================================
 const API_VERSION = '7.2.0';
@@ -140,7 +150,11 @@ function getValidFinalScores(
 const MODEL_CONFIG = {
   id: 'claude-opus-4-6',
   maxTokens: 16000,  // Aumentado para análise mais profunda
-  thinking: { type: 'adaptive' as const },
+  // Hotfix pós-Commit 4 (02b4b1d3): adaptive thinking expandia
+  // indefinidamente com a regra D1.4 de verbatim_quote, causando 504 timeout.
+  // Budget explícito de 5000 tokens limita o raciocínio interno, mantendo
+  // qualidade (a regra D1.4 já estrutura os passos) e cabendo em <800s.
+  thinking: { type: 'enabled' as const, budget_tokens: 5000 },
 };
 
 // ============================================================
