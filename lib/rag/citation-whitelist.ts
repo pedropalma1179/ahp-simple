@@ -281,6 +281,28 @@ export function validateCitationsAgainstWhitelist(text: string): CitationValidat
       (e) => normalize(e.primarySurname) === norm && e.year === cit.year,
     );
 
+    // D2.4: fallback chain for ABNT-with-prefix patterns.
+    // The D2.2 regex (commit c98510f) added support for "Surname1, Surname2 & Surname3"
+    // ABNT long format. But it also matches sentences starting with a capitalized
+    // adverb followed by a comma, e.g. "Adicionalmente, Saaty & Vargas (2012)".
+    // In that case the primary surname extracted is "Adicionalmente" (not in RAG).
+    // Try the token immediately after the first comma as fallback. If it matches
+    // the whitelist for the same year, the citation is valid — skip the false positive.
+    if (exactMatches.length === 0 && cit.match.includes(',')) {
+      const afterCommaMatch = /,\s*(\p{Lu}[\p{Ll}\-]+)/u.exec(cit.match);
+      if (afterCommaMatch) {
+        const fallbackSurname = afterCommaMatch[1];
+        const fallbackNorm = normalize(fallbackSurname);
+        const fallbackMatches = whitelist.filter(
+          (e) => normalize(e.primarySurname) === fallbackNorm && e.year === cit.year,
+        );
+        if (fallbackMatches.length > 0) {
+          // Valid citation with adverbial/transitional prefix — skip false positive.
+          continue;
+        }
+      }
+    }
+
     if (exactMatches.length === 0) {
       const surnameInWhitelist = whitelist.some((e) => normalize(e.primarySurname) === norm);
       let msg: string;
