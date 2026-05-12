@@ -30,6 +30,7 @@ import demirtas2008_integrated from './articles/demirtas2008_integrated';
 import dodevska2023when from './articles/dodevska2023when';
 import escobar2004_note from './articles/escobar2004_note';
 import forman1998_aggregating from './articles/forman1998_aggregating';
+import goepel2018_ahpos from './articles/goepel2018_ahpos';
 import harker1987_incomplete from './articles/harker1987_incomplete';
 import ishizaka2011review from './articles/ishizaka2011review';
 import kabak2014_prioritization from './articles/kabak2014_prioritization';
@@ -71,6 +72,7 @@ const ARTICLES: ArticleExtraction[] = [
   dodevska2023when,
   escobar2004_note,
   forman1998_aggregating,
+  goepel2018_ahpos,
   harker1987_incomplete,
   ishizaka2011review,
   kabak2014_prioritization,
