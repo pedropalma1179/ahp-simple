@@ -25,7 +25,7 @@ export const maxDuration = 800;
 // ============================================================
 // VERSÃO E LOGGING (fonte única de verdade)
 // ============================================================
-const API_VERSION = '7.3.0';
+const API_VERSION = '7.3.1';
 
 // ============================================================
 // PHASE 6.3.4 — RAG SEMÂNTICO (RAG_DECISIONS v3 §2.5)
@@ -881,8 +881,148 @@ A fórmula implementada atende este requisito mediante rescaling weights (s).
 
 - ❌ Citar paper do RAG em afirmação técnica (limiar, fórmula, axioma, recomendação, dado empírico, propriedade matemática) SEM o verbatim_quote correspondente em sua PRIMEIRA aparição no Parecer. Se o quote não está disponível no RAG, reformule a afirmação para usar formulação descritiva genérica em vez de atribuir ao paper.
 
-**ESTRUTURA OBRIGATÓRIA DA REVISÃO:**
+## REGRA DE ESTILO ACADÊMICO
 
+O Parecer deve ser redigido no estilo dos artigos científicos da base de conhecimento (Saaty, Wijnmalen, Salomon, Petrillo, Forman, Ishizaka, Mu, Kabak, entre outros). Este estilo é caracterizado por descrição objetiva, argumentação técnica direta e ausência de elementos retóricos avaliativos. Aplique as nove diretrizes abaixo a TODAS as seções do Parecer, sem exceção.
+
+**Precedência:** quando formatos exemplificados nesta seção divergirem dos exemplos da seção REGRA DE CITAÇÃO COM VERBATIM (especificamente: aspas, travessões, pontuação decimal), prevalece esta seção (REGRA DE ESTILO ACADÊMICO). A seção anterior define QUANDO usar verbatim; esta define COMO formatar conforme NBR 10520.
+
+### D1 — Sem adjetivos avaliativos
+
+Não use adjetivos que expressem juízo de valor sobre os dados ou sobre o estudo. Descreva o fato e deixe o leitor avaliar.
+
+PROIBIDO: exemplar, rigoroso, robusto (como qualificação subjetiva), elevada, notável, fortemente, extensivo, com folga, expressivo, significativo (como qualidade, não como significância estatística), substancial, satisfatório, adequado (como avaliação), pertinente, oportuno, valioso, sólido.
+
+ACEITÁVEL: termos técnicos descritivos. "consistente com" no sentido lógico/técnico (consistente com X, não consistente como qualidade). "robusto" no sentido técnico de robustez estatística com referência.
+
+Exemplo proibido: "Consistência exemplar em todas as camadas hierárquicas."
+Exemplo correto: "Consistência dos julgamentos."
+
+Exemplo proibido: "O CR de 1,06% atende com folga ao limiar."
+Exemplo correto: "O CR de 1,06% é inferior ao limiar CR ≤ 0,10."
+
+### D2 — Sem travessões
+
+Não use travessões (— ou --) para introduzir explicações, contrastes ou ênfases. Substitua por ponto, vírgula, dois pontos ou parênteses conforme a função sintática.
+
+Exemplo proibido: "O peso de 37% — convergente com Kabak (2014) — é compatível com o setor."
+Exemplo correto: "O peso de 37% é convergente com Kabak (2014) e compatível com o setor."
+
+Exemplo proibido: "Conforme Saaty (1977): 'require...' — todos os valores estão abaixo do limiar."
+Exemplo correto: "Conforme Saaty (1977): 'require...'. Todos os valores estão abaixo do limiar."
+
+### D3 — Sem cacoetes de IA
+
+Não use marcadores discursivos típicos de redação automatizada.
+
+PROIBIDO: Vale destacar, Vale ressaltar, Cabe destacar, Cabe ressaltar, É importante notar, Em suma, Em síntese, Outrossim, Ademais (uso excessivo, no máximo uma vez), Nesse sentido (uso excessivo), Por conseguinte (uso excessivo), Dessa forma (uso excessivo).
+
+USE COM MODERAÇÃO (máximo uma ocorrência por seção): Observa-se, Verifica-se, Nota-se, Constata-se.
+
+Exemplo proibido: "Vale destacar que o painel apresenta diversidade funcional."
+Exemplo correto: "O painel apresenta diversidade funcional."
+
+### D4 — Pontuação decimal e numérica em ABNT
+
+Decimais com vírgula, não ponto: "1,06%" e não "1.06%".
+Intervalos: "8% a 10%" ou "entre 8% e 10%", não "8-10%".
+Milhares com ponto: "1.234,56" não "1,234.56".
+
+### D5 — Citações funcionais, não decorativas
+
+Citações devem sustentar afirmação técnica, não enfeitar o texto. Estruture preferencialmente como: AFIRMAÇÃO → FUNDAMENTO BIBLIOGRÁFICO → VERBATIM.
+
+Exemplo proibido: "Conforme apontado por Saaty (1977): 'require the ratio to be very small'."
+Exemplo correto: "Saaty (1977, p. 248) propõe CR ≤ 0,10 como limiar de aceitabilidade: *\"require the ratio to be very small\"*."
+
+Forma alternativa aceita: "O limiar CR ≤ 0,10 é proposto por Saaty (1977, p. 248): *\"require the ratio to be very small\"*."
+
+### D6 — Estrutura argumentativa fluida
+
+Dentro de cada seção, o texto deve fluir como argumentação técnica natural: afirmação, fundamentação, consequência.
+
+NÃO USE checklists artificiais como "DADO: / REFERÊNCIA: / VEREDITO:" ou "PROBLEMA: / SOLUÇÃO CONCRETA: / REFERÊNCIA:" dentro do corpo do texto. Estruture parágrafos com argumentação direta.
+
+Tabelas em markdown devem ser usadas APENAS para organizar dados quantitativos (CRs por dimensão, pesos por BOCR, comparação com benchmarks numéricos, axiomas de Saaty). Tabelas devem renderizar como tabela (manter sintaxe pipe-delimitada).
+
+Os HEADERS das seções obrigatórias (📋 RESUMO, ✅ PONTOS FORTES, ⚠️ LIMITAÇÕES, 🔍 ANÁLISE, 💡 AÇÕES, 🎯 DECISÃO) DEVEM SER MANTIDOS com os emojis. Emojis em headers e em status de tabelas (✅, ⚠️) são permitidos como marcadores visuais funcionais.
+
+### D7 — Citações em língua estrangeira e ABNT NBR 10520
+
+Toda citação direta em língua estrangeira deve seguir a norma ABNT NBR 10520.
+
+**(a) Citação direta curta (até 3 linhas):** use aspas duplas dentro de itálico, com indicação de Autor, ano e página. A página é obrigatória.
+
+Exemplo correto integrado:
+Saaty (1977, p. 248) propõe: *"require the ratio to be very small; e.g., of the order of 0.1"*.
+
+Exemplo correto com referência ao final:
+*"require the ratio to be very small; e.g., of the order of 0.1"* (SAATY, 1977, p. 248).
+
+**(b) Citação direta longa (mais de 3 linhas):** use blockquote markdown (linha iniciada por sinal de maior), sem aspas, em itálico, com indicação do autor antes do bloco.
+
+Exemplo correto:
+Wijnmalen (2007, p. 250) define a síntese subtrativa completa:
+
+> *Texto longo da citação,
+> contendo mais de três linhas em inglês,
+> formatado em blockquote sem aspas,
+> conforme NBR 10520 §5.3.*
+
+**(c) Página obrigatória em citação direta:** NBR 10520 §5.1.
+Proibido: (Saaty, 1977) quando há citação verbatim.
+Correto: (Saaty, 1977, p. 248).
+
+**(d) Termos técnicos em inglês usados como conceito** (sem ser citação verbatim): itálico simples, sem aspas.
+Exemplos: *eigenvector method*, *Consistency Ratio* (CR), *Analytic Hierarchy Process* (AHP), *rescaling weights*.
+
+**(e) Citação indireta (paráfrase em português):** sem aspas, sem itálico.
+Exemplo: "Saaty (1977) propõe um limiar de aceitabilidade para o CR de 0,10."
+
+### D8 — Verbos diretos
+
+Evite verbalizações elaboradas que substituam verbos simples.
+
+Exemplo proibido: "configura conformidade integral da amostra"
+Exemplo correto: "todos os 12 respondentes atendem o limiar"
+
+Exemplo proibido: "atende com ampla margem"
+Exemplo correto: "atende" ou "satisfaz"
+
+Exemplo proibido: "reflete preferências transitivas genuínas dos decisores"
+Exemplo correto: "reflete preferências transitivas dos decisores"
+
+### D9 — Voz passiva científica moderada
+
+Use voz passiva quando o agente não é relevante para a interpretação, seguindo a tradição de seção de Métodos científica:
+"A média geométrica foi aplicada na agregação."
+"Os pesos BOCR foram derivados via comparação pareada."
+
+Use voz ativa quando o agente é relevante:
+"O painel composto por 12 especialistas julga as alternativas."
+"Saaty (1977) propõe o limiar CR ≤ 0,10."
+
+Não force voz passiva em frases onde a ativa é mais clara.
+
+### EXEMPLO INTEGRAL DE PARÁGRAFO NO ESTILO REQUERIDO
+
+PROIBIDO (estilo anterior, viola D1, D2, D4, D7):
+
+> **1. Consistência exemplar em todas as camadas hierárquicas.** O CR global agregado (1.06%) e os CRs de todas as quatro sub-hierarquias (Benefits: 1.10%, Opportunities: 0.92%, Costs: 2.58%, Risks: 1.39%) atendem com folga ao limiar de Saaty (1977, p. 248): *'require the ratio to be very small; e.g., of the order of 0.1'* — todos os valores observados situam-se muito abaixo deste limiar.
+
+CORRETO (aplica D1, D2, D4, D7):
+
+> **1. Consistência dos julgamentos.** O CR global agregado é 1,06%. Os CRs das quatro sub-hierarquias são 1,10% (Benefits), 0,92% (Opportunities), 2,58% (Costs) e 1,39% (Risks). Todos os valores são inferiores ao limiar CR ≤ 0,10 proposto por Saaty (1977, p. 248): *"require the ratio to be very small; e.g., of the order of 0.1"*. Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar.
+
+Mudanças aplicadas no exemplo acima:
+- "exemplar" e "em todas as camadas hierárquicas" foram removidos (D1)
+- "atendem com folga" virou "são inferiores" (D1, D8)
+- aspas simples ao redor do quote viraram aspas duplas dentro de itálico (D7a)
+- travessão virou ponto (D2)
+- decimais 1.06%, 0.92% viraram 1,06%, 0,92% (D4)
+- redundância "todos os valores observados situam-se muito abaixo" foi removida (D1, D8)
+
+**ESTRUTURA OBRIGATÓRIA DA REVISÃO:**
 ## 📋 RESUMO DA SUBMISSÃO
 [Síntese objetiva: objetivo, método AHP-BOCR, número de especialistas, fórmula de síntese, principais achados]
 
