@@ -9,6 +9,8 @@ import { getKnowledgeContext, getKnowledgeStats, getCriticalRefs, getRefsByTopic
 import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-detection';
 import { analyzeDominance, buildDominancePromptSection } from '@/lib/analysis/dominanceAnalyzer';
 import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
+import { getRAGSemantic } from '@/lib/rag/semantic-retrieve';
+import type { RetrievedChunk } from '@/lib/rag/upstash-client';
 
 // ============================================================
 // VERCEL FUNCTION CONFIG
@@ -23,7 +25,134 @@ export const maxDuration = 800;
 // ============================================================
 // VERSÃO E LOGGING (fonte única de verdade)
 // ============================================================
-const API_VERSION = '7.2.0';
+const API_VERSION = '7.3.0';
+
+// ============================================================
+// PHASE 6.3.4 — RAG SEMÂNTICO (RAG_DECISIONS v3 §2.5)
+// ============================================================
+// Feature flag: por default OFF. Habilitar em produção via:
+//   vercel env add USE_RAG_SEMANTIC true production
+// E aguardar redeploy. Quando OFF, getSemanticChunks() é no-op imediato
+// (zero custo, zero latência, zero risco de regressão).
+const USE_RAG_SEMANTIC = process.env.USE_RAG_SEMANTIC === 'true';
+
+// 5 queries fixas cobrindo os eixos estruturais do Parecer BOCR.
+// Decisão A2 do plano da Phase 6.3.4 (RAG_DECISIONS v3 §2.5).
+const RAG_SEMANTIC_QUERIES = [
+  'consistência julgamentos AHP CR Saaty',
+  'BOCR síntese fórmula subtrativa Wijnmalen comensurabilidade',
+  'análise sensibilidade ranking AHP estabilidade',
+  'agregação média geométrica AIJ Forman Saaty grupo',
+  'viés cognitivo painel decisão MCDM',
+] as const;
+
+const RAG_SEMANTIC_TOPK_PER_QUERY = 5;
+const RAG_SEMANTIC_MAX_PER_ARTICLE = 3; // Cap por paper (decisão A3)
+const RAG_SEMANTIC_FINAL_TOPK = 20;     // Total injetado no prompt (decisão A4)
+
+interface SemanticStats {
+  enabled: boolean;
+  queriesRan: number;
+  rawChunks: number;
+  uniqueChunks: number;
+  finalChunks: number;
+  uniqueArticles: number;
+  topScore: number | null;
+  failedQueries: number;
+}
+
+const EMPTY_SEMANTIC_STATS: SemanticStats = {
+  enabled: false,
+  queriesRan: 0,
+  rawChunks: 0,
+  uniqueChunks: 0,
+  finalChunks: 0,
+  uniqueArticles: 0,
+  topScore: null,
+  failedQueries: 0,
+};
+
+/**
+ * Executa 5 queries semânticas em paralelo, deduplica por chunk_id,
+ * aplica cap de 3 por article_id, e retorna top 20 com estatísticas.
+ *
+ * Failover: getRAGSemantic já trata Voyage/Upstash down com silent failover
+ * (retorna []). Mesmo se TODAS as queries falharem, esta função retorna
+ * { chunks: [], stats: { failedQueries: 5 } } sem lançar exceção.
+ *
+ * Quando USE_RAG_SEMANTIC = false, retorna no-op imediato (zero custo).
+ */
+async function getSemanticChunks(): Promise<{ chunks: RetrievedChunk[]; stats: SemanticStats }> {
+  if (!USE_RAG_SEMANTIC) {
+    return { chunks: [], stats: EMPTY_SEMANTIC_STATS };
+  }
+
+  const results = await Promise.all(
+    RAG_SEMANTIC_QUERIES.map((q) => getRAGSemantic(q, RAG_SEMANTIC_TOPK_PER_QUERY))
+  );
+
+  const failedQueries = results.filter((r) => r.length === 0).length;
+  const rawChunks = results.flat();
+
+  // Dedupe por chunk_id, preservando a versão de maior score quando
+  // o mesmo chunk_id aparece em múltiplas queries.
+  const seen = new Set<string>();
+  const deduped: RetrievedChunk[] = [];
+  for (const chunk of [...rawChunks].sort((a, b) => b.score - a.score)) {
+    if (!seen.has(chunk.id)) {
+      seen.add(chunk.id);
+      deduped.push(chunk);
+    }
+  }
+
+  // Cap por article_id: máximo 3 chunks por paper (decisão A3).
+  // Mantém ordem por score — first-come, first-served.
+  const perArticleCount = new Map<string, number>();
+  const capped: RetrievedChunk[] = [];
+  for (const chunk of deduped) {
+    const articleId = chunk.metadata.article_id;
+    const count = perArticleCount.get(articleId) ?? 0;
+    if (count < RAG_SEMANTIC_MAX_PER_ARTICLE) {
+      perArticleCount.set(articleId, count + 1);
+      capped.push(chunk);
+    }
+  }
+
+  const finalChunks = capped.slice(0, RAG_SEMANTIC_FINAL_TOPK);
+
+  const stats: SemanticStats = {
+    enabled: true,
+    queriesRan: RAG_SEMANTIC_QUERIES.length,
+    rawChunks: rawChunks.length,
+    uniqueChunks: deduped.length,
+    finalChunks: finalChunks.length,
+    uniqueArticles: new Set(finalChunks.map((c) => c.metadata.article_id)).size,
+    topScore: finalChunks[0]?.score ?? null,
+    failedQueries,
+  };
+
+  return { chunks: finalChunks, stats };
+}
+
+/**
+ * Formata os chunks para injeção no SYSTEM_PROMPT como bloco homogêneo
+ * (decisão A5 — indistinguível do RAG keyword).
+ */
+function formatSemanticChunks(chunks: RetrievedChunk[]): string {
+  if (chunks.length === 0) return '_(nenhum chunk semântico recuperado nesta execução)_';
+
+  return chunks
+    .map((c, idx) => {
+      const m = c.metadata;
+      const page = m.page ? `, p. ${m.page}` : '';
+      const locator = m.locator_id ? ` ${m.locator_id}` : '';
+      const verbatim = m.verbatim_quote ?? 'N/A';
+      return `**${idx + 1}. ${m.article_id}** (${m.chunk_type}${locator}${page}) — score: ${c.score.toFixed(3)}
+${m.text}
+*Verbatim:* "${verbatim}"`;
+    })
+    .join('\n\n');
+}
 const API_TAG = 'dominance-analysis';
 const LOG_PREFIX = `[AI-REVIEWER v${API_VERSION}]`;
 
@@ -134,10 +263,10 @@ function getValidFinalScores(
         score: resolvedScore, // sobrescreve ou cria o campo score
       };
     })
-    .filter((fs: any) => 
-      fs && 
-      typeof fs.score === 'number' && 
-      !isNaN(fs.score) && 
+    .filter((fs: any) =>
+      fs &&
+      typeof fs.score === 'number' &&
+      !isNaN(fs.score) &&
       isFinite(fs.score)
     )
     .sort((a: any, b: any) => b.score - a.score) as unknown) as Array<{ code: string; name: string; score: number;[key: string]: any }>;
@@ -944,7 +1073,11 @@ Se qualquer resposta for "não" ou "não verificado", retrabalhe a seção corre
 // GERAÇÃO DE REVISÃO ACADÊMICA
 // ============================================================
 
-async function generateReview(data: ReviewRequest, classification: any, biasAnalysis?: BiasAnalysisResult): Promise<string> {
+async function generateReview(
+  data: ReviewRequest,
+  classification: any,
+  biasAnalysis?: BiasAnalysisResult
+): Promise<{ review: string; semanticStats: SemanticStats }> {
   console.log('[AI-REVIEWER] sensitivityInflections recebido:', JSON.stringify(data.sensitivityInflections));
 
   const client = new Anthropic({
@@ -961,6 +1094,19 @@ async function generateReview(data: ReviewRequest, classification: any, biasAnal
   const ragThresholds = getRAGThresholds('CR');
   const ragBOCRFormulas = getRAGFormulas('bocr');
   const ragBenchmarks = getRAGBenchmarks();
+
+  // PHASE 6.3.4 — RAG SEMÂNTICO ADITIVO
+  // Feature flag USE_RAG_SEMANTIC controla execução real.
+  // Quando OFF, retorna { chunks: [], stats: EMPTY_SEMANTIC_STATS } sem custo.
+  const { chunks: semanticChunks, stats: semanticStats } = await getSemanticChunks();
+  if (semanticStats.enabled) {
+    console.log(
+      `[AI-REVIEWER] RAG semantic: ${semanticStats.queriesRan} queries -> ` +
+      `${semanticStats.rawChunks} raw -> ${semanticStats.uniqueChunks} unique -> ` +
+      `${semanticStats.finalChunks} final from ${semanticStats.uniqueArticles} papers ` +
+      `(top score ${semanticStats.topScore?.toFixed(3) ?? 'N/A'}, ${semanticStats.failedQueries} failed queries)`
+    );
+  }
 
   // Análise de respondentes individuais
   let respondentAnalysis = '';
@@ -1349,11 +1495,11 @@ ${respondentAnalysis}
 ## Estatísticas por Dimensão BOCR
 
 ${(() => {
-  const bStats = data.individualStats?.Benefits || { total: 0, valid: 0, warning: 0, critical: 0 };
-  const oStats = data.individualStats?.Opportunities || { total: 0, valid: 0, warning: 0, critical: 0 };
-  const cStats = data.individualStats?.Costs || { total: 0, valid: 0, warning: 0, critical: 0 };
-  const rStats = data.individualStats?.Risks || { total: 0, valid: 0, warning: 0, critical: 0 };
-  return `### Benefits (Benefícios)
+      const bStats = data.individualStats?.Benefits || { total: 0, valid: 0, warning: 0, critical: 0 };
+      const oStats = data.individualStats?.Opportunities || { total: 0, valid: 0, warning: 0, critical: 0 };
+      const cStats = data.individualStats?.Costs || { total: 0, valid: 0, warning: 0, critical: 0 };
+      const rStats = data.individualStats?.Risks || { total: 0, valid: 0, warning: 0, critical: 0 };
+      return `### Benefits (Benefícios)
 - Respostas totais: ${bStats.total}
 - Válidas (CR ≤ 0.10): ${bStats.valid} (${bStats.total > 0 ? ((bStats.valid / bStats.total) * 100).toFixed(1) : '0'}%)
 - Warning (0.10 < CR ≤ 0.20): ${bStats.warning}
@@ -1380,7 +1526,7 @@ ${cStats.avgCR ? `- CR médio da dimensão: ${safePercent(cStats.avgCR, 2)}` : '
 - Warning (0.10 < CR ≤ 0.20): ${rStats.warning}
 - Críticas (CR > 0.20): ${rStats.critical}
 ${rStats.avgCR ? `- CR médio da dimensão: ${safePercent(rStats.avgCR, 2)}` : ''}`;
-})()}
+    })()}
 
 ## Pesos Finais da Hierarquia de Controle (Méritos BOCR)
 
@@ -1390,11 +1536,11 @@ ${rStats.avgCR ? `- CR médio da dimensão: ${safePercent(rStats.avgCR, 2)}` : '
 - **Risks (Riscos):** ${safePercent(data.bocrWeights?.Risks, 1)}
 
 **Ratio Máximo/Mínimo:** ${(() => {
-  const weights = [data.bocrWeights?.Benefits, data.bocrWeights?.Opportunities, data.bocrWeights?.Costs, data.bocrWeights?.Risks]
-    .filter((w): w is number => typeof w === 'number' && isFinite(w) && w > 0);
-  if (weights.length < 2) return 'N/A';
-  return (Math.max(...weights) / Math.min(...weights)).toFixed(2);
-})()}:1
+      const weights = [data.bocrWeights?.Benefits, data.bocrWeights?.Opportunities, data.bocrWeights?.Costs, data.bocrWeights?.Risks]
+        .filter((w): w is number => typeof w === 'number' && isFinite(w) && w > 0);
+      if (weights.length < 2) return 'N/A';
+      return (Math.max(...weights) / Math.min(...weights)).toFixed(2);
+    })()}:1
 
 ${dominanceSection}
 
@@ -1444,6 +1590,10 @@ ${ragBOCRFormulas}
 ## Benchmarks Empíricos de Estudos Publicados
 
 ${ragBenchmarks}
+
+## Evidências Semânticas Recuperadas (RAG Vetorial)
+
+${formatSemanticChunks(semanticChunks)}
 
 ---
 
@@ -1647,7 +1797,8 @@ Elabore agora a revisão de validação científica.`;
   });
 
   const textContent = message.content.find((block) => block.type === 'text');
-  return textContent && 'text' in textContent ? textContent.text : '';
+  const review = textContent && 'text' in textContent ? textContent.text : '';
+  return { review, semanticStats };
 }
 
 // ============================================================
@@ -1886,7 +2037,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`${LOG_PREFIX} Iniciando chamada à API Anthropic...`);
-    const review = await generateReview(data, classification, biasAnalysis);
+    const { review, semanticStats } = await generateReview(data, classification, biasAnalysis);
     console.log(`${LOG_PREFIX} Revisão gerada com sucesso!`, review.substring(0, 100) + '...');
 
     // ANTI-ALUCINAÇÃO: Validação pós-geração
@@ -1941,6 +2092,7 @@ export async function POST(request: NextRequest) {
           refsUsed: getKnowledgeStats().totalRefs,
           criticalRefs: getCriticalRefs().length,
           uniqueArticles: getKnowledgeStats().uniqueArticles,
+          semantic: semanticStats,
         },
         biasDetection: biasAnalysis ? {
           riskLevel: biasAnalysis.overallRiskLevel,
