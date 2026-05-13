@@ -160,7 +160,7 @@ ${tables.table6}
       sensitivityHasCriticos: (((calculationData as any)?.sensitivityInflections?.contagem_criticos) ?? 0) > 0,
       criticalMerits: ((calculationData as any)?.sensitivityInflections?.meritos_criticos) ?? [],
     };
-    const message = await client.messages.create({
+    const stream = client.messages.stream({
       model: 'claude-opus-4-6',
       max_tokens: 24000,
       thinking: { type: 'adaptive' as const }, // Phase 7: raciocinio estruturado
@@ -262,6 +262,9 @@ ${tablesBlock}`
       ],
       system: buildSystemPrompt(systemPromptOptions)
     });
+
+    // Phase 7 v8.1.1 hotfix: streaming obrigatorio para max_tokens 24k + adaptive thinking
+    const message = await stream.finalMessage();
 
     // Extrair texto da resposta
     let generatedText = message.content
