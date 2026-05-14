@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import { buildSystemPrompt, API_VERSION, BOCR_BENCHMARKS } from './system-prompt';
+import { buildSystemPrompt, API_VERSION, buildBenchmarksTable } from './system-prompt';
 
 export const maxDuration = 800;
 
@@ -75,12 +75,25 @@ export async function POST(request: NextRequest) {
       markdownTables?: {
         table1?: string; table2?: string; table3?: string;
         table4?: string; table5?: string; table6?: string;
+        table8?: string; // Phase 7.1 v8.1.5 - construido no backend
       };
     };
 
     const calculationData = data.calculationData;
     const projectContext = data.projectContext;
-    const tables = data.markdownTables || {};
+    const tables: any = data.markdownTables || {};
+
+    // Phase 7.1 v8.1.5: construir Tabela 8 (benchmarks BOCR) no backend
+    const studyB = calculationData?.bocrWeights?.[0] ?? 0;
+    const studyO = calculationData?.bocrWeights?.[1] ?? 0;
+    const studyC = calculationData?.bocrWeights?.[2] ?? 0;
+    const studyR = calculationData?.bocrWeights?.[3] ?? 0;
+    const respondentCount = calculationData?.responseCount ?? 0;
+    const studyLabel = respondentCount > 0
+      ? `Este estudo (HMCSA, n=${respondentCount})`
+      : 'Este estudo';
+    tables.table8 = buildBenchmarksTable({ B: studyB, O: studyO, C: studyC, R: studyR }, studyLabel);
+
     const hasTables = Boolean(tables.table1 && tables.table2 && tables.table3 && tables.table4 && tables.table5 && tables.table6);
 
     if (!calculationData) {
@@ -147,6 +160,9 @@ ${tables.table5}
 
 ### TABELA 6 — Análise de Sensibilidade
 ${tables.table6}
+
+### TABELA 8 — Comparacao com Benchmarks BOCR
+${tables.table8}
 `;
     }
 
@@ -309,6 +325,7 @@ ${tablesBlock}`
               '4': tables.table4 || '',
               '5': tables.table5 || '',
               '6': tables.table6 || '',
+              '8': tables.table8 || '', // Phase 7.1 v8.1.5
             };
 
             // Regex flexível: captura [TABELA_1], [Tabela 1], [TABELA 1], [tabela_1], etc.

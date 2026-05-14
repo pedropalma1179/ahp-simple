@@ -80,6 +80,48 @@ export const BOCR_BENCHMARKS = [
 ] as const;
 
 /**
+ * Phase 7.1 v8.1.5: gera a Tabela 8 — Comparacao com Benchmarks BOCR.
+ * Recebe os pesos do estudo atual e formata em markdown.
+ *
+ * @param studyWeights - { B, O, C, R } com 4 decimais
+ * @param studyLabel - identificacao do estudo atual (ex: 'Este estudo (HMCSA, n=12)')
+ * @returns markdown table com 5 benchmarks + estudo atual
+ */
+export function buildBenchmarksTable(
+  studyWeights: { B: number; O: number; C: number; R: number },
+  studyLabel: string = 'Este estudo'
+): string {
+  // Helpers pt-BR (4 decimais com virgula)
+  const fmt4 = (n: number) => (Number.isFinite(n) ? n : 0).toFixed(4).replace('.', ',');
+  const fmtPct = (n: number) => ((Number.isFinite(n) ? n : 0) * 100).toFixed(2).replace('.', ',') + '%';
+
+  let md = '**Tabela 8.** Comparacao dos pesos BOCR com benchmarks publicados\n\n';
+  md += '| Estudo | Dominio | B | O | C | R |\n';
+  md += '|--------|---------|------|------|------|------|\n';
+
+  // Estudo atual primeiro
+  md += `| **${studyLabel}** | Indústria 4.0 / Automotivo (Brasil) | **${fmtPct(studyWeights.B)}** | **${fmtPct(studyWeights.O)}** | **${fmtPct(studyWeights.C)}** | **${fmtPct(studyWeights.R)}** |\n`;
+
+  // Benchmarks da literatura
+  BOCR_BENCHMARKS.forEach((bench) => {
+    md += `| ${bench.study} | ${bench.domain} | ${fmtPct(bench.B)} | ${fmtPct(bench.O)} | ${fmtPct(bench.C)} | ${fmtPct(bench.R)} |\n`;
+  });
+
+  // Linha de medianas dos benchmarks
+  const medians = ['B', 'O', 'C', 'R'].map((key) => {
+    const values = BOCR_BENCHMARKS.map((b) => (b as any)[key]).sort((a, b) => a - b);
+    const mid = Math.floor(values.length / 2);
+    return values.length % 2 === 0 ? (values[mid - 1] + values[mid]) / 2 : values[mid];
+  });
+  md += `| _Mediana dos 5 benchmarks_ | — | _${fmtPct(medians[0])}_ | _${fmtPct(medians[1])}_ | _${fmtPct(medians[2])}_ | _${fmtPct(medians[3])}_ |\n`;
+
+  md += '\n*Nota:* B = Beneficios, O = Oportunidades, C = Custos, R = Riscos. Valores em percentual (peso × 100). Benchmarks extraidos do RAG (artigos originais). Estudo atual em negrito para destaque.\n';
+
+  return md;
+}
+
+
+/**
  * Opções runtime para construção do SYSTEM_PROMPT.
  *
  * Todas as opções são opcionais. Quando ausentes, o builder retorna
