@@ -575,6 +575,7 @@ export default function ResultadosPage() {
   const [academicText, setAcademicText] = useState<string | null>(null);
   const [generatingText, setGeneratingText] = useState(false);
   const [textError, setTextError] = useState<string | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [textStats, setTextStats] = useState<{ wordCount: number; charCount: number; meetsMinimum: boolean } | null>(null);
 
   // Estado para dados demográficos dos respondentes
@@ -1689,6 +1690,13 @@ export default function ResultadosPage() {
     setGeneratingText(true);
     setTextError(null);
     setTextStats(null);
+    setElapsedSeconds(0);
+
+    // Phase 7 v8.1.1 - AbortController com timeout 15min
+    const controller = new AbortController();
+    const TIMEOUT_MS = 15 * 60 * 1000;
+    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const timerInterval = setInterval(() => setElapsedSeconds((s) => s + 1), 1000);
 
     try {
       const response = await fetch('/api/generate-academic', {
@@ -1706,7 +1714,8 @@ export default function ResultadosPage() {
             excludedCount: excludedIds.length,
           } : undefined,
           markdownTables: buildMarkdownTables()
-        })
+        }),
+        signal: controller.signal
       });
 
       const data = await response.json();
@@ -1720,8 +1729,16 @@ export default function ResultadosPage() {
         setTextError(data.error || 'Erro ao gerar texto');
       }
     } catch (err: any) {
-      setTextError(err.message || 'Erro de conexão');
+      if (err.name === 'AbortError') {
+        setTextError('Geração demorou mais de 15 minutos e foi cancelada. Tente novamente — geralmente funciona na 2ª tentativa.');
+      } else if (err.message === 'Failed to fetch') {
+        setTextError('Conexão interrompida. Verifique sua rede, evite fechar a aba ou deixar o laptop dormir, e tente novamente.');
+      } else {
+        setTextError(err.message || 'Erro de conexão');
+      }
     } finally {
+      clearTimeout(timeoutId);
+      clearInterval(timerInterval);
       setGeneratingText(false);
     }
   };
@@ -5215,12 +5232,29 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      Gerando (~30s)...
+                      Gerando {String(Math.floor(elapsedSeconds / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')} / 15:00
                     </span>
                   ) : '🤖 Gerar Texto com IA'}
                 </button>
               </div>
 
+              {/* Phase 7 v8.1.1 — Aviso durante geracao */}
+              {generatingText && (
+                <div className="mt-4 bg-amber-50 border border-amber-300 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">⏱️</span>
+                    <div className="flex-1 text-sm text-amber-900">
+                      <p className="font-semibold mb-1">Geração em andamento</p>
+                      <ul className="list-disc list-inside space-y-1 text-amber-800">
+                        <li>Tempo estimado: 3 a 10 minutos (modelo Opus 4.6 + raciocínio adaptativo)</li>
+                        <li><strong>Não feche esta aba</strong> nem o navegador</li>
+                        <li><strong>Não deixe o computador entrar em modo sleep</strong> (recomenda-se configurar energia para "Nunca" durante a defesa)</li>
+                        <li>Em caso de erro, basta clicar em "Gerar Texto" novamente</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
               {/* Requisitos do texto */}
               <div className="grid md:grid-cols-4 gap-4 mt-6">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
