@@ -270,6 +270,18 @@ ${tablesBlock}`
 
     const readable = new ReadableStream({
       async start(controller) {
+        // Phase 7 v8.1.3 - keep-alive heartbeat (evita Vercel Edge idle timeout)
+        // Anthropic com adaptive thinking pode aguardar varios minutos antes do primeiro chunk de texto.
+        // Heartbeat de zero-width space a cada 15s mantem conexao viva pelo proxy.
+        controller.enqueue(encoder.encode(' '));  // flush imediato (<1s)
+        const heartbeatInterval = setInterval(() => {
+          try {
+            controller.enqueue(encoder.encode('\u200B'));  // zero-width space, invisivel no display
+          } catch (heartbeatErr) {
+            // Stream ja fechado; clearInterval cleanup
+          }
+        }, 15000);
+
         try {
           // Stream chunks de texto à medida que chegam do Anthropic
           for await (const chunk of stream) {
@@ -385,8 +397,10 @@ ${tablesBlock}`
 
           const metadataMarker = '\n\n<<<METADATA>>>\n' + JSON.stringify(metadata);
           controller.enqueue(encoder.encode(metadataMarker));
+          clearInterval(heartbeatInterval);  // Phase 7 v8.1.3 cleanup
           controller.close();
         } catch (streamErr: any) {
+          clearInterval(heartbeatInterval);  // Phase 7 v8.1.3 cleanup em erro
           console.error('Erro durante stream:', streamErr);
           const errorMarker = '\n\n<<<ERROR>>>\n' + JSON.stringify({ error: streamErr.message || 'Erro no streaming' });
           controller.enqueue(encoder.encode(errorMarker));

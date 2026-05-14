@@ -1772,9 +1772,11 @@ export default function ResultadosPage() {
           break;
         }
 
-        const safeLastIdx = Math.max(0, buffer.length - 20);
-        const lastChunkSafe = buffer.lastIndexOf('<', safeLastIdx);
-        const displayText = lastChunkSafe === -1 ? buffer : buffer.substring(0, lastChunkSafe);
+        // Phase 7 v8.1.3: filtrar zero-width space e espaco inicial do heartbeat
+        const cleanBuffer = buffer.replace(/\u200B/g, '').replace(/^ +/, '');
+        const safeLastIdx = Math.max(0, cleanBuffer.length - 20);
+        const lastChunkSafe = cleanBuffer.lastIndexOf('<', safeLastIdx);
+        const displayText = lastChunkSafe === -1 ? cleanBuffer : cleanBuffer.substring(0, lastChunkSafe);
         setAcademicText(displayText);
       }
 
