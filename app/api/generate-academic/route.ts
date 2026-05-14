@@ -263,115 +263,144 @@ ${tablesBlock}`
       system: buildSystemPrompt(systemPromptOptions)
     });
 
-    // Phase 7 v8.1.1 hotfix: streaming obrigatorio para max_tokens 24k + adaptive thinking
-    const message = await stream.finalMessage();
+    // Phase 7 v8.1.2 chunked streaming response — evita proxy idle timeout (~5-8 min de geração)
+    const encoder = new TextEncoder();
+    let accumulatedText = '';
+    let finalUsage: { input_tokens: number; output_tokens: number } = { input_tokens: 0, output_tokens: 0 };
 
-    // Extrair texto da resposta
-    let generatedText = message.content
-      .filter((block): block is Anthropic.TextBlock => block.type === 'text')
-      .map(block => block.text)
-      .join('\n');
+    const readable = new ReadableStream({
+      async start(controller) {
+        try {
+          // Stream chunks de texto à medida que chegam do Anthropic
+          for await (const chunk of stream) {
+            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+              const textDelta = chunk.delta.text;
+              accumulatedText += textDelta;
+              controller.enqueue(encoder.encode(textDelta));
+            }
+          }
 
-    // Post-processing: substituir placeholders [TABELA_X] pelo conteúdo real
-    if (hasTables) {
-      const tableMap: Record<string, string> = {
-        '1': tables.table1 || '',
-        '2': tables.table2 || '',
-        '3': tables.table3 || '',
-        '4': tables.table4 || '',
-        '5': tables.table5 || '',
-        '6': tables.table6 || '',
-      };
+          // Stream terminou — capturar usage final
+          const finalMessage = await stream.finalMessage();
+          finalUsage = {
+            input_tokens: finalMessage.usage.input_tokens,
+            output_tokens: finalMessage.usage.output_tokens
+          };
 
-      // Regex flexível: captura [TABELA_1], [Tabela 1], [TABELA 1], [tabela_1], etc.
-      generatedText = generatedText.replace(
-        /\[(?:TABELA|Tabela|tabela)[_\s]?(\d)\]/gi,
-        (match, num) => {
-          const tableContent = tableMap[num];
-          return tableContent ? `\n\n${tableContent}\n\n` : match;
-        }
-      );
+          // Post-processing: substituir placeholders [TABELA_X] pelo conteúdo real
+          let generatedText = accumulatedText;
+          if (hasTables) {
+            const tableMap: Record<string, string> = {
+              '1': tables.table1 || '',
+              '2': tables.table2 || '',
+              '3': tables.table3 || '',
+              '4': tables.table4 || '',
+              '5': tables.table5 || '',
+              '6': tables.table6 || '',
+            };
 
-      // Fallback: Se alguma tabela não foi inserida pela IA, injetar no final da seção relevante
-      if (hasTables) {
-        // Verificar se Tabela 5 está presente no texto (caso mais comum de omissão)
-        const hasTable5 = generatedText.includes(tables.table5 || '##NONE##');
-        if (!hasTable5 && tables.table5) {
-          // Inserir Tabela 5 antes da análise de sensibilidade (Tabela 6)
-          // Procurar pela Tabela 6 já inserida ou pela seção de sensibilidade
-          const table6Content = tables.table6 || '';
-          const sensKeywords = [
-            table6Content.substring(0, 50), // Início da Tabela 6 já inserida
-            'análise de sensibilidade foi conduzida',
-            'pontos de inflexão',
-            'metodologia contínua',
-            'sensibilidade dos pesos'
-          ];
+            // Regex flexível: captura [TABELA_1], [Tabela 1], [TABELA 1], [tabela_1], etc.
+            generatedText = generatedText.replace(
+              /\[(?:TABELA|Tabela|tabela)[_\s]?(\d)\]/gi,
+              (match, num) => {
+                const tableContent = tableMap[num];
+                return tableContent ? `\n\n${tableContent}\n\n` : match;
+              }
+            );
 
-          let inserted = false;
-          for (const keyword of sensKeywords) {
-            if (keyword && generatedText.includes(keyword)) {
-              const insertionPoint = generatedText.indexOf(keyword);
-              // Encontrar o início do parágrafo (último \n\n antes do keyword)
-              const beforeKeyword = generatedText.substring(0, insertionPoint);
-              const lastBreak = beforeKeyword.lastIndexOf('\n\n');
-              if (lastBreak !== -1) {
-                generatedText =
-                  generatedText.substring(0, lastBreak) +
-                  `\n\n${tables.table5}\n\n` +
-                  generatedText.substring(lastBreak);
-                inserted = true;
-                break;
+            // Fallback: Se Tabela 5 não foi inserida pela IA, injetar antes da sensibilidade
+            const hasTable5 = generatedText.includes(tables.table5 || '##NONE##');
+            if (!hasTable5 && tables.table5) {
+              const table6Content = tables.table6 || '';
+              const sensKeywords = [
+                table6Content.substring(0, 50),
+                'análise de sensibilidade foi conduzida',
+                'pontos de inflexão',
+                'metodologia contínua',
+                'sensibilidade dos pesos'
+              ];
+
+              let inserted = false;
+              for (const keyword of sensKeywords) {
+                if (keyword && generatedText.includes(keyword)) {
+                  const insertionPoint = generatedText.indexOf(keyword);
+                  const beforeKeyword = generatedText.substring(0, insertionPoint);
+                  const lastBreak = beforeKeyword.lastIndexOf('\n\n');
+                  if (lastBreak !== -1) {
+                    generatedText =
+                      generatedText.substring(0, lastBreak) +
+                      `\n\n${tables.table5}\n\n` +
+                      generatedText.substring(lastBreak);
+                    inserted = true;
+                    break;
+                  }
+                }
+              }
+
+              if (!inserted) {
+                const conclusionMarkers = ['# CONCLUSÃO', '# Conclusão', '## CONCLUSÃO', '## Conclusão'];
+                for (const marker of conclusionMarkers) {
+                  if (generatedText.includes(marker)) {
+                    generatedText = generatedText.replace(
+                      marker,
+                      `${tables.table5}\n\n${marker}`
+                    );
+                    inserted = true;
+                    break;
+                  }
+                }
+              }
+
+              if (!inserted) {
+                const lastParagraphBreak = generatedText.lastIndexOf('\n\n');
+                if (lastParagraphBreak !== -1) {
+                  generatedText =
+                    generatedText.substring(0, lastParagraphBreak) +
+                    `\n\n${tables.table5}\n\n` +
+                    generatedText.substring(lastParagraphBreak);
+                }
               }
             }
           }
 
-          // Se não encontrou ponto de inserção, adicionar antes da conclusão
-          if (!inserted) {
-            const conclusionMarkers = ['# CONCLUSÃO', '# Conclusão', '## CONCLUSÃO', '## Conclusão'];
-            for (const marker of conclusionMarkers) {
-              if (generatedText.includes(marker)) {
-                generatedText = generatedText.replace(
-                  marker,
-                  `${tables.table5}\n\n${marker}`
-                );
-                inserted = true;
-                break;
-              }
-            }
-          }
+          // Calcular estatísticas do texto pós-processado
+          const wordCount = generatedText.split(/\s+/).length;
+          const charCount = generatedText.length;
 
-          // Último fallback: append ao final da seção de resultados
-          if (!inserted) {
-            // Inserir antes do último parágrafo do texto
-            const lastParagraphBreak = generatedText.lastIndexOf('\n\n');
-            if (lastParagraphBreak !== -1) {
-              generatedText =
-                generatedText.substring(0, lastParagraphBreak) +
-                `\n\n${tables.table5}\n\n` +
-                generatedText.substring(lastParagraphBreak);
+          // Footer: marcador + JSON com texto final (com tabelas) + metadata
+          // Frontend detecta <<<METADATA>>> e substitui texto exibido pelo texto pós-processado
+          const metadata = {
+            success: true,
+            text: generatedText,
+            statistics: {
+              wordCount,
+              charCount,
+              apiVersion: API_VERSION
+            },
+            usage: {
+              inputTokens: finalUsage.input_tokens,
+              outputTokens: finalUsage.output_tokens
             }
-          }
+          };
+
+          const metadataMarker = '\n\n<<<METADATA>>>\n' + JSON.stringify(metadata);
+          controller.enqueue(encoder.encode(metadataMarker));
+          controller.close();
+        } catch (streamErr: any) {
+          console.error('Erro durante stream:', streamErr);
+          const errorMarker = '\n\n<<<ERROR>>>\n' + JSON.stringify({ error: streamErr.message || 'Erro no streaming' });
+          controller.enqueue(encoder.encode(errorMarker));
+          controller.close();
         }
       }
-    }
+    });
 
-    // Calcular estatísticas do texto gerado
-    const wordCount = generatedText.split(/\s+/).length;
-    const charCount = generatedText.length;
-
-    return NextResponse.json({
-      success: true,
-      text: generatedText,
-      statistics: {
-        wordCount,
-        charCount,
-        // Phase 7 v8.1: sem minimos artificiais (Fase A: qualidade > quantidade)
-        apiVersion: API_VERSION
-      },
-      usage: {
-        inputTokens: message.usage.input_tokens,
-        outputTokens: message.usage.output_tokens
+    return new Response(readable, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Content-Type-Options': 'nosniff',
+        'Cache-Control': 'no-cache, no-transform',
+        'X-Accel-Buffering': 'no'  // Desabilita buffering em proxies
       }
     });
 

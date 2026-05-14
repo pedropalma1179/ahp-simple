@@ -1718,15 +1718,68 @@ export default function ResultadosPage() {
         signal: controller.signal
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+      }
+      if (!response.body) {
+        throw new Error('Resposta sem body de stream');
+      }
 
-      if (data.success) {
-        setAcademicText(data.text);
-        if (data.statistics) {
-          setTextStats(data.statistics);
+      // Phase 7 v8.1.2 - Consumir chunked stream
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+      let foundMetadata = false;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        buffer += chunk;
+
+        const errorIdx = buffer.indexOf('<<<ERROR>>>');
+        if (errorIdx !== -1) {
+          const errorJson = buffer.substring(errorIdx + '<<<ERROR>>>\n'.length).trim();
+          try {
+            const parsed = JSON.parse(errorJson);
+            setTextError(parsed.error || 'Erro no streaming');
+          } catch {
+            setTextError('Erro no streaming (resposta inválida)');
+          }
+          foundMetadata = true;
+          break;
         }
-      } else {
-        setTextError(data.error || 'Erro ao gerar texto');
+
+        const metaIdx = buffer.indexOf('<<<METADATA>>>');
+        if (metaIdx !== -1) {
+          const metaJson = buffer.substring(metaIdx + '<<<METADATA>>>\n'.length).trim();
+          try {
+            const parsed = JSON.parse(metaJson);
+            if (parsed.success) {
+              setAcademicText(parsed.text);
+              if (parsed.statistics) {
+                setTextStats(parsed.statistics);
+              }
+            } else {
+              setTextError(parsed.error || 'Erro desconhecido no metadata');
+            }
+            foundMetadata = true;
+          } catch (parseErr) {
+            console.error('Erro ao parsear metadata:', parseErr);
+            setTextError('Resposta com formato inválido');
+          }
+          break;
+        }
+
+        const safeLastIdx = Math.max(0, buffer.length - 20);
+        const lastChunkSafe = buffer.lastIndexOf('<', safeLastIdx);
+        const displayText = lastChunkSafe === -1 ? buffer : buffer.substring(0, lastChunkSafe);
+        setAcademicText(displayText);
+      }
+
+      if (!foundMetadata) {
+        setTextError('Stream encerrado sem metadata. Geração pode estar incompleta.');
       }
     } catch (err: any) {
       if (err.name === 'AbortError') {
