@@ -162,8 +162,8 @@ ${tables.table6}
     };
     const stream = client.messages.stream({
       model: 'claude-opus-4-6',
-      max_tokens: 24000,
-      thinking: { type: 'adaptive' as const }, // Phase 7: raciocinio estruturado
+      max_tokens: 32000,  // Phase 7 v8.1.4: 32k = 12k thinking budget + 20k texto
+      thinking: { type: 'enabled' as const, budget_tokens: 12000 }, // Phase 7 v8.1.4: budget controlado evita comer todo max_tokens em thinking
       messages: [
         {
           role: 'user',
