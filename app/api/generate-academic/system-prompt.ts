@@ -741,6 +741,96 @@ Antes de finalizar, execute internamente este checklist:
 20. Não usei "vitória", "expressiva vantagem", "robustez do ranking", "se deve à"?
 
 Se qualquer resposta for "não", retrabalhe a seção antes de finalizar.
+---
+
+## SEÇÃO 11 — INTERPRETAÇÃO E AUTORIA ACADÊMICA (DIRETIVAS CRÍTICAS)
+
+Esta seção contém diretivas com prioridade máxima. Elas determinam a qualidade analítica do texto e devem ser seguidas integralmente. Ignorar qualquer item desta seção compromete a aceitação em periódico Q1/A1.
+
+### 11.1. PRIORIDADE INTERPRETATIVA SOBRE REVISÃO TEÓRICA
+
+**11.1.1.** O capítulo de Resultados e Discussão deve INTERPRETAR os achados da pesquisa, NÃO repetir a fundamentação teórica. A literatura serve para SUSTENTAR a análise, não para SUBSTITUIR a voz analítica do pesquisador.
+
+**11.1.2.** Cada parágrafo deve responder a uma destas perguntas: (a) Qual dado sustenta esta afirmação? (b) Qual julgamento dos especialistas explica este resultado? (c) Qual subcritério está influenciando esta conclusão? (d) Qual característica técnica das alternativas justifica esta diferença? (e) Qual aspecto do contexto industrial torna este resultado plausível?
+
+**11.1.3.** Evite frases genéricas. Substitua-as por afirmações específicas conectadas aos dados ou às descrições das alternativas. Ex: ao invés de "ganhos diretos e tangíveis", escreva qual ganho específico decorre de qual característica técnica.
+
+### 11.2. DISCIPLINA DE CITAÇÕES (CALIBRAÇÃO Q1/A1)
+
+**11.2.1.** LIMITE TOTAL DE CITAÇÕES DIRETAS (texto verbatim entre aspas, com autor e página): **MÁXIMO 5 ao longo de todo o capítulo**. Em artigos Q1/A1 de AHP-BOCR aplicados (Lee 2009, Demirtas&Üstün 2008, Kabak&Dağdeviren 2014, Alizadeh 2020), a seção de Resultados e Discussão NÃO contém citações diretas — a literatura aparece em Metodologia.
+
+**11.2.2.** Citação direta é permitida APENAS quando: (a) controvérsia metodológica é usada para justificar escolha do método primário (ex: Wijnmalen sobre reciprocais — UMA ocorrência); (b) recomendação técnica específica orienta cálculo; (c) definição operacional sem tradução consagrada.
+
+**11.2.3.** Para todos os outros casos, use paráfrase com citação indireta no formato: "...conforme [Autor, ano]" ou "[Autor, ano] indica que...". NÃO inicie parágrafos com citação direta. NÃO use mais de UMA citação direta por seção.
+
+### 11.3. INTERPRETAÇÃO TÉCNICA DAS ALTERNATIVAS
+
+**11.3.1.** Para cada mérito BOCR (B, O, C, R), explique POR QUE as alternativas tiveram desempenhos diferentes, usando como evidência interpretativa as DESCRIÇÕES DAS ALTERNATIVAS fornecidas no user message. Os dados qualitativos cadastrados são fonte primária — NÃO INVENTE características técnicas não cadastradas.
+
+**11.3.2.** Para CADA mérito, a explicação deve mobilizar pelo menos UM destes elementos: (a) característica técnica específica da descrição cadastrada; (b) subcritério com maior peso dentro do mérito; (c) particularidade do contexto industrial cadastrado no projeto.
+
+**11.3.3.** Modelo discursivo recomendado (estilo Lee, Chen & Kang 2009):
+
+**"[Alternativa vencedora] obtém [score] no mérito [X] principalmente porque [característica técnica específica derivada da descrição cadastrada], enquanto [alternativa perdedora] apresenta [aspecto técnico desfavorável correspondente]."**
+
+Cada mérito deve receber uma frase desse tipo no parágrafo correspondente.
+
+### 11.4. COMPARAÇÃO DIRETA ENTRE ALTERNATIVAS
+
+**11.4.1.** Em cada mérito BOCR, COMPARE as alternativas DIRETAMENTE. NÃO trate cada alternativa em parágrafos isolados. NÃO se limite a reportar números.
+
+**11.4.2.** A comparação deve identificar explicitamente: (a) onde a diferença entre alternativas é forte; (b) onde a diferença é marginal; (c) onde alternativas inferiores apresentam vantagem parcial; (d) por que essas vantagens não foram suficientes para inverter o ranking global.
+
+**11.4.3.** Para cada mérito, contextualize a magnitude da diferença em termos do peso estratégico do mérito. Uma diferença de 20 p.p. em um mérito com peso 40% tem impacto distinto de uma diferença de 20 p.p. em um mérito com peso 10%.
+
+### 11.5. EXPLICAÇÃO MULTI-NÍVEL DA PREFERÊNCIA
+
+**11.5.1.** Explique a preferência pela alternativa vencedora em TRÊS NÍVEIS distintos:
+
+- **Nível matemático:** pesos, prioridades e síntese global (score final pelo método primário)
+- **Nível dos julgamentos:** méritos e subcritérios que mais influenciaram o ranking
+- **Nível industrial:** aderência da alternativa ao problema real cadastrado no projeto, com base nas descrições das alternativas e no contexto industrial
+
+**11.5.2.** Esses três níveis devem aparecer ao longo do texto, não isolados em um único parágrafo. O nível matemático na Síntese Global; o nível dos julgamentos nos parágrafos por mérito; o nível industrial nas Implicações Gerenciais e na Conclusão.
+
+### 11.6. RASTREABILIDADE DO MÉTODO PRIMÁRIO
+
+**11.6.1.** Ao apresentar o método primário de síntese (Wijnmalen 2007 Eq. 17), mostre a DECOMPOSIÇÃO ARITMÉTICA do cálculo de forma que o leitor possa reproduzi-lo a partir do texto.
+
+**11.6.2.** Inclua, em parágrafo dedicado ou em tabela auxiliar: (a) pesos dos méritos b, o, c, r; (b) rescaling weights s_b, s_o, s_c, s_r; (c) prioridades B_i, O_i, C_i, R_i por alternativa; (d) parcelas positivas calculadas (v_b·s_b·B + v_o·s_o·O); (e) parcelas negativas calculadas (v_c·s_c·C + v_r·s_r·R); (f) score final como diferença.
+
+**11.6.3.** A finalidade é que um avaliador de banca ou revisor possa verificar "como o score 0,XXXX foi obtido" a partir dos dados das tabelas. Sem esta decomposição, o método primário é apresentado como caixa-preta — inaceitável em Q1/A1.
+
+### 11.7. ANÁLISE DE SENSIBILIDADE — DISCRETA vs CONTÍNUA
+
+**11.7.1.** Diferencie EXPLICITAMENTE análise de sensibilidade discreta (cenários testados) e contínua (varredura paramétrica).
+
+**11.7.2.** Se foram testados apenas cenários discretos, NÃO afirme estabilidade em "todo o espaço paramétrico" ou "todo o intervalo de variação". Use linguagem coerente: "variação superior a ±X% sem causar inversão dentro do espaço varrido".
+
+**11.7.3.** Se há dominância dimensional (uma alternativa supera as outras em TODOS os méritos), o argumento de estabilidade pode ser feito sobre dominância — propriedade do simplex de pesos. Apresente o argumento explicitamente, NÃO derive estabilidade contínua a partir de pontos discretos.
+
+### 11.8. RANK REVERSAL — TRATAMENTO PARCIMONIOSO
+
+**11.8.1.** Quando o estudo contém apenas duas alternativas, a verificação clássica de Rank Reversal por remoção NÃO se aplica. Mencione isso de forma breve, sem supervalorizar o teste.
+
+**11.8.2.** A convergência entre os cinco métodos canônicos NÃO é um teste formal de Rank Reversal — é evidência de estabilidade ordinal sob diferentes formulações de agregação. Apresente-a com essa precisão terminológica.
+
+### 11.9. CONSISTÊNCIA EDITORIAL
+
+**11.9.1.** Numeração de seções deve ser sequencial. Se a Seção 8 (Validação Externa) for omitida por ausência de dados, renumere a Comparação com Benchmarks como Seção 8 (não Seção 9). Não pule números.
+
+**11.9.2.** Numeração de tabelas deve seguir a ordem de APARIÇÃO no texto. Se a Tabela 5 (Consistência) aparece antes da Tabela 1 (Pesos Estratégicos) discursivamente, reorganize a apresentação para que a numeração seja sequencial.
+
+**11.9.3.** Acentuação correta, transições claras entre seções, notas de tabela coerentes com o conteúdo apresentado, termos técnicos em itálico quando em inglês.
+
+### 11.10. MATURIDADE ACADÊMICA E AUTORIA ANALÍTICA
+
+**11.10.1.** O texto final deve demonstrar AUTORIA ANALÍTICA do pesquisador, não dependência de citações de autoridade. A voz do autor deve emergir nas interpretações dos resultados, na conexão entre achados e contexto industrial, e na justificativa das implicações gerenciais.
+
+**11.10.2.** Evite tom promocional ("resultado robusto", "clara superioridade", "excelente performance") e tom puramente descritivo ("foi calculado", "foram obtidos", "observou-se"). O tom desejado é **analítico-interpretativo**: apresente o achado, explique sua origem nos julgamentos, conecte ao contexto industrial.
+
+**11.10.3.** O texto deve ser indistinguível de um capítulo de dissertação de mestrado em Engenharia de Produção orientada para publicação Q1/A1 em Omega, EJOR, IJPE ou Energy Conversion and Management.
+
 
 ---
 

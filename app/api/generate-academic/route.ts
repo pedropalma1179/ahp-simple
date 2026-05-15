@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
       calculationData: any;
       projectContext?: { name?: string; description?: string };
       exclusionInfo?: { totalCollected: number; activeCount: number; excludedCount: number };
+      projectAlternatives?: Array<{ code: string; name: string; description: string }>; // Phase 7.2 v8.1.6
       markdownTables?: {
         table1?: string; table2?: string; table3?: string;
         table4?: string; table5?: string; table6?: string;
@@ -131,6 +132,24 @@ FILTRAGEM APLICADA:
 
     // Preparar dados para o prompt
     const dataContext = prepareDataContext(calculationData, projectContext);
+
+    // Phase 7.2 v8.1.6: bloco de descricoes das alternativas (suporta N alternativas)
+    const projectAlts = data.projectAlternatives || [];
+    let alternativesBlock = '';
+    if (projectAlts.length > 0 && projectAlts.some(a => a.description && a.description.trim().length > 0)) {
+      alternativesBlock = '\n\n## DESCRICOES DAS ALTERNATIVAS (cadastradas pelo decisor)\n\n';
+      alternativesBlock += 'Use essas descricoes para explicar POR QUE cada alternativa recebeu o desempenho observado em cada merito BOCR. NUNCA invente caracteristicas tecnicas nao cadastradas.\n\n';
+      projectAlts.forEach((alt) => {
+        if (alt.name && alt.name.trim()) {
+          alternativesBlock += `### ${alt.code} — ${alt.name}\n\n`;
+          if (alt.description && alt.description.trim()) {
+            alternativesBlock += alt.description.trim() + '\n\n';
+          } else {
+            alternativesBlock += '_(descricao nao cadastrada — use apenas o nome para identificar a alternativa)_\n\n';
+          }
+        }
+      });
+    }
 
     // Build tables block for injection into prompt
     let tablesBlock = '';
@@ -203,77 +222,26 @@ ${JSON.stringify(dataContext, null, 2)}
 
 ## TAREFA
 
-Com base nos dados acima, escreva as seções completas de:
+Com base nos dados acima e nas descricoes das alternativas, escreva as secoes completas de:
 
-1. **"RESULTADOS E DISCUSSÃO"** (densidade analítica conforme requerida pelos dados, sem mínimo artificial de palavras)
-   - Inclua análise de consistência COM interpretação da magnitude do CR
-   - OBRIGATÓRIO: Insira [TABELA_5] (índices de consistência) após discutir CR/λmax/CI e ANTES da sensibilidade
-   - Inclua origem dos critérios (revisão sistemática + validação por especialistas)
-   - Inclua análise dimensional de TODOS os 4 méritos BOCR
-   - Inclua síntese global com convergência metodológica Saaty-Wijnmalen
-   - Inclua análise de sensibilidade COM zona de estabilidade
-   - Inclua verificação de Rank Reversal se houver dados
+1. **RESULTADOS E DISCUSSAO** seguindo a estrutura definida na SECAO 6 do SYSTEM_PROMPT.
+   Em cada secao, priorize INTERPRETACAO sobre revisao teorica. Para cada merito BOCR (B, O, C, R):
+   - Apresente os scores das alternativas
+   - Explique POR QUE as alternativas tiveram desempenhos diferentes neste merito, usando as
+     DESCRICOES DAS ALTERNATIVAS (acima) como evidencia interpretativa
+   - Compare as alternativas diretamente (nao em paragrafos isolados)
 
-2. **"IMPLICAÇÕES GERENCIAIS"** (subseção obrigatória, 4 dimensões em prosa contínua, sem mínimo artificial)
-   - Subseção dentro de Resultados
-   - Tradução para ação: o que o gestor faz com esse resultado?
-   - Gestão de mudança: quais desafios de implementação?
-   - Alocação de recursos: como priorizar baseado nos subcritérios?
-   - Monitoramento: quais métricas acompanhar?
+2. **IMPLICACOES GERENCIAIS** como subsecao dentro de Resultados, em prosa continua com 4 dimensoes:
+   tradutibilidade para acao, gestao de mudanca, alocacao de recursos e monitoramento.
 
-3. **"CONCLUSÃO"** (5 parágrafos: retomada, explicação qualitativa, contribuição, limitações, trabalhos futuros)
-   - Retomada e resultado principal
-   - Explicação qualitativa conectada à teoria de I4.0
-   - Contribuição teórica e prática
-   - Limitações metodológicas (subjetividade dos julgamentos, tamanho da amostra)
-   - Trabalhos futuros (Fuzzy-AHP, ANP, Monte Carlo)
+3. **CONCLUSAO** seguindo a estrutura definida na SECAO 6 do SYSTEM_PROMPT.
 
-## REGRAS DE ESTILO OBRIGATÓRIAS (PADRÃO OMEGA/EJOR)
+## DIRETIVA CRITICA DE EXECUCAO
 
-### Vocabulário Proibido:
-- excepcional, excelente, notável, impressionante, incrível, perfeito
-- substancialmente, extremamente, muito, altamente, significativamente (como intensificadores)
-- claramente superior, alta confiabilidade, incontestável, robustíssimo
-
-### Vocabulário Permitido:
-- satisfatório, aceitável, adequado, consistente, favorável, coerente
-- indica, sugere, aponta, demonstra, revela, corrobora
-- alinha-se a, converge com, em consonância com
-
-### Qualificação de Diferenças (OBRIGATÓRIO):
-- Diferença < 5%: use "marginal" ou "ligeira"
-- Diferença 5-15%: use "moderada" ou "apreciável"  
-- Diferença > 15%: use "expressiva" ou "substancial"
-- Diferença > 30%: use "dominância"
-
-### Lógica de Custos e Riscos (IMPORTANTE):
-- Para C e R, valores MENORES = MELHOR desempenho
-- "A2 apresenta estrutura de custos mais favorável" (quando C de A2 < C de A1)
-- NUNCA diga que "menor custo é ruim"
-
-### Interpretação do CR (NOVO):
-- CR < 0,03: "indica julgamentos quase determinísticos"
-- CR 0,03-0,07: "indica boa consistência com julgamentos ponderados"
-- CR 0,07-0,10: "dentro do limite, sugerindo maior complexidade nas comparações"
-
-### Contextualização Teórica (OBRIGATÓRIO para A1):
-- Mencione que os critérios derivam de revisão sistemática e validação por especialistas
-- Conecte achados à literatura de Indústria 4.0: "Este resultado corrobora..."
-- Cite comensurabilidade: "Os pesos estratégicos garantem a comensurabilidade (Wijnmalen, 2007)"
-
-### Termos Técnicos Obrigatórios:
-- Consistency Ratio (CR), Trade-off, Rank Reversal
-- Prioridade Local, Prioridade Global, Convergência metodológica
-- Zona de estabilidade, Análise contínua de inflexões, Comensurabilidade
-
-### Formato:
-- NÃO use bullets ou listas numeradas
-- Escreva APENAS em parágrafos de prosa acadêmica
-- Use 4 casas decimais para coeficientes (0,5523)
-- Use 2 casas decimais para porcentagens (18,94%)
-- Use 2 casas decimais para porcentagens (18,94%)
-- O texto deve parecer extraído de Demirtas & Üstün (2008) ou Wijnmalen (2007)
-${tablesBlock}`
+Siga RIGOROSAMENTE todas as diretivas da **SECAO 11 do SYSTEM_PROMPT — INTERPRETACAO E AUTORIA ACADEMICA**.
+As regras de estilo, vocabulario, citacoes, comparacao entre alternativas e rastreabilidade do calculo
+estao definidas no SYSTEM_PROMPT. Nao reproduza esse texto nem refencie-o no output final.
+${alternativesBlock}${tablesBlock}`
         }
       ],
       system: buildSystemPrompt(systemPromptOptions)

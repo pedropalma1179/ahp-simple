@@ -1713,6 +1713,11 @@ export default function ResultadosPage() {
             activeCount: projectResponses.length - excludedIds.length,
             excludedCount: excludedIds.length,
           } : undefined,
+          projectAlternatives: (project?.alternatives || []).map((a: any) => ({
+            code: a.code,
+            name: a.name,
+            description: a.description || ''
+          })),
           markdownTables: buildMarkdownTables()
         }),
         signal: controller.signal
