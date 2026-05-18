@@ -61,6 +61,18 @@ import {
 import BentoGridDashboard from '@/components/BentoGridDashboard';
 import CRTable from '@/components/CRTable';
 import BOCRConsistencyMatrix from '@/components/BOCRConsistencyMatrix';
+import { calculateGroupWeights } from '@/lib/ahp-ipc';
+
+function recalcularCRBocrIndividual(judgments: any[] | undefined): number | null {
+  if (!judgments || !Array.isArray(judgments) || judgments.length === 0) return null;
+  try {
+    const res = calculateGroupWeights(['B', 'O', 'C', 'R'], judgments, 'BOCR');
+    if (isNaN(res.cr)) return null;
+    return res.cr;
+  } catch (e) {
+    return null;
+  }
+}
 
 // Force reload
 
@@ -2295,8 +2307,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
       const realResponses = projectResponses.filter(r => !r.isSimulated);
       const simulatedResponses = projectResponses.filter(r => r.isSimulated);
-      const avgCR = projectResponses.reduce((sum, r) => sum + (r.responses?.bocrConsistency?.cr || 0), 0) / projectResponses.length;
-      const consistentCount = projectResponses.filter(r => (r.responses?.bocrConsistency?.cr || 0) <= 0.10).length;
+      const avgCR = projectResponses.reduce((sum, r) => sum + (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)), 0) / projectResponses.length;
+      const consistentCount = projectResponses.filter(r => (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)) <= 0.10).length;
 
       csv += `Respostas reais:,${realResponses.length}\n`;
       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
@@ -2307,7 +2319,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       csv += `Detalhamento por resposta:\n`;
       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
       projectResponses.forEach((resp, idx) => {
-        const crBocr = resp.responses?.bocrConsistency?.cr || 0;
+        const crBocr = recalcularCRBocrIndividual(resp.responses?.judgments) ?? (resp.responses?.bocrConsistency?.cr || 0);
         const submittedAt = resp.submittedAt ? new Date(resp.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '-';
         const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
         const tipo = resp.isSimulated ? 'Simulada' : 'Real';
@@ -2740,7 +2752,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       ];
 
       projectResponses.forEach((resp, idx) => {
-        const crBocr = resp.responses?.bocrConsistency?.cr || 0;
+        const crBocr = recalcularCRBocrIndividual(resp.responses?.judgments) ?? (resp.responses?.bocrConsistency?.cr || 0);
         const submittedAt = resp.submittedAt ? new Date(resp.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '-';
         const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
         const tipo = resp.isSimulated ? 'Simulada' : 'Real';
@@ -2758,8 +2770,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       // Adicionar estatísticas agregadas
       const realResponses = projectResponses.filter(r => !r.isSimulated);
       const simulatedResponses = projectResponses.filter(r => r.isSimulated);
-      const avgCR = projectResponses.reduce((sum, r) => sum + (r.responses?.bocrConsistency?.cr || 0), 0) / projectResponses.length;
-      const consistentCount = projectResponses.filter(r => (r.responses?.bocrConsistency?.cr || 0) <= 0.10).length;
+      const avgCR = projectResponses.reduce((sum, r) => sum + (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)), 0) / projectResponses.length;
+      const consistentCount = projectResponses.filter(r => (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)) <= 0.10).length;
 
       responsesData.push(['']);
       responsesData.push(['ESTATÍSTICAS']);

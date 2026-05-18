@@ -1,0 +1,890 @@
+
+Path                                                                                        LineNumber Line
+----                                                                                        ---------- ----
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              602   // Exportar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              603   const exportCSV = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              606     let csv = 'RELATÓRIO AHP-BOCR\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              607     csv += `Projeto:,${project?.name}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              608     csv += `Data:,${new Date().toLocaleDateString('pt-BR')}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              609     csv += `Respondentes:,${results.responseCount}\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              611     csv += 'PESOS BOCR\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              612     csv += 'Mérito,Peso\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              614       csv += `${c.name},${(results.bocrWeights[i] * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              616     csv += `CR,${(results.bocrConsistency?.cr * 100).toFixed(2)}%\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              618     csv += 'PESOS GLOBAIS DOS SUBCRITÉRIOS\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              619     csv += 'Código,Nome,Grupo,Peso Local,Peso Global\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              621       csv += `${w.code},${w.name},${w.group},${(w.localWeight *
+                                                                                                       100).toFixed(2)}%,${(w.globalWeight * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              623     csv += '\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              625     csv += 'RANKING FINAL - 5 MÉTODOS DE SÍNTESE BOCR (Petrillo et al.,
+                                                                                                       2023)\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              626     csv += 'Alternativa,B,O,C,R,Additive,Probabilistic,Subtractive
+                                                                                                       (norm),MultPowers (norm),MultSimple (norm)\n';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              628       csv += `${alt.name},${alt.B.toFixed(4)},${alt.O.toFixed(4)},${alt.C.toFi
+                                                                                                       xed(4)},${alt.R.toFixed(4)},`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              629       csv += `${alt.scoreAdditive?.toFixed(4)},${alt.scoreProbabilistic?.toFix
+                                                                                                       ed(4)},${alt.scoreSubtractiveNorm?.toFixed(4)},`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              630       csv += `${alt.scoreMultPowersNorm?.toFixed(4)},${alt.scoreMultSimpleNorm
+                                                                                                       ?.toFixed(4)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              633     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              636     link.download = `relatorio-ahp-bocr-${project?.name?.replace(/\s+/g,
+                                                                                                       '-')}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              640   // Exportar XLSX (Excel)
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              641   const exportXLSX = async () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              644     // Carregar biblioteca SheetJS dinamicamente
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              645     const XLSX = await import('xlsx');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              648     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              663     const wsResumo = XLSX.utils.aoa_to_sheet(resumoData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              668     XLSX.utils.book_append_sheet(wb, wsResumo, 'Resumo');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              686     const wsPesos = XLSX.utils.aoa_to_sheet(pesosData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              688     XLSX.utils.book_append_sheet(wb, wsPesos, 'Pesos Globais');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              709     const wsRanking = XLSX.utils.aoa_to_sheet(rankingData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              711     XLSX.utils.book_append_sheet(wb, wsRanking, 'Ranking');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              729     const wsScores = XLSX.utils.aoa_to_sheet(scoresData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              731     XLSX.utils.book_append_sheet(wb, wsScores, 'Scores');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              743     const wsSens = XLSX.utils.aoa_to_sheet(sensData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              745     XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              765     const wsMetodo = XLSX.utils.aoa_to_sheet(metodoData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              767     XLSX.utils.book_append_sheet(wb, wsMetodo, 'Metodologia');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              769     // Gerar arquivo e download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              770     const fileName = `relatorio-ahp-bocr-${project?.name?.replace(/\s+/g,
+                                                                                                       '-') || 'projeto'}.xlsx`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              771     XLSX.writeFile(wb, fileName);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              774   // Exportar JSON (para análises adicionais)
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              798     link.download = `dados-ahp-bocr-${project?.name?.replace(/\s+/g,
+                                                                                                       '-')}.json`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              856   // Exportar artigo como DOCX
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              857   const exportArticleAsDocx = async () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                              894     link.download = `artigo-ahp-bocr-${project?.name?.replace(/\s+/g,
+                                                                                                       '-')}.doc`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1035                       a.download = `backup_${safeName}_${new
+                                                                                                       Date().toISOString().split('T')[0]}.json`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1050                     <><span>📥</span><span>Download Backup</span></>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1104                   Para máxima segurança, faça download do backup regularmente
+                                                                                                       e guarde em local seguro.
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1149                       const csv = [headers.join(';'), ...rows].join('\n');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1150                       const blob = new Blob(['\ufeff' + csv], { type:
+                                                                                                       'text/csv;charset=utf-8;' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1154                       a.download =
+                                                                                                       `julgamentos_${backupData.metadata.projectName.replace(/\s/g, '_')}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1159                     📊 Exportar Julgamentos como CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1354               const exportCSV = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1368                 const csv = [headers.join(';'), ...rows.map(r =>
+                                                                                                       r.join(';'))].join('\n');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1369                 const blob = new Blob(['\ufeff' + csv], { type:
+                                                                                                       'text/csv;charset=utf-8;' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1373                 a.download = `especialistas_${project?.name?.replace(/\s/g,
+                                                                                                       '_') || 'projeto'}_${new Date().toISOString().split('T')[0]}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1385                     <button onClick={exportCSV} className="px-4 py-2
+                                                                                                       bg-green-100 text-green-700 rounded-lg text-sm hover:bg-green-200
+                                                                                                       transition-colors flex items-center gap-2">
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             1386                       📥 Exportar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             2235                   <button onClick={exportXLSX} className="px-4 py-2
+                                                                                                       bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium
+                                                                                                       transition-colors flex items-center gap-2">
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             2236                     📗 Exportar Excel
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             2238                   <button onClick={exportCSV} className="px-4 py-2
+                                                                                                       bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium
+                                                                                                       transition-colors flex items-center gap-2">
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             2239                     📊 Exportar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             2242                     📁 Exportar JSON
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\dashboard-final-v4.tsx                             2338                             onClick={exportArticleAsDocx}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                          2 // Componente para exportar dados demográficos em XLSX
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                          3 // Usa a biblioteca xlsx (SheetJS) para gerar o arquivo no cliente
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                          8 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                         33       const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                         70       const ws1 = XLSX.utils.aoa_to_sheet([individualHeaders,
+                                                                                                       ...individualRows]);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                         89       XLSX.utils.book_append_sheet(wb, ws1, 'Dados Individuais');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        127       const ws2 = XLSX.utils.aoa_to_sheet(statsRows);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        136       XLSX.utils.book_append_sheet(wb, ws2, 'Estatísticas');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        175       const ws3 = XLSX.utils.aoa_to_sheet(articleRows);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        184       XLSX.utils.book_append_sheet(wb, ws3, 'Tabela Artigo');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        189       const fileName = `dados_demograficos_${projectName?.replace(/\s+/g,
+                                                                                                       '_') || projectId}_${new Date().toISOString().split('T')[0]}.xlsx`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        190       XLSX.writeFile(wb, fileName);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        194       setError(err.message || 'Erro ao exportar dados');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\ExportDemographicsButton.tsx                        220             <span>Exportar Dados Demográficos (.xlsx)</span>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                       11 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1045     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1050     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.tex`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1056   // EXPORTAÇÃO CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1059   const exportCSV = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1068     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1069     csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1070     csv += `Número de especialistas:,${calculation.responseCount}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1071     csv += `Software:,AHP-BOCR Decision Support System v2.1\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1074     csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1075     csv += `Mérito,Peso,Peso (%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1078       csv += `${bocrLabels[i]},${w.toFixed(6)},${(w * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1082     csv += `\nÍndices de Consistência BOCR:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1083     csv += `Lambda max:,${calculation.bocrConsistency.lambda.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1084     csv += `CI:,${ciBocr.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1085     csv += `CR:,${(calculation.bocrConsistency.cr * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1086     csv += `RI (n=4):,0.90\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1089     csv += `===== PESOS DOS SUBCRITÉRIOS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1090     csv += `Mérito,Subcritério,Peso Local,Peso Mérito,Peso Global\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1101           csv += `${meritName},${sub.name},${localWeight.toFixed(6)},${meritWe
+                                                                                                       ight.toFixed(6)},${globalWeight.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1105     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1108     csv += `===== MATRIZ DE DESEMPENHO BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1109     csv += `Alternativa,B,O,C,R\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1111       csv += `${alt.name},${(alt.B || 0).toFixed(6)},${(alt.O ||
+                                                                                                       0).toFixed(6)},${(alt.C || 0).toFixed(6)},${(alt.R || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1113     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1116     csv += `===== RANKING FINAL =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1117     csv += `Alternativa,Aditivo (Σ=1),Probabilístico (Σ=1),Subtrativo
+                                                                                                       (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1122       csv += `${alt.name},${(alt.scoreAdditive ||
+                                                                                                       0).toFixed(6)},${(alt.scoreProbabilistic ||
+                                                                                                       0).toFixed(6)},${(alt.scoreSubtractiveNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultPowersNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1124     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1127     csv += `===== ÍNDICES DE CONSISTÊNCIA =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1128     csv += `Matriz,n,Lambda max,CI,CR,Status\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1129     csv += `BOCR,4,${calculation.bocrConsistency.lambda.toFixed(6)},${ciBocr.t
+                                                                                                       oFixed(6)},${(calculation.bocrConsistency.cr *
+                                                                                                       100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1135         csv += `${bocrLabels[idx]},5,${cons.lambda.toFixed(6)},${ciSub.toFixed
+                                                                                                       (6)},${(cons.cr * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1138     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1141     csv += `===== ANÁLISE DE SENSIBILIDADE =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1142     csv += `Mérito,Peso Atual (%),Ponto de Inflexão (%),Classificação\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1152       csv += `${bocrLabels[idx]},${currentWeight.toFixed(1)},${inflection !==
+                                                                                                       null ? inflection : 'Sem inversão'},${classification}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1154     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1158       csv += `===== PERFIL DEMOGRÁFICO DOS ESPECIALISTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1159       csv += `Total de respondentes:,${respondentsDemographics.length}\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1206         csv += `${v.title}:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1207         csv += `Categoria,n,%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1210           csv += `${label},${count},${((count /
+                                                                                                       respondentsDemographics.length) * 100).toFixed(1)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1212         csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1218       csv += `===== RESUMO DAS RESPOSTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1219       csv += `Total de respostas:,${projectResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1226       csv += `Respostas reais:,${realResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1227       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1228       csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1229       csv += `Respostas consistentes:,${consistentCount} (${((consistentCount
+                                                                                                       / projectResponses.length) * 100).toFixed(0)}%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1230       csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1232       csv += `Detalhamento por resposta:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1233       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1239         csv += `R${idx + 1},${submittedAt},${duration},${(crBocr *
+                                                                                                       100).toFixed(2)}%,${crBocr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'},${tipo}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1243     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1244     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1248     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1254   // EXPORTAÇÃO XLSX - PLANILHA COMPLETA COM MÚLTIPLAS SHEETS
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1257   const exportXLSX = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1260     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1288     const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1290     XLSX.utils.book_append_sheet(wb, wsOverview, 'Visão Geral');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1317     const wsBocr = XLSX.utils.aoa_to_sheet(bocrData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1319     XLSX.utils.book_append_sheet(wb, wsBocr, 'Pesos BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1367     const wsSub = XLSX.utils.aoa_to_sheet(subData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1369     XLSX.utils.book_append_sheet(wb, wsSub, 'Subcritérios');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1398     const wsPerf = XLSX.utils.aoa_to_sheet(perfData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1400     XLSX.utils.book_append_sheet(wb, wsPerf, 'Desempenho BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1433     const wsRank = XLSX.utils.aoa_to_sheet(rankData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1435     XLSX.utils.book_append_sheet(wb, wsRank, 'Ranking');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1468     const wsCons = XLSX.utils.aoa_to_sheet(consData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1470     XLSX.utils.book_append_sheet(wb, wsCons, 'Consistência');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1525     const wsSens = XLSX.utils.aoa_to_sheet(sensData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1527     XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1649     const wsDemo = XLSX.utils.aoa_to_sheet(demoData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1651     XLSX.utils.book_append_sheet(wb, wsDemo, 'Demográficos');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1708       const wsResponses = XLSX.utils.aoa_to_sheet(responsesData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1710       XLSX.utils.book_append_sheet(wb, wsResponses, 'Respostas');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1719       ['Formato:', 'Microsoft Excel (.xlsx)'],
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1753     const wsMeta = XLSX.utils.aoa_to_sheet(metaData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1755     XLSX.utils.book_append_sheet(wb, wsMeta, 'Referências');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1757     // ===== DOWNLOAD =====
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1758     XLSX.writeFile(wb, `resultados_completos_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.xlsx`);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     1871               { id: 'export', label: '📥 Exportar', icon: '📥' }
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     3788                           a.download = `parecer-ahp-bocr-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     3793                         📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     3984                         a.download = `texto-academico-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     3989                       📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4070             TAB: EXPORTAR
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4075               <h3 className="text-lg font-semibold text-gray-800
+                                                                                                       mb-4">Exportar Resultados</h3>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4081                 {/* CSV */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4086                   <h4 className="font-semibold text-gray-800 mb-2">CSV</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4091                     onClick={exportCSV}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4094                     Baixar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4115                 {/* XLSX */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4120                   <h4 className="font-semibold text-gray-800 mb-2">Excel
+                                                                                                       (XLSX)</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4125                     onClick={exportXLSX}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-debug.tsx                                     4128                     Baixar .xlsx
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                  11 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1085     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1090     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.tex`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1096   // EXPORTAÇÃO CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1099   const exportCSV = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1108     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1109     csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1110     csv += `Número de especialistas:,${calculation.responseCount}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1111     csv += `Software:,AHP-BOCR Decision Support System v2.1\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1114     csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1115     csv += `Mérito,Peso,Peso (%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1118       csv += `${bocrLabels[i]},${w.toFixed(6)},${(w * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1122     csv += `\nÍndices de Consistência BOCR:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1123     csv += `Lambda max:,${calculation.bocrConsistency.lambda.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1124     csv += `CI:,${ciBocr.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1125     csv += `CR:,${(calculation.bocrConsistency.cr * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1126     csv += `RI (n=4):,0.90\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1129     csv += `===== PESOS DOS SUBCRITÉRIOS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1130     csv += `Mérito,Subcritério,Peso Local,Peso Mérito,Peso Global\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1141           csv += `${meritName},${sub.name},${localWeight.toFixed(6)},${meritWe
+                                                                                                       ight.toFixed(6)},${globalWeight.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1145     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1148     csv += `===== MATRIZ DE DESEMPENHO BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1149     csv += `Alternativa,B,O,C,R\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1151       csv += `${alt.name},${(alt.B || 0).toFixed(6)},${(alt.O ||
+                                                                                                       0).toFixed(6)},${(alt.C || 0).toFixed(6)},${(alt.R || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1153     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1156     csv += `===== RANKING FINAL =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1157     csv += `Alternativa,Aditivo (Σ=1),Probabilístico (Σ=1),Subtrativo
+                                                                                                       (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1162       csv += `${alt.name},${(alt.scoreAdditive ||
+                                                                                                       0).toFixed(6)},${(alt.scoreProbabilistic ||
+                                                                                                       0).toFixed(6)},${(alt.scoreSubtractiveNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultPowersNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1164     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1167     csv += `===== ÍNDICES DE CONSISTÊNCIA =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1168     csv += `Matriz,n,Lambda max,CI,CR,Status\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1169     csv += `BOCR,4,${calculation.bocrConsistency.lambda.toFixed(6)},${ciBocr.t
+                                                                                                       oFixed(6)},${(calculation.bocrConsistency.cr *
+                                                                                                       100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1175         csv += `${bocrLabels[idx]},5,${cons.lambda.toFixed(6)},${ciSub.toFixed
+                                                                                                       (6)},${(cons.cr * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1178     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1181     csv += `===== ANÁLISE DE SENSIBILIDADE =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1182     csv += `Mérito,Peso Atual (%),Ponto de Inflexão (%),Classificação\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1192       csv += `${bocrLabels[idx]},${currentWeight.toFixed(1)},${inflection !==
+                                                                                                       null ? inflection : 'Sem inversão'},${classification}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1194     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1198       csv += `===== PERFIL DEMOGRÁFICO DOS ESPECIALISTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1199       csv += `Total de respondentes:,${respondentsDemographics.length}\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1246         csv += `${v.title}:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1247         csv += `Categoria,n,%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1250           csv += `${label},${count},${((count /
+                                                                                                       respondentsDemographics.length) * 100).toFixed(1)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1252         csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1258       csv += `===== RESUMO DAS RESPOSTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1259       csv += `Total de respostas:,${projectResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1266       csv += `Respostas reais:,${realResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1267       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1268       csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1269       csv += `Respostas consistentes:,${consistentCount} (${((consistentCount
+                                                                                                       / projectResponses.length) * 100).toFixed(0)}%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1270       csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1272       csv += `Detalhamento por resposta:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1273       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1279         csv += `R${idx + 1},${submittedAt},${duration},${(crBocr *
+                                                                                                       100).toFixed(2)}%,${crBocr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'},${tipo}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1283     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1284     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1288     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1294   // EXPORTAÇÃO XLSX - PLANILHA COMPLETA COM MÚLTIPLAS SHEETS
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1297   const exportXLSX = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1300     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1328     const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1330     XLSX.utils.book_append_sheet(wb, wsOverview, 'Visão Geral');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1357     const wsBocr = XLSX.utils.aoa_to_sheet(bocrData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1359     XLSX.utils.book_append_sheet(wb, wsBocr, 'Pesos BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1407     const wsSub = XLSX.utils.aoa_to_sheet(subData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1409     XLSX.utils.book_append_sheet(wb, wsSub, 'Subcritérios');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1438     const wsPerf = XLSX.utils.aoa_to_sheet(perfData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1440     XLSX.utils.book_append_sheet(wb, wsPerf, 'Desempenho BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1473     const wsRank = XLSX.utils.aoa_to_sheet(rankData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1475     XLSX.utils.book_append_sheet(wb, wsRank, 'Ranking');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1508     const wsCons = XLSX.utils.aoa_to_sheet(consData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1510     XLSX.utils.book_append_sheet(wb, wsCons, 'Consistência');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1565     const wsSens = XLSX.utils.aoa_to_sheet(sensData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1567     XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1689     const wsDemo = XLSX.utils.aoa_to_sheet(demoData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1691     XLSX.utils.book_append_sheet(wb, wsDemo, 'Demográficos');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1748       const wsResponses = XLSX.utils.aoa_to_sheet(responsesData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1750       XLSX.utils.book_append_sheet(wb, wsResponses, 'Respostas');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1759       ['Formato:', 'Microsoft Excel (.xlsx)'],
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1793     const wsMeta = XLSX.utils.aoa_to_sheet(metaData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1795     XLSX.utils.book_append_sheet(wb, wsMeta, 'Referências');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1797     // ===== DOWNLOAD =====
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1798     XLSX.writeFile(wb, `resultados_completos_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.xlsx`);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                1911               { id: 'export', label: '📥 Exportar', icon: '📥' }
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                3828                           a.download = `parecer-ahp-bocr-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                3833                         📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4024                         a.download = `texto-academico-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4029                       📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4110             TAB: EXPORTAR
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4115               <h3 className="text-lg font-semibold text-gray-800
+                                                                                                       mb-4">Exportar Resultados</h3>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4121                 {/* CSV */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4126                   <h4 className="font-semibold text-gray-800 mb-2">CSV</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4131                     onClick={exportCSV}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4134                     Baixar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4155                 {/* XLSX */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4160                   <h4 className="font-semibold text-gray-800 mb-2">Excel
+                                                                                                       (XLSX)</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4165                     onClick={exportXLSX}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\page-fixed-v645.tsx                                4168                     Baixar .xlsx
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\RespondentsDemographics.tsx                         162             // Gerar CSV com dados
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\RespondentsDemographics.tsx                         179             const csv = [headers.join(';'), ...rows.map(r =>
+                                                                                                       r.join(';'))].join('\n');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\RespondentsDemographics.tsx                         180             const blob = new Blob(['\ufeff' + csv], { type:
+                                                                                                       'text/csv;charset=utf-8;' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\RespondentsDemographics.tsx                         184             a.download = `especialistas_${new
+                                                                                                       Date().toISOString().split('T')[0]}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\RespondentsDemographics.tsx                         189           📥 Exportar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                          11 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1000     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1005     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.tex`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1011   // EXPORTAÇÃO CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1014   const exportCSV = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1023     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1024     csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1025     csv += `Número de especialistas:,${calculation.responseCount}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1026     csv += `Software:,AHP-BOCR Decision Support System v2.1\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1029     csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1030     csv += `Mérito,Peso,Peso (%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1033       csv += `${bocrLabels[i]},${w.toFixed(6)},${(w * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1037     csv += `\nÍndices de Consistência BOCR:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1038     csv += `Lambda max:,${calculation.bocrConsistency.lambda.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1039     csv += `CI:,${ciBocr.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1040     csv += `CR:,${(calculation.bocrConsistency.cr * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1041     csv += `RI (n=4):,0.90\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1044     csv += `===== PESOS DOS SUBCRITÉRIOS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1045     csv += `Mérito,Subcritério,Peso Local,Peso Mérito,Peso Global\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1056           csv += `${meritName},${sub.name},${localWeight.toFixed(6)},${meritWe
+                                                                                                       ight.toFixed(6)},${globalWeight.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1060     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1063     csv += `===== MATRIZ DE DESEMPENHO BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1064     csv += `Alternativa,B,O,C,R\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1066       csv += `${alt.name},${(alt.B || 0).toFixed(6)},${(alt.O ||
+                                                                                                       0).toFixed(6)},${(alt.C || 0).toFixed(6)},${(alt.R || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1068     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1071     csv += `===== RANKING FINAL =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1072     csv += `Alternativa,Aditivo (Σ=1),Probabilístico (Σ=1),Subtrativo
+                                                                                                       (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1077       csv += `${alt.name},${(alt.scoreAdditive ||
+                                                                                                       0).toFixed(6)},${(alt.scoreProbabilistic ||
+                                                                                                       0).toFixed(6)},${(alt.scoreSubtractiveNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultPowersNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1079     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1082     csv += `===== ÍNDICES DE CONSISTÊNCIA =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1083     csv += `Matriz,n,Lambda max,CI,CR,Status\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1084     csv += `BOCR,4,${calculation.bocrConsistency.lambda.toFixed(6)},${ciBocr.t
+                                                                                                       oFixed(6)},${(calculation.bocrConsistency.cr *
+                                                                                                       100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1090         csv += `${bocrLabels[idx]},5,${cons.lambda.toFixed(6)},${ciSub.toFixed
+                                                                                                       (6)},${(cons.cr * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1093     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1096     csv += `===== ANÁLISE DE SENSIBILIDADE =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1097     csv += `Mérito,Peso Atual (%),Ponto de Inflexão (%),Classificação\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1107       csv += `${bocrLabels[idx]},${currentWeight.toFixed(1)},${inflection !==
+                                                                                                       null ? inflection : 'Sem inversão'},${classification}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1109     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1113       csv += `===== PERFIL DEMOGRÁFICO DOS ESPECIALISTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1114       csv += `Total de respondentes:,${respondentsDemographics.length}\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1161         csv += `${v.title}:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1162         csv += `Categoria,n,%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1165           csv += `${label},${count},${((count /
+                                                                                                       respondentsDemographics.length) * 100).toFixed(1)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1167         csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1173       csv += `===== RESUMO DAS RESPOSTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1174       csv += `Total de respostas:,${projectResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1181       csv += `Respostas reais:,${realResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1182       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1183       csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1184       csv += `Respostas consistentes:,${consistentCount} (${((consistentCount
+                                                                                                       / projectResponses.length) * 100).toFixed(0)}%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1185       csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1187       csv += `Detalhamento por resposta:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1188       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1194         csv += `R${idx + 1},${submittedAt},${duration},${(crBocr *
+                                                                                                       100).toFixed(2)}%,${crBocr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'},${tipo}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1198     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1199     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1203     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1209   // EXPORTAÇÃO XLSX - PLANILHA COMPLETA COM MÚLTIPLAS SHEETS
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1212   const exportXLSX = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1215     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1243     const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1245     XLSX.utils.book_append_sheet(wb, wsOverview, 'Visão Geral');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1272     const wsBocr = XLSX.utils.aoa_to_sheet(bocrData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1274     XLSX.utils.book_append_sheet(wb, wsBocr, 'Pesos BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1322     const wsSub = XLSX.utils.aoa_to_sheet(subData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1324     XLSX.utils.book_append_sheet(wb, wsSub, 'Subcritérios');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1353     const wsPerf = XLSX.utils.aoa_to_sheet(perfData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1355     XLSX.utils.book_append_sheet(wb, wsPerf, 'Desempenho BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1388     const wsRank = XLSX.utils.aoa_to_sheet(rankData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1390     XLSX.utils.book_append_sheet(wb, wsRank, 'Ranking');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1423     const wsCons = XLSX.utils.aoa_to_sheet(consData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1425     XLSX.utils.book_append_sheet(wb, wsCons, 'Consistência');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1480     const wsSens = XLSX.utils.aoa_to_sheet(sensData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1482     XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1604     const wsDemo = XLSX.utils.aoa_to_sheet(demoData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1606     XLSX.utils.book_append_sheet(wb, wsDemo, 'Demográficos');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1663       const wsResponses = XLSX.utils.aoa_to_sheet(responsesData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1665       XLSX.utils.book_append_sheet(wb, wsResponses, 'Respostas');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1674       ['Formato:', 'Microsoft Excel (.xlsx)'],
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1708     const wsMeta = XLSX.utils.aoa_to_sheet(metaData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1710     XLSX.utils.book_append_sheet(wb, wsMeta, 'Referências');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1712     // ===== DOWNLOAD =====
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1713     XLSX.writeFile(wb, `resultados_completos_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.xlsx`);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        1826               { id: 'export', label: '📥 Exportar', icon: '📥' }
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        3712                           a.download = `parecer-ahp-bocr-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        3717                         📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        3908                         a.download = `texto-academico-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        3913                       📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        3994             TAB: EXPORTAR
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        3999               <h3 className="text-lg font-semibold text-gray-800
+                                                                                                       mb-4">Exportar Resultados</h3>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4005                 {/* CSV */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4010                   <h4 className="font-semibold text-gray-800 mb-2">CSV</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4015                     onClick={exportCSV}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4018                     Baixar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4039                 {/* XLSX */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4044                   <h4 className="font-semibold text-gray-800 mb-2">Excel
+                                                                                                       (XLSX)</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4049                     onClick={exportXLSX}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page-hibrido.tsx                        4052                     Baixar .xlsx
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                  11 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                 996     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1001     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.tex`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1007   // EXPORTAÇÃO CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1010   const exportCSV = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1019     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1020     csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1021     csv += `Número de especialistas:,${calculation.responseCount}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1022     csv += `Software:,AHP-BOCR Decision Support System v2.1\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1025     csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1026     csv += `Mérito,Peso,Peso (%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1029       csv += `${bocrLabels[i]},${w.toFixed(6)},${(w * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1033     csv += `\nÍndices de Consistência BOCR:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1034     csv += `Lambda max:,${calculation.bocrConsistency.lambda.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1035     csv += `CI:,${ciBocr.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1036     csv += `CR:,${(calculation.bocrConsistency.cr * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1037     csv += `RI (n=4):,0.90\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1040     csv += `===== PESOS DOS SUBCRITÉRIOS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1041     csv += `Mérito,Subcritério,Peso Local,Peso Mérito,Peso Global\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1052           csv += `${meritName},${sub.name},${localWeight.toFixed(6)},${meritWe
+                                                                                                       ight.toFixed(6)},${globalWeight.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1056     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1059     csv += `===== MATRIZ DE DESEMPENHO BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1060     csv += `Alternativa,B,O,C,R\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1062       csv += `${alt.name},${(alt.B || 0).toFixed(6)},${(alt.O ||
+                                                                                                       0).toFixed(6)},${(alt.C || 0).toFixed(6)},${(alt.R || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1064     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1067     csv += `===== RANKING FINAL =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1068     csv += `Alternativa,Aditivo (Σ=1),Probabilístico (Σ=1),Subtrativo
+                                                                                                       (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1073       csv += `${alt.name},${(alt.scoreAdditive ||
+                                                                                                       0).toFixed(6)},${(alt.scoreProbabilistic ||
+                                                                                                       0).toFixed(6)},${(alt.scoreSubtractiveNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultPowersNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1075     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1078     csv += `===== ÍNDICES DE CONSISTÊNCIA =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1079     csv += `Matriz,n,Lambda max,CI,CR,Status\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1080     csv += `BOCR,4,${calculation.bocrConsistency.lambda.toFixed(6)},${ciBocr.t
+                                                                                                       oFixed(6)},${(calculation.bocrConsistency.cr *
+                                                                                                       100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1086         csv += `${bocrLabels[idx]},5,${cons.lambda.toFixed(6)},${ciSub.toFixed
+                                                                                                       (6)},${(cons.cr * 100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1089     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1092     csv += `===== ANÁLISE DE SENSIBILIDADE =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1093     csv += `Mérito,Peso Atual (%),Ponto de Inflexão (%),Classificação\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1103       csv += `${bocrLabels[idx]},${currentWeight.toFixed(1)},${inflection !==
+                                                                                                       null ? inflection : 'Sem inversão'},${classification}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1105     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1109       csv += `===== PERFIL DEMOGRÁFICO DOS ESPECIALISTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1110       csv += `Total de respondentes:,${respondentsDemographics.length}\n\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1157         csv += `${v.title}:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1158         csv += `Categoria,n,%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1161           csv += `${label},${count},${((count /
+                                                                                                       respondentsDemographics.length) * 100).toFixed(1)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1163         csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1169       csv += `===== RESUMO DAS RESPOSTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1170       csv += `Total de respostas:,${projectResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1177       csv += `Respostas reais:,${realResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1178       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1179       csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1180       csv += `Respostas consistentes:,${consistentCount} (${((consistentCount
+                                                                                                       / projectResponses.length) * 100).toFixed(0)}%)\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1181       csv += `\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1183       csv += `Detalhamento por resposta:\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1184       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1190         csv += `R${idx + 1},${submittedAt},${duration},${(crBocr *
+                                                                                                       100).toFixed(2)}%,${crBocr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'},${tipo}\n`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1194     // Download
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1195     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1199     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.csv`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1205   // EXPORTAÇÃO XLSX - PLANILHA COMPLETA COM MÚLTIPLAS SHEETS
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1208   const exportXLSX = () => {
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1211     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1239     const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1241     XLSX.utils.book_append_sheet(wb, wsOverview, 'Visão Geral');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1268     const wsBocr = XLSX.utils.aoa_to_sheet(bocrData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1270     XLSX.utils.book_append_sheet(wb, wsBocr, 'Pesos BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1318     const wsSub = XLSX.utils.aoa_to_sheet(subData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1320     XLSX.utils.book_append_sheet(wb, wsSub, 'Subcritérios');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1349     const wsPerf = XLSX.utils.aoa_to_sheet(perfData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1351     XLSX.utils.book_append_sheet(wb, wsPerf, 'Desempenho BOCR');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1384     const wsRank = XLSX.utils.aoa_to_sheet(rankData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1386     XLSX.utils.book_append_sheet(wb, wsRank, 'Ranking');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1419     const wsCons = XLSX.utils.aoa_to_sheet(consData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1421     XLSX.utils.book_append_sheet(wb, wsCons, 'Consistência');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1476     const wsSens = XLSX.utils.aoa_to_sheet(sensData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1478     XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1600     const wsDemo = XLSX.utils.aoa_to_sheet(demoData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1602     XLSX.utils.book_append_sheet(wb, wsDemo, 'Demográficos');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1659       const wsResponses = XLSX.utils.aoa_to_sheet(responsesData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1661       XLSX.utils.book_append_sheet(wb, wsResponses, 'Respostas');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1670       ['Formato:', 'Microsoft Excel (.xlsx)'],
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1704     const wsMeta = XLSX.utils.aoa_to_sheet(metaData);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1706     XLSX.utils.book_append_sheet(wb, wsMeta, 'Referências');
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1708     // ===== DOWNLOAD =====
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1709     XLSX.writeFile(wb, `resultados_completos_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.xlsx`);
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                1822               { id: 'export', label: '📥 Exportar', icon: '📥' }
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                3708                           a.download = `parecer-ahp-bocr-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                3713                         📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4147                         a.download = `texto-academico-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4152                       📥 Download .MD
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4233             TAB: EXPORTAR
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4238               <h3 className="text-lg font-semibold text-gray-800
+                                                                                                       mb-4">Exportar Resultados</h3>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4244                 {/* CSV */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4249                   <h4 className="font-semibold text-gray-800 mb-2">CSV</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4254                     onClick={exportCSV}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4257                     Baixar CSV
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4278                 {/* XLSX */}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4283                   <h4 className="font-semibold text-gray-800 mb-2">Excel
+                                                                                                       (XLSX)</h4>
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4288                     onClick={exportXLSX}
+C:\AHP-BOCR\ahp-simple\_backup\20260205_165958\resultados-page.tsx                                4291                     Baixar .xlsx
+C:\AHP-BOCR\ahp-simple\app\api\export-demographics\route.ts                                          2 // API para exportar dados demográficos dos especialistas em XLSX
+C:\AHP-BOCR\ahp-simple\app\api\export-demographics\route.ts                                        146 // HANDLER GET - GERA XLSX
+C:\AHP-BOCR\ahp-simple\app\api\export-demographics\route.ts                                        189     // (O cliente vai gerar o XLSX usando uma biblioteca como xlsx ou exceljs)
+C:\AHP-BOCR\ahp-simple\app\api\export-demographics\route.ts                                        259     console.error('Erro ao exportar dados demográficos:', error);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx               3  * Aba 6: Exportar & Relatórios
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx               8  * - CSVs individuais
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              16 import { Download, FileSpreadsheet, FileJson, FileText, CheckCircle } from
+                                                                                                       'lucide-react';
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              17 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              33       const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              45       const ws1 = XLSX.utils.aoa_to_sheet(bocrData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              46       XLSX.utils.book_append_sheet(wb, ws1, 'Pesos BOCR');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              69       const ws2 = XLSX.utils.aoa_to_sheet(subData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              70       XLSX.utils.book_append_sheet(wb, ws2, 'Subcritérios');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              90       const ws3 = XLSX.utils.aoa_to_sheet(rankData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              91       XLSX.utils.book_append_sheet(wb, ws3, 'Ranking');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              93       // Download
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx              94       XLSX.writeFile(wb,
+                                                                                                       `AHP-BOCR-Completo-${project.id}-${Date.now()}.xlsx`);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             106       const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             122         const ws = XLSX.utils.aoa_to_sheet(data);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             124         XLSX.utils.book_append_sheet(wb, ws, sheetName);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             127       XLSX.writeFile(wb,
+                                                                                                       `CR-Por-Especialista-${project.id}-${Date.now()}.xlsx`);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             134   // CSV BOCR
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             135   function exportCSV_BOCR() {
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             136     setExporting('csv-bocr');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             140       const csv = [
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             148       const blob = new Blob([csv], { type: 'text/csv' });
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             152       a.download = `BOCR-Weights-${Date.now()}.csv`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             189       a.download = `AHP-BOCR-Data-${Date.now()}.json`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             216       id: 'csv-bocr',
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             217       title: 'CSV - Pesos BOCR',
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             218       description: 'Arquivo CSV simples com pesos BOCR',
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             221       action: exportCSV_BOCR
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             239             📥 Exportar & Relatórios
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             242             Central de downloads e exportação de dados
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             325                           <Download className="w-4 h-4" />
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             326                           Exportar
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             363                 <strong>CSV:</strong> Formato simples para importar em outras
+                                                                                                       ferramentas
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             386               'Exportar Excel Completo para Apêndice A',
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             387               'Exportar screenshots dos gráficos Plotly (PNG alta resolução)',
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             388               'Exportar hierarquia D3 (SVG vetorial)',
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\ExportReports.tsx             389               'Exportar heatmap de CR (PNG 1600×1200)',
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx         18 import { AlertTriangle, CheckCircle, TrendingUp, Users, Download } from
+                                                                                                       'lucide-react';
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx         20 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx        193     const ws = XLSX.utils.aoa_to_sheet(wsData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx        194     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx        195     XLSX.utils.book_append_sheet(wb, ws, 'Outliers');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx        196     XLSX.writeFile(wb, `Outliers-${project.id}-${Date.now()}.xlsx`);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx        383                     <Download className="w-4 h-4" />
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx        384                     Exportar
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\components\QualityConsistency.tsx        421                       Mostrando 20 de {outliers.length} outliers. Use
+                                                                                                       exportar para ver todos.
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                  11 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 225 // COMPONENTE: ChartDownloadWrapper
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 226 // Envoltório com botão de download para exportar gráficos como PNG/JPEG
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 229 function ChartDownloadWrapper({
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 239   const [downloading, setDownloading] = useState(false);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 242   const handleDownload = async (format: 'png' | 'jpeg') => {
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 244     setDownloading(true);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 266       link.download = `${filename}.${extension}`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 270       console.error('Erro ao exportar gráfico:', err);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 272     setDownloading(false);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 287               onClick={() => handleDownload('png')}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 289               disabled={downloading}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 294               onClick={() => handleDownload('jpeg')}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 296               disabled={downloading}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 306             disabled={downloading}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                 308             {downloading ? (
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2120     // Download
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2125     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.tex`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2131   // EXPORTAÇÃO CSV
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2134   const exportCSV = () => {
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2143     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2144     csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2145     csv += `Número de especialistas:,${calculation.responseCount}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2146     csv += `Software:,AHP-BOCR Decision Support System v5.0\n\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2149     csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2150     csv += `Mérito,Peso,Peso (%)\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2153       csv += `${bocrLabels[i]},${(w || 0).toFixed(6)},${((w || 0) *
+                                                                                                       100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2157     csv += `\nÍndices de Consistência BOCR:\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2158     csv += `Lambda max:,${(calculation.bocrConsistency.lambda ||
+                                                                                                       0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2159     csv += `CI:,${(ciBocr || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2160     csv += `CR:,${((calculation.bocrConsistency.cr || 0) *
+                                                                                                       100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2161     csv += `RI (n=4):,0.90\n\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2164     csv += `===== PESOS DOS SUBCRITÉRIOS =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2165     csv += `Mérito,Subcritério,Peso Local,Peso Mérito,Peso Global\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2176           csv += `${meritName},${sub.name},${localWeight.toFixed(6)},${meritWe
+                                                                                                       ight.toFixed(6)},${globalWeight.toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2180     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2183     csv += `===== MATRIZ DE DESEMPENHO BOCR =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2184     csv += `Alternativa,B,O,C,R\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2186       csv += `${alt.name},${(alt.B || 0).toFixed(6)},${(alt.O ||
+                                                                                                       0).toFixed(6)},${(alt.C || 0).toFixed(6)},${(alt.R || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2188     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2191     csv += `===== RANKING FINAL =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2192     csv += `Alternativa,Adit. Residual (Σ=1),Q. Somas (Σ=1),Subtrativo
+                                                                                                       (bruto),Mult Potências (Σ=1),Mult Simples (Σ=1)\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2197       csv += `${alt.name},${(alt.scoreAdditiveResidualNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreQuotientSumsNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreSubtractive ?? alt.scores?.subtractive ??
+                                                                                                       0).toFixed(6)},${(alt.scoreMultiplicativeNorm ||
+                                                                                                       0).toFixed(6)},${(alt.scoreMultSimpleNorm || 0).toFixed(6)}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2199     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2202     csv += `===== ÍNDICES DE CONSISTÊNCIA =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2203     csv += `Matriz,n,Lambda max,CI,CR,Status\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2204     csv += `BOCR,4,${(calculation.bocrConsistency.lambda ||
+                                                                                                       0).toFixed(6)},${(calcCI(calculation.bocrConsistency.cr, 4) ||
+                                                                                                       0).toFixed(6)},${((calculation.bocrConsistency.cr || 0) *
+                                                                                                       100).toFixed(2)}%,${calculation.bocrConsistency.cr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2210         csv += `${bocrLabels[idx]},5,${(cons.lambda ||
+                                                                                                       0).toFixed(6)},${(ciSub || 0).toFixed(6)},${((cons.cr || 0) *
+                                                                                                       100).toFixed(2)}%,${cons.cr <= 0.10 ? 'Consistente' : 'Inconsistente'}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2213     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2216     csv += `===== ANÁLISE DE SENSIBILIDADE =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2217     csv += `Mérito,Peso Atual (%),Ponto de Inflexão (%),Classificação\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2227       csv += `${bocrLabels[idx]},${currentWeight.toFixed(1)},${inflection !==
+                                                                                                       null ? inflection : 'Sem inversão'},${classification}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2229     csv += `\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2233       csv += `===== PERFIL DEMOGRÁFICO DOS ESPECIALISTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2234       csv += `Total de respondentes:,${respondentsDemographics.length}\n\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2281         csv += `${v.title}:\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2282         csv += `Categoria,n,%\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2285           csv += `${label},${count},${((count /
+                                                                                                       respondentsDemographics.length) * 100).toFixed(1)}%\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2287         csv += `\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2293       csv += `===== RESUMO DAS RESPOSTAS =====\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2294       csv += `Total de respostas:,${projectResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2301       csv += `Respostas reais:,${realResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2302       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2303       csv += `CR médio:,${(avgCR * 100).toFixed(2)}%\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2304       csv += `Respostas consistentes:,${consistentCount} (${((consistentCount
+                                                                                                       / projectResponses.length) * 100).toFixed(0)}%)\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2305       csv += `\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2307       csv += `Detalhamento por resposta:\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2308       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2314         csv += `R${idx + 1},${submittedAt},${duration},${(crBocr *
+                                                                                                       100).toFixed(2)}%,${crBocr <= 0.10 ? 'Consistente' :
+                                                                                                       'Inconsistente'},${tipo}\n`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2318     // Download
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2319     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2323     a.download = `resultados_ahp_bocr_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.csv`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2329   // EXPORTAÇÃO XLSX - PLANILHA COMPLETA COM MÚLTIPLAS SHEETS
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2332   const exportXLSX = () => {
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2335     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2363     const wsOverview = XLSX.utils.aoa_to_sheet(overviewData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2365     XLSX.utils.book_append_sheet(wb, wsOverview, 'Visão Geral');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2395     const wsBocr = XLSX.utils.aoa_to_sheet(bocrData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2397     XLSX.utils.book_append_sheet(wb, wsBocr, 'Pesos BOCR');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2445     const wsSub = XLSX.utils.aoa_to_sheet(subData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2447     XLSX.utils.book_append_sheet(wb, wsSub, 'Subcritérios');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2476     const wsPerf = XLSX.utils.aoa_to_sheet(perfData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2478     XLSX.utils.book_append_sheet(wb, wsPerf, 'Desempenho BOCR');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2511     const wsRank = XLSX.utils.aoa_to_sheet(rankData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2513     XLSX.utils.book_append_sheet(wb, wsRank, 'Ranking');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2546     const wsCons = XLSX.utils.aoa_to_sheet(consData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2548     XLSX.utils.book_append_sheet(wb, wsCons, 'Consistência');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2603     const wsSens = XLSX.utils.aoa_to_sheet(sensData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2605     XLSX.utils.book_append_sheet(wb, wsSens, 'Sensibilidade');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2727     const wsDemo = XLSX.utils.aoa_to_sheet(demoData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2729     XLSX.utils.book_append_sheet(wb, wsDemo, 'Demográficos');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2786       const wsResponses = XLSX.utils.aoa_to_sheet(responsesData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2788       XLSX.utils.book_append_sheet(wb, wsResponses, 'Respostas');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2797       ['Formato:', 'Microsoft Excel (.xlsx)'],
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2831     const wsMeta = XLSX.utils.aoa_to_sheet(metaData);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2833     XLSX.utils.book_append_sheet(wb, wsMeta, 'Referências');
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2835     // ===== DOWNLOAD =====
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2836     XLSX.writeFile(wb, `resultados_completos_${project.name.replace(/\s+/g,
+                                                                                                       '_')}.xlsx`);
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2941               { id: 'export', label: '📥 Exportar & Relatórios', description:
+                                                                                                       'Downloads e relatórios' }
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                2981               <ChartDownloadWrapper filename="bocr-profile" title="Perfil
+                                                                                                       BOCR por Alternativa">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3083               </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3093               <ChartDownloadWrapper filename="bocr-radar" title="Radar
+                                                                                                       Comparativo BOCR">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3217               </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3350                       <ChartDownloadWrapper filename="demographics-gender"
+                                                                                                       title="Distribuição por Gênero">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3392                       </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3404                       <ChartDownloadWrapper filename="demographics-age"
+                                                                                                       title="Distribuição por Faixa Etária">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3414                       </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3426                       <ChartDownloadWrapper filename="demographics-education"
+                                                                                                       title="Nível de Formação Acadêmica">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3440                       </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3452                       <ChartDownloadWrapper
+                                                                                                       filename="demographics-experience" title="Tempo de Experiência Profissional">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3462                       </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3477                           <ChartDownloadWrapper filename="demographics-roles"
+                                                                                                       title="Distribuição por Cargo">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3491                           </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3509                           <ChartDownloadWrapper filename="demographics-areas"
+                                                                                                       title="Área de Atuação">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                3523                           </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                4174                   <ChartDownloadWrapper filename="consistency-gauge"
+                                                                                                       title="Consistência Global (CR)">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                4182                   </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                4236               <ChartDownloadWrapper filename="bocr-sunburst" title="Vetor de
+                                                                                                       Prioridades Estratégicas (BOCR)">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                4243               </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                4353               <ChartDownloadWrapper filename="sensitivity-analysis"
+                                                                                                       title="Análise de Sensibilidade">
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                4367               </ChartDownloadWrapper>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5217                           a.download = `parecer-ahp-bocr-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5222                         📥 Download .MD
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5393                         a.download = `texto-academico-${projectId}.md`;
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5398                       📥 Download .MD
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5637                   📄 Exportar BibTeX
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5911                   <strong>Exportação:</strong> XLSX.js, jsPDF
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5947             TAB: EXPORTAR
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5952               <h3 className="text-lg font-semibold text-gray-800
+                                                                                                       mb-4">Exportar Resultados</h3>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5958                 {/* CSV */}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5963                   <h4 className="font-semibold text-gray-800 mb-2">CSV</h4>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5968                     onClick={exportCSV}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5971                     Baixar CSV
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5992                 {/* XLSX */}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                5997                   <h4 className="font-semibold text-gray-800 mb-2">Excel
+                                                                                                       (XLSX)</h4>
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                6002                     onClick={exportXLSX}
+C:\AHP-BOCR\ahp-simple\app\decisor\resultados\[projectId]\page.tsx                                6005                     Baixar .xlsx
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                                8 import { Download, CheckCircle, XCircle, AlertTriangle, RefreshCw } from
+                                                                                                       'lucide-react';
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                              118   function downloadReport(format: 'json' | 'txt') {
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                              139     a.download = filename;
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                              417             {/* Botões de Download */}
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                              420                 onClick={() => downloadReport('json')}
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                              423                 <Download className="w-5 h-5" />
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                              427                 onClick={() => downloadReport('txt')}
+C:\AHP-BOCR\ahp-simple\app\decisor\validacao\page.tsx                                              430                 <Download className="w-5 h-5" />
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           116     const [downloading, setDownloading] = useState(false);
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           155     const handleDownload = async () => {
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           156         if (!chartRef.current || downloading) return;
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           157         setDownloading(true);
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           163                 setDownloading(false);
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           179                 a.download = `${filename}_300dpi.tiff`;
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           190                     a.download = `${filename}_300dpi.png`;
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           200         setDownloading(false);
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           216                     onClick={handleDownload}
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           217                     disabled={downloading}
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           219                     title={`Download ${title || 'gráfico'} (TIFF 300 DPI)`}
+C:\AHP-BOCR\ahp-simple\components\ChartExportWrapper.tsx                                           221                     {downloading ? '⏳' : '📥'}
+C:\AHP-BOCR\ahp-simple\components\CRHeatmap.tsx                                                     12 import { Download, Info, ZoomIn, ZoomOut } from 'lucide-react';
+C:\AHP-BOCR\ahp-simple\components\CRTableExpanded.tsx                                               22 import { Download, AlertTriangle, CheckCircle, XCircle, ChevronUp,
+                                                                                                       ChevronDown, Maximize2, Minimize2 } from 'lucide-react';
+C:\AHP-BOCR\ahp-simple\components\CRTableExpanded.tsx                                               23 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\components\CRTableExpanded.tsx                                              320     const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\components\CRTableExpanded.tsx                                              470     const ws = XLSX.utils.aoa_to_sheet(wsData);
+C:\AHP-BOCR\ahp-simple\components\CRTableExpanded.tsx                                              491     XLSX.utils.book_append_sheet(wb, ws, 'CR por Respondente');
+C:\AHP-BOCR\ahp-simple\components\CRTableExpanded.tsx                                              492     XLSX.writeFile(wb,
+                                                                                                       `Tabela-CR-Respondentes-${projectId}-${Date.now()}.xlsx`);
+C:\AHP-BOCR\ahp-simple\components\CRTableExpanded.tsx                                              529             <Download className="w-4 h-4" />
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                       2 // Componente para exportar dados demográficos em XLSX
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                       3 // Usa a biblioteca xlsx (SheetJS) para gerar o arquivo no cliente
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                       8 import * as XLSX from 'xlsx';
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                      33       const wb = XLSX.utils.book_new();
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                      70       const ws1 = XLSX.utils.aoa_to_sheet([individualHeaders,
+                                                                                                       ...individualRows]);
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                      89       XLSX.utils.book_append_sheet(wb, ws1, 'Dados Individuais');
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     127       const ws2 = XLSX.utils.aoa_to_sheet(statsRows);
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     136       XLSX.utils.book_append_sheet(wb, ws2, 'Estatísticas');
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     175       const ws3 = XLSX.utils.aoa_to_sheet(articleRows);
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     184       XLSX.utils.book_append_sheet(wb, ws3, 'Tabela Artigo');
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     189       const fileName = `dados_demograficos_${projectName?.replace(/\s+/g,
+                                                                                                       '_') || projectId}_${new Date().toISOString().split('T')[0]}.xlsx`;
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     190       XLSX.writeFile(wb, fileName);
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     194       setError(err.message || 'Erro ao exportar dados');
+C:\AHP-BOCR\ahp-simple\components\ExportDemographicsButton.tsx                                     220             <span>Exportar Dados Demográficos (.xlsx)</span>
+C:\AHP-BOCR\ahp-simple\components\RespondentsDemographics.tsx                                      161             // Gerar CSV com dados
+C:\AHP-BOCR\ahp-simple\components\RespondentsDemographics.tsx                                      178             const csv = [headers.join(';'), ...rows.map(r =>
+                                                                                                       r.join(';'))].join('\n');
+C:\AHP-BOCR\ahp-simple\components\RespondentsDemographics.tsx                                      179             const blob = new Blob(['\ufeff' + csv], { type:
+                                                                                                       'text/csv;charset=utf-8;' });
+C:\AHP-BOCR\ahp-simple\components\RespondentsDemographics.tsx                                      183             a.download = `especialistas_${new
+                                                                                                       Date().toISOString().split('T')[0]}.csv`;
+C:\AHP-BOCR\ahp-simple\components\RespondentsDemographics.tsx                                      188           📥 Exportar CSV
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                              6 import { Download, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                             83   function downloadReport(format: 'json' | 'txt') {
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                            104     a.download = filename;
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                            365       {/* Botões de Download */}
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                            368           onClick={() => downloadReport('json')}
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                            371           <Download className="w-5 h-5" />
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                            375           onClick={() => downloadReport('txt')}
+C:\AHP-BOCR\ahp-simple\components\ValidationSection.tsx                                            378           <Download className="w-5 h-5" />
+
