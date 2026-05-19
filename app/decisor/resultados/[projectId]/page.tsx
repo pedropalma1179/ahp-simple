@@ -61,15 +61,23 @@ import {
 import BentoGridDashboard from '@/components/BentoGridDashboard';
 import CRTable from '@/components/CRTable';
 import BOCRConsistencyMatrix from '@/components/BOCRConsistencyMatrix';
-import { calculateGroupWeights } from '@/lib/ahp-ipc';
+import { calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
 
-function recalcularCRBocrIndividual(judgments: any[] | undefined): number | null {
+function recalcularCRBocrIndividual(
+  judgments: IPCJudgment[] | undefined,
+  alternativeCodes: string[]
+): number | null {
   if (!judgments || !Array.isArray(judgments) || judgments.length === 0) return null;
+  if (!alternativeCodes || alternativeCodes.length === 0) return null;
+
   try {
-    const res = calculateGroupWeights(['B', 'O', 'C', 'R'], judgments, 'BOCR');
-    if (isNaN(res.cr)) return null;
-    return res.cr;
+    const result = calculateAllWeights(judgments, alternativeCodes);
+
+    if (isNaN(result.bocrWeights.cr)) return null;
+
+    return result.bocrWeights.cr;
   } catch (e) {
+    console.error('[recalcularCRBocrIndividual] Falha ao recalcular CR:', e);
     return null;
   }
 }
@@ -2307,8 +2315,15 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
       const realResponses = projectResponses.filter(r => !r.isSimulated);
       const simulatedResponses = projectResponses.filter(r => r.isSimulated);
-      const avgCR = projectResponses.reduce((sum, r) => sum + (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)), 0) / projectResponses.length;
-      const consistentCount = projectResponses.filter(r => (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)) <= 0.10).length;
+      const altCodesCSV = (project?.alternatives || []).map((a: any) => a.code);
+      const avgCR = projectResponses.reduce((sum, r) => sum + (
+        recalcularCRBocrIndividual(r.judgments as IPCJudgment[], altCodesCSV)
+        ?? (r.responses?.bocrConsistency?.cr || 0)
+      ), 0) / projectResponses.length;
+      const consistentCount = projectResponses.filter(r => (
+        recalcularCRBocrIndividual(r.judgments as IPCJudgment[], altCodesCSV)
+        ?? (r.responses?.bocrConsistency?.cr || 0)
+      ) <= 0.10).length;
 
       csv += `Respostas reais:,${realResponses.length}\n`;
       csv += `Respostas simuladas:,${simulatedResponses.length}\n`;
@@ -2319,7 +2334,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       csv += `Detalhamento por resposta:\n`;
       csv += `ID,Data/Hora,Tempo (min),CR BOCR,Status,Tipo\n`;
       projectResponses.forEach((resp, idx) => {
-        const crBocr = recalcularCRBocrIndividual(resp.responses?.judgments) ?? (resp.responses?.bocrConsistency?.cr || 0);
+        const crBocr = recalcularCRBocrIndividual(resp.judgments as IPCJudgment[], altCodesCSV)
+          ?? (resp.responses?.bocrConsistency?.cr || 0);
         const submittedAt = resp.submittedAt ? new Date(resp.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '-';
         const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
         const tipo = resp.isSimulated ? 'Simulada' : 'Real';
@@ -2751,8 +2767,11 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
         ['ID Resposta', 'Data/Hora', 'Tempo (min)', 'CR BOCR', 'Status CR', 'Tipo'],
       ];
 
+      const altCodesXLSX = (project?.alternatives || []).map((a: any) => a.code);
+
       projectResponses.forEach((resp, idx) => {
-        const crBocr = recalcularCRBocrIndividual(resp.responses?.judgments) ?? (resp.responses?.bocrConsistency?.cr || 0);
+        const crBocr = recalcularCRBocrIndividual(resp.judgments as IPCJudgment[], altCodesXLSX)
+          ?? (resp.responses?.bocrConsistency?.cr || 0);
         const submittedAt = resp.submittedAt ? new Date(resp.submittedAt.seconds * 1000).toLocaleString('pt-BR') : '-';
         const duration = resp.duration ? (resp.duration / 60).toFixed(1) : '-';
         const tipo = resp.isSimulated ? 'Simulada' : 'Real';
@@ -2770,8 +2789,18 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       // Adicionar estatísticas agregadas
       const realResponses = projectResponses.filter(r => !r.isSimulated);
       const simulatedResponses = projectResponses.filter(r => r.isSimulated);
-      const avgCR = projectResponses.reduce((sum, r) => sum + (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)), 0) / projectResponses.length;
-      const consistentCount = projectResponses.filter(r => (recalcularCRBocrIndividual(r.responses?.judgments) ?? (r.responses?.bocrConsistency?.cr || 0)) <= 0.10).length;
+      const avgCR = projectResponses.reduce((sum, r) => {
+        const cr = recalcularCRBocrIndividual(r.judgments as IPCJudgment[], altCodesXLSX)
+          ?? (r.responses?.bocrConsistency?.cr || 0);
+
+        return sum + cr;
+      }, 0) / projectResponses.length;
+      const consistentCount = projectResponses.filter(r => {
+        const cr = recalcularCRBocrIndividual(r.judgments as IPCJudgment[], altCodesXLSX)
+          ?? (r.responses?.bocrConsistency?.cr || 0);
+
+        return cr <= 0.10;
+      }).length;
 
       responsesData.push(['']);
       responsesData.push(['ESTATÍSTICAS']);
