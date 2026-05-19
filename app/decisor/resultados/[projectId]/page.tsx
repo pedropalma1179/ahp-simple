@@ -67,17 +67,36 @@ function recalcularCRBocrIndividual(
   judgments: IPCJudgment[] | undefined,
   alternativeCodes: string[]
 ): number | null {
-  if (!judgments || !Array.isArray(judgments) || judgments.length === 0) return null;
-  if (!alternativeCodes || alternativeCodes.length === 0) return null;
+  console.log('[recalcularCR] CHAMADO. judgments:', judgments, 'altCodes:', alternativeCodes);
+
+  if (!judgments) {
+    console.warn('[recalcularCR] GUARD A1: judgments é falsy (undefined/null)');   
+    return null;
+  }
+  if (!Array.isArray(judgments)) {
+    console.warn('[recalcularCR] GUARD A2: judgments não é array. typeof:', typeof judgments);
+    return null;
+  }
+  if (judgments.length === 0) {
+    console.warn('[recalcularCR] GUARD A3: judgments.length === 0');
+    return null;
+  }
+  if (!alternativeCodes || alternativeCodes.length === 0) {
+    console.warn('[recalcularCR] GUARD B: alternativeCodes vazio:', alternativeCodes);
+    return null;
+  }
 
   try {
     const result = calculateAllWeights(judgments, alternativeCodes);
-
-    if (isNaN(result.bocrWeights.cr)) return null;
-
+    console.log('[recalcularCR] result.bocrWeights:', result.bocrWeights);
+    if (isNaN(result.bocrWeights.cr)) {
+      console.warn('[recalcularCR] GUARD C: result.bocrWeights.cr é NaN. Result completo:', result);
+      return null;
+    }
+    console.log('[recalcularCR] SUCESSO. CR =', result.bocrWeights.cr);
     return result.bocrWeights.cr;
   } catch (e) {
-    console.error('[recalcularCRBocrIndividual] Falha ao recalcular CR:', e);
+    console.error('[recalcularCRBocrIndividual] Falha:', e);
     return null;
   }
 }
