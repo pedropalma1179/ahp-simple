@@ -710,53 +710,64 @@ export default function ResultadosPage() {
   // Unifica dados de qualityAnalysis.respondents + processedRespondents + excludedIds
   // FILTRO DEFENSIVO: apenas respondentes com response finalizada (completedAt) em projectResponses
   const getRespondentsList = useMemo(() => {
-    // IDs válidos = respondentes que possuem response com completedAt (já filtrado em projectResponses)
     const validResponseIds = new Set(
       projectResponses.map((r: any) => r.respondentId || r.visitorId || r.id || '').filter(Boolean)
     );
 
-    // Fonte primária: qualityAnalysis (tem Score, Flags, Recomendação)
+    // Recálculo no display: CR por respondente sempre a partir dos julgamentos,
+    // via o mesmo helper da exportação. Fonte única; o valor gravado é só fallback.
+    const altCodes = (project?.alternatives || []).map((a: any) => a.code);
+    const judgmentsById = new Map<string, any>();
+    projectResponses.forEach((r: any) => {
+      const id = r.respondentId || r.visitorId || r.id || '';
+      if (id) judgmentsById.set(id, r.judgments);
+    });
+    const recalcCR = (id: string, stored: number): number => {
+      const recalc = recalcularCRBocrIndividual(judgmentsById.get(id) as IPCJudgment[], altCodes);
+      return recalc?.avgCR ?? stored; // avgCR aqui já é o CR governante (máximo das não triviais)
+    };
+    const statusFromCR = (cr: number): string =>
+      cr > 0.20 ? 'CRÍTICO' : cr > 0.15 ? 'SUSPEITO' : cr > 0.10 ? 'REVISAR' : 'CONFIÁVEL';
+
     const qaRespondents = qualityAnalysis?.respondents || [];
 
-    // Se qualityAnalysis não disponível, usar dados básicos de projectResponses
     if (qaRespondents.length === 0 && projectResponses.length > 0) {
-      return projectResponses.map((r: any) => ({
-        respondentId: r.visitorId || r.respondentId || r.id || '',
-        isSimulated: r.isSimulated ?? false,
-        score: null,
-        cr: r.responses?.avgCR || 0,
-        status: (r.responses?.avgCR || 0) > 0.20 ? 'CRÍTICO' :
-          (r.responses?.avgCR || 0) > 0.15 ? 'SUSPEITO' :
-            (r.responses?.avgCR || 0) > 0.10 ? 'REVISAR' : 'CONFIÁVEL',
-        flags: [],
-        recommendation: '',
-        overallScore: null,
-      }));
+      return projectResponses.map((r: any) => {
+        const respondentId = r.visitorId || r.respondentId || r.id || '';
+        const cr = recalcCR(respondentId, r.responses?.avgCR || 0);
+        return {
+          respondentId,
+          isSimulated: r.isSimulated ?? false,
+          score: null,
+          cr,
+          status: statusFromCR(cr),
+          flags: [],
+          recommendation: '',
+          overallScore: null,
+        };
+      });
     }
 
-    // Filtrar qaRespondents: apenas quem tem response finalizada
     const filteredQaRespondents = qaRespondents.filter((r: any) => {
       const rid = r.respondentId || r.id || r.visitorId || '';
       return validResponseIds.has(rid);
     });
 
-    // Mapear para formato unificado
     return filteredQaRespondents.map((r: any) => {
       const respondentId = r.respondentId || r.id || r.visitorId || '';
-      const cr = r.metrics?.avgCR || r.avgCR || 0;
-
+      const cr = recalcCR(respondentId, r.metrics?.avgCR || r.avgCR || 0);
       return {
         respondentId,
         isSimulated: r.isSimulated ?? false,
         score: r.overallScore ?? r.score ?? null,
         cr,
-        status: r.status || (cr > 0.20 ? 'CRÍTICO' : cr > 0.15 ? 'SUSPEITO' : cr > 0.10 ? 'REVISAR' : 'CONFIÁVEL'),
+        status: statusFromCR(cr),
         flags: r.flags || [],
         recommendation: r.recommendation || '',
         overallScore: r.overallScore,
       };
     });
-  }, [qualityAnalysis, projectResponses]);
+  }, [qualityAnalysis, projectResponses, project]);
 
   // ============================================================
   // Gerar dados de trajetória para gráficos de sensibilidade
@@ -2337,7 +2348,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       csv += `\n`;
 
       csv += `Detalhamento por resposta:\n`;
-      csv += `ID,Data/Hora,Tempo (min),CR BOCR,CR Médio,Status,Tipo\n`;
+      csv += `ID,Data/Hora,Tempo (min),CR BOCR,Maior CR,Status,Tipo\n`;
       projectResponses.forEach((resp, idx) => {
         const recalcResult = recalcularCRBocrIndividual(resp.judgments as IPCJudgment[], altCodesCSV);
         const crBocr = recalcResult?.crBocr ?? (resp.responses?.bocrConsistency?.cr || 0);
@@ -2770,7 +2781,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
         ['Total de respostas:', projectResponses.length],
         [''],
         ['RESUMO POR RESPONDENTE'],
-        ['ID Resposta', 'Data/Hora', 'Tempo (min)', 'CR BOCR', 'CR Médio', 'Status CR', 'Tipo'],
+        ['ID Resposta', 'Data/Hora', 'Tempo (min)', 'CR BOCR', 'Maior CR', 'Status CR', 'Tipo'],
       ];
 
       const altCodesXLSX = (project?.alternatives || []).map((a: any) => a.code);
@@ -2814,7 +2825,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       responsesData.push(['Respostas simuladas:', simulatedResponses.length.toString()]);
       responsesData.push(['CR Médio (geral):', (avgCRComputed * 100).toFixed(2) + '%']);
       responsesData.push([
-        'Respostas consistentes (CR Médio ≤ 10%):',
+        'Respostas consistentes (Maior CR ≤ 10%):',
         `${consistentCount} (${((consistentCount / projectResponses.length) * 100).toFixed(0)}%)`
       ]);
 
@@ -4081,7 +4092,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">ID Respondente</th>
                           <th className="px-3 py-3 text-center font-semibold text-gray-700">Tipo</th>
                           <th className="px-3 py-3 text-center font-semibold text-gray-700">Score</th>
-                          <th className="px-3 py-3 text-center font-semibold text-gray-700">CR Médio</th>
+                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Maior CR</th>
                           <th className="px-3 py-3 text-center font-semibold text-gray-700">Status</th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">Problemas</th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">Recomendação</th>
@@ -4141,7 +4152,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                                   {r.score ?? r.overallScore ?? '—'}
                                 </td>
 
-                                {/* CR Médio */}
+                                {/* Maior CR (CR governante = máximo das matrizes não triviais) */}
                                 <td className={`px-3 py-3 text-center font-mono ${r.cr > 0.15 ? 'text-red-600 font-bold' :
                                   r.cr > 0.10 ? 'text-yellow-600' : 'text-green-600'
                                   }`}>

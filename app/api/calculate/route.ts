@@ -69,13 +69,26 @@ function calculateEigenvector(matrix: number[][]): number[] {
   const n = matrix.length;
   if (n === 0) return [];
 
-  // Método da média geométrica das linhas - Saaty (1980)
-  const rowProducts = matrix.map(row => {
-    const product = row.reduce((acc, val) => acc * Math.max(val, 0.001), 1);
-    return Math.pow(product, 1 / n);
-  });
+  // Autovetor principal via iteração de potência (Saaty, 1977; 1980).
+  // Substitui a média geométrica das linhas na DERIVAÇÃO do vetor.
+  // NÃO alterar a formação da matriz consolidada por média geométrica
+  // entrada a entrada dos 12 julgamentos (AIJ, Aczél e Saaty 1983), que é separada.
+  let w: number[] = new Array(n).fill(1 / n);
+  const MAX_ITER = 1000;
+  const TOL = 1e-12;
+  for (let iter = 0; iter < MAX_ITER; iter++) {
+    const next = matrix.map(row => row.reduce((acc, a_ij, j) => acc + a_ij * w[j], 0));
+    const s = next.reduce((a, b) => a + b, 0);
+    if (s <= 0) break;
+    for (let i = 0; i < n; i++) next[i] /= s;
+    let maxDelta = 0;
+    for (let i = 0; i < n; i++) maxDelta = Math.max(maxDelta, Math.abs(next[i] - w[i]));
+    w = next;
+    if (maxDelta < TOL) break;
+  }
 
-  return normalizeVector(rowProducts);
+  // 'w' é o vetor de prioridade (autovetor principal); normalizeVector garante soma = 1.
+  return normalizeVector(w);
 }
 
 function calculateLambdaMax(matrix: number[][], eigenvector: number[]): number {
@@ -982,18 +995,22 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Recalcular avgCR se os sub-CRs foram marcados como N/A
+      // Recalcular avgCR (CR governante = MAIOR CR das matrizes não triviais).
+      // Aceitação no AHP é por matriz (Saaty, 1977): o respondente só é aceitável se
+      // TODAS ficam sob 0,10, então o máximo governa — não a média. Inclui Magnitude.
+      // -1 é marcador de N/A (matriz sem n-1 comparações); excluído do máximo.
       if (r.responses) {
          const crs = [
            r.responses.bocrConsistency?.cr,
+           r.responses.magnitudeConsistency?.cr,
            r.responses.subConsistency?.B?.cr,
            r.responses.subConsistency?.O?.cr,
            r.responses.subConsistency?.C?.cr,
            r.responses.subConsistency?.R?.cr
-         ].filter(val => val !== undefined && val !== null && val !== -1);
+         ].filter(val => val !== undefined && val !== null && val !== -1 && !isNaN(val));
          
          if (crs.length > 0) {
-            r.responses.avgCR = crs.reduce((a,b) => a+b, 0) / crs.length;
+            r.responses.avgCR = Math.max(...crs);
          } else {
             r.responses.avgCR = -1;
          }

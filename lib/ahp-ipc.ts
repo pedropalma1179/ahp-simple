@@ -129,15 +129,14 @@ export function buildPCM(
 }
 
 /**
- * 2. Calcula pesos via AHP clássico (Eigenvector Method - média geométrica por linha)
+ * 2. Calcula pesos via AHP clássico (Autovetor Principal — Saaty, 1977; 1980)
  * Usado quando a matriz é COMPLETA (sem nulls).
- * 
- * Algoritmo:
- * 1. Para cada linha i: gi = (Π_j a_ij)^(1/n)
- * 2. Normalizar: wi = gi / Σ_k gk
- * 3. Calcular λmax = (1/n) Σ_i (Aw)_i / w_i
- * 4. CI = (λmax - n) / (n - 1)
- * 5. CR = CI / RI(n)
+ *
+ * Algoritmo (iteração de potência):
+ * 1. w0 = (1/n, ..., 1/n); itera w_{k+1} = normalize(A·w_k) até convergir.
+ * 2. λmax = Σ_i (A·w)_i  (pois w soma 1 e A·w = λ·w na convergência).
+ * 3. CI = (λmax - n) / (n - 1)
+ * 4. CR = CI / RI(n)
  *
  * @param pcm - Matriz completa n×n (sem nulls)
  * @returns { weights, lambdaMax, cr }
@@ -149,36 +148,30 @@ export function eigenvectorMethod(pcm: number[][]): {
 } {
     const n = pcm.length;
 
-    // 1. Média Geométrica
-    const geometricMeans = pcm.map(row => {
-        const product = row.reduce((acc, val) => acc * val, 1);
-        return Math.pow(product, 1 / n);
-    });
-
-    const sumGM = geometricMeans.reduce((acc, val) => acc + val, 0);
-
-    // 2. Normalizar Pesos
-    const weights = geometricMeans.map(val => val / sumGM);
-
-    // 3. Lambda Max
-    // (Aw)_i = sum(a_ij * w_j)
-    // lambdaMax = (1/n) * sum((Aw)_i / w_i)
-    let lambdaMax = 0;
-    for (let i = 0; i < n; i++) {
-        let aw_i = 0;
-        for (let j = 0; j < n; j++) {
-            aw_i += pcm[i][j] * weights[j];
-        }
-        if (weights[i] > 0) {
-            lambdaMax += aw_i / weights[i];
-        }
+    // Autovetor principal via iteração de potência (Saaty, 1977; 1980; 2003).
+    // Substitui a média geométrica das linhas, aproximação que subestima o CR
+    // e pode causar reversão de ranking em aplicações importantes (Saaty, 2012).
+    let w: number[] = new Array(n).fill(1 / n);
+    const MAX_ITER = 1000;
+    const TOL = 1e-12;
+    for (let iter = 0; iter < MAX_ITER; iter++) {
+        const next = pcm.map(row => row.reduce((acc, a_ij, j) => acc + a_ij * w[j], 0)); // A·w
+        const s = next.reduce((a, b) => a + b, 0);
+        if (s <= 0) break;
+        for (let i = 0; i < n; i++) next[i] /= s; // normaliza (soma = 1)
+        let maxDelta = 0;
+        for (let i = 0; i < n; i++) maxDelta = Math.max(maxDelta, Math.abs(next[i] - w[i]));
+        w = next;
+        if (maxDelta < TOL) break;
     }
-    lambdaMax /= n;
+    const weights = w;
 
-    // 4. CI e CR
-    // Para n=1 ou n=2 com matriz consistente, CI=0.
-    // RI(1)=0, RI(2)=0. CI/RI seria NaN. Retornamos CR=0 nesses casos.
+    // n <= 2: CI = 0 por definição (RI(1) = RI(2) = 0).
     if (n <= 2) return { weights, lambdaMax: n, cr: 0 };
+
+    // lambda_max = soma de (A·w), pois w soma 1 e A·w = lambda·w na convergência.
+    const Aw = pcm.map(row => row.reduce((acc, a_ij, j) => acc + a_ij * w[j], 0));
+    const lambdaMax = Aw.reduce((a, b) => a + b, 0);
 
     const ci = (lambdaMax - n) / (n - 1);
     const ri = RANDOM_INDEX[n] || 1.49;
@@ -378,8 +371,6 @@ export function calculateAllWeights(
     const disconnectedGroups: string[] = [];
     let totalGiven = 0;
     let totalPossible = 0;
-    let weightedCRSum = 0;
-    let groupCount = 0;
 
     // Helper seguro que captura erros de conectividade
     const calcSafe = (items: string[], groupName: string): WeightResult | null => {
@@ -387,11 +378,6 @@ export function calculateAllWeights(
             const res = calculateGroupWeights(items, judgments, groupName);
             totalGiven += res.completeness.given;
             totalPossible += res.completeness.possible;
-            // CR não é somado se for NaN
-            if (!isNaN(res.cr)) {
-                weightedCRSum += res.cr;
-                groupCount++;
-            }
             return res;
         } catch (e) {
             disconnectedGroups.push(groupName);
@@ -431,7 +417,20 @@ export function calculateAllWeights(
         magnitudeWeights,
         subWeights,
         altWeights,
-        avgCR: groupCount > 0 ? weightedCRSum / groupCount : 0,
+        // CR governante do respondente: o MAIOR CR entre as matrizes não triviais
+        // (BOCR, Magnitude e os 4 subcritérios 5×5). A aceitação no AHP é por matriz
+        // (Saaty, 1977): o respondente só é aceitável se TODAS ficam sob 0,10, então o
+        // máximo governa. Exclui as 20 matrizes 2×2 de alternativas (CR≡0, sem informação).
+        // Nome 'avgCR' mantido por compatibilidade com Firestore e consumidores;
+        // renomear para 'maxCR' é débito de pós-defesa.
+        avgCR: (() => {
+            const crs = [
+                bocrWeights.cr,
+                magnitudeWeights.cr,
+                subWeights['B'].cr, subWeights['O'].cr, subWeights['C'].cr, subWeights['R'].cr,
+            ].filter(cr => !isNaN(cr));
+            return crs.length > 0 ? Math.max(...crs) : 0;
+        })(),
         hasDisconnectedGroups: disconnectedGroups.length > 0,
         disconnectedGroups,
         overallCompleteness: {
