@@ -2958,12 +2958,6 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
             >
               ← Voltar para Projetos
             </button>
-            <button
-              onClick={() => window.location.href = '/decisor/simulacao'}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-            >
-              🧪 Ir para Simulação
-            </button>
           </div>
         </div>
       </div>
