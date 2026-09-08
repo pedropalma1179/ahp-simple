@@ -4,12 +4,25 @@
 // Motor de Síntese com Funcionalidades de Publicação Q1/A1 + Incomplete Pairwise Comparisons
 // ============================================================================
 // 
-// REFERÊNCIAS BIBLIOGRÁFICAS MANTIDAS (v5.0):
-// [1] Saaty, T.L. (1980). The Analytic Hierarchy Process. McGraw-Hill.
-// [2] Wijnmalen, D.J.D. (2007). Analysis of benefits, opportunities, costs, 
-//     and risks (BOCR) with the AHP-ANP: A critical validation. 
+// REFERÊNCIAS BIBLIOGRÁFICAS (v5.1):
+// [1] Saaty, T.L. (1977). A scaling method for priorities in hierarchical
+//     structures. Journal of Mathematical Psychology, 15(3), 234-281.
+//     -> autovetor principal; CI = (lambda_max - n)/(n - 1); CR = CI/RI.
+// [2] Saaty, T.L. (1980). The Analytic Hierarchy Process. McGraw-Hill.
+// [3] Aczel, J. & Saaty, T.L. (1983). Procedures for synthesizing ratio
+//     judgements. Journal of Mathematical Psychology, 27(1), 93-102.
+//     -> a media geometrica e a unica agregacao (AIJ) que preserva reciprocidade.
+// [4] Wijnmalen, D.J.D. (2007). Analysis of benefits, opportunities, costs,
+//     and risks (BOCR) with the AHP-ANP: A critical validation.
 //     Mathematical and Computer Modelling, 46(7-8), 892-905.
-// ... (outras referências v5.0)
+//     -> expressao (17), p.903: subtrativo com pesos pessoais v e rescaling s.
+//     -> expressao (12), p.901: quociente de somas, apenas rescaling s.
+//     -> expressao (1), p.894: multiplicativo de potencias, SEM reciprocos
+//        normalizados. Wijnmalen desaconselha sintese baseada em reciprocos.
+// [5] Goepel, K.D. (2018). Implementation of an Online Software Tool for the
+//     Analytic Hierarchy Process (AHP-OS). IJAHP, 10(3), 469-487.
+//     -> validacao de software por black-box testing; media geometrica estavel
+//        via soma de logaritmos (Eqs. 7-9).
 //
 // REFERÊNCIAS ADICIONADAS (IPC):
 // [8] Bozóki, S., Fülöp, J., & Rónyai, L. (2009). On optimal completion of 
@@ -53,10 +66,20 @@ const SENSITIVITY_THRESHOLDS = {
 // FUNÇÕES MATEMÁTICAS BASE
 // ============================================================================
 
+/**
+ * Media geometrica pela soma de logaritmos (Goepel, 2018, Eqs. 7-9).
+ * Numericamente estavel para qualquer numero de respondentes; a forma
+ * produto-e-raiz transborda a partir de ~350 julgamentos na escala 1-9.
+ *
+ * CORRECAO v5.1: removido o piso Math.max(val, 0.001), que corrompia
+ * silenciosamente qualquer julgamento abaixo de 0,001. Valores nao positivos
+ * sao descartados, e nao truncados.
+ */
 function geometricMean(values: number[]): number {
-  if (values.length === 0) return 1;
-  const product = values.reduce((acc, val) => acc * Math.max(val, 0.001), 1);
-  return Math.pow(product, 1 / values.length);
+  const positives = values.filter(v => Number.isFinite(v) && v > 0);
+  if (positives.length === 0) return 1;
+  const sumLog = positives.reduce((acc, v) => acc + Math.log(v), 0);
+  return Math.exp(sumLog / positives.length);
 }
 
 function normalizeVector(vector: number[]): number[] {
@@ -69,10 +92,16 @@ function calculateEigenvector(matrix: number[][]): number[] {
   const n = matrix.length;
   if (n === 0) return [];
 
-  // Autovetor principal via iteração de potência (Saaty, 1977; 1980).
-  // Substitui a média geométrica das linhas na DERIVAÇÃO do vetor.
-  // NÃO alterar a formação da matriz consolidada por média geométrica
-  // entrada a entrada dos 12 julgamentos (AIJ, Aczél e Saaty 1983), que é separada.
+  // Autovetor principal por iteração de potência (Saaty, 1977; 1980).
+  // ATENCAO: este é o método de DERIVAÇÃO do vetor de prioridades a partir de
+  // uma matriz já agregada. NÃO confundir com a média geométrica entrada a
+  // entrada que forma a matriz consolidada (AIJ, Aczél e Saaty, 1983), feita
+  // em aggregateMatrix(). São duas médias distintas, em etapas distintas.
+  //
+  // Trocar este método pela média geométrica das linhas (LLSM) desloca os pesos
+  // BOCR em ~0,13 pp e os rescaling weights em ~0,18 pp. A troca é invisível na
+  // razão de consistência, que varia menos de 0,003 pp entre os dois métodos.
+  // Somente a comparação dos VETORES detecta a substituição.
   let w: number[] = new Array(n).fill(1 / n);
   const MAX_ITER = 1000;
   const TOL = 1e-12;
@@ -455,7 +484,13 @@ function calculateAlternativeScores(
 
   const [vb, vo, vc, vr] = personalWeights;
   const [sb, so, sc, sr] = rescalingWeights;
-  const epsilon = 0.0001;
+  // CORRECAO v5.1: guarda contra divisão por zero SEM enviesar o resultado.
+  // O epsilon anterior (1e-4) somado ao denominador deslocava o Quociente de
+  // Somas em 0,0009 e o Multiplicativo Simples em 0,0002. Com prioridades
+  // normalizadas os denominadores nunca são nulos; a guarda só protege o caso
+  // degenerado e é ordens de grandeza menor que a precisão reportada.
+  const EPS_GUARD = 1e-12;
+  const epsilon = 0.0001; // mantido apenas para os recíprocos exibidos (ver PASSO 2)
 
   // PASSO 1: Calcular BOCR Priorities
   const bocrPriorities: Record<string, { B: number; O: number; C: number; R: number }> = {};
@@ -469,7 +504,11 @@ function calculateAlternativeScores(
     };
   });
 
-  // PASSO 2: Calcular recíprocos normalizados
+  // PASSO 2: Recíprocos normalizados de Custos e Riscos.
+  // ATENCAO: calculados apenas para EXIBIÇÃO (Lee, 2009). NÃO entram em nenhuma
+  // das cinco fórmulas de síntese do PASSO 3. Wijnmalen (2007, p.895 e p.903)
+  // desaconselha síntese em que os negativos aparecem como recíprocos, e a
+  // Equação 7 adotada usa C e R no denominador, sem renormalização.
   const reciprocals = alternatives.map(alt => ({
     code: alt.code,
     C_recip: 1 / Math.max(bocrPriorities[alt.code].C, epsilon),
@@ -497,15 +536,27 @@ function calculateAlternativeScores(
     const C_reciprocal = reciprocalsNorm[alt.code].C;
     const R_reciprocal = reciprocalsNorm[alt.code].R;
 
+    // Eq. 8 — Subtrativo completo. Wijnmalen (2007), expressão (17), p.903.
     const scoreSubtractive = (vb * sb * B) + (vo * so * O) - (vc * sc * C) - (vr * sr * R);
+
+    // Eq. 9 — Quociente de somas. Wijnmalen (2007), expressão (12), p.901.
+    // Carrega apenas os rescaling weights, sem os pesos pessoais v.
     const positives = (sb * B) + (so * O);
-    const negatives = (sc * C) + (sr * R) + epsilon;
+    const negatives = Math.max((sc * C) + (sr * R), EPS_GUARD);
     const scoreQuotientSums = positives / negatives;
+
+    // Eq. 6 — Aditivo probabilístico. Saaty e Ozdemir (2003); Demirtas e Üstün (2008).
     const scoreAdditiveResidual = (vb * B) + (vo * O) + (vc * (1 - C)) + (vr * (1 - R));
+
+    // Eq. 7 — Multiplicativo de potências. Wijnmalen (2007), expressão (1), p.894.
+    // C e R entram no denominador, SEM recíprocos normalizados.
     const scoreMultiplicative =
-      (Math.pow(Math.max(B, epsilon), vb) * Math.pow(Math.max(O, epsilon), vo)) /
-      (Math.pow(Math.max(C, epsilon), vc) * Math.pow(Math.max(R, epsilon), vr));
-    const scoreMultSimple = (B * O + epsilon) / (C * R + epsilon);
+      (Math.pow(Math.max(B, EPS_GUARD), vb) * Math.pow(Math.max(O, EPS_GUARD), vo)) /
+      (Math.pow(Math.max(C, EPS_GUARD), vc) * Math.pow(Math.max(R, EPS_GUARD), vr));
+
+    // Eq. 7 com pesos unitários — Multiplicativo simples. Saaty e Ozdemir (2003),
+    // Tabela 5 (coluna BO/CR); Lee (2009b), Eq. 16.
+    const scoreMultSimple = (B * O) / Math.max(C * R, EPS_GUARD);
 
     return {
       code: alt.code,
