@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "jest",
     "test:rag:embed": "tsx scripts/test-rag-embed.ts",
     "test:rag:upstash": "tsx scripts/test-rag-upstash.ts",
     "test:rag:all": "npm run test:rag:embed && npm run test:rag:upstash"
@@ -31,6 +32,7 @@
     "next": "^14.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-is": "^19.2.7",
     "recharts": "^3.7.0",
     "simple-statistics": "^7.8.8",
     "voyageai": "^0.2.1",
@@ -42,7 +44,6 @@
     "@types/react": "^18.0.0",
     "autoprefixer": "^10.0.0",
     "dotenv": "^17.4.2",
-    "eslint": "^10.0.1",
     "jest": "^30.2.0",
     "postcss": "^8.0.0",
     "tailwindcss": "^3.0.0",

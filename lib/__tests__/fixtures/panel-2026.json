@@ -1,0 +1,7488 @@
+{
+  "meta": {
+    "descricao": "Arnes de caracterizacao do AHP-BOCR. Fixa o comportamento observado antes do retrofit.",
+    "origem": "Firestore, colecao responses do projeto yiEXoz12wN7rqWZZP70g",
+    "coleta": "2026-04-22 a 2026-05-06",
+    "respondentes": 12,
+    "julgamentos_por_respondente": 72,
+    "julgamentos_totais": 864,
+    "matrizes_por_respondente": 26,
+    "dados_pessoais": "nenhum. apenas julgamentos anonimos, sem nome, codigo de acesso ou demografia."
+  },
+  "merits": [
+    "B",
+    "O",
+    "C",
+    "R"
+  ],
+  "alternatives": [
+    "A1",
+    "A2"
+  ],
+  "subcriteria": {
+    "B": [
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5"
+    ],
+    "O": [
+      "O1",
+      "O2",
+      "O3",
+      "O4",
+      "O5"
+    ],
+    "C": [
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5"
+    ],
+    "R": [
+      "R1",
+      "R2",
+      "R3",
+      "R4",
+      "R5"
+    ]
+  },
+  "responses": [
+    {
+      "id": "R01",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        }
+      ]
+    },
+    {
+      "id": "R02",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        }
+      ]
+    },
+    {
+      "id": "R03",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        }
+      ]
+    },
+    {
+      "id": "R04",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        }
+      ]
+    },
+    {
+      "id": "R05",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        }
+      ]
+    },
+    {
+      "id": "R06",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        }
+      ]
+    },
+    {
+      "id": "R07",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        }
+      ]
+    },
+    {
+      "id": "R08",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        }
+      ]
+    },
+    {
+      "id": "R09",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        }
+      ]
+    },
+    {
+      "id": "R10",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        }
+      ]
+    },
+    {
+      "id": "R11",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        }
+      ]
+    },
+    {
+      "id": "R12",
+      "judgments": [
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "bocr",
+          "group": "BOCR",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "O",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "C",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "B",
+          "itemB": "R",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "C",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "O",
+          "itemB": "R",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "magnitude",
+          "group": "MAGNITUDE",
+          "itemA": "C",
+          "itemB": "R",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B1",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B2",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B3",
+          "itemB": "B5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "B",
+          "itemA": "B4",
+          "itemB": "B5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O3",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O1",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O2",
+          "itemB": "O5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O3",
+          "itemB": "O5",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "O",
+          "itemA": "O4",
+          "itemB": "O5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C3",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C1",
+          "itemB": "C5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C4",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C2",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C4",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C3",
+          "itemB": "C5",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "C",
+          "itemA": "C4",
+          "itemB": "C5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R3",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R1",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R3",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R4",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R2",
+          "itemB": "R5",
+          "saatyValue": 3,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R4",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R3",
+          "itemB": "R5",
+          "saatyValue": 5,
+          "favors": "B"
+        },
+        {
+          "type": "subcriteria",
+          "group": "R",
+          "itemA": "R4",
+          "itemB": "R5",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "B1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "B5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 9,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "O5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 5,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "C5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R1",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 1,
+          "favors": "equal"
+        },
+        {
+          "type": "alternatives",
+          "group": "R2",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R3",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R4",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 3,
+          "favors": "A"
+        },
+        {
+          "type": "alternatives",
+          "group": "R5",
+          "itemA": "A1",
+          "itemB": "A2",
+          "saatyValue": 7,
+          "favors": "A"
+        }
+      ]
+    }
+  ],
+  "baseline_asis": {
+    "fonte": "calculations/yiEXoz12wN7rqWZZP70g, calculatedAt 2026-05-07T15:08:12.608Z",
+    "motor_observado": "media geometrica das linhas (LLSM para matriz completa)",
+    "nota": "NAO e alvo. E a fotografia do comportamento anterior, para medir o diff do retrofit.",
+    "aggregatedMatrices": {
+      "bocr": [
+        [
+          1,
+          2.840271682449184,
+          1.982005150027791,
+          1.0958726911352443
+        ],
+        [
+          0.35207899518178976,
+          1,
+          0.7125908921079473,
+          0.6737295476527683
+        ],
+        [
+          0.504539556814965,
+          1.403329752141309,
+          1,
+          0.7080353712106308
+        ],
+        [
+          0.9125147547604939,
+          1.4842751122968225,
+          1.4123588180208497,
+          1
+        ]
+      ],
+      "magnitude": [
+        [
+          1,
+          2.9607688096668197,
+          2.840271682449184,
+          1.6150744476616494
+        ],
+        [
+          0.33775011298924473,
+          1,
+          0.6502497031564451,
+          1.0211637098909785
+        ],
+        [
+          0.35207899518178976,
+          1.5378707520292518,
+          1,
+          0.8096595719814021
+        ],
+        [
+          0.619166504335344,
+          0.9792749099032926,
+          1.2350869854509297,
+          1
+        ]
+      ],
+      "subcriteria": {
+        "B": [
+          [
+            1,
+            0.6644651164103906,
+            0.9792749099032926,
+            2.2973097500999025,
+            1.7209779834049965
+          ],
+          [
+            1.504969900304555,
+            1,
+            1.393406297433106,
+            2.499756443405445,
+            2.2504549061950376
+          ],
+          [
+            1.0211637098909785,
+            0.7176657675813378,
+            1,
+            3.1125761722008156,
+            1.1602659835119289
+          ],
+          [
+            0.4352917580907465,
+            0.4000389728519669,
+            0.32127727794463196,
+            1,
+            0.6367732194731706
+          ],
+          [
+            0.5810649582056104,
+            0.44435460459447845,
+            0.8618713417531807,
+            1.5704178024750197,
+            1
+          ]
+        ],
+        "O": [
+          [
+            1,
+            1.603653669254229,
+            0.9786062309324217,
+            1.8468858183962389,
+            0.814868946046383
+          ],
+          [
+            0.6235760371284187,
+            1,
+            0.6020466130909611,
+            1.2009369551760027,
+            0.9183859021684453
+          ],
+          [
+            1.0218614682712517,
+            1.661000956165023,
+            1,
+            1.5378707520292516,
+            0.8993522716024583
+          ],
+          [
+            0.5414519890939222,
+            0.8326831776556043,
+            0.6502497031564451,
+            1,
+            0.7176657675813378
+          ],
+          [
+            1.2271912003173564,
+            1.088866888787003,
+            1.1119113517311836,
+            1.393406297433106,
+            1
+          ]
+        ],
+        "C": [
+          [
+            1,
+            1.0958726911352443,
+            0.24059668452072364,
+            1,
+            2.0089635421924563
+          ],
+          [
+            0.9125147547604939,
+            1,
+            0.3597759589639306,
+            0.8503058428586057,
+            1.8994041511369626
+          ],
+          [
+            4.156333251191854,
+            2.779507565985684,
+            1,
+            2.125557509551097,
+            2.64394471084848
+          ],
+          [
+            1,
+            1.1760474285795146,
+            0.4704648053541459,
+            1,
+            1.4214459771821248
+          ],
+          [
+            0.49776911277775754,
+            0.5264808963386812,
+            0.37822273510367227,
+            0.7035089732938008,
+            1
+          ]
+        ],
+        "R": [
+          [
+            1,
+            0.8448699243264529,
+            1.245151774850721,
+            3.316673774254895,
+            2.8789038514264362
+          ],
+          [
+            1.1836141531457873,
+            1,
+            1.4033297521413088,
+            1.9673275917795172,
+            3.244625683278872
+          ],
+          [
+            0.8031149456618557,
+            0.7125908921079475,
+            1,
+            1.7443859949244096,
+            2.140695142928072
+          ],
+          [
+            0.3015068915617588,
+            0.5083037538732758,
+            0.5732676156020924,
+            1,
+            1.8994041511369626
+          ],
+          [
+            0.34735442779880304,
+            0.30820196152470974,
+            0.46713797772820015,
+            0.5264808963386812,
+            1
+          ]
+        ]
+      }
+    },
+    "altScores": {
+      "B1": {
+        "A1": 0.6876530776517387,
+        "A2": 0.3123469223482614
+      },
+      "B2": {
+        "A1": 0.5561794920088919,
+        "A2": 0.44382050799110795
+      },
+      "B3": {
+        "A1": 0.5835786633111334,
+        "A2": 0.4164213366888667
+      },
+      "B4": {
+        "A1": 0.5766669931250032,
+        "A2": 0.42333300687499664
+      },
+      "B5": {
+        "A1": 0.5988454698012666,
+        "A2": 0.40115453019873343
+      },
+      "O1": {
+        "A1": 0.3873563953110305,
+        "A2": 0.6126436046889694
+      },
+      "O2": {
+        "A1": 0.44740988002229787,
+        "A2": 0.552590119977702
+      },
+      "O3": {
+        "A1": 0.5872707606587239,
+        "A2": 0.4127292393412762
+      },
+      "O4": {
+        "A1": 0.47173592390952296,
+        "A2": 0.5282640760904771
+      },
+      "O5": {
+        "A1": 0.708509066092528,
+        "A2": 0.29149093390747205
+      },
+      "C1": {
+        "A1": 0.5404511928985012,
+        "A2": 0.45954880710149887
+      },
+      "C2": {
+        "A1": 0.5052355258971378,
+        "A2": 0.49476447410286234
+      },
+      "C3": {
+        "A1": 0.4735047231884409,
+        "A2": 0.5264952768115592
+      },
+      "C4": {
+        "A1": 0.4077437264171863,
+        "A2": 0.5922562735828136
+      },
+      "C5": {
+        "A1": 0.590541436813876,
+        "A2": 0.409458563186124
+      },
+      "R1": {
+        "A1": 0.5940500129151774,
+        "A2": 0.4059499870848224
+      },
+      "R2": {
+        "A1": 0.37073934171565626,
+        "A2": 0.6292606582843437
+      },
+      "R3": {
+        "A1": 0.36570845076964753,
+        "A2": 0.6342915492303524
+      },
+      "R4": {
+        "A1": 0.5682348688308037,
+        "A2": 0.43176513116919646
+      },
+      "R5": {
+        "A1": 0.6109581877945625,
+        "A2": 0.3890418122054375
+      }
+    },
+    "bocrWeights": [
+      0.37216393647267393,
+      0.15141524004804188,
+      0.19870352522468898,
+      0.27771729825459507
+    ],
+    "rescalingWeights": [
+      0.4411287538264966,
+      0.15813168359309884,
+      0.18697852836755063,
+      0.21376103421285395
+    ],
+    "subWeights": {
+      "B": [
+        0.22434261925442284,
+        0.3042230865602911,
+        0.2256194206391436,
+        0.09532064210406452,
+        0.150494231442078
+      ],
+      "O": [
+        0.23281504955405774,
+        0.1643519140885913,
+        0.2325327306740633,
+        0.143539094897333,
+        0.2267612107859547
+      ],
+      "C": [
+        0.1571012422056621,
+        0.15713327982302155,
+        0.41101337015710976,
+        0.1700245861743183,
+        0.10472752163988824
+      ],
+      "R": [
+        0.28654227627380596,
+        0.2896559993478557,
+        0.2102632498567101,
+        0.12626394810275354,
+        0.08727452641887458
+      ]
+    },
+    "finalScores": {
+      "A1": {
+        "B": 0.600230271028067,
+        "O": 0.5286496633827353,
+        "C": 0.49008404053863575,
+        "R": 0.479571029292034,
+        "subtractive": 0.06452084456209796,
+        "quotientSums": 1.793447925230818,
+        "additiveResidual": 0.5492839025300176,
+        "multiplicativePower": 1.061104890081215,
+        "multiplicativeSimple": 1.349939970487061
+      },
+      "A2": {
+        "B": 0.39976972897193314,
+        "O": 0.47135033661726455,
+        "C": 0.5099159594613643,
+        "R": 0.5204289707079658,
+        "subtractive": 0.027076486162047535,
+        "quotientSums": 1.2138197743217158,
+        "additiveResidual": 0.4507160974699823,
+        "multiplicativePower": 0.8694401056743769,
+        "multiplicativeSimple": 0.7101669437184325
+      }
+    },
+    "consistency": {
+      "bocr": {
+        "cr": 0.010585947696525445,
+        "ci": 0.0095273529268729,
+        "lambda": 4.028582058780619
+      },
+      "subcriteria": {
+        "B": {
+          "cr": 0.011003231376578515,
+          "lambda": 5.049294476567072
+        },
+        "O": {
+          "cr": 0.009221123249891177,
+          "lambda": 5.0413106321595125
+        },
+        "C": {
+          "cr": 0.025783507313486116,
+          "lambda": 5.115510112764418
+        },
+        "R": {
+          "cr": 0.013898125393058718,
+          "lambda": 5.062263601760903
+        }
+      }
+    }
+  },
+  "reference_published": {
+    "fonte": "20260908_Dissertacao_Pedro_Palma_Revisao_Pos-Defesa.docx",
+    "confirmado": true,
+    "motor": "autovetor principal, sem guardas epsilon nas formulas de sintese",
+    "casas": 4,
+    "tabelas": {
+      "consistencia": "CR e lambda das seis matrizes agregadas (corpo e apendice)",
+      "pesos_estrategicos": "Tabela 8, pesos dos meritos e rescaling weights",
+      "sintese": "Tabela 12, cinco formulas por alternativa"
+    },
+    "strategic_weights": {
+      "B": 0.3723,
+      "O": 0.1517,
+      "C": 0.1974,
+      "R": 0.2786
+    },
+    "rescaling_weights": {
+      "B": 0.4393,
+      "O": 0.1593,
+      "C": 0.1868,
+      "R": 0.2146
+    },
+    "consistency": {
+      "BOCR": {
+        "lambdaMax": 4.0286,
+        "ci": 0.0095,
+        "cr_pct": 1.06
+      },
+      "MAGNITUDE": {
+        "lambdaMax": 4.0698,
+        "ci": 0.0233,
+        "cr_pct": 2.58
+      },
+      "SUB-B": {
+        "lambdaMax": 5.0494,
+        "ci": 0.0123,
+        "cr_pct": 1.1
+      },
+      "SUB-O": {
+        "lambdaMax": 5.0414,
+        "ci": 0.0103,
+        "cr_pct": 0.92
+      },
+      "SUB-C": {
+        "lambdaMax": 5.1165,
+        "ci": 0.0291,
+        "cr_pct": 2.6
+      },
+      "SUB-R": {
+        "lambdaMax": 5.0626,
+        "ci": 0.0157,
+        "cr_pct": 1.4
+      }
+    },
+    "sub_local_weights": {
+      "C": [
+        0.1573,
+        0.1543,
+        0.4166,
+        0.1663,
+        0.1055
+      ]
+    },
+    "synthesis": {
+      "A1": {
+        "subtractive": 0.0641,
+        "quotientSums": 1.787,
+        "additiveResidual": 0.549,
+        "multiplicativePower": 1.0599,
+        "multiplicativeSimple": 1.3472
+      },
+      "A2": {
+        "subtractive": 0.0269,
+        "quotientSums": 1.2131,
+        "additiveResidual": 0.451,
+        "multiplicativePower": 0.8694,
+        "multiplicativeSimple": 0.7115
+      }
+    }
+  }
+}
