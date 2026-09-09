@@ -1,4 +1,5 @@
 import { ComparisonGraph, checkConnectivity, getCompletenessMetrics, buildGraphFromJudgments } from './graph-utils';
+import { principalEigenvector, randomIndex } from '@/lib/ahp-engine';
 
 /** Judgment do Firestore com suporte a IPC */
 export interface Judgment {
@@ -58,23 +59,6 @@ export interface IPCCalculationResult {
         ratio: number;
     };
 }
-
-/**
- * Random Inconsistency Index (RI) de Saaty (1980)
- * Usado para calcular CR = CI / RI
- */
-const RANDOM_INDEX: Record<number, number> = {
-    1: 0,
-    2: 0,
-    3: 0.58,
-    4: 0.90,
-    5: 1.12,
-    6: 1.24,
-    7: 1.32,
-    8: 1.41,
-    9: 1.45,
-    10: 1.49,
-};
 
 // ============================================================================
 // FUNÇÕES DE CÁLCULO
@@ -141,43 +125,21 @@ export function buildPCM(
  * @param pcm - Matriz completa n×n (sem nulls)
  * @returns { weights, lambdaMax, cr }
  */
-export function eigenvectorMethod(pcm: number[][]): {
+export function eigenvectorMethod(pcm: number[][], label = 'PCM'): {
     weights: number[];
     lambdaMax: number;
     cr: number;
 } {
+    // Delega ao motor único (lib/ahp-engine.ts). A derivação, o lambda e o
+    // índice aleatório passam a ter uma implementação só no repositório.
     const n = pcm.length;
-
-    // Autovetor principal via iteração de potência (Saaty, 1977; 1980; 2003).
-    // Substitui a média geométrica das linhas, aproximação que subestima o CR
-    // e pode causar reversão de ranking em aplicações importantes (Saaty, 2012).
-    let w: number[] = new Array(n).fill(1 / n);
-    const MAX_ITER = 1000;
-    const TOL = 1e-12;
-    for (let iter = 0; iter < MAX_ITER; iter++) {
-        const next = pcm.map(row => row.reduce((acc, a_ij, j) => acc + a_ij * w[j], 0)); // A·w
-        const s = next.reduce((a, b) => a + b, 0);
-        if (s <= 0) break;
-        for (let i = 0; i < n; i++) next[i] /= s; // normaliza (soma = 1)
-        let maxDelta = 0;
-        for (let i = 0; i < n; i++) maxDelta = Math.max(maxDelta, Math.abs(next[i] - w[i]));
-        w = next;
-        if (maxDelta < TOL) break;
-    }
-    const weights = w;
+    const { weights, lambdaMax } = principalEigenvector(pcm, label);
 
     // n <= 2: CI = 0 por definição (RI(1) = RI(2) = 0).
     if (n <= 2) return { weights, lambdaMax: n, cr: 0 };
 
-    // lambda_max = soma de (A·w), pois w soma 1 e A·w = lambda·w na convergência.
-    const Aw = pcm.map(row => row.reduce((acc, a_ij, j) => acc + a_ij * w[j], 0));
-    const lambdaMax = Aw.reduce((a, b) => a + b, 0);
-
     const ci = (lambdaMax - n) / (n - 1);
-    const ri = RANDOM_INDEX[n] || 1.49;
-    const cr = ri > 0 ? ci / ri : 0;
-
-    return { weights, lambdaMax, cr };
+    return { weights, lambdaMax, cr: ci / randomIndex(n) };
 }
 
 /**
@@ -319,8 +281,15 @@ export function calculateGroupWeights(
     if (metrics.classification === 'COMPLETE' || metrics.given === metrics.possible) {
         // Caso completo: PCM não deve ter nulls (exceto bugs de dados, que tratamos forçando conversão)
         // Convertendo (number | null)[][] para number[][], assumindo 1 onde for null (fallback seguro)
-        const cleanPCM = pcm.map((row, i) => row.map((val, j) => val !== null ? val : (i === j ? 1 : 1)));
-        const eigen = eigenvectorMethod(cleanPCM);
+        const cleanPCM = pcm.map((row, i) => row.map((val, j) => {
+            if (val !== null) return val;
+            if (i === j) return 1;
+            throw new Error(
+                `PCM do grupo ${group} classificada como completa, mas a celula [${i}][${j}] esta ausente. ` +
+                `Dado inconsistente: nao preencher com valor arbitrario.`
+            );
+        }));
+        const eigen = eigenvectorMethod(cleanPCM, group);
         result = { ...eigen, method: 'EIGENVECTOR' };
     } else {
         // Caso incompleto
