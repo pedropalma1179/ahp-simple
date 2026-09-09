@@ -39,8 +39,6 @@ import {
 
 // Componente híbrido para Revisão IA (resolve problema de alucinação numérica)
 // Valores numéricos do SISTEMA + análise qualitativa da IA
-import AIReviewCard from '@/components/AIReviewCard';
-import QualityDashboard from '@/components/QualityDashboard';
 import ParecerAISection from '@/components/ParecerAISection';
 import ExternalValidation from '@/components/ExternalValidation';
 import BiasAnalysisCard from '@/components/BiasAnalysisCard';
@@ -59,7 +57,6 @@ import {
   BOCRRadarChart
 } from '@/components/charts';
 import BentoGridDashboard from '@/components/BentoGridDashboard';
-import CRTable from '@/components/CRTable';
 import BOCRConsistencyMatrix from '@/components/BOCRConsistencyMatrix';
 import { calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
 

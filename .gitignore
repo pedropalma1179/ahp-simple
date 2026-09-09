@@ -44,3 +44,11 @@ next-env.d.ts
 /estrutura*.txt
 /package-real.txt
 /rag-root*.txt
+
+# Versioned backup and build artifacts
+*.backup
+*.backup-*
+*.bak
+*.REMOVED
+build_*.txt
+build_*.log
