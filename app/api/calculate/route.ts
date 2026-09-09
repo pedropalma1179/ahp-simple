@@ -40,16 +40,16 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { checkConnectivity, buildGraphFromJudgments, getCompletenessMetrics, type ComparisonGraph } from '@/lib/graph-utils';
 import { llsmIPC, buildPCM, calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
+import {
+  principalEigenvector,
+  consistency as engineConsistency,
+  aggregateAIJ,
+  randomIndex,
+} from '@/lib/ahp-engine';
 
 // ============================================================================
 // CONSTANTES
 // ============================================================================
-
-// Random Index (RI) - Saaty (1977, 1980), Tabela 3.1
-const RI: Record<number, number> = {
-  1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12,
-  6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
-};
 
 const MERITS = ['B', 'O', 'C', 'R'] as const;
 const SUBCRITERIA_PER_MERIT = 5;
@@ -65,95 +65,6 @@ const SENSITIVITY_THRESHOLDS = {
 // ============================================================================
 // FUNÇÕES MATEMÁTICAS BASE
 // ============================================================================
-
-/**
- * Media geometrica pela soma de logaritmos (Goepel, 2018, Eqs. 7-9).
- * Numericamente estavel para qualquer numero de respondentes; a forma
- * produto-e-raiz transborda a partir de ~350 julgamentos na escala 1-9.
- *
- * CORRECAO v5.1: removido o piso Math.max(val, 0.001), que corrompia
- * silenciosamente qualquer julgamento abaixo de 0,001. Valores nao positivos
- * sao descartados, e nao truncados.
- */
-function geometricMean(values: number[]): number {
-  const positives = values.filter(v => Number.isFinite(v) && v > 0);
-  if (positives.length === 0) return 1;
-  const sumLog = positives.reduce((acc, v) => acc + Math.log(v), 0);
-  return Math.exp(sumLog / positives.length);
-}
-
-function normalizeVector(vector: number[]): number[] {
-  const sum = vector.reduce((a, b) => a + b, 0);
-  if (sum === 0) return vector.map(() => 1 / vector.length);
-  return vector.map(v => v / sum);
-}
-
-function calculateEigenvector(matrix: number[][]): number[] {
-  const n = matrix.length;
-  if (n === 0) return [];
-
-  // Autovetor principal por iteração de potência (Saaty, 1977; 1980).
-  // ATENCAO: este é o método de DERIVAÇÃO do vetor de prioridades a partir de
-  // uma matriz já agregada. NÃO confundir com a média geométrica entrada a
-  // entrada que forma a matriz consolidada (AIJ, Aczél e Saaty, 1983), feita
-  // em aggregateMatrix(). São duas médias distintas, em etapas distintas.
-  //
-  // Trocar este método pela média geométrica das linhas (LLSM) desloca os pesos
-  // BOCR em ~0,13 pp e os rescaling weights em ~0,18 pp. A troca é invisível na
-  // razão de consistência, que varia menos de 0,003 pp entre os dois métodos.
-  // Somente a comparação dos VETORES detecta a substituição.
-  let w: number[] = new Array(n).fill(1 / n);
-  const MAX_ITER = 1000;
-  const TOL = 1e-12;
-  for (let iter = 0; iter < MAX_ITER; iter++) {
-    const next = matrix.map(row => row.reduce((acc, a_ij, j) => acc + a_ij * w[j], 0));
-    const s = next.reduce((a, b) => a + b, 0);
-    if (s <= 0) break;
-    for (let i = 0; i < n; i++) next[i] /= s;
-    let maxDelta = 0;
-    for (let i = 0; i < n; i++) maxDelta = Math.max(maxDelta, Math.abs(next[i] - w[i]));
-    w = next;
-    if (maxDelta < TOL) break;
-  }
-
-  // 'w' é o vetor de prioridade (autovetor principal); normalizeVector garante soma = 1.
-  return normalizeVector(w);
-}
-
-function calculateLambdaMax(matrix: number[][], eigenvector: number[]): number {
-  const n = matrix.length;
-  if (n === 0) return 0;
-
-  let lambdaSum = 0;
-  for (let i = 0; i < n; i++) {
-    let rowSum = 0;
-    for (let j = 0; j < n; j++) {
-      rowSum += matrix[i][j] * eigenvector[j];
-    }
-    if (eigenvector[i] > 0.0001) {
-      lambdaSum += rowSum / eigenvector[i];
-    }
-  }
-
-  return lambdaSum / n;
-}
-
-function calculateConsistency(matrix: number[][]): { cr: number; ci: number; lambda: number } {
-  const n = matrix.length;
-  if (n <= 2) return { cr: 0, ci: 0, lambda: n };
-
-  const eigenvector = calculateEigenvector(matrix);
-  const lambda = calculateLambdaMax(matrix, eigenvector);
-  const ci = (lambda - n) / (n - 1);
-  const ri = RI[n] || 1.49;
-  const cr = ri > 0 ? ci / ri : 0;
-
-  return {
-    cr: Math.max(0, cr),
-    ci: Math.max(0, ci),
-    lambda: Math.max(n, lambda)
-  };
-}
 
 /**
  * Completa uma PCM incompleta usando pesos calculados.
@@ -371,7 +282,8 @@ function aggregateMatrix(
       }
 
       if (values.length > 0) {
-        const aggregated = geometricMean(values);
+        const pairLabel = `${group ?? type}[${items[i]}|${items[k]}]`;
+        const aggregated = aggregateAIJ(values, pairLabel);
         matrix[i][k] = aggregated;
         matrix[k][i] = 1 / aggregated;
         filledCells++;
@@ -411,13 +323,13 @@ function calculateWeightsIPC(
   if (aggregation.isComplete) {
     // Caminho clássico — 100% backward compatible
     const completeMatrix = aggregation.matrix as number[][];
-    const weights = calculateEigenvector(completeMatrix);
-    const consistency = calculateConsistency(completeMatrix);
-    console.log(`[IPC] ${groupLabel}: COMPLETA (${aggregation.filledCells}/${aggregation.totalCells}), método EIGENVECTOR`);
+    const eigen = principalEigenvector(completeMatrix, groupLabel);
+    const cons = engineConsistency(completeMatrix, groupLabel);
+    console.log(`[IPC] ${groupLabel}: COMPLETA (${aggregation.filledCells}/${aggregation.totalCells}), método ${eigen.method}`);
     return {
-      weights,
-      consistency,
-      method: 'EIGENVECTOR',
+      weights: eigen.weights,
+      consistency: { cr: cons.cr, ci: cons.ci, lambda: cons.lambdaMax },
+      method: eigen.method,
       completeness: {
         ratio: 1.0,
         given: aggregation.filledCells,
@@ -458,7 +370,7 @@ function calculateWeightsIPC(
     weights: llsmResult.weights,
     consistency: {
       cr: llsmResult.cr,
-      ci: llsmResult.cr * (RI[n] || 1.49), // CI = CR × RI
+      ci: llsmResult.cr * randomIndex(n), // CI = CR × RI
       lambda: llsmResult.lambdaMax
     },
     method: 'LLSM_IPC',
