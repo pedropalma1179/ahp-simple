@@ -199,76 +199,6 @@ function validateMethodsAgreement(data: any): ValidationResult {
   };
 }
 
-function validateSensitivity(data: any): ValidationResult {
-  const inflections = data.sensitivityInflections || {};
-  const merits = ['B', 'O', 'C', 'R'];
-
-  let criticalCount = 0;
-  let sensitiveCount = 0;
-  let moderateCount = 0;
-  let stableCount = 0;
-
-  const details: Record<string, { value: number | null; classification: string }> = {};
-
-  merits.forEach(m => {
-    const inflection = inflections[m];
-    if (inflection === null || inflection === undefined) {
-      stableCount++;
-      details[m] = { value: null, classification: 'Estável' };
-    } else if (inflection <= 10) {
-      criticalCount++;
-      details[m] = { value: inflection, classification: 'Crítico' };
-    } else if (inflection <= 20) {
-      sensitiveCount++;
-      details[m] = { value: inflection, classification: 'Sensível' };
-    } else if (inflection <= 50) {
-      moderateCount++;
-      details[m] = { value: inflection, classification: 'Moderado' };
-    } else {
-      stableCount++;
-      details[m] = { value: inflection, classification: 'Estável' };
-    }
-  });
-
-  let status: 'PASS' | 'ALERT' | 'FAIL' | 'CRITICAL' = 'CRITICAL';
-  let message = '';
-  let action = '';
-
-  if (criticalCount === 0 && sensitiveCount === 0) {
-    status = 'PASS';
-    message = 'Ranking altamente estável - sem pontos críticos de inversão';
-  } else if (criticalCount === 0 && sensitiveCount <= 1) {
-    status = 'PASS';
-    message = `Ranking estável - ${sensitiveCount} mérito(s) com sensibilidade moderada`;
-  } else if (criticalCount <= 1) {
-    status = 'ALERT';
-    message = `${criticalCount} mérito(s) crítico(s), ${sensitiveCount} sensível(is)`;
-    action = 'Documente a sensibilidade no artigo. Discuta cenários alternativos e suas implicações.';
-  } else {
-    status = 'FAIL';
-    message = `Alta sensibilidade - ${criticalCount} méritos críticos`;
-    action = 'ATENÇÃO: Ranking muito instável. Considere expandir subcritérios para maior discriminação ou coletar mais dados.';
-  }
-
-  const criticalMerits = Object.entries(details)
-    .filter(([_, d]) => d.classification === 'Crítico')
-    .map(([m]) => m);
-
-  return {
-    test: 'Análise de Sensibilidade',
-    status,
-    message,
-    action,
-    details: {
-      byMerit: details,
-      criticalCount,
-      sensitiveCount,
-      stableCount,
-      criticalMerits
-    }
-  };
-}
-
 function validateDiscrimination(data: any): ValidationResult {
   const scores = data.finalScores || [];
   if (scores.length < 2) {
@@ -535,7 +465,6 @@ export async function POST(request: NextRequest) {
     const consistencyResult = validateConsistency(calculationData);
     const sampleResult = validateSampleSize(calculationData);
     const methodsResult = validateMethodsAgreement(calculationData);
-    const sensitivityResult = validateSensitivity(calculationData);
     const discriminationResult = validateDiscrimination(calculationData);
     const dataQualityResult = validateDataQuality(calculationData);
 
@@ -543,7 +472,6 @@ export async function POST(request: NextRequest) {
       consistencyResult,
       sampleResult,
       methodsResult,
-      sensitivityResult,
       discriminationResult,
       dataQualityResult
     ];
@@ -568,9 +496,6 @@ export async function POST(request: NextRequest) {
     }
     if (methodsResult.details?.agreement === 5) {
       pontosFortes.push(`Concordância perfeita: 5/5 métodos indicam ${methodsResult.details.dominantWinner} como vencedor.`);
-    }
-    if (sensitivityResult.details?.criticalCount === 0) {
-      pontosFortes.push('Robustez excelente: ranking estável para todas as variações.');
     }
     if (dataQualityResult.status === 'PASS' && (!dataQualityResult.details?.issues || dataQualityResult.details.issues.length === 0)) {
       pontosFortes.push('Dados completos e bem formatados.');
@@ -602,8 +527,7 @@ export async function POST(request: NextRequest) {
 
       robustez: {
         metodos_concordantes: methodsResult.details?.agreement || 0,
-        diferenca_1o_2o: `${discriminationResult.details?.difference?.toFixed(2) || 0}%`,
-        classificacao_sensibilidade: sensitivityResult.status
+        diferenca_1o_2o: `${discriminationResult.details?.difference?.toFixed(2) || 0}%`
       },
 
       pontos_fortes: pontosFortes,
@@ -638,7 +562,6 @@ export async function GET() {
       'Consistência (CR)',
       'Tamanho da Amostra',
       'Concordância entre Métodos',
-      'Análise de Sensibilidade',
       'Poder de Discriminação',
       'Qualidade dos Dados'
     ]

@@ -4776,7 +4776,6 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                       <div className="space-y-1 text-sm">
                         <p>Métodos concordantes: <strong>{audit.robustez?.metodos_concordantes}/5</strong></p>
                         <p>Δ 1º-2º: {audit.robustez?.diferenca_1o_2o}</p>
-                        <p>Sensibilidade: {audit.robustez?.classificacao_sensibilidade}</p>
                       </div>
                     </div>
                   </div>

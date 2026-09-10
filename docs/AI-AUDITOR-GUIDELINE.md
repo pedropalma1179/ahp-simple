@@ -2,10 +2,12 @@
 > auditor, em que sete testes de validação eram executados por LLM. Ele **não**
 > corresponde ao que o sistema executa hoje.
 >
-> Os sete testes migraram para código determinístico em `app/api/audit-decision/`,
+> Os testes migraram para código determinístico em `app/api/audit-decision/`,
 > como `validateConsistency`, `validateSampleSize`, `validateMethodsAgreement`,
-> `validateSensitivity`, `validateDiscrimination`, `validateDataQuality` e
-> `validateLogic`. Essa rota é chamada automaticamente por
+> `validateDiscrimination`, `validateDataQuality` e `validateLogic`. O sétimo,
+> `validateSensitivity`, foi removido na tarefa A.2: emitia veredito PASS, ALERT
+> ou FAIL a partir de limiares de sensibilidade sem fonte. Essa rota é chamada
+> automaticamente por
 > `app/decisor/resultados/[projectId]/page.tsx` no carregamento da página e após
 > exclusão de respondentes.
 >
