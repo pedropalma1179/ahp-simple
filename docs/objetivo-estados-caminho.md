@@ -1,6 +1,6 @@
 # ahp-simple: objetivo, estados e caminho
 
-Documento âncora. Revisado em 10/09/2026 sobre o commit `5837d0d`.
+Documento âncora. Revisado em 10/09/2026 sobre o commit `d16491a`.
 
 **Leia a Parte 0 antes de qualquer trabalho neste repositório.** Ela existe
 porque o desenvolvimento perdeu direção várias vezes: a memória se perde entre
@@ -90,6 +90,11 @@ passar em nenhuma das três perguntas, ela não deveria estar sendo feita agora.
   corresponder ao commit citado; conferir `git rev-parse HEAD` antes de citar
   qualquer endereço. Melhor ainda: ancorar por trecho de texto, que não
   envelhece.
+- Escrever critério de contagem mirando um alvo e medindo num escopo mais largo.
+  Aconteceu com "uma ocorrência em docs/", quando o alvo era um arquivo e a
+  medição pegou o diretório inteiro, incluindo registro histórico legítimo.
+  **A regra: todo critério de contagem nomeia o arquivo exato da medição, não o
+  diretório que o contém.**
 - Verificar árvore limpa sem excluir os caminhos que a própria tarefa altera.
   Aconteceu três vezes: o prompt bloqueia sobre o próprio resultado quando é
   reexecutado, ou sobre arquivo alheio que o commit já vai excluir. **A regra:
@@ -339,7 +344,7 @@ Echelons Theory no prompt. O nome colide com a função do Bloco D.
 
 ## 2.4 O que já está saneado
 
-Dezesseis commits, todos em produção. **O repositório tem hoje 137 arquivos
+Dezoito commits, todos em produção. **O repositório tem hoje 137 arquivos
 rastreados**, contra 298 no início do saneamento. É o número que a Fase 1 da
 próxima tarefa deve conferir. Um único derivador de prioridades,
 `lib/ahp-engine.ts`, validado por 30 verificações contra 24 valores de referência
@@ -369,6 +374,14 @@ São 2646 linhas. O `page.tsx` caiu de 5954 para 5042 linhas.
 segundos, teto do plano Hobby da Vercel, que bloqueava o deploy. O build voltou a
 passar, com 17 páginas. A medição da duração real do parecer continua pendente:
 ver A.9.
+
+**A remoção do `validateSensitivity` fechou em `d16491a`.** Ele emitia PASS,
+ALERT ou FAIL sobre a análise a partir de limiares de 10 e 20 pontos percentuais
+sem fonte, e injetava "Robustez excelente: ranking estável para todas as
+variações" em pontos fortes. Suas ações eram "Documente a sensibilidade no artigo"
+e "Considere expandir subcritérios", dirigidas a autor de artigo e não a gestor.
+Saíram também a linha do card de robustez, a entrada da documentação do `GET` e a
+nota do `AI-AUDITOR-GUIDELINE.md`, que passou a registrar a remoção.
 
 **A.7 fechou em `599d0d8`.** O repositório caiu de 257 para **135** arquivos
 rastreados, com 119 041 linhas removidas. Saíram o `_backup/` inteiro, os 39
@@ -408,7 +421,8 @@ Nada novo se constrói sobre base contraditória.
 | A.6 | Remover `lib/knowledge.ts` legado e o resíduo de IPC do RAG |
 | ✅ A.7 | **Fechada em `599d0d8`.** 122 remoções e 4 documentos movidos para `docs/`. O repositório caiu de 257 para 135 arquivos, 119 041 linhas |
 | A.8 | Unificar o limiar de CR no painel de consistência, alcançando `ConsistencyGaugeChart` e o painel textual **numa edição só**. Adiado de A.1 porque os dois são hoje coerentes entre si, e corrigir um cria divergência adjacente no mesmo campo de visão. Não é cosmético: o eixo do medidor vai a 20% com quebra em 10% e 15%, e reduzir para um limiar muda o que o arco comunica |
-| A.9 | `maxDuration` cortado de 800 para 300s em `56bd50a`, e o build voltou a passar. **Falta a medição:** o comentário do `MODEL_CONFIG` registra que o budget de raciocínio de 5000 tokens foi calibrado para caber em <800s ao resolver um 504. O budget não mudou e o teto caiu. Gerar um parecer e cronometrar: abaixo de 150s fecha com folga; entre 150 e 280 fecha com margem estreita, e qualquer aumento de `maxTokens` reabre; perto de 300 ou estourando, escala para streaming |
+| ✅ A.9 | **Fechada.** `maxDuration` cortado de 800 para 300s em `56bd50a`. Medição em 10/09/2026: o parecer levou **154 segundos**. Cabe em 300 com margem estreita. **Qualquer aumento de `maxTokens` (hoje 16000) ou do budget de raciocínio (5000) reabre.** Se estourar, a saída é streaming, não porque a Vercel limita, mas porque requisição HTTP síncrona de minutos deixa o gestor em tela travada |
+| A.10 | **Auditar todas as citações e valores do `system-prompt.ts` contra o RAG.** Dois de quatro localizadores do prompt estão errados: "Wijnmalen (2007, p. 250)" quando a claim está na 899, e — pior — a REGRA CRÍTICA de limiares diz `CR ≤ 0.10 (Saaty, 1977, p. 271)` quando a claim está na 248 e o próprio prompt usa 248 corretamente em outros seis lugares. O modelo obedece ao exemplo e reproduz o erro. Faltam conferir os números de equação (Eq. 10, 15, 17) e as 61 combinações de autor e ano. **O prompt nunca passou por PVB**: o protocolo foi aplicado ao RAG e não ao artefato que instrui o modelo a usá-lo. Evidência em `docs/imprecisoes-parecer-ia.md` |
 
 **Mapa das OITO implementações do construto de sensibilidade.** Levantado em
 10/09/2026, revisado sobre `5837d0d`. Custou quatro rodadas para montar; não
@@ -421,7 +435,7 @@ refazer.
 | `components/SensitivityAnalysisPanel.tsx` | rótulo textual nos cards, `getClassificationStyle` com semáforo colorido, `changeDescription` | ✅ `5837d0d` |
 | `app/api/calculate/route.ts`, array `q1Features` do metadata | a string `'Sensitivity Classification (Alizadeh 2020)'` continua declarando, no documento persistido, um construto que o motor não faz mais. **Oitavo endereço, sem dono.** Achado depois do commit (2) | — |
 | `components/q1-features/index.ts` | arquivo órfão com cópias paralelas dos tipos | ✅ `5837d0d`, por remoção |
-| `app/api/audit-decision/route.ts` | `validateSensitivity`, implementação PRÓPRIA com rótulos Estável / Moderado / Sensível / Crítico e limiares 10/20/50. Emite PASS, ALERT ou FAIL, e alcança quatro pontos da tela: `robustez.classificacao_sensibilidade`, `validacoes`, `pontos_fortes` ("Robustez excelente") e `recomendacoes` ("Documente a sensibilidade no artigo") | (3) |
+| `app/api/audit-decision/route.ts` | `validateSensitivity`, implementação PRÓPRIA com rótulos Estável / Moderado / Sensível / Crítico e limiares 10/20/50. Emitia PASS, ALERT ou FAIL, e alcançava quatro pontos da tela | ✅ `d16491a` |
 | `page.tsx`, dentro de `exportLatex`, `exportCSV` e `exportXLSX` | três cadeias independentes com limiares 10/20/50. A do XLSX também gera coluna "Interpretação" e resumo "ALTAMENTE ROBUSTO" | (4) |
 | `lib/knowledge.ts`, `interpretSensitivity` | raiz do card e da interpretação textual da aba executiva ("❌ Crítico", "⚠️ Sensível", "ATENÇÃO: N de 4 méritos") via `sensitivityResults`, `hasCritical` e `nonRobustMerits` | (4) |
 
@@ -501,7 +515,17 @@ dele.** Nas linhas vizinhas há ainda uma classificação própria por `cr > 0.2
 que é o oitavo conjunto de limiares de CR encontrado no sistema.
 
 Achado da tarefa A.1, endereçado por trecho para sobreviver a refactor. Fica
-fora de A.1 por decisão de escopo.
+fora do Bloco A por decisão de escopo.
+
+**Confirmado empiricamente em 10/09/2026.** Um parecer gerado contra o commit
+`d16491a`, depois de todo o saneamento, reproduz as quatro imprecisões que a
+Seção 6.2 da dissertação registra, mais uma quinta. Duas delas vêm exatamente do
+cache descrito em B.1: o parecer afirma que os doze respondentes têm CR abaixo de
+10%, com faixa de 1,1% a 9,6%, que é a faixa do cache.
+
+O registro completo, com o texto bruto, a classificação em três tipos de falha e
+a causa técnica de cada uma, está em **`docs/imprecisoes-parecer-ia.md`**. Ele é
+insumo do artigo, não tarefa de engenharia.
 
 ## Bloco C. Escopo de saída
 
@@ -628,8 +652,9 @@ compreender, não para redigir. Não definido em que momento da jornada.
 **O formato do Quadro 15.**
 
 **O que fazer com `/api/audit-decision`**, cujos validadores heurísticos já rodam
-acoplados ao resultado. São sete hoje; o terceiro commit de A.2 remove o
-`validateSensitivity` e deixa seis. Sobrepõe-se ao Bloco D: ou os validadores são
+acoplados ao resultado. São **seis** desde `d16491a`: consistência, tamanho da
+amostra, concordância entre métodos, poder de discriminação, qualidade dos dados
+e a validação lógica. Sobrepõe-se ao Bloco D: ou os validadores são
 estendidos com as verificações de 1.6, ou a rota é substituída por elas.
 
 **A fronteira de ineditismo do Bloco D.** Ver o aviso em 1.6. Depende de
