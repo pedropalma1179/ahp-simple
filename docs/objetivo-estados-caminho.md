@@ -1,6 +1,6 @@
 # ahp-simple: objetivo, estados e caminho
 
-Documento âncora. Revisado em 10/09/2026 sobre o commit `599d0d8`.
+Documento âncora. Revisado em 10/09/2026 sobre o commit `5837d0d`.
 
 **Leia a Parte 0 antes de qualquer trabalho neste repositório.** Ela existe
 porque o desenvolvimento perdeu direção várias vezes: a memória se perde entre
@@ -90,6 +90,12 @@ passar em nenhuma das três perguntas, ela não deveria estar sendo feita agora.
   corresponder ao commit citado; conferir `git rev-parse HEAD` antes de citar
   qualquer endereço. Melhor ainda: ancorar por trecho de texto, que não
   envelhece.
+- Verificar árvore limpa sem excluir os caminhos que a própria tarefa altera.
+  Aconteceu três vezes: o prompt bloqueia sobre o próprio resultado quando é
+  reexecutado, ou sobre arquivo alheio que o commit já vai excluir. **A regra:
+  a verificação exclui os caminhos da tarefa, e arquivo alheio é aviso, não
+  parada, desde que o commit o exclua explicitamente** (`git add <caminhos>`,
+  nunca `git add -A`).
 - Escrever critério de registro como se fosse critério de bloqueio. Se o texto
   não distingue "confirme e siga" de "pare se divergir", o executor assume o
   segundo, que é o comportamento seguro. **Todo critério que só coleta
@@ -333,7 +339,9 @@ Echelons Theory no prompt. O nome colide com a função do Bloco D.
 
 ## 2.4 O que já está saneado
 
-Treze commits, todos em produção. Um único derivador de prioridades,
+Dezesseis commits, todos em produção. **O repositório tem hoje 137 arquivos
+rastreados**, contra 298 no início do saneamento. É o número que a Fase 1 da
+próxima tarefa deve conferir. Um único derivador de prioridades,
 `lib/ahp-engine.ts`, validado por 30 verificações contra 24 valores de referência
 conferidos contra os 864 julgamentos brutos e contra a AhpAnpLib. Zero guardas
 silenciosas no caminho de cálculo. Um gravador único de `calculations`. Censo
@@ -371,6 +379,10 @@ movidos para `docs/`, que passou a ter sete arquivos, e o
 `docs/AI-AUDITOR-GUIDELINE.md` ganhou a nota de contexto explicando que descreve o
 desenho original e não o sistema atual.
 
+**`c9fc46f`** versionou os quatro documentos de trabalho em `docs/`, que passou a
+ter onze arquivos. **`305d699`** removeu `QualityAnalysis.tsx`, componente órfão de
+1459 linhas.
+
 Restam três falhas do censo: quatro tabelas de índice aleatório em rotas de
 exibição e auditoria, um `RI[n] ||` em `resultados/page.tsx`, e menção a LLSM em
 `calculate/route.ts`. Nenhuma está no caminho que produz os valores publicados.
@@ -389,7 +401,7 @@ Nada novo se constrói sobre base contraditória.
 | # | Ação |
 |---|---|
 | ✅ A.1 | **Fechada em `e5f9be2`.** Painel de qualidade: uma rotina só, que é a Tabela 4 |
-| A.2 | Remover a classificação categórica de sensibilidade. **Quatro implementações restantes** (`scripts/debug_sensitivity.js` saiu em `599d0d8`), depois de duas removidas em `999136f`. Antes eram sete implementações independentes**, cada uma com limiares e rótulos próprios, nenhuma com fonte. Já removidas em `999136f`: `generate-academic/route.ts` e `buildMarkdownTables`. Restam: `calculate/route.ts` (robust/moderate/sensitive/critical), `audit-decision/route.ts` (Estável/Moderado/Sensível/Crítico), `QualityAnalysis.tsx` (Sensível/Moderadamente Robusto), `scripts/debug_sensitivity.js` (`SENSITIVITY_THRESHOLDS` com 50/20/10/0), e **duas dentro de `exportLatex` e `exportCSV`** em `resultados/page.tsx`, com limiares 10/20/50. A varredura de 101 pontos FICA: corresponde ao manuscrito |
+| A.2 | Remover a classificação categórica de sensibilidade (Robusto / Moderadamente Sensível / Sensível / Crítico, limiares 50/20/10, sem fonte). **Sete implementações, mapeadas abaixo da tabela**, em quatro commits. O commit (4) depende de A.6 |
 | A.3 | Renomear `dominanceAnalyzer` para o que ele mede |
 | A.4 | Corrigir o rótulo do modelo e torná-lo parâmetro registrado |
 | A.5 | Unificar as quatro tabelas RI restantes no motor |
@@ -397,6 +409,34 @@ Nada novo se constrói sobre base contraditória.
 | ✅ A.7 | **Fechada em `599d0d8`.** 122 remoções e 4 documentos movidos para `docs/`. O repositório caiu de 257 para 135 arquivos, 119 041 linhas |
 | A.8 | Unificar o limiar de CR no painel de consistência, alcançando `ConsistencyGaugeChart` e o painel textual **numa edição só**. Adiado de A.1 porque os dois são hoje coerentes entre si, e corrigir um cria divergência adjacente no mesmo campo de visão. Não é cosmético: o eixo do medidor vai a 20% com quebra em 10% e 15%, e reduzir para um limiar muda o que o arco comunica |
 | A.9 | `maxDuration` cortado de 800 para 300s em `56bd50a`, e o build voltou a passar. **Falta a medição:** o comentário do `MODEL_CONFIG` registra que o budget de raciocínio de 5000 tokens foi calibrado para caber em <800s ao resolver um 504. O budget não mudou e o teto caiu. Gerar um parecer e cronometrar: abaixo de 150s fecha com folga; entre 150 e 280 fecha com margem estreita, e qualquer aumento de `maxTokens` reabre; perto de 300 ou estourando, escala para streaming |
+
+**Mapa das OITO implementações do construto de sensibilidade.** Levantado em
+10/09/2026, revisado sobre `5837d0d`. Custou quatro rodadas para montar; não
+refazer.
+
+| Onde | O que faz | Commit |
+|---|---|---|
+| `app/decisor/resultados/[projectId]/QualityAnalysis.tsx` | componente órfão, 1459 linhas | ✅ `305d699` |
+| `app/api/calculate/route.ts` | `SENSITIVITY_THRESHOLDS`, `classification` e `classificationLabel` persistidos em `calculations.sensitivityAnalysis`, mais o filtro `alerts.sensitivityCritical` | ✅ `5837d0d` |
+| `components/SensitivityAnalysisPanel.tsx` | rótulo textual nos cards, `getClassificationStyle` com semáforo colorido, `changeDescription` | ✅ `5837d0d` |
+| `app/api/calculate/route.ts`, array `q1Features` do metadata | a string `'Sensitivity Classification (Alizadeh 2020)'` continua declarando, no documento persistido, um construto que o motor não faz mais. **Oitavo endereço, sem dono.** Achado depois do commit (2) | — |
+| `components/q1-features/index.ts` | arquivo órfão com cópias paralelas dos tipos | ✅ `5837d0d`, por remoção |
+| `app/api/audit-decision/route.ts` | `validateSensitivity`, implementação PRÓPRIA com rótulos Estável / Moderado / Sensível / Crítico e limiares 10/20/50. Emite PASS, ALERT ou FAIL, e alcança quatro pontos da tela: `robustez.classificacao_sensibilidade`, `validacoes`, `pontos_fortes` ("Robustez excelente") e `recomendacoes` ("Documente a sensibilidade no artigo") | (3) |
+| `page.tsx`, dentro de `exportLatex`, `exportCSV` e `exportXLSX` | três cadeias independentes com limiares 10/20/50. A do XLSX também gera coluna "Interpretação" e resumo "ALTAMENTE ROBUSTO" | (4) |
+| `lib/knowledge.ts`, `interpretSensitivity` | raiz do card e da interpretação textual da aba executiva ("❌ Crítico", "⚠️ Sensível", "ATENÇÃO: N de 4 méritos") via `sensitivityResults`, `hasCritical` e `nonRobustMerits` | (4) |
+
+**Construtos distintos, que NÃO são escopo de A.2:**
+`dominanceResult.classification` em `ai-reviewer/route.ts` e
+`lib/analysis/dominanceAnalyzer.ts` são concentração de peso entre méritos, alvo
+de A.3. O construto de **completude de matriz** é definido em
+`lib/graph-utils.ts` (`CompletenessMetrics.classification`, com os valores
+COMPLETE, NEAR_COMPLETE, PARTIAL, MINIMAL e INSUFFICIENT) e consumido em
+`lib/ahp-ipc.ts`. Não está em `lib/rag/`: o que existe lá é um comentário sobre
+classificação de artigo, em `types.ts`.
+
+**O commit (4) depende de A.6** porque `lib/knowledge.ts` é o legado que ela
+remove, e o `page.tsx` importa oito símbolos dele, não só o `interpretSensitivity`.
+Fazer o (4) antes arrastaria A.6 inteira para dentro de A.2.
 
 ## Bloco B. Recomputar — o momento decisivo
 
@@ -444,8 +484,8 @@ lê o cache descrito em B.1. Somando ao `'REVISAR': 0` fixo de
 construída a partir de grandeza que não é o CR do respondente.
 
 O Apêndice A da dissertação é a saída do Parecer IA e está no escopo de saída em
-1.4. **Não é escopo de A.1 e não se resolve agora**, mas fica registrado por
-tocar item já publicado.
+1.4. **Não se resolve no Bloco A**, mas fica registrado por tocar item já
+publicado.
 
 **E não é só exibição: é decisão.** Na função que monta o payload do parecer em
 `resultados/page.tsx`, a condição
@@ -465,7 +505,7 @@ fora de A.1 por decisão de escopo.
 
 ## Bloco C. Escopo de saída
 
-**Dois itens são pré-requisito do Bloco D e sobem de prioridade:**
+**Um item é pré-requisito do Bloco D e sobe de prioridade** (o outro, C.0b, já foi fechado em `e5f9be2`):
 
 **C.0a Dispersão geométrica** (T5 e T14). É a medida de discordância do painel,
 uma das cinco causas de fragilidade. Não existe no código: busca por `dispers`,
@@ -476,8 +516,11 @@ de Saaty e Vargas, está na base de conhecimento do projeto e **não está index
 no RAG**: busca por `dispers` em `lib/rag/articles/` retorna zero. Implementar é
 requisito, não achado. Indexar o artigo é parte da tarefa.
 
-**C.0b Tabela 4 e Apêndice G completos.** CR individual nas seis matrizes, não
-apenas o maior. É a base do subpainel por limiar de consistência. Depende de A.1.
+**✅ C.0b Tabela 4 e Apêndice G completos.** Fechado em `e5f9be2`, junto com A.1.
+A tabela de respondentes exibe os seis CRs por matriz, o CR governante e a matriz
+que governou, conferidos célula a célula contra
+`docs/referencia-cr-individuais.md`. **Não é mais pré-requisito do Bloco D.**
+Resta apenas C.0a.
 
 **O restante do Bloco C é requisito de ferramenta e de rastreabilidade, não
 contribuição:**
@@ -501,9 +544,25 @@ Cada causa de 1.6 vira uma verificação com resposta acionável.
 | D.1 | Dominância entre alternativas, respeitada a direção de Custos e Riscos | `altScores` e `altMeritScores` |
 | D.2 | Recomputação por composição do painel, exclusão de um respondente por vez | `excludedRespondentIds` já existe em `calculate/route.ts` e na UI |
 | D.3 | Concentração da vantagem em poucos subcritérios | `altScores` e pesos globais |
-| D.4 | Sensibilidade à ponderação, substituindo a classificação de A.2 | varredura já existe |
+| D.4 | Sensibilidade à ponderação, substituindo a classificação de A.2 | **duas** varreduras já existem, ver nota abaixo da tabela |
 | D.5 | Dispersão do painel | depende de C.0a |
 | D.6 | Substituir `robustnessLevel` por leitura que distinga invariância estrutural de robustez observada | `methodConcordance` |
+
+**Nota sobre as duas varreduras de sensibilidade.** Elas não são duplicação e
+nenhuma deve ser removida:
+
+- `calculateSensitivityWithClassification` varre em passo de **1 ponto
+  percentual**, subindo e descendo a partir do peso atual, e é a **busca do ponto
+  de inflexão**. Corresponde ao procedimento descrito na Seção 3.3 do manuscrito.
+  O que sai dela em A.2 é apenas a classificação categórica; a varredura fica.
+- `calculateSensitivityTrajectoriesOnly` varre **21 pontos com passo de 0,05** e
+  gera as curvas da **Figura 21**. A nota da figura no manuscrito é explícita
+  quanto a isso.
+
+Se um dia a tela precisar dizer algo sobre robustez, a formulação com fonte já
+está no manuscrito, Seção 4.10: "nenhum dos méritos é crítico, nos termos de
+Karande, Zavadskas e Chakraborty (2016) e Triantaphyllou e Sánchez (1997)". Isso
+nasce em D.4, não antes.
 
 ---
 
@@ -568,8 +627,9 @@ compreender, não para redigir. Não definido em que momento da jornada.
 
 **O formato do Quadro 15.**
 
-**O que fazer com `/api/audit-decision`**, cujos sete validadores heurísticos já
-rodam acoplados ao resultado. Sobrepõe-se ao Bloco D: ou os validadores são
+**O que fazer com `/api/audit-decision`**, cujos validadores heurísticos já rodam
+acoplados ao resultado. São sete hoje; o terceiro commit de A.2 remove o
+`validateSensitivity` e deixa seis. Sobrepõe-se ao Bloco D: ou os validadores são
 estendidos com as verificações de 1.6, ou a rota é substituída por elas.
 
 **A fronteira de ineditismo do Bloco D.** Ver o aviso em 1.6. Depende de
