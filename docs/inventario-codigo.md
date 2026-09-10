@@ -1,11 +1,15 @@
 # ahp-simple: inventário de código
 
 Referência para retomar o trabalho sem reanalisar a arquitetura.
-Estado do commit `599d0d8`, 10/09/2026.
+Estado do commit `3a6665d`, 10/09/2026.
 
 **Como usar.** Documento de consulta, não de leitura corrida. Cada entrada traz o
 que o arquivo faz, quem o usa e o que há de armadilha nele. Os avisos marcados
 com ⚠ são defeitos conhecidos ainda não corrigidos.
+
+**Este documento envelhece a cada commit.** Ele descreve o repositório no commit
+citado acima. Revisar quando uma tarefa fechar, ou ao menos ler sabendo que pode
+estar atrás.
 
 **Sobre os números.** As contagens de linha por arquivo e as colunas "Linha" das
 tabelas de função são referência de dimensão e de localização aproximada, medidas
@@ -213,7 +217,6 @@ onze respondentes em CRÍTICO.
 
 | Arquivo | Linhas | O que faz |
 |---|---|---|
-| `QualityAnalysis.tsx` | 1459 | análise de qualidade das respostas |
 | `components/ExportReports.tsx` | 404 | geração de relatórios |
 | `components/QualityConsistency.tsx` | 542 | heatmap de CR, distribuição, outliers |
 
@@ -235,7 +238,6 @@ onze respondentes em CRÍTICO.
 | `charts/BOCRWaterfallChart.tsx` | 355 | cascata da síntese |
 | `charts/ConsistencyGaugeChart.tsx` | 275 | medidor de CR |
 | `VideoBackground.tsx` | 29 | fundo da página inicial |
-| `q1-features/index.ts` | 83 | interfaces compartilhadas |
 
 ### Componentes órfãos ⚠ (1742L, nenhum importador)
 
@@ -371,17 +373,20 @@ publicado na própria ESWA. Só existe `lee2009_wind.ts`.
 
 ## Camada 8. Auditoria e qualidade
 
-### `app/api/audit-decision/route.ts` (646L)
+### `app/api/audit-decision/route.ts`
 
-Sete validadores heurísticos, sem LLM: `validateConsistency` (34),
-`validateSampleSize` (70), `validateMethodsAgreement` (109),
-`validateSensitivity` (202), `validateDiscrimination` (272),
-`validateDataQuality` (329), `validateLogic` (377). `generateTechnicalReport`
-(458).
+**Seis** validadores heurísticos, sem LLM: `validateConsistency`,
+`validateSampleSize`, `validateMethodsAgreement`, `validateDiscrimination`,
+`validateDataQuality` e `validateLogic`, este último tratado à parte do array.
+Mais o `generateTechnicalReport`.
+
+O sétimo, `validateSensitivity`, foi removido em `d16491a`: emitia veredito PASS,
+ALERT ou FAIL sobre a análise a partir de limiares de sensibilidade sem fonte, e
+injetava "Robustez excelente" em pontos fortes.
 
 Chamada automaticamente por `resultados/page.tsx` em dois pontos: no
 carregamento da página e após exclusão de respondentes. **Já é acoplada ao
-resultado.** ⚠ Tabela RI própria e limiares de sensibilidade próprios.
+resultado.** ⚠ Tabela RI própria.
 
 ### `app/api/response-quality/route.ts` (489L)
 
@@ -455,14 +460,15 @@ publicados de referência. Sem dado pessoal.
 | ✅ 1 | ~~painel de qualidade se contradiz~~ | **resolvido em `e5f9be2`** (A.1) |
 | 2 | `ParecerAISection.tsx` (dois pontos) e `resultados/page.tsx` (um) | dizem Sonnet 4.5, roda Opus 4.6 |
 | 3 | `dominanceAnalyzer.ts` | nome colide com a função a construir |
-| 4 | `calculate/route.ts`, `audit-decision/route.ts`, `QualityAnalysis.tsx`, `scripts/debug_sensitivity.js`, e duas em `exportLatex`/`exportCSV` | classificação categórica de sensibilidade, cinco implementações restantes |
+| 4 | três em `exportLatex`, `exportCSV` e `exportXLSX`, mais o card e a interpretação da aba executiva, mais `interpretSensitivity` em `lib/knowledge.ts` | classificação categórica de sensibilidade. Cinco das oito implementações já removidas em `305d699`, `5837d0d` e `d16491a`; o resto é o quarto commit de A.2 e depende de A.6 |
 | 5 | 4 arquivos | tabelas RI duplicadas |
 | 6 | `resultados/page.tsx` | `RI[n] \|\|` sem erro explícito |
 | ✅ 7 | ~~7 componentes órfãos~~ | **resolvido em `ed897ec`** |
 | ✅ 8 | ~~3 componentes importados e não renderizados~~ | **resolvido em `ed897ec`** |
 | 9 | `lib/knowledge.ts` | base legada ainda importada |
-| ✅ 10 | ~~backups e resíduo versionado~~ | **resolvido em `ed897ec` e `599d0d8`**. Repositório de 298 para 135 arquivos |
+| ✅ 10 | ~~backups e resíduo versionado~~ | **resolvido em `ed897ec` e `599d0d8`**. Repositório de 298 para 138 arquivos |
 | 11 | `app/layout.tsx` | fontes do Google em tempo de build |
 | 12 | `calculations/{projectId}` | cache de 07/05/2026, motor anterior |
 | 13 | `lib/rag/` | falta Lee (2009) de fornecedores |
 | 14 | ESLint | incompatível com Next 14, sem CI |
+| ✅ 15 | ~~`downlevelIteration` depreciado~~ | **resolvido em `3a6665d`**: target subiu para ES2020, bundle de resultados caiu 10 kB |

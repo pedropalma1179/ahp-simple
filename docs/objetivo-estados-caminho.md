@@ -1,6 +1,6 @@
 # ahp-simple: objetivo, estados e caminho
 
-Documento âncora. Revisado em 10/09/2026 sobre o commit `d16491a`.
+Documento âncora. Revisado em 10/09/2026 sobre o commit `3a6665d`.
 
 **Leia a Parte 0 antes de qualquer trabalho neste repositório.** Ela existe
 porque o desenvolvimento perdeu direção várias vezes: a memória se perde entre
@@ -344,7 +344,7 @@ Echelons Theory no prompt. O nome colide com a função do Bloco D.
 
 ## 2.4 O que já está saneado
 
-Dezoito commits, todos em produção. **O repositório tem hoje 137 arquivos
+Vinte commits, todos em produção. **O repositório tem hoje 138 arquivos
 rastreados**, contra 298 no início do saneamento. É o número que a Fase 1 da
 próxima tarefa deve conferir. Um único derivador de prioridades,
 `lib/ahp-engine.ts`, validado por 30 verificações contra 24 valores de referência
@@ -396,6 +396,12 @@ desenho original e não o sistema atual.
 ter onze arquivos. **`305d699`** removeu `QualityAnalysis.tsx`, componente órfão de
 1459 linhas.
 
+**`3a6665d`** subiu o `target` do TypeScript de ES2015 para ES2020 e removeu o
+`downlevelIteration`, que ficara redundante e seria descontinuado no TypeScript 7.
+Ganho colateral: o bundle de `/decisor/resultados/[projectId]` caiu de 636 kB para
+**626 kB**, porque os 73 usos de `for...of` e spread de iteradores passaram a
+rodar nativos em vez de transpilados.
+
 Restam três falhas do censo: quatro tabelas de índice aleatório em rotas de
 exibição e auditoria, um `RI[n] ||` em `resultados/page.tsx`, e menção a LLSM em
 `calculate/route.ts`. Nenhuma está no caminho que produz os valores publicados.
@@ -422,7 +428,7 @@ Nada novo se constrói sobre base contraditória.
 | ✅ A.7 | **Fechada em `599d0d8`.** 122 remoções e 4 documentos movidos para `docs/`. O repositório caiu de 257 para 135 arquivos, 119 041 linhas |
 | A.8 | Unificar o limiar de CR no painel de consistência, alcançando `ConsistencyGaugeChart` e o painel textual **numa edição só**. Adiado de A.1 porque os dois são hoje coerentes entre si, e corrigir um cria divergência adjacente no mesmo campo de visão. Não é cosmético: o eixo do medidor vai a 20% com quebra em 10% e 15%, e reduzir para um limiar muda o que o arco comunica |
 | ✅ A.9 | **Fechada.** `maxDuration` cortado de 800 para 300s em `56bd50a`. Medição em 10/09/2026: o parecer levou **154 segundos**. Cabe em 300 com margem estreita. **Qualquer aumento de `maxTokens` (hoje 16000) ou do budget de raciocínio (5000) reabre.** Se estourar, a saída é streaming, não porque a Vercel limita, mas porque requisição HTTP síncrona de minutos deixa o gestor em tela travada |
-| A.10 | **Auditar todas as citações e valores do `system-prompt.ts` contra o RAG.** Dois de quatro localizadores do prompt estão errados: "Wijnmalen (2007, p. 250)" quando a claim está na 899, e — pior — a REGRA CRÍTICA de limiares diz `CR ≤ 0.10 (Saaty, 1977, p. 271)` quando a claim está na 248 e o próprio prompt usa 248 corretamente em outros seis lugares. O modelo obedece ao exemplo e reproduz o erro. Faltam conferir os números de equação (Eq. 10, 15, 17) e as 61 combinações de autor e ano. **O prompt nunca passou por PVB**: o protocolo foi aplicado ao RAG e não ao artefato que instrui o modelo a usá-lo. Evidência em `docs/imprecisoes-parecer-ia.md` |
+| A.10 | **Auditar as citações do `system-prompt.ts` contra o RAG.** Dois de quatro localizadores de página estão errados: "Wijnmalen (2007, p. 250)" quando a claim está na 899, e — pior — a REGRA CRÍTICA de limiares diz `CR ≤ 0.10 (Saaty, 1977, p. 271)` quando a claim está na 248 e o próprio prompt usa 248 corretamente em outros seis lugares. O modelo obedece ao exemplo e reproduz o erro. **Já auditados e corretos:** os três números de equação (Wijnmalen Eq. 17, Dodevska Eq. 10 e 15) e os três limiares numéricos (CR ≤ 0,10; DI ≥ 0,80; DI ≤ 1,25). **Falta auditar apenas as 61 combinações de autor e ano.** O prompt nunca passou por PVB: o protocolo foi aplicado ao RAG e não ao artefato que instrui o modelo a usá-lo. Evidência em `docs/imprecisoes-parecer-ia.md` |
 
 **Mapa das OITO implementações do construto de sensibilidade.** Levantado em
 10/09/2026, revisado sobre `5837d0d`. Custou quatro rodadas para montar; não
