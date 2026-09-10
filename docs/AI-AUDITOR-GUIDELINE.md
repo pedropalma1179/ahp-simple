@@ -1,3 +1,21 @@
+> **NOTA DE CONTEXTO (arquivado).** Este documento descreve o desenho ORIGINAL do
+> auditor, em que sete testes de validação eram executados por LLM. Ele **não**
+> corresponde ao que o sistema executa hoje.
+>
+> Os sete testes migraram para código determinístico em `app/api/audit-decision/`,
+> como `validateConsistency`, `validateSampleSize`, `validateMethodsAgreement`,
+> `validateSensitivity`, `validateDiscrimination`, `validateDataQuality` e
+> `validateLogic`. Essa rota é chamada automaticamente por
+> `app/decisor/resultados/[projectId]/page.tsx` no carregamento da página e após
+> exclusão de respondentes.
+>
+> O prompt em uso é `app/api/ai-reviewer/system-prompt.ts`, com outra finalidade:
+> confrontar os dados computacionais com a literatura, com restrições
+> anti-alucinação e regra de citação com verbatim. Nenhuma das sete seções de
+> teste deste documento aparece nele.
+>
+> Mantido por documentar a origem dos validadores de `/api/audit-decision`.
+
 # AHP-BOCR SCIENTIFIC VALIDATOR - GUIDELINE COMPLETO
 
 ## SYSTEM INSTRUCTION

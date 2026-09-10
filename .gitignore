@@ -52,3 +52,19 @@ next-env.d.ts
 *.REMOVED
 build_*.txt
 build_*.log
+
+# Arqueologia de sessões de conserto (A.7)
+debug_*.py
+hex_dump*.py
+locate_brace*.py
+sanitize_page.py
+super_sanitize.py
+verify_*.py
+hexdump*.txt
+debug_output.txt
+busca-export.txt
+scratch*.js
+check-balance.js
+debug_sensitivity.js
+_backup/
+recalc.json
