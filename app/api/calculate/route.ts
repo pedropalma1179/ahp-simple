@@ -54,14 +54,6 @@ import {
 const MERITS = ['B', 'O', 'C', 'R'] as const;
 const SUBCRITERIA_PER_MERIT = 5;
 
-// Thresholds para classificação de sensibilidade [Alizadeh 2020]
-const SENSITIVITY_THRESHOLDS = {
-  robust: 50,      // > 50% = Robusto
-  moderate: 20,    // 20-50% = Moderadamente sensível
-  sensitive: 10,   // 10-20% = Sensível
-  critical: 0      // < 10% = Crítico (requer justificativa)
-};
-
 // ============================================================================
 // FUNÇÕES MATEMÁTICAS BASE
 // ============================================================================
@@ -170,11 +162,8 @@ interface SensitivityAnalysis {
   merit: string;
   meritName: string;
   inflectionPoint: number | null;
-  classification: 'robust' | 'moderate' | 'sensitive' | 'critical';
-  classificationLabel: string;
   currentWinner: string;
   newWinner: string | null;
-  changeDescription: string;
   currentWeight: number;
 }
 
@@ -680,41 +669,12 @@ function calculateSensitivityWithClassification(
       inflectionPoint = closestInflection;
     }
 
-    let classification: 'robust' | 'moderate' | 'sensitive' | 'critical';
-    let classificationLabel: string;
-    let changeDescription: string;
-
-    if (inflectionPoint === null) {
-      classification = 'robust';
-      classificationLabel = 'Robusto';
-      changeDescription = `Ranking estável para qualquer variação em ${meritNames[meritIdx]}`;
-    } else if (inflectionPoint >= SENSITIVITY_THRESHOLDS.robust) {
-      classification = 'robust';
-      classificationLabel = 'Robusto';
-      changeDescription = `Mudança apenas com variação > ${inflectionPoint}% em ${meritNames[meritIdx]}`;
-    } else if (inflectionPoint >= SENSITIVITY_THRESHOLDS.moderate) {
-      classification = 'moderate';
-      classificationLabel = 'Moderadamente Sensível';
-      changeDescription = `Ranking muda com ${inflectionPoint}% de variação em ${meritNames[meritIdx]}`;
-    } else if (inflectionPoint >= SENSITIVITY_THRESHOLDS.sensitive) {
-      classification = 'sensitive';
-      classificationLabel = 'Sensível';
-      changeDescription = `Ranking sensível: muda com apenas ${inflectionPoint}% de variação em ${meritNames[meritIdx]}`;
-    } else {
-      classification = 'critical';
-      classificationLabel = 'Crítico';
-      changeDescription = `⚠️ CRÍTICO: Ranking muda com apenas ${inflectionPoint}% de variação em ${meritNames[meritIdx]} - requer justificativa`;
-    }
-
     results.push({
       merit,
       meritName: meritNames[meritIdx],
       inflectionPoint,
-      classification,
-      classificationLabel,
       currentWinner,
       newWinner,
-      changeDescription,
       currentWeight: (personalWeights[meritIdx] || 0) * 100
     });
   });
@@ -1118,7 +1078,7 @@ export async function POST(request: NextRequest) {
 
     console.log('[BOCR v5.0] Sensibilidade:');
     sensitivityAnalysis.forEach(s => {
-      console.log(`  ${s.merit}: ${s.classificationLabel} (inflexão: ${s.inflectionPoint || 'N/A'}%)`);
+      console.log(`  ${s.merit}: inflexão ${s.inflectionPoint ?? 'estável'}%`);
     });
 
     // ══════════════════════════════════════════════════════════════════════
@@ -1224,7 +1184,6 @@ export async function POST(request: NextRequest) {
           score: s.scoreSubtractive,
           message: `Alternativa ${s.name} tem score negativo (${s.scoreSubtractive.toFixed(4)}). Conforme Lee (2009a): "should never be selected due to negative overall outcome"`
         })),
-        sensitivityCritical: sensitivityAnalysis.filter(s => s.classification === 'critical'),
         lowConcordance: concordance.agreementPercent < 60
       },
 

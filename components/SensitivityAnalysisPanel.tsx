@@ -25,9 +25,6 @@ export interface SensitivityItem {
   meritName: string;
   currentWeight?: number;
   inflectionPoint: number | null;
-  classification: 'robust' | 'moderate' | 'sensitive' | 'critical' | 'stable';
-  description?: string;
-  changeDescription?: string;
 }
 
 interface SensitivityAnalysisPanelProps {
@@ -109,21 +106,6 @@ export default function SensitivityAnalysisPanel({
       case 'C': return 'Custos';
       case 'R': return 'Riscos';
       default: return merit;
-    }
-  };
-
-  const getClassificationStyle = (classification: string) => {
-    switch (classification) {
-      case 'robust':
-        return { color: 'text-green-700', bg: 'bg-green-100', border: 'border-green-300', icon: '🟢' };
-      case 'moderate':
-        return { color: 'text-yellow-700', bg: 'bg-yellow-100', border: 'border-yellow-300', icon: '🟡' };
-      case 'sensitive':
-        return { color: 'text-orange-700', bg: 'bg-orange-100', border: 'border-orange-300', icon: '🟠' };
-      case 'critical':
-        return { color: 'text-red-700', bg: 'bg-red-100', border: 'border-red-300', icon: '🔴' };
-      default:
-        return { color: 'text-gray-700', bg: 'bg-gray-100', border: 'border-gray-300', icon: '⚪' };
     }
   };
 
@@ -264,28 +246,22 @@ export default function SensitivityAnalysisPanel({
         </div>
       )}
 
-      {/* Classificações de Robustez (Cards existentes) */}
+      {/* Pontos de inflexão por mérito */}
       <h4 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wide">
-        Classificação de Robustez
+        Ponto de Inflexão por Mérito
       </h4>
       <div className="grid md:grid-cols-2 gap-4">
         {sensitivityAnalysis.map((item, idx) => {
-          const style = getClassificationStyle(item.classification);
           const hasWeight = item.currentWeight !== undefined && item.currentWeight !== null;
 
           return (
             <div
               key={idx}
-              className={`p-4 rounded-lg border-2 ${style.bg} ${style.border}`}
+              className="p-4 rounded-lg border-2 bg-gray-50 border-gray-200"
             >
               <div className="flex items-center justify-between mb-2">
-                <span className={`font-semibold ${style.color}`}>
-                  {style.icon} {getMeritLabel(item.merit)} ({item.merit})
-                </span>
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${style.bg} ${style.color}`}>
-                  {item.classification === 'robust' ? 'Robusto' :
-                    item.classification === 'moderate' ? 'Moderado' :
-                      item.classification === 'sensitive' ? 'Sensível' : 'Crítico'}
+                <span className="font-semibold text-gray-700">
+                  {getMeritLabel(item.merit)} ({item.merit})
                 </span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-sm">
@@ -302,9 +278,6 @@ export default function SensitivityAnalysisPanel({
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-gray-600 mt-2">
-                {item.changeDescription || item.description || `Ranking estável para qualquer variação em ${getMeritLabel(item.merit)}`}
-              </p>
             </div>
           );
         })}

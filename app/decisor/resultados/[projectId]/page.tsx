@@ -200,13 +200,11 @@ import { SensitivityItem } from '@/components/SensitivityAnalysisPanel';
 
 interface SensitivityAnalysisItem extends SensitivityItem {
   // Campos herdados de SensitivityItem:
-  // merit, meritName, inflectionPoint, classification, currentWeight?, description?
+  // merit, meritName, inflectionPoint, currentWeight?
 
   // Campos específicos da página:
-  classificationLabel: string;
   currentWinner: string;
   newWinner: string | null;
-  changeDescription: string;
 }
 
 // Interface de Alternativa com Prioridade Negativa [Lee 2009a]
@@ -221,7 +219,6 @@ interface NegativeAlternative {
 interface Q1Alerts {
   hasNegativePriorities: boolean;
   negativeAlternatives: NegativeAlternative[];
-  sensitivityCritical: SensitivityAnalysisItem[];
   lowConcordance: boolean;
 }
 
