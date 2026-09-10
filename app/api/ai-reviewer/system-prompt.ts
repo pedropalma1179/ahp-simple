@@ -7,7 +7,6 @@
  * - Versionamento independente do prompt
  * - Edições isoladas sem tocar handler POST
  * - Diff legível em PRs futuras
- * - Paralelo com app/api/generate-academic/system-prompt.ts
  *
  * @see app/api/ai-reviewer/route.ts para uso
  */
