@@ -428,7 +428,7 @@ Nada novo se constrói sobre base contraditória.
 | ✅ A.7 | **Fechada em `599d0d8`.** 122 remoções e 4 documentos movidos para `docs/`. O repositório caiu de 257 para 135 arquivos, 119 041 linhas |
 | A.8 | Unificar o limiar de CR no painel de consistência, alcançando `ConsistencyGaugeChart` e o painel textual **numa edição só**. Adiado de A.1 porque os dois são hoje coerentes entre si, e corrigir um cria divergência adjacente no mesmo campo de visão. Não é cosmético: o eixo do medidor vai a 20% com quebra em 10% e 15%, e reduzir para um limiar muda o que o arco comunica |
 | ✅ A.9 | **Fechada.** `maxDuration` cortado de 800 para 300s em `56bd50a`. Medição em 10/09/2026: o parecer levou **154 segundos**. Cabe em 300 com margem estreita. **Qualquer aumento de `maxTokens` (hoje 16000) ou do budget de raciocínio (5000) reabre.** Se estourar, a saída é streaming, não porque a Vercel limita, mas porque requisição HTTP síncrona de minutos deixa o gestor em tela travada |
-| A.10 | **Auditar as citações do `system-prompt.ts` contra o RAG.** Dois de quatro localizadores de página estão errados: "Wijnmalen (2007, p. 250)" quando a claim está na 899, e — pior — a REGRA CRÍTICA de limiares diz `CR ≤ 0.10 (Saaty, 1977, p. 271)` quando a claim está na 248 e o próprio prompt usa 248 corretamente em outros seis lugares. O modelo obedece ao exemplo e reproduz o erro. **Já auditados e corretos:** os três números de equação (Wijnmalen Eq. 17, Dodevska Eq. 10 e 15) e os três limiares numéricos (CR ≤ 0,10; DI ≥ 0,80; DI ≤ 1,25). **Falta auditar apenas as 61 combinações de autor e ano.** O prompt nunca passou por PVB: o protocolo foi aplicado ao RAG e não ao artefato que instrui o modelo a usá-lo. Evidência em `docs/imprecisoes-parecer-ia.md` |
+| A.10 | **Auditar as citações e afirmações do prompt contra o RAG e contra o sistema. ✅ 1º de 3 commits em `2b353b3`:** três localizadores corrigidos. A execução 2 confirmou que a correção propagou: as duas citações de Wijnmalen saíram corretas e nenhuma outra melhorou sozinha. **2º commit:** remover o dado real dos exemplos de parágrafo, incluindo a frase "os 12 respondentes apresentam CRs entre 1,1% e 9,6%", que é a imprecisão 1 ensinada como modelo de redação. **3º commit:** (a) auditar as 61 combinações de autor e ano; (b) auditar o payload construído em `ai-reviewer/route.ts`, superfície irmã nunca verificada, onde `- ✅ Validação externa com pyAHP` faz o parecer afirmar biblioteca que o sistema não usa; (c) **fazer o payload informar quantos respondentes agregam em cada matriz** (12 em todas). A DIRETRIZ 1 exige esse N para aplicar Escobar, o payload nunca o fornece, e o modelo o fabrica dividindo 12 por 4. É a correção mais barata do conjunto e resolve duas imprecisões. Equações e limiares já auditados. Evidência em `docs/imprecisoes-parecer-ia.md` |
 
 **Mapa das OITO implementações do construto de sensibilidade.** Levantado em
 10/09/2026, revisado sobre `5837d0d`. Custou quatro rodadas para montar; não
@@ -660,7 +660,28 @@ compreender, não para redigir. Não definido em que momento da jornada.
 **O que fazer com `/api/audit-decision`**, cujos validadores heurísticos já rodam
 acoplados ao resultado. São **seis** desde `d16491a`: consistência, tamanho da
 amostra, concordância entre métodos, poder de discriminação, qualidade dos dados
-e a validação lógica. Sobrepõe-se ao Bloco D: ou os validadores são
+e a validação lógica.
+
+**Decisão adiada para o fim do saneamento, em 10/09/2026.** O levantamento
+preliminar mostra que a rota reproduz o mesmo padrão já removido em três
+grandezas: rótulos categóricos sem fonte. O "Relatório Técnico Completo", gerado
+por `generateTechnicalReport` e baixável em `.md` pela tela, traz "Consistência
+excelente (< 5%)", "Amostra muito boa (≥ 12)" e "Excelente discriminação", todos
+com limiares próprios sem lastro, mais o rodapé "AHP-BOCR Scientific Validator
+v3.1", que é o nome do desenho anterior.
+
+Pelo teste de trilho, o relatório não passa em nenhuma das três perguntas: cinco
+linhas de PASS que a tela já mostra, em formato de parecer editorial dirigido a
+autor de artigo.
+
+⚠ **Verificar antes:** o relatório afirma "Diferença de 58,0%" entre as
+alternativas. Os scores são 0,064129 e 0,026937, e não é evidente de onde sai
+esse número. Pode ser normalização não declarada.
+
+**Quando retomar, decidir de uma vez**, e não por partes: remover só o relatório
+deixa a fonte. As saídas são remover o relatório, remover a rota inteira, ou
+reduzi-la a fatos sem juízo. O levantamento necessário é o mesmo que foi feito
+para a sensibilidade: o que cada um dos seis validadores produz e onde aparece. Sobrepõe-se ao Bloco D: ou os validadores são
 estendidos com as verificações de 1.6, ou a rota é substituída por elas.
 
 **A fronteira de ineditismo do Bloco D.** Ver o aviso em 1.6. Depende de

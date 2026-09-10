@@ -53,14 +53,36 @@ um mecanismo de verificação diferente. Essa distinção vale mais que a contag
 
 | Classe | Imprecisões | O que a causa | O que a pegaria |
 |---|---|---|---|
-| **A. Dado de entrada falso** | 1 e 2 | o `qualityAnalysis` que chega à rota é construído sobre um cache que não é o CR do respondente | verificação do insumo contra o dado primário. **Nenhum verificador de citação pega**: o modelo relatou fielmente o que recebeu |
+| **A. Dado de entrada falso** | 1 (parte) | o `qualityAnalysis` que chega à rota é construído sobre um cache que não é o CR do respondente | verificação do insumo contra o dado primário. **Nenhum verificador de citação pega**: o modelo relatou fielmente o que recebeu |
 | **B. Ancoragem corrompida** | 3 e 5 | o RAG entrega a claim correta e a geração altera o localizador (**72% das citações com página**), ou aplica a claim a contexto que ela não sustenta | comparação do localizador gerado contra o `evidence.page` da claim. O verificador atual, que confere apenas autor e ano, **não pega** |
 | **C. Premissa não verificada** | 4 | a claim é citada corretamente, mas a condição que o próprio autor estabelece não é checada contra os dados | verificação da premissa, não da citação |
-| **D. Instrução do prompt contradiz a base** | parte da 3 | o exemplo de formato no `system-prompt.ts` traz "Wijnmalen (2007, p. 250)" quando o `evidence.page` no RAG é 899. O modelo obedeceu ao exemplo | auditoria do prompt contra o RAG. **Nenhum verificador de saída pega**: a saída é fiel à instrução |
+| **E. Instrução exige dado que o payload não fornece** | 2, e por consequência a 4 | a DIRETRIZ 1 manda aplicar Escobar comparando CR do grupo com CRs individuais **dentro da mesma matriz**, e trata o caso N=1. O payload informa apenas `totalRespondents` = 12, nunca o N por matriz. **Nem o prompt nem o payload mentem**: a instrução está correta e o dado está correto. O modelo fabrica o N faltante (12 ÷ 4 = 3) **para poder obedecer** | verificação de **suficiência do payload em relação às exigências do prompt**. Auditar o prompt contra o RAG não pega; auditar o payload contra o dado não pega |
+| **D. O prompt ensina o erro** | parte da 1 e parte da 3 | (i) o exemplo de formato traz "Wijnmalen (2007, p. 250)" quando o `evidence.page` no RAG é 899; (ii) a REGRA CRÍTICA de limiares cita Saaty (1977, p. 271) quando a claim está na 248; (iii) o exemplo marcado como CORRETO contém a própria imprecisão 1, "os 12 respondentes apresentam CRs entre 1,1% e 9,6%"; (iv) o payload montado em `ai-reviewer/route.ts` afirma "Validação externa com pyAHP" quando o sistema usa AhpAnpLib; (v) a DIRETRIZ 1 pressupõe um N por matriz que o payload nunca informa, e o modelo o inventa para poder cumpri-la (imprecisão 2). O modelo obedeceu | auditoria do prompt contra o RAG e contra o dado real. **Nenhum verificador de saída pega**: a saída é fiel à instrução |
 
-A classe A é a mais séria para o argumento do artigo: o modelo não alucinou. Ele
-foi fiel a um insumo falso. Um pipeline que verifique cada afirmação contra a
-fonte citada aprovaria as duas.
+**O erro quase nunca está na geração.** Depois de determinar a causa da
+imprecisão 2 e a origem do "pyAHP", o quadro é:
+
+| Classe | Imprecisões | Onde está a causa |
+|---|---|---|
+| A. Dado de entrada falso | 1 (parte) | banco de dados |
+| B. Ancoragem corrompida | 3 (parte) e 5 | geração |
+| C. Premissa não verificada | 4 (parte) | geração |
+| **D. O prompt ensina o erro** | 1 (parte), 3 (parte), pyAHP | prompt e payload |
+| **E. Instrução exige dado ausente** | 2, e por consequência a 4 | **a lacuna entre prompt e payload** |
+
+**O modelo foi fiel em quase todos os casos.** Fiel ao insumo, ao exemplo, à
+diretriz. Um pipeline que verifique cada afirmação contra a fonte citada aprovaria
+a maioria.
+
+**A classe E é a que expõe problema de desenho, e não conserto pontual.** As
+outras quatro têm correção óbvia: corrigir o cache, corrigir a página, verificar a
+premissa, corrigir o exemplo. Esta mostra que **um prompt inteiramente verdadeiro
+e um payload inteiramente verdadeiro podem, em combinação, produzir invenção**.
+
+Auditar o prompt contra o RAG não pega. Auditar o payload contra o dado não pega.
+Só pega quem verificar a **suficiência do payload em relação às exigências do
+prompt**, e essa é a quarta superfície de verificação deste registro, ao lado da
+geração, do prompt e da fonte primária.
 
 ---
 
@@ -193,8 +215,68 @@ CR é zero por construção. Diluir por vinte matrizes triviais leva qualquer
 respondente para baixo de 10%. A faixa do cache é 1,05% a 9,64%, e o parecer a
 reproduz como 1,1% a 9,6%.
 
+**Segunda causa, independente da primeira: o prompt ensina a frase.**
+
+O `system-prompt.ts` traz, na seção "EXEMPLO INTEGRAL DE PARÁGRAFO NO ESTILO
+REQUERIDO", um exemplo marcado como **CORRETO** que termina assim:
+
+> Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo
+> do limiar.
+
+É a imprecisão 1, palavra por palavra, oferecida ao modelo como modelo de
+redação. O exemplo marcado como PROIBIDO, logo acima, traz a mesma informação em
+outra forma: a diferença entre os dois é apenas estilo, e ambos ensinam o mesmo
+fato falso.
+
+Há ainda, na regra de linguagem impessoal:
+`Exemplo correto: "todos os 12 respondentes atendem o limiar"`.
+
+**Portanto a imprecisão 1 é de classe A e D ao mesmo tempo.** Corrigir o cache do
+Firestore (B.1) **não a elimina**: o modelo continuaria tendo, no prompt, um
+exemplo dizendo que os doze estão entre 1,1% e 9,6%. São duas correções
+independentes.
+
+**Evidência de qual pesa mais, e ela é boa.** O exemplo do prompt traz Costs
+**2,58%** e Risks **1,39%**. O parecer produziu **2,60% e 1,40%**, que são os
+valores reais do projeto. O modelo **corrigiu os dois números que o dado
+contradizia e manteve a faixa individual intacta**.
+
+Isso mostra que ele não copia cegamente: confronta o exemplo com o dado recebido
+e o dado prevalece. A faixa sobreviveu porque as duas fontes concordavam, e as
+duas estavam erradas pela mesma causa. É o achado mais forte da auditoria do
+prompt, mais que os dois localizadores.
+
+**A afirmação sem número é pior que a com número.** A linha 299 traz
+`Exemplo correto: "todos os 12 respondentes atendem o limiar"`, dentro de uma
+regra de estilo sobre linguagem impessoal. Ela não tem valor que o dado possa
+contradizer: é conclusão qualitativa, não medida. O modelo confrontou 2,58% com
+2,60% e corrigiu; não há como confrontar "atendem o limiar" com coisa alguma.
+**Ensina a conclusão, não o valor**, e por isso escapa ao mecanismo que corrigiu
+os agregados.
+
+### Observação de generalidade: o prompt está acoplado a este caso
+
+O dado deste projeto permeia o `system-prompt.ts`. O CR de 1,06% aparece em seis
+lugares como material de exemplo; "12 respondentes" ou "12 especialistas" em
+três; os CRs por mérito, os nomes das alternativas e os valores de síntese
+aparecem nos exemplos de parágrafo.
+
+Isso é achado de outra natureza, e toca a **generalidade do artefato**, não a
+fidelidade desta execução. O prompt não é genérico: foi escrito olhando um caso.
+Se outro projeto usar o sistema, o modelo recebe exemplos de redação povoados com
+dados de um painel que não é o dele, e a evidência acima mostra que ele copia o
+que o dado recebido não contradiz.
+
+Para uma ferramenta que se apresenta como instrumento de apoio à decisão
+reutilizável, isso é limitação de projeto. Registrada aqui porque foi encontrada
+durante esta auditoria; o endereço da correção é A.10, segundo commit.
+
 **Reprodutível.** Sim. Registrada na Seção 6.2 da dissertação (maio de 2026) e
 presente na execução de 10/09/2026.
+
+**Nota temporal obrigatória.** A execução de 10/09/2026 foi feita **antes** de
+qualquer correção do prompt. Quem ler este registro depois de A.10 não deve
+estranhar que o parecer diga p. 250 num prompt já corrigido para 899.
 
 **Alcance dentro do parecer.** A afirmação não fica isolada: sustenta o Ponto
 Forte 1, a tabela de distribuição por faixa, a seção de análise de viés ("100% de
@@ -213,10 +295,43 @@ comparações pareadas. Esse desenho nunca existiu. Fonte: Seção 6.2 da
 dissertação e a estrutura do próprio `judgments[]`, com 72 entradas por
 respondente.
 
-**Causa técnica.** Não determinada. Candidata: o payload enviado a
-`/api/ai-reviewer` inclui `demographicsSummary` e contagens por status; o
-`'REVISAR': 0` fixo em `resultados/page.tsx` mostra que ao menos um campo de
-contagem é construído sem base no dado. Investigar antes de afirmar.
+**Causa técnica: determinada em 10/09/2026, e é classe D.** O modelo não inventou
+o número por acaso: ele o inferiu **para poder cumprir uma instrução do prompt**.
+
+A DIRETRIZ 1 do `system-prompt.ts` manda aplicar a propriedade de Escobar (2004)
+"apenas ao comparar CR_grupo vs. CR_individuais **dentro da mesma matriz**", e
+trata explicitamente o caso de um único respondente, duas vezes:
+
+> Com N=1, a propriedade é vacuous — declare isso explicitamente em vez de afirmar
+> que "se verifica".
+
+E o exemplo de redação correta que ela oferece começa por "Com N=1, não há
+agregação entre respondentes".
+
+**A diretriz exige um N por matriz. O payload não fornece nenhum.** O
+`ai-reviewer/route.ts` calcula e envia apenas `totalRespondents`, que é 12. Não há
+campo algum informando quantos respondentes agregam dentro de cada matriz.
+
+Diante da lacuna, o modelo preencheu com a divisão plausível: doze respondentes,
+quatro dimensões BOCR, três por dimensão.
+
+**A execução 2 escreve a inferência com todas as letras:**
+
+> A propriedade demonstrada por Escobar (2004, p. 9) [...] é testável nesta
+> configuração, **dado que cada dimensão conta com 3 respondentes (N > 1)**.
+
+O "dado que" é a chave: o modelo declara o N inventado como premissa que autoriza
+aplicar a diretriz. **Ele não errou apesar da instrução; errou por causa dela.**
+
+**Reclassificação.** A imprecisão 2 sai da classe A e passa à **classe D**. Não é
+dado de entrada falso: é instrução que pressupõe informação que o payload não
+entrega. Corrigir o cache do Firestore não a elimina.
+
+**Duas correções possíveis, e a segunda é a certa.** Reescrever a diretriz para
+não pressupor N por matriz trata o sintoma. Fazer o payload informar quantos
+respondentes agregam em cada matriz trata a causa, e é dado que o sistema já tem:
+neste painel, todos os doze responderam às setenta e duas comparações, então N=12
+em todas as matrizes.
 
 **Reprodutível.** Sim. Seção 6.2 e execução de 10/09/2026.
 
@@ -260,7 +375,7 @@ instrução errada, não corrupção da geração. A p. 252, que não aparece no
 número da página, do campo `evidence.page` ou equivalente." Ou seja, a regra
 manda usar o `evidence.page` e o exemplo logo abaixo usa outro número.
 
-**Contraprova.** O prompt também traz "Saaty (1977, p. 248)" seis vezes como
+**Contraprova.** O prompt também traz "Saaty (1977, p. 248)" oito vezes como
 exemplo. Essa página **está correta** no RAG, e é uma das cinco que o parecer
 acertou. O modelo é fiel ao exemplo nos dois casos: quando o exemplo está certo,
 acerta; quando está errado, erra.
@@ -275,7 +390,7 @@ O `system-prompt.ts` cita quatro páginas ao todo: 167, 248, 250 e 271.
 
 | Citação no prompt | Onde aparece | Páginas no RAG | |
 |---|---|---|---|
-| Saaty (1977, p. 248) | exemplo de formato, 6 vezes | claim em **248** | ok |
+| Saaty (1977, p. 248) | exemplos e regras, 8 vezes | claim em **248** | ok |
 | Forman & Peniwati (1998, p. 167) | exemplo de formato | 166–168 | ok |
 | Wijnmalen (2007, p. 250) | exemplo de formato, 2 vezes | claim em **899** (artigo: 892–905) | **erro** |
 | Saaty (1977, p. 271) | **REGRA CRÍTICA — LIMIARES** | claims em 237–263; **não há 271** | **erro** |
@@ -286,7 +401,7 @@ Não é exemplo de formato: é a linha que define qual limiar de consistência u
 `CR ≤ 0.10: aceitabilidade (Saaty, 1977, p. 271)`. A regra que ancora o critério
 central do método traz a fonte errada.
 
-E **o prompt contradiz a si mesmo**: usa `p. 248` corretamente em seis lugares
+E **o prompt contradiz a si mesmo**: usa `p. 248` corretamente em oito lugares
 para a mesma claim de Saaty (1977) e `p. 271` na regra de limiares. Não existe
 página 271 nesse artigo.
 
@@ -296,7 +411,7 @@ escrever, e propaga o erro por imitação. O de Saaty em 271 está na linha que
 método. Quem fosse conferir de onde vem o `CR ≤ 0,10` seria mandado a uma página
 que não existe no artigo.
 
-E a autocontradição fecha o caso sem margem: o mesmo arquivo usa 248 seis vezes
+E a autocontradição fecha o caso sem margem: o mesmo arquivo usa 248 oito vezes
 para a mesma claim. Não é divergência entre prompt e base, é divergência do
 prompt **consigo mesmo**. Não admite explicação de convenção, de edição ou de
 fonte alternativa.
@@ -328,7 +443,7 @@ verificação.
 ancoragem é ele mesmo fonte de desancoragem, e está fora do alcance de qualquer
 verificador de saída.
 
-### Três superfícies de desancoragem
+### Quatro superfícies de desancoragem
 
 Somando este achado ao caso de Salomon e Gomes (2024), registrado adiante, o
 sistema tem **três** superfícies distintas por onde uma afirmação pode perder
@@ -339,11 +454,16 @@ ancoragem, e um verificador de saída cobre **uma**:
 | **A geração** | Lee p. 3578, fabricado sem origem | sim, comparando contra o RAG |
 | **O prompt** | Saaty p. 271 na regra de limiares, quando a claim está na 248 | **não.** A saída é fiel à instrução |
 | **A fonte primária** | Salomon e Gomes (2024) publica "0.5 e 0.8" onde Saaty propõe 0,05 e 0,08; a extração do RAG é fiel ao artigo | **não.** A claim corresponde à fonte |
+| **A interface entre prompt e payload** | a DIRETRIZ 1 exige um N por matriz; o payload informa apenas `totalRespondents`. O modelo fabrica o N faltante para poder obedecer | **não.** Prompt e payload estão ambos corretos; o erro está na lacuna |
 
-Verificar a saída contra o contexto recuperado cobre a primeira. As outras duas
-exigem **verificar para trás**: o prompt contra a base, e a base contra a fonte
-primária. O PVB foi aplicado ao RAG, artigo por artigo, e nunca ao prompt, que é
-tratado como configuração e não como conteúdo verificável.
+Verificar a saída contra o contexto recuperado cobre a primeira. As outras três
+exigem **verificar para trás**: o prompt contra a base, a base contra a fonte
+primária, e o payload contra as exigências do prompt.
+
+O PVB foi aplicado ao RAG, artigo por artigo, e nunca ao prompt, que é tratado
+como configuração e não como conteúdo verificável. E a quarta superfície não é
+verificável por nenhum dos dois protocolos isoladamente: **exige confrontar dois
+artefatos corretos entre si.**
 
 É essa assimetria, e não a taxa de erro, o que este registro estabelece.
 
@@ -485,9 +605,19 @@ individuais**, não se verifica neste estudo.
 checou a premissa contra os dados. E não tinha como: o `qualityAnalysis` que ele
 recebeu dizia que 100% dos respondentes estavam abaixo do limiar (imprecisão 1).
 
-**Nota de dependência.** Esta imprecisão é **consequência da imprecisão 1**. Com
-o insumo correto, a premissa seria visivelmente falsa. Isso mostra que as classes
-não são independentes: um dado de entrada falso induz falha de premissa a jusante.
+**Nota de dependência, corrigida em 10/09/2026.** Esta imprecisão é consequência
+da **imprecisão 2**, não da 1. A cadeia é:
+
+1. A DIRETRIZ 1 do prompt exige um N por matriz para aplicar Escobar.
+2. O payload não fornece esse N.
+3. O modelo infere três respondentes por dimensão (imprecisão 2).
+4. Com o N inventado, aplica a propriedade sobre uma configuração que não existe.
+
+A execução 2 escreve o elo com todas as letras: a propriedade "é testável nesta
+configuração, **dado que cada dimensão conta com 3 respondentes (N > 1)**".
+
+Isso mostra que as classes não são independentes: **uma lacuna de payload induz
+fabricação, e a fabricação sustenta uma aplicação indevida a jusante.**
 
 **Reprodutível.** Sim. Seção 6.2 e execução de 10/09/2026.
 
@@ -575,15 +705,195 @@ em 10/09/2026, sem ação.
 
 ---
 
+## Desenho da série de execuções
+
+A geração é estocástica, então uma execução isolada não distingue causa de
+variação. A sequência abaixo isola as duas causas da imprecisão 1 e as duas dos
+localizadores, e cada etapa custa uma geração de cerca de 2m30s.
+
+| # | Estado do sistema | O que a execução decide |
+|---|---|---|
+| 1 | 10/09/2026, `d16491a`. Nada corrigido | **Feita.** Linha de base: 5 imprecisões, 13 de 18 localizadores divergentes |
+| 2 | Depois do 1º commit de A.10: páginas corrigidas, exemplos de parágrafo ainda com o dado falso | **Feita**, `2b353b3`, 150s. A p. 250 sumiu e a faixa "1,1% e 9,6%" permaneceu. Classe D confirmada como fato. Mais quatro achados: imprecisão 5 estocástica, localizador fabricado instável, vizinhança confirmada como ruído |
+| 3 | Depois do 2º commit: exemplos de parágrafo sem dado real | Se a faixa sumir aqui e não na etapa 2, isola o exemplo como causa, independente do cache |
+| 4 | Depois do Bloco B: cache do Firestore regravado | Isola o dado de entrada como causa. Junto com a etapa 3, decide se a imprecisão 1 exigia as duas correções ou apenas uma |
+| 5 | Depois de o payload informar o N por matriz (12 em todas) | **A mais barata das cinco:** uma linha no payload, uma geração. Decide se as imprecisões 2 e 4 desaparecem por construção. Se sim, confirma a classe E como fabricação por lacuna, e não por tendência do modelo a inventar |
+
+**Não pular etapas.** Corrigir tudo de uma vez e gerar um parecer no fim mostra
+que as imprecisões sumiram, mas não diz qual correção resolveu qual. A ordem
+acima transforma quatro correções de engenharia em quatro medições.
+
+**Registrar cada execução** nesta seção, com data, hash do commit, tempo de
+geração, modelo e texto bruto, na mesma estrutura da execução de 10/09/2026.
+
+---
+
 ## Pendências de levantamento
 
-1. **Causa da imprecisão 2.** Determinar de onde sai "3 respondentes por
-   dimensão". Verificar o payload enviado a `/api/ai-reviewer`.
-2. **Reprodutibilidade da imprecisão 5.** Gerar novo parecer e verificar se a
-   claim de Ishizaka reaparece no mesmo contexto.
-3. **Contagem de execuções.** Este registro tem duas: maio de 2026 (Seção 6.2 da
-   dissertação, quatro imprecisões) e 10/09/2026 (cinco). Uma série de três ou
-   mais permitiria distinguir imprecisão sistemática de variação estocástica.
+1. ✅ **Causa da imprecisão 2:** determinada. A DIRETRIZ 1 do prompt pressupõe um
+   N por matriz que o payload nunca informa, e o modelo o infere dividindo 12 por
+   4. É classe D, não A. Ver a seção da imprecisão 2.
+2. ✅ **Reprodutibilidade da imprecisão 5.** Respondida na execução 2: não se
+   reproduziu. Era estocástica.
+3. **Contagem de execuções.** Este registro tem três: maio de 2026 (Seção 6.2 da
+   dissertação, quatro imprecisões), execução 1 em 10/09/2026 (cinco) e execução 2
+   no mesmo dia, depois da correção do prompt. As etapas 3 e 4 do desenho ainda
+   faltam.
+
+4. ✅ **Origem dos "58,0% de diferença"** no Relatório Técnico Completo:
+   resolvida. É a diferença relativa ao vencedor,
+   (0,064129 − 0,026937) / 0,064129 = 58,0%. Não é imprecisão. O rótulo na tela
+   ainda merece conferência: "Excelente discriminação" é juízo sem fonte, e entra
+   na revisão do `/api/audit-decision` adiada para o fim do saneamento.
+
+5. **Auditar o payload construído em `ai-reviewer/route.ts`**, superfície irmã do
+   `system-prompt.ts` e nunca verificada. O caso do "pyAHP" mostra que ela carrega
+   afirmações sobre o próprio sistema. Escopo de A.10.
+
+---
+
+## Execução 2 — 10/09/2026, depois da correção do prompt
+
+| | |
+|---|---|
+| Commit | `2b353b3` (1º commit de A.10 aplicado) |
+| Modelo | `claude-opus-4-6` |
+| Tempo de geração | 150 segundos (2m30s) |
+| Veredito emitido | ACEITO |
+| Texto bruto | anexo 2 |
+
+**Variável alterada em relação à execução 1:** apenas os três localizadores de
+página do `system-prompt.ts`. Os exemplos de parágrafo com dado falso e o cache
+do Firestore permanecem intactos. É o controle previsto na etapa 2 do desenho.
+
+### Fato 1 — a correção do prompt propagou para a saída
+
+| Citação | Execução 1 | Execução 2 | RAG |
+|---|---|---|---|
+| Wijnmalen, comensurabilidade | p. **250** | p. **899** | 899 |
+| Wijnmalen, Eq. 17 | p. **252** | p. **903** | 903 |
+| Saaty (1977), limiar | p. 248 | p. 248 | 248 |
+
+As duas citações erradas passaram a corretas, e **nenhuma outra melhorou por
+conta própria**. Com uma única variável alterada, mudou exatamente o que foi
+corrigido.
+
+**Isto encerra a classe D como hipótese e a estabelece como fato.** O modelo
+obedecia ao exemplo do prompt; corrigido o exemplo, a saída corrigiu junto. É o
+teste mais forte deste registro, porque tem antes, depois e controle.
+
+### Fato 2 — a faixa dos CRs persistiu
+
+"Todos os 12 respondentes apresentam CR individual entre 1,1% e 9,6%" aparece
+**três vezes** no texto: pontos fortes, análise detalhada e decisão editorial.
+
+Era o previsto. As duas fontes que a sustentam continuam intactas: o cache do
+Firestore (B.1) e o exemplo de parágrafo no prompt. **A imprecisão 1 exige as
+duas correções**, e a etapa 3 do desenho isola qual delas basta.
+
+### Fato 3 — a imprecisão 5 não se reproduziu
+
+O parecer cita Ishizaka e Labib de novo, na mesma p. 14, mas com **outra claim**:
+*"Sensitivity analysis for AHP is relevant only when alternatives are included in
+the hierarchy"*, e desta vez a aplicação está correta. A claim das 50% de
+comparações não apareceu.
+
+**A imprecisão 5 era estocástica, não sistemática.** Das cinco, quatro se
+reproduzem e uma não. Isso responde a pendência de reprodutibilidade que o
+documento tinha em aberto, e mostra que o conjunto tem duas naturezas: erro
+estrutural e ruído de geração.
+
+### Fato 4 — o localizador fabricado mudou de valor
+
+Lee (2009) foi citado como **p. 3578** na execução 1 e **p. 1107** na execução 2.
+O RAG registra 120 a 125 nas duas. Nenhum dos dois números existe.
+
+**A fabricação não é estável entre gerações.** Se fosse recuperação de um número
+específico da memória paramétrica, tenderia a repetir. Varia, logo é fabricação
+com valor arbitrário. Duas amostras, dois números diferentes, mesma claim
+recuperada corretamente com o verbatim exato.
+
+### Fato 5 — os erros de vizinhança viraram acertos
+
+| Citação | Execução 1 | Execução 2 | RAG |
+|---|---|---|---|
+| Forman & Peniwati (1998) | 169 | **167** | 166, 167, 168 |
+| Saaty (1987) | 165 | **163** | 163, 170, 171, 172, 174 |
+
+Os dois casos classificados como "erro de vizinhança" corrigiram-se sozinhos, sem
+que nada os tocasse. **Vizinhança é ruído, e ruído varia.** A classificação se
+confirma.
+
+Em sentido contrário, **Aull-Hyde (2006) piorou**: de p. 166 para p. 252, contra
+1 a 6 no RAG. Muda de valor e continua fora da faixa.
+
+### Imprecisões novas nesta execução
+
+**A imprecisão 2 se agravou.** Os "3 respondentes por dimensão BOCR" agora
+aparecem em **quatro** lugares, contra dois na execução 1: resumo, limitação 1,
+ação de mitigação 2 e decisão editorial. E ganharam desenvolvimento: o parecer
+recomenda "documentar o critério de alocação dos especialistas às dimensões
+(aleatorização, expertise, auto-seleção)" de um desenho que nunca existiu.
+
+**Nova, e é o terceiro caso de classe D.** O parecer afirma: "A validação externa
+dos cálculos foi realizada com pyAHP, conforme documentado nos recursos do
+sistema."
+
+O sistema usa a **AhpAnpLib**, confirmado em `calculate/route.ts`,
+`validate-external/route.ts`, `resultados/page.tsx` e `ExternalValidation.tsx`.
+
+**Mas o parecer não inventou.** O payload construído em
+`app/api/ai-reviewer/route.ts`, linha 1295, envia ao modelo a linha:
+
+```
+- ✅ Validação externa com pyAHP
+```
+
+É a **única** ocorrência de "pyAHP" no repositório inteiro. A afirmação do parecer
+é fiel ao que recebeu.
+
+**Este é o caso de classe D mais consequente dos três**, porque não está no
+`system-prompt.ts`: está no **payload construído em runtime**. A auditoria de A.10
+varreu o arquivo de instruções e não alcançaria esta linha.
+
+**Consequência para A.10:** a superfície do prompt não é um arquivo, são dois. O
+texto que chega ao modelo é o `system-prompt.ts` mais o payload montado em
+`route.ts`, e o segundo nunca foi auditado.
+
+**Nova, sobre Xu (2000).** O parecer cita Xu (2000, p. 285) para afirmar que a
+condição de consistência agregada "é satisfeita", porque todos os CRs individuais
+estariam abaixo de 0,10. É a mesma imprecisão 4 da Seção 6.2 da dissertação, agora
+com Xu citado diretamente em vez de *apud* Escobar. **A premissa continua falsa**,
+e pela mesma causa da imprecisão 1.
+
+### Taxa de divergência de localizador na execução 2
+
+Mesma metodologia da execução 1: conferência contra as páginas de claim do RAG.
+
+**13 divergentes em 21 citações com localizador, 62%.**
+
+| | Execução 1 | Execução 2 |
+|---|---|---|
+| Citações com localizador | 18 | 21 |
+| Divergentes | 13 | 13 |
+| Taxa | 72% | 62% |
+
+**O número absoluto de erros é idêntico.** A taxa cai porque o parecer citou três
+páginas a mais e acertou três a mais, sendo duas delas as que corrigimos.
+
+Composição diferente, magnitude estável: duas execuções independentes produzem
+treze localizadores errados cada. **A estabilidade do número absoluto é mais
+informativa que o valor da taxa**, porque sugere que o erro não depende de quantas
+citações o modelo faz.
+
+Divergentes na execução 2: Neely (19 contra 1033–1047), Aull-Hyde (252 contra
+1–6), Xu (285 contra 1–3), Ayan (3 contra 1, 2 e 19), Saaty e Ergu (2 contra
+7–13), Escobar (9 contra 1–4), Saaty 2003 (85 contra 2–6), Lee (1107 contra
+120–125), Saaty e Vargas (140 contra 4–40), Petrillo (6 contra 2, 4 e 7), Mu (4
+contra 369–382), Ishizaka (14 contra 14337–14342), Saiyed (7 contra 1778–1788).
+
+Corretas: Salomon (2), Saaty 1986 (841), Wijnmalen (899 e 903), Saaty 1977 (248),
+Dodevska (5), Forman (167), Saaty 1987 (163).
 
 ---
 
@@ -740,3 +1050,131 @@ O paradigma metodológico não é declarado explicitamente nos metadados do proj
 **ACEITO**
 
 Fundamentação: O estudo atende integralmente aos critérios de qualidade do método AHP-BOCR conforme a literatura publicada. Todos os CRs (global, por dimensão, e individuais) são inferiores ao limiar CR ≤ 0,10 (Saaty, 1977). Os quatro axiomas de Saaty (1986) são atendidos pela estrutura do sistema. A fórmula de síntese subtrativa completa com *rescaling weights* implementa Wijnmalen (2007, Eq. 17). O método de agregação por média geométrica é o recomendado para AIJ (Forman & Peniwati, 1998). A análise de sensibilidade executada nas quatro dimensões BOCR não identifica pontos de virada, indicando estabilidade do ranking. O painel de 12 especialistas com diversidade funcional documentada e experiência entre 11 e mais de 30 anos é compatível com o paradigma de pesquisa-ação identificado. As duas limitações apontadas (N=3 por dimensão e homogeneidade de gênero) não comprometem a validade interna dos resultados e são mitigáveis pela documentação do paradigma metodológico. A pontuação automática de 100/100 é compatível com os achados desta revisão.
+
+---
+
+## Anexo 2: texto bruto da execução 2, commit `2b353b3`
+
+### 📋 RESUMO DA SUBMISSÃO
+
+O estudo avalia duas alternativas tecnológicas de Indústria 4.0 para otimização do consumo energético de estufas de cura em linha de pintura automotiva: (A1) controle em tempo real dos queimadores por inteligência artificial e (A2) gêmeo digital CFD para simulação termodinâmica. A decisão é estruturada pelo método AHP-BOCR com quatro dimensões (Benefits, Opportunities, Costs, Risks), organizadas sob perspectivas de competitividade, aspectos sociotécnicos e sustentabilidade. O painel é composto por 12 especialistas (todos com CR ≤ 0,10), distribuídos em 3 respondentes por dimensão BOCR. A agregação dos julgamentos individuais foi realizada por média geométrica, e a síntese final emprega a fórmula subtrativa completa de Wijnmalen (2007, Eq. 17) com pesos pessoais (v) e *rescaling weights* (s). O ranking final posiciona A1 (score = 0,064129) à frente de A2 (score = 0,026937). A análise de sensibilidade, executada nas quatro dimensões, não identificou pontos de virada.
+
+O perfil dos especialistas abrange formações em nível de mestrado e especialização, experiência profissional entre 11 e mais de 30 anos, atuação em manufatura, otimização de custos, qualidade, financeiro, P&D e manutenção, com cargos de diretor, gerente e *C-level*.
+
+---
+
+### ✅ PONTOS FORTES
+
+**1. Consistência dos julgamentos.** Todos os 12 respondentes apresentam CR individual entre 1,1% e 9,6%, todos inferiores ao limiar CR ≤ 0,10. Salomon (2024, p. 2) identifica consistência como medida primária de qualidade: *"Consistency is a measure of the quality data input in the AHP"*. A taxa de conformidade de 100% configura uma base de dados de entrada sem necessidade de exclusão ou revisão de respondentes.
+
+**2. Conformidade axiomática.** A estrutura do sistema atende aos quatro axiomas formulados por Saaty (1986, p. 841): *"thoughtful individuals who have reasons for their beliefs should make sure that their ideas are adequately represented"* (axioma das expectativas). A reciprocidade é garantida pela construção das matrizes, a homogeneidade pela escala 1–9, a dependência pela hierarquia BOCR e as expectativas pela inclusão das alternativas e critérios relevantes ao problema.
+
+**3. Fórmula de síntese com comensurabilidade explícita.** A implementação da fórmula subtrativa completa (Eq. 17) com *rescaling weights* atende ao requisito de comensurabilidade formulado por Wijnmalen (2007, p. 899): *"synthesis requires commensurate priorities on a common scale"*. A distinção entre pesos pessoais (v) e *rescaling weights* (s) preserva tanto a importância relativa atribuída pelo painel quanto a magnitude das sub-hierarquias.
+
+**4. Diversidade funcional do painel.** O painel inclui especialistas de seis áreas de atuação distintas (manufatura, otimização de custos, qualidade, financeiro, P&D e manutenção), com três níveis hierárquicos (diretor, gerente, *C-level*) e faixas de experiência entre 11 e mais de 30 anos. Esta composição reduz o risco de viés de perspectiva única, conforme discutido por Neely et al. (2020, p. 19): *"scholars must provide evidence for the appropriateness of whatever measure they use, defend their approach to the aggregation of variables at the group level"*.
+
+**5. Detecção automatizada de viés.** O sistema implementa análise de viés nos julgamentos combinando verificação algorítmica de CR com infraestrutura para *Disparate Impact* (Dodevska et al., 2023). O nível de risco foi classificado como LOW, com conformidade CR de 100%.
+
+---
+
+### ⚠️ LIMITAÇÕES IDENTIFICADAS NOS DADOS
+
+**1. Três respondentes por dimensão BOCR.** Embora o painel total compreenda 12 especialistas, cada dimensão BOCR foi avaliada por apenas 3 respondentes. Aull-Hyde et al. (2006, p. 252) demonstram que: *"given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices"*. Com N = 3 por dimensão, a garantia de consistência agregada depende mais fortemente da qualidade individual dos julgamentos do que do efeito compensatório do grupo. Xu (2000, p. 285) demonstra que a consistência da matriz agregada é preservada quando cada matriz individual é aceitável: *"the weighted geometric mean complex judgement matrix (WGMCJM) is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency"*. Como todos os 12 respondentes apresentam CR ≤ 0,10, a condição de Xu (2000) é satisfeita, mitigando parcialmente a limitação do tamanho amostral por dimensão.
+
+**2. Homogeneidade de gênero.** O painel é composto exclusivamente por respondentes do gênero masculino. Embora esta composição possa refletir a realidade demográfica do setor automotivo industrial, a ausência de diversidade de gênero limita a variedade de perspectivas cognitivas na elicitação de pesos. Ayan et al. (2023, p. 3) observam que: *"According to the theory of bounded rationality, the rationality of a researcher is limited by the available knowledge, the cognitive limitations of the individual mind, and the availability of decision-making (DM) time"*. A homogeneidade do painel pode estreitar o campo de visão dos julgamentos.
+
+---
+
+### 🔍 ANÁLISE DETALHADA
+
+#### Consistência dos Julgamentos
+
+O CR global agregado é 1,06%. Os CRs das quatro sub-hierarquias agregadas são: Benefits 1,10%, Opportunities 0,92%, Costs 2,60% e Risks 1,40%. Todos os valores são inferiores ao limiar CR ≤ 0,10 proposto por Saaty (1977, p. 248): *"require the ratio to be very small; e.g., of the order of 0.1"*.
+
+Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar. Nenhum respondente ultrapassa CR > 0,20, limiar acima do qual Saaty & Ergu (2015, p. 2): *"A CR greater than 0.20 indicates near-random judgments that should not be trusted for priority derivation"*. O respondente SXAASSdDxO2kAP39WZbQ apresenta o maior CR individual (9,6%), inferior ao limiar de 10% por margem de 0,4 pontos percentuais.
+
+A propriedade demonstrada por Escobar (2004, p. 9), segundo a qual *"the inconsistency of the group is smaller than the largest individual inconsistency"*, é testável nesta configuração, dado que cada dimensão conta com 3 respondentes (N > 1). Embora os dados não discriminem quais respondentes contribuíram para cada dimensão, todos os CRs de matrizes agregadas por dimensão (máximo: 2,60% em Costs) são inferiores ao maior CR individual do painel completo (9,6%), resultado consistente com a propriedade de Escobar (2004).
+
+| Dimensão | CR agregado | λmax | Limiar (Saaty, 1977) | Status |
+|---|---|---|---|---|
+| Benefits | 1,10% | 5,0494 | ≤ 10% | ✅ |
+| Opportunities | 0,92% | 5,0414 | ≤ 10% | ✅ |
+| Costs | 2,60% | 5,1165 | ≤ 10% | ✅ |
+| Risks | 1,40% | 5,0626 | ≤ 10% | ✅ |
+| Global | 1,06% | — | ≤ 10% | ✅ |
+
+Saaty (2003, p. 85) observa que um grau moderado de inconsistência é esperado nos julgamentos humanos: *"a modicum of inconsistency may be considered as a good thing and forced consistency... as an undesirable compulsion"*. Os valores observados situam-se nessa faixa de inconsistência moderada, indicando julgamentos transitivos sem artificialidade.
+
+#### Pesos BOCR e Hierarquia de Controle
+
+Os pesos foram derivados de comparações pareadas entre os méritos BOCR na hierarquia de controle, conforme Saaty (2003) e Lee (2009, p. 1107): *"considering the benefits... opportunities... costs... and risks... is a more comprehensive way to deal with a much more complicated problem"*. Os pesos não são arbitrários; resultam dos julgamentos agregados dos especialistas.
+
+A distribuição observada é: Benefits 37,2%, Risks 27,9%, Costs 19,7% e Opportunities 15,2%, com ratio máximo/mínimo de 2,45:1. A dimensão Benefits é dominante, sem que nenhuma dimensão ultrapasse 50% do peso total.
+
+A comparação com benchmarks empíricos publicados no setor energético contextualiza os pesos:
+
+| Dimensão | Estudo atual | Kabak (2014) | Mu (2016) |
+|---|---|---|---|
+| Benefits | 37,2% | 37% | 46% |
+| Opportunities | 15,2% | 35% | 20% |
+| Costs | 19,7% | 20% | 24% |
+| Risks | 27,9% | 8% | 10% |
+
+O peso de Benefits (37,2%) é convergente com o benchmark de Kabak (2014) no setor energético (37%). O peso de Costs (19,7%) alinha-se com Kabak (20%) e Mu (24%). A divergência concentra-se na distribuição entre Opportunities e Risks: o estudo atual atribui maior peso a Risks (27,9%) em comparação com Kabak (8%) e Mu (10%), enquanto Opportunities (15,2%) recebe peso inferior ao de Kabak (35%).
+
+Esta configuração, em que Risks recebe peso superior ao de Opportunities, é interpretável à luz do contexto setorial. O projeto envolve investimento em tecnologia I4.0 para infraestrutura crítica de produção (estufas de cura em linha de pintura), onde falhas operacionais geram paradas de linha com custo elevado. A ênfase em Risks reflete a perspectiva de gestores seniores em ambiente industrial, o que é coerente com o perfil do painel (diretores, gerentes e *C-level* com experiência entre 11 e mais de 30 anos). Saiyed et al. (2023, p. 7) observam que executivos em contextos voláteis tendem a enfatizar riscos: *"High power leads to cognitive biases creeping in, especially how the CEO frames the decision calculus and estimates risks inherent in decisions"*. No presente caso, a ênfase em Risks pode refletir tanto percepção contextualizada do risco industrial quanto viés profissional de gestores seniores. A análise de sensibilidade (seção seguinte) permite avaliar se a inversão Opportunities-Risks alteraria o ranking.
+
+A fórmula de síntese implementada é:
+
+Score_i = v_b × s_b × B_i + v_o × s_o × O_i − v_c × s_c × C_i − v_r × s_r × R_i
+
+com v_b = 0,3723, v_o = 0,1517, v_c = 0,1974, v_r = 0,2786 (pesos pessoais) e s_b = 0,4393, s_o = 0,1593, s_c = 0,1868, s_r = 0,2146 (*rescaling weights*). Esta formulação corresponde à Eq. 17 de Wijnmalen (2007, p. 903): *"v_b·s_b·B_p^i + v_o·s_o·O_p^i − v_c·s_c·C_p^i − v_r·s_r·R_p^i"*. A adoção da síntese subtrativa, em vez da multiplicativa, é consistente com a recomendação de Saaty & Vargas (2012, p. 140): *"I do not recommend ever using multiplicative synthesis. It can lead to an undesirable ranking of the alternatives"*.
+
+A organização dos critérios sob as quatro dimensões BOCR atende ao princípio MECE, conforme Petrillo et al. (2023, p. 6): *"The use of an MCDM model with these four main criteria aims for a mutually exclusive and collectively exhaustive (MECE) set of criteria"*. A distinção entre certeza e incerteza na classificação dos critérios segue Mu (2016, p. 4): *"Can we reasonably be sure this benefit will occur?'; If the answer is 'Yes' it is a benefit, if the answer is 'No' it is an opportunity"*.
+
+#### Análise de Sensibilidade
+
+A análise de sensibilidade foi executada nas quatro dimensões BOCR (Benefits, Opportunities, Costs, Risks). Nenhum ponto de virada foi identificado em qualquer dimensão, indicando que o ranking A1 > A2 se mantém sob variações nos pesos BOCR. Ishizaka & Labib (2011, p. 14) observam que a análise de sensibilidade é pertinente quando alternativas estão incluídas na hierarquia: *"Sensitivity analysis for AHP is relevant only when alternatives are included in the hierarchy"*. A condição é satisfeita neste estudo.
+
+A ausência de pontos de virada nas quatro dimensões indica que a dominância de A1 sobre A2 não depende de uma dimensão BOCR específica. Dado que todas as sub-hierarquias apresentam CR < 0,10, a estabilidade observada reflete preferências transitivas dos decisores, não sendo artefato de pesos derivados de matrizes inconsistentes (conforme a tensão descrita na Diretriz 2, que não se aplica neste caso).
+
+#### Análise de Viés e Fairness nos Julgamentos
+
+O nível de risco foi classificado como LOW pelo sistema, com conformidade CR de 100%. Todos os 12 respondentes atendem ao limiar de Saaty (1977), confirmando que os julgamentos individuais satisfazem transitividade.
+
+A análise de *Disparate Impact* (Dodevska et al., 2023) está disponível no sistema, mas requer que o pesquisador defina o atributo sensível e os grupos de alternativas. Dodevska et al. (2023, p. 5) definem o indicador: *"DI before optimization... is the ratio of average AHP rank comparison scores... between privileged and discriminated groups"*. A configuração desta camada de auditoria de fairness é recomendada como ação opcional na seção de mitigação.
+
+#### Fundamentação Teórica
+
+| Axioma (Saaty, 1986) | Mecanismo de atendimento | Status |
+|---|---|---|
+| Reciprocidade | Construção automática da matriz (a_ji = 1/a_ij) | ✅ |
+| Homogeneidade | Escala fundamental 1–9 | ✅ |
+| Dependência | Hierarquia BOCR com sub-hierarquias funcionais | ✅ |
+| Expectativas | Duas alternativas e critérios sob três perspectivas | ✅ |
+
+O método de agregação dos julgamentos individuais emprega média geométrica, recomendada para AIJ por Forman & Peniwati (1998, p. 167): *"the geometric mean is more consistent with the meaning of both judgments and priorities"*. A propriedade recíproca da média geométrica na agregação de grupo é descrita por Saaty (1987, p. 163): *"any rule to combine the judgments of several individuals should also satisfy the reciprocal property. A proof that the geometric mean... satisfies this condition"*. A validação externa dos cálculos foi realizada com pyAHP, conforme documentado nos recursos do sistema.
+
+---
+
+### 💡 AÇÕES DE MITIGAÇÃO
+
+**1. Configuração da análise de *Disparate Impact*.** O sistema dispõe de infraestrutura para cálculo de DI conforme Dodevska et al. (2023, Eq. 10 e 15), com limiares publicados de DI ≥ 0,80 e DI ≤ 1,25. O pesquisador pode configurar o atributo sensível e os grupos de alternativas para verificar se o ranking apresenta viés sistemático contra alguma alternativa.
+
+**2. Documentação da alocação de respondentes por dimensão.** Cada dimensão BOCR foi avaliada por 3 dos 12 respondentes. O critério de alocação dos especialistas às dimensões (aleatorização, expertise, auto-seleção) deve ser documentado no manuscrito para permitir avaliação da representatividade dos julgamentos em cada sub-hierarquia. Se a alocação foi por expertise, isto reforça a validade dos julgamentos; se aleatória, a limitação de N = 3 por dimensão é mais relevante.
+
+**3. Discussão da ênfase em Risks no manuscrito.** O peso de Risks (27,9%) diverge dos benchmarks publicados no setor energético (Kabak, 2014: 8%; Mu, 2016: 10%). O manuscrito deve explicitar se esta ênfase reflete percepção contextualizada do risco de parada de linha (interpretação setorial) ou concentração de perfil profissional no painel (viés potencial). A análise de sensibilidade já executada demonstra que esta ênfase não altera o ranking, reduzindo o impacto prático da questão.
+
+---
+
+### 🎯 DECISÃO EDITORIAL
+
+**ACEITO**
+
+O estudo apresenta consistência integral dos julgamentos (100% dos respondentes com CR ≤ 0,10 e todas as matrizes agregadas abaixo do limiar), fórmula de síntese com comensurabilidade explícita (Wijnmalen, 2007, Eq. 17), análise de sensibilidade sem pontos de virada nas quatro dimensões, painel de 12 especialistas com diversidade funcional documentada e conformidade com os quatro axiomas de Saaty (1986).
+
+As limitações identificadas (3 respondentes por dimensão BOCR e homogeneidade de gênero) não comprometem a validade dos resultados. A condição de Xu (2000) para preservação da consistência agregada é satisfeita (todos os CRs individuais ≤ 0,10). A distribuição de pesos BOCR é convergente com benchmarks do setor energético na dimensão de maior peso (Benefits: 37,2% vs. Kabak, 2014: 37%), e a divergência em Risks é interpretável pelo contexto industrial do estudo.
+
+O paradigma metodológico do estudo é pesquisa-ação com painel interno de especialistas qualificados em uma montadora automotiva. Sob este paradigma, N = 12 (total) e N = 3 (por dimensão) atendem ao padrão de engajamento qualitativo dos *stakeholders* da decisão. As recomendações desta revisão são calibradas a este paradigma.
+
+A decisão é fundamentada pela matriz da Diretriz 3: CR ≤ 0,10 em todas as sub-hierarquias, N ≥ 3 com diversidade funcional, e sensibilidade estável.
