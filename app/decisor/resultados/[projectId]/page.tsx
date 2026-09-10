@@ -60,6 +60,72 @@ import BentoGridDashboard from '@/components/BentoGridDashboard';
 import BOCRConsistencyMatrix from '@/components/BOCRConsistencyMatrix';
 import { calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
 
+// As seis matrizes não triviais do respondente, na ordem da Tabela 22 do
+// Apêndice G. As vinte matrizes de alternativas são 2x2 e têm CR zero por
+// construção; ficam fora. Ver docs/referencia-cr-individuais.md §1.
+// Coexiste com recalcularCRBocrIndividual, que serve aos seis consumidores
+// dentro de exportCSV e exportXLSX. Migrar esses consumidores é pendência do
+// Bloco C.1, quando as tabelas de exportação vierem para a tela.
+const MATRIZES_CR = ['BOCR', 'MAGNITUDE', 'SUB-B', 'SUB-O', 'SUB-C', 'SUB-R'] as const;
+type MatrizCR = typeof MATRIZES_CR[number];
+
+interface CRsIndividuais {
+  crs: Record<MatrizCR, number | null>;
+  governante: number;
+  matrizGovernante: MatrizCR;
+  n: number;
+}
+
+function calcularCRsIndividuais(
+  judgments: IPCJudgment[] | undefined,
+  alternativeCodes: string[]
+): CRsIndividuais | null {
+  if (!judgments || !Array.isArray(judgments) || judgments.length === 0) return null;
+  if (!alternativeCodes || alternativeCodes.length === 0) return null;
+
+  try {
+    const result = calculateAllWeights(judgments, alternativeCodes);
+
+    // CR indefinido é null, nunca zero: zero num CR significa consistência
+    // perfeita, e usá-lo como marcador de ausência é erro de leitura.
+    const bruto: Record<MatrizCR, unknown> = {
+      'BOCR': result.bocrWeights?.cr,
+      'MAGNITUDE': result.magnitudeWeights?.cr,
+      'SUB-B': result.subWeights?.B?.cr,
+      'SUB-O': result.subWeights?.O?.cr,
+      'SUB-C': result.subWeights?.C?.cr,
+      'SUB-R': result.subWeights?.R?.cr,
+    };
+
+    const crs = {} as Record<MatrizCR, number | null>;
+    for (const m of MATRIZES_CR) {
+      const v = bruto[m];
+      crs[m] = typeof v === 'number' && !isNaN(v) ? v : null;
+    }
+
+    const definidos = MATRIZES_CR.filter(m => crs[m] !== null);
+    if (definidos.length === 0) return null;
+
+    // Governante: máximo sobre as matrizes com CR definido. Derivado aqui, e
+    // não de result.avgCR, cujo nome não corresponde ao que ele contém: ver o
+    // comentário sobre a renomeação em lib/ahp-ipc.ts, em calculateAllWeights.
+    let matrizGovernante = definidos[0];
+    for (const m of definidos) {
+      if ((crs[m] as number) > (crs[matrizGovernante] as number)) matrizGovernante = m;
+    }
+
+    return {
+      crs,
+      governante: crs[matrizGovernante] as number,
+      matrizGovernante,
+      n: definidos.length,
+    };
+  } catch (e) {
+    console.error('[calcularCRsIndividuais] Falha:', e);
+    return null;
+  }
+}
+
 function recalcularCRBocrIndividual(
   judgments: IPCJudgment[] | undefined,
   alternativeCodes: string[]
@@ -706,6 +772,14 @@ export default function ResultadosPage() {
   // Dados formatados para o componente de filtro de qualidade
   // Unifica dados de qualityAnalysis.respondents + processedRespondents + excludedIds
   // FILTRO DEFENSIVO: apenas respondentes com response finalizada (completedAt) em projectResponses
+  // Formata CR para exibição. Corrige o sinal de -0,00 originado do último bit
+  // de um double em matriz perfeitamente consistente (R12/SUB-B). É clamp de
+  // EXIBIÇÃO. Não introduzir clamp no motor: ver docs/referencia-cr-individuais.md §6.
+  const fmtCR = (v: number | null | undefined): string => {
+    const p = (v || 0) * 100;
+    return (Math.abs(p) < 0.005 ? 0 : p).toFixed(2);
+  };
+
   const getRespondentsList = useMemo(() => {
     const validResponseIds = new Set(
       projectResponses.map((r: any) => r.respondentId || r.visitorId || r.id || '').filter(Boolean)
@@ -719,29 +793,16 @@ export default function ResultadosPage() {
       const id = r.respondentId || r.visitorId || r.id || '';
       if (id) judgmentsById.set(id, r.judgments);
     });
-    const recalcCR = (id: string, stored: number): number => {
-      const recalc = recalcularCRBocrIndividual(judgmentsById.get(id) as IPCJudgment[], altCodes);
-      return recalc?.avgCR ?? stored; // avgCR aqui já é o CR governante (máximo das não triviais)
-    };
-    const statusFromCR = (cr: number): string =>
-      cr > 0.20 ? 'CRÍTICO' : cr > 0.15 ? 'SUSPEITO' : cr > 0.10 ? 'REVISAR' : 'CONFIÁVEL';
+    const calcCRs = (id: string): CRsIndividuais | null =>
+      calcularCRsIndividuais(judgmentsById.get(id) as IPCJudgment[], altCodes);
 
     const qaRespondents = qualityAnalysis?.respondents || [];
 
     if (qaRespondents.length === 0 && projectResponses.length > 0) {
       return projectResponses.map((r: any) => {
         const respondentId = r.visitorId || r.respondentId || r.id || '';
-        const cr = recalcCR(respondentId, r.responses?.avgCR || 0);
-        return {
-          respondentId,
-          isSimulated: r.isSimulated ?? false,
-          score: null,
-          cr,
-          status: statusFromCR(cr),
-          flags: [],
-          recommendation: '',
-          overallScore: null,
-        };
+        const c = calcCRs(respondentId);
+        return { respondentId, crs: c?.crs ?? null, cr: c?.governante ?? null, matrizGov: c?.matrizGovernante ?? null };
       });
     }
 
@@ -752,17 +813,8 @@ export default function ResultadosPage() {
 
     return filteredQaRespondents.map((r: any) => {
       const respondentId = r.respondentId || r.id || r.visitorId || '';
-      const cr = recalcCR(respondentId, r.metrics?.avgCR || r.avgCR || 0);
-      return {
-        respondentId,
-        isSimulated: r.isSimulated ?? false,
-        score: r.overallScore ?? r.score ?? null,
-        cr,
-        status: statusFromCR(cr),
-        flags: r.flags || [],
-        recommendation: r.recommendation || '',
-        overallScore: r.overallScore,
-      };
+      const c = calcCRs(respondentId);
+      return { respondentId, crs: c?.crs ?? null, cr: c?.governante ?? null, matrizGov: c?.matrizGovernante ?? null };
     });
   }, [qualityAnalysis, projectResponses, project]);
 
@@ -3843,173 +3895,6 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               <>
 
 
-                {/* Status Geral (Calculado via adjustedQualityScore) */}
-                {(() => {
-                  const adjustedQualityScore = (() => {
-                    if (!qualityAnalysis?.respondents) return null;
-
-                    // IDs válidos = respondentes com response finalizada
-                    const validIds = new Set(
-                      projectResponses.map((r: any) => r.respondentId || r.visitorId || r.id || '').filter(Boolean)
-                    );
-
-                    const activeRespondents = qualityAnalysis.respondents.filter((r: any) => {
-                      const rid = r.respondentId || r.id || r.visitorId || '';
-                      return rid && validIds.has(rid) && !excludedIds.includes(rid);
-                    });
-
-                    if (activeRespondents.length === 0) return null;
-
-                    const scores = activeRespondents
-                      .map((r: any) => r.overallScore ?? r.score ?? null)
-                      .filter((s: any) => s !== null);
-
-                    const avgScore =
-                      scores.length > 0
-                        ? Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length)
-                        : 0;
-
-                    const status =
-                      avgScore >= 90 ? 'EXCELENTE' :
-                        avgScore >= 80 ? 'BOA' :
-                          avgScore >= 60 ? 'ACEITÁVEL' :
-                            avgScore >= 40 ? 'PROBLEMÁTICA' : 'CRÍTICA';
-
-                    const statusMessages: Record<string, string> = {
-                      'EXCELENTE': 'Todos os respondentes apresentam alta consistência nos julgamentos.',
-                      'BOA': 'A maioria dos respondentes está dentro dos parâmetros aceitáveis.',
-                      'ACEITÁVEL': 'Alguns respondentes requerem atenção, mas a maioria está dentro dos parâmetros.',
-                      'PROBLEMÁTICA': 'Parcela significativa dos respondentes apresenta inconsistências.',
-                      'CRÍTICA': 'A maioria dos respondentes apresenta inconsistências graves.'
-                    };
-
-                    return {
-                      score: avgScore,
-                      status,
-                      message: statusMessages[status],
-                      totalRespondents: qualityAnalysis.respondents.length,
-                      activeRespondents: activeRespondents.length,
-                      excludedCount: excludedIds.length
-                    };
-                  })();
-
-                  if (!adjustedQualityScore) return null;
-
-                  return (
-                    <div className={`rounded-xl p-6 border-2 ${adjustedQualityScore.status === 'EXCELENTE' ? 'bg-green-50 border-green-300' :
-                      adjustedQualityScore.status === 'BOA' ? 'bg-blue-50 border-blue-300' :
-                        adjustedQualityScore.status === 'ACEITÁVEL' ? 'bg-yellow-50 border-yellow-300' :
-                          adjustedQualityScore.status === 'PROBLEMÁTICA' ? 'bg-orange-50 border-orange-300' :
-                            'bg-red-50 border-red-300'
-                      }`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-3">
-                          <span className="text-4xl">
-                            {adjustedQualityScore.status === 'EXCELENTE' ? '✅' :
-                              adjustedQualityScore.status === 'BOA' ? '👍' :
-                                adjustedQualityScore.status === 'ACEITÁVEL' ? '⚠️' :
-                                  adjustedQualityScore.status === 'PROBLEMÁTICA' ? '⚠️' : '❌'}
-                          </span>
-                          <div>
-                            <p className="font-bold text-xl">Qualidade {adjustedQualityScore.status}</p>
-                            <p className="text-sm text-gray-600">{adjustedQualityScore.message}</p>
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <p className={`text-4xl font-bold ${adjustedQualityScore.score >= 80 ? 'text-green-600' :
-                            adjustedQualityScore.score >= 60 ? 'text-yellow-600' : 'text-red-600'
-                            }`}>{adjustedQualityScore.score}/100</p>
-                          <p className="text-sm text-gray-500">Score Médio</p>
-                        </div>
-                      </div>
-
-                      {adjustedQualityScore.excludedCount > 0 && (
-                        <div className="mt-3 pt-3 border-t border-gray-200 text-sm text-gray-600">
-                          📊 Score calculado com <strong>{adjustedQualityScore.activeRespondents}</strong> de {adjustedQualityScore.totalRespondents} respondentes
-                          ({adjustedQualityScore.excludedCount} excluído{adjustedQualityScore.excludedCount > 1 ? 's' : ''} por inconsistência).
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
-
-                {/* Estatísticas (Calculado via adjustedStatusCounts) */}
-                {(() => {
-                  const adjustedStatusCounts = (() => {
-                    if (!qualityAnalysis?.respondents) {
-                      return qualityAnalysis?.statistics?.byStatus || {};
-                    }
-
-                    // IDs válidos = respondentes com response finalizada
-                    const validIds = new Set(
-                      projectResponses.map((r: any) => r.respondentId || r.visitorId || r.id || '').filter(Boolean)
-                    );
-
-                    const counts: Record<string, number> = {
-                      'CONFIÁVEL': 0,
-                      'REVISAR': 0,
-                      'SUSPEITO': 0,
-                      'CRÍTICO': 0
-                    };
-
-                    qualityAnalysis.respondents.forEach((r: any) => {
-                      const id = r.respondentId || r.id || r.visitorId || '';
-                      if (!id || !validIds.has(id)) return;
-
-                      if (!excludedIds.includes(id)) {
-                        const status = r.status || 'CONFIÁVEL';
-                        counts[status] = (counts[status] || 0) + 1;
-                      }
-                    });
-
-                    return counts;
-                  })();
-
-                  return (
-                    <div className="grid md:grid-cols-4 gap-4">
-                      <div className="bg-green-50 rounded-xl p-4 border border-green-200 text-center">
-                        <p className="text-3xl font-bold text-green-600">{adjustedStatusCounts['CONFIÁVEL'] || 0}</p>
-                        <p className="text-sm text-green-700">🟢 Confiáveis</p>
-                      </div>
-                      <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200 text-center">
-                        <p className="text-3xl font-bold text-yellow-600">{adjustedStatusCounts['REVISAR'] || 0}</p>
-                        <p className="text-sm text-yellow-700">🟡 A Revisar</p>
-                      </div>
-                      <div className="bg-orange-50 rounded-xl p-4 border border-orange-200 text-center">
-                        <p className="text-3xl font-bold text-orange-600">{adjustedStatusCounts['SUSPEITO'] || 0}</p>
-                        <p className="text-sm text-orange-700">🟠 Suspeitos</p>
-                      </div>
-                      <div className="bg-red-50 rounded-xl p-4 border border-red-200 text-center">
-                        <p className="text-3xl font-bold text-red-600">{adjustedStatusCounts['CRÍTICO'] || 0}</p>
-                        <p className="text-sm text-red-700">🔴 Críticos</p>
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* Tipos de Problemas Detectados */}
-                <div className="bg-white rounded-xl shadow-sm p-6">
-                  <h4 className="font-semibold text-gray-800 mb-4">📊 Tipos de Problemas Detectados</h4>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    {qualityAnalysis.statistics?.flagCounts && Object.entries(qualityAnalysis.statistics.flagCounts).map(([flag, count]) => (
-                      <div key={flag} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span className="text-sm text-gray-600">
-                          {flag === 'CR_ALTO' ? '⚠️ CR Alto' :
-                            flag === 'TUDO_IGUAL' ? '🔁 Tudo Igual' :
-                              flag === 'PADRAO_UNIFORME' ? '📏 Padrão Uniforme' :
-                                flag === 'VALORES_EXTREMOS' ? '📊 Valores Extremos' :
-                                  flag === 'CONTRADICAO' ? '🔄 Contradições' :
-                                    flag === 'POUCOS_JULGAMENTOS' ? '📝 Poucos Julgamentos' : flag}
-                        </span>
-                        <span className={`font-bold ${(count as number) > 0 ? 'text-red-600' : 'text-green-600'}`}>
-                          {count as number}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-
                 {/* ============================================ */}
                 {/* TABELA UNIFICADA DE RESPONDENTES             */}
                 {/* ============================================ */}
@@ -4081,27 +3966,22 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                             />
                           </th>
                           <th className="px-4 py-3 text-left font-semibold text-gray-700">ID Respondente</th>
-                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Tipo</th>
-                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Score</th>
-                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Maior CR</th>
-                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Status</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Problemas</th>
-                          <th className="px-4 py-3 text-left font-semibold text-gray-700">Recomendação</th>
+                          {MATRIZES_CR.map(m => (
+                            <th key={m} className="px-2 py-3 text-center font-semibold text-gray-700">{m}</th>
+                          ))}
+                          <th className="px-3 py-3 text-center font-semibold text-gray-700">CR governante</th>
+                          <th className="px-3 py-3 text-center font-semibold text-gray-700">Matriz</th>
                         </tr>
                       </thead>
                       <tbody>
                         {[...getRespondentsList]
-                          .sort((a: any, b: any) => (b.cr || 0) - (a.cr || 0))
+                          .sort((a: any, b: any) => (b.cr ?? -1) - (a.cr ?? -1))
                           .map((r: any, idx: number) => {
                             const isExcluded = excludedIds.includes(r.respondentId);
                             const isSelected = selectedForExclusion.includes(r.respondentId);
 
                             return (
-                              <tr key={idx} className={`border-t ${isExcluded ? 'opacity-40 bg-gray-50' :
-                                r.status === 'CRÍTICO' ? 'bg-red-50' :
-                                  r.status === 'SUSPEITO' ? 'bg-orange-50' :
-                                    r.status === 'REVISAR' ? 'bg-yellow-50' : ''
-                                }`}>
+                              <tr key={idx} className={`border-t ${isExcluded ? 'opacity-40 bg-gray-50' : ''}`}>
                                 {/* Checkbox */}
                                 <td className="px-3 py-3 text-center">
                                   {isExcluded ? (
@@ -4128,59 +4008,28 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                                     )}
                                   </div>
                                   {isExcluded && <span className="ml-2 text-red-500 font-medium text-xs">(Excluído)</span>}
-                                  {r.isSimulated && <span className="ml-1 text-orange-400 text-xs">(sim)</span>}
                                 </td>
 
-                                {/* Tipo */}
-                                <td className="px-3 py-3 text-center">
-                                  <span className="px-2 py-0.5 rounded text-xs bg-blue-50 text-blue-700">
-                                    {r.isSimulated ? 'Simulado' : 'Real'}
-                                  </span>
-                                </td>
+                                {/* Os seis CRs. Travessão = CR indefinido, nunca zero. Marcador de UI, não prosa. */}
+                                {MATRIZES_CR.map(m => {
+                                  const v = r.crs?.[m] ?? null;
+                                  return (
+                                    <td key={m} className={`px-2 py-3 text-center font-mono text-xs ${v === null ? 'text-gray-300' : v > 0.10 ? 'text-red-600' : 'text-green-600'
+                                      }`}>
+                                      {v === null ? '—' : `${fmtCR(v)}%`}
+                                    </td>
+                                  );
+                                })}
 
-                                {/* Score */}
-                                <td className="px-3 py-3 text-center font-bold">
-                                  {r.score ?? r.overallScore ?? '—'}
-                                </td>
-
-                                {/* Maior CR (CR governante = máximo das matrizes não triviais) */}
-                                <td className={`px-3 py-3 text-center font-mono ${r.cr > 0.15 ? 'text-red-600 font-bold' :
-                                  r.cr > 0.10 ? 'text-yellow-600' : 'text-green-600'
+                                {/* CR governante = máximo das seis */}
+                                <td className={`px-3 py-3 text-center font-mono font-bold ${r.cr === null ? 'text-gray-300' : r.cr > 0.10 ? 'text-red-600' : 'text-green-600'
                                   }`}>
-                                  {((r.cr || 0) * 100).toFixed(2)}%
+                                  {r.cr === null ? '—' : `${fmtCR(r.cr)}%`}
                                 </td>
 
-                                {/* Status */}
-                                <td className="px-3 py-3 text-center">
-                                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${r.status === 'CONFIÁVEL' ? 'bg-green-100 text-green-800' :
-                                    r.status === 'REVISAR' ? 'bg-yellow-100 text-yellow-800' :
-                                      r.status === 'SUSPEITO' ? 'bg-orange-100 text-orange-800' :
-                                        'bg-red-100 text-red-800'
-                                    }`}>
-                                    {r.status}
-                                  </span>
-                                </td>
-
-                                {/* Problemas */}
-                                <td className="px-4 py-3">
-                                  <div className="flex flex-wrap gap-1">
-                                    {r.flags?.map((f: any, fIdx: number) => (
-                                      <span key={fIdx} className={`px-2 py-0.5 rounded text-xs ${f.severity === 'GRAVE' ? 'bg-red-100 text-red-700' :
-                                        f.severity === 'ALERTA' ? 'bg-yellow-100 text-yellow-700' :
-                                          'bg-gray-100 text-gray-700'
-                                        }`} title={f.details}>
-                                        {f.type?.replace(/_/g, ' ')}
-                                      </span>
-                                    ))}
-                                    {(!r.flags || r.flags.length === 0) && (
-                                      <span className="text-green-600 text-xs text-nowrap">✓ OK</span>
-                                    )}
-                                  </div>
-                                </td>
-
-                                {/* Recomendação */}
-                                <td className="px-4 py-3 text-xs text-gray-600 max-w-xs">
-                                  {r.recommendation || '—'}
+                                {/* Matriz que governou */}
+                                <td className="px-3 py-3 text-center text-xs text-gray-600">
+                                  {r.matrizGov ?? '—'}
                                 </td>
                               </tr>
                             );
@@ -4191,7 +4040,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
                   {/* Referência metodológica */}
                   <p className="mt-4 text-xs text-gray-400">
-                    CR &gt; 10%: Inconsistente (Saaty, 1977) | CR &gt; 20%: Suspeito | Padrões uniformes: Gaming/desatenção (Forman &amp; Peniwati, 1998)
+                    CR &le; 10% é o limiar de aceitação recomendado por Saaty (1977). CR governante é o maior entre as seis matrizes não triviais do respondente.
                   </p>
                 </div>
 
