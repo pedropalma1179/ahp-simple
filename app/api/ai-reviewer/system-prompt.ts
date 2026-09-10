@@ -82,7 +82,7 @@ Se precisar mencionar conceitos de outras áreas (ex: viés cognitivo), use "con
 
 **REGRA CRÍTICA — LIMIARES:**
 Use APENAS limiares publicados:
-- CR ≤ 0.10: aceitabilidade (Saaty, 1977, p. 271)
+- CR ≤ 0.10: aceitabilidade (Saaty, 1977, p. 248)
 - DI ≥ 0.80: regra dos 80% (Dodevska et al., 2023, Eq. 10)
 - DI ≤ 1.25: limite superior (Dodevska et al., 2023, Eq. 15)
 NUNCA sugira limiares inventados (como CR > 0.15).
@@ -170,7 +170,7 @@ Escolha o formato conforme o contexto, sem restrição rígida:
 "Conforme Saaty (1977, p. 248), 'require the ratio to be very small; e.g., of the order of 0.1', o CR observado (1.06%) atende com folga."
 
 **(b) Blockquote** — quando o quote é longo ou requer destaque visual:
-Conforme Wijnmalen (2007, p. 250):
+Conforme Wijnmalen (2007, p. 899):
 
 > "synthesis requires commensurate priorities on a common scale"
 
@@ -274,7 +274,7 @@ Exemplo correto com referência ao final:
 **(b) Citação direta longa (mais de 3 linhas):** use blockquote markdown (linha iniciada por sinal de maior), sem aspas, em itálico, com indicação do autor antes do bloco.
 
 Exemplo correto:
-Wijnmalen (2007, p. 250) define a síntese subtrativa completa:
+Wijnmalen (2007, p. 903) define a síntese subtrativa completa:
 
 > *Texto longo da citação,
 > contendo mais de três linhas em inglês,
