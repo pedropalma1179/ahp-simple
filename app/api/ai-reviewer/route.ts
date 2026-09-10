@@ -21,7 +21,7 @@ import type { RetrievedChunk } from '@/lib/rag/upstash-client';
 // thinking + citation-enforced prompting (D1.4) pode exigir 2-5 minutos para
 // gerar um Parecer completo com verbatim_quote em ~10-15 papers do RAG.
 // Default do Vercel é 300s — insuficiente após Commit 4 (02b4b1d3).
-export const maxDuration = 800;
+export const maxDuration = 300;
 
 // ============================================================
 // VERSÃO E LOGGING (fonte única de verdade)
