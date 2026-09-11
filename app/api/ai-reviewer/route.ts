@@ -938,6 +938,10 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
 ${lines.join('\n')}
 
 **TOTAL: ${respondents.length} respondentes (esta lista é COMPLETA — não existem outros)**
+
+**AGREGAÇÃO POR MATRIZ: todos os ${respondents.length} respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = ${respondents.length} em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**
+⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos ${respondents.length} julgamentos, sem particionamento.
+
 - CONFIÁVEIS (CR ≤ 10%): ${statusCounts.confiavel}
 - REVISAR (10–15%): ${statusCounts.revisar}
 - SUSPEITOS (15–20%): ${statusCounts.suspeito}
