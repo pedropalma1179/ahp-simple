@@ -824,31 +824,7 @@ Três medições independentes, em três artefatos escritos à mão sem passar p
 
 **Onde alguém escreveu uma atribuição à mão, sem passar pelo protocolo de
 verificação na base, a taxa de erro é alta.** Essa é a conclusão geral do
-registro, e agora tem **quatro** medições em superfícies independentes.
-
-### O corolário: o escopo é sempre maior que o levantamento
-
-Três tarefas seguidas, em 11/09/2026, expuseram o mesmo padrão:
-
-| Tarefa | O levantamento previa | A medição encontrou |
-|---|---|---|
-| A.5, tabelas RI | quatro tabelas | **seis**, e a sexta incompleta, parando em n=7 |
-| A.13, localizador `p. 271` | uma ocorrência, corrigida em A.10 | **cinco** no total: o prompt mais quatro no código |
-| A.13, achado colateral | — | **catorze** citações a um autor que o próprio prompt proíbe |
-
-E em A.13 o erro era maior que o previsto em natureza, não só em contagem: um dos
-casos não tinha só a página errada, tinha **o verbatim inteiro inexistente** em
-qualquer artigo indexado.
-
-**Nos três casos o levantamento inicial subestimou o escopo, e só a medição o
-corrigiu.** Isso é o protocolo funcionando, mas é também evidência de segunda
-ordem: **atribuição escrita à mão prolifera**. O mesmo erro reaparece em
-superfícies que ninguém pensou em olhar, porque quem copiou uma linha de código
-copiou também a citação que vinha nela.
-
-Consequência prática, registrada como regra: **em tarefa de correção de
-atribuição, medir antes de definir o escopo, e medir de novo depois de corrigir.**
-Nenhuma das três teria fechado com o escopo do primeiro levantamento.
+registro, e agora tem três medições em superfícies independentes para sustentá-la.
 
 ---
 
@@ -943,6 +919,7 @@ localizadores, e cada etapa custa uma geração de cerca de 2m30s.
 | 3 | Depois do 2º commit de A.10: exemplos de parágrafo sem dado real | Se a faixa sumir aqui e não na etapa 2, isola o exemplo como causa, independente do cache. **Nota:** esta etapa mede o exemplo, não o cálculo. O `calculations` já vinha do motor unificado nas execuções 1 e 2, descoberto em 11/09/2026 |
 | 4 | Depois de B.3: remover ou deixar de ler o cache `responses.{doc}.responses` | Isola o dado de entrada como causa. Junto com a etapa 3, decide se a imprecisão 1 exigia as duas correções ou apenas uma. ⚠ Ver a predição abaixo |
 | 5 | Depois de o payload informar o N por matriz (12 em todas) | ✅ **Feita**, `ca36539`, 188s. As três predições confirmadas: a imprecisão 2 desapareceu, Escobar passou a tratar N=12, e a faixa dos CRs permaneceu como controle. **Classe E confirmada como fato medido** |
+| 6 | Depois de A.11 etapa 1: claim das cinco fórmulas do Lee indexada | **A primeira que mede adição, não remoção.** Decide se a fabricação cede quando a base cobre a lacuna, **ou se claim concorrente impede**. Três resultados nomeados abaixo, antes da execução |
 
 ### Predição testável para a etapa 4
 
@@ -1114,6 +1091,184 @@ transforma cinco correções de engenharia em cinco medições.
 
 **Registrar cada execução** nesta seção, com data, hash do commit, tempo de
 geração, modelo e texto bruto, na mesma estrutura da execução de 10/09/2026.
+
+---
+
+## Sexta superfície: o contexto não distingue citação de anotação
+
+Encontrado em 11/09/2026, na execução 5. **É a primeira falha que não está nem no
+prompt, nem no payload, nem na base, nem na geração: está no formato do contexto
+recuperado.**
+
+### O caso
+
+O parecer escreveu:
+
+> convergente com Kabak (2014, p. 510): "Additive method to combine the scores of
+> each alternative under B, O, C and R"
+
+Duas coisas erradas. A página do Kabak no RAG é **27**, não 510. E, mais grave, **a
+frase entre aspas não é do artigo**: é o campo `conditions` da claim, escrito por
+quem indexou.
+
+Em `lib/rag/articles/kabak2014_prioritization.ts`, a claim `bocr_additive` tem:
+
+| Campo | Conteúdo | Origem |
+|---|---|---|
+| `quote` | "There are five methods to combine the scores of each alternative under B, O, C and R" | **do artigo** |
+| `description` | "Additive method to combine the scores of each alternative under BOCR." | **do indexador** |
+| `conditions` | "Used to combine the scores of each alternative under B, O, C and R." | **do indexador** |
+
+O parecer citou a forma do `conditions`, com as letras separadas, e a apresentou
+entre aspas como verbatim.
+
+### A causa está no formato, não no conteúdo
+
+`app/api/ai-reviewer/knowledge.ts`, linhas 295 a 301, monta cada fórmula assim:
+
+```
+### ${f.description} (${f.source_article}, ${f.source_year})
+$$ ${f.latex} $$
+*Variáveis:* ...
+*Condições:* ${f.conditions || 'Gerais'}
+```
+
+**A `description` vai no cabeçalho, colada a autor e ano**, exatamente na posição
+em que uma citação apareceria. E o `conditions` vem logo abaixo, sem nenhuma marca
+que o distinga do `quote` do artigo.
+
+O modelo recebe `### Additive method to combine... (Kabak, 2014)` e o trata como
+material citável. **Não há erro de leitura: o contexto o apresenta assim.**
+
+### Alcance: 124 campos em 31 artigos
+
+Medido em 11/09/2026: o RAG tem **128 campos `conditions`, 124 preenchidos**, em
+**31 dos artigos indexados**. Some-se a `description`, presente em todas.
+
+**O Kabak foi onde apareceu, não onde está o problema.** Toda claim com fórmula é
+candidata, porque o formato é o mesmo para todas.
+
+### Por que nenhum requisito do eixo de ancoragem pega
+
+| Requisito | Por que falha aqui |
+|---|---|
+| Comparar página, não só autor e ano | a página estava errada e seria pega, mas por acaso: o texto continuaria não sendo do artigo |
+| Validar a faixa do artigo | idem |
+| Fixar convenção de numeração | irrelevante |
+| A whitelist atual, autor e ano | **Kabak está na lista e o ano confere: passa** |
+
+Um verificador que confirme "a citação existe na fonte" aprovaria, se comparasse
+só autor, ano e página. **A falha é de autoria da frase**, e exige comparar o texto
+citado contra o `quote`, não contra o artigo inteiro.
+
+### Requisito derivado, e é o quarto do eixo de ancoragem
+
+**Marcar no contexto o que é do artigo e o que é anotação sobre o artigo.** A
+correção é de formato, não de conteúdo: `quote` entra como citação, `description`
+e `conditions` entram como texto do sistema, com rótulo que os separe.
+
+É a mesma família da classe E, e a mesma solução: **não reescrever a instrução,
+corrigir o que se entrega a ela.**
+
+### Pendência de medição
+
+Conferir, nos cinco pareceres registrados, quantas citações entre aspas
+correspondem a `description` ou `conditions` em vez de `quote`. Se houver mais de
+uma, **deixa de ser caso e vira taxa**, e o achado ganha o mesmo estatuto dos 72%
+de divergência de localizador.
+
+---
+
+## Predição para a etapa 6, registrada antes da execução
+
+Registrada em **11/09/2026**, antes de A.11 etapa 1. É a primeira predição sobre
+uma correção que **acrescenta cobertura** em vez de remover erro.
+
+**A correção.** Indexar no `lee2009_wind.ts` a claim da página 123, Step 10, que
+enumera as cinco fórmulas de síntese BOCR: "There are five ways to combine the
+scores of each alternative under B, O, C and R", com Additive, Probabilistic
+additive, Subtractive, Multiplicative priority powers e Multiplicative.
+
+Hoje o artigo tem quatro claims, nenhuma sobre comparação de métodos, e o sistema
+implementa exatamente essas cinco fórmulas.
+
+**A linha de base é forte: três amostras de fabricação sobre a mesma lacuna.**
+
+| Execução | Página citada para Lee (2009) | Páginas de claim no RAG |
+|---|---|---|
+| 1 | 3578 | 120, 122, 123, 124, 125 |
+| 2 | 1107 | idem |
+| 4 | 579 | idem |
+| 5 | 340 | idem |
+
+**Quatro localizadores diferentes, todos inexistentes**, sempre recuperando a
+claim genérica sobre usar BOCR. Quatro amostras sobre a mesma lacuna tornam a
+medição decisiva: um acerto depois da indexação seria resultado limpo.
+
+**E o padrão não é só do Lee.** Ossadnik et al. (2016) saiu com p. 613 na execução
+3 e p. 520 na execução 5; o RAG registra 434 a 449. Segundo autor com fabricação
+instável.
+
+⚠ **Complicação descoberta em 11/09/2026, antes da execução: já existe claim
+concorrente.**
+
+O **Kabak (2014) já tem indexada** a frase das cinco fórmulas, como `quote` da
+Eq. (1): "There are five **methods** to combine the scores of each alternative
+under B, O, C and R", com `page: 27`.
+
+O **Lee (2009) não tem**, e é dele a passagem original, na página 123, Step 10:
+"There are five **ways** to combine the scores of each alternative under B, O, C
+and R".
+
+**As duas frases diferem em uma palavra.** O modelo hoje recebe só a do Kabak, e a
+usa quando precisa falar das cinco fórmulas. A fabricação do localizador do Lee
+acontece em outro ponto, quando ele cita o Lee para a hierarquia de controle.
+
+Portanto indexar a claim do Lee **não é só acrescentar cobertura**: é desfazer uma
+ambiguidade em que dois artigos enunciam a mesma coisa e só um está indexado.
+
+**Três resultados possíveis, todos nomeados antes:**
+
+| # | Resultado | O que estabelece |
+|---|---|---|
+| 1 | O parecer passa a citar Lee com página em 120 a 126 | a predição original se confirma: **cobertura corrige fabricação** |
+| 2 | Continua citando o Kabak, e a claim do Lee fica sem uso | **cobertura não basta quando há claim concorrente**; o modelo usa a que já conhecia |
+| 3 | **Mistura as duas**, citando um autor com a formulação do outro | o mais informativo: transformaria o caso Kabak de anedota em **padrão**, e mostraria que claims quase idênticas se confundem na geração |
+
+O risco do resultado 3 é real: já aconteceu uma vez, na execução 5, e a diferença
+entre `methods` e `ways` é fina demais para separá-las.
+
+**Requisito para a claim nova, derivado disso.** O `quote` do Lee deve usar
+`ways`, a forma dele, **e incluir os nomes das cinco fórmulas** (Additive,
+Probabilistic additive, Subtractive, Multiplicative priority powers,
+Multiplicative), que a do Kabak não tem.
+
+Isso dá ao modelo **razão funcional** para preferir a do Lee ao enumerar, e torna
+as duas distinguíveis por conteúdo, não por uma palavra. É o mesmo princípio que
+resolveu a classe E: não reescrever a instrução, fornecer o que ela pede.
+
+**Por que importa mais que as predições anteriores.** Todas as confirmadas até
+aqui mediram **remoção**: tirar o exemplo errado do prompt, tirar o módulo, tirar
+a permissão. Esta mede **adição**.
+
+Se confirmar, o registro passa a ter dois mecanismos de correção, não um:
+- **remover** o que induz o erro (classes D e E);
+- **cobrir** a lacuna que o obriga a fabricar (classe B).
+
+E daria à classe B uma correção que ela ainda não tem. Hoje o documento registra
+que a fabricação de localizador é arbitrária e instável, sem apontar o que a
+resolve. Se a cobertura resolver, a conclusão muda: **o modelo fabrica onde a base
+não cobre, e para de fabricar quando ela cobre.**
+
+**Se não confirmar**, o achado também é forte, e no sentido oposto: a fabricação
+independe da cobertura, e nenhuma correção de base a alcança. Nesse caso só
+verificação de saída resolve, e o requisito 1 do eixo de ancoragem fica como única
+saída.
+
+**Nota sobre o conteúdo da claim.** A frase de abertura não basta. O `quote`
+precisa incluir **os nomes das cinco fórmulas**, porque é o que permite ao parecer
+verificar a Tabela 12. Com um `quote` genérico, o verificador confirma que existem
+cinco e não quais. Se o formato do RAG favorecer, abrir uma claim por fórmula.
 
 ---
 
