@@ -142,7 +142,8 @@ distintos, e eles não são intercambiáveis: **892 a 905** é a faixa do artigo
 periódico, confirmada no manuscrito; **892 a 903** é a faixa das páginas
 indexadas no RAG. A conferência é contra a segunda.
 
-**Resultado, em dois níveis.**
+**Resultado, em dois níveis.** Apurado à mão e depois reproduzido pelo
+`scripts/verify-citations.mjs`, com os mesmos números.
 
 *Taxa bruta:* 18 citações com localizador, **13 divergentes, 72%**.
 
@@ -152,10 +153,27 @@ revisor concordar que as três categorias sejam igualmente graves:
 | Causa | Casos | Corrigível por |
 |---|---|---|
 | Troca de convenção de numeração | 6 | padronizar o RAG |
-| Erro de vizinhança (dentro da faixa, fora de qualquer claim) | 3 | verificação de localizador contra a claim |
+| Erro de vizinhança (dentro da faixa do artigo, fora de qualquer claim) | **2** | verificação de localizador contra a claim |
 | **Exemplo errado no system prompt** | 1 (Wijnmalen p. 250) | corrigir o prompt |
 | Generalização a partir do exemplo errado | 1 (Wijnmalen p. 252) | corrigir o prompt |
 | Não explicada, incluindo um localizador fabricado verificado até o PDF | 2 (Lee 3578, Saaty e Ergu) | verificação de localizador |
+| **Indeterminado por falta de faixa no RAG** | 1 (Dodevska) | registrar a faixa do artigo no `citation.abnt` |
+
+**Correção da decomposição, 11/09/2026, por apuração via script.** A versão
+anterior contava **três** casos de vizinhança e incluía o Dodevska (2023, p. 6).
+Está errado: o `citation.abnt` do Dodevska registra apenas "p. 604", sem
+intervalo, então **o artigo não tem faixa no RAG** e não há como afirmar que a
+página 6 está dentro dela.
+
+O erro foi meu e é instrutivo: eu olhei as páginas de claim, 4 a 14, e concluí que
+6 estava no meio. Mas 4 a 14 é o intervalo das *claims*, não do *artigo*, e a
+"p. 604" do abnt sugere que a numeração real é outra. **Os dois intervalos não são
+intercambiáveis**, e é a mesma confusão que o documento já registrava para
+Wijnmalen (892–905 do artigo contra 892–903 das claims).
+
+Os dois casos de vizinhança confirmados na execução 1 são **Saaty (1987, p. 165)**,
+com claims em 163 e 170 dentro do artigo 161–176, e **Forman e Peniwati (1998,
+p. 169)**, com claims em 166 a 168 dentro do artigo 165–169.
 
 **A decomposição é o argumento.** Se as treze fossem troca de convenção, a
 conclusão seria pequena: base inconsistente, modelo reproduz, correção trivial.
@@ -165,8 +183,9 @@ Só verificação de saída.
 
 ### Cobertura do teste, e o que se pode afirmar sobre o total
 
-O parecer traz cerca de **29 citações**, das quais 18 com localizador de página e
-11 sem. O teste alcança **62%**.
+O parecer traz **27 citações**, das quais 18 com localizador de página e 9 sem. O
+teste alcança **67%**. Números apurados pelo `scripts/verify-citations.mjs`; a
+contagem manual estimava 29 e 11, por leitura.
 
 Reportar um número único seria enganoso. O que se sabe sobre o total:
 
@@ -174,9 +193,9 @@ Reportar um número único seria enganoso. O que se sabe sobre o total:
 |---|---|---|
 | Verificadas e divergentes | 13 | erro confirmado |
 | Verificadas e corretas | 5 | correção confirmada |
-| Sem localizador | ~11 | **inverificáveis**: não afirmam página, logo não podem divergir, mas também não permitem conferência |
+| Sem localizador | 9 | **inverificáveis**: não afirmam página, logo não podem divergir, mas também não permitem conferência. Cinco delas são de artigos que nunca aparecem com página no parecer |
 
-Portanto: **taxa de erro entre 13/29 (45%) no melhor caso e 24/29 (83%) no pior**,
+Portanto: **taxa de erro entre 13/27 (48%) no melhor caso e 22/27 (81%) no pior**,
 com 13/18 (72%) medido sobre o subconjunto verificável. Essa formulação antecipa
 a pergunta do revisor sobre o denominador.
 
@@ -899,7 +918,7 @@ localizadores, e cada etapa custa uma geração de cerca de 2m30s.
 | 2 | Depois do 1º commit de A.10: páginas corrigidas, exemplos de parágrafo ainda com o dado falso | **Feita**, `2b353b3`, 150s. A p. 250 sumiu e a faixa "1,1% e 9,6%" permaneceu. Classe D confirmada como fato. Mais quatro achados: imprecisão 5 estocástica, localizador fabricado instável, vizinhança confirmada como ruído |
 | 3 | Depois do 2º commit de A.10: exemplos de parágrafo sem dado real | Se a faixa sumir aqui e não na etapa 2, isola o exemplo como causa, independente do cache. **Nota:** esta etapa mede o exemplo, não o cálculo. O `calculations` já vinha do motor unificado nas execuções 1 e 2, descoberto em 11/09/2026 |
 | 4 | Depois de B.3: remover ou deixar de ler o cache `responses.{doc}.responses` | Isola o dado de entrada como causa. Junto com a etapa 3, decide se a imprecisão 1 exigia as duas correções ou apenas uma. ⚠ Ver a predição abaixo |
-| 5 | Depois de o payload informar o N por matriz (12 em todas) | **A mais barata das cinco:** uma linha no payload, uma geração. Decide se as imprecisões 2 e 4 desaparecem por construção. **Predição registrada abaixo, antes da execução** |
+| 5 | Depois de o payload informar o N por matriz (12 em todas) | ✅ **Feita**, `ca36539`, 188s. As três predições confirmadas: a imprecisão 2 desapareceu, Escobar passou a tratar N=12, e a faixa dos CRs permaneceu como controle. **Classe E confirmada como fato medido** |
 
 ### Predição testável para a etapa 4
 
@@ -1014,6 +1033,48 @@ medido**, como a classe D no primeiro commit de A.10.
 **Se 1 não acontecer**, a lacuna do payload não era a causa, e a inferência dos
 três respondentes vem de outro lugar que não identificamos.
 
+### Resultado da etapa 5 — 11/09/2026, commit `ca36539`
+
+**As três predições foram confirmadas.**
+
+| | |
+|---|---|
+| Commit | `ca36539` |
+| Alteração | 4 linhas inseridas em `ai-reviewer/route.ts` |
+| Modelo | `claude-opus-4-6` |
+| Duração | 188 segundos (3m08s) |
+| Veredito | ACEITO, nota A |
+| SHA-256 do texto | `C49A5DA9107DB6D93825C8B4AFE3178DCB554652E89BFC5C50586E26F84FBC9C` |
+
+| # | Predição | Resultado |
+|---|---|---|
+| 1 | "3 respondentes por dimensão BOCR" desaparece | ✅ **desapareceu** |
+| 2 | Escobar some ou passa a tratar N=12 | ✅ **permaneceu, aplicado explicitamente com N = 12** |
+| 3 | A faixa "1,1% e 9,6%" permanece (controle) | ✅ **permaneceu** |
+
+**A classe E está confirmada como fato medido.** Tinha um caso, inferido da
+DIRETRIZ 1 e sustentado por uma frase da execução 2. Agora tem predição registrada
+antes da execução e resultado medido depois.
+
+**O desfecho da predição 2 é mais informativo que o desaparecimento.** Escobar não
+sumiu: passou a ser aplicado com o N correto. Isso mostra que **o modelo aplicava
+a diretriz corretamente o tempo todo**, e que o único elemento faltante era o
+dado. Não havia tendência a inventar: havia uma exigência sem insumo.
+
+Isso reforça a formulação da classe E: nem o prompt nem o payload mentiam, e a
+correção não foi reescrever a instrução, foi **fornecer o que ela pedia**.
+
+**Custo da correção: quatro linhas de payload.** Sem tocar no prompt, no motor nem
+no dado do Firestore. Duas imprecisões resolvidas, uma classe de falha confirmada.
+
+**A predição 3 fez o trabalho de controle.** A faixa permaneceu, então o resultado
+das outras duas não é variação estocástica: é efeito da correção. Sem esse
+controle, um parecer que melhorasse em tudo não distinguiria uma coisa da outra.
+
+**Tempo.** 188 segundos, contra 154 e 150 das execuções anteriores. A terceira
+medição para A.9: as três cabem nos 300 segundos, mas a margem encolheu de 150
+para 112. Vale acompanhar.
+
 **Correção do desenho, 11/09/2026.** A tabela original trazia a recomputação do
 `calculations` como variável da etapa 4. Ela **não é variável**: o documento já
 estava recomputado desde 13/07/2026, e as execuções 1 e 2 leram dado do motor
@@ -1029,6 +1090,65 @@ transforma cinco correções de engenharia em cinco medições.
 
 **Registrar cada execução** nesta seção, com data, hash do commit, tempo de
 geração, modelo e texto bruto, na mesma estrutura da execução de 10/09/2026.
+
+---
+
+## Ferramenta de apuração: `scripts/verify-citations.mjs`
+
+Desde 11/09/2026 a taxa de divergência de localizador é apurada por script, não à
+mão. Ele lê os arquivos do RAG como texto, extrai de cada um os sobrenomes do
+`citation.abnt`, o ano, as páginas de `evidence.page` e a faixa do artigo; depois
+extrai do parecer as citações no formato `Autor (ano, p. N)` e casa por sobrenome
+mais ano.
+
+```
+node scripts/verify-citations.mjs docs/parecer-exec2.md
+node scripts/verify-citations.mjs docs/parecer-exec2.md --json
+```
+
+Sai `0` se nada divergir, `1` se houver divergência. Não escreve nada.
+
+**Quatro vereditos, e a distinção importa:**
+
+| Veredito | Significado |
+|---|---|
+| `OK` | a página citada é página de alguma claim do artigo |
+| `DIVERGE_FORA_DA_FAIXA` | fora do intervalo do artigo |
+| `DIVERGE_NA_FAIXA` | dentro do artigo, fora de toda claim: o erro de vizinhança |
+| `NAO_INDEXADO` | artigo ausente do RAG. **Inconclusivo, não soma como divergência** |
+
+A quarta categoria implementa a limitação metodológica registrada acima: artigo
+que o RAG não indexa não permite concluir nada sobre a citação.
+
+**O requisito 2 vem de graça.** A separação entre divergir dentro e fora da faixa
+aparece na saída e no resumo, com a contagem de quantos casos um teste apenas por
+faixa perderia.
+
+### Nota de método: a automação não dispensa a conferência, muda o que se confere
+
+Na primeira execução, o script classificou `Conforme Neely et al. (2020, p. 17)`
+como `NAO_INDEXADO`, quando a citação é divergente e o Neely está no RAG.
+
+**A causa:** o conectivo `e` no padrão de dois autores vinha com `\s*` dos dois
+lados, permitindo zero espaços. Em "Conforme Neely", o `e` final de "Conforme" foi
+lido como conectivo, e o padrão casou `Conform` + `e` + `Neely` como se fossem dois
+autores. Qualquer palavra terminada em `e` antes de um nome próprio dispara o
+mesmo. Na execução 2 a citação vinha sem o "Conforme" e casava.
+
+**Nota sobre a correção:** um `\b` no conectivo não fecha o caso, porque com
+`\s*` de zero não há limite de palavra entre `m` e `e`. O que fecha é exigir
+espaço (`\s+`) ou ancorar com `(?<![\wÀ-ÿ])`.
+
+**O modo de falha é o mesmo que este documento inteiro descreve.** O script errou
+em silêncio: classificou como inconclusivo o que era divergente, e o número final
+ficou plausível. Não houve exceção, não houve aviso.
+
+E o que o pegou foi o mesmo que vem pegando tudo nesta sessão: **comparar contra
+uma fonte independente em vez de aceitar o que parece certo.** A contagem manual
+existia, e a divergência entre as duas apurações apareceu.
+
+**Regra para quem usar o script:** na primeira execução sobre um parecer novo,
+confira a saída contra uma contagem manual. Depois disso, confie nele.
 
 ---
 
@@ -1178,9 +1298,17 @@ Mesma metodologia da execução 1: conferência contra as páginas de claim do R
 
 | | Execução 1 | Execução 2 |
 |---|---|---|
-| Citações com localizador | 18 | 21 |
-| Divergentes | 13 | 13 |
-| Taxa | 72% | 62% |
+| Total de citações | 27 | 30 |
+| Com localizador | 18 | 21 |
+| Sem localizador | 9 | 9 |
+| Cobertura do teste | 67% | 70% |
+| Divergentes | **13** | **13** |
+| Taxa sobre o verificável | 72% | 62% |
+| Dentro da faixa (vizinhança) | 2 | 1 |
+| Fora da faixa | 11 | 12 |
+
+Apurado pelo `scripts/verify-citations.mjs`, com os mesmos números da contagem
+manual em ambas.
 
 **O número absoluto de erros é idêntico.** A taxa cai porque o parecer citou três
 páginas a mais e acertou três a mais, sendo duas delas as que corrigimos.
