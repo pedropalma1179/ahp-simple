@@ -497,11 +497,11 @@ Os dois casos que o geraram são as duas metades da mesma frase:
 Não é conselho de redação: é a leitura das classes D e E juntas, e cada metade
 tem caso medido.
 
-### Cinco superfícies de desancoragem
+### Seis superfícies de desancoragem
 
-Somando este achado ao caso de Salomon e Gomes (2024), registrado adiante, o
-sistema tem **três** superfícies distintas por onde uma afirmação pode perder
-ancoragem, e um verificador de saída cobre **uma**:
+Somando os achados registrados neste documento, o sistema tem **seis** superfícies
+distintas por onde uma afirmação pode perder ancoragem, e um verificador de saída
+cobre **uma**:
 
 | Superfície | Exemplo medido | Verificador de saída pega? |
 |---|---|---|
@@ -510,10 +510,12 @@ ancoragem, e um verificador de saída cobre **uma**:
 | **A fonte primária** | Salomon e Gomes (2024) publica "0.5 e 0.8" onde Saaty propõe 0,05 e 0,08; a extração do RAG é fiel ao artigo | **não.** A claim corresponde à fonte |
 | **A interface entre prompt e payload** | a DIRETRIZ 1 exige um N por matriz; o payload informa apenas `totalRespondents`. O modelo fabrica o N faltante para poder obedecer | **não.** Prompt e payload estão ambos corretos; o erro está na lacuna |
 | **O artefato determinístico** | `metadata.q1Features` e `metadata.references` do documento de cálculo atribuem funcionalidades a autores; dois de onze sustentam | **não.** A atribuição nunca chega ao texto do parecer: vive em campo de metadados, persistido e exportado |
+| **O contexto recuperado** | o `knowledge.ts` monta a `description` colada a autor e ano, e o `conditions` sem marca que os separe do `quote`; o modelo cita a anotação do indexador como verbatim | **não.** A frase existe no contexto, com atribuição, e a whitelist valida autor e ano |
 
-Verificar a saída contra o contexto recuperado cobre a primeira. As outras três
+Verificar a saída contra o contexto recuperado cobre a primeira. As outras cinco
 exigem **verificar para trás**: o prompt contra a base, a base contra a fonte
-primária, e o payload contra as exigências do prompt.
+primária, o payload contra as exigências do prompt, o `metadata` contra o RAG, e o
+formato do contexto contra a origem de cada campo.
 
 O PVB foi aplicado ao RAG, artigo por artigo, e nunca ao prompt, que é tratado
 como configuração e não como conteúdo verificável. E a quarta superfície não é
@@ -1170,7 +1172,218 @@ e `conditions` entram como texto do sistema, com rótulo que os separe.
 É a mesma família da classe E, e a mesma solução: **não reescrever a instrução,
 corrigir o que se entrega a ela.**
 
-### Pendência de medição, e é a mais rentável do que restou
+### ✅ Medição feita em 11/09/2026
+
+Apurada sobre os **dois anexos disponíveis**, das execuções 1 e 2. As execuções 3,
+4 e 5 não tiveram o texto bruto anexado, por falha de upload, e ficam fora.
+
+**Método.** Extração dos trechos entre aspas com itálico nos dois anexos, e
+comparação de cada um contra os campos `quote`, `verbatim_quote`, `description` e
+`conditions` de todos os artigos do RAG, por similaridade normalizada, com corte
+em 0,72 e casamento por contenção.
+
+⚠ **Duas correções no instrumento, ambas achadas por conferência manual.**
+A primeira passada capturou só campos com aspas duplas e classificou o verbatim de
+Saaty e Ergu como inexistente; ele existe, com aspas simples. A segunda omitiu o
+campo `verbatim_quote` e classificou sete trechos legítimos como órfãos.
+
+**Nos dois casos o erro estava no instrumento, não no dado.** É a terceira vez na
+sessão que um script erra em silêncio e a conferência independente pega. Ver a
+nota de método.
+
+### Resultado
+
+| Campo de origem | Exec 1 | Exec 2 | Total | % |
+|---|---|---|---|---|
+| `quote` | 17 | 33 | 50 | 81% |
+| `verbatim_quote` | 2 | 5 | 7 | 11% |
+| `description` | 0 | 1 | 1 | 2% |
+| `conditions` | 1 | 0 | 1 | 2% |
+| Sem correspondência | 1 | 2 | 3 | 5% |
+| **Trechos entre aspas** | **21** | **41** | **62** | |
+
+**92% vêm de campos de citação legítimos.** Os três sem correspondência são falso
+positivo do instrumento: a fórmula de Wijnmalen em notação matemática, que o
+comparador não casa com o campo `latex`, e um rótulo curto do Goepel.
+
+**A sexta superfície se confirma e é rara: dois casos em 62, 3%.** Não vira taxa
+alta.
+
+Isso **rebaixa A.15**: a correção continua certa, porque o formato permite o erro,
+mas o defeito é pontual e não sistemático.
+
+Os dois casos:
+- execução 1: `conditions` de Saaty e Ozdemir, "can be negative, indicating
+  unprofitability";
+- execução 2: `description` do Lee, que é **o caso Kabak** da sexta superfície.
+
+### Achado colateral: dois campos do mesmo artigo, com a mesma passagem em formas diferentes
+
+Durante a medição, um trecho do Lee (2009) apareceu sem correspondência e foi
+inicialmente classificado como **citação adulterada pela geração**. Estava errado.
+
+`lee2009_wind.ts` tem a mesma passagem em **dois campos da mesma claim**:
+
+| Campo | Linha | Texto |
+|---|---|---|
+| `verbatim_quote` | 287 | "considering the benefits**...** opportunities**...** costs**...** and risks**...** is a more comprehensive way to deal with a much more complicated problem." |
+| `evidence.quote` | 292 | "considering the benefits **(B)**, opportunities **(O)**, costs **(C)** and risks **(R)** of an alternative... is a more comprehensive way" |
+
+**O PDF decide, e foi aberto.** A passagem real da página 120, Seção 1, é:
+
+> "considering the benefits (B), opportunities (O), costs (C) and risks (R) of an
+> alternative, and synthesizing the positive criteria of benefits (B) and
+> opportunities (O) and the negative criteria of costs (C) and risks (R) with
+> rating calculation (not pairwise comparison) by a method such as additive,
+> subtractive and multiplicative is a more comprehensive way to deal with a much
+> more complicated problem."
+
+**O `evidence.quote` está correto:** preserva as siglas e usa reticências para
+omitir a continuação, que é elisão legítima.
+
+**O `verbatim_quote` está errado:** as reticências dele **substituem as siglas**, e
+ele emenda o início com o fim da frase, apagando o trecho do meio sem marcar onde.
+
+**Um campo chamado `verbatim_quote` que não é verbatim.**
+
+**O parecer foi fiel a ele**, reproduzindo palavra por palavra, incluindo o final
+"to deal with a much more complicated problem" que o `evidence.quote` não tem.
+
+**Classificação: classe D**, a base ensina a forma errada. E é caso novo dentro
+dela: não é um artefato contra outro, são **dois campos do mesmo artigo em
+desacordo entre si**.
+
+**Requisito derivado, o quinto do eixo de ancoragem:** auditar a **consistência
+interna do RAG**, comparando `verbatim_quote` contra `evidence.quote` em cada claim
+que tenha os dois. Isso é verificável **antes de qualquer parecer existir**, e não
+depende de execução.
+
+### Alcance medido em 11/09/2026
+
+| | |
+|---|---|
+| Claims com `verbatim_quote` | **123** |
+| Dessas, com `evidence.quote` também | **123** (todas) |
+| **Divergentes** (não contido e similaridade < 0,90) | **13, ou 11%** |
+
+⚠ **As treze não são o mesmo defeito.** A leitura caso a caso separa três tipos, e
+só um é perigoso:
+
+| Tipo | Exemplo | Por que importa |
+|---|---|---|
+| **Paráfrase no campo `verbatim_quote`** | Wijnmalen: `verbatim_quote` = "The simplified form assumes commensurability without explicit rescaling", `evidence.quote` = "additive expression is proposed, where costs and risks are treated as negative values..." | o texto **não parece citação**: é descrição em inglês escrita pelo indexador. Um leitor atento percebe |
+| **Conclusão lida de tabela** | Saaty e Ozdemir: `verbatim_quote` = "PNTR is the dominant alternative", `evidence.quote` = "Annual Exten. -0.32 ; Amend NTR -0.07 ; PNTR 0.23" | idem: é inferência sobre os valores, não transcrição |
+| **Citação real com modificação silenciosa** | **Lee**: siglas substituídas por reticências e o meio da frase apagado sem marca | **parece citação, soa como citação, e está errada** |
+
+**O caso do Lee é o único em que o campo aparenta cumprir o que promete.** Os
+outros doze são identificáveis por leitura, porque a forma denuncia. Este não: a
+frase é fluente, tem a cadência de uma citação, e as reticências parecem elisão
+legítima.
+
+**É por isso que ele chegou ao parecer e os outros não.** O modelo reproduz o que
+tem forma de citação.
+
+### Cruzamento decisivo: os sete trechos de `verbatim_quote` são TODOS de claims divergentes
+
+Feito em 11/09/2026. Os 62 trechos entre aspas dos dois pareceres foram cruzados
+contra a lista das treze claims divergentes.
+
+**Resultado: os sete que vinham de `verbatim_quote` casam com claims divergentes,
+com similaridade 1,00.** Todos os sete, sem exceção, distribuídos em três claims:
+
+| Claim | Vezes citada | O que o `verbatim_quote` faz com o texto |
+|---|---|---|
+| **Lee (2009)** | 3 | reticências **substituem as siglas** `(B) (O) (C) (R)`, e o meio da frase é apagado sem marca |
+| **Dodevska (2023)** | 3 | reticências **substituem as notações formais**: `(DI_{bef})` e `before optimization (overline{R}_{bef})` |
+| **Xu (2000)** | 1 | **expande a sigla** WGMCJM para a forma completa e **remove "this paper proves that"**, apagando a atribuição da prova ao artigo |
+
+**Isso deixa de ser latência.** O tipo 3 não é um caso isolado do Lee: são três
+claims, sete citações, e **todas as citações que passaram por `verbatim_quote`
+neste corpus vieram de campos defeituosos.**
+
+**E o padrão é específico:** nos três, o `verbatim_quote` remove **notação formal**
+— siglas, subscritos, referências a equação — mantendo a prosa. É o que torna a
+frase mais legível **e menos verificável**, porque é exatamente a notação que
+permite localizar a passagem no artigo.
+
+⚠ **Consequência para a detectabilidade.** A afirmação anterior, de que os tipos 1
+e 2 são "identificáveis por leitura", vale para um **leitor humano atento**. O
+modelo não tem esse filtro: recebe um campo chamado `verbatim_quote` e nenhum sinal
+de que o conteúdo é anotação. Que os pareceres não tenham citado paráfrases é
+**observação sobre este corpus, não garantia**.
+
+**O que o número permite afirmar.** Treze em 123 divergem, mas a maioria é de tipo
+1 e 2, que são defeito de preenchimento sem consequência medida. **O número a
+reportar é o do tipo 3: três claims confirmadas, uma verificada até o PDF, e todas
+as sete citações do corpus.**
+
+Reportar "13 de 123 divergem" sem essa decomposição repetiria o erro corrigido na
+taxa de localizadores: um agregado que mistura severidades diferentes.
+
+### Duas hipóteses para o sete de sete, e uma foi testada
+
+**Hipótese A:** coincidência de saliência. Lee, Dodevska e Xu são claims muito
+citadas, e cair nelas é esperado.
+
+**Hipótese B:** a reescrita torna o `verbatim_quote` mais recuperável, por ficar
+mais curto e mais assertivo. Se for verdade, **o defeito se autorreforça**.
+
+**A hipótese B foi testada e não se sustenta.** Comprimento dos 123
+`verbatim_quote`, em caracteres:
+
+| | n | média | mediana |
+|---|---|---|---|
+| Divergentes | 13 | 116 | 122 |
+| Não divergentes | 110 | 117 | 114 |
+
+Não há diferença. E nos divergentes o `verbatim_quote` tem o mesmo comprimento
+médio do `evidence.quote`, 116 contra 116: **a reescrita não encurta, substitui.**
+
+Fica a hipótese A. O sete de sete é saliência temática das três claims, não
+propriedade do campo reescrito.
+
+### A correção é de uma linha
+
+`app/api/ai-reviewer/knowledge.ts`, **linha 101**:
+
+```ts
+rule: claim.verbatim_quote || claim.claim,
+```
+
+**É o campo defeituoso que chega ao modelo.** E a linha 286 do mesmo arquivo já faz
+o certo para os limiares, usando `t.evidence.quote`.
+
+Trocar a fonte da linha 101 para `claim.evidence.quote`, com o
+`verbatim_quote` como fallback, **resolve os sete casos de uma vez** e não depende
+de corrigir as treze divergências no RAG.
+
+Isso é mais forte que o teste de consistência: o teste **encontra** as divergências,
+a troca de fonte **deixa de propagá-las**. As duas coisas se somam, e a ordem certa
+é trocar a fonte primeiro, porque é barata e imediata.
+
+⚠ **Conferir antes:** se algum `evidence.quote` estiver vazio ou ausente, o
+fallback precisa existir. A medição mostra que **todas as 123 claims com
+`verbatim_quote` têm `evidence.quote`**, mas pode haver claim com um e não o outro
+fora desse conjunto.
+
+**Pendência:** classificar os dez restantes por tipo, e triar contra o PDF os de
+similaridade entre 0,53 e 0,77, onde a distinção entre corte diferente e
+modificação não se resolve por leitura.
+
+### O que isso faz com A.15
+
+A correção de formato continua justificada, mas **por prevenção, não por
+frequência**. E a predição a registrar antes dela muda: com dois casos em 62, um
+parecer posterior sem nenhum não distingue correção de variação. **A medição na
+saída não teria poder.**
+
+Alternativa mais barata: verificar o efeito **no contexto entregue**, não na saída.
+Se a marcação separar `quote` de `description` e `conditions`, isso é conferível
+lendo o payload, sem depender de gerar pareceres.
+
+---
+
+### Pendência original, mantida para registro
 
 Conferir, nos cinco pareceres registrados, quantas citações entre aspas
 correspondem a `description` ou `conditions` em vez de `quote`.
@@ -1386,6 +1599,52 @@ fecha essa porta: ou o resultado bate, ou não bate, e o que não bate exige
 procurar a causa em vez de narrá-la.
 
 **É isso que separa este registro de uma lista de defeitos corrigidos.**
+
+### A simetria: o instrumento de medição falha do mesmo modo que o objeto medido
+
+Três vezes nesta sessão um script de apuração errou, e nas três o erro **não
+produziu silêncio: produziu um achado plausível e falso.**
+
+| # | Erro do instrumento | Achado falso que ele produziu |
+|---|---|---|
+| 1 | o conectivo `e` no regex sem exigir espaço, casando "Conform" + "e" + "Neely" | transformou uma **divergência** de localizador em **"artigo não indexado"**, categoria inconclusiva |
+| 2 | o comparador capturava só campos com aspas duplas | transformou um **verbatim existente** em **fabricado** |
+| 3 | o comparador omitia o campo `verbatim_quote` | transformou **fidelidade a um campo errado da base** em **"citação adulterada pelo modelo"** |
+
+**Nos três casos o achado falso tinha a forma do que se esperava encontrar.** O
+documento inteiro trata de fabricação e adulteração, então "verbatim fabricado" e
+"citação adulterada" chegaram como confirmação do padrão, não como anomalia. Foi
+isso que os tornou convincentes.
+
+**E nos três o que pegou foi a mesma coisa:** conferência independente do caso
+mais citado, ou divergência entre o script e uma contagem manual anterior.
+
+**É o mesmo fenômeno que este registro documenta na saída do modelo**, agora
+observado nas ferramentas de quem mede: um artefato incompleto não avisa que está
+incompleto; ele preenche a lacuna com algo coerente.
+
+**A causa é a mesma, e a diferença é o remédio.**
+
+O modelo produz achado falso porque **o contexto é incompleto**. O instrumento
+produz achado falso porque **o escopo da comparação é incompleto**. Nos dois casos
+a saída é fluente, plausível e da forma esperada.
+
+Mas o instrumento tem um remédio que o modelo não tem, e ele funcionou nas três
+vezes: **conferência manual do caso mais frequente, antes de confiar no agregado.**
+
+Nas três, o erro estava no **caso mais visível**, não numa borda:
+- o Neely era a citação com prefixo mais comum no texto;
+- o Saaty e Ergu era o verbatim mais citado do corpus;
+- o `verbatim_quote` respondia por 11% de todos os trechos.
+
+**Regra, e é procedimento, não princípio:** ao usar instrumento novo, confira à mão
+o caso mais frequente antes de reportar o agregado. Se ele bater, o agregado
+provavelmente serve. Se divergir, o defeito é do escopo e vai contaminar tudo.
+
+A consequência é simétrica à regra do eixo de ancoragem: **verificar a saída do
+instrumento contra uma fonte independente, não contra a expectativa.** Um resultado
+que confirma o esperado merece a mesma conferência que um que o contradiz, e
+provavelmente mais, porque a confirmação desarma a suspeita.
 
 Quando retomar, manter a prática: nenhuma correção que altere o que o modelo
 recebe deve ser executada sem predição escrita antes, com o caso negativo nomeado.
