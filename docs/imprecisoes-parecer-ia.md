@@ -1194,6 +1194,17 @@ precisa de linha de base. Sem ela, um parecer posterior sem citações de
 de origem funcionar, citações de `description` e `conditions` devem desaparecer
 dos pareceres seguintes.
 
+⚠ **O `scripts/verify-citations.mjs` NÃO serve para esta medição.** Ele casa
+citações pelo padrão `Autor (ano, p. N)` e compara **localizadores**. A medição das
+aspas é sobre **o texto entre aspas**, não sobre a página: é comparação de string
+contra os campos `quote`, `description` e `conditions` do RAG.
+
+São instrumentos diferentes para perguntas diferentes: um mede **onde** a citação
+aponta, o outro mede **de onde o texto veio**.
+
+Se for automatizar, é script novo e pequeno. Se for à mão, os cinco anexos estão
+neste documento e o RAG está no repositório: não depende de nada externo.
+
 ---
 
 ## Predição para a etapa 6, registrada antes da execução
