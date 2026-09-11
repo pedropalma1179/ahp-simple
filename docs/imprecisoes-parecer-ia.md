@@ -1572,6 +1572,90 @@ confira a saída contra uma contagem manual. Depois disso, confie nele.
 
 ---
 
+## Execução 6 — 11/09/2026, `bf959b6`, depois da troca para `evidence.quote`
+
+| | |
+|---|---|
+| Commit | `bf959b6` |
+| Variável alterada | a fonte da citação: `verbatim_quote` → `evidence.quote`, em três arquivos |
+
+### As três predições confirmadas
+
+| # | Claim | Predição | Resultado |
+|---|---|---|---|
+| 1 | Lee (2009) | traz as siglas `(B) (O) (C) (R)` em vez das reticências | ✅ **confirmada** |
+| 2 | Dodevska (2023) | traz `(DI_{bef})` e `(overline{R}_{bef})` | ✅ **confirmada**, com observação |
+| 3 | Xu (2000) | começa com "this paper proves that" | ✅ **confirmada** |
+| — | controle | a faixa "1,1% e 9,6%" permanece | ✅ permaneceu |
+
+**A correção propagou.** As três citações que o corpus mostrou vindo de
+`verbatim_quote` defeituoso passaram a sair na forma fiel, e o controle não se
+moveu.
+
+**É a sexta predição registrada antes e a quinta confirmada**, e a segunda que
+mede **adição de fidelidade** em vez de remoção de erro, depois do N por matriz.
+
+**O resultado do Xu é o mais forte dos três**, e não pela notação: a diferença
+entre "the weighted geometric mean complex judgement matrix..." e "**this paper
+proves that** the WGMCJM..." é **atribuição epistêmica**. O parecer voltou a dizer
+que o artigo prova, em vez de afirmar como fato estabelecido.
+
+### Observação sobre o Dodevska: truncamento não é modificação
+
+O parecer **encerrou a citação antes de `(overline{R}_{bef})`**. Trouxe o
+`(DI_{bef})` e parou ali.
+
+**Isso não é falha da correção.** A predição testava **a forma do texto recebido**,
+e ela mudou: as notações voltaram. O que o modelo fez depois foi **truncar**, que é
+comportamento esperado quando julga a parte suficiente, e é outra coisa de
+modificar o conteúdo citado.
+
+A distinção separa duas perguntas: **qual texto o modelo recebe** e **quanto dele
+reproduz**. A correção resolve a primeira. A segunda é comportamento de geração, e
+não há instrução no prompt que exija citar o quote inteiro, só que cite verbatim na
+primeira aparição.
+
+**Se o truncamento vier a ser tratado, é tema próprio**, e pertence ao requisito 5,
+sobre distinguir elisão marcada de modificação silenciosa. Só que do lado da
+**geração**, não da base: ali o problema era o RAG reescrever; aqui seria o modelo
+cortar sem marcar.
+
+⚠ **Consequência de projeto, e vale mesmo sem tratar o truncamento:** um
+verificador que compare o trecho citado contra o `evidence.quote` por **igualdade**
+reprovaria esta citação, que está correta. Precisa aceitar **prefixo do quote** e
+rejeitar apenas divergência no conteúdo comum.
+
+### Correção de aritmética no critério
+
+O critério 4 do prompt previa que o total de `verbatim_quote` em código cairia de
+**21 para 20**, supondo que a edição do `system-prompt.ts` removia uma ocorrência
+ao fundir duas linhas em uma.
+
+**Caiu para 19.** As duas linhas removidas tinham o termo **cada uma**, e a linha
+nova não tem nenhum:
+
+```
+- "key_claims[i].evidence.quote" — claim geral, texto fiel ao artigo
+```
+
+21 − 2 = 19. O executor reportou a divergência em vez de ajustar o critério.
+
+**É o mesmo erro de A.14**, e a regra de 0.4 já o cobre: simular a edição
+principal antes de fixar um critério de contagem. Aqui a simulação foi feita, mas
+sobre o conteúdo errado: contei as linhas removidas, não as ocorrências dentro
+delas.
+
+### Pendência: reingestão
+
+A correção do `ingest-rag.ts` **só vale depois de reingestão**, não executada.
+Os chunks do índice semântico continuam com o texto antigo.
+
+Portanto, esta execução mediu a correção do **RAG estático**. O caminho semântico,
+que passa pelo `route.ts:149`, continua entregando o campo defeituoso até a
+reingestão.
+
+---
+
 ## Nota de método: medir e registrar a predição antes
 
 O que produziu os achados desta sessão não foi a disciplina de medir. Foi **medir
@@ -1599,6 +1683,30 @@ fecha essa porta: ou o resultado bate, ou não bate, e o que não bate exige
 procurar a causa em vez de narrá-la.
 
 **É isso que separa este registro de uma lista de defeitos corrigidos.**
+
+### O que as seis predições produziram, e a assimetria do resultado
+
+| | |
+|---|---|
+| Predições registradas antes | **6** |
+| Confirmadas | 5 |
+| Refutadas | 1 |
+
+**A única refutada produziu o achado do segundo canal**, a seção "Fairness e Viés
+Profissional" do prompt, que nenhuma confirmação teria revelado.
+
+E há uma assimetria no que rendeu:
+
+| Tipo de correção | Quantas | Predições |
+|---|---|---|
+| **Remover** o que induz o erro | 4 | páginas do prompt, `dominanceAnalyzer`, autorização, tabelas RI |
+| **Acrescentar** o que faltava | 2 | N por matriz no payload, `evidence.quote` |
+
+**As duas de adição vieram de tarefas que nasceram como limpeza.** A.10 começou
+como "trocar dois números"; virou fornecer o N que a diretriz pedia. A.17 começou
+como "uma linha"; virou corrigir a fonte da citação em três caminhos.
+
+**O saneamento previa remover. O que rendeu mais foi acrescentar o que faltava.**
 
 ### A simetria: o instrumento de medição falha do mesmo modo que o objeto medido
 
