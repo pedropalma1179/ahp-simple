@@ -1864,6 +1864,56 @@ Isso **não invalida os achados qualitativos** — a fabricação do Lee, o
 `verbatim_quote` reescrito, o `conditions` citado como verbatim — porque foram
 verificados caso a caso. **Invalida os números agregados.**
 
+### ✅ A.19 parte 1 executada em `23afe43`
+
+Sete artigos convertidos, 54 campos `page`, nenhum outro campo tocado.
+
+**A conferência de faixa caiu de oito artigos para um**: resta o `bozoki2010_ipc`,
+como previsto, porque nele a correção é reancoragem e não aritmética.
+
+O Saaty (2003) passou de 2, 3, 4, 6 para **86, 87, 88, 90**, dentro de 85–91.
+
+### ⚠ Por que as taxas ficaram iguais, e por que isso não é ausência de efeito
+
+O script reportou **72% e 62% depois da conversão**, iguais a antes. Registrado
+aqui porque a leitura óbvia é errada.
+
+**O comparador casa a página citada contra as páginas de claim.** Antes, Saaty
+(2003, p. 85) divergia porque as claims estavam em 2, 3, 4 e 6. Depois, diverge
+porque estão em 86, 87, 88 e 90. **A citação continua fora de toda claim nas duas
+situações**, então o veredito não muda.
+
+**O que mudou é o significado da divergência.**
+
+| | Antes | Depois |
+|---|---|---|
+| O que a comparação media | página citada contra **outra convenção** | página citada contra **a mesma convenção** |
+| O que a divergência dizia | nada: os números não eram comparáveis | que o modelo citou a **primeira página do artigo**, onde não há claim indexada |
+
+**O número igual é coincidência de aritmética, não ausência de efeito.** A base
+passou a ser comparável, e é isso que a tarefa entregou.
+
+### A taxa da execução 1 refeita com critério duplo
+
+O script atual ainda casa só por claim exata, e por isso reportou 72% depois da
+conversão, igual a antes. **Com o segundo teste aplicado à mão:**
+
+| | Execução 1 |
+|---|---|
+| Página **é de alguma claim** | 5 |
+| Na **faixa do artigo**, sem claim indexada | **2** |
+| Fora de ambas — divergente | **11** |
+
+**A taxa cai de 13/18 (72%) para 11/18 (61%)**, e dois casos migram para uma
+categoria que não existia: **correta, e o RAG é que não cobre.**
+
+Os dois são Saaty (1987, p. 165) e Forman e Peniwati (1998, p. 169), que este
+registro classificava como "erro de vizinhança".
+
+⚠ **Os números do documento seguem provisórios até o script incorporar o segundo
+teste.** Esta decomposição foi feita manualmente sobre a execução 1; a 2 e as
+seguintes ainda não.
+
 ### O `verify-citations.mjs` precisa do segundo teste
 
 | Situação | Leitura |
