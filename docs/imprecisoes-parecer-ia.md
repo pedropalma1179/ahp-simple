@@ -2067,6 +2067,89 @@ receber, nesta claim, o texto mais curto **e** com o número de problema errado.
 | "the vertices correspond to the objects to compare..." | p. 2257, Section II Methodology | **p. 321, Seção 2.2 "Graph representation"** |
 | "two criteria, not compared yet... can be in indirect relation" | p. 2257, Section II | **p. 321, Seção 2.2** |
 
+### Mais três localizadas, e as equações invertem o diagnóstico
+
+**A página 320 traz as equações (5) e (6) do artigo, e elas são MATRIZES**, não
+problemas de otimização:
+
+- **(5)** é a matriz incompleta `A`, com asteriscos nos elementos faltantes;
+- **(6)** é a matriz `A(x)`, com as variáveis `x_1, …, x_d` nos lugares faltantes.
+
+**O que o RAG registra sob esses números é outra coisa:**
+
+| `locator_id` no RAG | `quote` no RAG | O que o artigo numera assim | Qual é o número real |
+|---|---|---|---|
+| Eq. (5) | `min { λmax(A(x)) \| x > 0 }` | a matriz incompleta `A` | **problema (4)** |
+| Eq. (6) | `min sum [log(a_ij w_j/w_i)]^2` | a matriz `A(x)` | **extensão de (3)** |
+
+A página 320 diz, duas vezes, que o problema de minimização do autovalor máximo é
+**(4)**: "reformulate the maximal eigenvalue minimization problem **(4)** as an
+unconstrained convex minimization problem" e "solving the eigenvector optimization
+problem **(4)**". E que o LLSM é "the extension of **(3)** to the incomplete case".
+
+⚠ **Então as duas claims têm conteúdo correto e numeração de equação errada.**
+Descrevem os problemas (4) e (3), rotulados como (5) e (6). **É o mesmo padrão da
+claim de unicidade**, que citava "problem (5)" quando o Teorema 2 diz (4).
+
+**A terceira localizada:** a claim "Variables x_1, x_2, …, x_d are introduced for
+the missing elements in the upper triangular part" está na **Seção 2.1, página
+320**, e o RAG registra `page: 2256, locator_id: "Section II"`.
+
+### ⚠ RETIFICAÇÃO: o Bozóki não é defeito, e o arquivo já documentava isso
+
+**Registrado em 11/09/2026, corrigindo tudo o que esta seção afirmava antes.**
+
+Passei as páginas do PDF localizando cada uma das dez claims, e concluí que os
+localizadores estavam errados: páginas 2256/2257 num artigo de 318–333, teoremas
+deslocados um número, dois quotes com problema errado.
+
+**Estava errado. O campo `notes` do próprio arquivo explica:**
+
+> "ID 'bozoki2010_ipc' refers to the canonical journal version: Bozóki, Fülöp,
+> Rónyai (2010) Math. Comput. Modelling 52(1-2), 318-333. **The PDF in the project
+> knowledge is the IEEE 2009 conference version** (Proceedings of 2009 IEEE IEEM),
+> which is a shorter presentation of the same theorems."
+
+> "**Page numbers in evidence (2256-2257) refer to the IEEE 2009 conference
+> proceedings.** Equivalent content appears in pages 318-333 of the MCM 2010
+> paper."
+
+**Os localizadores são corretos para a edição de onde foram extraídos.** O `abnt`
+cita a versão de jornal porque é a canônica; as páginas referem-se à versão de
+conferência, e o arquivo **declara a divergência**.
+
+O PDF que abri, em `/mnt/project/`, é a versão MCM 2010. **Os "teoremas
+deslocados" que encontrei são a numeração da outra edição**, não erro de extração.
+
+### O que este episódio custou e o que ensina
+
+Duas horas de leitura de PDF, uma tarefa criada (A.19 parte 2), um prompt escrito
+e descartado, e uma seção deste documento afirmando defeito onde não havia.
+
+**O que evitaria: ler o campo `notes` antes de abrir o PDF.** Ele estava no mesmo
+arquivo, a poucas linhas dos campos que eu conferia.
+
+⚠ **E é o mesmo erro que este registro documenta nas seis superfícies:** afirmar
+com base em parte do artefato, sem ler o resto. A diferença é que aqui quem o
+cometeu foi a apuração, não o sistema.
+
+**Regra para o protocolo:** antes de conferir localizadores de um artigo do RAG
+contra um PDF, **ler `notes` e confirmar que o PDF é a edição de onde as claims
+foram extraídas.** O campo existe exatamente para isso.
+
+### Consequência para a medição de A.19
+
+**O Bozóki sai da lista de inconsistentes.** A conferência automática de `page`
+contra a faixa do `abnt` o acusa, e **o acuso é falso positivo**: o teste compara
+páginas de edições diferentes.
+
+**A contagem correta de A.19 é: sete artigos inconsistentes, não oito.** Os sete
+foram corrigidos em `23afe43`, e **A.19 está fechada.**
+
+⚠ **O teste de faixa precisa de uma exceção**, e o critério é o próprio `notes`: se
+o arquivo declara que as páginas são de outra edição, não há o que comparar. Sem
+isso, qualquer rodada futura vai reacusar o Bozóki.
+
 ### O que falta, e por que fica para sessão própria
 
 Sete das dez âncoras não foram localizadas. O artigo tem 33 páginas e os
