@@ -34,11 +34,22 @@ sacrificado pelo outro.
 
 Duas razões, ambas de bloqueio.
 
-**Os dados da dissertação foram obtidos por cálculo fora do software.** O
-documento `calculations/{projectId}` em produção é de 07/05/2026 e traz pesos
-derivados por média geométrica das linhas. A Tabela 8 e a Tabela 12 do manuscrito
-são autovetor principal. **O software nunca produziu os números publicados.**
-Qualquer alegação sobre o artefato depende de corrigir isso primeiro.
+**Os dados da dissertação foram obtidos por cálculo fora do software.** Isso
+permanece verdade quanto à origem histórica: as tabelas do manuscrito foram
+calculadas fora do sistema.
+
+⚠ **Correção registrada em 11/09/2026.** Até esta data o documento afirmava que "o
+software nunca produziu os números publicados", com base no documento
+`calculations` de 07/05/2026, que trazia pesos por média geométrica. **A afirmação
+estava desatualizada.** O documento em produção foi recomputado em **13/07/2026**,
+com motor `EIGENVECTOR`, zero exclusões e doze respondentes, e **reproduz os 24
+valores publicados**.
+
+O erro veio de eu ter tratado o backup do Firestore de maio como se fosse o estado
+presente, sem conferir contra o Firestore atual. É a mesma classe de erro que 0.4
+registra: medir na cópia errada.
+
+**O sistema produz os números publicados desde julho de 2026.**
 
 **O software tinha erros de cálculo.** Cinco derivadores de prioridade, dois
 deles calculando média geométrica sob o nome de autovetor. Guardas numéricas que
@@ -284,6 +295,16 @@ construída do zero.** Quatro passagens a desenvolvem:
   alternativas, estudos futuros podem incorporar sensibilidade multivariada e
   exploração estocástica do espaço de pesos por simulação de Monte Carlo."
 
+⚠ **Lacuna na cadeia de autoridade, registrada em 11/09/2026.** A nota da Tabela
+12 do manuscrito fundamenta os cinco métodos de síntese em Lee (2009b), que é o
+artigo de seleção de fornecedores publicado na *Expert Systems with Applications*.
+**Ele não está no RAG.** Nem Demirtas e Ustun (2008), a outra fonte de fórmula.
+
+Consequência: o parecer **nunca pode verificar a procedência do método central do
+sistema**. Não é defeito de metadado, é buraco na cadeia de autoridade, e é o
+mesmo problema que a A.6 e a pendência do Lee da ESWA veem de outros ângulos: a
+base não cobre as fontes que o sistema declara usar. Endereçado em A.11.
+
 **Consequência para o Bloco D.** O que falta não é o argumento: é o software
 parar de chamar concordância de robustez, que é a D.6. E as verificações D.1 a
 D.5 ganham endereço no manuscrito: a dominância no nível dos méritos já está
@@ -447,7 +468,7 @@ Nada novo se constrói sobre base contraditória.
 | # | Ação |
 |---|---|
 | ✅ A.1 | **Fechada em `e5f9be2`.** Painel de qualidade: uma rotina só, que é a Tabela 4 |
-| A.2 | Remover a classificação categórica de sensibilidade (Robusto / Moderadamente Sensível / Sensível / Crítico, limiares 50/20/10, sem fonte). **Sete implementações, mapeadas abaixo da tabela**, em quatro commits. O commit (4) depende de A.6 |
+| A.2 | Remover a classificação categórica de sensibilidade (Robusto / Moderadamente Sensível / Sensível / Crítico, limiares 50/20/10). ⚠ **Não é "sem fonte": é fonte que não sustenta.** O `metadata.q1Features` declara `'Sensitivity Classification (Alizadeh 2020)'`, e as claims de Alizadeh no RAG tratam de escolha de fórmula BOCR e de limiar de CR, nunca de classificação por ponto de inflexão. Ver `docs/imprecisoes-parecer-ia.md`. **Sete implementações, mapeadas abaixo da tabela**, em quatro commits. O commit (4) depende de A.6 |
 | A.3 | Renomear `dominanceAnalyzer` para o que ele mede |
 | A.4 | Corrigir o rótulo do modelo e torná-lo parâmetro registrado |
 | A.5 | Unificar as quatro tabelas RI restantes no motor |
@@ -456,6 +477,8 @@ Nada novo se constrói sobre base contraditória.
 | A.8 | Unificar o limiar de CR no painel de consistência, alcançando `ConsistencyGaugeChart` e o painel textual **numa edição só**. Adiado de A.1 porque os dois são hoje coerentes entre si, e corrigir um cria divergência adjacente no mesmo campo de visão. Não é cosmético: o eixo do medidor vai a 20% com quebra em 10% e 15%, e reduzir para um limiar muda o que o arco comunica |
 | ✅ A.9 | **Fechada.** `maxDuration` cortado de 800 para 300s em `56bd50a`. Medição em 10/09/2026: o parecer levou **154 segundos**. Cabe em 300 com margem estreita. **Qualquer aumento de `maxTokens` (hoje 16000) ou do budget de raciocínio (5000) reabre.** Se estourar, a saída é streaming, não porque a Vercel limita, mas porque requisição HTTP síncrona de minutos deixa o gestor em tela travada |
 | A.10 | **Auditar as citações e afirmações do prompt contra o RAG e contra o sistema. ✅ 1º de 3 commits em `2b353b3`:** três localizadores corrigidos. A execução 2 confirmou que a correção propagou: as duas citações de Wijnmalen saíram corretas e nenhuma outra melhorou sozinha. **2º commit:** remover o dado real dos exemplos de parágrafo, incluindo a frase "os 12 respondentes apresentam CRs entre 1,1% e 9,6%", que é a imprecisão 1 ensinada como modelo de redação. **3º commit:** (a) auditar as 61 combinações de autor e ano; (b) auditar o payload construído em `ai-reviewer/route.ts`, superfície irmã nunca verificada, onde `- ✅ Validação externa com pyAHP` faz o parecer afirmar biblioteca que o sistema não usa; (c) **fazer o payload informar quantos respondentes agregam em cada matriz** (12 em todas). A DIRETRIZ 1 exige esse N para aplicar Escobar, o payload nunca o fornece, e o modelo o fabrica dividindo 12 por 4. É a correção mais barata do conjunto e resolve duas imprecisões. Equações e limiares já auditados. Evidência em `docs/imprecisoes-parecer-ia.md` |
+| A.11 | **Fechar a procedência das cinco fórmulas de síntese.** Não é limpeza de metadados, e a **ordem importa**: **(1) Indexar a claim das cinco fórmulas do Lee (2009), página 123, Step 10.** É a mais importante e a mais barata: é a fonte do método central do sistema, verificada no PDF, e a sua ausência impede o parecer de checar a procedência da Tabela 12. **(2) Indexar Lee (2009a), de fornecedores, e Demirtas e Ustun (2008)**, fontes de funcionalidades declaradas em `metadata`, ausentes do RAG e presentes na base de PDFs. **(3) Só então** corrigir ou remover as atribuições que sobrarem sem lastro, abrindo o PDF antes de decidir em cada caso. **Fazer (3) primeiro apagaria atribuições corretas**, como quase aconteceu com o Lee. Alizadeh (2020) pendente: 35 páginas, sem camada de texto, exige inspeção visual. Evidência em `docs/imprecisoes-parecer-ia.md` **Inclui a string `'Sensitivity Classification (Alizadeh 2020)'` no `q1Features`**, que é o oitavo endereço do construto e cai entre A.2 e A.11: depois de `5837d0d`, ela declara no documento persistido uma funcionalidade que o motor **não faz mais**, e a atribui a um autor. As duas metades da afirmação são falsas ao mesmo tempo. Sai na etapa 3, por ser atribuição e não implementação |
+| A.12 | **Resolver a distribuição categórica de status enviada ao parecer.** ⚠ **Não é "acrescentar o quarto balde".** O `individualStats` classifica em **três** degraus (`valid`, `warning`, `critical`) e a distribuição enviada tem **quatro** categorias (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO), com `'REVISAR'` literal zero. Os dois lados não falam a mesma língua: o quarto balde não falta por esquecimento, ele não existe na contagem. **Criá-lo exigiria escolher um limiar novo**, e os únicos com fonte (CR ≤ 0,10 de Saaty; CR > 0,20 de Saaty e Ergu) dão três faixas, não quatro. Seria reintroduzir o construto categórico sem lastro que A.1, A.2 e a remoção do `validateSensitivity` tiraram em quatro commits. **A pergunta a decidir antes de codificar:** a distribuição por categoria deveria existir no payload, ou o parecer deveria receber os CRs e nada mais? É a mesma decisão de A.1, que removeu os quatro baldes da tela e deixou o CR cru. Se a resposta for a mesma, a tarefa vira *remover a distribuição categórica do payload*, que é menor e mais coerente. Agravante: depois de B.3 os doze caem todos em `critical` e a distribuição perde função informativa de qualquer modo. ⚠ Pré-requisito da etapa 4; ordem: B.3, A.12, etapa 4 |
 
 **Mapa das OITO implementações do construto de sensibilidade.** Levantado em
 10/09/2026, revisado sobre `5837d0d`. Custou quatro rodadas para montar; não
@@ -485,28 +508,71 @@ classificação de artigo, em `types.ts`.
 remove, e o `page.tsx` importa oito símbolos dele, não só o `interpretSensitivity`.
 Fazer o (4) antes arrastaria A.6 inteira para dentro de A.2.
 
-## Bloco B. Recomputar — o momento decisivo
+## ✅ Bloco B. Recomputar — JÁ EXECUTADO em 13/07/2026
 
-Rodar `/api/calculate` uma vez com o motor unificado e regravar
-`calculations/{projectId}`, exportando o documento atual antes.
+**Fechado antes desta sessão, sem registro.** Descoberto em 11/09/2026, ao
+preparar a execução.
 
-**Não é rotina.** É quando o sistema produz, pela primeira vez, os valores que a
-dissertação reporta. Enquanto isso não acontecer, nenhuma alegação sobre o
-artefato se sustenta, porque o dado em produção veio do motor anterior.
+O documento `calculations/{projectId}` foi recomputado em **13/07/2026**:
 
-Sem risco de reversão de ranking: o deslocamento medido entre os dois motores é
-de até 0,1780 ponto percentual nos vetores e 0,0216 nas razões de consistência. O
-arnês já garante os 24 valores; falta o resultado atravessar a rota inteira e ser
-gravado.
+| | |
+|---|---|
+| Motor registrado | `EIGENVECTOR` |
+| `responseCount` | 12 |
+| Exclusões | 0 |
+| 24 valores publicados | conferem nas respectivas casas decimais |
+| Ranking | A1 vence A2 nos cinco métodos |
+| `sensitivityInflections` | `{ B: null, O: null, C: null, R: null }` |
+| Arnês | 30 de 30 aprovados |
 
-### B.1 O cache derivado das respostas sobrevive à recomputação
+Estado preservado em `docs/calculations-13jul2026.json`,
+SHA-256 `00D1D8A1B70E4CD79D33B267AC8C31CFBF38F71FD9E08D9BAF9C278D0DB1FA9D`.
+**Versionar esse arquivo:** é a cópia do documento que as duas execuções da série
+de pareceres leram, e sem ele a série perde o dado primário do lado do cálculo.
+
+Uma nova chamada a `/api/calculate` apenas atualizaria o `calculatedAt` de um
+resultado que já corresponde ao motor unificado.
+
+**Gatilho natural da limpeza do documento.** O `sensitivityAnalysis` gravado ainda
+traz `classification`, `classificationLabel` e `changeDescription`, e o `alerts`
+ainda traz `sensitivityCritical`. O código parou de lê-los em `5837d0d`, mas o
+dado continua no Firestore. **A próxima recomputação os remove por consequência**,
+porque a rota não os grava mais. Não é preciso script: basta que uma recomputação
+aconteça por qualquer motivo.
+
+O JSON preservado em `docs/calculations-13jul2026.json` é a última cópia com esses
+campos, e por isso é também o dado primário do que o parecer leu nas duas
+execuções da série.
+
+✅ **Proveniência confirmada em 11/09/2026**, por conferência do JSON preservado.
+O documento foi gravado pela própria rota `/api/calculate`, como ela era em julho:
+
+| Marcador | Valor no documento |
+|---|---|
+| `calculatedAt` | 2026-07-13T19:39:31.334Z |
+| `metadata.version` | 5.0 |
+| `metadata.primaryMethod` | Subtractive |
+| `metadata.q1Features` | os cinco, incluindo `'Sensitivity Classification (Alizadeh 2020)'` |
+| `ipcMetadata` | `EIGENVECTOR` nas seis matrizes, com completude 10/10 em cada |
+| `sensitivityAnalysis[0]` | tem `classification`, `classificationLabel` e `changeDescription` |
+
+Os três últimos campos foram **removidos da rota em `5837d0d`**, em 10/09/2026.
+Um documento de julho deve tê-los, e tem. Não veio de outro caminho.
+
+✅ **Os 24 valores conferidos campo a campo em 11/09/2026: zero divergências.**
+Pesos BOCR e rescaling com erro abaixo de 5e-5; as seis razões de consistência
+abaixo de 0,006 pp; os dez scores de síntese abaixo de 5e-5. Ranking A1, A2, com
+concordância 5 de 5 e `sensitivityInflections` nulo nos quatro méritos.
+
+### B.1 O cache derivado das respostas continua defasado
+
 
 Achado da tarefa A.1, que pertence ao Bloco B.
 
-O Bloco B regrava `calculations/{projectId}`. **Não toca em
+A recomputação de 13/07/2026 regravou `calculations/{projectId}` e **não tocou em
 `responses.{doc}.responses`**, que é outra coleção e é cache congelado desde a
-coleta de maio. Depois da recomputação, o dashboard mostra valores do motor novo
-e o `/api/response-quality` continua classificando pelo cache antigo.
+coleta de maio. Por isso, hoje: o dashboard mostra valores do motor unificado e o
+`/api/response-quality` continua classificando pelo cache antigo.
 
 O campo `responses.{doc}.responses.avgCR` foi investigado e a semântica está
 **determinada**: é a média aritmética sobre as **26 matrizes** do respondente,
@@ -518,25 +584,24 @@ anterior, então qualquer diferença de derivador se amplifica ali. Diluir por v
 respondente para baixo do limiar de 10%, o que explica a faixa observada de 1,05%
 a 9,64%. Ver `docs/referencia-cr-individuais.md`, seção 3.1.
 
-**DECISÃO, 10/09/2026: congelar, com registro.** O cache NÃO é tocado no Bloco B.
+**DECISÃO, 10/09/2026, mantida: congelar, com registro.** O cache continua
+intocado.
 
-Razão: corrigi-lo junto com a recomputação alteraria duas variáveis na mesma
-etapa e destruiria a capacidade de atribuição da série de execuções do parecer.
-Depois de todo o cuidado em separar a correção das páginas da correção dos
-exemplos, misturar cálculo e cache no commit mais consequente seria abrir mão do
-mesmo rigor no ponto mais importante.
+A razão original era não alterar duas variáveis na mesma etapa da série. Com a
+descoberta de que a recomputação já estava feita, a razão muda mas a decisão
+permanece: o cache é a **única** variável do lado do dado que ainda está errada, e
+corrigi-la isolada é exatamente o que a etapa 4 mede.
 
-⚠ **O que a decisão produz, e a próxima retomada precisa saber.** Depois do Bloco
-B o sistema tem **duas origens de dado convivendo, sem nenhuma marca que as
-distinga na tela**:
+⚠ **O estado atual, e a próxima retomada precisa saber.** O sistema tem **duas
+origens de dado convivendo, sem nenhuma marca que as distinga na tela**:
 
 | Dado | Origem |
 |---|---|
-| pesos, rescaling, scores, consistência agregada | motor unificado, recomputado |
-| CR individual e classificação de respondente | cache de 07/05/2026 |
+| pesos, rescaling, scores, consistência agregada | motor unificado, 13/07/2026 |
+| CR individual e classificação de respondente que vão ao parecer | cache de maio de 2026 |
 
-Isso é intencional e temporário. A correção é a **etapa 4** da série documentada
-em `docs/imprecisoes-parecer-ia.md`.
+Não é estado transitório criado pelo saneamento: é assim desde julho. A correção
+é a **etapa 4** da série documentada em `docs/imprecisoes-parecer-ia.md`.
 
 ### B.3 Remover o subobjeto `responses` das respostas
 

@@ -112,7 +112,25 @@ contra a **faixa do artigo** é teste secundário, mais grosseiro, e corresponde
 requisito 2 adiante: ele pega a família mais grosseira do erro sem precisar
 identificar a claim exata.
 
-**Limitação do critério.** Ele não distingue artigo curto de artigo longo:
+⚠ **Limitação que atravessa todo o documento: a conferência é contra o RAG, não
+contra a fonte.** Quando uma atribuição ou citação não encontra respaldo nas
+claims indexadas, isso pode significar duas coisas muito diferentes:
+
+- o autor **não diz** aquilo, e a atribuição é inventada;
+- o autor **diz**, e o RAG não indexou a passagem, e é falha de cobertura.
+
+**Só abrir o PDF separa as duas.** E o caso do Lee (2009) mostra que a segunda
+hipótese é real e não marginal: as claims indexadas não mencionavam a comparação
+entre os cinco métodos de síntese, e a página 123 do artigo a traz por extenso.
+
+Portanto, **onde a conferência foi só contra o RAG, o que se mede é cobertura mais
+atribuição somadas**, e não atribuição isolada. Onde o PDF foi aberto — Lee
+(2009), Lee (2009a), Salomon e Gomes (2024) — a distinção existe e está
+registrada. Onde não foi, como em Alizadeh (2020), fica indeterminado e o
+documento diz isso.
+
+**Limitação do critério de página.** Ele não distingue artigo curto de artigo
+longo:
 acertar uma das páginas de claim é mais provável num artigo com sete páginas
 indexadas que num com três. Das cinco corretas, quatro estão em artigos com sete
 ou menos páginas de claim. E ele não verifica se a página corresponde à claim
@@ -460,7 +478,7 @@ Os dois casos que o geraram são as duas metades da mesma frase:
 Não é conselho de redação: é a leitura das classes D e E juntas, e cada metade
 tem caso medido.
 
-### Quatro superfícies de desancoragem
+### Cinco superfícies de desancoragem
 
 Somando este achado ao caso de Salomon e Gomes (2024), registrado adiante, o
 sistema tem **três** superfícies distintas por onde uma afirmação pode perder
@@ -472,6 +490,7 @@ ancoragem, e um verificador de saída cobre **uma**:
 | **O prompt** | Saaty p. 271 na regra de limiares, quando a claim está na 248 | **não.** A saída é fiel à instrução |
 | **A fonte primária** | Salomon e Gomes (2024) publica "0.5 e 0.8" onde Saaty propõe 0,05 e 0,08; a extração do RAG é fiel ao artigo | **não.** A claim corresponde à fonte |
 | **A interface entre prompt e payload** | a DIRETRIZ 1 exige um N por matriz; o payload informa apenas `totalRespondents`. O modelo fabrica o N faltante para poder obedecer | **não.** Prompt e payload estão ambos corretos; o erro está na lacuna |
+| **O artefato determinístico** | `metadata.q1Features` e `metadata.references` do documento de cálculo atribuem funcionalidades a autores; dois de onze sustentam | **não.** A atribuição nunca chega ao texto do parecer: vive em campo de metadados, persistido e exportado |
 
 Verificar a saída contra o contexto recuperado cobre a primeira. As outras três
 exigem **verificar para trás**: o prompt contra a base, a base contra a fonte
@@ -679,20 +698,158 @@ Registrar os acertos importa: sem eles o documento é acusação, não medição
 | Scores finais A1 0,064129 e A2 0,026937 | corretos. Conferem com a Tabela 12 |
 | Fórmula da síntese subtrativa com v e s | correta. Corresponde a Wijnmalen Eq. 17, apenas com a página errada (imprecisão 3) |
 
-⚠ **Ressalva sobre a origem destes valores.** As duas execuções leram o
-documento `calculations/{projectId}` gravado em **07/05/2026**, pelo motor
-anterior, que derivava prioridades por média geométrica das linhas. Os valores
-conferem com as tabelas publicadas, mas **não foram produzidos pelo motor
-unificado**: a atribuição correta é "conferem com o publicado", não "o motor
-unificado os produziu". A recomputação do Bloco B fecha essa lacuna, e as
-execuções posteriores a ela poderão fazer a afirmação forte.
+**Todos os valores numéricos derivados do motor estão corretos**, e a atribuição
+é forte: verificado em 11/09/2026 que o documento `calculations/{projectId}` foi
+recomputado em **13/07/2026** com o motor unificado (`EIGENVECTOR`, 12
+respondentes, zero exclusões) e reproduz os 24 valores publicados. **As duas
+execuções da série leram dado produzido pelo motor unificado.**
 
-**Todos os valores numéricos lidos pelo parecer conferem com o publicado.** As imprecisões
+Uma ressalva anterior deste documento afirmava o contrário, com base no backup do
+Firestore de maio. Estava errada, e a correção está registrada em 0.2 do
+`objetivo-estados-caminho.md`. As imprecisões
 concentram-se em dois lugares: o que vem do `qualityAnalysis` (classe A) e o que
 vem da camada bibliográfica (classes B e C).
 
 Isso é resultado, não detalhe: separa o que o cálculo determinístico garante do
 que a camada de interpretação introduz.
+
+---
+
+## Quinta superfície: o artefato determinístico
+
+Encontrado em 11/09/2026, ao conferir o documento de cálculo preservado em
+`docs/calculations-13jul2026.json`. **É a primeira desancoragem fora do texto
+gerado.**
+
+O `calculations/{projectId}` é o que a cadeia de autoridade trata como fonte que
+nunca se corrige contra o texto. E ele carrega, em `metadata.q1Features` e
+`metadata.references`, **onze atribuições de autoria escritas à mão**, que nunca
+passaram pelo PVB.
+
+O alcance é maior que o do parecer: esses campos são persistidos, vão para o
+export XLSX e para o JSON. O parecer é gerado e descartado; o
+`metadata.references` fica.
+
+### Os onze itens
+
+| Item | Fonte declarada | Situação |
+|---|---|---|
+| `references.primary` | Wijnmalen (2007) Eq. 17 | ✅ claims sustentam |
+| `references.alternative` | Wijnmalen (2007) Eq. 12 | ✅ claims sustentam |
+| `references.lee2009` | Lee (2009): 5 synthesis methods comparison | ⚠ **verificado no PDF: correto.** Falha de cobertura do RAG |
+| BOCR Priorities Table | Lee (2009) | ⚠ mesma situação |
+| Method Concordance Analysis | Lee (2009), Alizadeh (2020) | ⚠ parte de Lee coberta; Alizadeh pendente |
+| Sensitivity Classification | Alizadeh (2020) | ⚠ claims indexadas não sustentam; PDF não verificado |
+| `references.alizadeh2020` | Alizadeh: sensitivity classification | ⚠ idem |
+| Reciprocal Normalized Values | Lee (2009a) | ❌ **artigo não indexado** |
+| Negative Priority Detection | Lee (2009a) | ❌ **artigo não indexado** |
+| `references.lee2009a` | Lee (2009a): negative priorities, concordance | ❌ **artigo não indexado** |
+| `references.demirtas` | Demirtas e Ustun (2008) Eq. 2 | ❌ **artigo não indexado** |
+
+**Dois de onze sustentam pelo que o RAG tem.**
+
+### Duas causas distintas, e o PDF decide entre elas
+
+**Causa 1: artigo não indexado.** Quatro itens apontam para o Lee (2009a) de
+seleção de fornecedores, publicado na *Expert Systems with Applications*, e para
+Demirtas e Ustun (2008). **Nenhum dos dois está no RAG**, embora ambos estejam na
+base de PDFs do projeto. São as fontes de duas das cinco fórmulas de síntese que o
+sistema implementa.
+
+**Causa 2: claim não cobre a afirmação.** Os demais apontam para artigos
+indexados cujas claims não mencionam o que a atribuição afirma.
+
+**Mas essa segunda causa se divide, e só o PDF resolve.** Se o artigo tratar do
+assunto e o RAG não o indexar, é falha de cobertura. Se o artigo não tratar, é
+atribuição inventada. São problemas diferentes, com correções opostas: indexar a
+claim que falta, ou remover a atribuição.
+
+**Verificação feita para Lee (2009), e o resultado é favorável.** O PDF de
+*Renewable Energy* 34 (2009) 120–126, página **123**, Step 10, diz: "There are
+five ways to combine the scores of each alternative under B, O, C and R", e lista
+as cinco: Additive, Probabilistic additive, Subtractive, Multiplicative priority
+powers, Multiplicative. **São exatamente as cinco que o sistema implementa.**
+
+Portanto `references.lee2009` está **correta**, e o problema é de **cobertura do
+RAG**: as quatro claims indexadas tratam de outros pontos do artigo e deixam de
+fora a passagem mais relevante para este sistema.
+
+**Pendente: Alizadeh (2020).**
+
+*O que decide.* Se a classificação de sensibilidade por limiares de ponto de
+inflexão existir no artigo, é **cobertura** e a correção é indexar a claim. Se não
+existir, é **invenção** e a correção é remover a atribuição.
+
+*O que custa.* O PDF tem 35 páginas, está na base do projeto como
+`7__Alizadeh_et_al_2020.pdf`, e é um arquivo de imagens sem camada de texto.
+**Não é um grep:** exige inspeção visual página a página. Registrado para que
+ninguém refaça a tentativa achando que é busca textual.
+
+*Indício a favor da cobertura.* As claims indexadas do Alizadeh trazem um limiar
+de inconsistência de 15%, e dois outros de CR. O artigo **trata de limiares**,
+ainda que os indexados sejam de consistência e não de inflexão. Isso não resolve
+nada, mas torna a hipótese de cobertura menos improvável do que parecia.
+
+*Afirmação honesta enquanto isso:* as claims indexadas não sustentam, e o artigo
+não foi verificado.
+
+### A conclusão que atravessa as cinco superfícies
+
+Três medições independentes, em três artefatos escritos à mão sem passar pelo PVB:
+
+| Superfície | Itens auditados | Errados |
+|---|---|---|
+| Localizadores de página no `system-prompt.ts` | 4 | 2 |
+| Citações com página no parecer, execução 1 | 18 | 13 |
+| Atribuições em `metadata` do documento de cálculo | 11 | 9 pelo que o RAG tem, ao menos 4 confirmados |
+
+**Onde alguém escreveu uma atribuição à mão, sem passar pelo protocolo de
+verificação na base, a taxa de erro é alta.** Essa é a conclusão geral do
+registro, e agora tem três medições em superfícies independentes para sustentá-la.
+
+---
+
+## Caso à parte: referência declarada que não cobre o que a invoca
+
+Encontrado em 11/09/2026, ao conferir o documento de cálculo preservado. **Não é
+imprecisão do parecer:** está no próprio `calculations/{projectId}`, gravado pela
+rota.
+
+O campo `metadata.q1Features` declara, entre as cinco funcionalidades:
+
+> `'Sensitivity Classification (Alizadeh 2020)'`
+
+E o `metadata.references` registra "Alizadeh et al. (2020) Energy policy:
+Sensitivity classification". O construto classificava cada mérito como Robusto,
+Moderadamente Sensível, Sensível ou Crítico, com limiares em 50, 20 e 10 pontos
+percentuais de ponto de inflexão.
+
+**A fonte não sustenta.** `lib/rag/articles/alizadeh2020_energy.ts` traz três
+claims, e nenhuma trata de classificação de sensibilidade por ponto de inflexão:
+
+| Claim no RAG | Sobre o quê |
+|---|---|
+| fórmula aditiva recomendada para avaliação de longo prazo | escolha de fórmula BOCR |
+| fórmula multiplicativa melhor para curto prazo | escolha de fórmula BOCR |
+| relaxar o limiar de inconsistência para 15% em ambientes político-econômicos complexos | limiar de **CR**, não de inflexão |
+
+Os limiares numéricos indexados do artigo são 0,15, 0,1 e um dependente da ordem
+da matriz, **todos de consistência**. Nenhum de 50, 20 ou 10 pontos percentuais.
+
+**Portanto a afirmação precisa de precisão.** Não é "construto sem fonte": é
+**construto com referência declarada que não cobre o que ele faz**. A remoção
+continua certa, porque nenhuma tabela publicada traz a classificação, mas o
+diagnóstico muda: havia atribuição, e ela era indevida.
+
+**Agravante.** O mesmo `q1Features` declara
+`'Method Concordance Analysis (Lee 2009, Alizadeh 2020)'`. A concordância entre
+métodos, que é o `robustnessLevel` marcado em 2.3 como construto a distinguir,
+invoca o mesmo autor. Vale a mesma conferência antes de tratá-lo no Bloco D.
+
+**Categoria.** É parente da classe D, mas na direção oposta: ali o prompt ensina
+um fato errado; aqui o código declara uma fonte que não sustenta o que ele
+calcula. Nenhum verificador de saída alcança, porque a atribuição nunca chega ao
+texto do parecer: vive num campo de metadados.
 
 ---
 
@@ -738,15 +895,93 @@ localizadores, e cada etapa custa uma geração de cerca de 2m30s.
 
 | # | Estado do sistema | O que a execução decide |
 |---|---|---|
-| 1 | 10/09/2026, `d16491a`. Nada corrigido | **Feita.** Linha de base: 5 imprecisões, 13 de 18 localizadores divergentes |
+| 1 | 10/09/2026, `d16491a`. Nada corrigido | **Feita.** Linha de base: 5 imprecisões, 13 de 18 localizadores divergentes. ⚠ Descoberto em 11/09: o `calculations` que ela leu **já vinha do motor unificado**, recomputado em 13/07/2026 |
 | 2 | Depois do 1º commit de A.10: páginas corrigidas, exemplos de parágrafo ainda com o dado falso | **Feita**, `2b353b3`, 150s. A p. 250 sumiu e a faixa "1,1% e 9,6%" permaneceu. Classe D confirmada como fato. Mais quatro achados: imprecisão 5 estocástica, localizador fabricado instável, vizinhança confirmada como ruído |
-| 3 | Depois do 2º commit: exemplos de parágrafo sem dado real | Se a faixa sumir aqui e não na etapa 2, isola o exemplo como causa, independente do cache |
-| 4 | Depois do Bloco B: cache do Firestore regravado | Isola o dado de entrada como causa. Junto com a etapa 3, decide se a imprecisão 1 exigia as duas correções ou apenas uma |
+| 3 | Depois do 2º commit de A.10: exemplos de parágrafo sem dado real | Se a faixa sumir aqui e não na etapa 2, isola o exemplo como causa, independente do cache. **Nota:** esta etapa mede o exemplo, não o cálculo. O `calculations` já vinha do motor unificado nas execuções 1 e 2, descoberto em 11/09/2026 |
+| 4 | Depois de B.3: remover ou deixar de ler o cache `responses.{doc}.responses` | Isola o dado de entrada como causa. Junto com a etapa 3, decide se a imprecisão 1 exigia as duas correções ou apenas uma. ⚠ Ver a predição abaixo |
 | 5 | Depois de o payload informar o N por matriz (12 em todas) | **A mais barata das cinco:** uma linha no payload, uma geração. Decide se as imprecisões 2 e 4 desaparecem por construção. Se sim, confirma a classe E como fabricação por lacuna, e não por tendência do modelo a inventar |
 
+### Predição testável para a etapa 4
+
+Registrada **antes** da execução, para que o resultado confirme ou refute a cadeia
+reconstruída em vez de ser explicado depois.
+
+**O que deve acontecer.** O caminho de fallback, `computeCRsFromJudgments`, chama
+`calculateAllWeights` e devolve `avgCR: result.avgCR`, que em `lib/ahp-ipc.ts` é o
+**máximo** das seis matrizes não triviais, não a média. Portanto o
+`classifyRespondent` passará a receber o CR **governante**, cujo menor valor no
+painel é 11,39%.
+
+Predição: **os doze respondentes migram de CONFIÁVEL para CRÍTICO**, e o parecer
+passa a afirmar o oposto do que afirma hoje sobre a consistência do painel.
+
+Se acontecer, confirma a cadeia inteira: cache → `qualityAnalysis` → imprecisão 1.
+Se não acontecer, aponta para algo que não entendemos no caminho.
+
+**Verificação de bloqueio, feita em 11/09/2026: a etapa não quebra.** Havia a
+suspeita de que o `isExplicitlyBad`, em `resultados/page.tsx`, excluísse do payload
+os respondentes marcados como SUSPEITO ou CRÍTICO, o que esvaziaria o painel e
+produziria erro em vez de medição.
+
+Conferido: **ele não exclui, apenas conta.** O bloco monta `individualStats` com
+`valid`, `warning`, `critical` e `total`; todos os respondentes entram no total, e
+o que muda é o balde. Depois da etapa 4 o payload continuará com os doze, com
+`critical: 12`.
+
+⚠ **Ressalva de leitura, e ela recomenda uma tarefa antes.** Com todos em
+`critical`, o `qualityAnalysis.statistics.byStatus` enviado ao modelo fica assim:
+
+```
+'CONFIÁVEL': 0
+'REVISAR':   0      ← zerado por construção, não pelo dado
+'SUSPEITO':  0
+'CRÍTICO':   12
+total:       12
+```
+
+Três baldes zerados, e um deles **não porque o dado diz, mas porque a linha é
+literal**: o `individualStats` só tem três contadores (`valid`, `warning`,
+`critical`), e o `'REVISAR'` nunca teve de onde vir.
+
+Isso não invalida a medição, mas **cria ambiguidade na leitura**: se o parecer
+reagir mal, não se distingue se foi pela informação de que os doze são críticos ou
+pela degeneração da distribuição.
+
+**Consequência: o `'REVISAR': 0` deixa de ser resíduo e vira pré-requisito.** Hoje
+ele é defeito silencioso, uma categoria que nunca se preenche enquanto as outras
+três variam. Depois da etapa 4 passa a ser um dos três zeros de um quadro com um
+único balde preenchido, e interfere na leitura do experimento.
+
+**E a causa é mais funda que um contador ausente.** O `individualStats` classifica
+em **três** degraus (`valid`, `warning`, `critical`); a distribuição enviada tem
+**quatro** categorias. O quarto balde não falta por esquecimento: ele não existe
+do lado que conta. A origem do nome REVISAR é o `classifyRespondent` da API, que
+tem quatro faixas com cortes em 0,05, 0,10, 0,15 e 0,20, dos quais **apenas dois
+têm fonte**.
+
+Portanto "acrescentar o quarto balde" exigiria **escolher um limiar novo**, e isso
+reintroduziria exatamente o construto categórico sem lastro que A.1, A.2 e a
+remoção do `validateSensitivity` retiraram em quatro commits.
+
+A pergunta certa, registrada em A.12: **a distribuição por categoria deveria
+existir no payload, ou o parecer deveria receber os CRs e nada mais?** É a mesma
+decisão de A.1, que removeu os quatro baldes da tela e deixou o CR cru.
+
+**Ordem recomendada: B.3, depois A.12, depois a etapa 4.** Uma variável por etapa,
+a mesma disciplina aplicada ao cache e ao prompt.
+
+**Correção do desenho, 11/09/2026.** A tabela original trazia a recomputação do
+`calculations` como variável da etapa 4. Ela **não é variável**: o documento já
+estava recomputado desde 13/07/2026, e as execuções 1 e 2 leram dado do motor
+unificado. O que a etapa 4 mede é o **cache das respostas** (B.3), que é outra
+coleção e continua congelado desde maio.
+
+Sem essa correção, a próxima geração seria feita esperando responder algo que já
+está respondido.
+
 **Não pular etapas.** Corrigir tudo de uma vez e gerar um parecer no fim mostra
-que as imprecisões sumiram, mas não diz qual correção resolveu qual. A ordem
-acima transforma quatro correções de engenharia em quatro medições.
+que as imprecisões sumiram, mas não diz qual correção resolveu qual. A ordem acima
+transforma cinco correções de engenharia em cinco medições.
 
 **Registrar cada execução** nesta seção, com data, hash do commit, tempo de
 geração, modelo e texto bruto, na mesma estrutura da execução de 10/09/2026.
