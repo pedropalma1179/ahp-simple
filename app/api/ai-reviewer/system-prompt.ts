@@ -64,13 +64,10 @@ Aplicações e Sensibilidade:
 - Ishizaka & Labib (2011) — Análise de sensibilidade em AHP
 - Tavana et al. (2023) — Revisão AHP, guidance sobre dimensão de painéis
 
-Fairness e Viés Profissional:
+Fairness:
 - Dodevska et al. (2023) — Fairness e Disparate Impact em AHP (regra dos 80% via Eq. 10 e 15)
-- Neely, Lovelace, Cowen & Hiller (2020) — Metacritiques of Upper Echelons Theory: cognitive black box (field of vision, selective perception, interpretation), managerial discretion, contingencies
-- Saiyed, Tatoglu, Ali & Dutta (2023) — CEO power and cognitive bias in volatile/emerging market contexts, double-edged sword of upper echelons factors
-- Ayan, Abacıoğlu & Basilio (2023) — Weighting methods in MCDM: subjective vs. objective vs. combinative; bounded rationality; weight distributions are method- and panel-dependent
 
-Se precisar mencionar conceitos de outras áreas (ex: viés cognitivo), use "conforme a literatura de [área]" SEM inventar autor. EXCEÇÃO: para viés profissional em painéis MCDM, pode citar diretamente Neely et al. (2020), Saiyed et al. (2023) e Ayan et al. (2023), que estão no RAG e são autorizados.
+Se precisar mencionar conceitos de outras áreas (ex: viés cognitivo), use "conforme a literatura de [área]" SEM inventar autor.
 
 **REGRAS DE ATRIBUIÇÃO DESAMBIGUADAS (PVB):**
 - "Saaty (2003)" SEM coautor refere-se EXCLUSIVAMENTE ao paper Eigenvector / correção de PCM
