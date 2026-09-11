@@ -899,7 +899,7 @@ localizadores, e cada etapa custa uma geração de cerca de 2m30s.
 | 2 | Depois do 1º commit de A.10: páginas corrigidas, exemplos de parágrafo ainda com o dado falso | **Feita**, `2b353b3`, 150s. A p. 250 sumiu e a faixa "1,1% e 9,6%" permaneceu. Classe D confirmada como fato. Mais quatro achados: imprecisão 5 estocástica, localizador fabricado instável, vizinhança confirmada como ruído |
 | 3 | Depois do 2º commit de A.10: exemplos de parágrafo sem dado real | Se a faixa sumir aqui e não na etapa 2, isola o exemplo como causa, independente do cache. **Nota:** esta etapa mede o exemplo, não o cálculo. O `calculations` já vinha do motor unificado nas execuções 1 e 2, descoberto em 11/09/2026 |
 | 4 | Depois de B.3: remover ou deixar de ler o cache `responses.{doc}.responses` | Isola o dado de entrada como causa. Junto com a etapa 3, decide se a imprecisão 1 exigia as duas correções ou apenas uma. ⚠ Ver a predição abaixo |
-| 5 | Depois de o payload informar o N por matriz (12 em todas) | **A mais barata das cinco:** uma linha no payload, uma geração. Decide se as imprecisões 2 e 4 desaparecem por construção. Se sim, confirma a classe E como fabricação por lacuna, e não por tendência do modelo a inventar |
+| 5 | Depois de o payload informar o N por matriz (12 em todas) | **A mais barata das cinco:** uma linha no payload, uma geração. Decide se as imprecisões 2 e 4 desaparecem por construção. **Predição registrada abaixo, antes da execução** |
 
 ### Predição testável para a etapa 4
 
@@ -967,8 +967,52 @@ A pergunta certa, registrada em A.12: **a distribuição por categoria deveria
 existir no payload, ou o parecer deveria receber os CRs e nada mais?** É a mesma
 decisão de A.1, que removeu os quatro baldes da tela e deixou o CR cru.
 
+**E o payload já responde parte dela.** A seção anti-alucinação de respondentes,
+em `ai-reviewer/route.ts`, declara as quatro categorias **com as faixas
+explícitas**:
+
+```
+- CONFIÁVEIS (CR ≤ 10%): ...
+- REVISAR (10–15%): ...
+- SUSPEITOS (15–20%): ...
+- CRÍTICOS (>20%): ...
+```
+
+Das quatro faixas, **duas não têm fonte**: os cortes em 15% e 20%. Os únicos
+limiares com lastro são o `CR ≤ 0,10` de Saaty (1977) e o `CR > 0,20` de Saaty e
+Ergu (2015), que dão três faixas.
+
+Isso confirma duas coisas. Que A.12 é sobre **remover**, não sobre acrescentar um
+contador. E o diagnóstico do `'REVISAR': 0`: o balde existe no texto do payload,
+com faixa declarada, e o contador que deveria alimentá-lo nunca é preenchido.
+
 **Ordem recomendada: B.3, depois A.12, depois a etapa 4.** Uma variável por etapa,
 a mesma disciplina aplicada ao cache e ao prompt.
+
+### Predição registrada para a etapa 5, antes da execução
+
+Registrada em **11/09/2026**, antes de qualquer geração posterior ao commit que
+informa o N por matriz. Uma previsão datada vale mais que uma observação
+explicada depois.
+
+**A correção.** O payload passa a declarar, na seção anti-alucinação de
+respondentes: "todos os 12 responderam à TOTALIDADE das comparações pareadas.
+Portanto N = 12 em TODAS as matrizes agregadas", com a negação explícita de
+particionamento por mérito ou dimensão.
+
+**O que deve acontecer:**
+
+| # | Predição | O que confirma |
+|---|---|---|
+| 1 | A afirmação "3 respondentes por dimensão BOCR" **desaparece** | a imprecisão 2 é classe E, fabricação por lacuna, e não tendência do modelo a inventar |
+| 2 | A aplicação de Escobar **muda**: ou some, ou passa a tratar N=12 | a imprecisão 4 é consequência da 2, como a cadeia reconstruída afirma |
+| 3 | A faixa "1,1% e 9,6%" **permanece** | **controle.** Nada nesta tarefa a toca; se sumisse, o resultado seria variação e não correção |
+
+**Se 1 e 2 acontecerem e 3 permanecer, a classe E deixa de ser leitura e vira fato
+medido**, como a classe D no primeiro commit de A.10.
+
+**Se 1 não acontecer**, a lacuna do payload não era a causa, e a inferência dos
+três respondentes vem de outro lugar que não identificamos.
 
 **Correção do desenho, 11/09/2026.** A tabela original trazia a recomputação do
 `calculations` como variável da etapa 4. Ela **não é variável**: o documento já
