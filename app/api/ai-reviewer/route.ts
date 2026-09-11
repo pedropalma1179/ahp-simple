@@ -8,7 +8,6 @@ import Anthropic from '@anthropic-ai/sdk';
 import SYSTEM_PROMPT from './system-prompt';
 import { getKnowledgeContext, getKnowledgeStats, getCriticalRefs, getRefsByTopic, getRAGThresholds, getRAGFormulas, getRAGBenchmarks } from './knowledge';
 import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-detection';
-import { analyzeDominance, buildDominancePromptSection } from '@/lib/analysis/dominanceAnalyzer';
 import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
 import { getRAGSemantic } from '@/lib/rag/semantic-retrieve';
 import type { RetrievedChunk } from '@/lib/rag/upstash-client';
@@ -26,7 +25,7 @@ export const maxDuration = 300;
 // ============================================================
 // VERSÃO E LOGGING (fonte única de verdade)
 // ============================================================
-const API_VERSION = '7.3.1';
+const API_VERSION = '7.3.2';
 
 // ============================================================
 // PHASE 6.3.4 — RAG SEMÂNTICO (RAG_DECISIONS v3 §2.5)
@@ -154,7 +153,6 @@ ${m.text}
     })
     .join('\n\n');
 }
-const API_TAG = 'dominance-analysis';
 const LOG_PREFIX = `[AI-REVIEWER v${API_VERSION}]`;
 
 // ============================================================
@@ -1019,28 +1017,6 @@ Score_i = vb × sb × B_i + vo × so × O_i − vc × sc × C_i − vr × sr × 
   }
 
   // ============================================================
-  // ANÁLISE DE DOMINÂNCIA DE MÉRITO (Neely 2020 + Saiyed 2023 + Ayan 2023)
-  // ============================================================
-  const weightsForDominance = pw || data.bocrWeights || { Benefits: 0.25, Opportunities: 0.25, Costs: 0.25, Risks: 0.25 };
-  const panelFunctions = data.demographicsSummary?.fields?.funcao || [];
-  const panelAreas = data.demographicsSummary?.fields?.areaAtuacao || [];
-
-  const dominanceResult = analyzeDominance(
-    weightsForDominance,
-    panelFunctions,
-    panelAreas,
-    { name: data.projectName, description: data.projectDescription }
-  );
-
-  const dominanceSection = buildDominancePromptSection(dominanceResult);
-
-  if (dominanceResult.isDominance) {
-    console.log(`${LOG_PREFIX} Dominância detectada: ${dominanceResult.dominantMerit} (ratio=${dominanceResult.ratio.toFixed(2)}:1, classificação=${dominanceResult.classification})`);
-  } else {
-    console.log(`${LOG_PREFIX} Sem dominância significativa (ratio=${dominanceResult.ratio.toFixed(2)}:1)`);
-  }
-
-  // ============================================================
   // ANTI-ALUCINAÇÃO: Ranking final das alternativas
   // ============================================================
   let finalScoresSection = '';
@@ -1175,8 +1151,6 @@ ${rStats.avgCR ? `- CR médio da dimensão: ${safePercent(rStats.avgCR, 2)}` : '
       if (weights.length < 2) return 'N/A';
       return (Math.max(...weights) / Math.min(...weights)).toFixed(2);
     })()}:1
-
-${dominanceSection}
 
 ---
 
@@ -1571,7 +1545,7 @@ export async function GET() {
 
   return NextResponse.json({
     name: 'AI Reviewer API',
-    version: `${API_VERSION}-${API_TAG}`,
+    version: API_VERSION,
     description: 'Peer Review Acadêmico A1/Q1 - Com Detecção de Viés (Dodevska et al., 2023)',
     model: MODEL_CONFIG.id,
     features: [
@@ -1713,7 +1687,7 @@ export async function POST(request: NextRequest) {
         warnings: validation.warnings,
       },
       metadata: {
-        version: `${API_VERSION}-${API_TAG}`,
+        version: API_VERSION,
         model: MODEL_CONFIG.id,
         timestamp: new Date().toISOString(),
         gradeSource: aiGrade ? 'ai' : 'automatic',

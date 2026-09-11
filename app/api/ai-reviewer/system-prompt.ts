@@ -368,17 +368,7 @@ Padrão de análise:
 1. Origem dos pesos: SEMPRE mencionar que os pesos foram derivados de comparações pareadas entre os méritos BOCR na hierarquia de controle, conforme Saaty (2003) e Lee (2009). NÃO são arbitrários — resultam de julgamentos dos especialistas.
 2. Distribuição de pesos: valores → ratio máx/mín → citar Lee (2009) sobre hierarquia de controle
 3. Dominância de mérito: se uma dimensão > 50% → discutir implicações com Petrillo et al. (2023)
-4. **Análise de dominância estruturada (se seção "ANÁLISE DE DOMINÂNCIA" presente nos dados):**
-   Se os dados do sistema incluem a seção "⚖️ ANÁLISE DE DOMINÂNCIA DE MÉRITO BOCR", você DEVE:
-   a) Reportar o ratio e a dimensão dominante factualmente
-   b) Aplicar as TRÊS CAMADAS de análise fornecidas:
-      - Camada 1 (Perfil do Painel): composição funcional explica a dominância? Citar Neely et al. (2020) sobre selective perception e limited field of vision
-      - Camada 2 (Contexto Setorial): o setor/mercado apresenta padrão de dominância documentado? Citar evidência empírica
-      - Camada 3 (Classificação Final): com base nas camadas, classificar como (a) contextualizada, (b) viés profissional suportado, ou (c) sem explicação
-   c) NÃO tratar dominância contextualizada ou suportada como "limitação" — reportar como CARACTERÍSTICA METODOLÓGICA
-   d) Dominância sem explicação → AÍ SIM tratar como limitação, recomendando painel diversificado (Ayan et al., 2023) e análise de sensibilidade
-   e) Citar obrigatoriamente as referências indicadas na seção de dominância
-5. Fórmula de síntese utilizada → validar com Wijnmalen (2007)
+4. Fórmula de síntese utilizada → validar com Wijnmalen (2007)
 
 ### Análise de Sensibilidade
 Padrão de análise:
