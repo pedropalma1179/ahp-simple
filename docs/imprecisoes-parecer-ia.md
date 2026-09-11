@@ -824,7 +824,31 @@ Três medições independentes, em três artefatos escritos à mão sem passar p
 
 **Onde alguém escreveu uma atribuição à mão, sem passar pelo protocolo de
 verificação na base, a taxa de erro é alta.** Essa é a conclusão geral do
-registro, e agora tem três medições em superfícies independentes para sustentá-la.
+registro, e agora tem **quatro** medições em superfícies independentes.
+
+### O corolário: o escopo é sempre maior que o levantamento
+
+Três tarefas seguidas, em 11/09/2026, expuseram o mesmo padrão:
+
+| Tarefa | O levantamento previa | A medição encontrou |
+|---|---|---|
+| A.5, tabelas RI | quatro tabelas | **seis**, e a sexta incompleta, parando em n=7 |
+| A.13, localizador `p. 271` | uma ocorrência, corrigida em A.10 | **cinco** no total: o prompt mais quatro no código |
+| A.13, achado colateral | — | **catorze** citações a um autor que o próprio prompt proíbe |
+
+E em A.13 o erro era maior que o previsto em natureza, não só em contagem: um dos
+casos não tinha só a página errada, tinha **o verbatim inteiro inexistente** em
+qualquer artigo indexado.
+
+**Nos três casos o levantamento inicial subestimou o escopo, e só a medição o
+corrigiu.** Isso é o protocolo funcionando, mas é também evidência de segunda
+ordem: **atribuição escrita à mão prolifera**. O mesmo erro reaparece em
+superfícies que ninguém pensou em olhar, porque quem copiou uma linha de código
+copiou também a citação que vinha nela.
+
+Consequência prática, registrada como regra: **em tarefa de correção de
+atribuição, medir antes de definir o escopo, e medir de novo depois de corrigir.**
+Nenhuma das três teria fechado com o escopo do primeiro levantamento.
 
 ---
 
