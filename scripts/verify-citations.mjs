@@ -175,8 +175,8 @@ const resultados = comPagina.map(c => {
 
   let veredito;
   if (naClaim) veredito = 'OK';
-  else if (naFaixa === true) veredito = 'DIVERGE_NA_FAIXA';   // erro de vizinhanca
-  else veredito = 'DIVERGE_FORA_DA_FAIXA';                    // familia grosseira
+  else if (naFaixa === true) veredito = 'DIVERGE_NA_FAIXA';   // pagina real do artigo, sem claim indexada
+  else veredito = 'DIVERGE_FORA_DA_FAIXA';                    // fora da faixa do artigo
 
   return {
     ...c,

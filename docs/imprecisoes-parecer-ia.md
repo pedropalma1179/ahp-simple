@@ -1914,6 +1914,76 @@ registro classificava como "erro de vizinhança".
 teste.** Esta decomposição foi feita manualmente sobre a execução 1; a 2 e as
 seguintes ainda não.
 
+### ✅ A.20 executada em `33a9485`: as taxas refeitas
+
+O script já classificava em quatro vereditos e já extraía a faixa do `abnt`. **O
+defeito era a agregação**, que somava `DIVERGE_NA_FAIXA` com
+`DIVERGE_FORA_DA_FAIXA`, e a legenda, que dizia "o teste por faixa perderia estas"
+quando é ele que as aprova.
+
+**As taxas depois da correção:**
+
+| | Execução 1 | Execução 2 |
+|---|---|---|
+| Com localizador | 18 | 21 |
+| Correta, página de claim | 5 (28%) | 8 (38%) |
+| **Correta, RAG não cobre** | **2 (11%)** | **1 (5%)** |
+| **Divergente, fora da faixa** | **11 (61%)** | **12 (57%)** |
+| Sem localizador | 9 | 9 |
+
+**De 72% e 62% para 61% e 57%.**
+
+⚠ **A queda NÃO significa que o sistema melhorou.** Nada no comportamento do modelo
+mudou entre as medições: os pareceres são os mesmos dois textos, de 10/09/2026.
+
+**O que mudou foi o instrumento.** Três citações que a apuração antiga atribuía ao
+modelo passaram a medir a base:
+
+| | Antes | Depois |
+|---|---|---|
+| O que a taxa contava | tudo que não casava com uma claim | só o que cai **fora do artigo** |
+| Onde os três casos entravam | divergência, atribuída ao modelo | **cobertura**, atribuída ao RAG |
+
+**Quem comparar 72% com 61% sem contexto vai ler melhoria onde houve correção de
+medida.** As duas medidas devem ser sempre reportadas juntas, com a explicação:
+o instrumento passou a medir a coisa certa.
+
+E o sentido da correção é desfavorável a quem mediu, não ao sistema: **parte do que
+este registro atribuía à geração era defeito da base e da apuração.**
+
+### Os três casos de cobertura, identificados
+
+| Citação | Execução | Claims no RAG | Faixa |
+|---|---|---|---|
+| Saaty (1987, p. 165) | 1 | 163, 170, 171, 172, 174 | 161–176 |
+| Forman e Peniwati (1998, p. 169) | 1 | 166, 167, 168 | 165–169 |
+| **Saaty (2003, p. 85)** | 2 | 86, 87, 88, 90 | 85–91 |
+
+**O da execução 2 é a primeira inversão que este registro encontrou.** Antes da
+conversão de `23afe43`, as claims do Saaty (2003) estavam em 2, 3, 4 e 6, e a
+comparação com a p. 85 não significava nada. Depois da conversão e da correção do
+script, ele aparece pelo que é: **página real do artigo, sem claim indexada.**
+
+**Os três medem cobertura do RAG, não erro do modelo.** E os dois da execução 1 são
+exatamente o que este documento chamava de "erro de vizinhança".
+
+### O que a categoria nova revela sobre a base
+
+Três citações em 39 apontam para páginas reais que o RAG não cobre, o que é **8%**.
+Nos três casos o modelo escolheu uma página do artigo que nenhuma claim indexa.
+
+No Saaty (2003) é a **primeira página**; no Forman e Peniwati, a **última**; no
+Saaty (1987), uma intermediária entre duas indexadas.
+
+⚠ **Isso sugere uma pergunta que o registro ainda não respondeu:** o modelo cita
+páginas não indexadas por escolha ou por interpolação? Se as três forem as páginas
+onde a passagem de fato está, é acerto e a base é que falha. Se forem aproximações
+plausíveis, é interpolação e a categoria "erro de vizinhança" tinha razão de ser,
+só com a causa invertida.
+
+**Só o PDF decide, e as três estão na base do projeto.** Fica registrado como
+pendência.
+
 ### O `verify-citations.mjs` precisa do segundo teste
 
 | Situação | Leitura |
