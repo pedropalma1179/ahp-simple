@@ -309,7 +309,7 @@ export default function BiasAnalysisCard({
                 {/* Referência acadêmica */}
                 <div className="p-2 bg-white border border-indigo-100 rounded text-xs text-gray-500">
                   📚 <strong>Ref:</strong> Dodevska et al. (2023, Eq. 14-15). DI = avg(s=1) / avg(s=0).
-                  Limites: 0.80 ≤ DI ≤ 1.25 (Feldman et al., 2015).
+                  Limites: 0.80 ≤ DI ≤ 1.25 (Dodevska et al., 2023, Eq. 14-15).
                 </div>
 
                 {/* Botões de ação */}

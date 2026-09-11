@@ -548,7 +548,7 @@ function generateSummary(cr: CRAnalysisResult, di: DIAnalysisResult): string {
     } else if (di.diValue < DI_LOWER_BOUND) {
       parts.push(
         `DI = ${di.diValue.toFixed(4)} < 0.80: impacto díspar detectado ` +
-        `contra grupo discriminado (Feldman et al., 2015).`
+        `contra grupo discriminado (Feldman et al., 2015; Dodevska et al., 2023).`
       );
     } else {
       parts.push(
