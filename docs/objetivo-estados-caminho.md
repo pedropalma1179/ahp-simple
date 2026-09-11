@@ -263,6 +263,33 @@ próprio sistema comete o erro, em `robustnessLevel` (ver 2.3), o que demonstra
 que o erro é natural e não hipotético. Isso é correção metodológica, não análise
 de robustez, e não compete com quem já fez sensibilidade.
 
+**A distinção já está formulada no manuscrito, com fonte, e não precisa ser
+construída do zero.** Quatro passagens a desenvolvem:
+
+- **Discussão da Tabela 12.** "A convergência decorre da relação de dominância
+  entre as alternativas [...] A ordenação da A1 à frente da A2 é, portanto,
+  consequência algébrica dessa dominância." O fundamento é Saaty e Vargas (1984):
+  a dominância de uma linha sobre outra preserva a ordem pelo autovetor principal
+  **sem exigência de consistência**, e a ordem é fator estrutural que a
+  inconsistência mascara sem eliminar.
+- **Seção 4.10.** Vai além da concordância entre métodos: como A1 domina nos
+  quatro méritos e os pesos pessoais e rescaling weights são não negativos, "a
+  diferença de score em favor da A1 permanece positiva para qualquer combinação
+  admissível dos pesos estratégicos". **A invariância se estende analiticamente a
+  perturbações simultâneas**, e não apenas à varredura unidimensional.
+- **Delimitação do alcance.** A extensão vale para os pesos estratégicos. As
+  perturbações das prioridades locais, dos julgamentos, das descrições técnicas e
+  da estrutura dos critérios permanecem fora.
+- **Limitações (Seção 6).** "Para aplicações sem relação de dominância entre
+  alternativas, estudos futuros podem incorporar sensibilidade multivariada e
+  exploração estocástica do espaço de pesos por simulação de Monte Carlo."
+
+**Consequência para o Bloco D.** O que falta não é o argumento: é o software
+parar de chamar concordância de robustez, que é a D.6. E as verificações D.1 a
+D.5 ganham endereço no manuscrito: a dominância no nível dos méritos já está
+estabelecida, e o que a Seção 4.10 declara fora de alcance (prioridades locais,
+julgamentos) é exatamente o que D.3 e D.4 poderiam cobrir.
+
 O restante do Bloco D é o que de fato é: as verificações que instanciam o
 diagnóstico, necessárias à ferramenta e não inéditas. O artefato integrado, que
 mapeia causa de fragilidade para ação do gestor, é defensável como sistema
@@ -491,9 +518,44 @@ anterior, então qualquer diferença de derivador se amplifica ali. Diluir por v
 respondente para baixo do limiar de 10%, o que explica a faixa observada de 1,05%
 a 9,64%. Ver `docs/referencia-cr-individuais.md`, seção 3.1.
 
-Três saídas, nenhuma a decidir agora: invalidar e recalcular na leitura; deixar
-congelado e nunca mais ler; ou remover o subobjeto. **A terceira é a única que
-impede que alguém volte a lê-lo por engano.**
+**DECISÃO, 10/09/2026: congelar, com registro.** O cache NÃO é tocado no Bloco B.
+
+Razão: corrigi-lo junto com a recomputação alteraria duas variáveis na mesma
+etapa e destruiria a capacidade de atribuição da série de execuções do parecer.
+Depois de todo o cuidado em separar a correção das páginas da correção dos
+exemplos, misturar cálculo e cache no commit mais consequente seria abrir mão do
+mesmo rigor no ponto mais importante.
+
+⚠ **O que a decisão produz, e a próxima retomada precisa saber.** Depois do Bloco
+B o sistema tem **duas origens de dado convivendo, sem nenhuma marca que as
+distinga na tela**:
+
+| Dado | Origem |
+|---|---|
+| pesos, rescaling, scores, consistência agregada | motor unificado, recomputado |
+| CR individual e classificação de respondente | cache de 07/05/2026 |
+
+Isso é intencional e temporário. A correção é a **etapa 4** da série documentada
+em `docs/imprecisoes-parecer-ia.md`.
+
+### B.3 Remover o subobjeto `responses` das respostas
+
+Depois da etapa 4. Remover a saída antecipada faz o código parar de ler o cache,
+mas o dado errado continua no banco, e o `contratos-de-dados.md` registra que
+aquele subobjeto é cache congelado que ninguém invalida. **Um campo morto que já
+enganou o sistema uma vez é candidato a enganá-lo de novo, por outro caminho.**
+
+⚠ **Consequência a antecipar, verificada em 10/09/2026.** O caminho de fallback,
+`computeCRsFromJudgments`, chama `calculateAllWeights` e devolve `avgCR:
+result.avgCR`, que no `ahp-ipc.ts` é o **máximo** das seis matrizes não triviais,
+não a média. Portanto, ao remover a saída antecipada, o `classifyRespondent`
+passa a receber o **CR governante**. Os doze respondentes migram de CONFIÁVEL
+para CRÍTICO, porque o menor governante é 11,39%.
+
+Isso é o comportamento correto, mas **a etapa 4 não troca só a origem do dado:
+ela inverte o veredito de todos os respondentes**, e o parecer passará a dizer o
+oposto do que diz hoje. É o resultado mais forte que a série pode produzir, e
+conviria antecipá-lo em vez de descobri-lo na geração.
 
 ### B.2 O Parecer IA publicado foi gerado sobre esse dado
 

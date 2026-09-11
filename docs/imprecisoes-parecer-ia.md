@@ -443,6 +443,23 @@ verificação.
 ancoragem é ele mesmo fonte de desancoragem, e está fora do alcance de qualquer
 verificador de saída.
 
+### Princípio derivado
+
+> **O prompt deve instruir formato e raciocínio; o payload deve fornecer fato.
+> Onde os dois se misturam, aparece erro.**
+
+Os dois casos que o geraram são as duas metades da mesma frase:
+
+- **Fato no lugar de instrução.** O `system-prompt.ts` e o payload carregam dado
+  factual deste projeto: a faixa "1,1% e 9,6%", o CR de 1,06%, "Validação externa
+  com pyAHP". O modelo copia o que o dado recebido não contradiz, e a faixa
+  sobreviveu porque as duas fontes concordavam e ambas estavam erradas.
+- **Instrução que exige fato ausente.** A DIRETRIZ 1 pede um N por matriz que o
+  payload não fornece. O modelo fabrica o valor faltante para poder obedecer.
+
+Não é conselho de redação: é a leitura das classes D e E juntas, e cada metade
+tem caso medido.
+
 ### Quatro superfícies de desancoragem
 
 Somando este achado ao caso de Salomon e Gomes (2024), registrado adiante, o
@@ -662,7 +679,15 @@ Registrar os acertos importa: sem eles o documento é acusação, não medição
 | Scores finais A1 0,064129 e A2 0,026937 | corretos. Conferem com a Tabela 12 |
 | Fórmula da síntese subtrativa com v e s | correta. Corresponde a Wijnmalen Eq. 17, apenas com a página errada (imprecisão 3) |
 
-**Todos os valores numéricos derivados do motor estão corretos.** As imprecisões
+⚠ **Ressalva sobre a origem destes valores.** As duas execuções leram o
+documento `calculations/{projectId}` gravado em **07/05/2026**, pelo motor
+anterior, que derivava prioridades por média geométrica das linhas. Os valores
+conferem com as tabelas publicadas, mas **não foram produzidos pelo motor
+unificado**: a atribuição correta é "conferem com o publicado", não "o motor
+unificado os produziu". A recomputação do Bloco B fecha essa lacuna, e as
+execuções posteriores a ela poderão fazer a afirmação forte.
+
+**Todos os valores numéricos lidos pelo parecer conferem com o publicado.** As imprecisões
 concentram-se em dois lugares: o que vem do `qualityAnalysis` (classe A) e o que
 vem da camada bibliográfica (classes B e C).
 

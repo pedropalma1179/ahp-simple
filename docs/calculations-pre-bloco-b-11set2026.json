@@ -1,0 +1,1212 @@
+{
+  "calculatedAt": "2026-07-13T19:39:31.334Z",
+  "subWeights": {
+    "R": [
+      0.28948224816169404,
+      0.28759196591429464,
+      0.20831240279227511,
+      0.12756123173295206,
+      0.0870521513987841
+    ],
+    "B": [
+      0.2230309346157203,
+      0.30376318220529713,
+      0.22680891529751468,
+      0.09567953117010987,
+      0.1507174367113581
+    ],
+    "C": [
+      0.15729826366326755,
+      0.15429751201290362,
+      0.4166214411518402,
+      0.16632397121390627,
+      0.10545881195808239
+    ],
+    "O": [
+      0.23272430891057677,
+      0.16469859743091045,
+      0.23165350184144864,
+      0.14288205941604817,
+      0.22804153240101604
+    ]
+  },
+  "ipcMetadata": {
+    "subcriteria": {
+      "R": {
+        "method": "EIGENVECTOR",
+        "completeness": {
+          "given": 10,
+          "ratio": 1,
+          "isComplete": true,
+          "possible": 10
+        }
+      },
+      "O": {
+        "method": "EIGENVECTOR",
+        "completeness": {
+          "ratio": 1,
+          "isComplete": true,
+          "possible": 10,
+          "given": 10
+        }
+      },
+      "C": {
+        "completeness": {
+          "given": 10,
+          "possible": 10,
+          "isComplete": true,
+          "ratio": 1
+        },
+        "method": "EIGENVECTOR"
+      },
+      "B": {
+        "method": "EIGENVECTOR",
+        "completeness": {
+          "isComplete": true,
+          "given": 10,
+          "possible": 10,
+          "ratio": 1
+        }
+      }
+    },
+    "magnitude": {
+      "method": "EIGENVECTOR",
+      "completeness": {
+        "given": 6,
+        "possible": 6,
+        "isComplete": true,
+        "ratio": 1
+      }
+    },
+    "hasIncompleteGroups": false,
+    "reference": "Bozóki, Fülöp & Rónyai (2009). On optimal completion of incomplete pairwise comparison matrices.",
+    "bocr": {
+      "completeness": {
+        "isComplete": true,
+        "given": 6,
+        "ratio": 1,
+        "possible": 6
+      },
+      "method": "EIGENVECTOR"
+    },
+    "version": "IPC-1.0"
+  },
+  "sensitivityInflections": {
+    "O": null,
+    "C": null,
+    "B": null,
+    "R": null
+  },
+  "ranking": [
+    {
+      "code": "A1",
+      "position": 1,
+      "name": "Controle em tempo real dos queimadores utilizando IA"
+    },
+    {
+      "code": "A2",
+      "position": 2,
+      "name": "Gêmeo digital CFD para simulação termodinâmica das estufas"
+    }
+  ],
+  "bocrWeights": [
+    0.37227664688843276,
+    0.1517028115083517,
+    0.19743689619605773,
+    0.27858364540715785
+  ],
+  "finalScores": [
+    {
+      "scoreQuotientSums": 1.7870026375381323,
+      "scoreMultSimpleNorm": 0.654387535794214,
+      "scoreMultiplicative": 1.0599042060299357,
+      "scoreMultSimple": 1.347188990096175,
+      "scoreSubtractiveNorm": 1,
+      "R_reciprocal": 0.5195598400698995,
+      "scoreAdditiveResidual": 0.5490013429569514,
+      "rankMultSimple": 1,
+      "scoreSubtractive": 0.06412946722825451,
+      "rankMultiplicative": 1,
+      "scoreQuotientSumsNorm": 0.5956373750497279,
+      "name": "Controle em tempo real dos queimadores utilizando IA",
+      "rankQuotientSums": 1,
+      "scoreAdditiveResidualNorm": 0.5490013429569514,
+      "B": 0.6001072863244953,
+      "isNegative": false,
+      "rankAdditiveResidual": 1,
+      "code": "A1",
+      "rankSubtractive": 1,
+      "C_reciprocal": 0.50966380681522,
+      "R": 0.48044015993010053,
+      "C": 0.4903361931847799,
+      "scoreMultiplicativeNorm": 0.5493582535911754,
+      "O": 0.5288504508134184
+    },
+    {
+      "scoreAdditiveResidualNorm": 0.45099865704304876,
+      "C_reciprocal": 0.49033619318477983,
+      "rankQuotientSums": 2,
+      "O": 0.47114954918658164,
+      "rankAdditiveResidual": 2,
+      "code": "A2",
+      "scoreQuotientSums": 1.213149321342791,
+      "scoreSubtractive": 0.026936951676485296,
+      "R": 0.5195598400698994,
+      "scoreAdditiveResidual": 0.45099865704304876,
+      "C": 0.5096638068152202,
+      "scoreQuotientSumsNorm": 0.40436262495027214,
+      "rankSubtractive": 2,
+      "rankMultSimple": 2,
+      "rankMultiplicative": 2,
+      "B": 0.39989271367550483,
+      "scoreSubtractiveNorm": 0,
+      "scoreMultiplicative": 0.8694455381512108,
+      "scoreMultSimpleNorm": 0.34561246420578595,
+      "isNegative": false,
+      "scoreMultSimple": 0.7115131037038313,
+      "R_reciprocal": 0.48044015993010064,
+      "scoreMultiplicativeNorm": 0.45064174640882454,
+      "name": "Gêmeo digital CFD para simulação termodinâmica das estufas"
+    }
+  ],
+  "altMeritScores": [
+    {
+      "C": 0.4903361931847799,
+      "B": 0.6001072863244953,
+      "R": 0.48044015993010053,
+      "O": 0.5288504508134184,
+      "name": "Controle em tempo real dos queimadores utilizando IA",
+      "code": "A1"
+    },
+    {
+      "name": "Gêmeo digital CFD para simulação termodinâmica das estufas",
+      "R": 0.5195598400698994,
+      "code": "A2",
+      "B": 0.39989271367550483,
+      "C": 0.5096638068152202,
+      "O": 0.47114954918658164
+    }
+  ],
+  "bocrConsistency": {
+    "lambda": 4.0286357292716755,
+    "cr": 0.010605825656176095,
+    "ci": 0.009545243090558486
+  },
+  "methodConcordance": {
+    "rankingsByMethod": {
+      "MultSimple": [
+        "A1",
+        "A2"
+      ],
+      "AdditiveResidual": [
+        "A1",
+        "A2"
+      ],
+      "Subtractive": [
+        "A1",
+        "A2"
+      ],
+      "Multiplicative": [
+        "A1",
+        "A2"
+      ],
+      "QuotientSums": [
+        "A1",
+        "A2"
+      ]
+    },
+    "agreementPercent": 100,
+    "totalMethods": 5,
+    "robustnessLabel": "Excelente (5/5 métodos concordam)",
+    "consensusWinner": "A1",
+    "robustnessLevel": "excellent",
+    "agreeMethods": 5,
+    "divergentMethods": []
+  },
+  "sensitivityTrajectories": {
+    "R": [
+      {
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A1": 0.12870451237824482,
+          "A2": 0.08039122844638749
+        },
+        "weight": 0
+      },
+      {
+        "inflection": false,
+        "weight": 5,
+        "scores": {
+          "A2": 0.07079729182247382,
+          "A1": 0.11711462793696471
+        },
+        "winner": "A1"
+      },
+      {
+        "weight": 10,
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.10552474349568461,
+          "A2": 0.06120335519856016
+        }
+      },
+      {
+        "weight": 15,
+        "scores": {
+          "A1": 0.09393485905440448,
+          "A2": 0.05160941857464647
+        },
+        "inflection": false,
+        "winner": "A1"
+      },
+      {
+        "weight": 20,
+        "inflection": false,
+        "scores": {
+          "A1": 0.08234497461312437,
+          "A2": 0.04201548195073283
+        },
+        "winner": "A1"
+      },
+      {
+        "weight": 25,
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A2": 0.032421545326819144,
+          "A1": 0.07075509017184424
+        }
+      },
+      {
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A1": 0.05916520573056411,
+          "A2": 0.022827608702905455
+        },
+        "weight": 30
+      },
+      {
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A1": 0.04757532128928399,
+          "A2": 0.013233672078991787
+        },
+        "weight": 35
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A2": 0.00363973545507814,
+          "A1": 0.035985436848003885
+        },
+        "inflection": false,
+        "weight": 40
+      },
+      {
+        "scores": {
+          "A1": 0.024395552406723794,
+          "A2": -0.005954201168835521
+        },
+        "winner": "A1",
+        "inflection": false,
+        "weight": 45
+      },
+      {
+        "weight": 50,
+        "inflection": false,
+        "scores": {
+          "A1": 0.01280566796544367,
+          "A2": -0.01554813779274919
+        },
+        "winner": "A1"
+      },
+      {
+        "weight": 55,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.001215783524163544,
+          "A2": -0.025142074416662864
+        },
+        "inflection": false
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": -0.010374100917116574,
+          "A2": -0.03473601104057654
+        },
+        "inflection": false,
+        "weight": 60
+      },
+      {
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A2": -0.04432994766449021,
+          "A1": -0.021963985358396693
+        },
+        "weight": 65
+      },
+      {
+        "scores": {
+          "A2": -0.05392388428840388,
+          "A1": -0.033553869799676804
+        },
+        "winner": "A1",
+        "weight": 70,
+        "inflection": false
+      },
+      {
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": -0.0451437542409569,
+          "A2": -0.06351782091231753
+        },
+        "weight": 75
+      },
+      {
+        "inflection": false,
+        "weight": 80,
+        "winner": "A1",
+        "scores": {
+          "A2": -0.0731117575362312,
+          "A1": -0.056733638682237034
+        }
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": -0.06832352312351717,
+          "A2": -0.08270569416014487
+        },
+        "inflection": false,
+        "weight": 85
+      },
+      {
+        "scores": {
+          "A1": -0.07991340756479727,
+          "A2": -0.09229963078405855
+        },
+        "winner": "A1",
+        "weight": 90,
+        "inflection": false
+      },
+      {
+        "scores": {
+          "A2": -0.10189356740797222,
+          "A1": -0.09150329200607737
+        },
+        "winner": "A1",
+        "inflection": false,
+        "weight": 95
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": -0.10309317644735748,
+          "A2": -0.11148750403188587
+        },
+        "inflection": false,
+        "weight": 100
+      }
+    ],
+    "O": [
+      {
+        "scores": {
+          "A1": 0.06053333693862321,
+          "A2": 0.018333239714455524
+        },
+        "winner": "A1",
+        "inflection": false,
+        "weight": 0
+      },
+      {
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A2": 0.021168952473001233,
+          "A1": 0.06171859192957417
+        },
+        "weight": 5
+      },
+      {
+        "weight": 10,
+        "inflection": false,
+        "scores": {
+          "A2": 0.024004665231546964,
+          "A1": 0.06290384692052511
+        },
+        "winner": "A1"
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": 0.06408910191147606,
+          "A2": 0.026840377990092663
+        },
+        "inflection": false,
+        "weight": 15
+      },
+      {
+        "weight": 20,
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A2": 0.029676090748638372,
+          "A1": 0.06527435690242703
+        }
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A2": 0.03251180350718407,
+          "A1": 0.06645961189337797
+        },
+        "inflection": false,
+        "weight": 25
+      },
+      {
+        "weight": 30,
+        "scores": {
+          "A1": 0.06764486688432891,
+          "A2": 0.03534751626572978
+        },
+        "winner": "A1",
+        "inflection": false
+      },
+      {
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A1": 0.06883012187527987,
+          "A2": 0.038183229024275504
+        },
+        "weight": 35
+      },
+      {
+        "weight": 40,
+        "inflection": false,
+        "scores": {
+          "A1": 0.07001537686623081,
+          "A2": 0.041018941782821214
+        },
+        "winner": "A1"
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": 0.07120063185718176,
+          "A2": 0.04385465454136692
+        },
+        "inflection": false,
+        "weight": 45
+      },
+      {
+        "weight": 50,
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.07238588684813271,
+          "A2": 0.04669036729991264
+        }
+      },
+      {
+        "scores": {
+          "A1": 0.07357114183908367,
+          "A2": 0.04952608005845835
+        },
+        "winner": "A1",
+        "inflection": false,
+        "weight": 55
+      },
+      {
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.0747563968300346,
+          "A2": 0.05236179281700405
+        },
+        "weight": 60
+      },
+      {
+        "inflection": false,
+        "weight": 65,
+        "winner": "A1",
+        "scores": {
+          "A2": 0.05519750557554977,
+          "A1": 0.07594165182098556
+        }
+      },
+      {
+        "scores": {
+          "A1": 0.07712690681193651,
+          "A2": 0.05803321833409548
+        },
+        "winner": "A1",
+        "weight": 70,
+        "inflection": false
+      },
+      {
+        "weight": 75,
+        "inflection": false,
+        "scores": {
+          "A1": 0.07831216180288747,
+          "A2": 0.060868931092641174
+        },
+        "winner": "A1"
+      },
+      {
+        "inflection": false,
+        "weight": 80,
+        "scores": {
+          "A2": 0.06370464385118689,
+          "A1": 0.07949741679383841
+        },
+        "winner": "A1"
+      },
+      {
+        "scores": {
+          "A2": 0.0665403566097326,
+          "A1": 0.08068267178478937
+        },
+        "inflection": false,
+        "winner": "A1",
+        "weight": 85
+      },
+      {
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A2": 0.06937606936827832,
+          "A1": 0.0818679267757403
+        },
+        "weight": 90
+      },
+      {
+        "weight": 95,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.08305318176669127,
+          "A2": 0.07221178212682403
+        },
+        "inflection": false
+      },
+      {
+        "inflection": false,
+        "weight": 100,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.08423843675764221,
+          "A2": 0.07504749488536974
+        }
+      }
+    ],
+    "C": [
+      {
+        "inflection": false,
+        "weight": 0,
+        "scores": {
+          "A1": 0.10243704959288275,
+          "A2": 0.0569829946233009
+        },
+        "winner": "A1"
+      },
+      {
+        "weight": 5,
+        "scores": {
+          "A1": 0.09273582780944561,
+          "A2": 0.04937397029053903
+        },
+        "inflection": false,
+        "winner": "A1"
+      },
+      {
+        "scores": {
+          "A1": 0.08303460602600847,
+          "A2": 0.04176494595777716
+        },
+        "inflection": false,
+        "winner": "A1",
+        "weight": 10
+      },
+      {
+        "weight": 15,
+        "inflection": false,
+        "scores": {
+          "A1": 0.07333338424257135,
+          "A2": 0.03415592162501533
+        },
+        "winner": "A1"
+      },
+      {
+        "inflection": false,
+        "weight": 20,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.0636321624591342,
+          "A2": 0.026546897292253454
+        }
+      },
+      {
+        "weight": 25,
+        "inflection": false,
+        "scores": {
+          "A1": 0.05393094067569708,
+          "A2": 0.018937872959491595
+        },
+        "winner": "A1"
+      },
+      {
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A2": 0.011328848626729723,
+          "A1": 0.04422971889225993
+        },
+        "weight": 30
+      },
+      {
+        "scores": {
+          "A2": 0.0037198242939678605,
+          "A1": 0.03452849710882279
+        },
+        "winner": "A1",
+        "inflection": false,
+        "weight": 35
+      },
+      {
+        "weight": 40,
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.024827275325385638,
+          "A2": -0.0038892000387940016
+        }
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": 0.015126053541948514,
+          "A2": -0.011498224371555867
+        },
+        "inflection": false,
+        "weight": 45
+      },
+      {
+        "scores": {
+          "A1": 0.00542483175851138,
+          "A2": -0.019107248704317733
+        },
+        "inflection": false,
+        "winner": "A1",
+        "weight": 50
+      },
+      {
+        "inflection": false,
+        "weight": 55,
+        "winner": "A1",
+        "scores": {
+          "A1": -0.004276390024925768,
+          "A2": -0.02671627303707961
+        }
+      },
+      {
+        "inflection": false,
+        "weight": 60,
+        "scores": {
+          "A1": -0.01397761180836291,
+          "A2": -0.03432529736984147
+        },
+        "winner": "A1"
+      },
+      {
+        "weight": 65,
+        "inflection": false,
+        "scores": {
+          "A2": -0.04193432170260332,
+          "A1": -0.02367883359180004
+        },
+        "winner": "A1"
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": -0.03338005537523718,
+          "A2": -0.049543346035365185
+        },
+        "inflection": false,
+        "weight": 70
+      },
+      {
+        "scores": {
+          "A1": -0.04308127715867431,
+          "A2": -0.05715237036812705
+        },
+        "inflection": false,
+        "winner": "A1",
+        "weight": 75
+      },
+      {
+        "weight": 80,
+        "scores": {
+          "A2": -0.06476139470088892,
+          "A1": -0.052782498942111455
+        },
+        "inflection": false,
+        "winner": "A1"
+      },
+      {
+        "weight": 85,
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": -0.06248372072554859,
+          "A2": -0.07237041903365077
+        }
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": -0.07218494250898572,
+          "A2": -0.07997944336641265
+        },
+        "inflection": false,
+        "weight": 90
+      },
+      {
+        "weight": 95,
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A1": -0.08188616429242286,
+          "A2": -0.0875884676991745
+        }
+      },
+      {
+        "inflection": false,
+        "weight": 100,
+        "winner": "A1",
+        "scores": {
+          "A1": -0.09158738607585999,
+          "A2": -0.09519749203193636
+        }
+      }
+    ],
+    "B": [
+      {
+        "inflection": false,
+        "weight": 0,
+        "winner": "A1",
+        "scores": {
+          "A2": -0.061283647456359565,
+          "A1": -0.05420157508396235
+        }
+      },
+      {
+        "weight": 5,
+        "winner": "A1",
+        "inflection": false,
+        "scores": {
+          "A1": -0.0383086842323265,
+          "A2": -0.04943485169248191
+        }
+      },
+      {
+        "weight": 10,
+        "inflection": false,
+        "scores": {
+          "A1": -0.02241579338069065,
+          "A2": -0.03758605592860424
+        },
+        "winner": "A1"
+      },
+      {
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": -0.006522902529054797,
+          "A2": -0.025737260164726578
+        },
+        "weight": 15
+      },
+      {
+        "scores": {
+          "A2": -0.013888464400848916,
+          "A1": 0.009369988322581055
+        },
+        "inflection": false,
+        "winner": "A1",
+        "weight": 20
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": 0.025262879174216907,
+          "A2": -0.002039668636971255
+        },
+        "inflection": false,
+        "weight": 25
+      },
+      {
+        "scores": {
+          "A1": 0.04115577002585279,
+          "A2": 0.00980912712690643
+        },
+        "winner": "A1",
+        "inflection": false,
+        "weight": 30
+      },
+      {
+        "scores": {
+          "A2": 0.02165792289078408,
+          "A1": 0.05704866087748862
+        },
+        "inflection": false,
+        "winner": "A1",
+        "weight": 35
+      },
+      {
+        "weight": 40,
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.07294155172912448,
+          "A2": 0.033506718654661746
+        }
+      },
+      {
+        "inflection": false,
+        "weight": 45,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.08883444258076031,
+          "A2": 0.04535551441853939
+        }
+      },
+      {
+        "scores": {
+          "A1": 0.10472733343239618,
+          "A2": 0.05720431018241706
+        },
+        "winner": "A1",
+        "weight": 50,
+        "inflection": false
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A2": 0.06905310594629474,
+          "A1": 0.12062022428403202
+        },
+        "inflection": false,
+        "weight": 55
+      },
+      {
+        "weight": 60,
+        "inflection": false,
+        "scores": {
+          "A2": 0.0809019017101724,
+          "A1": 0.13651311513566794
+        },
+        "winner": "A1"
+      },
+      {
+        "inflection": false,
+        "weight": 65,
+        "winner": "A1",
+        "scores": {
+          "A2": 0.09275069747405004,
+          "A1": 0.15240600598730372
+        }
+      },
+      {
+        "weight": 70,
+        "scores": {
+          "A1": 0.1682988968389396,
+          "A2": 0.10459949323792771
+        },
+        "inflection": false,
+        "winner": "A1"
+      },
+      {
+        "winner": "A1",
+        "scores": {
+          "A1": 0.18419178769057545,
+          "A2": 0.11644828900180537
+        },
+        "weight": 75,
+        "inflection": false
+      },
+      {
+        "weight": 80,
+        "inflection": false,
+        "scores": {
+          "A1": 0.2000846785422113,
+          "A2": 0.12829708476568302
+        },
+        "winner": "A1"
+      },
+      {
+        "weight": 85,
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A1": 0.21597756939384719,
+          "A2": 0.14014588052956073
+        }
+      },
+      {
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A2": 0.15199467629343835,
+          "A1": 0.23187046024548297
+        },
+        "weight": 90
+      },
+      {
+        "weight": 95,
+        "scores": {
+          "A1": 0.2477633510971189,
+          "A2": 0.16384347205731603
+        },
+        "inflection": false,
+        "winner": "A1"
+      },
+      {
+        "inflection": false,
+        "winner": "A1",
+        "scores": {
+          "A2": 0.17569226782119368,
+          "A1": 0.2636562419487547
+        },
+        "weight": 100
+      }
+    ]
+  },
+  "metadata": {
+    "alternativesCount": 2,
+    "references": {
+      "alternative": "Wijnmalen (2007) Eq.12: (sb·B + so·O) / (sc·C + sr·R)",
+      "primary": "Wijnmalen (2007) Eq.17: vb·sb·B + vo·so·O - vc·sc·C - vr·sr·R",
+      "demirtas": "Demirtas & Ustun (2008) Eq.2: vb·B + vo·O + vc·(1-C) + vr·(1-R)",
+      "alizadeh2020": "Alizadeh et al. (2020) Energy policy: Sensitivity classification",
+      "lee2009": "Lee (2009) Wind farms: 5 synthesis methods comparison",
+      "lee2009a": "Lee (2009a) Supplier selection: Negative priorities, concordance analysis"
+    },
+    "q1Features": [
+      "BOCR Priorities Table (Lee 2009)",
+      "Reciprocal Normalized Values (Lee 2009a)",
+      "Negative Priority Detection (Lee 2009a)",
+      "Method Concordance Analysis (Lee 2009, Alizadeh 2020)",
+      "Sensitivity Classification (Alizadeh 2020)"
+    ],
+    "methodsCount": 5,
+    "excludedRespondentIds": [],
+    "version": "5.0",
+    "projectName": "Seleção de tecnologia I4.0 para gerenciamento de estufas de cura em linha de pintura automotiva",
+    "primaryMethod": "Subtractive"
+  },
+  "bocrPrioritiesTable": [
+    {
+      "R": 0.48044015993010053,
+      "C": 0.4903361931847799,
+      "B": 0.6001072863244953,
+      "C_reciprocal": 0.50966380681522,
+      "code": "A1",
+      "R_reciprocal": 0.5195598400698995,
+      "O": 0.5288504508134184,
+      "name": "Controle em tempo real dos queimadores utilizando IA"
+    },
+    {
+      "name": "Gêmeo digital CFD para simulação termodinâmica das estufas",
+      "code": "A2",
+      "C_reciprocal": 0.49033619318477983,
+      "O": 0.47114954918658164,
+      "R": 0.5195598400698994,
+      "C": 0.5096638068152202,
+      "B": 0.39989271367550483,
+      "R_reciprocal": 0.48044015993010064
+    }
+  ],
+  "magnitudeConsistency": {
+    "cr": 0.025835275910355695,
+    "ci": 0.023251748319320125,
+    "lambda": 4.06975524495796
+  },
+  "projectId": "yiEXoz12wN7rqWZZP70g",
+  "sensitivityAnalysis": [
+    {
+      "newWinner": null,
+      "currentWinner": "A1",
+      "changeDescription": "Ranking estável para qualquer variação em Benefícios",
+      "inflectionPoint": null,
+      "classification": "robust",
+      "meritName": "Benefícios",
+      "classificationLabel": "Robusto",
+      "currentWeight": 37.22766468884328,
+      "merit": "B"
+    },
+    {
+      "classificationLabel": "Robusto",
+      "meritName": "Oportunidades",
+      "changeDescription": "Ranking estável para qualquer variação em Oportunidades",
+      "currentWinner": "A1",
+      "classification": "robust",
+      "newWinner": null,
+      "currentWeight": 15.17028115083517,
+      "inflectionPoint": null,
+      "merit": "O"
+    },
+    {
+      "newWinner": null,
+      "changeDescription": "Ranking estável para qualquer variação em Custos",
+      "classificationLabel": "Robusto",
+      "classification": "robust",
+      "currentWinner": "A1",
+      "meritName": "Custos",
+      "inflectionPoint": null,
+      "currentWeight": 19.74368961960577,
+      "merit": "C"
+    },
+    {
+      "changeDescription": "Ranking estável para qualquer variação em Riscos",
+      "meritName": "Riscos",
+      "classificationLabel": "Robusto",
+      "classification": "robust",
+      "merit": "R",
+      "currentWeight": 27.858364540715787,
+      "inflectionPoint": null,
+      "newWinner": null,
+      "currentWinner": "A1"
+    }
+  ],
+  "subConsistency": {
+    "B": {
+      "lambda": 5.049372029992582,
+      "cr": 0.011020542409058419
+    },
+    "C": {
+      "cr": 0.025999844475419514,
+      "lambda": 5.116479303249879
+    },
+    "O": {
+      "lambda": 5.041382214064323,
+      "cr": 0.009237101353643567
+    },
+    "R": {
+      "lambda": 5.062605337097253,
+      "cr": 0.013974405602065356
+    }
+  },
+  "responseCount": 12,
+  "alerts": {
+    "sensitivityCritical": [],
+    "negativeAlternatives": [],
+    "lowConcordance": false,
+    "hasNegativePriorities": false
+  },
+  "altScores": {
+    "R2": {
+      "A1": 0.37073934171565626,
+      "A2": 0.6292606582843437
+    },
+    "R1": {
+      "A2": 0.40594998708482244,
+      "A1": 0.5940500129151776
+    },
+    "B3": {
+      "A1": 0.5835786633111333,
+      "A2": 0.41642133668886666
+    },
+    "R4": {
+      "A1": 0.5682348688308037,
+      "A2": 0.4317651311691964
+    },
+    "C1": {
+      "A1": 0.5404511928985011,
+      "A2": 0.45954880710149887
+    },
+    "C4": {
+      "A2": 0.5922562735828136,
+      "A1": 0.4077437264171863
+    },
+    "C2": {
+      "A1": 0.5052355258971377,
+      "A2": 0.4947644741028623
+    },
+    "C5": {
+      "A2": 0.40945856318612395,
+      "A1": 0.590541436813876
+    },
+    "O4": {
+      "A1": 0.47173592390952296,
+      "A2": 0.5282640760904771
+    },
+    "O1": {
+      "A1": 0.38735639531103055,
+      "A2": 0.6126436046889695
+    },
+    "O5": {
+      "A2": 0.29149093390747205,
+      "A1": 0.708509066092528
+    },
+    "B5": {
+      "A2": 0.40115453019873343,
+      "A1": 0.5988454698012666
+    },
+    "B2": {
+      "A1": 0.556179492008892,
+      "A2": 0.44382050799110806
+    },
+    "O3": {
+      "A2": 0.4127292393412762,
+      "A1": 0.5872707606587239
+    },
+    "C3": {
+      "A2": 0.5264952768115592,
+      "A1": 0.47350472318844083
+    },
+    "R3": {
+      "A2": 0.6342915492303525,
+      "A1": 0.3657084507696476
+    },
+    "R5": {
+      "A2": 0.3890418122054375,
+      "A1": 0.6109581877945625
+    },
+    "B4": {
+      "A2": 0.4233330068749967,
+      "A1": 0.5766669931250034
+    },
+    "O2": {
+      "A2": 0.5525901199777021,
+      "A1": 0.447409880022298
+    },
+    "B1": {
+      "A2": 0.3123469223482614,
+      "A1": 0.6876530776517387
+    }
+  },
+  "rescalingWeights": {
+    "sr": 0.21458068047924336,
+    "sb": 0.4393485097699483,
+    "so": 0.15928593164301194,
+    "sc": 0.18678487810779634
+  },
+  "aggregatedMatrices": {
+    "subcriteria": {
+      "R": "[[1,0.8448699243264528,1.2451517748507208,3.316673774254894,2.8789038514264362],[1.1836141531457876,1,1.4033297521413088,1.9673275917795172,3.2446256832788727],[0.8031149456618558,0.7125908921079475,1,1.7443859949244094,2.1406951429280725],[0.3015068915617589,0.5083037538732758,0.5732676156020925,1,1.8994041511369626],[0.34735442779880304,0.3082019615247097,0.4671379777282001,0.5264808963386812,1]]",
+      "B": "[[1,0.6644651164103906,0.9792749099032926,2.297309750099902,1.7209779834049963],[1.504969900304555,1,1.393406297433106,2.4997564434054445,2.250454906195037],[1.0211637098909785,0.7176657675813378,1,3.112576172200815,1.1602659835119289],[0.43529175809074655,0.40003897285196693,0.321277277944632,1,0.6367732194731706],[0.5810649582056104,0.4443546045944785,0.8618713417531807,1.5704178024750197,1]]",
+      "O": "[[1,1.603653669254229,0.9786062309324216,1.846885818396239,0.814868946046383],[0.6235760371284187,1,0.602046613090961,1.2009369551760027,0.9183859021684453],[1.0218614682712517,1.6610009561650232,1,1.5378707520292516,0.8993522716024583],[0.5414519890939222,0.8326831776556043,0.6502497031564451,1,0.7176657675813378],[1.2271912003173564,1.088866888787003,1.1119113517311836,1.393406297433106,1]]",
+      "C": "[[1,1.0958726911352443,0.2405966845207236,0.9999999999999999,2.0089635421924563],[0.9125147547604939,1,0.35977595896393055,0.8503058428586057,1.8994041511369626],[4.156333251191854,2.7795075659856843,1,2.125557509551097,2.6439447108484795],[1.0000000000000002,1.1760474285795146,0.4704648053541459,1,1.4214459771821246],[0.49776911277775754,0.5264808963386812,0.3782227351036723,0.7035089732938009,1]]"
+    },
+    "magnitude": "[[1,2.9607688096668197,2.840271682449184,1.6150744476616494],[0.33775011298924473,1,0.6502497031564451,1.0211637098909785],[0.35207899518178976,1.5378707520292518,1,0.8096595719814021],[0.619166504335344,0.9792749099032926,1.2350869854509297,1]]",
+    "bocr": "[[1,2.840271682449184,1.9820051500277909,1.0958726911352443],[0.35207899518178976,1,0.7125908921079473,0.6737295476527683],[0.5045395568149651,1.403329752141309,1,0.7080353712106306],[0.9125147547604939,1.4842751122968225,1.41235881802085,1]]"
+  }
+}
