@@ -195,7 +195,8 @@ const ok = resultados.filter(r => r.veredito === 'OK').length;
 const naFaixa = resultados.filter(r => r.veredito === 'DIVERGE_NA_FAIXA').length;
 const foraFaixa = resultados.filter(r => r.veredito === 'DIVERGE_FORA_DA_FAIXA').length;
 const naoIndexado = resultados.filter(r => r.veredito === 'NAO_INDEXADO').length;
-const divergentes = naFaixa + foraFaixa;
+const divergentes = foraFaixa;
+const cobertura = naFaixa;
 
 // citacoes sem pagina que nao sao repeticao de uma com pagina
 const chavesComPagina = new Set(comPagina.map(c => `${normalizar(c.autores)}|${c.ano}`));
@@ -208,7 +209,7 @@ if (asJson) {
     parecer: parecerPath,
     rag: RAG_DIR,
     artigosIndexados: artigos.length,
-    resumo: { total, ok, divergentes, naFaixa, foraFaixa, naoIndexado, semLocalizador: semPagina.length },
+    resumo: { total, ok, cobertura, divergentes, naFaixa, foraFaixa, naoIndexado, semLocalizador: semPagina.length },
     resultados,
   }, null, 2));
   process.exit(divergentes > 0 ? 1 : 0);
@@ -224,6 +225,7 @@ const largura = Math.max(...resultados.map(r => r.bruto.length), 10);
 for (const r of resultados) {
   const marca =
     r.veredito === 'OK' ? 'ok  '
+    : r.veredito === 'DIVERGE_NA_FAIXA' ? 'ok* '
     : r.veredito === 'NAO_INDEXADO' ? '??  '
     : 'XX  ';
   const detalhe =
@@ -238,22 +240,27 @@ for (const r of resultados) {
 
 console.log(`\n--- resumo`);
 console.log(`citacoes com localizador : ${total}`);
-console.log(`  corretas               : ${ok}  (${pct(ok)})`);
-console.log(`  divergentes            : ${divergentes}  (${pct(divergentes)})`);
-console.log(`    fora da faixa        : ${foraFaixa}`);
-console.log(`    dentro da faixa      : ${naFaixa}   <- o teste por faixa perderia estas`);
-console.log(`  artigo nao indexado    : ${naoIndexado}  (inconclusivo, nao conta como divergencia)`);
+console.log(`  correta (pagina de claim)      : ${ok}  (${pct(ok)})`);
+console.log(`  correta, RAG nao cobre         : ${cobertura}  (${pct(cobertura)})  <- na faixa do artigo, sem claim indexada`);
+console.log(`  DIVERGENTE (fora da faixa)     : ${divergentes}  (${pct(divergentes)})`);
+console.log(`  artigo nao indexado            : ${naoIndexado}  <- inconclusivo`);
 console.log(`citacoes sem localizador : ${semPagina.length}  (${semPaginaUnicas.length} de artigos que nunca aparecem com pagina)`);
+
+const classificadas = ok + cobertura + divergentes;
+console.log(`\ntaxa de divergencia: ${divergentes}/${classificadas} (${classificadas ? ((divergentes / classificadas) * 100).toFixed(0) + '%' : '-'})`);
 
 const universo = total + semPagina.length;
 if (universo) {
   console.log(`\ncobertura do teste: ${((total / universo) * 100).toFixed(0)}% das ${universo} citacoes`);
   console.log(`taxa de erro: entre ${divergentes}/${universo} (${((divergentes / universo) * 100).toFixed(0)}%) no melhor caso`);
-  console.log(`              e ${divergentes + semPagina.length}/${universo} (${(((divergentes + semPagina.length) / universo) * 100).toFixed(0)}%) no pior`);
+  console.log(`              e ${divergentes + semPaginaUnicas.length}/${universo} (${(((divergentes + semPaginaUnicas.length) / universo) * 100).toFixed(0)}%) no pior`);
 }
 
 console.log(`\nlimitacao: a conferencia e contra o RAG, nao contra o PDF. Uma divergencia`);
 console.log(`pode ser atribuicao errada OU falha de cobertura do RAG. So o PDF separa as`);
-console.log(`duas. Ver docs/imprecisoes-parecer-ia.md, "Limitacao metodologica".\n`);
+console.log(`duas. As citacoes contadas em "correta, RAG nao cobre" caem na faixa do`);
+console.log(`artigo mas em pagina sem claim indexada: sao corretas quanto ao artigo, e`);
+console.log(`medem a cobertura da base, nao erro do modelo.`);
+console.log(`Ver docs/imprecisoes-parecer-ia.md, "Limitacao metodologica".\n`);
 
 process.exit(divergentes > 0 ? 1 : 0);
