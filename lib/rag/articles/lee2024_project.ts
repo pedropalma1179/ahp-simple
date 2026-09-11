@@ -29,7 +29,7 @@ const article: ArticleExtraction = {
       unit: "ratio",
       context: "acceptable consistency of pairwise comparison matrix",
       evidence: {
-        page: 6,
+        page: 380,
         locator_type: "paragraph",
         locator_id: "Section: Methodology",
         quote: "the result is said to be consistent only if the corresponding CR value is lower than 10%"
@@ -49,7 +49,7 @@ const article: ArticleExtraction = {
       },
       conditions: "Used after the weight Wi is generated for the ith objective and score Sik is given.",
       evidence: {
-        page: 5,
+        page: 379,
         locator_type: "equation",
         locator_id: "Eq. 1",
         quote: "the final score of the kth alternative is then evaluated using the Eq. 1 below"
@@ -63,7 +63,7 @@ const article: ArticleExtraction = {
       variables: { CI: "Consistency Index", "\\lambda_{max}": "Maximum eigenvalue", n: "Size of matrix" },
       conditions: "Calculated to check for the consistency of the outcomes from AHP.",
       evidence: {
-        page: 6,
+        page: 380,
         locator_type: "equation",
         locator_id: "Eq. 11",
         quote: "Equation 11 shows the consistency index, which can be further divided into the definition for RI and CR."
@@ -77,7 +77,7 @@ const article: ArticleExtraction = {
       variables: { CR: "Consistency Ratio", CI: "Consistency Index", RI: "Random Index" },
       conditions: "For values higher than 10%, the comparison and ratio matrix will be revised, and re-evaluation will be done.",
       evidence: {
-        page: 7,
+        page: 381,
         locator_type: "equation",
         locator_id: "Eq. 12",
         quote: "It is the ratio of CI (A): RI (A), where RI(A) is the random index for matrices of size n."
@@ -123,7 +123,7 @@ const article: ArticleExtraction = {
         ]
       },
       notes: "Transcribed fully.",
-      evidence: { page: 6, locator_type: "table", locator_id: "Table 2", quote: "Table 2 The fundamental scale" }
+      evidence: { page: 380, locator_type: "table", locator_id: "Table 2", quote: "Table 2 The fundamental scale" }
     },
     {
       kind: "table",
@@ -136,7 +136,7 @@ const article: ArticleExtraction = {
         ]
       },
       notes: "Transcribed fully.",
-      evidence: { page: 7, locator_type: "table", locator_id: "Table 3", quote: "Table 3 Random consistency table" }
+      evidence: { page: 381, locator_type: "table", locator_id: "Table 3", quote: "Table 3 Random consistency table" }
     },
     {
       kind: "table",
@@ -155,7 +155,7 @@ const article: ArticleExtraction = {
       },
       notes: "Transcribed fully.",
       evidence: {
-        page: 14,
+        page: 388,
         locator_type: "table",
         locator_id: "Table 14",
         quote: "Table 14 Summary of weightages for different projects"
@@ -180,7 +180,7 @@ const article: ArticleExtraction = {
       claim: "Capital cost is the most critical criterion for selecting highly capital-intensive projects in the energy sector.",
       verbatim_quote: "Capital cost contributes the most to this decision because the projects considered in this case are highly capital intensive.",
       evidence: {
-        page: 1,
+        page: 375,
         locator_type: "paragraph",
         locator_id: "Abstract",
         quote: "Capital cost contributes the most to this decision because the projects considered in this case are highly capital intensive."
@@ -191,7 +191,7 @@ const article: ArticleExtraction = {
       claim: "AHP provides consistent and robust ratings for multifaceted decision-making in project management.",
       verbatim_quote: "the AHP can be considered to be robust as the methods and techniques used to conduct pair-wise comparisons are able to produce consistent, reliable ratings",
       evidence: {
-        page: 9,
+        page: 383,
         locator_type: "paragraph",
         locator_id: "Conclusions",
         quote: "the AHP can be considered to be robust as the methods and techniques used to conduct pair-wise comparisons are able to produce consistent, reliable ratings"

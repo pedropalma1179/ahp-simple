@@ -29,7 +29,7 @@ const article: ArticleExtraction = {
       unit: "count",
       context: "minimum group size to guarantee 100% acceptable inconsistency in 3x3 matrices using GMM",
       evidence: {
-        page: 4,
+        page: 293,
         locator_type: "section",
         locator_id: "4",
         quote: "Achieving a 100% acceptable inconsistency level in aggregated matrices required a relatively large group size of 90 for 3x3 comparison matrices."
@@ -42,7 +42,7 @@ const article: ArticleExtraction = {
       unit: "count",
       context: "minimum group size to guarantee 100% acceptable inconsistency in 4x4 matrices using GMM",
       evidence: {
-        page: 4,
+        page: 293,
         locator_type: "section",
         locator_id: "4",
         quote: "In Fig. 2, we see that for a 4x4 comparison matrix, the group size threshold is 40."
@@ -55,7 +55,7 @@ const article: ArticleExtraction = {
       unit: "count",
       context: "minimum group size to guarantee 100% acceptable inconsistency in 5x5 matrices using GMM",
       evidence: {
-        page: 4,
+        page: 293,
         locator_type: "section",
         locator_id: "4",
         quote: "For a 5x5 comparison matrix, the corresponding group size threshold is 25 (Fig. 3)"
@@ -68,7 +68,7 @@ const article: ArticleExtraction = {
       unit: "count",
       context: "minimum group size to guarantee 100% acceptable inconsistency in 6x6 matrices using GMM",
       evidence: {
-        page: 4,
+        page: 293,
         locator_type: "section",
         locator_id: "4",
         quote: "for a 6x6 matrix, the corresponding group size threshold is 20 (Fig. 4)."
@@ -84,7 +84,7 @@ const article: ArticleExtraction = {
       variables: { X_i: "individual values/judgments", n: "group size" },
       conditions: "Useful when the measurement scale is not linear and to dampen the effect of extreme values.",
       evidence: {
-        page: 3,
+        page: 292,
         locator_type: "section",
         locator_id: "3",
         quote: "Given values X1, X2, X3, . . . , Xn, the geometric mean of these n values is given by [X1X2X3, . . . ,Xn]^1/n"
@@ -98,7 +98,7 @@ const article: ArticleExtraction = {
       variables: { "a_{ijk}": "pairwise comparison rating between i and j for member k", n: "group size" },
       conditions: "Assumes positive ratings (0 < a_ijk ≤ 9).",
       evidence: {
-        page: 6,
+        page: 295,
         locator_type: "section",
         locator_id: "A",
         quote: "as group size n approaches infinity, each element of the aggregated comparison matrix converges to 1, thereby producing a consistency measure of zero."
@@ -121,7 +121,7 @@ const article: ArticleExtraction = {
       },
       notes: "Based on 10,000 randomly generated matrices. Shows that larger matrices require fewer respondents to reach aggregate consistency.",
       evidence: {
-        page: 4,
+        page: 293,
         locator_type: "table",
         locator_id: "2",
         quote: "Group size thresholds and individual consistency percentages"
@@ -146,7 +146,7 @@ const article: ArticleExtraction = {
       claim: "GMM aggregation guarantees aggregate consistency with a sufficiently large group regardless of individual consistency.",
       verbatim_quote: "given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices",
       evidence: {
-        page: 1,
+        page: 290,
         locator_type: "section",
         locator_id: "Abstract",
         quote: "given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices"
@@ -157,7 +157,7 @@ const article: ArticleExtraction = {
       claim: "Higher matrix dimensions reach aggregate consistency with fewer group members.",
       verbatim_quote: "as the number of comparisons increase, the number of group members needed to generate a 100% acceptable inconsistency measure decreases.",
       evidence: {
-        page: 5,
+        page: 294,
         locator_type: "section",
         locator_id: "6",
         quote: "as the number of comparisons increase, the number of group members needed to generate a 100% acceptable inconsistency measure decreases."

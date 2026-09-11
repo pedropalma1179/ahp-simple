@@ -25,7 +25,7 @@ const article: ArticleExtraction = {
       unit: "ratio",
       context: "acceptable consistency threshold for individual and aggregated matrices",
       evidence: {
-        page: 1,
+        page: 683,
         locator_type: "section",
         locator_id: "Abstract",
         quote: "a consistency ratio (CR) of 0.1 or less is acceptable"
@@ -46,7 +46,7 @@ const article: ArticleExtraction = {
       },
       conditions: "Sum of weights must equal 1; all weights must be positive.",
       evidence: {
-        page: 2,
+        page: 684,
         locator_type: "paragraph",
         locator_id: "2.4",
         quote: "Let A1, A2, ..., As be judgement matrices for the same decision problem, then the WGMCJM is A-bar... sum of lambda_k = 1."
@@ -59,7 +59,7 @@ const article: ArticleExtraction = {
       description: "Consistency index related to the perturbation matrix elements.",
       variables: { CI: "Consistency Index", n: "Matrix size", "\\epsilon_{ij}": "Perturbation element (ratio error)" },
       conditions: "Used to determine acceptable consistency based on perturbation from a perfectly consistent matrix.",
-      evidence: { page: 2, locator_type: "section", locator_id: "2", quote: "CI = 1 / (n(n-1)) sum (epsilon_ij + epsilon_ji - 2)" }
+      evidence: { page: 684, locator_type: "section", locator_id: "2", quote: "CI = 1 / (n(n-1)) sum (epsilon_ij + epsilon_ji - 2)" }
     }
   ],
   tables_figures: [
@@ -88,7 +88,7 @@ const article: ArticleExtraction = {
         ]
       },
       notes: "Standard Saaty Random Index (RI) values up to n=15.",
-      evidence: { page: 3, locator_type: "table", locator_id: "1", quote: "The mean consistency index of randomly generated matrices" }
+      evidence: { page: 685, locator_type: "table", locator_id: "1", quote: "The mean consistency index of randomly generated matrices" }
     }
   ],
   empirical_data: {
@@ -109,7 +109,7 @@ const article: ArticleExtraction = {
       claim: "The WGMCJM maintains acceptable consistency if all individual matrices are acceptable.",
       verbatim_quote: "the weighted geometric mean complex judgement matrix (WGMCJM) is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency.",
       evidence: {
-        page: 1,
+        page: 683,
         locator_type: "section",
         locator_id: "Introduction",
         quote: "this paper proves that the WGMCJM is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency."
@@ -120,7 +120,7 @@ const article: ArticleExtraction = {
       claim: "WGMM is the standard for group preference aggregation in AHP.",
       verbatim_quote: "The weighted geometric mean method (WGMM) is the most common group preference aggregation method in the Analytic Hierarchy Process.",
       evidence: {
-        page: 1,
+        page: 683,
         locator_type: "section",
         locator_id: "Abstract",
         quote: "The weighted geometric mean method (WGMM) is the most common group preference aggregation method in the Analytic Hierarchy Process."

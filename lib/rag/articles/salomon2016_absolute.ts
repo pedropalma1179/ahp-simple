@@ -25,7 +25,7 @@ const article: ArticleExtraction = {
       unit: "count",
       context: "limit for the set of alternatives in relative measurement",
       evidence: {
-        page: 1,
+        page: 538,
         locator_type: "paragraph",
         locator_id: null,
         quote: "In relative measurement, the set of alternatives must be less or equal than nine, or else, 'seven, plus or minus two'"
@@ -41,7 +41,7 @@ const article: ArticleExtraction = {
       variables: { B: "Benefits", O: "Opportunities", R: "Risks" },
       conditions: "Used in the example to calculate the weighted sum of local priorities.",
       evidence: {
-        page: 3,
+        page: 540,
         locator_type: "footnote",
         locator_id: "1",
         quote: "the overall priorities can be calculated as a weighted sum."
@@ -55,7 +55,7 @@ const article: ArticleExtraction = {
       variables: { w_i: "Priority vector component", "max(w)": "Maximum component value in the vector" },
       conditions: "Applied to preserve rank and provide priorities based on a utility-like concept.",
       evidence: {
-        page: 2,
+        page: 539,
         locator_type: "paragraph",
         locator_id: null,
         quote: "In this way of synthesis, the highest priority regarding each criterion will be equal to one."
@@ -76,7 +76,7 @@ const article: ArticleExtraction = {
         ]
       },
       notes: "Shows criteria weights for a partial BOCR structure (missing Costs).",
-      evidence: { page: 2, locator_type: "table", locator_id: "Table 1", quote: "Priorities of benefits, opportunities and risks" }
+      evidence: { page: 539, locator_type: "table", locator_id: "Table 1", quote: "Priorities of benefits, opportunities and risks" }
     },
     {
       kind: "table",
@@ -91,7 +91,7 @@ const article: ArticleExtraction = {
         ]
       },
       notes: "Decision matrix using relative measurement and normal synthesis.",
-      evidence: { page: 3, locator_type: "table", locator_id: "Table 5", quote: "Local and overall priorities of Projects X, Y and Z" }
+      evidence: { page: 540, locator_type: "table", locator_id: "Table 5", quote: "Local and overall priorities of Projects X, Y and Z" }
     },
     {
       kind: "table",
@@ -106,7 +106,7 @@ const article: ArticleExtraction = {
         ]
       },
       notes: "Shows ideal priorities where the best alternative per criterion equals 1.",
-      evidence: { page: 5, locator_type: "table", locator_id: "Table 13", quote: "Local and overall priorities with ideal synthesis" }
+      evidence: { page: 542, locator_type: "table", locator_id: "Table 13", quote: "Local and overall priorities with ideal synthesis" }
     }
   ],
   empirical_data: {
@@ -130,7 +130,7 @@ const article: ArticleExtraction = {
       claim: "Absolute measurement removes boundaries for the number of alternatives.",
       verbatim_quote: "The first advantage of absolute measurement is that there is no boundary for the set of alternatives.",
       evidence: {
-        page: 1,
+        page: 538,
         locator_type: "paragraph",
         locator_id: null,
         quote: "The first advantage of absolute measurement is that there is no boundary for the set of alternatives."
@@ -141,7 +141,7 @@ const article: ArticleExtraction = {
       claim: "Combining absolute measurement with ideal synthesis prevents rank reversal.",
       verbatim_quote: "Combining absolute measurement with ideal synthesis will always preserve ranks",
       evidence: {
-        page: 2,
+        page: 539,
         locator_type: "paragraph",
         locator_id: null,
         quote: "Combining absolute measurement with ideal synthesis will always preserve ranks"
@@ -152,7 +152,7 @@ const article: ArticleExtraction = {
       claim: "Ideal synthesis scores represent a concept similar to utility.",
       verbatim_quote: "ideal synthesis is the value in the priority. That is the '0.77' for Project X... represent a concept similar to 'utility'",
       evidence: {
-        page: 6,
+        page: 543,
         locator_type: "paragraph",
         locator_id: null,
         quote: "That is the '0.77' for Project X in Tables 13 and 17 represent a concept similar to 'utility'"

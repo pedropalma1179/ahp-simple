@@ -27,7 +27,7 @@ const article: ArticleExtraction = {
       variables: { A: "Positive reciprocal matrix", x: "Priority vector (principal eigenvector)", c: "Principal eigenvalue (c > 0)" },
       conditions: "Necessary condition for a priority vector to reproduce itself on a ratio scale and preserve the strength of preferences.",
       evidence: {
-        page: 2,
+        page: 86,
         locator_type: "equation",
         locator_id: "Section 2",
         quote: "A priority vector x must satisfy the relation Ax=cx., c>0"
@@ -41,7 +41,7 @@ const article: ArticleExtraction = {
       variables: { A: "Near consistent matrix", W: "Consistent matrix where w_i/w_j", E: "Perturbation matrix (\\epsilon_{ij})" },
       conditions: "Used to model human judgment matrices where inconsistency causes small deviations from perfect consistency.",
       evidence: {
-        page: 3,
+        page: 87,
         locator_type: "equation",
         locator_id: "Section 3",
         quote: "It is given by the Hadamard product: A=W \\circ E. where W=(w_i/w_j) and E\\equiv(\\epsilon_{ij})"
@@ -60,7 +60,7 @@ const article: ArticleExtraction = {
       },
       conditions: "Applied to a positive reciprocal matrix to find the specific entry whose modification most efficiently reduces inconsistency.",
       evidence: {
-        page: 4,
+        page: 88,
         locator_type: "equation",
         locator_id: "Section 4",
         quote: "c\\lambda_{max} / \\hat{c}a_{ij} = v_i w_j - a_{ji}^2 v_j w_i for all i, j=1,...,n"
@@ -88,7 +88,7 @@ const article: ArticleExtraction = {
       },
       notes: "Fully transcribed base matrix demonstrating a real-world inconsistent judgment matrix before applying the consistency improvement algorithm.",
       evidence: {
-        page: 4,
+        page: 88,
         locator_type: "table",
         locator_id: "Table 1",
         quote: "A family's house buying pairwise comparison matrix for the criteria"
@@ -113,7 +113,7 @@ const article: ArticleExtraction = {
         ]
       },
       notes: "Fully transcribed result matrix showing the C.R. improvement (from 0.17 to 0.083) after changing the (3,7) position judgment.",
-      evidence: { page: 6, locator_type: "table", locator_id: "Table 5", quote: "Modified matrix in the a37 and a73 positions" }
+      evidence: { page: 90, locator_type: "table", locator_id: "Table 5", quote: "Modified matrix in the a37 and a73 positions" }
     }
   ],
   empirical_data: {
@@ -134,7 +134,7 @@ const article: ArticleExtraction = {
       claim: "The principal eigenvector is the mathematically mandatory method to represent priorities derived from a near-consistent positive reciprocal matrix.",
       verbatim_quote: "the principal eigenvector is necessary for representing the priorities associated with that matrix",
       evidence: {
-        page: 6,
+        page: 90,
         locator_type: "paragraph",
         locator_id: "Section 5",
         quote: "the principal eigenvector is necessary for representing the priorities associated with that matrix"
@@ -145,7 +145,7 @@ const article: ArticleExtraction = {
       claim: "A certain degree of inconsistency in human judgment is both inevitable and desirable when evaluating intangibles.",
       verbatim_quote: "a modicum of inconsistency may be considered as a good thing and forced consistency... as an undesirable compulsion.",
       evidence: {
-        page: 2,
+        page: 86,
         locator_type: "paragraph",
         locator_id: "Section 1",
         quote: "a modicum of inconsistency may be considered as a good thing and forced consistency... as an undesirable compulsion."

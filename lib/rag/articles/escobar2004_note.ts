@@ -24,7 +24,7 @@ const article: ArticleExtraction = {
       value: 0.31,
       unit: "ratio",
       context: "acceptable consistency threshold for GCI (equivalent to 10% CR)",
-      evidence: { page: 2, locator_type: "section", locator_id: "2", quote: "GCI = 0.31 for n = 3" }
+      evidence: { page: 319, locator_type: "section", locator_id: "2", quote: "GCI = 0.31 for n = 3" }
     },
     {
       metric: "GCI (n=4)",
@@ -32,7 +32,7 @@ const article: ArticleExtraction = {
       value: 0.35,
       unit: "ratio",
       context: "acceptable consistency threshold for GCI (equivalent to 10% CR)",
-      evidence: { page: 2, locator_type: "section", locator_id: "2", quote: "GCI = 0.35 for n = 4" }
+      evidence: { page: 319, locator_type: "section", locator_id: "2", quote: "GCI = 0.35 for n = 4" }
     },
     {
       metric: "GCI (n>4)",
@@ -40,7 +40,7 @@ const article: ArticleExtraction = {
       value: 0.37,
       unit: "ratio",
       context: "acceptable consistency threshold for GCI (equivalent to 10% CR)",
-      evidence: { page: 2, locator_type: "section", locator_id: "2", quote: "GCI = 0.37 for n > 4" }
+      evidence: { page: 319, locator_type: "section", locator_id: "2", quote: "GCI = 0.37 for n > 4" }
     }
   ],
   formulas: [
@@ -51,7 +51,7 @@ const article: ArticleExtraction = {
       description: "Geometric Consistency Index (GCI) formula associated with RGMM.",
       variables: { GCI: "Geometric Consistency Index", e_ij: "error element a_ij * w_j / w_i", n: "matrix size" },
       conditions: "Used with the Row Geometric Mean Method (RGMM) prioritization.",
-      evidence: { page: 2, locator_type: "equation", locator_id: "1", quote: "GCI = 2 / ((n-1)(n-2)) * sum(log^2(e_ij))" }
+      evidence: { page: 319, locator_type: "equation", locator_id: "1", quote: "GCI = 2 / ((n-1)(n-2)) * sum(log^2(e_ij))" }
     },
     {
       id: "aij_aip_equivalence_rgmm",
@@ -61,7 +61,7 @@ const article: ArticleExtraction = {
       variables: { AIJ: "Aggregation of Individual Judgements", AIP: "Aggregation of Individual Priorities" },
       conditions: "Only true for RGMM, not necessarily for EM.",
       evidence: {
-        page: 2,
+        page: 319,
         locator_type: "section",
         locator_id: "2",
         quote: "Barzilai and Golany (1994) proved that both aggregation approaches (AIJ and AIP) provide the same priorities... however, this result is not true for EM"
@@ -85,7 +85,7 @@ const article: ArticleExtraction = {
       },
       notes: "GCI values for individual experts and two group weightings (equal vs unequal).",
       evidence: {
-        page: 4,
+        page: 321,
         locator_type: "table",
         locator_id: "1",
         quote: "Priorities and GCIs for the individual and group judgements matrices"
@@ -110,7 +110,7 @@ const article: ArticleExtraction = {
       claim: "Group inconsistency is bounded by individual inconsistency.",
       verbatim_quote: "the inconsistency of the group is smaller than the largest individual inconsistency.",
       evidence: {
-        page: 1,
+        page: 318,
         locator_type: "section",
         locator_id: "Abstract",
         quote: "the paper proves that the inconsistency of the group is smaller than the largest individual inconsistency."
@@ -121,7 +121,7 @@ const article: ArticleExtraction = {
       claim: "AIP is more efficient than AIJ for RGMM consistency checks.",
       verbatim_quote: "it is simpler and more efficient to work with the AIP approach (only o(mn) operations) than with the AIJ approach (o(mn^2) operations).",
       evidence: {
-        page: 3,
+        page: 320,
         locator_type: "section",
         locator_id: "2",
         quote: "it is simpler and more efficient to work with the AIP approach (only o(mn) operations) than with the AIJ approach"

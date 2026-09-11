@@ -29,7 +29,7 @@ const article: ArticleExtraction = {
       unit: "parameters",
       context: "criterion for a 'high' rating in the sensitivity analysis capability of an MCDM method ",
       evidence: {
-        page: 11,
+        page: 1181,
         locator_type: "paragraph",
         locator_id: "Section 3",
         quote: "high if it is capable of assessing more than three parameters."
@@ -42,7 +42,7 @@ const article: ArticleExtraction = {
       operator: '>' as const,
       context: 'Julgamentos com CR > 0.20 são considerados não confiáveis — aleatoriedade compromete derivação de prioridades',
       evidence: {
-        page: 13,
+        page: 1183,
         locator_type: "paragraph",
         locator_id: "Section 4",
         quote: 'A CR greater than 0.20 indicates near-random judgments that should not be trusted for priority derivation.'
@@ -67,7 +67,7 @@ const article: ArticleExtraction = {
       },
       notes: "A tabela original é uma grande matriz relacionando os 16 critérios com vários métodos MCDM, mas foi corrompida na extração do PDF. Por não ser uma matriz fundamental (RI ou hierarquia BOCR), os dados foram recortados/resumidos aqui conforme a regra estabelecida.",
       evidence: {
-        page: 7,
+        page: 1177,
         locator_type: "table",
         locator_id: "Table 1",
         quote: "The 16 evaluation criteria and the various MCDM methods."
@@ -92,7 +92,7 @@ const article: ArticleExtraction = {
       claim: "MCDM structures are deemed comprehensive when they evaluate a problem across Benefits, Opportunities, Costs, and Risks (BOCR).",
       verbatim_quote: "A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR",
       evidence: {
-        page: 8,
+        page: 1178,
         locator_type: "paragraph",
         locator_id: "Section 3",
         quote: "A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR"
@@ -103,7 +103,7 @@ const article: ArticleExtraction = {
       claim: "Consistency is necessary but insufficient to guarantee that a decision accurately captures reality.",
       verbatim_quote: "But consistency is only necessary but not sufficient to capture reality.",
       evidence: {
-        page: 13,
+        page: 1183,
         locator_type: "paragraph",
         locator_id: "Section 4",
         quote: "But consistency is only necessary but not sufficient to capture reality."
@@ -114,7 +114,7 @@ const article: ArticleExtraction = {
       claim: "Methods that rate alternatives one at a time using an ideal fail to account for the interdependence hidden within the ideal's formulation.",
       verbatim_quote: "the ideal itself is derived from all the relevant alternatives... Thus while assuming independence, it turns out that interdependence lies hidden",
       evidence: {
-        page: 10,
+        page: 1180,
         locator_type: "paragraph",
         locator_id: "Section 3",
         quote: "the ideal itself is derived from all the relevant alternatives... Thus while assuming independence, it turns out that interdependence lies hidden"
