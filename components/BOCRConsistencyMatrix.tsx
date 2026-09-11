@@ -17,6 +17,7 @@
 'use client';
 
 import React, { useMemo } from 'react';
+import { randomIndex } from '@/lib/ahp-engine';
 
 // =========================================================================
 // TIPOS
@@ -41,16 +42,6 @@ interface BOCRConsistencyMatrixProps {
 // =========================================================================
 // CONSTANTES — Saaty (1977), Tabela RI
 // =========================================================================
-
-const RI_TABLE: Record<number, number> = {
-  1: 0,
-  2: 0,
-  3: 0.58,
-  4: 0.90,
-  5: 1.12,
-  6: 1.24,
-  7: 1.32,
-};
 
 const CR_THRESHOLD = 0.10; // Saaty (1977, p. 271)
 
@@ -89,12 +80,12 @@ const BOCRConsistencyMatrix: React.FC<BOCRConsistencyMatrixProps> = ({
     const safeR     = subConsistency?.R    ?? { cr: 0, lambda: 0 };
 
     return [
-      { label: 'BOCR',          n: 4, cr: safeBOCR.cr, lambda: safeBOCR.lambda, ci: safeBOCR.ci ?? calcCI(safeBOCR.lambda, 4),  ri: RI_TABLE[4] },
-      { label: 'Magnitude',     n: 4, cr: safeMag.cr,  lambda: safeMag.lambda,  ci: safeMag.ci  ?? calcCI(safeMag.lambda, 4),   ri: RI_TABLE[4] },
-      { label: 'Benefícios',    n: 5, cr: safeB.cr,    lambda: safeB.lambda,    ci: safeB.ci    ?? calcCI(safeB.lambda, 5),     ri: RI_TABLE[5] },
-      { label: 'Oportunidades', n: 5, cr: safeO.cr,    lambda: safeO.lambda,    ci: safeO.ci    ?? calcCI(safeO.lambda, 5),     ri: RI_TABLE[5] },
-      { label: 'Custos',        n: 5, cr: safeC.cr,    lambda: safeC.lambda,    ci: safeC.ci    ?? calcCI(safeC.lambda, 5),     ri: RI_TABLE[5] },
-      { label: 'Riscos',        n: 5, cr: safeR.cr,    lambda: safeR.lambda,    ci: safeR.ci    ?? calcCI(safeR.lambda, 5),     ri: RI_TABLE[5] },
+      { label: 'BOCR',          n: 4, cr: safeBOCR.cr, lambda: safeBOCR.lambda, ci: safeBOCR.ci ?? calcCI(safeBOCR.lambda, 4),  ri: randomIndex(4) },
+      { label: 'Magnitude',     n: 4, cr: safeMag.cr,  lambda: safeMag.lambda,  ci: safeMag.ci  ?? calcCI(safeMag.lambda, 4),   ri: randomIndex(4) },
+      { label: 'Benefícios',    n: 5, cr: safeB.cr,    lambda: safeB.lambda,    ci: safeB.ci    ?? calcCI(safeB.lambda, 5),     ri: randomIndex(5) },
+      { label: 'Oportunidades', n: 5, cr: safeO.cr,    lambda: safeO.lambda,    ci: safeO.ci    ?? calcCI(safeO.lambda, 5),     ri: randomIndex(5) },
+      { label: 'Custos',        n: 5, cr: safeC.cr,    lambda: safeC.lambda,    ci: safeC.ci    ?? calcCI(safeC.lambda, 5),     ri: randomIndex(5) },
+      { label: 'Riscos',        n: 5, cr: safeR.cr,    lambda: safeR.lambda,    ci: safeR.ci    ?? calcCI(safeR.lambda, 5),     ri: randomIndex(5) },
     ];
   }, [bocrConsistency, magnitudeConsistency, subConsistency]);
 

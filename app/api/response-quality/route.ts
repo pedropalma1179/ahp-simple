@@ -5,16 +5,12 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { calculateAllWeights } from '@/lib/ahp-ipc';
+import { randomIndex } from '@/lib/ahp-engine';
 import type { Judgment } from '@/lib/ahp-ipc';
 
 // ============================================================
 // CONSTANTES AHP - Saaty (1980)
 // ============================================================
-
-const RANDOM_INDEX: Record<number, number> = {
-  1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12,
-  6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49
-};
 
 // ============================================================
 // EXTRAÇÃO DE CRs DO RESPONDENTE - v5.1

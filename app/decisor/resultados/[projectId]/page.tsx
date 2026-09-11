@@ -59,6 +59,7 @@ import {
 import BentoGridDashboard from '@/components/BentoGridDashboard';
 import BOCRConsistencyMatrix from '@/components/BOCRConsistencyMatrix';
 import { calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
+import { randomIndex } from '@/lib/ahp-engine';
 
 // As seis matrizes não triviais do respondente, na ordem da Tabela 22 do
 // Apêndice G. As vinte matrizes de alternativas são 2x2 e têm CR zero por
@@ -1660,8 +1661,7 @@ export default function ResultadosPage() {
 
     // Calcular CI para cada matriz
     const calcCI = (cr: number, lambda: number, n: number): number => {
-      const RI: Record<number, number> = { 1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
-      return cr * (RI[n] || 1.49);
+      return cr * randomIndex(n);
     };
 
     let latex = `% Tabelas LaTeX - Resultados AHP-BOCR
@@ -1984,8 +1984,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
     // Calcular CI
     const calcCI = (cr: number, n: number): number => {
-      const RI: Record<number, number> = { 1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
-      return cr * (RI[n] || 1.49);
+      return cr * randomIndex(n);
     };
 
     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
@@ -2196,8 +2195,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
     // Função auxiliar para calcular CI
     const calcCI = (cr: number, n: number): number => {
-      const RI: Record<number, number> = { 1: 0, 2: 0, 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32, 8: 1.41, 9: 1.45, 10: 1.49 };
-      return cr * (RI[n] || 1.49);
+      return cr * randomIndex(n);
     };
 
     // ===== SHEET 1: VISÃO GERAL =====
