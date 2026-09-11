@@ -1879,10 +1879,62 @@ conferência de `page` contra o `abnt` tem precedência**, por três razões: é
 e não leitura, cobre 27 artigos e não treze claims, e **contamina a medição de todo
 o resto**.
 
-⚠ **O Bozóki é categoria própria.** `page` e `locator_id` ambos errados na mesma
-claim sugerem extração feita sem o artigo em mãos. **Antes de corrigir, conferir se
-o conteúdo das claims está no artigo:** se estiver, é falha de preenchimento; se
-não, é claim de outro trabalho, e a correção é refazer a extração.
+### ✅ Os sete são internamente consistentes, e a conversão foi validada no PDF
+
+**Verificação de pré-requisito**, feita antes de propor a correção: a conversão só é
+aritmética se todas as claims de um artigo estiverem na mesma convenção. Se alguma
+já estivesse em numeração de periódico, somar o deslocamento produziria página
+inexistente.
+
+**Os sete passam.** Em cada um, todas as `page` caem entre 1 e o número de páginas
+do artigo, e nenhuma está na faixa do periódico:
+
+| Artigo | Faixa | `page` no RAG | Deslocamento |
+|---|---|---|---|
+| `aullhyde2006_experiment` | 290–295 | 1, 3, 4, 5, 6 | +289 |
+| `escobar2004_note` | 318–322 | 1, 2, 3, 4 | +317 |
+| `lee2024_project` | 375–393 | 1, 5, 6, 7, 9, 14 | +374 |
+| `saaty2003_eigenvector` | 85–91 | 2, 3, 4, 6 | +84 |
+| `saaty2015_trustworthy` | 1171–1187 | 7, 8, 10, 11, 13 | +1170 |
+| `salomon2016_absolute` | 538–545 | 1, 2, 3, 5, 6 | +537 |
+| `xu2000_consistency` | 683–687 | 1, 2, 3 | +682 |
+
+**Validação no PDF, com o Saaty (2003).** A página relativa 2 do PDF traz impresso
+**86** no cabeçalho, com *European Journal of Operational Research* 145 (2003)
+85–91. `2 + 84 = 86`: a fórmula bate.
+
+E as duas claims que o RAG registra em `page: 2` **estão nessa página**: "A priority
+vector x must satisfy the relation Ax=cx, c>0" na coluna direita, e "a modicum of
+inconsistency may be considered as a good thing and forced consistency [...] as an
+undesirable compulsion" na esquerda.
+
+**Portanto, nos sete a correção é somar `lo − 1` a cada `page`**, e o conteúdo já
+está corretamente ancorado.
+
+### ✅ O Bozóki verificado: falha de preenchimento, não extração de outro trabalho
+
+A pergunta era se as claims descrevem o artigo ou vieram de outro documento.
+Verificado em 11/09/2026, contra o PDF.
+
+**O conteúdo corresponde.** As seis claims tratam de unicidade da solução com grafo
+conectado, LLSM incompleto, convexidade de `λmax` sob parametrização exponencial,
+componentes conexas e coincidência com a média geométrica das linhas para matrizes
+completas. **Todos são temas de Bozóki, Fülöp e Rónyai (2010).**
+
+**Portanto a correção é trocar os localizadores, não refazer a extração.**
+
+⚠ **Mas o `locator_id` está errado, e não só o `page`.** O RAG usa
+`locator_id: "Theorem 1"` para a claim de unicidade com grafo conectado. **O
+Teorema 1, na página 321, é sobre logconvexidade de λmax** — o artigo o enuncia
+assim: "If the elements of matrix A [...] are logconvex functions of t, then
+λmax(A(t)) is logconvex".
+
+A numeração de proposições e teoremas que o RAG registra **não corresponde à do
+artigo**. A correção precisa reancorar cada uma das dez claims, não só somar um
+deslocamento às páginas.
+
+**Isso separa o Bozóki dos outros sete:** naqueles, a conversão de numeração
+relativa para a do periódico é aritmética. Aqui, é releitura.
 
 ---
 
