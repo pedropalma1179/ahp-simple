@@ -1170,12 +1170,29 @@ e `conditions` entram como texto do sistema, com rótulo que os separe.
 É a mesma família da classe E, e a mesma solução: **não reescrever a instrução,
 corrigir o que se entrega a ela.**
 
-### Pendência de medição
+### Pendência de medição, e é a mais rentável do que restou
 
 Conferir, nos cinco pareceres registrados, quantas citações entre aspas
-correspondem a `description` ou `conditions` em vez de `quote`. Se houver mais de
-uma, **deixa de ser caso e vira taxa**, e o achado ganha o mesmo estatuto dos 72%
-de divergência de localizador.
+correspondem a `description` ou `conditions` em vez de `quote`.
+
+**Não custa código.** É leitura dos cinco anexos contra o RAG.
+
+**O atalho:** partir dos trechos entre aspas nos pareceres, não das claims do RAG.
+Para cada trecho, conferir se é `quote` de alguma claim. Os que não forem caem em
+duas categorias, e **as duas interessam**:
+
+- vêm de `description` ou `conditions` → confirma a sexta superfície e a
+  transforma em taxa, com o mesmo estatuto dos 72% de divergência de localizador;
+- **não vêm de lugar nenhum** → caso novo, e mais grave: verbatim fabricado, não
+  apenas localizador.
+
+⚠ **Fazer antes de A.15.** A correção de formato altera o que o modelo lê, então
+precisa de linha de base. Sem ela, um parecer posterior sem citações de
+`conditions` não distinguiria correção de variação.
+
+**Predição a registrar antes de A.15**, com a linha de base em mãos: se a marcação
+de origem funcionar, citações de `description` e `conditions` devem desaparecer
+dos pareceres seguintes.
 
 ---
 
@@ -1328,6 +1345,39 @@ existia, e a divergência entre as duas apurações apareceu.
 
 **Regra para quem usar o script:** na primeira execução sobre um parecer novo,
 confira a saída contra uma contagem manual. Depois disso, confie nele.
+
+---
+
+## Nota de método: medir e registrar a predição antes
+
+O que produziu os achados desta sessão não foi a disciplina de medir. Foi **medir
+e registrar a predição antes da execução**.
+
+Cinco predições foram registradas antes de rodar:
+
+| # | Correção | Resultado |
+|---|---|---|
+| 1 | páginas corrigidas no prompt (A.10, 1º commit) | confirmada |
+| 2 | N por matriz no payload (A.10, 2º) | confirmada |
+| 3 | remoção do `dominanceAnalyzer` (A.3, 1ª parte) | **refutada** |
+| 4 | remoção da autorização no prompt (A.3, 2ª parte) | confirmada |
+| 5 | tabelas RI unificadas (A.5) | confirmada, inclusive na mudança da linha de base de testes |
+
+**Quatro confirmadas e uma refutada. A refutada produziu o achado do segundo
+canal**, que nenhuma confirmação teria dado: se a predição de A.3 tivesse
+acertado, a tarefa fecharia e a seção "Fairness e Viés Profissional" do prompt
+continuaria autorizando a atribuição de viés ao painel, sem que soubéssemos.
+
+**A diferença está na ordem.** Uma observação feita depois sempre encontra
+explicação: o número mudou, então a correção funcionou; o número não mudou, então
+havia outra causa. As duas leituras cabem no mesmo dado. Uma predição datada antes
+fecha essa porta: ou o resultado bate, ou não bate, e o que não bate exige
+procurar a causa em vez de narrá-la.
+
+**É isso que separa este registro de uma lista de defeitos corrigidos.**
+
+Quando retomar, manter a prática: nenhuma correção que altere o que o modelo
+recebe deve ser executada sem predição escrita antes, com o caso negativo nomeado.
 
 ---
 
@@ -1790,6 +1840,46 @@ O paradigma metodológico do estudo é pesquisa-ação com painel interno de esp
 
 A decisão é fundamentada pela matriz da Diretriz 3: CR ≤ 0,10 em todas as sub-hierarquias, N ≥ 3 com diversidade funcional, e sensibilidade estável.
 
+
+---
+
+## Execução 4 — 11/09/2026, `501b19a`, depois da remoção do `dominanceAnalyzer`
+
+| | |
+|---|---|
+| Commit | `501b19a` |
+| Duração | 159 segundos |
+| Variável alterada | remoção do `dominanceAnalyzer`, da injeção no prompt e do item 4 do `system-prompt.ts` |
+
+### A predição foi REFUTADA, e a refutação é o achado
+
+| # | Predição | Resultado |
+|---|---|---|
+| 1 | a passagem de Saiyed sobre "High power leads to cognitive biases" desaparece | ❌ **permaneceu**, na Limitação 2 |
+| 2 | a atribuição do peso de Riscos ao perfil do painel sai | ❌ **permaneceu** |
+| 3 | a faixa "1,1% e 9,6%" permanece (controle) | ✅ permaneceu |
+
+**A causa: o módulo era um dos dois canais.** O `system-prompt.ts` tinha a seção
+"Fairness e Viés Profissional", com Neely, Saiyed e Ayan descritos pelo que
+ofereciam, e uma exceção que **autorizava explicitamente** citá-los para "viés
+profissional em painéis MCDM".
+
+A remoção tirou o **gatilho automático** e deixou a **permissão**. Corrigido na
+segunda parte de A.3, e a execução 5 confirmou.
+
+**Uma predição confirmada aqui teria fechado a tarefa e deixado o canal aberto.**
+
+### Achado: o dado nem sempre prevalece sobre o exemplo
+
+O parecer reportou **Risks 1,39%**. O valor real é 1,3974%, que arredonda para
+**1,40%**, e é o que a Tabela 6 publica. O `1,39%` é o número do exemplo de
+parágrafo do `system-prompt.ts`.
+
+Nas execuções 1 e 2 o modelo escreveu 1,40%, corrigindo o exemplo contra o dado.
+Nesta, copiou o exemplo. **Em três amostras, duas vezes corrigiu e uma copiou.**
+
+Isso enfraquece a leitura registrada na execução 2, de que o dado prevalece. É
+argumento a mais para o commit dos exemplos de parágrafo, ainda pendente.
 
 ---
 
