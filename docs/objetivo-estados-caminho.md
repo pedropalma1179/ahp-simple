@@ -1,6 +1,6 @@
 # ahp-simple: objetivo, estados e caminho
 
-Documento âncora. Revisado em 11/09/2026 sobre o commit `8730cb6`.
+Documento âncora. Revisado em 11/09/2026 sobre o commit `501b19a`.
 
 **Leia a Parte 0 antes de qualquer trabalho neste repositório.** Ela existe
 porque o desenvolvimento perdeu direção várias vezes: a memória se perde entre
@@ -386,13 +386,14 @@ que 1.6 substitui.
 em dois pontos e `resultados/page.tsx` num terceiro; o `MODEL_CONFIG.id` de
 `ai-reviewer/route.ts` é `claude-opus-4-6`.
 
-**`dominanceAnalyzer.ts` não mede dominância de alternativas.** Mede concentração
-de peso entre méritos, razão acima de 3:1, e injeta narrativa sobre Upper
-Echelons Theory no prompt. O nome colide com a função do Bloco D.
+**O antigo `dominanceAnalyzer.ts` não media dominância de alternativas.** Media
+concentração de peso entre méritos, por uma razão arbitrária de 3:1, e injetava
+narrativa sobre Upper Echelons Theory no prompt. Foi removido em A.3; o ratio
+máximo/mínimo factual continua no payload, sem classificação automática.
 
 ## 2.4 O que já está saneado
 
-Vinte e sete commits, todos em produção. **O repositório tem hoje 140 arquivos
+Vinte e oito commits de saneamento no histórico. **O repositório tem hoje 139 arquivos
 rastreados**, contra 298 no início do saneamento. É o número que a Fase 1 da
 próxima tarefa deve conferir. Um único derivador de prioridades,
 `lib/ahp-engine.ts`, validado por 30 verificações contra 24 valores de referência
@@ -400,6 +401,15 @@ conferidos contra os 864 julgamentos brutos e contra a AhpAnpLib. Zero guardas
 silenciosas no caminho de cálculo. Um gravador único de `calculations`. Censo
 automatizado que quebra o build se uma segunda implementação aparecer. 10 306
 linhas de código morto removidas.
+
+**A.3 fechou em `501b19a`.** A saída adotada foi remover, não renomear, o
+classificador. Além do conflito nominal, ele escolhia um limiar de 3:1 sem fonte,
+inferia setor e perfil profissional por busca de substrings e convertia essas
+heurísticas em `contextualized`, `professional_bias_supported` ou `unexplained`.
+Saíram o arquivo de 291 linhas, o consumidor na rota e as instruções de três
+camadas no prompt. Permaneceu o ratio máximo/mínimo calculado diretamente dos
+pesos BOCR. A API passou a `7.3.2`, sem o sufixo obsoleto
+`dominance-analysis`.
 
 **A.1 fechou em `e5f9be2`.** O painel de qualidade se contradizia: o cabeçalho
 declarava qualidade excelente e doze respondentes confiáveis enquanto a tabela
@@ -469,7 +479,7 @@ Nada novo se constrói sobre base contraditória.
 |---|---|
 | ✅ A.1 | **Fechada em `e5f9be2`.** Painel de qualidade: uma rotina só, que é a Tabela 4 |
 | A.2 | Remover a classificação categórica de sensibilidade (Robusto / Moderadamente Sensível / Sensível / Crítico, limiares 50/20/10). ⚠ **Não é "sem fonte": é fonte que não sustenta.** O `metadata.q1Features` declara `'Sensitivity Classification (Alizadeh 2020)'`, e as claims de Alizadeh no RAG tratam de escolha de fórmula BOCR e de limiar de CR, nunca de classificação por ponto de inflexão. Ver `docs/imprecisoes-parecer-ia.md`. **Sete implementações, mapeadas abaixo da tabela**, em quatro commits. O commit (4) depende de A.6 |
-| A.3 | Renomear `dominanceAnalyzer` para o que ele mede |
+| ✅ A.3 | **Fechada em `501b19a`.** O classificador foi removido em vez de renomeado: limiar 3:1 sem fonte, contexto inferido por substrings e classificação narrativa saíram; o ratio factual máximo/mínimo foi preservado no payload |
 | ✅ A.4 | **Fechada em `8730cb6`.** O rótulo do modelo na tela dizia "Claude Sonnet 4.5" enquanto o sistema executa `claude-opus-4-6`. Passou a ler `metadata.model` da resposta do POST, que a rota já devolvia. **Não é string fixa nova:** como o valor vem da resposta que gerou aquele parecer, um parecer antigo exibe o modelo que o gerou, não o configurado agora. Fallback é "modelo não informado", nunca um nome de modelo, para não reintroduzir o problema em silêncio. Verificado com um parecer real da execução 3 |
 | A.5 | Unificar as quatro tabelas RI restantes no motor |
 | A.6 | Remover `lib/knowledge.ts` legado e o resíduo de IPC do RAG |
@@ -496,9 +506,9 @@ refazer.
 | `lib/knowledge.ts`, `interpretSensitivity` | raiz do card e da interpretação textual da aba executiva ("❌ Crítico", "⚠️ Sensível", "ATENÇÃO: N de 4 méritos") via `sensitivityResults`, `hasCritical` e `nonRobustMerits` | (4) |
 
 **Construtos distintos, que NÃO são escopo de A.2:**
-`dominanceResult.classification` em `ai-reviewer/route.ts` e
-`lib/analysis/dominanceAnalyzer.ts` são concentração de peso entre méritos, alvo
-de A.3. O construto de **completude de matriz** é definido em
+O antigo `dominanceResult.classification` em `ai-reviewer/route.ts` e
+`lib/analysis/dominanceAnalyzer.ts` era concentração de peso entre méritos e foi
+removido em A.3 (`501b19a`). O construto de **completude de matriz** é definido em
 `lib/graph-utils.ts` (`CompletenessMetrics.classification`, com os valores
 COMPLETE, NEAR_COMPLETE, PARTIAL, MINIMAL e INSUFFICIENT) e consumido em
 `lib/ahp-ipc.ts`. Não está em `lib/rag/`: o que existe lá é um comentário sobre

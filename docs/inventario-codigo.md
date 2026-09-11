@@ -1,7 +1,7 @@
 # ahp-simple: inventário de código
 
 Referência para retomar o trabalho sem reanalisar a arquitetura.
-Estado do commit `3a6665d`, 10/09/2026.
+Estado do commit `501b19a`, 11/09/2026.
 
 **Como usar.** Documento de consulta, não de leitura corrida. Cada entrada traz o
 que o arquivo faz, quem o usa e o que há de armadilha nele. Os avisos marcados
@@ -266,25 +266,26 @@ tempo de build, `app/test-design/page.tsx` (115) página de teste visual.
 
 ## Camada 6. Interpretação
 
-### `app/api/ai-reviewer/route.ts` (1749L)
+### `app/api/ai-reviewer/route.ts` (1727L)
 
 Parecer Científico IA. O `MODEL_CONFIG.id` é `claude-opus-4-6`,
-`maxTokens` 16000, budget de raciocínio 5000. `maxDuration` 800s.
+`maxTokens` 16000, budget de raciocínio 5000. `maxDuration` 300s.
 
 | Função | Linha | O que faz |
 |---|---|---|
-| `normalizeRequest` | 611 | normaliza o corpo recebido do dashboard |
-| `normalizeBOCRWeights` | 189 | reordena e valida os pesos |
-| `getValidFinalScores` | 247 | filtra escores utilizáveis |
-| `calculateGrade` | 411 | nota e veredicto determinísticos |
-| `extractGradeFromReview` | 570 | extrai nota do texto gerado |
-| `validateReviewOutput` | 1444 | valida a saída do modelo |
-| `formatSemanticChunks` | 142 | monta o contexto RAG |
+| `normalizeRequest` | 609 | normaliza o corpo recebido do dashboard |
+| `normalizeBOCRWeights` | 187 | reordena e valida os pesos |
+| `getValidFinalScores` | 245 | filtra escores utilizáveis |
+| `calculateGrade` | 409 | nota e veredicto determinísticos |
+| `extractGradeFromReview` | 568 | extrai nota do texto gerado |
+| `validateReviewOutput` | 1422 | valida a saída do modelo |
+| `formatSemanticChunks` | 141 | monta o contexto RAG |
 
-Consome `analyzeDominance` e injeta o resultado no prompt por
-`buildDominancePromptSection`.
+O classificador heurístico de concentração dos pesos BOCR e sua injeção no
+prompt foram removidos em `501b19a`. O prompt conserva apenas o ratio
+máximo/mínimo calculado diretamente dos pesos.
 
-### `app/api/ai-reviewer/system-prompt.ts` (529L)
+### `app/api/ai-reviewer/system-prompt.ts` (518L)
 
 Prompt do parecer.
 
@@ -304,18 +305,6 @@ Fachada sobre `lib/rag`. `getKnowledgeContext`, `getRefsByTopic`,
 
 Base dedicada a IPC. `IPC_KNOWLEDGE`, `IPC_QUALITY_REFS`, `IPC_RISKS_REFS`,
 `getIPCContextForAI`, `analyzeCompleteness`. Tema fora do recorte atual.
-
-### `lib/analysis/dominanceAnalyzer.ts` (291L) ⚠ CONFLITO DE NOME
-
-**Não mede dominância de alternativas.** Mede concentração de peso entre méritos:
-razão entre o maior e o menor peso BOCR acima de 3:1. Classifica em
-`contextualized`, `professional_bias_supported`, `no_dominance`. Injeta parágrafos
-narrativos sobre Upper Echelons Theory no prompt.
-
-`analyzeDominance` (132), `analyzeHierarchy` (80),
-`buildDominancePromptSection` (254).
-
-Renomear antes de introduzir a dominância de alternativas.
 
 ### `lib/knowledge.ts` (1125L) ⚠ LEGADO
 
@@ -458,8 +447,8 @@ publicados de referência. Sem dado pessoal.
 | ⚠ | Onde | O quê |
 |---|---|---|
 | ✅ 1 | ~~painel de qualidade se contradiz~~ | **resolvido em `e5f9be2`** (A.1) |
-| 2 | `ParecerAISection.tsx` (dois pontos) e `resultados/page.tsx` (um) | dizem Sonnet 4.5, roda Opus 4.6 |
-| 3 | `dominanceAnalyzer.ts` | nome colide com a função a construir |
+| ✅ 2 | ~~rótulo fixo do modelo~~ | **resolvido em `8730cb6`** (A.4) |
+| ✅ 3 | ~~`dominanceAnalyzer.ts` colidia com a função a construir~~ | **removido em `501b19a`** (A.3) |
 | 4 | três em `exportLatex`, `exportCSV` e `exportXLSX`, mais o card e a interpretação da aba executiva, mais `interpretSensitivity` em `lib/knowledge.ts` | classificação categórica de sensibilidade. Cinco das oito implementações já removidas em `305d699`, `5837d0d` e `d16491a`; o resto é o quarto commit de A.2 e depende de A.6 |
 | 5 | 4 arquivos | tabelas RI duplicadas |
 | 6 | `resultados/page.tsx` | `RI[n] \|\|` sem erro explícito |
