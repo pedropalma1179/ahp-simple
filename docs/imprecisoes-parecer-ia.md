@@ -2031,7 +2031,55 @@ undesirable compulsion" na esquerda.
 **Portanto, nos sete a correção é somar `lo − 1` a cada `page`**, e o conteúdo já
 está corretamente ancorado.
 
-### ✅ O Bozóki verificado: falha de preenchimento, não extração de outro trabalho
+### A.19 parte 2, em andamento: o Bozóki reancorado contra o PDF
+
+Começado em 11/09/2026. **Três das dez âncoras localizadas, e a principal traz
+três erros numa só claim.**
+
+**A claim de unicidade.** O RAG registra `page: 2257`,
+`locator_id: "Theorem 1"`, e o `evidence.quote` "The optimal solution of the
+problem (5) is unique if and only if the graph is connected".
+
+**O enunciado real, na página 324:**
+
+> **Theorem 2.** The optimal solution of problem **(4)** is unique if and only if
+> the graph G **corresponding to the incomplete pairwise comparison matrix** is
+> connected.
+
+| Campo | No RAG | No artigo |
+|---|---|---|
+| `page` | 2257 | **324** |
+| `locator_id` | Theorem 1 | **Theorem 2** |
+| problema citado no quote | (5) | **(4)** |
+
+**Três erros na mesma claim.** E o Teorema 1, na página 321, é sobre logconvexidade
+de λmax, tema diferente.
+
+⚠ **Isto confirma a leitura de A.16:** no Bozóki o **`verbatim_quote` era o campo
+fiel**, porque preservava "corresponding to the incomplete pairwise comparison
+matrix", que o `evidence.quote` truncava. A troca de fonte de A.17 fez o modelo
+receber, nesta claim, o texto mais curto **e** com o número de problema errado.
+
+**Outras duas localizadas:**
+
+| Claim | No RAG | No artigo |
+|---|---|---|
+| "the vertices correspond to the objects to compare..." | p. 2257, Section II Methodology | **p. 321, Seção 2.2 "Graph representation"** |
+| "two criteria, not compared yet... can be in indirect relation" | p. 2257, Section II | **p. 321, Seção 2.2** |
+
+### O que falta, e por que fica para sessão própria
+
+Sete das dez âncoras não foram localizadas. O artigo tem 33 páginas e os
+localizadores estão espalhados entre 320 e 333: as equações (5) e (6), o Teorema 3,
+o Teorema 2 do RAG que provavelmente é outro no artigo, e os dois "Remark".
+
+**Localizar cada uma exige percorrer o artigo página a página**, e é trabalho de
+leitura dedicada, não de uma passada.
+
+⚠ **Registrado o que basta para a correção não ser feita às cegas:** a numeração do
+RAG não corresponde à do artigo em nenhum dos três casos verificados, então
+**nenhuma das dez pode ser corrigida por deslocamento aritmético.** Cada uma
+precisa do PDF.
 
 A pergunta era se as claims descrevem o artigo ou vieram de outro documento.
 Verificado em 11/09/2026, contra o PDF.
