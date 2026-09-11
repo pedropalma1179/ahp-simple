@@ -1739,6 +1739,153 @@ o instrumento produziu resultado plausível e inútil.
 
 ---
 
+## O achado que reorganiza os localizadores: o RAG contradiz o próprio `abnt`
+
+Encontrado em 11/09/2026, durante A.16, ao abrir o PDF do Bozóki.
+
+### O caso que abriu
+
+O `bozoki2010_ipc.ts` registra as dez claims com `page: 2256` ou `2257`. **O
+próprio campo `abnt` do arquivo diz "p. 318-333"**, e o PDF confirma:
+*Mathematical and Computer Modelling* 52 (2010) 318–333.
+
+E o `locator_id` dos três casos divergentes é `"Theorem 1"`, que na página 321 é
+sobre **logconvexidade de λmax**, não sobre unicidade com grafo conectado.
+
+**Localizador duplamente errado.**
+
+### A medição: oito artigos em 27 testáveis
+
+Conferindo `page` contra a faixa que o próprio `abnt` declara:
+
+| Artigo | Faixa no `abnt` | `page` registrados | Padrão |
+|---|---|---|---|
+| `aullhyde2006_experiment` | 290–295 | 1, 3, 4, 5, 6 | relativa |
+| `escobar2004_note` | 318–322 | 1, 2, 3, 4 | relativa |
+| `lee2024_project` | 375–393 | 1, 5, 6, 7, 9, 14 | relativa |
+| `saaty2003_eigenvector` | 85–91 | 2, 3, 4, 6 | relativa |
+| `saaty2015_trustworthy` | 1171–1187 | 7, 8, 10, 11, 13 | relativa |
+| `salomon2016_absolute` | 538–545 | 1, 2, 3, 5, 6 | relativa |
+| `xu2000_consistency` | 683–687 | 1, 2, 3 | relativa |
+| **`bozoki2010_ipc`** | **318–333** | **2256, 2257** | **errado** |
+
+**27 dos 37 artigos declaram faixa. Oito divergem, 30%.** Os outros dez não são
+testáveis por esse critério, e incluem Dodevska, Ayan, Petrillo, Salomon 2024 e
+Schmidt.
+
+**Sete usam numeração relativa** sem declarar. O Bozóki está errado: 2256 não
+corresponde a nenhuma paginação do artigo.
+
+### Isto explica a hipótese das duas convenções
+
+Desde a execução 1 este registro anotava que o modelo "alterna entre numeração
+relativa e de periódico, sem critério". **A causa é material: a base mistura as
+duas e não declara qual usa.**
+
+Os seis casos classificados como "troca de convenção" **não eram erro de geração**.
+
+### ⚠ A inversão: em quatro casos o modelo estava certo e a base errada
+
+A pergunta decisiva: algum localizador classificado como errado cai dentro da faixa
+que o `abnt` declara? **Sim, quatro vezes.**
+
+| Citação | Execuções | Faixa no `abnt` | `page` no RAG | Veredito |
+|---|---|---|---|---|
+| Saaty (2003, p. 85) | 2 e 4 | **85–91** | 2, 3, 4, 6 | **dentro do artigo** |
+| Saaty (1987, p. 165) | 1 | **161–176** | 163, 170, 171, 172, 174 | **dentro do artigo** |
+| Forman e Peniwati (1998, p. 169) | 1 | **165–169** | 166, 167, 168 | **dentro do artigo** |
+
+**O modelo citou páginas reais do periódico, e o script as reprovou** porque
+compara contra o `page` da claim, que nesses artigos está em numeração relativa.
+
+**Isto reclassifica os dois casos de "erro de vizinhança".** Saaty (1987) e Forman
+e Peniwati (1998) não eram interpolação em faixa conhecida: **eram páginas
+corretas que o RAG não indexou.**
+
+### O que as quatro inversões quebram
+
+Até aqui o documento tinha um padrão de **mão única**: o sistema erra, o modelo
+propaga. As seis superfícies, as cinco classes, as taxas — todas descrevem defeito
+a montante e fidelidade a jusante.
+
+**As quatro inversões quebram isso.** Em quatro citações o modelo estava certo e o
+**instrumento de medição** errado, porque comparava contra um campo em convenção
+diferente.
+
+E o caso mais forte é o do **"erro de vizinhança"**. Aquela categoria foi criada
+para explicar citações que caíam dentro da faixa do artigo mas fora de toda claim,
+e a explicação oferecida era **interpolação pelo modelo**.
+
+A explicação real é mais simples e menos favorável a quem mediu: **o modelo citou
+páginas que o RAG não indexou.**
+
+⚠ **Isso apaga uma das causas da decomposição, e ela era invenção nossa.** A
+categoria "erro de vizinhança" descrevia um comportamento do modelo que não
+existia; descrevia uma lacuna da base.
+
+### A apuração encontrou um erro na própria apuração
+
+Vale dizer isto explicitamente, porque é o argumento que sustenta a seção.
+
+Os 72% e os 62% foram publicados neste documento, com método declarado e script
+versionado. **O erro que os invalida foi encontrado pela aplicação do mesmo
+protocolo**: conferir o que se afirma contra a fonte, neste caso o `abnt` de cada
+artigo.
+
+Um revisor que encontrasse essa inconsistência por conta própria descartaria a
+seção inteira. **Encontrada e corrigida aqui, ela é demonstração de que o método
+funciona** — inclusive contra quem o aplica.
+
+É o mesmo fenômeno registrado três vezes na nota de método, sobre instrumentos que
+erram em silêncio, agora atingindo não o script mas a **categoria analítica** que
+construímos sobre a saída dele.
+
+### Consequência: nenhuma taxa de localizador deste documento é confiável
+
+As taxas de 72% e 62% foram medidas contra o `page` da claim. Com oito artigos em
+convenção divergente, o instrumento **reprova citação correta e aprova incorreta,
+conforme o caso**.
+
+⚠ **Refazer com critério duplo**, e **reportar os dois testes separados, não
+combinados**:
+
+| Teste | O que mede |
+|---|---|
+| a página é de alguma claim | a citação é **localizável no que o RAG indexou** |
+| a página cai na faixa do `abnt` | a citação é **correta em relação ao artigo** |
+
+**Os quatro casos invertidos são exatamente os que passam no segundo e falham no
+primeiro**, e essa diferença é informativa por si: mede **cobertura do RAG**, não
+erro do modelo.
+
+Combinar os dois num único "correto" perderia isso.
+
+Isso **não invalida os achados qualitativos** — a fabricação do Lee, o
+`verbatim_quote` reescrito, o `conditions` citado como verbatim — porque foram
+verificados caso a caso. **Invalida os números agregados.**
+
+### O `verify-citations.mjs` precisa do segundo teste
+
+| Situação | Leitura |
+|---|---|
+| página de alguma claim | correta e localizável |
+| dentro da faixa do `abnt`, fora das claims | **correta, e o RAG é que não cobre** |
+| fora de ambas | divergente |
+
+### Consequência para A.16 e para a ordem
+
+A tarefa nasceu para conferir `verbatim_quote` contra `evidence.quote`. **A
+conferência de `page` contra o `abnt` tem precedência**, por três razões: é script
+e não leitura, cobre 27 artigos e não treze claims, e **contamina a medição de todo
+o resto**.
+
+⚠ **O Bozóki é categoria própria.** `page` e `locator_id` ambos errados na mesma
+claim sugerem extração feita sem o artigo em mãos. **Antes de corrigir, conferir se
+o conteúdo das claims está no artigo:** se estiver, é falha de preenchimento; se
+não, é claim de outro trabalho, e a correção é refazer a extração.
+
+---
+
 ## Nota de método: medir e registrar a predição antes
 
 O que produziu os achados desta sessão não foi a disciplina de medir. Foi **medir
