@@ -157,7 +157,7 @@ function buildClaimChunks(article: ArticleExtraction): ChunkInput[] {
   return article.key_claims.map((claim, idx) => {
     const text = [
       `Claim: ${claim.claim}`,
-      `Verbatim: ${claim.verbatim_quote}`,
+      `Verbatim: ${claim.evidence.quote ?? claim.verbatim_quote}`,
       `Context: ${article.metadata.domain ?? 'N/A'} (${article.type})`,
     ].join('\n');
 
@@ -166,7 +166,7 @@ function buildClaimChunks(article: ArticleExtraction): ChunkInput[] {
       text,
       metadata: {
         ...buildBaseMetadata(article, 'claim', idx, text),
-        verbatim_quote: claim.verbatim_quote,
+        verbatim_quote: claim.evidence.quote ?? claim.verbatim_quote,
         page: claim.evidence.page,
         locator_type: claim.evidence.locator_type,
         locator_id: claim.evidence.locator_id,

@@ -98,7 +98,7 @@ function claimToRef(claim: ClaimWithSource, article: ArticleExtraction, index: n
     id: `${article.id}_c${index}`,
     citation,
     topic: claim.claim.length > 120 ? claim.claim.substring(0, 117) + '...' : claim.claim,
-    rule: claim.verbatim_quote || claim.claim,
+    rule: claim.evidence.quote || claim.verbatim_quote || claim.claim,
     context: article.metadata.domain || 'AHP-BOCR',
     weight,
   };

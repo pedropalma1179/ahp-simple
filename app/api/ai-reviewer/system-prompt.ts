@@ -150,8 +150,7 @@ Toda referência a paper do RAG no Parecer DEVE incluir o **verbatim_quote** cor
 
 Os articles do RAG fornecem múltiplos campos com quotes textuais. Use o campo mais específico ao claim sendo feito:
 
-- "key_claims[i].verbatim_quote" — claim geral em sentença textual
-- "key_claims[i].evidence.quote" — alternativa, quando verbatim_quote ausente
+- "key_claims[i].evidence.quote" — claim geral, texto fiel ao artigo
 - "thresholds[i].evidence.quote" — para limiares (ex: CR ≤ 0.10)
 - "formulas[i].evidence.quote" — para fórmulas matemáticas
 - "tables_figures[i].evidence.quote" — para dados tabulares
