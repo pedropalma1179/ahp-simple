@@ -137,7 +137,7 @@ interface ExtractedCitation {
  *
  * Limitations (acceptable for V1):
  *   - "Saaty (1987; 1990)" only matches "Saaty (1987)"; the 1990 escapes
- *   - "Saaty (1977, p. 271)" matches "Saaty (1977"
+ *   - "Autor (1977, p. N)" matches "Autor (1977"
  *   - Surnames with internal apostrophes (e.g. O'Brien) not supported
  */
 const CITATION_REGEX =

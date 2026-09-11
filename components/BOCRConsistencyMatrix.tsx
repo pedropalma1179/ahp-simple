@@ -43,7 +43,7 @@ interface BOCRConsistencyMatrixProps {
 // CONSTANTES — Saaty (1977), Tabela RI
 // =========================================================================
 
-const CR_THRESHOLD = 0.10; // Saaty (1977, p. 271)
+const CR_THRESHOLD = 0.10; // Saaty (1977, p. 248)
 
 // =========================================================================
 // HELPERS

@@ -8,7 +8,7 @@
 //
 // [1] Saaty, T.L. (1977). A scaling method for priorities in
 //     hierarchical structures. J. Math. Psychol., 15(3), 234-281.
-//     → CR ≤ 0.10 como limiar de aceitabilidade (p. 271)
+//     → CR ≤ 0.10 como limiar de aceitabilidade (p. 248)
 //
 // [2] Saaty, T.L. (1980). The Analytic Hierarchy Process.
 //     McGraw-Hill, New York.
@@ -126,7 +126,7 @@ export interface SensitiveGrouping {
 // CONSTANTES — TODOS OS LIMIARES SÃO PUBLICADOS
 // ============================================================
 
-/** Saaty (1977, p. 271): "A consistency ratio of 0.10 or less is acceptable" */
+/** Saaty (1977, p. 248): "require the ratio to be very small; e.g., of the order of 0.1." */
 const CR_THRESHOLD = 0.10;
 
 /**
