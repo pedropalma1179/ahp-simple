@@ -1656,6 +1656,89 @@ reingestão.
 
 ---
 
+## A.16: a leitura das treze inverte uma premissa de A.17
+
+Registrado em 11/09/2026, **antes** de qualquer verificação em PDF, porque o
+achado contradiz uma decisão já aplicada em produção.
+
+### As treze não são um defeito, são dois
+
+A contagem de ontem classificou as divergências por **identidade da passagem**: oito
+cobrindo a mesma, quatro distintas, uma parcial. Isso sustentou a troca simples de
+A.17.
+
+**A leitura caso a caso mostra que "mesma passagem" incluía duas direções
+opostas.**
+
+| Direção | Casos | Qual campo é melhor |
+|---|---|---|
+| O `verbatim_quote` é anotação, paráfrase ou está reescrito | 7 | **`evidence.quote`** |
+| O `evidence.quote` está **truncado** | 5 | **`verbatim_quote`** |
+
+**Os sete onde A.17 acertou:** Dodevska, Xu, Lee e os quatro de paráfrase
+(Wijnmalen ×3, Saaty e Ozdemir).
+
+**Os cinco onde o `evidence.quote` é o campo curto:** os três do Bozóki, o Schmidt
+e o Salomon.
+
+O do Schmidt se resolve por leitura, sem PDF: o `evidence.quote` é
+"This can be achieved only by taking the geometric mean [113]", que **começa com
+"This" sem referente**. O `verbatim_quote` traz a oração anterior, que dá o
+sentido: "The reciprocal of the aggregated values must correspond to the individual
+reciprocal values; this can be achieved only by taking the geometric mean."
+
+Nos do Bozóki, o `evidence.quote` diz "the graph is connected" e o
+`verbatim_quote` diz "the graph **corresponding to the incomplete pairwise
+comparison matrix** is connected".
+
+### O que isso faz com A.17, e o que não faz
+
+⚠ **A troca de fonte continua correta nos sete. Nos cinco, ela custou completude,
+não fidelidade.**
+
+Essa distinção é o ponto: **em nenhum caso A.17 fez o modelo receber texto
+infiel.** Em cinco, fez receber texto **mais curto**.
+
+**Não pede reversão.** Pede uma das duas:
+- enviar o campo mais completo quando um contém o outro — acrescenta lógica ao
+  código;
+- **corrigir os `evidence.quote` truncados**, que é escopo de A.16 e já mexe
+  nesses arquivos.
+
+**A segunda é melhor**, porque corrige a base em vez de condicionar o código.
+
+### Nota de método: a contagem classificava por identidade, não por completude
+
+É a segunda vez que uma decisão tomada com contagem se revela incompleta quando os
+casos são lidos um a um.
+
+**A contagem não estava errada, estava grossa.** Ela media se os dois campos
+cobrem a mesma passagem, e a resposta era sim em oito casos. **Mas não media em que
+direção a diferença ia**, e é a direção que decide qual campo usar.
+
+Nos sete, o campo mais longo era o reescrito. Nos cinco, o campo mais longo era o
+fiel. **A mesma métrica, "cobrem a mesma passagem", vale para os dois grupos e não
+os distingue.**
+
+**Regra:** quando a decisão depende de qual de duas versões usar, a contagem
+precisa medir a **direção** da diferença, não só a existência dela. Agrupar por
+"divergem" ou "não divergem" perde exatamente o que a decisão precisa.
+
+### Teste automático insuficiente, e vale registrar
+
+Tentei automatizar a classificação por contenção de fragmentos, ignorando
+reticências. **Marcou onze dos treze como "divergem em conteúdo"**, quando a
+leitura mostra que vários são contenção com inserção no meio.
+
+O Bozóki é o caso: o `verbatim_quote` **insere** "corresponding to the incomplete
+pairwise comparison matrix" dentro da frase do `evidence.quote`. Não é contenção
+literal, e nenhum teste de substring pega.
+
+**A classificação dos treze é leitura, não script.** Terceiro caso na sessão em que
+o instrumento produziu resultado plausível e inútil.
+
+---
+
 ## Nota de método: medir e registrar a predição antes
 
 O que produziu os achados desta sessão não foi a disciplina de medir. Foi **medir
