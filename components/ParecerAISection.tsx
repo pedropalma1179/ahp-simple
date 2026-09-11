@@ -12,6 +12,7 @@ interface ParecerAISectionProps {
     veredicto?: string;
     review?: string;
     metadata?: {
+      model?: string;
       knowledgeBase?: {
         refsUsed?: number;
         criticalRefs?: number;
@@ -90,7 +91,7 @@ export default function ParecerAISection({
               🔬 Parecer Científico IA
             </h3>
             <p className="text-sm text-secondary">
-              Análise por Claude Sonnet 4.5 • Arquitetura RAG com base científica em MCDM
+              Análise por {aiReview?.metadata?.model ?? 'modelo não informado'} • Arquitetura RAG com base científica em MCDM
             </p>
             <p className="text-xs text-indigo-600 mt-0.5">
               ✓ Valores numéricos do sistema | ✓ Análise qualitativa por IA
@@ -290,7 +291,7 @@ export default function ParecerAISection({
                 </h4>
                 <div className="text-sm text-blue-700 space-y-1">
                   <p>
-                    • Esta revisão foi gerada por Claude Sonnet 4.5, baseada em{' '}
+                    • Esta revisão foi gerada por {aiReview?.metadata?.model ?? 'modelo não informado'}, baseada em{' '}
                     {aiReview.metadata?.knowledgeBase?.refsUsed || 24}{' '}
                     referências científicas de{' '}
                     {aiReview.metadata?.knowledgeBase?.uniqueArticles || 29}{' '}
