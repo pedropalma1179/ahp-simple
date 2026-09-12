@@ -232,6 +232,22 @@ contrárias sem saber qual vale.** A que vale é esta.
   critério pedia ausência de ocorrências que o escopo mandava preservar.
 - Usar `git diff --stat` em tarefa que remove arquivos. `git rm` deixa as
   remoções staged, e elas não aparecem sem `HEAD`. **Sempre `git diff HEAD --stat`.**
+- Repetir, na lista do `git add`, um caminho que o `git rm` já removeu. O caminho
+  não está mais na árvore nem no índice, então o `git add` **falha inteiro**:
+  `fatal: pathspec '<caminho>' did not match any files`, saída 128, e **nenhum dos
+  outros caminhos da mesma linha é indexado**. A remoção continua staged pelo
+  próprio `git rm`, a edição de documento fica de fora, e **o commit sai
+  incompleto sem nenhum sinal de erro** — a mensagem de falha aparece antes, no
+  comando anterior, não no commit. Aconteceu em A.6. **O que pegou foi o
+  `git show --stat` depois do commit**, que é a segunda metade do par prescrito no
+  `CLAUDE.md`.
+
+  ⚠ **A falha depende de a remoção já estar staged.** Medido nas duas formas nesta
+  sessão, em repositório descartável (git 2.50.1): com `git rm` antes, o
+  `git add doc.md orfao.ts` sai 128 e o `doc.md` permanece ` M`, não indexado; com
+  `rm` simples, o mesmo comando sai 0 e indexa a deleção. **A regra: caminho
+  removido com `git rm` não se repete no `git add`, e o `git status --short` antes
+  mostra quais já estão com `D` na coluna do índice.**
 - Herdar valor de aceite de execução anterior sem confirmar que a instrução era
   a mesma. **Número de aceite só entra num prompt se vier de execução que
   aplicou exatamente as instruções daquele prompt.** Alterar a instrução e
