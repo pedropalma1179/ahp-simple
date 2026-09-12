@@ -2031,138 +2031,7 @@ undesirable compulsion" na esquerda.
 **Portanto, nos sete a correção é somar `lo − 1` a cada `page`**, e o conteúdo já
 está corretamente ancorado.
 
-### A.19 parte 2, em andamento: o Bozóki reancorado contra o PDF
-
-Começado em 11/09/2026. **Três das dez âncoras localizadas, e a principal traz
-três erros numa só claim.**
-
-**A claim de unicidade.** O RAG registra `page: 2257`,
-`locator_id: "Theorem 1"`, e o `evidence.quote` "The optimal solution of the
-problem (5) is unique if and only if the graph is connected".
-
-**O enunciado real, na página 324:**
-
-> **Theorem 2.** The optimal solution of problem **(4)** is unique if and only if
-> the graph G **corresponding to the incomplete pairwise comparison matrix** is
-> connected.
-
-| Campo | No RAG | No artigo |
-|---|---|---|
-| `page` | 2257 | **324** |
-| `locator_id` | Theorem 1 | **Theorem 2** |
-| problema citado no quote | (5) | **(4)** |
-
-**Três erros na mesma claim.** E o Teorema 1, na página 321, é sobre logconvexidade
-de λmax, tema diferente.
-
-⚠ **Isto confirma a leitura de A.16:** no Bozóki o **`verbatim_quote` era o campo
-fiel**, porque preservava "corresponding to the incomplete pairwise comparison
-matrix", que o `evidence.quote` truncava. A troca de fonte de A.17 fez o modelo
-receber, nesta claim, o texto mais curto **e** com o número de problema errado.
-
-**Outras duas localizadas:**
-
-| Claim | No RAG | No artigo |
-|---|---|---|
-| "the vertices correspond to the objects to compare..." | p. 2257, Section II Methodology | **p. 321, Seção 2.2 "Graph representation"** |
-| "two criteria, not compared yet... can be in indirect relation" | p. 2257, Section II | **p. 321, Seção 2.2** |
-
-### Mais três localizadas, e as equações invertem o diagnóstico
-
-**A página 320 traz as equações (5) e (6) do artigo, e elas são MATRIZES**, não
-problemas de otimização:
-
-- **(5)** é a matriz incompleta `A`, com asteriscos nos elementos faltantes;
-- **(6)** é a matriz `A(x)`, com as variáveis `x_1, …, x_d` nos lugares faltantes.
-
-**O que o RAG registra sob esses números é outra coisa:**
-
-| `locator_id` no RAG | `quote` no RAG | O que o artigo numera assim | Qual é o número real |
-|---|---|---|---|
-| Eq. (5) | `min { λmax(A(x)) \| x > 0 }` | a matriz incompleta `A` | **problema (4)** |
-| Eq. (6) | `min sum [log(a_ij w_j/w_i)]^2` | a matriz `A(x)` | **extensão de (3)** |
-
-A página 320 diz, duas vezes, que o problema de minimização do autovalor máximo é
-**(4)**: "reformulate the maximal eigenvalue minimization problem **(4)** as an
-unconstrained convex minimization problem" e "solving the eigenvector optimization
-problem **(4)**". E que o LLSM é "the extension of **(3)** to the incomplete case".
-
-⚠ **Então as duas claims têm conteúdo correto e numeração de equação errada.**
-Descrevem os problemas (4) e (3), rotulados como (5) e (6). **É o mesmo padrão da
-claim de unicidade**, que citava "problem (5)" quando o Teorema 2 diz (4).
-
-**A terceira localizada:** a claim "Variables x_1, x_2, …, x_d are introduced for
-the missing elements in the upper triangular part" está na **Seção 2.1, página
-320**, e o RAG registra `page: 2256, locator_id: "Section II"`.
-
-### ⚠ RETIFICAÇÃO: o Bozóki não é defeito, e o arquivo já documentava isso
-
-**Registrado em 11/09/2026, corrigindo tudo o que esta seção afirmava antes.**
-
-Passei as páginas do PDF localizando cada uma das dez claims, e concluí que os
-localizadores estavam errados: páginas 2256/2257 num artigo de 318–333, teoremas
-deslocados um número, dois quotes com problema errado.
-
-**Estava errado. O campo `notes` do próprio arquivo explica:**
-
-> "ID 'bozoki2010_ipc' refers to the canonical journal version: Bozóki, Fülöp,
-> Rónyai (2010) Math. Comput. Modelling 52(1-2), 318-333. **The PDF in the project
-> knowledge is the IEEE 2009 conference version** (Proceedings of 2009 IEEE IEEM),
-> which is a shorter presentation of the same theorems."
-
-> "**Page numbers in evidence (2256-2257) refer to the IEEE 2009 conference
-> proceedings.** Equivalent content appears in pages 318-333 of the MCM 2010
-> paper."
-
-**Os localizadores são corretos para a edição de onde foram extraídos.** O `abnt`
-cita a versão de jornal porque é a canônica; as páginas referem-se à versão de
-conferência, e o arquivo **declara a divergência**.
-
-O PDF que abri, em `/mnt/project/`, é a versão MCM 2010. **Os "teoremas
-deslocados" que encontrei são a numeração da outra edição**, não erro de extração.
-
-### O que este episódio custou e o que ensina
-
-Duas horas de leitura de PDF, uma tarefa criada (A.19 parte 2), um prompt escrito
-e descartado, e uma seção deste documento afirmando defeito onde não havia.
-
-**O que evitaria: ler o campo `notes` antes de abrir o PDF.** Ele estava no mesmo
-arquivo, a poucas linhas dos campos que eu conferia.
-
-⚠ **E é o mesmo erro que este registro documenta nas seis superfícies:** afirmar
-com base em parte do artefato, sem ler o resto. A diferença é que aqui quem o
-cometeu foi a apuração, não o sistema.
-
-**Regra para o protocolo:** antes de conferir localizadores de um artigo do RAG
-contra um PDF, **ler `notes` e confirmar que o PDF é a edição de onde as claims
-foram extraídas.** O campo existe exatamente para isso.
-
-### Consequência para a medição de A.19
-
-**O Bozóki sai da lista de inconsistentes.** A conferência automática de `page`
-contra a faixa do `abnt` o acusa, e **o acuso é falso positivo**: o teste compara
-páginas de edições diferentes.
-
-**A contagem correta de A.19 é: sete artigos inconsistentes, não oito.** Os sete
-foram corrigidos em `23afe43`, e **A.19 está fechada.**
-
-⚠ **O teste de faixa precisa de uma exceção**, e o critério é o próprio `notes`: se
-o arquivo declara que as páginas são de outra edição, não há o que comparar. Sem
-isso, qualquer rodada futura vai reacusar o Bozóki.
-
-### O que falta, e por que fica para sessão própria
-
-Sete das dez âncoras não foram localizadas. O artigo tem 33 páginas e os
-localizadores estão espalhados entre 320 e 333: as equações (5) e (6), o Teorema 3,
-o Teorema 2 do RAG que provavelmente é outro no artigo, e os dois "Remark".
-
-**Localizar cada uma exige percorrer o artigo página a página**, e é trabalho de
-leitura dedicada, não de uma passada.
-
-⚠ **Registrado o que basta para a correção não ser feita às cegas:** a numeração do
-RAG não corresponde à do artigo em nenhum dos três casos verificados, então
-**nenhuma das dez pode ser corrigida por deslocamento aritmético.** Cada uma
-precisa do PDF.
+### ✅ O Bozóki verificado: falha de preenchimento, não extração de outro trabalho
 
 A pergunta era se as claims descrevem o artigo ou vieram de outro documento.
 Verificado em 11/09/2026, contra o PDF.
@@ -2186,6 +2055,176 @@ deslocamento às páginas.
 
 **Isso separa o Bozóki dos outros sete:** naqueles, a conversão de numeração
 relativa para a do periódico é aritmética. Aqui, é releitura.
+
+---
+
+## ⚠ F08: a ingestão põe recomendação editorial em `verbatim_quote`
+
+**Auditoria externa de 11/09/2026, verificada aqui. E contradiz o que este registro
+afirmou.**
+
+`scripts/ingest-rag.ts`, linha 263, dentro de `buildRecommendationChunks`:
+
+```ts
+verbatim_quote: recommendation,
+page: null,
+locator_type: null,
+locator_id: null,
+```
+
+**Uma recomendação editorial entra no campo `verbatim_quote`, sem página e sem
+localizador.**
+
+E `app/api/ai-reviewer/route.ts`, linha 152, a formata assim ao modelo:
+
+```
+*Verbatim:* "{o texto da recomendação}"
+```
+
+⚠ **O comentário da linha 139 do `route.ts` declara que a decisão A5 era tornar o
+bloco "indistinguível do RAG keyword".** A indistinguibilidade era o objetivo, e é
+o que permite a uma anotação editorial chegar ao modelo com rótulo de transcrição.
+
+### Correção a um registro anterior
+
+Na tabela das seis ocorrências de `verbatim_quote` no `ingest-rag.ts`, feita para a
+tarefa A.17, **classifiquei a linha 263 como "já correta, é texto direto".**
+
+**Estava errado.** "Texto direto" descreve a mecânica — o campo recebe a string sem
+transformação — e não a adequação. Uma recomendação não é citação, e o campo se
+chama `verbatim_quote`.
+
+É a mesma falha de leitura da família dos nomes enganosos, cometida ao auditar
+exatamente essa família.
+
+### Consequência: A.18 fica bloqueada
+
+A reingestão do índice semântico estava pendente esperando as correções no RAG.
+**Reingerir sem corrigir a linha 263 perpetua o defeito**, porque ele está no
+ingestor e não nos dados.
+
+**A.18 passa a depender de corrigir o `buildRecommendationChunks`**, não só das
+divergências de campo.
+
+### Segunda parte do F08: o verificador de citações
+
+A auditoria aponta que o `verify-citations.mjs` **aceita como OK uma página
+registrada em qualquer claim do artigo**, e que estar na faixa não prova que a
+afirmação ou o trecho literal esteja naquela página.
+
+**Isso é verdade e limita o que as taxas medem.** O rodapé do script já registra
+que a conferência é contra o RAG e não contra o PDF, mas o veredito `OK` sugere
+mais do que o teste verifica: ele mede **identidade bibliográfica e plausibilidade
+do localizador**, não correspondência textual.
+
+⚠ **Consequência para os números deste documento:** as taxas de 61% e 57% medem
+divergência de localizador. **Não medem se a citação sustenta a afirmação.** Nenhum
+número aqui autoriza dizer que 39% ou 43% das citações estão corretas no sentido
+forte.
+
+---
+
+## ⚠ F05: a faixa de CR publicada não é a dos respondentes
+
+**Auditoria externa de 11/09/2026, reproduzida neste ambiente com os mesmos
+números.**
+
+O parecer e o manuscrito afirmam que os doze respondentes têm **CR entre 1,1% e
+9,6%**, com 100% de conformidade ao limiar de Saaty (1977).
+
+**O CR governante recalculado dos julgamentos brutos:**
+
+| | |
+|---|---|
+| Menor | **11,3893%** |
+| Maior | **109,2740%** |
+| Abaixo de 0,10 | **nenhum dos doze** |
+
+Reproduzido a partir de `firestore_backup_total.json`, 864 julgamentos,
+autovetor por iteração de potência, RI de Saaty (1977), CR máximo entre as seis
+matrizes de ordem ≥ 3 de cada respondente.
+
+### De onde vem a diferença
+
+A faixa publicada vem do campo `avgCR` em cache, que é a **média sobre 26
+matrizes, incluindo 20 de ordem 2 com CR estruturalmente zero**. Dividir a soma dos
+CRs reais por 26 produz um número três a dez vezes menor que o governante.
+
+**O campo se chama `avgCR` e é o máximo no `ahp-ipc.ts`, e é a média no cache.** É
+o quinto caso da família dos nomes enganosos, e o de maior consequência.
+
+### Por que este é o achado mais grave do conjunto
+
+Os outros tocam código que não roda, ou construto que o artigo pretende criticar.
+**Este toca o número que sustenta a seção de consistência do manuscrito.**
+
+Um respondente tem **CR de 109,27%**, acima do limiar de 0,20 que Saaty e Ergu
+(2015) identificam como julgamento quase aleatório: "A CR greater than 0.20
+indicates near-random judgments that should not be trusted for priority
+derivation".
+
+⚠ **E a orientação da auditoria sobre o que NÃO fazer é a parte que importa:**
+
+> Não excluir automaticamente respondentes para obter um agregado mais consistente:
+> critérios de participação e de análise de sensibilidade precisam de justificativa
+> metodológica.
+
+**A agregação por média geométrica continua consistente** — o CR agregado de 1,06%
+é real, e a propriedade de Escobar (2004) explica por quê. **O que não se sustenta
+é a afirmação sobre os indivíduos.**
+
+### Consequência para o manuscrito
+
+A seção de consistência precisa distinguir três coisas que hoje se confundem:
+
+| Medida | Valor | O que sustenta |
+|---|---|---|
+| CR das matrizes agregadas | 1,06% a 2,60% | verificado, e é o que valida a derivação |
+| CR governante individual | 11,39% a 109,27% | **não conforme ao limiar** |
+| `avgCR` em cache | 1,1% a 9,6% | artefato de dividir por 26 |
+
+**O terceiro não é uma medida, é um erro de agregação.** A escolha de qual reportar
+é metodológica, e precisa de justificativa explícita: por que o painel é admissível
+com CRs individuais nesse patamar, e o que Aull-Hyde et al. (2006) sustentam sobre
+agregação de matrizes individualmente inconsistentes.
+
+---
+
+## Experimento 10.3: jackknife sobre o painel — primeira evidência empírica do Bloco D
+
+Executado em 11/09/2026. **Doze retiradas, uma por respondente**, recalculando o
+modelo completo sem cada um.
+
+| Resultado | Medido |
+|---|---|
+| A alternativa vencedora se mantém | **12 de 12** |
+| A dominância estrita se mantém | **6 de 12** |
+
+### Por que é o achado científico mais valioso da sessão
+
+O manuscrito estabelece, com fonte, que **dominância estrita garante invariância a
+qualquer ponderação positiva**: se A1 supera A2 em todos os méritos, nenhuma
+escolha de pesos inverte a ordem.
+
+**O experimento mostra que a garantia depende da composição do painel.** A
+dominância existe nos dados agregados dos doze, e **se perde em metade dos
+cenários** de retirada de um respondente.
+
+**Isso é a distinção entre invariância estrutural e robustez observada, medida.**
+
+- A **invariância** é teorema: dada a dominância, a ordem não depende dos pesos.
+- A **robustez** é empírica: a dominância em si depende de quem está no painel.
+
+A escolha é estável — 12 de 12 — e a **justificativa** não é — 6 de 12. O sistema
+pode recomendar A1 com confiança e não pode invocar dominância como razão.
+
+### Consequência para a linha de contribuição (seção 1.6 do âncora)
+
+**A linha candidata deixa de ser "corrigir o rótulo de robustez".** Correção de
+rótulo é requisito, não achado.
+
+**Passa a ser a distinção medida entre estabilidade da escolha e estabilidade da
+justificativa**, com o jackknife como evidência.
 
 ---
 
