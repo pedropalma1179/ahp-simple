@@ -11,6 +11,36 @@
 
 ---
 
+## Índice das execuções
+
+⚠ **Criado em 12/09/2026 para resolver uma ambiguidade do registro:** "etapa" e
+"execução" foram usados com numerações diferentes para as mesmas coisas. **Este
+índice é a numeração vigente; onde o texto disser "etapa N", confira aqui.**
+
+| # | Data | Commit | Intervenção testada | Predição | Resultado |
+|---|---|---|---|---|---|
+| **1** | 10/09/2026 | `d16491a` | nenhuma: linha de base | — | 5 imprecisões, 13/18 localizadores divergentes |
+| **2** | 10/09/2026 | `2b353b3` | três localizadores corrigidos no prompt | registrada antes | confirmada: Wijnmalen saiu com p. 899 e 903 |
+| **3** | 11/09/2026 | `ca36539` | payload passa a informar N por matriz | registrada antes | confirmada: imprecisão 2 desapareceu, Escobar com N=12 |
+| **4** | 11/09/2026 | `501b19a` | remoção do `dominanceAnalyzer` | registrada antes | **refutada**: revelou o segundo canal no prompt |
+| **5** | 11/09/2026 | `28f4a95` | remoção da autorização de viés no prompt | registrada antes | confirmada |
+| **6** | 11/09/2026 | `bf959b6` | fonte da citação passa a `evidence.quote` | registrada antes | duas confirmadas, **uma parcial** (Dodevska) |
+
+**Placar das predições: quatro confirmadas, uma parcial, uma refutada.**
+
+⚠ **A refutada, na execução 4, produziu o achado mais valioso**: o segundo canal
+que nenhuma confirmação teria revelado.
+
+**Execuções previstas e não realizadas:** a indexação da claim das cinco fórmulas
+do Lee (A.11 etapa 1) e a etapa que testará A.12, ambas com predição já escrita.
+
+⚠ **Entrada e saída bruta:** todas as execuções usaram o mesmo projeto e o
+documento `calculations` de 13/07/2026. **Os textos brutos das execuções 1 e 2
+estão nos anexos deste documento**; das execuções 3 a 6 não foram anexados, por
+falha de upload, e as seções registram o que foi conferido na tela.
+
+---
+
 ## Por que este registro existe
 
 A dissertação registra, na Seção 6.2, o que a revisão humana encontrou na saída da
@@ -189,15 +219,31 @@ contagem manual estimava 29 e 11, por leitura.
 
 Reportar um número único seria enganoso. O que se sabe sobre o total:
 
-| | Citações | Leitura |
-|---|---|---|
-| Verificadas e divergentes | 13 | erro confirmado |
-| Verificadas e corretas | 5 | correção confirmada |
-| Sem localizador | 9 | **inverificáveis**: não afirmam página, logo não podem divergir, mas também não permitem conferência. Cinco delas são de artigos que nunca aparecem com página no parecer |
+⚠ **CORREÇÃO de rótulos, 12/09/2026.** A versão anterior desta tabela dizia "erro
+confirmado" e "correção confirmada", e reportava uma **taxa de erro entre 48% e
+81%**. **Nenhum dos três se sustenta pelo procedimento**, e o motivo está na segunda
+parte do F08: o script mede **localizador**, não conteúdo.
 
-Portanto: **taxa de erro entre 13/27 (48%) no melhor caso e 22/27 (81%) no pior**,
-com 13/18 (72%) medido sobre o subconjunto verificável. Essa formulação antecipa
-a pergunta do revisor sobre o denominador.
+| | Citações | O que o procedimento estabelece |
+|---|---|---|
+| Localizador divergente | 13 | **divergência de localizador**, na versão do verificador então vigente. **Não** "erro confirmado": não se conferiu se o conteúdo sustenta a afirmação |
+| Localizador coincidente com claim | 5 | **localizador plausível**. **Não** "correção confirmada": página indexada não prova conteúdo correto |
+| Sem localizador | 9 | **fora da cobertura do procedimento.** Não afirmam página, logo não podem divergir, **e não são por isso incorretas** |
+
+**Apresentar em três níveis separados:**
+
+| Nível | Esta medição |
+|---|---|
+| **Cobertura do procedimento** | 18 de 27 citações têm localizador e podem ser examinadas |
+| **Divergência de localizador** | 13 de 18, na versão do verificador então vigente |
+| **Fidelidade e sustentação** | somente nos casos conferidos à mão, caso a caso |
+
+⚠ **A faixa de 48% a 81% foi RETIRADA.** Ela tratava as nove sem localizador como
+possivelmente erradas e as cinco coincidentes como corretas, e **nenhuma das duas
+leituras decorre do teste**.
+
+**Os números históricos ficam**, com a interpretação marcada como superada. ⚠ **Os
+textos brutos das execuções não se reescrevem.**
 
 **A ausência de localizador é lacuna do mecanismo, não do resultado.** Uma
 afirmação técnica sem página é indistinguível de uma correta: o verificador não a
@@ -934,8 +980,28 @@ reconstruída em vez de ser explicado depois.
 `classifyRespondent` passará a receber o CR **governante**, cujo menor valor no
 painel é 11,39%.
 
-Predição: **os doze respondentes migram de CONFIÁVEL para CRÍTICO**, e o parecer
-passa a afirmar o oposto do que afirma hoje sobre a consistência do painel.
+⚠ **CORREÇÃO da predição e da sequência, 12/09/2026.**
+
+**A predição anterior era "os doze migram para CRÍTICO". Está errada:** serão **1
+REVISAR e 11 CRÍTICO**. O R01 tem governante de 11,39%, e a faixa de `REVISAR` vai
+de 10 a 15%. O erro foi usar o menor governante para prever o destino de todos,
+quando ele determina onde cai o **melhor** caso.
+
+⚠ **A sequência anterior, `B.3 → A.12 → etapa 4`, contradizia B.3**, que determina
+execução depois da etapa 4. **A sequência vigente, registrada no âncora:**
+
+1. **A.12:** corrigir a origem dos CRs e remover o score e as categorias do payload;
+2. **executar a etapa** com as mudanças identificadas;
+3. **B.3:** remover o cache obsoleto, preservando o registro histórico.
+
+⚠ **Consequência metodológica que isso cria.** Corrigindo a origem dos CRs **e**
+removendo as categorias antes da geração, **a etapa passa a avaliar uma intervenção
+conjunta**, e não isola o efeito do cache.
+
+**O isolamento pode ser verificado no payload**, lendo o que é enviado antes e
+depois, sem publicar uma versão intermediária inadequada. **A predição de 1 REVISAR
+e 11 CRÍTICO é diagnóstico do classificador antigo**, não critério de aceite: A.12
+remove a distribuição.
 
 Se acontecer, confirma a cadeia inteira: cache → `qualityAnalysis` → imprecisão 1.
 Se não acontecer, aponta para algo que não entendemos no caminho.
@@ -1060,9 +1126,12 @@ DIRETRIZ 1 e sustentado por uma frase da execução 2. Agora tem predição regi
 antes da execução e resultado medido depois.
 
 **O desfecho da predição 2 é mais informativo que o desaparecimento.** Escobar não
-sumiu: passou a ser aplicado com o N correto. Isso mostra que **o modelo aplicava
-a diretriz corretamente o tempo todo**, e que o único elemento faltante era o
-dado. Não havia tendência a inventar: havia uma exigência sem insumo.
+sumiu: passou a ser aplicado com o N correto. Isso é **compatível com** o modelo aplicar a diretriz corretamente e faltar apenas
+o dado.
+
+⚠ **Uma execução não demonstra "o tempo todo" nem "o único elemento faltante".**
+Mostra que, com o N fornecido, a diretriz foi aplicada. **O que o código sustenta é
+que a diretriz exigia um dado que o payload não continha.**
 
 Isso reforça a formulação da classe E: nem o prompt nem o payload mentiam, e a
 correção não foi reescrever a instrução, foi **fornecer o que ela pedia**.
@@ -1070,9 +1139,21 @@ correção não foi reescrever a instrução, foi **fornecer o que ela pedia**.
 **Custo da correção: quatro linhas de payload.** Sem tocar no prompt, no motor nem
 no dado do Firestore. Duas imprecisões resolvidas, uma classe de falha confirmada.
 
-**A predição 3 fez o trabalho de controle.** A faixa permaneceu, então o resultado
-das outras duas não é variação estocástica: é efeito da correção. Sem esse
-controle, um parecer que melhorasse em tudo não distinguiria uma coisa da outra.
+**A predição 3 fez o trabalho de controle**, e sem ele um parecer que melhorasse em
+tudo não distinguiria efeito de variação.
+
+⚠ **Correção de alcance, 12/09/2026.** A versão anterior afirmava que "o resultado
+das outras duas não é variação estocástica: é efeito da correção". **Uma execução
+não estabelece isso.**
+
+**Formulação delimitada:** nesta execução os resultados foram compatíveis com a
+hipótese — o N incorreto desapareceu e o controle permaneceu. **A inspeção do
+código sustenta o mecanismo proposto; a estabilidade entre gerações não foi
+medida.** Para afirmar eficácia no artigo, repetir em condições comparáveis,
+preservando entradas e registrando os parâmetros de geração.
+
+⚠ Isso **não exige repetir tudo para encerrar uma correção de engenharia**: o
+critério de engenharia é o código, o de publicação é a repetição.
 
 **Tempo.** 188 segundos, contra 154 e 150 das execuções anteriores. A terceira
 medição para A.9: as três cabem nos 300 segundos, mas a margem encolheu de 150
@@ -1584,7 +1665,7 @@ confira a saída contra uma contagem manual. Depois disso, confie nele.
 | # | Claim | Predição | Resultado |
 |---|---|---|---|
 | 1 | Lee (2009) | traz as siglas `(B) (O) (C) (R)` em vez das reticências | ✅ **confirmada** |
-| 2 | Dodevska (2023) | traz `(DI_{bef})` e `(overline{R}_{bef})` | ✅ **confirmada**, com observação |
+| 2 | Dodevska (2023) | traz `(DI_{bef})` e `(overline{R}_{bef})` | ⚠ **parcialmente atendida**: a primeira notação apareceu, a segunda foi omitida por truncamento |
 | 3 | Xu (2000) | começa com "this paper proves that" | ✅ **confirmada** |
 | — | controle | a faixa "1,1% e 9,6%" permanece | ✅ permaneceu |
 
@@ -1600,7 +1681,21 @@ entre "the weighted geometric mean complex judgement matrix..." e "**this paper
 proves that** the WGMCJM..." é **atribuição epistêmica**. O parecer voltou a dizer
 que o artigo prova, em vez de afirmar como fato estabelecido.
 
-### Observação sobre o Dodevska: truncamento não é modificação
+### Dodevska: predição parcialmente atendida
+
+⚠ **Correção de 12/09/2026.** A versão anterior marcava esta predição como
+confirmada e tratava o truncamento como observação lateral. **O critério previa
+duas notações e uma apareceu: é resultado parcial.**
+
+**Registro correto:** predição parcialmente atendida. Uma notação foi reproduzida;
+a segunda foi omitida por truncamento. **O trecho observado é compatível com a
+fonte corrigida.**
+
+⚠ **O critério registrado antes pedia as duas, e não deve ser reinterpretado depois
+para preservar a contagem de confirmações.** O placar da nota de método passa a ser
+**quatro confirmadas, uma parcial e uma refutada**.
+
+O que segue é a análise do truncamento, que continua válida.
 
 O parecer **encerrou a citação antes de `(overline{R}_{bef})`**. Trouxe o
 `(DI_{bef})` e parou ali.
@@ -2129,8 +2224,25 @@ forte.
 **Auditoria externa de 11/09/2026, reproduzida neste ambiente com os mesmos
 números.**
 
-O parecer e o manuscrito afirmam que os doze respondentes têm **CR entre 1,1% e
-9,6%**, com 100% de conformidade ao limiar de Saaty (1977).
+⚠ **CORREÇÃO de atribuição, 12/09/2026.** A versão anterior desta seção afirmava
+que "o parecer **e o manuscrito**" sustentam a faixa. **Isso é falso quanto ao
+manuscrito**, e o próprio documento o desmente duas seções acima:
+
+- a **Seção 6.2** da dissertação registra a faixa de 1,1% a 9,6% **como a primeira
+  das quatro imprecisões da saída da camada de IA**, e explica que corresponde a
+  "uma média diluída";
+- a **Tabela 22 do Apêndice G** confere os CRs recalculados valor a valor.
+
+**Quem afirma a conformidade é o parecer. O manuscrito a reproduz como objeto
+criticado.**
+
+⚠ **Para acusar o manuscrito de endossar a conclusão seria preciso identificar
+versão, seção, tabela e frase.** Nada disso foi levantado, e o que existe aponta o
+contrário.
+
+**O que permanece de F05:** o parecer afirma **CR entre 1,1% e 9,6%** com 100% de
+conformidade ao limiar de Saaty (1977), e o painel de qualidade mostra
+"CR > 10%: 0 respondentes".
 
 **O CR governante recalculado dos julgamentos brutos:**
 
@@ -2173,9 +2285,17 @@ derivation".
 é real, e a propriedade de Escobar (2004) explica por quê. **O que não se sustenta
 é a afirmação sobre os indivíduos.**
 
-### Consequência para o manuscrito
+### Consequência para o sistema, e o que verificar no manuscrito
 
-A seção de consistência precisa distinguir três coisas que hoje se confundem:
+⚠ **A dissertação já distingue as três medidas**: a Seção 6.2 identifica a faixa do
+parecer como imprecisão e o Apêndice G traz os CRs recalculados. **A correção
+pendente é no sistema, não no texto.**
+
+**O que verificar no manuscrito**, antes de afirmar que há algo a corrigir lá: se
+alguma seção ou tabela usa a faixa de 1,1% a 9,6% **como resultado próprio**, e não
+como citação do parecer criticado. Isso exige identificar versão, seção e frase.
+
+**As três medidas que o sistema hoje confunde:**
 
 | Medida | Valor | O que sustenta |
 |---|---|---|
@@ -2215,8 +2335,15 @@ cenários** de retirada de um respondente.
 - A **invariância** é teorema: dada a dominância, a ordem não depende dos pesos.
 - A **robustez** é empírica: a dominância em si depende de quem está no painel.
 
-A escolha é estável — 12 de 12 — e a **justificativa** não é — 6 de 12. O sistema
-pode recomendar A1 com confiança e não pode invocar dominância como razão.
+**Formulação delimitada:** A1 permaneceu vencedora nas doze exclusões individuais;
+a justificativa por dominância estrita permaneceu em seis. **A estabilidade da
+escolha não implica estabilidade dessa justificativa.**
+
+⚠ **Correção de alcance, 12/09/2026.** A versão anterior dizia que o sistema "pode
+recomendar A1 com confiança e não pode invocar dominância como razão". **Isso
+excede o medido:** a dominância continua válida **no painel completo** e nos seis
+cenários em que se mantém. O experimento mostra que ela **não é invariante à
+composição do painel**, não que seja inválida.
 
 ### Consequência para a linha de contribuição (seção 1.6 do âncora)
 
@@ -2225,6 +2352,171 @@ rótulo é requisito, não achado.
 
 **Passa a ser a distinção medida entre estabilidade da escolha e estabilidade da
 justificativa**, com o jackknife como evidência.
+
+---
+
+### A.19 parte 2 — SUPERADA pela retificação abaixo
+
+⚠ **Leia a retificação no fim desta seção antes de usar qualquer coisa daqui.** O
+levantamento abaixo foi feito contra o PDF errado: a edição MCM 2010, quando as
+claims vêm da IEEE 2009, como o campo `notes` do arquivo declara. **Nada aqui é
+defeito a corrigir.** Fica como registro do percurso e do erro.
+
+#### O levantamento original, feito contra o PDF errado
+
+Começado em 11/09/2026. **Três das dez âncoras localizadas, e a principal traz
+três erros numa só claim.**
+
+**A claim de unicidade.** O RAG registra `page: 2257`,
+`locator_id: "Theorem 1"`, e o `evidence.quote` "The optimal solution of the
+problem (5) is unique if and only if the graph is connected".
+
+**O enunciado real, na página 324:**
+
+> **Theorem 2.** The optimal solution of problem **(4)** is unique if and only if
+> the graph G **corresponding to the incomplete pairwise comparison matrix** is
+> connected.
+
+| Campo | No RAG | No artigo |
+|---|---|---|
+| `page` | 2257 | **324** |
+| `locator_id` | Theorem 1 | **Theorem 2** |
+| problema citado no quote | (5) | **(4)** |
+
+**Três erros na mesma claim.** E o Teorema 1, na página 321, é sobre logconvexidade
+de λmax, tema diferente.
+
+⚠ **Isto confirma a leitura de A.16:** no Bozóki o **`verbatim_quote` era o campo
+fiel**, porque preservava "corresponding to the incomplete pairwise comparison
+matrix", que o `evidence.quote` truncava. A troca de fonte de A.17 fez o modelo
+receber, nesta claim, o texto mais curto **e** com o número de problema errado.
+
+**Outras duas localizadas:**
+
+| Claim | No RAG | No artigo |
+|---|---|---|
+| "the vertices correspond to the objects to compare..." | p. 2257, Section II Methodology | **p. 321, Seção 2.2 "Graph representation"** |
+| "two criteria, not compared yet... can be in indirect relation" | p. 2257, Section II | **p. 321, Seção 2.2** |
+
+### Mais três localizadas, e as equações invertem o diagnóstico
+
+**A página 320 traz as equações (5) e (6) do artigo, e elas são MATRIZES**, não
+problemas de otimização:
+
+- **(5)** é a matriz incompleta `A`, com asteriscos nos elementos faltantes;
+- **(6)** é a matriz `A(x)`, com as variáveis `x_1, …, x_d` nos lugares faltantes.
+
+**O que o RAG registra sob esses números é outra coisa:**
+
+| `locator_id` no RAG | `quote` no RAG | O que o artigo numera assim | Qual é o número real |
+|---|---|---|---|
+| Eq. (5) | `min { λmax(A(x)) \| x > 0 }` | a matriz incompleta `A` | **problema (4)** |
+| Eq. (6) | `min sum [log(a_ij w_j/w_i)]^2` | a matriz `A(x)` | **extensão de (3)** |
+
+A página 320 diz, duas vezes, que o problema de minimização do autovalor máximo é
+**(4)**: "reformulate the maximal eigenvalue minimization problem **(4)** as an
+unconstrained convex minimization problem" e "solving the eigenvector optimization
+problem **(4)**". E que o LLSM é "the extension of **(3)** to the incomplete case".
+
+⚠ **Então as duas claims têm conteúdo correto e numeração de equação errada.**
+Descrevem os problemas (4) e (3), rotulados como (5) e (6). **É o mesmo padrão da
+claim de unicidade**, que citava "problem (5)" quando o Teorema 2 diz (4).
+
+**A terceira localizada:** a claim "Variables x_1, x_2, …, x_d are introduced for
+the missing elements in the upper triangular part" está na **Seção 2.1, página
+320**, e o RAG registra `page: 2256, locator_id: "Section II"`.
+
+### ⚠ RETIFICAÇÃO: o Bozóki não é defeito, e o arquivo já documentava isso
+
+**Registrado em 11/09/2026, corrigindo tudo o que esta seção afirmava antes.**
+
+Passei as páginas do PDF localizando cada uma das dez claims, e concluí que os
+localizadores estavam errados: páginas 2256/2257 num artigo de 318–333, teoremas
+deslocados um número, dois quotes com problema errado.
+
+**Estava errado. O campo `notes` do próprio arquivo explica:**
+
+> "ID 'bozoki2010_ipc' refers to the canonical journal version: Bozóki, Fülöp,
+> Rónyai (2010) Math. Comput. Modelling 52(1-2), 318-333. **The PDF in the project
+> knowledge is the IEEE 2009 conference version** (Proceedings of 2009 IEEE IEEM),
+> which is a shorter presentation of the same theorems."
+
+> "**Page numbers in evidence (2256-2257) refer to the IEEE 2009 conference
+> proceedings.** Equivalent content appears in pages 318-333 of the MCM 2010
+> paper."
+
+**Os localizadores são corretos para a edição de onde foram extraídos.** O `abnt`
+cita a versão de jornal porque é a canônica; as páginas referem-se à versão de
+conferência, e o arquivo **declara a divergência**.
+
+O PDF que abri, em `/mnt/project/`, é a versão MCM 2010. **Os "teoremas
+deslocados" que encontrei são a numeração da outra edição**, não erro de extração.
+
+### O que este episódio custou e o que ensina
+
+Duas horas de leitura de PDF, uma tarefa criada (A.19 parte 2), um prompt escrito
+e descartado, e uma seção deste documento afirmando defeito onde não havia.
+
+**O que evitaria: ler o campo `notes` antes de abrir o PDF.** Ele estava no mesmo
+arquivo, a poucas linhas dos campos que eu conferia.
+
+⚠ **E é o mesmo erro que este registro documenta nas seis superfícies:** afirmar
+com base em parte do artefato, sem ler o resto. A diferença é que aqui quem o
+cometeu foi a apuração, não o sistema.
+
+**Regra para o protocolo:** antes de conferir localizadores de um artigo do RAG
+contra um PDF, **ler `notes` e confirmar que o PDF é a edição de onde as claims
+foram extraídas.** O campo existe exatamente para isso.
+
+### Consequência para a medição de A.19
+
+**O Bozóki sai da lista de inconsistentes.** A conferência automática de `page`
+contra a faixa do `abnt` o acusa, e **o acuso é falso positivo**: o teste compara
+páginas de edições diferentes.
+
+**A contagem correta de A.19 é: sete artigos inconsistentes, não oito.** Os sete
+foram corrigidos em `23afe43`, e **A.19 está fechada.**
+
+⚠ **O teste de faixa precisa de uma exceção**, e o critério é o próprio `notes`: se
+o arquivo declara que as páginas são de outra edição, não há o que comparar. Sem
+isso, qualquer rodada futura vai reacusar o Bozóki.
+
+### O que falta, e por que fica para sessão própria
+
+Sete das dez âncoras não foram localizadas. O artigo tem 33 páginas e os
+localizadores estão espalhados entre 320 e 333: as equações (5) e (6), o Teorema 3,
+o Teorema 2 do RAG que provavelmente é outro no artigo, e os dois "Remark".
+
+**Localizar cada uma exige percorrer o artigo página a página**, e é trabalho de
+leitura dedicada, não de uma passada.
+
+⚠ **Registrado o que basta para a correção não ser feita às cegas:** a numeração do
+RAG não corresponde à do artigo em nenhum dos três casos verificados, então
+**nenhuma das dez pode ser corrigida por deslocamento aritmético.** Cada uma
+precisa do PDF.
+
+A pergunta era se as claims descrevem o artigo ou vieram de outro documento.
+Verificado em 11/09/2026, contra o PDF.
+
+**O conteúdo corresponde.** As seis claims tratam de unicidade da solução com grafo
+conectado, LLSM incompleto, convexidade de `λmax` sob parametrização exponencial,
+componentes conexas e coincidência com a média geométrica das linhas para matrizes
+completas. **Todos são temas de Bozóki, Fülöp e Rónyai (2010).**
+
+**Portanto a correção é trocar os localizadores, não refazer a extração.**
+
+⚠ **Mas o `locator_id` está errado, e não só o `page`.** O RAG usa
+`locator_id: "Theorem 1"` para a claim de unicidade com grafo conectado. **O
+Teorema 1, na página 321, é sobre logconvexidade de λmax** — o artigo o enuncia
+assim: "If the elements of matrix A [...] are logconvex functions of t, then
+λmax(A(t)) is logconvex".
+
+A numeração de proposições e teoremas que o RAG registra **não corresponde à do
+artigo**. A correção precisa reancorar cada uma das dez claims, não só somar um
+deslocamento às páginas.
+
+**Isso separa o Bozóki dos outros sete:** naqueles, a conversão de numeração
+relativa para a do periódico é aritmética. Aqui, é releitura.
 
 ---
 
