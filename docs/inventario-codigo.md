@@ -301,11 +301,6 @@ Fachada sobre `lib/rag`. `getKnowledgeContext`, `getRefsByTopic`,
 `getRefsByAuthor`, `getCriticalRefs`, `getRAGThresholds`, `getRAGFormulas`,
 `getRAGBenchmarks`, `validateKnowledgeBase`.
 
-### `app/api/ai-reviewer/knowledge-ipc.ts` (315L) ⚠
-
-Base dedicada a IPC. `IPC_KNOWLEDGE`, `IPC_QUALITY_REFS`, `IPC_RISKS_REFS`,
-`getIPCContextForAI`, `analyzeCompleteness`. Tema fora do recorte atual.
-
 ### `lib/knowledge.ts` (1125L) ⚠ LEGADO
 
 Base anterior ao RAG, ainda importada por `resultados/page.tsx`.
