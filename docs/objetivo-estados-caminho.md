@@ -1,6 +1,6 @@
 # ahp-simple: objetivo, estados e caminho
 
-Documento âncora. Revisado em 11/09/2026 sobre o commit `bf959b6`.
+Documento âncora. Revisado em 11/09/2026. Último commit de código: `bf959b6`; os de documentação vieram depois.
 
 **Leia a Parte 0 antes de qualquer trabalho neste repositório.** Ela existe
 porque o desenvolvimento perdeu direção várias vezes: a memória se perde entre
@@ -96,7 +96,13 @@ passar em nenhuma das três perguntas, ela não deveria estar sendo feita agora.
   é o primeiro; analisar força da recomendação é o segundo.
 - Construir função nova antes de o cálculo estar correto e o dado regravado.
 - Afirmar que algo não existe no código sem mostrar onde foi procurado.
-- Prever critérios de aceite por leitura em vez de medir rodando.
+- Prever critérios de aceite por leitura em vez de medir rodando. **Contagem que
+  vem do texto do código é hipótese; a que vem da execução é medida.** Casos
+  medidos nesta sessão: o `characterization.test.ts` tem dez blocos `test(` no
+  fonte e o jest reporta **30**, porque parte é gerada em laço; e as contagens de
+  ocorrência por linha de grep subestimaram cinco vezes o escopo de tarefas de
+  atribuição. **É a mesma lição da família dos nomes enganosos, em outra forma:** o
+  fonte descreve a intenção de quem escreveu, o runtime mostra o que executa.
 - Medir na cópia errada. Números de linha e contagens só valem se a cópia
   corresponder ao commit citado; conferir `git rev-parse HEAD` antes de citar
   qualquer endereço. Melhor ainda: ancorar por trecho de texto, que não
@@ -114,6 +120,92 @@ passar em nenhuma das três perguntas, ela não deveria estar sendo feita agora.
   PDF, ler `notes` e confirmar que o PDF é a edição de onde as claims saíram.** É o
   mesmo erro que o registro documenta no sistema — afirmar com base em parte do
   artefato — cometido pela apuração.
+⚠ **As duas entradas seguintes são as primeiras desta lista derivadas de erro
+EVITADO, não cometido.** O levantamento revelou o problema antes da execução, e o
+procedimento funcionou. A terceira, sobre o botão de pular, registra um erro que
+eu cometi e corrigi na mesma rodada.
+
+⚠ **Mudança de decisão, registrada em 11/09/2026: os prompts de tarefa passam a
+ser versionados, em `tools/prompts/`.**
+
+Em `c9fc46f` os quatro documentos de conteúdo foram versionados e **os prompts
+ficaram fora**, com a razão de que guardar prompt executado no repositório é
+discutível.
+
+**O argumento que mudou:** o prompt registra os **valores medidos na Fase 1** e os
+critérios de aceite, o que permite conferir depois se o entregue era o pedido. Sem
+ele, a especificação da tarefa se perde: os prompts das primeiras vinte tarefas
+ficaram fora do repositório e alguns desapareceram, incluindo dois que tiveram de
+ser reescritos.
+
+**Esta entrada existe para que a próxima sessão não encontre duas decisões
+contrárias sem saber qual vale.** A que vale é esta.
+
+- Confundir a **mecânica** de uma atribuição com a sua **adequação**. Ao auditar as
+  seis ocorrências de `verbatim_quote` no `ingest-rag.ts` para A.17, classifiquei a
+  linha 263 como "já correta, é texto direto". A mecânica estava certa — o campo
+  recebe a string sem transformação — e a adequação não: **a string é uma
+  recomendação editorial, e o campo se chama `verbatim_quote`.** Uma auditoria
+  externa apontou o que eu tinha lido e aprovado. **A regra: ao conferir um campo,
+  perguntar o que ele promete, não só de onde o valor vem.** É a família dos nomes
+  enganosos, e eu a cometi auditando exatamente ela.
+- Tratar uma restrição do ambiente como dada, sem tentar removê-la. Passei três
+  rodadas afirmando que o jest não rodava no meu clone por falta de
+  `node_modules`, e pedindo os números a quem tinha a suíte. **A rede permite npm,
+  e `npm install` levou 34 segundos.** A restrição era removível e eu não tentei.
+  **A regra: antes de declarar que não se pode medir, tentar habilitar a medição.**
+  É a mesma família de prever em vez de medir.
+- Tratar código **inalcançável** como decisão de produto. Refina a regra anterior:
+  código com fundamento merece decisão própria **quando alguém poderia usá-lo**.
+  **A regra: antes de tratar código sem uso como decisão de produto, conferir se
+  existe caminho até ele.**
+
+  ⚠ **E a aplicação desta regra ao IPC estava ERRADA.** Concluí que ele era
+  inalcançável porque **confirmei a ausência de um mecanismo**: o botão de pular
+  comparação não existe e nada grava `skipped` em produção. **Mas o caminho não era
+  esse.** É simplesmente **não responder tudo e finalizar**, o que o formulário
+  permite: o `handleFinalizeSurvey` valida **conectividade do grafo**, não
+  completude, e o `calculate` filtra só por `completedAt`.
+
+  **A regra que falta: confirmar a ausência de um mecanismo não estabelece a
+  ausência da capacidade.** São coisas diferentes. Procurei o alcance no lugar em
+  que eu imaginava que ele estaria, e não no lugar em que a validação de fato
+  decide. É a mesma classe de "nome de identificador é hipótese", aplicada a
+  mecanismo em vez de nome.
+
+  ⚠ **Havia sinal no código e eu não o li:** a linha 1017 declara "Stub de
+  finalização. Etapa 4/4 substituirá por validação IPC completa." **O próprio
+  código avisava que a validação era provisória.**
+- Tratar "não usado" como "indevido". Os quatro construtos removidos nesta sessão
+  eram heurística sem fonte: limiares inventados, listas de palavras-chave,
+  rótulos sem lastro. **O IPC é outra coisa:** tem fundamento no RAG, a matriz
+  incompleta é problema real e o LLSM é método estabelecido. O levantamento mostrou
+  que ele **não é usado**, e eu estava a ponto de removê-lo pelo mesmo critério dos
+  outros. **A regra: construto sem fonte se remove; código sem uso mas com
+  fundamento se registra, e a remoção exige decisão própria ⚠ **SUPERADO em 11/09/2026: a decisão foi tomada.** O IPC sai por A.21 **porque o instrumento aceita apenas respostas completas**, que é decisão de escopo do trabalho. O defeito do F02 reforça a prioridade, **não é a justificativa**: do contrário, corrigir o cálculo passaria a ser alternativa à retirada, e não é. Esta passagem fica como registro do raciocínio, não como pendência.
+- Descobrir uma decisão de produto no meio de uma tarefa de saneamento. A remoção
+  do IPC implicava decidir se o respondente pode pular comparação, o que é escopo
+  do instrumento e não passa pelo teste de trilho. **A regra: quando o escopo
+  cresce até tocar o que o usuário pode fazer, parar e separar a decisão da
+  execução.**
+- Afirmar sobre funcionalidade a partir do nome de um identificador. Vi
+  `{/* Skip link */}` e cinco leituras de `skipped` e concluí que havia botão de
+  pular comparação, o que criou uma decisão de produto inexistente. **O botão é
+  "Pular instruções e iniciar pesquisa"**, e nada grava `skipped` em produção.
+  **A regra: nome de identificador é hipótese, não evidência.** Ler o que o handler
+  faz, não o que o comentário diz.
+
+  **É uma família, com quatro casos medidos nesta sessão:** o `dominanceAnalyzer`,
+  que não media dominância entre alternativas; o `avgCR`, que era o máximo e não a
+  média; o `verbatim_quote`, que não era verbatim em treze claims; e o "Skip link",
+  que pulava instruções e não comparações. **Nos quatro, o nome descrevia a
+  intenção de quem escreveu, não o que o código faz.**
+
+  ⚠ **Mesma causa, gravidades muito diferentes.** O `avgCR` alimentou uma
+  classificação errada dos doze respondentes que chegou ao parecer; o "Skip link"
+  enganou um levantamento por uma rodada. **A regra não diz que todo nome enganoso
+  é grave: diz que nenhum nome dispensa verificação.** A tabela agrupa por causa,
+  não por consequência.
 - Misturar, no mesmo commit, correção com critério mecânico e correção com
   critério de leitura. **A segunda contamina a conferência da primeira:** um diff
   com setenta valores convertidos por fórmula é verificável; o mesmo diff com
@@ -194,9 +286,13 @@ correto e claro. Para o artigo, o mesmo texto é o objeto auditado: fidelidade
 computacional e ancoragem de citação são o produto, não meio. É por isso que o
 Apêndice A permanece no escopo de saída em 1.4, e é o que a ESWA compra.
 
-Isso resolve a divergência aparente com o `CLAUDE.md` do projeto, que na seção
-OBJETIVO define que o sistema produz texto interpretativo e logo depois restringe
-essa interpretação a dois eixos, fidelidade computacional e ancoragem. Os dois documentos descrevem consumidores distintos do
+⚠ **A divisão de papéis vigente, desde a revisão de 11/09/2026: este âncora define
+o objetivo do produto e da pesquisa; o `CLAUDE.md` define o procedimento de
+trabalho.** A seção "OBJETIVO" a que o texto abaixo se referia **não existe mais no
+`CLAUDE.md` revisado**, e o parágrafo fica como registro do raciocínio.
+
+Isso resolvia a divergência aparente com o `CLAUDE.md` antigo, que definia que o
+sistema produz texto interpretativo e logo depois restringia essa interpretação a dois eixos, fidelidade computacional e ancoragem. Os dois documentos descrevem consumidores distintos do
 mesmo artefato. Nenhum precisa ser corrigido.
 
 **Rastreabilidade.** Se o gestor indicou uma decisão, é preciso saber como ele
@@ -346,6 +442,45 @@ estabelecida contra a literatura de AHP de grupo, com fonte verificada.
 > **Revisar a cada tarefa fechada**, e mover para 2.4 o que passou a estar
 > saneado. Sem isso, a próxima retomada reabre tarefa já concluída.
 
+### Oportunidade registrada: replicar a série com um segundo modelo
+
+Registrado em 11/09/2026. **É oportunidade, não tarefa**, e vem depois das
+correções que produzem resultado errado hoje.
+
+**O que a limita hoje:** todos os achados do `docs/imprecisoes-parecer-ia.md` —
+localizador fabricado, `conditions` citado como verbatim, sensibilidade ao exemplo
+de parágrafo, a autorização no prompt — foram medidos com **um único modelo**,
+`claude-opus-4-6`.
+
+**A pergunta que um revisor da ESWA pode fazer:** isso é propriedade do modelo ou
+do sistema?
+
+**O que a replicação decidiria.** Se os mesmos modos de falha aparecerem num
+segundo modelo, o achado deixa de ser sobre um produto e passa a ser sobre **LLMs
+recuperando de base com atribuição frouxa**. É diferença de alcance grande para o
+artigo, e converte cinco classes de falha de observação em regularidade.
+
+**Candidatos:** Ollama para modelo aberto local, ou vLLM para servir com controle
+de parâmetros. Nenhum entra em produção: **é experimento em paralelo.**
+
+**Custo:** moderado. A chamada está num ponto só, `ai-reviewer/route.ts` linha
+1399, mas o SDK da Anthropic é importado na linha 7 e o cliente instanciado na 711.
+Uma camada de adaptação sobre essas três linhas basta para a série.
+
+⚠ **O que NÃO fazer:** trocar o modelo de produção, nem adotar framework de
+orquestração — LangChain, LlamaIndex, Langflow, Dify — para isso. Os problemas
+medidos estão no **conteúdo** do que se envia, não na mecânica do envio, e
+acrescentar abstração não os alcança.
+
+⚠ **E não automatizar a extração do RAG** com ferramenta de chunking. O RAG é
+curado por desenho, com `page`, `locator_id` e `quote` por claim, porque o
+protocolo PVB exige rastreabilidade. Extração automática pioraria exatamente o que
+esta sessão passou vinte tarefas medindo.
+
+**Pré-requisitos:** A.21, A.23 e A.25 antes, porque as três corrigem coisas que
+produzem resultado errado hoje. Replicar a série sobre um sistema com defeito
+conhecido mede o defeito, não o modelo.
+
 ## 2.1 O achado estrutural
 
 **As tabelas do Capítulo 4 existem, mas na exportação, não na tela.**
@@ -417,7 +552,17 @@ próxima tarefa deve conferir. Um único derivador de prioridades,
 `lib/ahp-engine.ts`, validado por 30 verificações contra 24 valores de referência
 conferidos contra os 864 julgamentos brutos e contra a AhpAnpLib. Zero guardas
 silenciosas no caminho de cálculo. Um gravador único de `calculations`. Censo
-automatizado que quebra o build se uma segunda implementação aparecer. 10 306
+de doze testes que **acusa** uma segunda implementação.
+
+⚠ **Correção de 11/09/2026: o censo NÃO quebra o build.** Não existe GitHub
+Actions neste repositório — `.github/` contém só `copilot-instructions.md`. **A
+garantia é local e manual**, dependente de alguém rodar `npm test`.
+
+⚠ **E o censo cobre derivação de prioridades, não síntese.** A rota
+`app/api/calculate/route.ts` importa do motor apenas `principalEigenvector`,
+`consistency`, `aggregateAIJ` e `randomIndex`, e **implementa as fórmulas de
+síntese nas próprias linhas 441 a 460**. Nenhum dos doze testes verifica unicidade
+da síntese. 10 306
 linhas de código morto removidas.
 
 **A.3 fechou em `501b19a`.** A saída adotada foi remover, não renomear, o
@@ -495,26 +640,67 @@ Nada novo se constrói sobre base contraditória.
 
 | # | Ação |
 |---|---|
-| ✅ A.1 | **Fechada em `e5f9be2`.** Painel de qualidade: uma rotina só, que é a Tabela 4 |
-| A.2 | Remover a classificação categórica de sensibilidade (Robusto / Moderadamente Sensível / Sensível / Crítico, limiares 50/20/10). ⚠ **Não é "sem fonte": é fonte que não sustenta.** O `metadata.q1Features` declara `'Sensitivity Classification (Alizadeh 2020)'`, e as claims de Alizadeh no RAG tratam de escolha de fórmula BOCR e de limiar de CR, nunca de classificação por ponto de inflexão. Ver `docs/imprecisoes-parecer-ia.md`. **Sete implementações, mapeadas abaixo da tabela**, em quatro commits. O commit (4) depende de A.6 |
+| ✅ A.1 | **Fechada em `e5f9be2`.** Painel de qualidade: uma rotina só, que é a Tabela 4 ⚠ **PARCIAL, descoberto em 11/09/2026:** a remoção alcançou a **exibição**, não a origem nem o transporte. O `classifyRespondent` continua calculando o score por interpolação linear sem fonte, e o tipo `qualityAnalysis` do `ai-reviewer/route.ts` declara `statistics.avgScore`, `overall.qualityScore`, `overall.status` e `overall.recommendation`. **O construto sem lastro continua chegando ao modelo do parecer.** Fecha em A.12, que passou a ter escopo de remoção |
+| A.2 | Remover a classificação categórica de sensibilidade (Robusto / Moderadamente Sensível / Sensível / Crítico, limiares 50/20/10). ⚠ **Não é "sem fonte": é fonte que não sustenta.** O `metadata.q1Features` declara `'Sensitivity Classification (Alizadeh 2020)'`, e as claims de Alizadeh no RAG tratam de escolha de fórmula BOCR e de limiar de CR, nunca de classificação por ponto de inflexão. Ver `docs/imprecisoes-parecer-ia.md`. **Sete implementações, mapeadas abaixo da tabela**, em quatro commits. O commit (4) **depende de A.29**, que remove o `lib/knowledge.ts` legado onde está o `interpretSensitivity` (antes atribuído a A.6, que encolheu para só o `knowledge-ipc.ts`) |
 | ✅ A.3 | **Fechada em duas partes.** `501b19a` removeu o módulo `dominanceAnalyzer`, a injeção no prompt e o item 4 do `system-prompt.ts`. A predição registrada foi **refutada pela execução 4**: a passagem de Saiyed e a atribuição ao perfil do painel permaneceram, e a refutação revelou um **segundo canal** que o levantamento não vira: a seção "Fairness e Viés Profissional" listava os três autores com descrição do que ofereciam, e uma exceção autorizava citá-los. `28f4a95` removeu as três entradas e a exceção, renomeou a seção para "Fairness" e preservou Dodevska. **A execução 5 confirmou as três predições.** O percurso vale mais que um acerto de primeira: a refutação identificou a causa. Evidência em `docs/imprecisoes-parecer-ia.md` |
 | ✅ A.4 | **Fechada em `8730cb6`.** O rótulo do modelo na tela dizia "Claude Sonnet 4.5" enquanto o sistema executa `claude-opus-4-6`. Passou a ler `metadata.model` da resposta do POST, que a rota já devolvia. **Não é string fixa nova:** como o valor vem da resposta que gerou aquele parecer, um parecer antigo exibe o modelo que o gerou, não o configurado agora. Fallback é "modelo não informado", nunca um nome de modelo, para não reintroduzir o problema em silêncio. Verificado com um parecer real da execução 3 |
 | ✅ A.5 | **Fechada em `c8ba368`.** Seis tabelas de índice aleatório unificadas em `randomIndex` do motor, em quatro arquivos. Cinco tinham valores idênticos; a sexta, em `BOCRConsistencyMatrix.tsx`, parava em **n=7** e só não falhava porque os índices eram literais 4 e 5. O ganho maior foi trocar três guardas silenciosas `RI[n] || 1.49` por falha alta: o 1,49 é o RI de n=10, e aplicá-lo a ordem maior produz um CR que existe e está errado. **Fechou duas das três falhas do censo**, e a linha de base de testes passou de 52/3 para **54/1**. Verificado que o CSV exportado ficou byte a byte idêntico na seção de consistência |
-| A.6 | Remover `lib/knowledge.ts` legado e o resíduo de IPC do RAG |
+| A.6 | **Remover `app/api/ai-reviewer/knowledge-ipc.ts`, 315 linhas órfãs.** Nenhum importador em todo o repositório, medido com `git grep`. **Commit mecânico**, e não toca o LLSM, o `ipcMetadata` nem os testes. É o que A.6 nomeava originalmente. ⚠ **O resto do IPC é A.21**, e o par forma um bloco de dois commits: o órfão primeiro, o IPC depois. A separação segue a regra de não misturar critério mecânico com alteração de comportamento |
 | ✅ A.7 | **Fechada em `599d0d8`.** 122 remoções e 4 documentos movidos para `docs/`. O repositório caiu de 257 para 135 arquivos, 119 041 linhas |
 | A.8 | Unificar o limiar de CR no painel de consistência, alcançando `ConsistencyGaugeChart` e o painel textual **numa edição só**. Adiado de A.1 porque os dois são hoje coerentes entre si, e corrigir um cria divergência adjacente no mesmo campo de visão. Não é cosmético: o eixo do medidor vai a 20% com quebra em 10% e 15%, e reduzir para um limiar muda o que o arco comunica |
 | ✅ A.9 | **Fechada.** `maxDuration` cortado de 800 para 300s em `56bd50a`. **Cinco medições:** 154, 150, 188, 159 e 136 segundos, média de 157s e máximo de 188s. Todas cabem em 300, com margem mínima de 112s. A terceira medição sugeria tendência de alta; as duas seguintes desfizeram. **Qualquer aumento de `maxTokens` (hoje 16000) ou do budget de raciocínio (5000) reabre.** Se estourar, a saída é streaming, não porque a Vercel limita, mas porque requisição HTTP síncrona de minutos deixa o gestor em tela travada |
 | A.10 | **Auditar as citações e afirmações do prompt contra o RAG e contra o sistema. ✅ 1º de 3 commits em `2b353b3`:** três localizadores corrigidos. A execução 2 confirmou que a correção propagou: as duas citações de Wijnmalen saíram corretas e nenhuma outra melhorou sozinha. **2º commit:** remover o dado real dos exemplos de parágrafo, incluindo a frase "os 12 respondentes apresentam CRs entre 1,1% e 9,6%", que é a imprecisão 1 ensinada como modelo de redação. **✅ 2º commit em `ca36539`:** o payload passou a informar N = 12 em todas as matrizes. As três predições registradas antes da execução se confirmaram: a imprecisão 2 desapareceu, Escobar passou a ser aplicado com N=12, e a faixa dos CRs permaneceu como controle. **Classe E confirmada como fato medido, ao custo de quatro linhas.** **3º commit:** (a) auditar as 61 combinações de autor e ano; (b) auditar o restante do payload, onde `- ✅ Validação externa com pyAHP` faz o parecer afirmar biblioteca que o sistema não usa. Equações e limiares já auditados. Evidência em `docs/imprecisoes-parecer-ia.md` |
-| A.11 | **Fechar a procedência das cinco fórmulas de síntese.** Não é limpeza de metadados, e a **ordem importa**: **(1) Indexar a claim das cinco fórmulas do Lee (2009), página 123, Step 10.** É a mais importante e a mais barata: é a fonte do método central do sistema, verificada no PDF, e a sua ausência impede o parecer de checar a procedência da Tabela 12. **(2) Indexar Lee (2009a), de fornecedores, e Demirtas e Ustun (2008)**, fontes de funcionalidades declaradas em `metadata`, ausentes do RAG e presentes na base de PDFs. **(3) Só então** corrigir ou remover as atribuições que sobrarem sem lastro, abrindo o PDF antes de decidir em cada caso. **Fazer (3) primeiro apagaria atribuições corretas**, como quase aconteceu com o Lee. Alizadeh (2020) pendente: 35 páginas, sem camada de texto, exige inspeção visual. Evidência em `docs/imprecisoes-parecer-ia.md` **Inclui a string `'Sensitivity Classification (Alizadeh 2020)'` no `q1Features`**, que é o oitavo endereço do construto e cai entre A.2 e A.11: depois de `5837d0d`, ela declara no documento persistido uma funcionalidade que o motor **não faz mais**, e a atribui a um autor. As duas metades da afirmação são falsas ao mesmo tempo. Sai na etapa 3, por ser atribuição e não implementação |
-| A.12 | **Resolver a distribuição categórica de status enviada ao parecer.** ⚠ **Não é "acrescentar o quarto balde".** O `individualStats` classifica em **três** degraus (`valid`, `warning`, `critical`) e a distribuição enviada tem **quatro** categorias (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO), com `'REVISAR'` literal zero. Os dois lados não falam a mesma língua: o quarto balde não falta por esquecimento, ele não existe na contagem. **Criá-lo exigiria escolher um limiar novo**, e os únicos com fonte (CR ≤ 0,10 de Saaty; CR > 0,20 de Saaty e Ergu) dão três faixas, não quatro. Seria reintroduzir o construto categórico sem lastro que A.1, A.2 e a remoção do `validateSensitivity` tiraram em quatro commits. **A pergunta a decidir antes de codificar:** a distribuição por categoria deveria existir no payload, ou o parecer deveria receber os CRs e nada mais? É a mesma decisão de A.1, que removeu os quatro baldes da tela e deixou o CR cru. Se a resposta for a mesma, a tarefa vira *remover a distribuição categórica do payload*, que é menor e mais coerente. Agravante: depois de B.3 os doze caem todos em `critical` e a distribuição perde função informativa de qualquer modo. ⚠ Pré-requisito da etapa 4; ordem: B.3, A.12, etapa 4 |
+| A.11 | **Fechar a procedência das cinco fórmulas de síntese.** Não é limpeza de metadados, e a **ordem importa**: **(1) Indexar a claim das cinco fórmulas do Lee (2009), página 123, Step 10.** É a mais importante e a mais barata: é a fonte do método central do sistema, verificada no PDF, e a sua ausência impede o parecer de checar a procedência da Tabela 12. **(2) Indexar Lee (2009a), de fornecedores, e Demirtas e Ustun (2008)**, fontes de funcionalidades declaradas em `metadata`, ausentes do RAG e presentes na base de PDFs. **(3) Só então** corrigir ou remover as atribuições que sobrarem sem lastro, abrindo o PDF antes de decidir em cada caso. **Fazer (3) primeiro apagaria atribuições corretas**, como quase aconteceu com o Lee. Alizadeh (2020) pendente: 35 páginas, sem camada de texto, exige inspeção visual. Evidência em `docs/imprecisoes-parecer-ia.md` **Inclui a string `'Sensitivity Classification (Alizadeh 2020)'` no `q1Features`**, que é o oitavo endereço do construto e cai entre A.2 e A.11: depois de `5837d0d`, ela declara no documento persistido uma funcionalidade que o motor **não faz mais**, e a atribui a um autor. As duas metades da afirmação são falsas ao mesmo tempo. Sai na etapa 3, por ser atribuição e não implementação ⚠ **CORREÇÃO de 11/09/2026: Demirtas e Ustun ESTÁ no RAG**, como `demirtas2008_integrated.ts`. A afirmação de que não estava indexado era falsa, e a etapa 2 encolhe. **Verificado por `ls lib/rag/articles/`** |
+| A.12 | **Resolver a distribuição categórica de status enviada ao parecer.** ⚠ **Não é "acrescentar o quarto balde".** O `individualStats` classifica em **três** degraus (`valid`, `warning`, `critical`) e a distribuição enviada tem **quatro** categorias (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO), com `'REVISAR'` literal zero. Os dois lados não falam a mesma língua: o quarto balde não falta por esquecimento, ele não existe na contagem. **Criá-lo exigiria escolher um limiar novo**, e os únicos com fonte (CR ≤ 0,10 de Saaty; CR > 0,20 de Saaty e Ergu) dão três faixas, não quatro. Seria reintroduzir o construto categórico sem lastro que A.1, A.2 e a remoção do `validateSensitivity` tiraram em quatro commits. **A pergunta a decidir antes de codificar:** a distribuição por categoria deveria existir no payload, ou o parecer deveria receber os CRs e nada mais? É a mesma decisão de A.1, que removeu os quatro baldes da tela e deixou o CR cru. Se a resposta for a mesma, a tarefa vira *remover a distribuição categórica do payload*, que é menor e mais coerente. ⚠ **Previsão antiga RETIRADA:** o texto dizia que depois de B.3 os doze cairiam todos em `critical`. **Está errada** (serão 1 REVISAR e 11 CRÍTICO), e **deixou de ser relevante**: esta tarefa remove a distribuição, então nenhuma previsão sobre ela é critério de aceite. ⚠ **SEQUÊNCIA, corrigida em 11/09/2026** — a anterior, `B.3 → A.12 → etapa 4`, contradizia B.3, que determina execução **depois** da etapa 4. **A ordem separa a correção da leitura do cache da limpeza física posterior:** (1) **corrigir a origem dos CRs individuais** e remover o score e as categorias do payload, que é esta tarefa; (2) **executar a etapa 4** da série com as mudanças identificadas; (3) **depois** remover o cache obsoleto por B.3, preservando o registro histórico ⚠ **RESOLVIDA a pergunta aberta, 11/09/2026, e a resposta é remover.** A investigação do `classifyRespondent` (`app/api/response-quality/route.ts`, linhas 221 a 237) mostrou três coisas: **(a) são CINCO status, não quatro**: `CONFIÁVEL`, `REVISAR`, `SUSPEITO`, `CRÍTICO` e **`DESCONHECIDO`**, este último devolvido quando `avgCR === 0`, com o comentário "não encontrado". ⚠ **Zero é consistência perfeita, não ausência** — é o valor real de toda matriz de ordem 2. É o inverso da convenção fixada na tabela de referência, célula vazia para indefinido e nunca zero. **(b) o score é interpolação linear sem fonte:** `95 − (avgCR − 0,05) × 140`, e mais os coeficientes **340, 380 e 200**. Nenhum tem lastro. **(c) ⚠ O score composto que A.1 removeu da tela em `e5f9be2` CONTINUA CHEGANDO AO PARECER.** O tipo `qualityAnalysis` do `ai-reviewer/route.ts`, linhas 367 a 389, declara `statistics.avgScore`, `overall.qualityScore`, `overall.status` e `overall.recommendation`. **A.1 tirou a exibição; a origem e o transporte ficaram.** E o `byStatus` declara **sete chaves**: os cinco status mais duas grafias sem acento. **Consequência: a saída é remover o score e a distribuição categórica do payload, não acrescentar o quarto balde.** O `'REVISAR': 0` fixo era sintoma, não o defeito |
 | ✅ A.13 | **Fechada em `99a4d6c`.** As quatro ocorrências de `p. 271` no código corrigidas. **Uma delas era pior que a página:** o JSDoc de `bias-detection.ts` trazia o verbatim `"A consistency ratio of 0.10 or less is acceptable"`, que **não existe em nenhum artigo indexado**; a claim real, na p. 248, diz `"require the ratio to be very small; e.g., of the order of 0.1"`. Trocar só a página teria dado localizador correto a um texto inexistente, transformando erro visível em atribuição plausível e falsa. O exemplo do `citation-whitelist.ts` virou genérico, `"Autor (1977, p. N)"` |
 | ✅ A.14 | **Fechada em `a8aa904`.** Duas linhas corrigidas: o texto de saída da detecção de viés no ramo DI < 0,80, que passou à forma composta "Feldman et al. (2015); Dodevska et al. (2023)", e o rótulo visível ao gestor no `BiasAnalysisCard.tsx`, que passou a atribuir os limites a Dodevska. **A decisão não foi remover Feldman, foi uniformizar** para a forma que nove ocorrências já usavam: nomeia a origem histórica da regra dos 80% e a fonte que o RAG indexa. A entrada bibliográfica do cabeçalho ficou, porque lista de referências nomeia obras e não atribui limiares. O `system-prompt.ts` não mudou: no código vale a proveniência completa, no prompt só a fonte indexada, porque a série mostrou que o modelo obedece ao que o prompt autoriza. **Verificado:** das treze ocorrências restantes, a única sem Dodevska no contexto é a bibliográfica |
 | A.15 | **Marcar no contexto do RAG o que é citação e o que é anotação.** O `knowledge.ts`, linhas 295 a 301, monta cada fórmula com a `description` no cabeçalho, **colada a autor e ano**, e o `conditions` logo abaixo, sem marca que os distinga do `quote` do artigo. Os dois campos são **texto do indexador**, e o modelo os trata como citáveis: na execução 5 o parecer citou o `conditions` do Kabak entre aspas, como verbatim. **Alcance medido: 124 campos `conditions` preenchidos em 31 artigos**, mais a `description` de todas as claims. ⚠ **Nenhum requisito do eixo de ancoragem pega**: a whitelist valida autor e ano, e ambos conferem. A correção é de **formato**: `quote` entra como citação, `description` e `conditions` como texto do sistema, com rótulo. Mesma família da classe E, mesma solução: não reescrever a instrução, corrigir o que se entrega a ela. Evidência em `docs/imprecisoes-parecer-ia.md`, sexta superfície |
 | A.16 | **Auditar a consistência interna do RAG: `verbatim_quote` contra `evidence.quote`.** 123 claims têm os dois campos, **13 divergem**. ⚠ **A leitura caso a caso, feita em 11/09/2026, inverteu uma premissa de A.17: as treze são DOIS defeitos opostos.** Em **sete** o `verbatim_quote` é anotação ou está reescrito, e o `evidence.quote` é o fiel (Dodevska, Xu, Lee, Wijnmalen ×3, Saaty e Ozdemir). Em **cinco** é o `evidence.quote` que está **truncado**, e o `verbatim_quote` traz a frase completa (Bozóki ×3, Schmidt, Salomon). O do Schmidt se resolve sem PDF: o `evidence.quote` começa com "This" sem referente. **Consequência: A.17 acertou nos sete e, nos cinco, fez o modelo receber texto mais curto, não infiel.** Não pede reversão; pede corrigir os `evidence.quote` truncados, que é escopo desta tarefa. **A classificação é leitura, não script:** um teste de contenção por fragmentos marcou onze dos treze como divergentes em conteúdo, porque o campo longo **insere** texto no meio do curto. Evidência em `docs/imprecisoes-parecer-ia.md` ⚠ **A.19 tem precedência**: a numeração inconsistente contamina qualquer medição de localizador |
 | ✅ A.17 | **Fechada em `bf959b6`.** As citações que chegam ao modelo passaram a vir de `evidence.quote`. Três arquivos: a `rule` do `knowledge.ts`, o texto e o metadata do chunk no `ingest-rag.ts`, e a instrução do `system-prompt.ts` que apontava o campo defeituoso como primário. **A execução 6 confirmou as três predições:** Lee com as siglas, Xu com "this paper proves that", Dodevska com `(DI_bef)`, e o controle da faixa dos CRs intacto. ⚠ **A correção do ingestor só vale depois de reingestão**, ainda pendente: o caminho semântico, via `route.ts:149`, continua entregando o campo antigo. **O total em código caiu de 21 para 19**, não 20 como o critério previa: as duas linhas removidas do prompt tinham o termo cada uma ⚠ **Ressalva de A.16, registrada em 11/09/2026:** em **cinco** das treze claims divergentes o `evidence.quote` é o campo **truncado**, então a troca fez o modelo receber texto mais curto nesses casos. **Em nenhum caso texto infiel.** A correção é ajustar os `evidence.quote` em A.16, não reverter esta tarefa |
-| A.18 | **Reingerir o índice semântico no Upstash.** A correção de A.17 no `scripts/ingest-rag.ts` só vale depois de reexecutar a ingestão: os chunks indexados continuam com o `verbatim_quote` defeituoso, e o `route.ts:149` os entrega ao modelo na seção de chunks semânticos do payload. ⚠ **Depende de A.16, e a ordem importa por custo.** A reingestão reescreve o índice e paga chamadas de embedding; fazê-la antes de corrigir as treze divergências do RAG significaria pagar duas vezes. **Ordem: A.16 primeiro, depois A.18.** Depois dela, gerar um parecer e conferir se as citações vindas de chunks semânticos também saem na forma fiel ⚠ **Estado intermediário conhecido, até a reingestão rodar:** o `ingest-rag.ts` já grava `evidence.quote` nos chunks de claim, mas **o índice Upstash ainda guarda o `verbatim_quote` antigo**. Código e índice divergem. É o mesmo padrão de B.1, o cache que sobrevive à correção: se aparecer uma citação na forma antiga, **é o índice, não regressão**. **O teste de se a reingestão é necessária não é gerar outro parecer:** é ler o payload e ver de qual seção veio cada citação, a do RAG estático ou a de chunks semânticos. Mais barato e decide |
-| ✅ A.19 | **Fechada em `23afe43`.** Sete artigos do RAG registravam `page` em numeração relativa ao PDF enquanto o próprio `abnt` declara a faixa do periódico; os sete foram convertidos, 54 campos, e a conferência de faixa passou a acusar zero. ⚠ **A inversão que isso revelou: em quatro citações dos pareceres o modelo estava certo e a base errada.** Saaty (2003, p. 85), Saaty (1987, p. 165) e Forman e Peniwati (1998, p. 169) caem dentro da faixa real e fora do `page` registrado. **Os dois últimos eram o que o documento chamava de "erro de vizinhança", categoria que se revelou invenção nossa.** Com A.20, as taxas caíram de 72% e 62% para 61% e 57%. ⚠ **RETIFICAÇÃO: o Bozóki não era o oitavo caso.** O campo `notes` do próprio arquivo declara que as páginas 2256-2257 são da **versão IEEE 2009** do mesmo trabalho, e que o `abnt` cita a versão de jornal por ser a canônica. **Os localizadores estão corretos para a edição de onde foram extraídos**, e o PDF em `/mnt/project/` é a outra edição. A parte 2 desta tarefa foi criada, investigada por horas e **descartada**. **A contagem correta é sete, não oito.** ⚠ **O teste de faixa precisa de exceção baseada no `notes`**, senão reacusa o Bozóki em toda rodada |
-| ✅ A.20 | **Fechada em `33a9485`.** O `verify-citations.mjs` já classificava em quatro vereditos e já extraía a faixa do `abnt`; **o defeito era a agregação**, que somava `DIVERGE_NA_FAIXA` com `DIVERGE_FORA_DA_FAIXA`, e a legenda, que dizia "o teste por faixa perderia estas" quando é ele que as aprova. **As taxas caíram de 72% e 62% para 61% e 57%.** Três citações migraram para a categoria nova, **correta e o RAG é que não cobre**: Saaty (1987, p. 165) e Forman e Peniwati (1998, p. 169) na execução 1, e **Saaty (2003, p. 85)** na 2, que foi a primeira inversão encontrada. Casos de cobertura deixaram de disparar código de saída 1. ⚠ **Pergunta aberta que a categoria nova levanta:** o modelo cita páginas não indexadas por acerto ou por interpolação? No Saaty (2003) é a primeira página do artigo, no Forman a última, no Saaty (1987) uma intermediária. **Só o PDF decide, e os três estão na base do projeto.** |
+| A.18 | **Reingerir o índice semântico no Upstash.** A correção de A.17 no `scripts/ingest-rag.ts` só vale depois de reexecutar a ingestão: os chunks indexados continuam com o `verbatim_quote` defeituoso, e o `route.ts:149` os entrega ao modelo na seção de chunks semânticos do payload. ⚠ **Depende de A.16, e a ordem importa por custo.** A reingestão reescreve o índice e paga chamadas de embedding; fazê-la antes de corrigir as treze divergências do RAG significaria pagar duas vezes. **Ordem: A.16 primeiro, depois A.18.** Depois dela, gerar um parecer e conferir se as citações vindas de chunks semânticos também saem na forma fiel ⚠ **Estado intermediário conhecido, até a reingestão rodar:** o `ingest-rag.ts` já grava `evidence.quote` nos chunks de claim, mas **o índice Upstash ainda guarda o `verbatim_quote` antigo**. Código e índice divergem. É o mesmo padrão de B.1, o cache que sobrevive à correção: se aparecer uma citação na forma antiga, **é o índice, não regressão**. **O teste de se a reingestão é necessária não é gerar outro parecer:** é ler o payload e ver de qual seção veio cada citação, a do RAG estático ou a de chunks semânticos. Mais barato e decide ⚠ **BLOQUEADA por A.26 (F08), 11/09/2026:** a linha 263 do `ingest-rag.ts` grava recomendação editorial em `verbatim_quote` com localizadores nulos, e o `route.ts` a rotula como `*Verbatim:*` ao modelo. **Reingerir sem corrigir o ingestor perpetua o defeito**, porque ele está no código e não nos dados. **Ordem: A.26 antes de A.18** |
+| ✅ A.19 | **Fechada em `23afe43`.** Sete artigos do RAG registravam `page` em numeração relativa ao PDF enquanto o próprio `abnt` declara a faixa do periódico; os sete foram convertidos, 54 campos, e a conferência de faixa passou a acusar zero. ⚠ **A inversão que isso revelou: em quatro citações dos pareceres o modelo estava certo e a base errada.** Saaty (2003, p. 85), Saaty (1987, p. 165) e Forman e Peniwati (1998, p. 169) caem dentro da faixa real e fora do `page` registrado. **Os dois últimos eram o que o documento chamava de "erro de vizinhança", categoria que se revelou invenção nossa.** Com A.20, as taxas caíram de 72% e 62% para 61% e 57%. ⚠ **RETIFICAÇÃO: o Bozóki não era o oitavo caso.** O campo `notes` do próprio arquivo declara que as páginas 2256-2257 são da **versão IEEE 2009** do mesmo trabalho, e que o `abnt` cita a versão de jornal por ser a canônica. **Os localizadores estão corretos para a edição de onde foram extraídos**, e o PDF em `/mnt/project/` é a outra edição. A parte 2 desta tarefa foi criada, investigada por horas e **descartada**. **A contagem correta é sete, não oito.** ⚠ **O teste de faixa precisa de exceção baseada no `notes`**, senão reacusa o Bozóki em toda rodada **Pendência residual do Bozóki:** o `abnt` cita a edição MCM 2010 e as claims usam a paginação do IEEE 2009, com o `notes` documentando a divergência. É consistente, mas **é armadilha para qualquer instrumento que compare `page` contra a faixa do `abnt`**, como o `verify-citations.mjs` faz. Duas saídas: **(a) alinhar o `abnt` com a edição das claims**, uma linha, resolve para sempre e deixa o arquivo legível; (b) ensinar o script a pular artigos que declaram edição divergente no `notes`, o que esconde um caso que continuaria confuso para quem lê. **Vale a (a)** |
+| ✅ A.20 | **Fechada em `33a9485`.** O `verify-citations.mjs` já classificava em quatro vereditos e já extraía a faixa do `abnt`; **o defeito era a agregação**, que somava `DIVERGE_NA_FAIXA` com `DIVERGE_FORA_DA_FAIXA`, e a legenda, que dizia "o teste por faixa perderia estas" quando é ele que as aprova. **As taxas caíram de 72% e 62% para 61% e 57%.** Três citações migraram para a categoria nova, **localizador dentro da faixa do artigo, com a sustentação da afirmação ainda não verificada**: Saaty (1987, p. 165) e Forman e Peniwati (1998, p. 169) na execução 1, e **Saaty (2003, p. 85)** na 2, que foi a primeira inversão encontrada. Casos de cobertura deixaram de disparar código de saída 1. ⚠ **Pergunta aberta que a categoria nova levanta:** o modelo cita páginas não indexadas por acerto ou por interpolação? No Saaty (2003) é a primeira página do artigo, no Forman a última, no Saaty (1987) uma intermediária. **Só o PDF decide, e os três estão na base do projeto.** |
+| A.21 | **Eliminar a capacidade de tratar matriz incompleta, em UMA unidade coerente.** **Achado F02, reproduzido:** o IPC devolve **pesos incorretos com CR excelente**. Em grafo estrela devolve 0,25 para os quatro onde o correto é 0,4 / 0,2 / 0,2 / 0,2, com **CR de 3e-16**. Em cadeia, **pesos incorretos com a ordem preservada** (correção: não são "valores invertidos"). **Resultado errado com indicador perfeito é o pior modo de falha.** O lastro de Bozóki e Harker é do método, não desta implementação. ⚠ **MOTIVO DA REMOÇÃO, e a ordem importa: o IPC sai porque o instrumento aceita apenas respostas completas.** É decisão de escopo do trabalho. **O defeito do F02 reforça a prioridade, não é a justificativa** — do contrário, corrigir o cálculo passaria a ser alternativa à retirada, e não é. ⚠ **E o IPC É ALCANÇÁVEL hoje:** `handleFinalizeSurvey` (linha 1018) valida **só conectividade do grafo**, e a linha 1017 declara "Stub de finalização. Etapa 4/4 substituirá por validação IPC completa." O `calculate` filtra por `completedAt` (linha 794) sem contar comparações. **É essa porta que a entrega 1 fecha.** **ORDEM OBRIGATÓRIA, e a mudança de comportamento é UMA unidade:** (1) implementar a validação de completude individual; (2) adaptar os consumidores ao cálculo de matriz completa; (3) retirar o IPC; (4) validar a regressão. **Não remover antes de validar: geraria versão intermediária que aceita resposta incompleta sem caminho para tratá-la.** ⚠ **Definir o que permanece pela CADEIA DE CHAMADAS, não pelas importações externas.** **Adaptar os consumidores ao cálculo de matrizes completas, preservando o cálculo de pesos e consistência do motor. Substituir as dependências internas de `calculateGroupWeights` e `eigenvectorMethod` antes de remover o módulo. Remover `calculatePartialCR`.** O que a medição mostrou: `eigenvectorMethod` **é usado**, na linha 292, dentro do ramo de matriz completa de `calculateGroupWeights`, pela cadeia `calculateAllWeights → calculateGroupWeights → eigenvectorMethod`; `buildPCM` é **importado e nunca chamado** na rota `calculate`, linha 42; e `calculatePartialCR` é **IPC por dentro** — usa `buildGraphFromJudgments`, `checkConnectivity` e `getCompletenessMetrics` — e **migrá-lo preservaria a capacidade que a tarefa elimina**. Durante o preenchimento, informar progresso e calcular CR só quando a matriz estiver completa. **A validação de completude precisa verificar, por respondente E por matriz:** todos os pares esperados **exatamente uma vez**; identificadores de grupo e itens válidos; valores válidos, sem nulo ou pulado; quantidade esperada derivada do número de alternativas do projeto. ⚠ **Contagem de julgamentos NÃO basta:** 72 registros com uma duplicata e um par faltante passariam. E **cada matriz de alternativas por subcritério** precisa de verificação própria: o bloco visual reúne várias, e a conectividade do bloco não prova que todas foram respondidas. ⚠ **Completude agregada não prova completude individual:** um respondente preenche o par que falta em outro, a matriz agregada fecha, e cada comparação passa a ter número diferente de especialistas. Afeta a agregação AIJ que o manuscrito reporta. **`AUTORIZADO_LLSM` do censo fica VAZIO**, senão o teste autoriza um módulo que não implementa mais o LLSM e a garantia inverte de sinal. ⚠ **NÃO usar redução da suíte como critério.** Os testes a somar são os da tabela de aceite abaixo, e **o total se registra depois da execução** |
+| A.22 | **Revisar o `README.md`.** 381 linhas, e afirma **"v6.5.0"** e **"5 peer-reviewed papers"** quando o RAG tem **37 artigos**. ⚠ **Mesma família de tudo que este saneamento corrigiu: afirmação sobre o sistema que o sistema não sustenta.** E está na superfície mais visível do repositório, o primeiro arquivo que alguém abre no GitHub, **que é público**. Conferir também as demais afirmações quantitativas do arquivo antes de reescrever, com a regra de medir e não herdar número |
+| A.23 | **Corrigir o tratamento de empates. ⚠ ACHADO F04, e é o mais consequente para o artigo.** Com duas alternativas idênticas, escores **0 e 0**, o sistema declara **A1 vencedora com 100% de concordância** entre os cinco métodos de síntese. **A ordem de entrada resolve o que o modelo não resolveu.** ⚠ **É pior que o `robustnessLevel` já registrado:** não é só confundir concordância com robustez, é **declarar consenso onde não existe diferença**. Cinco métodos concordando sobre dois zeros não é convergência, é ausência de informação. **Toca exatamente o construto que a seção 1.6 identifica como linha de contribuição**, e é **independente da remoção do IPC**, como também são A.25, A.27 e A.28 (correção: não é o único). **Sai à frente de A.16 e A.18**, porque produz resultado errado hoje |
+| A.24 | **Criar o workflow do GitHub Actions.** Sem ele, **nenhum teste protege a entrega**, e o censo é garantia declarada sem mecanismo: depende de alguém rodar `npm test` antes do push. `.github/` existe e contém só `copilot-instructions.md`. **É pequeno** e resolve o problema de fundo que o relatório aponta. Mínimo: `npx tsc --noEmit`, `npm test` e `npm run build` em cada push |
+| A.25 | **⚠ F05, O ACHADO MAIS GRAVE: a faixa de CR publicada não é a dos respondentes.** O manuscrito afirma CR individual entre **1,1% e 9,6%** com 100% de conformidade. **Recalculado dos 864 julgamentos brutos: 11,3893% a 109,2740%, e nenhum dos doze abaixo de 0,10.** Reproduzido neste ambiente com os mesmos números da auditoria. **A causa:** a faixa publicada vem do `avgCR` em cache, que é a **média sobre 26 matrizes incluindo 20 de ordem 2 com CR zero**; o governante é o máximo entre as seis de ordem ≥ 3. Um respondente tem **109,27%**, acima do limiar de 0,20 que Saaty e Ergu identificam como julgamento quase aleatório. ⚠ **Não é defeito de código: é o número que sustenta a seção de consistência.** A agregação por média geométrica continua consistente, e o CR agregado de 1,06% é real; **o que não se sustenta é a afirmação sobre os indivíduos**. ⚠ **NÃO excluir respondentes para obter agregado mais consistente.** Critérios de participação exigem justificativa metodológica. **O que a tarefa entrega é a distinção das três medidas e a justificativa de qual reportar**, com Aull-Hyde et al. (2006) sobre agregação de matrizes individualmente inconsistentes. Evidência em `docs/imprecisoes-parecer-ia.md`, F05 |
+| A.26 | **⚠ F08: a ingestão põe recomendação editorial em `verbatim_quote`.** `scripts/ingest-rag.ts` linha **263**, em `buildRecommendationChunks`, grava a recomendação nesse campo com `page`, `locator_type` e `locator_id` **nulos**. E o `route.ts` linha 152 a formata como `*Verbatim:* "..."` ao modelo. O comentário da linha 139 declara que a decisão A5 era tornar o bloco **"indistinguível do RAG keyword"**. ⚠ **CORREÇÃO a um registro anterior:** na tabela das seis ocorrências feita para A.17, classifiquei a linha 263 como "já correta, é texto direto". **Estava errado:** "texto direto" descreve a mecânica, não a adequação. ⚠ **Bloqueia A.18:** reingerir sem corrigir o ingestor perpetua o defeito, porque ele está no código e não nos dados |
+| A.27 | **⚠ F06: o parecer não é impedido de apresentar números inválidos.** O validador aceita como `isValid=true` texto com escores fictícios escritos com **vírgula decimal**; com ponto, identifica números desconhecidos **só como avisos**. E quando retorna inválido por referência proibida, **a rota não bloqueia a apresentação**: a interface usa o sucesso e o texto. Fontes: `ai-reviewer/route.ts` linhas 1491 e 1657. **Aceite:** falha de verificação bloqueia ou põe em quarentena visível |
+| A.28 | **⚠ F07: cenários sobrescrevem o resultado-base.** O cálculo completo e um cenário com R01 excluído **gravam no mesmo documento** `calculations/{projectId}`, e a constante de versão do motor não é persistida como identidade da execução. Fonte: `calculate/route.ts` linha 1242. **E a validação externa depende de um backend Python que não está neste repositório**, com um fallback legado que reconstrói a matriz a partir dos pesos — o que **não equivale a validar os julgamentos originais**. **Aceite:** simulação não altera o resultado-base; cada afirmação remete à execução usada |
+| A.29 | **Remover o `lib/knowledge.ts` legado.** Era escopo de A.6 antes dela encolher para só o `knowledge-ipc.ts`, e **ficou sem responsável**. ⚠ **Contém o `interpretSensitivity`**, que é uma das três implementações restantes do construto categórico de sensibilidade, e por isso **A.2 depende desta tarefa**, não mais de A.6. Medir o escopo antes: o arquivo tem outras funções, e `git grep` sobre `lib/knowledge` dá os consumidores |
+
+**Tabela de aceite de A.21**, e ela substitui qualquer critério de contagem de
+testes:
+
+| Caso | Resultado esperado |
+|---|---|
+| Resposta completa válida | calculada, preservando a referência |
+| Uma comparação faltante, mesmo com `completedAt` | **rejeitada** para finalização e cálculo oficial |
+| Duplicata substituindo um par | **rejeitada** |
+| Respostas parciais complementares entre participantes | **rejeitadas individualmente** |
+| Rascunho incompleto | salvo e retomado, **sem virar resposta finalizada** |
+| Consumidores migrados | compilação aprovada e **nenhuma chamada ao IPC** |
+
+⚠ **O total de testes se registra DEPOIS da execução.** Nenhuma aritmética de
+exclusão serve de critério: ela conta o que sai e ignora os testes novos que a
+tabela acima exige. **Redução da suíte não é prova de conclusão.**
+
+**Sobre os testes do `graph-utils`:** `checkConnectivity`, `getCompletenessMetrics`
+e `buildGraphFromJudgments` **têm consumidor em produção**: o primeiro na rota
+`calculate`, linha 344. **Exclusivos de teste são apenas `findBridgeEdges`,
+`getMinimumSpanningChain` e `validateSkip`.**
+
+**Resíduo de A.21 reescrita, mantido só como registro do que se esperava:** a
+aritmética de exclusão de testes e a afirmação de que os sete testes do
+`graph-utils` cobriam funções sem uso. **As duas foram superadas** — ver a tabela
+de aceite de A.21 e a nota sobre `checkConnectivity`.
+
+O que permanece válido: o `characterization.test.ts` tem **dez blocos `test(` e
+reporta 30**, porque parte é gerada em laço; **contar blocos no fonte subestima, o
+número tem de vir do jest**. E a falha do censo que A.21 fecha é **"o LLSM
+permanece confinado ao módulo de matrizes incompletas"**, a única das doze que
+falha hoje. ⚠ **Será a primeira vez que o censo fica limpo.**
 
 **Mapa das OITO implementações do construto de sensibilidade.** Levantado em
 10/09/2026, revisado sobre `5837d0d`. Custou quatro rodadas para montar; não
@@ -540,9 +726,9 @@ COMPLETE, NEAR_COMPLETE, PARTIAL, MINIMAL e INSUFFICIENT) e consumido em
 `lib/ahp-ipc.ts`. Não está em `lib/rag/`: o que existe lá é um comentário sobre
 classificação de artigo, em `types.ts`.
 
-**O commit (4) depende de A.6** porque `lib/knowledge.ts` é o legado que ela
-remove, e o `page.tsx` importa oito símbolos dele, não só o `interpretSensitivity`.
-Fazer o (4) antes arrastaria A.6 inteira para dentro de A.2.
+**O commit (4) depende de A.29** porque `lib/knowledge.ts` é o legado que ela
+remove (era atribuído a A.6, que encolheu para só o `knowledge-ipc.ts`), e o `page.tsx` importa oito símbolos dele, não só o `interpretSensitivity`.
+**A remoção do legado e a adaptação de seus consumidores devem ser coordenadas com A.29.**
 
 ## ✅ Bloco B. Recomputar — JÁ EXECUTADO em 13/07/2026
 
@@ -639,6 +825,33 @@ origens de dado convivendo, sem nenhuma marca que as distinga na tela**:
 Não é estado transitório criado pelo saneamento: é assim desde julho. A correção
 é a **etapa 4** da série documentada em `docs/imprecisoes-parecer-ia.md`.
 
+
+**Resíduos em `calculations` e em `responses`, com tratamentos distintos.**
+Registrado em 11/09/2026:
+
+| # | Campo | Deixou de ser gravado em |
+|---|---|---|
+| a | `responses.{doc}.responses.avgCR` | ainda gravado; ver acima |
+| b | `sensitivityAnalysis.classification` e `classificationLabel` | `5837d0d` |
+| c | `ipcMetadata` | **A.21**, quando executada (era atribuído a A.6, que encolheu) |
+
+**Dois dos três saem por consequência; um não.**
+
+⚠ **(b) e (c) estão em `calculations/{projectId}`.** Removido o código que os
+gravava, a próxima recomputação escreve o documento sem eles. **Não exigem
+script.**
+
+⚠ **(a) está em `responses/{doc}` — outra coleção.** Recomputar `calculations` não
+toca `responses.{doc}.responses.avgCR`: **o cache individual sobrevive à
+recomputação**, e é por isso que B.3 existe como tarefa própria, com remoção
+explícita do subobjeto.
+
+**Decisão vigente: preservar os três em produção por ora.** O `calculations` é o
+dado que reproduz os 24 valores publicados e corresponde ao
+`docs/calculations-13jul2026.json` versionado; o cache em `responses` sai por B.3,
+cuja predição está registrada como `{valid: 0, warning: 1, critical: 11, total:
+12}`.
+
 ### B.3 Remover o subobjeto `responses` das respostas
 
 Depois da etapa 4. Remover a saída antecipada faz o código parar de ler o cache,
@@ -650,12 +863,44 @@ enganou o sistema uma vez é candidato a enganá-lo de novo, por outro caminho.*
 `computeCRsFromJudgments`, chama `calculateAllWeights` e devolve `avgCR:
 result.avgCR`, que no `ahp-ipc.ts` é o **máximo** das seis matrizes não triviais,
 não a média. Portanto, ao remover a saída antecipada, o `classifyRespondent`
-passa a receber o **CR governante**. Os doze respondentes migram de CONFIÁVEL
-para CRÍTICO, porque o menor governante é 11,39%.
+passa a receber o **CR governante**.
 
-Isso é o comportamento correto, mas **a etapa 4 não troca só a origem do dado:
-ela inverte o veredito de todos os respondentes**, e o parecer passará a dizer o
-oposto do que diz hoje. É o resultado mais forte que a série pode produzir, e
+⚠ **CORREÇÃO da previsão, 11/09/2026.** A previsão registrada era "os doze migram
+para CRÍTICO". **Medido: serão 1 REVISAR e 11 CRÍTICO.** O respondente R01 tem
+governante de **11,39%**, que é o menor dos doze e cai na faixa de REVISAR, não de
+CRÍTICO.
+
+O erro foi usar o menor governante para prever o destino de todos: ele determina
+onde o **melhor** caso cai, não onde caem os outros onze. **É a mesma classe de
+erro registrada em 0.4 sobre critério de contagem: mirar num alvo e afirmar sobre
+um escopo mais largo.**
+
+**A predição de B.3 passa a ser `byStatus = {valid: 0, warning: 1, critical: 11,
+total: 12}`.**
+
+⚠ **Esta previsão é DIAGNÓSTICO do classificador antigo, não critério de aceite do
+resultado final.** Ela mede o que o `classifyRespondent` atual produziria ao
+receber o CR governante em vez do cache. **A.12 remove essa distribuição do
+payload**, então o estado final não tem `byStatus` a conferir.
+
+**O que a previsão serve para testar:** que a mudança de fonte do CR — de cache
+para governante — tem o efeito medido. É evidência de que o cache mascarava a
+inconsistência individual, e sustenta o F05.
+
+✅ **Limiares confirmados no código em 11/09/2026:** 0,05, 0,10, 0,15 e 0,20, com
+`REVISAR` na faixa de 10 a 15%. R01, com governante de **11,39%**, cai em
+`REVISAR`; os outros onze têm governante **acima de 20%** e caem em `CRÍTICO`.
+
+⚠ **E existe um quinto status:** `DESCONHECIDO`, devolvido quando `avgCR === 0`.
+Não aparece nesta predição porque nenhum dos doze tem governante zero, mas está no
+caminho. Ver A.12.
+
+Isso é o comportamento correto. ⚠ **A etapa 4 verificará duas coisas:** que os CRs
+recalculados passam a ser usados, e que **a conclusão de conformidade derivada do
+cache é retirada**.
+
+⚠ **As categorias antigas ficam como diagnóstico histórico**, não como veredito
+novo: A.12 remove a distribuição do payload, então não há veredito a comparar. É o resultado mais forte que a série pode produzir, e
 conviria antecipá-lo em vez de descobri-lo na geração.
 
 ### B.2 O Parecer IA publicado foi gerado sobre esse dado
