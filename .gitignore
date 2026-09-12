@@ -68,3 +68,6 @@ check-balance.js
 debug_sensitivity.js
 _backup/
 recalc.json
+
+# Claude Code: settings pessoais nao versionados
+.claude/settings.local.json
