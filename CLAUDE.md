@@ -213,19 +213,25 @@ O que se aprendeu medindo:
    horas de leitura do artigo errado.
 3. **Nenhum dos dois campos de citação é confiável por si.** Em **treze das 123**
    claims que têm `verbatim_quote` e `evidence.quote`, os dois divergem, **e a
-   divergência tem duas direções**: em sete o `verbatim_quote` é anotação ou
-   reescrita, e o `evidence.quote` é o fiel; em cinco (Bozóki ×3, Schmidt,
-   Salomon) é o `evidence.quote` que está **truncado**, e o `verbatim_quote` traz a
-   frase completa. **O que o sistema envia ao modelo é `evidence.quote`, desde
-   `bf959b6`** — decisão correta nos sete e custosa nos cinco, onde entrega texto
-   mais curto, nunca infiel. **A tarefa A.16 resolve caso a caso.** Ao citar em
-   qualquer texto, confira os dois.
+   divergência tem duas direções**: em **oito** o `verbatim_quote` é anotação ou
+   reescrita, e o `evidence.quote` é o fiel (Dodevska **×2**, Xu, Lee, Wijnmalen
+   ×3, Saaty e Ozdemir); em **cinco** (Bozóki ×3, Schmidt, Salomon) é o
+   `evidence.quote` que está **truncado**, e o `verbatim_quote` traz a frase
+   completa. **A partição fecha em 8 + 5 = 13.** **O que o sistema envia ao modelo
+   é `evidence.quote`, desde `bf959b6`** — decisão correta nos oito e custosa nos
+   cinco, onde entrega texto mais curto, nunca infiel. **A tarefa A.16 decide qual
+   campo fica.** Ao citar em qualquer texto, confira os dois.
 
-   ⚠ **Os números são de 11/09/2026, vêm do registro e não foram reconferidos
-   aqui. Previsto depois de A.16: zero divergências.** E **as duas direções somam
-   doze, não treze**: sete mais cinco, com os doze casos nomeados no registro.
-   **A décima terceira não está classificada em nenhuma das duas**, nem lá nem
-   aqui. É pendência de A.16, não erro de transcrição.
+   ⚠ **Previsto depois de A.16: zero divergências.** A décima terceira foi
+   identificada em 12/09/2026, lendo o arquivo: é a segunda claim divergente do
+   `dodevska2023when.ts`, e **é a única do grupo em que a elisão apaga uma
+   proposição, não notação.** Nas outras a frase diz o mesmo, só menos verificável.
+
+   ⚠ **As treze têm DUAS decomposições, e elas não coincidem:** por **direção**
+   fecha 8 + 5; por **detectabilidade**, 12 identificáveis por leitura + 1 que
+   parece citação legítima. **São partições de critérios diferentes sobre o mesmo
+   conjunto, e nenhum número está errado.** Quem tentar reconciliá-las vai concluir
+   que um está.
 4. **`description` e `conditions` são texto do indexador**, não do artigo. O
    contexto recuperado não os distingue do `quote`, e o modelo já citou um
    `conditions` como verbatim. É a tarefa A.15.

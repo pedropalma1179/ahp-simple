@@ -1364,6 +1364,13 @@ legítima.
 **É por isso que ele chegou ao parecer e os outros não.** O modelo reproduz o que
 tem forma de citação.
 
+⚠ **O "doze" desta partição está sob revisão desde 12/09/2026.** A décima terceira
+claim divergente foi identificada — a segunda do Dodevska — e **por forma ela está
+deste lado, com o Lee**: reticências no meio da frase, sem marca, prosa fluente.
+Se a leitura confirmar, esta partição vira **11 + 2**. Ver "A décima terceira" e
+"Por que as duas decomposições das treze não coincidem", adiante. **A revisão é
+leitura caso a caso, e é decisão de A.16.**
+
 ### Cruzamento decisivo: os sete trechos de `verbatim_quote` são TODOS de claims divergentes
 
 Feito em 11/09/2026. Os 62 trechos entre aspas dos dois pareceres foram cruzados
@@ -1767,11 +1774,16 @@ opostas.**
 
 | Direção | Casos | Qual campo é melhor |
 |---|---|---|
-| O `verbatim_quote` é anotação, paráfrase ou está reescrito | 7 | **`evidence.quote`** |
+| O `verbatim_quote` é anotação, paráfrase ou está reescrito | 8 | **`evidence.quote`** |
 | O `evidence.quote` está **truncado** | 5 | **`verbatim_quote`** |
 
-**Os sete onde A.17 acertou:** Dodevska, Xu, Lee e os quatro de paráfrase
+**Os oito onde A.17 acertou:** Dodevska **×2**, Xu, Lee e os quatro de paráfrase
 (Wijnmalen ×3, Saaty e Ozdemir).
+
+⚠ **A tabela dizia 7, e somava doze das treze.** A décima terceira foi
+identificada em 12/09/2026 e está na subseção seguinte: é a **segunda claim
+divergente do Dodevska**, e com ela a partição por direção fecha em **8 + 5 =
+13**. **O Dodevska é o único artigo com duas claims divergentes.**
 
 **Os cinco onde o `evidence.quote` é o campo curto:** os três do Bozóki, o Schmidt
 e o Salomon.
@@ -1785,6 +1797,75 @@ reciprocal values; this can be achieved only by taking the geometric mean."
 Nos do Bozóki, o `evidence.quote` diz "the graph is connected" e o
 `verbatim_quote` diz "the graph **corresponding to the incomplete pairwise
 comparison matrix** is connected".
+
+### A décima terceira: a segunda claim divergente do `dodevska2023when.ts`
+
+Identificada em 12/09/2026, lendo o arquivo. O Dodevska tem **três** claims com
+`verbatim_quote`: na primeira os dois campos são idênticos, e **as outras duas
+divergem**. A que faltava é a de `usable_as: "limitation"`, `evidence.page` 12:
+
+| Campo | Texto |
+|---|---|
+| `verbatim_quote` | "When the starting point is high inconsistency**...** it is more challenging to correct the consistency issue." |
+| `evidence.quote` | "When the starting point is high inconsistency, **independent of the DI value, the average value of the goal function is more elevated, i.e., the conclusion is that** it is more challenging to correct the consistency issue." |
+
+**Ela entra entre os reescritos**, então a direção manda ficar com o
+`evidence.quote`, como nos outros sete.
+
+⚠ **Mas a gravidade dentro do grupo é outra, e é o que justifica registrá-la
+separada.** Em Lee, em Xu e na outra claim do Dodevska as reticências apagam
+**notação** — siglas, subscritos, referência a equação — e a frase sobrevivente
+**diz o mesmo, só menos verificável**. Aqui o que as reticências engolem é **outra
+proposição**: o achado sobre a função objetivo ("the average value of the goal
+function is more elevated"), a condição de escopo ("independent of the DI value") e
+o marcador "i.e., the conclusion is that", que é justamente o que declara a oração
+seguinte como **inferência dos autores**.
+
+**O que sobra é a conclusão sem a medida em que ela se apoia**, apresentada como
+frase direta do artigo. **É o único caso do grupo em que a elisão remove uma
+proposição distinta, e não notação.**
+
+⚠ **Uma ressalva de precisão, e ela importa para não superafirmar:** a oração que
+sobrevive **está no artigo** — os autores a escrevem como sua conclusão. O campo
+não inventa a afirmação; **apaga o fundamento, a condição e a marca de que é
+inferência.** Quem lê o `verbatim_quote` não tem como saber que a frase depende de
+um valor médio de função objetivo.
+
+⚠ **E há consequência para a outra partição, que fica como decisão de A.16.** A
+decomposição por detectabilidade está escrita como **12 identificáveis por leitura
++ 1 que parece citação legítima**, o Lee. **Por forma, esta décima terceira está do
+lado do Lee**: reticências no meio da frase, sem marca, e prosa fluente. Se a
+leitura confirmar, aquela partição vira **11 + 2**. **Não a alterei aqui**, porque
+ela é leitura caso a caso e é o método daquela seção.
+
+### Por que as duas decomposições das treze não coincidem
+
+**Não há número errado entre elas, e vale dizer isto explicitamente.** São duas
+partições do mesmo conjunto, com critérios diferentes:
+
+| Partição | Critério | Como fecha |
+|---|---|---|
+| Por **direção** | qual dos dois campos é o melhor | **8** reescritos + **5** truncados |
+| Por **detectabilidade** | se a forma do campo denuncia o defeito a um leitor | **12** identificáveis + **1** que parece citação (a revisar, ver acima) |
+
+**Quem tentar reconciliá-las vai concluir que um dos números está errado.** Eles
+respondem a perguntas diferentes: a primeira decide **o que corrigir na base**, a
+segunda estima **o que passa para o parecer**.
+
+### O que isso faz com o escopo de A.16
+
+**A tarefa fica reduzida à decisão de qual campo fica, e a direção resolve doze:**
+nos oito reescritos fica o `evidence.quote`; nos cinco truncados, o
+`verbatim_quote`.
+
+**Sobram dois resíduos.** O **Dodevska**, porque suas duas claims divergentes são de
+subtipos diferentes dentro dos reescritos — uma apaga notação, a outra apaga uma
+proposição — e a segunda pede decisão própria sobre a claim, não só sobre o campo.
+E **os casos em que o campo escolhido ainda precisa de conferência contra o PDF.**
+
+⚠ **Consequência para A.17, que já está em produção:** nos cinco truncados a troca
+de fonte entrega texto **mais curto, nunca infiel**. **A.16 corrige a base e o
+efeito desaparece sem tocar código** — não há reversão a fazer.
 
 ### O que isso faz com A.17, e o que não faz
 
