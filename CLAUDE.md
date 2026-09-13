@@ -11,26 +11,26 @@ alteração.**
 
 ## 1. Leia os documentos antes de agir
 
-Três arquivos em `docs/` carregam o estado e o método. **Não são documentação
-opcional: são o contexto sem o qual as tarefas não fazem sentido.**
+Os arquivos abaixo, em `docs/`, carregam o estado e o método. **Não são
+documentação opcional: são o contexto sem o qual as tarefas não fazem sentido.**
 
 | Arquivo | O que é |
 |---|---|
 | `docs/objetivo-estados-caminho.md` | **Âncora.** Objetivo, estado do saneamento, tabela de tarefas abertas com escopo medido, e a seção 0.4 com os erros de rota da sessão anterior |
-| `docs/imprecisoes-parecer-ia.md` | Registro experimental do Parecer IA: seis superfícies de desancoragem, cinco classes de falha, e as execuções medidas com predições registradas antes |
+| `docs/imprecisoes-parecer-ia.md` | Registro experimental do Parecer IA: as superfícies de desancoragem, as classes de falha, e as execuções medidas com predições registradas antes |
 | `docs/inventario-codigo.md` | Inventário por arquivo |
 
 Mais `docs/contratos-de-dados.md`, `docs/referencia-cr-individuais.md` e
 `docs/calculations-13jul2026.json`, que é o estado do Firestore que reproduz as
 tabelas publicadas.
 
-⚠ **Sete arquivos em `docs/` são anteriores ao saneamento** e podem conter
-afirmações superadas: `AI-AUDITOR-GUIDELINE.md`, os dois `ESTADO_ATUAL`,
+⚠ **Os arquivos a seguir, em `docs/`, são anteriores ao saneamento** e podem
+conter afirmações superadas: `AI-AUDITOR-GUIDELINE.md`, os dois `ESTADO_ATUAL`,
 `GUIA-INTEGRACAO-HIBRIDO.md`, `RAG_DECISIONS.md` e os dois `SYSTEM_PROMPT_AUDIT`.
 **Onde divergirem do âncora, o âncora prevalece.**
 
-**A seção 0.4 do âncora tem vinte erros de rota já cometidos.** Ler antes evita
-repetir.
+**A seção 0.4 do âncora é a lista dos erros de rota já cometidos.** Ler antes
+evita repetir.
 
 ---
 
@@ -57,7 +57,7 @@ campo em desuso — se verifica contra a fonte, não contra a saída.
 
 **Contagem que vem do texto do código é hipótese; a que vem da execução é medida.**
 
-Casos medidos na sessão anterior:
+Casos medidos na sessão anterior, o primeiro reconferido em 12/09/2026:
 
 - `characterization.test.ts` tem dez blocos `test(` no fonte e o jest reporta
   **30**, porque parte é gerada em laço.
@@ -147,12 +147,15 @@ que entrou.
 ```
 npm test          # 55 testes, 1 falha esperada: o LLSM no censo do motor
 npm run build     # 17 páginas
-npx tsc --noEmit
+npx tsc --noEmit  # sai 0
 ```
 
-⚠ **Os números acima são de 11/09/2026 e mudam.** **Meça antes de usar como
-critério de aceite**, e nunca herde um número: é erro registrado na seção 0.4 do
-âncora, ocorrido duas vezes.
+⚠ **Medidos em 12/09/2026, em `1f6674a`, e mudam.** A falha única é
+`o LLSM permanece confinado ao módulo de matrizes incompletas`, do censo.
+**Previsto depois de A.21**, que retira o IPC: a falha desaparece e o total cai
+pelos testes de IPC que saírem — **o valor não está previsto, mede-se na tarefa.**
+**Meça antes de usar como critério de aceite**, e nunca herde um número: é erro
+registrado na seção 0.4 do âncora, ocorrido duas vezes.
 
 ⚠ **Não use variação da suíte como critério.** Aritmética de exclusão conta o que
 sai e ignora os testes novos que a mudança exige. **Defina os comportamentos que
@@ -174,7 +177,8 @@ registre e confirme pelo deploy da Vercel.
 
 ## 6. O censo do motor
 
-`lib/__tests__/engine-census.test.ts` tem doze testes que verificam **unicidade de
+`lib/__tests__/engine-census.test.ts` tem **doze** testes — medido em 12/09/2026,
+e aqui o fonte e o jest coincidem — que verificam **unicidade de
 implementação**: um único derivador de prioridades, uma única tabela de índice
 aleatório, nenhum fallback silencioso, nenhum epsilon aditivo nas fórmulas de
 síntese.
@@ -198,11 +202,12 @@ Toda afirmação atribuída a um autor precisa de lastro numa claim indexada em
 `lib/rag/articles/`. **Não invente localizador, não interpole página, não atribua
 ao autor uma paráfrase do indexador.**
 
-Cinco coisas aprendidas medindo:
+O que se aprendeu medindo:
 
 1. **`page` pode estar em convenção diferente do `abnt`.** Sete artigos usavam
-   numeração relativa ao PDF; foram convertidos em `23afe43`. O Bozóki tem `page`
-   da edição IEEE 2009 e `abnt` da MCM 2010, e o campo `notes` documenta isso.
+   numeração relativa ao PDF; foram convertidos em `23afe43`, cujo diff traz os
+   sete. O Bozóki tem `page` da edição IEEE 2009 e `abnt` da MCM 2010, e o campo
+   `notes` documenta isso.
 2. **Antes de conferir localizadores contra um PDF, leia o campo `notes`** e
    confirme que o PDF é a edição de onde as claims saíram. Não fazer isso custou
    horas de leitura do artigo errado.
@@ -215,6 +220,12 @@ Cinco coisas aprendidas medindo:
    `bf959b6`** — decisão correta nos sete e custosa nos cinco, onde entrega texto
    mais curto, nunca infiel. **A tarefa A.16 resolve caso a caso.** Ao citar em
    qualquer texto, confira os dois.
+
+   ⚠ **Os números são de 11/09/2026, vêm do registro e não foram reconferidos
+   aqui. Previsto depois de A.16: zero divergências.** E **as duas direções somam
+   doze, não treze**: sete mais cinco, com os doze casos nomeados no registro.
+   **A décima terceira não está classificada em nenhuma das duas**, nem lá nem
+   aqui. É pendência de A.16, não erro de transcrição.
 4. **`description` e `conditions` são texto do indexador**, não do artigo. O
    contexto recuperado não os distingue do `quote`, e o modelo já citou um
    `conditions` como verbatim. É a tarefa A.15.
@@ -242,8 +253,8 @@ Antes de propor qualquer construção nova, três perguntas:
 2. **Ajuda o gestor a decidir ou a argumentar?**
 3. **Diferencia o artigo?**
 
-Se a resposta for não às três, não entra. **Cinco construtos foram removidos por
-esse critério na sessão anterior:**
+Se a resposta for não às três, não entra. **Construtos removidos por esse
+critério na sessão anterior:**
 
 | Construto | Commit |
 |---|---|
