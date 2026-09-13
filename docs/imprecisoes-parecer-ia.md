@@ -25,8 +25,13 @@
 | **4** | 11/09/2026 | `501b19a` | remoção do `dominanceAnalyzer` | registrada antes | **refutada**: revelou o segundo canal no prompt |
 | **5** | 11/09/2026 | `28f4a95` | remoção da autorização de viés no prompt | registrada antes | confirmada |
 | **6** | 11/09/2026 | `bf959b6` | fonte da citação passa a `evidence.quote` | registrada antes | duas confirmadas, **uma parcial** (Dodevska) |
+| **7** | 12/09/2026 | `f9cbf94` | A.21: IPC retirado e bloco de completude fora do prompt | registrada antes, em `c9f4842` | **atendida no critério textual**; três achados novos, F09 a F11 |
 
-**Placar das predições: quatro confirmadas, uma parcial, uma refutada.**
+**Placar das predições: cinco confirmadas, uma parcial, uma refutada.**
+
+⚠ **A da execução 7 é predição de REGRESSÃO de atribuição, não teste causal:** a
+ausência que ela verifica já existia nas três execuções anteriores, com o bloco
+presente no prompt.
 
 ⚠ **A refutada, na execução 4, produziu o achado mais valioso**: o segundo canal
 que nenhuma confirmação teria revelado.
@@ -3533,3 +3538,197 @@ A síntese subtrativa completa (Wijnmalen, 2007, Eq. 17) com *rescaling weights*
 O estudo satisfaz os critérios de qualidade metodológica para publicação. A consistência dos julgamentos é verificada em todas as camadas hierárquicas: CR global agregado de 1,06%, CRs por dimensão entre 0,92% e 2,60%, e 100% dos respondentes individuais com CR ≤ 0,10 (Saaty, 1977). O painel de 12 especialistas apresenta diversidade funcional (seis áreas de atuação, três níveis hierárquicos, experiência de 11 a mais de 30 anos). A análise de sensibilidade confirma estabilidade do ranking nas quatro dimensões, sem pontos de virada. A fórmula de síntese emprega a Eq. 17 de Wijnmalen (2007) com dupla ponderação (pesos pessoais e *rescaling weights*), atendendo ao requisito de comensurabilidade. Os axiomas de Saaty (1986) são satisfeitos pela estrutura do sistema. A divergência do peso de Risks em relação aos benchmarks publicados constitui observação contextual que não compromete a validade interna dos resultados. As três ações de mitigação são de natureza documental e não afetam a estrutura analítica do estudo.
 
 Conforme a matriz de calibração da Diretriz 3: CR ≤ 0,10 em todas as sub-hierarquias, N ≥ 3 com diversidade funcional, e sensibilidade estável correspondem à decisão de aceitar.
+
+---
+
+## Execução 7 — 12/09/2026, `f9cbf94`, depois de A.21
+
+| | |
+|---|---|
+| Requisição | `POST /api/ai-reviewer` 200, **01:59:11Z** de 13/09/2026 (22:59 local) |
+| Deploy | `dpl_orQbNxPZQP8htwtZPvdUZ5gPhSbP`, produção, branch `main` |
+| Commit | **`f9cbf94`**, criado às 22:51:56 local e `READY` antes da requisição |
+| Modelo | `claude-opus-4-6`, o mesmo das execuções anteriores |
+| Intervenção testada | A.21: retirada do IPC e do bloco `### Completude das Matrizes` do prompt |
+| Predição | registrada antes, em `c9f4842` |
+
+⚠ **O deploy anterior, `884f710` (22:40), também já continha A.21** — a retirada do
+IPC é de `0ac4e95`. A vinculação à tarefa não depende de qual dos dois servia a
+página; o log resolve de todo modo, e aponta `f9cbf94`.
+
+⚠ **O texto bruto NÃO está anexado.** Esta seção registra os trechos que a leitura
+citou e o que foi medido no código e no log de produção. **Enquanto o texto integral
+não entrar, os itens de leitura abaixo valem como citação parcial**, e não como dado
+primário no sentido que o cabeçalho deste documento exige.
+
+### 1. A predição de A.21 foi ATENDIDA no critério textual
+
+O parecer **não atribui à execução** uso de LLSM nem preenchimento de comparações
+ausentes, **não afirma ter recebido** indicadores de completude, e **não recomenda
+completar matrizes** com base em indicador inexistente.
+
+⚠ **Isso NÃO transforma a hipótese sobre instruções condicionais em achado causal.**
+A ausência já estava lá nas três execuções anteriores, **com o bloco presente**. O
+que esta execução estabelece é regressão de atribuição, não a influência da forma da
+instrução.
+
+### 2. Saiyed voltou, e o CANAL ESTÁ CONFIRMADO: injeção estática, não semântica
+
+O parecer cita "High power leads to cognitive biases..." e associa a presença de
+diretores e executivos a preocupação com viés. **A execução 5, sobre `28f4a95`,
+registrava ausência de Saiyed, Neely e Ayan.**
+
+**Medido em `f9cbf94`, e o resultado é mais forte do que "via possível":**
+
+| Onde | Medida |
+|---|---|
+| `lib/rag/articles/` | os três artigos seguem indexados, conforme a decisão de A.3 |
+| `lib/rag/index.ts` | os três entram no corpo do corpus, por import e entrada no array |
+| `app/api/ai-reviewer/` | **zero** menções nominais aos três autores, e zero a "upper echelon" e "cognitive bias" — a autorização não é nominal |
+| `crRefs` = `getRefsByTopic('consistência')`, injetado em `route.ts:1147` | **93 refs de 138**, e a claim do Saiyed está entre elas |
+| `bocrRefs` = `getRefsByTopic('BOCR')`, injetado em `route.ts:1155` | 28 refs, e a claim do Saiyed está entre elas **de novo** |
+| `ragBenchmarks`, injetado em `route.ts:1186` | traz `saiyed2023_ceoPowerUET (2023)` como linha de tabela |
+| Caminho semântico | **5 consultas, 5 falhas, ZERO chunks** |
+
+**O texto injetado, no campo rotulado `Fundamento:`:**
+
+> High power leads to cognitive biases creeping in, especially how the CEO frames
+> the decision calculus and estimates risks inherent in decisions, leading them to
+> concentrate on the upside potential of the decisions and ig[norar]…
+
+**É o trecho que o parecer citou.** Não é paráfrase próxima: é o campo `rule` da
+entrada `Saiyed et al. (2023)`, que o prompt entrega duas vezes, em duas seções
+diferentes da "BASE DE CONHECIMENTO CIENTÍFICO".
+
+⚠ **Portanto o RAG deixa de ser hipótese de canal nesta execução: é o canal medido.**
+E **conhecimento paramétrico não é necessário para explicar o retorno** — o que não
+o descarta como contribuição adicional.
+
+⚠ **E o canal semântico não participou:** o log traz cinco
+`[rag/semantic-retrieve] retrieval failed (silent failover): Unexpected end of JSON
+input` e o resumo `RAG semantic: 5 queries -> 0 raw -> 0 unique -> 0 final from 0
+papers`. Ver o achado F09 abaixo.
+
+⚠ **A recorrência não demonstra por que a execução 5 não trouxe Saiyed.** O mesmo
+canal estático existia em `28f4a95`. **A ausência anterior fica sem explicação
+medida**, e atribuí-la à remoção da autorização no prompt seria inferência.
+
+⚠ **NÃO concluir que o contexto recuperado "pesa mais" que a instrução.** Os dois
+casos diferem em tema, conteúdo e contexto; influência relativa exige comparação
+controlada, que esta série não fez.
+
+**Segundo canal confirmado para a leitura do perfil profissional, e não é o Saiyed:**
+o payload envia `funcao: ["diretor","gerente","c_level"]` em `demographicsSummary`,
+e o prompt injeta a claim do **Neely (2020)** cujo tópico é *"Executive cognition is
+a key mediating mechanism in Upper Echelons Theory: executive characteristics
+influence firm o…"*. **A associação entre cargo e viés tem duas entradas medidas,
+além da do Saiyed.**
+
+### 3. O erro dos CRs permanece, e agora está medido no payload
+
+O parecer repete **1,1%–9,6%**, declara **100% de conformidade** e afirma que nenhum
+respondente excede 20%. **A referência de 09/09/2026 é 11,3893%–109,2740%**, e
+nenhum dos doze fica abaixo de 0,10.
+
+**O log mostra a cadeia inteira:** `Bias: CRs mapeados: [CR=0.0105, CR=0.0359,
+CR=0.0208 …]` → `Usando statistics.byStatus: 12✅ 0⚠️ 0❌ 0❓` → `Validade: 100.0%`
+→ `Score final: 100/100` → `Resultado: A (100/100) - ACEITO` → `Bias OK: LOW, CR
+compliance: 100.0%`.
+
+**É persistência do defeito de A.25, compatível com o cache preservado.** ⚠ **E há um
+segundo sustentáculo, medido:** `system-prompt.ts:323` **ainda contém a faixa "1,1% e
+9,6%"** dentro do exemplo de parágrafo — a classe D, o prompt ensinando o erro. **Não
+é só o cache.**
+
+⚠ **NÃO é regressão causada por A.21, e não autoriza excluir respondentes.**
+
+### 4. Atribuição cronologicamente impossível: "Schmidt, 2015, citado em Ishizaka & Labib, 2011"
+
+Uma publicação de 2011 não cita uma de 2015. **Origem estreitada por medição, sem
+corrigir autor nem página:**
+
+| Candidato | Medida |
+|---|---|
+| Claim do RAG que relacione os dois | **não existe**: `ishizaka2011review.ts` tem **zero** ocorrências de "schmidt", e `schmidt2015_review.ts` **zero** de "ishizaka" |
+| Exemplo ou molde no prompt | **não existe** padrão "X citado em Y" nem "apud" no `system-prompt.ts` |
+| Ambos indexados isoladamente | **sim**: `schmidt2015_review.ts` e `ishizaka2011review.ts`, e os dois estão entre as 100 claims injetadas |
+
+⚠ **Resta a composição pelo modelo de dois itens reais e separados**, o que é
+consistente com o padrão "cited in" que a base usa em OUTROS pares (o
+`goepel2018` cita `ishizaka2009`, o `neely2020` cita Saiyed) — isto é, a forma existe
+no contexto, aplicada a pares diferentes. **Não é conclusão: é o candidato que
+sobrou.**
+
+⚠ **O validador viu o trecho e não viu o problema.** Ele registrou
+`CITACAO_INCOMPLETA: "Schmidt, 2015" — paper tem 5 autores; cite como "Schmidt et
+al. (2015)"`. **Nenhuma regra cobre atribuição cronologicamente impossível**, e, por
+F06, aviso não bloqueia a apresentação.
+
+### 5. A explicação da sensibilidade excede a evidência
+
+A razão de **2,38:1** entre escores **não demonstra** que a inversão exigiria
+"variações de grande magnitude". O âncora registra **dominância estrita** e
+invariância à ponderação **nas condições delimitadas**; o log confirma
+`sensitivityInflections: {"O":null,"C":null,"R":null,"B":null}`, isto é, **ausência
+de inversão na varredura executada**. **Ausência de inversão na varredura não é
+invariância demonstrada.**
+
+### 6. Originalidade e ACEITO sem sustentação
+
+"Constitui contribuição original" **contradiz o estado documentado**, em que a
+fronteira de ineditismo está pendente — ver 0.3 do âncora. E o **ACEITO depende da
+falsa conformidade de 100%** do item 3: o log mostra o veredito derivado do score
+100, que vem dos CRs em cache.
+
+### F09 — o canal semântico do RAG está QUEBRADO em produção, e falha em silêncio
+
+Achado novo, medido no log desta execução:
+
+```
+[rag/semantic-retrieve] retrieval failed (silent failover): Unexpected end of JSON input   (×5)
+[AI-REVIEWER] RAG semantic: 5 queries -> 0 raw -> 0 unique -> 0 final from 0 papers
+```
+
+**As cinco consultas falharam e o parecer foi gerado com zero chunks semânticos.** A
+seção "Evidências Semânticas Recuperadas (RAG Vetorial)" do prompt foi ao modelo
+vazia. **Nada na saída sinaliza isso** — é o modo de falha que este documento
+descreve, agora no recuperador.
+
+⚠ **Consequência para A.18:** a reingestão pressupõe um índice que responde. **O
+estado atual não é "índice com dados antigos": é índice que não responde.** Medir a
+causa antes de reingerir.
+
+⚠ **Consequência para as execuções anteriores:** o quanto o caminho semântico
+contribuiu em cada uma **não está registrado**, porque o log só guarda contagens.
+
+### F10 — a seção de 60 entradas é calculada e nunca injetada
+
+`getKnowledgeContext()` é chamado em `route.ts:708`, monta 60 entradas ordenadas por
+peso e **tem UMA ocorrência no arquivo**: a própria atribuição. **O valor nunca entra
+no prompt.** O que preenche a "BASE DE CONHECIMENTO CIENTÍFICO" são as quatro outras
+seções, e **`criticalRefs` entra com `.slice(0, 8)` de 108**.
+
+⚠ **Quem auditar o contexto pela função de nome mais óbvio mede o que o modelo não
+recebe.** Foi o que aconteceu na primeira sonda desta apuração, e o erro só apareceu
+ao contar as ocorrências da variável.
+
+### F11 — o filtro de tópico não é tópico
+
+`getRefsByTopic('consistência')` devolve **93 das 138 claims** e as injeta sob o
+título "Referências sobre Consistência e Validação de Dados". **Entre elas, a claim
+do Saiyed sobre poder do CEO e viés cognitivo**, que não trata de consistência.
+
+**As quatro seções injetam 100 claims distintas de 138** — o prompt não recupera por
+tópico, entrega quase o corpus com rótulos temáticos que não correspondem ao
+conteúdo. **É autorização por rótulo:** o modelo recebe a claim sob um cabeçalho que
+afirma pertinência que ela não tem.
+
+### O que esta execução permite e não permite
+
+**Permite** avançar no registro de A.21: a regressão textual foi atendida, no
+commit e no deploy nomeados acima.
+
+**NÃO permite** declarar o Parecer IA confiável. Permanece a faixa incorreta de CRs
+sustentando 100% de conformidade e o veredito; reapareceu a interpretação do perfil
+profissional, agora com canal medido; e há atribuição cronologicamente impossível que
+o validador não cobre.
