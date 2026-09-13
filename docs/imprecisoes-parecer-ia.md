@@ -4021,6 +4021,238 @@ sem evidência**, e a afirmação de que a T7 é anterior ao recomputo permanece
 estabelecida.
 ---
 
+## F06: diagnóstico da verificação e da apresentação do parecer
+
+**Fase 1 de A.27, medida em 13/09/2026 no commit `0b17115`.** Esta rodada **não
+corrige nada**: mede em quatro camadas separadas e registra. A consequência da
+reprovação é decisão do pesquisador, e está em aberto ao fim desta seção.
+
+⚠ **A natureza da evidência é declarada em cada afirmação**, com três rótulos:
+**medido** quando houve execução, **estabelecido por leitura** quando vem do código
+lido, e **não medido** quando nenhuma das duas aconteceu.
+
+### Inventário: contar antes de examinar
+
+**Busca usada:**
+`git grep -n -E "isValid|validate[A-Z]|whitelist|proibid|forbidden" -- app lib components`
+
+**Verificadores que tocam o texto do parecer, a resposta da rota ou a exibição
+dela: DOIS.** O inventário anterior se reconfirma, e o que muda é o escopo da
+contagem, agora explícito.
+
+| # | Verificador | Onde | Relação |
+|---|---|---|---|
+| 1 | `validateReviewOutput` | definido em `app/api/ai-reviewer/route.ts:1410`, chamado em `:1642` | julga o texto devolvido pelo modelo |
+| 2 | `validateCitationsAgainstWhitelist` | definido em `lib/rag/citation-whitelist.ts:264`, chamado em `route.ts:1516` | **aninhado dentro do primeiro**, não é um segundo ponto de decisão |
+
+**A mesma busca devolveu sete outros `validate*` que NÃO tocam o texto do parecer**,
+e registrá-los é o que dá sentido ao "dois": `validateKnowledgeBase`
+(`knowledge.ts:243`, valida a base do RAG), as seis funções de
+`app/api/audit-decision/route.ts` (`:28`, `:64`, `:103`, `:196`, `:253`, `:301`, que
+validam dado de cálculo em outra rota), `isValidSaatyValue`
+(`lib/completeness.ts:75`, julga julgamento) e `validateToken`
+(`avaliacao/page.tsx:1163`, autenticação).
+
+⚠ **Há um verificador que ALTERA o texto, e ele se registra sem classificação
+antecipada.** `stripSecondaryCitations` (`lib/rag/citation-whitelist.ts:253`) remove,
+por expressão regular, parênteses de citação secundária do tipo `(apud …)`,
+`(citando …)`, `(citado por …)` **antes** da validação de whitelist. **O que altera:**
+uma cópia do texto usada para validar. **Consequência, estabelecida por leitura:** a
+citação primária fora dos parênteses continua sujeita à whitelist, e o comentário do
+próprio arquivo registra a razão, que é o prompt autorizar mencionar a obra
+secundária. **Não é tratado aqui como defeito:** sanitizar antes de validar pode ser
+função legítima, e classificar exigiria medir os casos em que a remoção apaga algo
+que deveria ser julgado.
+
+### Camada 1, detecção: o que cada regra procura e onde o achado cai
+
+**Estabelecido por leitura** de `validateReviewOutput`, linhas 1410 a 1525.
+
+| # | Regra | O que procura | Cai em |
+|---|---|---|---|
+| 1 | `RESPONDENTE_FANTASMA` | menção a respondente inexistente, por cinco padrões | **`issues`** |
+| 2 | `FORMULA_SIMPLIFICADA` | fórmula simplificada sem menção a *rescaling weights* | **`issues`** |
+| 2b | `FORMULA_INCOMPLETA` | fórmula mencionada sem distinguir pesos pessoais de *rescaling* | `warnings` |
+| 3 | `REFERENCIA_IA_PROIBIDA` | ferramenta de IA citada como referência | **`issues`** |
+| 4 | `TOTAL_INCONSISTENTE` | número de especialistas diferente do tamanho da lista | `warnings` |
+| 5 | `SCORE_NAO_RECONHECIDO` | escore relatado que não está nos dados injetados | `warnings` |
+| 6 | `EMPIRICO_SEM_REF` | afirmação empírica sem referência próxima | `warnings` |
+| 7 | whitelist de citação | devolve `issues` e `warnings` próprios | **os dois**, repassados em `:1517-1518` |
+
+**Três das sete alimentam `issues`**, mais o que a whitelist classificar como
+*issue*. As demais só produzem aviso.
+
+### Camada 1, o caso do separador decimal
+
+#### Ensaio isolado da expressão, medido
+
+A expressão de escores, copiada de `route.ts:1479`: `/Score\s*=?\s*([\d.]+)/gi`.
+⚠ **A classe de caracteres é `[\d.]`: dígitos e ponto, sem vírgula.**
+
+Exercitada fora do repositório, com `node -e`, nos quatro casos. **Entrada e
+correspondências transcritas:**
+
+| Entrada | `match` | grupo 1 | `parseFloat` |
+|---|---|---|---|
+| `"Score = 0,0641"` | `["Score = 0"]` | `"0"` | `0` |
+| `"Score = 0.0641"` | `["Score = 0.0641"]` | `"0.0641"` | `0.0641` |
+| `"Score = 0,9999"` | `["Score = 0"]` | `"0"` | `0` |
+| `"Score = 0.9999"` | `["Score = 0.9999"]` | `"0.9999"` | `0.9999` |
+
+⚠ **Alcance deste ensaio, e ele é estreito:** mede **quais trechos a expressão
+reconhece**, e nada mais. **Não mede** `validateReviewOutput`, nem se o resultado
+vira `issues`, `warnings` ou `isValid: false`, porque há processamento depois da
+correspondência. **Nenhuma afirmação sobre o validador se apoia apenas nele.**
+
+**Estabelecido por leitura, sobre o processamento posterior:** a guarda da regra 5 é
+`if (!isNaN(reportedScore) && reportedScore > 0 && reportedScore < 1)`. Com vírgula,
+o valor examinado é **0**, que **falha em `> 0`**, e a verificação é abandonada antes
+de comparar com os escores conhecidos.
+
+#### Ensaio do fluxo completo: viabilidade apurada e ensaio REALIZADO
+
+⚠ **A viabilidade foi apurada antes de qualquer descarte, e o ensaio aconteceu.**
+Instrumento temporário **fora da árvore versionada**, no diretório de trabalho da
+sessão, com `@anthropic-ai/sdk` e o recuperador semântico simulados por mock
+virtual, chamando o `POST` real da rota. **Nada em `app/`, `lib/` ou `components/`
+foi alterado, e nenhuma função foi exportada para permitir o ensaio.**
+
+**Desenho:** os quatro casos foram postos **no mesmo texto de parecer**, numa única
+execução, de modo que o restante da resposta é **idêntico por construção** e o único
+fator que varia entre eles é o separador decimal e o valor.
+
+**Entrada:** um parecer contendo `Score = 0,9999`, `Score = 0.9999`, `Score = 0,0641`
+e `Score = 0.0641`, com `finalScores` declarando A1 em `0.06412946722825451`.
+
+**Resultado medido, transcrito da resposta da API:**
+
+```
+status:  200
+success: true
+isValid: true
+issues:  []
+warnings: [
+  "FORMULA_INCOMPLETA: Fórmula mencionada mas sem distinção clara entre pesos pessoais (v) e rescaling (s)",
+  "SCORE_NAO_RECONHECIDO: Score 0.9999 não encontrado nos dados injetados"
+]
+review devolvido contendo "0,9999": true
+```
+
+**O que isto mede, caso a caso:**
+
+| Caso | Resultado medido |
+|---|---|
+| `Score = 0,9999`, fictício com vírgula | **nada**: nem *issue* nem aviso |
+| `Score = 0.9999`, fictício com ponto | **um aviso**, e só |
+| `Score = 0,0641` e `Score = 0.0641`, valor de referência | nada, como esperado |
+
+⚠ **O aviso `FORMULA_INCOMPLETA` é da regra 2b**, disparada pelo texto sintético do
+ensaio conter `Score =`, e **não pertence ao defeito sob medição**. Registrado para
+não ser atribuído a ele.
+
+**Não medido:** a apresentação na interface para estas entradas. Ela tem conferência
+própria, na camada 4, e não sai deste ensaio.
+
+### Camada 2, veredito
+
+**Estabelecido por leitura**, `route.ts:1520-1524`:
+
+```
+isValid: issues.length === 0,
+```
+
+**Consequência:** apenas as regras que alimentam `issues` derrubam o veredito.
+**Aviso nenhum o derruba**, por construção, e o escore fictício com ponto produz
+exatamente aviso. Com vírgula, não produz nem isso.
+
+### Camada 3, resposta da API
+
+**Estabelecido por leitura**, `route.ts:1642-1676`, e **medido** pelo ensaio acima.
+
+Com `isValid` falso, as linhas 1644 a 1650 fazem **apenas** `console.error` e
+`console.warn`. Em seguida, `:1665` monta:
+
+```
+success: true            <- literal, não condicional
+nota, veredicto, review, biasAnalysis,
+validation: { isValid, issues, warnings }
+metadata: { …, gradeSource, automaticGrade, … }
+```
+
+**O texto vai inteiro, o `success` é verdadeiro por literal, e o veredito de
+validação viaja como campo que o chamador pode ignorar.**
+
+### Camada 4, apresentação
+
+**Busca usada:**
+`git grep -n -E "ai-reviewer|aiReview|data\.review|data\.validation|data\.success" -- app components`
+
+**Um único ponto consome a resposta da rota**, e a cadeia dele tem quatro elos:
+
+| Elo | Onde | Lê o campo de validação? |
+|---|---|---|
+| `fetch('/api/ai-reviewer')` | `app/decisor/resultados/[projectId]/page.tsx:1291` | não |
+| guarda `if (data.success && data.review)` | `:1303` | **não**: condiciona ao `success` literal |
+| `setAiReview({ nota, veredicto, review, metadata })` | `:1306-1312` | **não, e é mais forte: o campo `validation` não é sequer copiado para o estado** |
+| `<ParecerAISection aiReview={aiReview} …>` | `:4945`, componente em `components/ParecerAISection.tsx` | não: lê `review`, `nota`, `veredicto` e `metadata` |
+
+⚠ **`git grep` por `.validation` fora da rota devolve uma única linha, e ela é um
+comentário** em `components/NegativePriorityAlert.tsx:11`, com a palavra "validation"
+dentro de um título em inglês. **Nenhum ponto de consumo lê o campo.**
+
+⚠ **A contagem anterior de "quatro pontos" não se reproduz como quatro
+consumidores.** O que esta busca devolve é **um consumidor com quatro elos**. E
+`app/decisor/projetos/page.tsx:205`, que também testa `data.success`, é da rota
+`/api/calculate`, conferido em `:199`, **não desta**.
+
+### Achado adjacente, sem correção nesta rodada
+
+**Estabelecido por leitura**, `route.ts:1651-1654`:
+
+```
+const aiGrade = extractGradeFromReview(review);
+const finalNota = aiGrade?.nota ?? classification.nota;
+const finalVeredicto = aiGrade?.veredicto ?? classification.veredicto;
+```
+
+**A nota e o veredito exibidos vêm do TEXTO do parecer**, extraídos dele, com queda
+para a classificação calculada só quando a extração falha. O comentário da linha
+1651 chama isso de fonte única, e `metadata.gradeSource` registra qual das duas
+valeu. ⚠ **Consequência a registrar sem decidir:** o mesmo texto que a verificação
+reprova é a fonte do veredito apresentado. **Isso toca a apresentação e PODE
+pertencer ao escopo da correção; a inclusão é decisão do pesquisador.**
+
+### Linha de base da suíte, nesta rodada
+
+`npm test` sai **0**, com **5 suítes e 91 testes**. A rodada não altera código, e a
+suíte serve só de linha de base.
+
+### Decisões pendentes de F06
+
+⚠ **Atenção: nenhuma destas está decidida.** O que segue são as opções com o que a
+medição diz sobre cada uma. Recomendação, onde houver, está registrada **como
+recomendação**.
+
+1. **Consequência da reprovação:** bloquear a devolução, ou devolver com quarentena
+   visível na interface. **A medição não escolhe entre as duas**, e o aceite de A.27
+   admite ambas.
+2. **Tratamento dos avisos:** se aviso também suspende a apresentação ou apenas
+   aparece. ⚠ **A medição mostra que a decisão importa mais do que parecia:** o
+   escore fictício com ponto produz **aviso**, não *issue*, e com vírgula não produz
+   nada. **Tratar só `issues` deixaria o caso do ponto passar.**
+3. **Verificação inconclusiva:** o que fazer quando a regra não consegue julgar.
+   ⚠ **Este estado existe, e está medido:** com vírgula decimal, a regra 5 nem chega
+   a comparar, porque a guarda `> 0` a interrompe. **Hoje o inconclusivo é
+   indistinguível do aprovado**, nos dois casos ausência de achado.
+4. **Escopo:** se a origem da nota e do veredito, do achado adjacente, entra na
+   correção.
+
+**Recomendação, e é recomendação:** qualquer saída escolhida precisa distinguir três
+estados na resposta, e não dois, porque hoje "verificado e aprovado", "verificado com
+aviso" e "não foi possível verificar" chegam à interface com a mesma forma, que é
+`success: true` com o texto inteiro.
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
