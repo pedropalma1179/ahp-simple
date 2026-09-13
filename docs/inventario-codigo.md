@@ -99,6 +99,12 @@ lógica, para que o handler da rota possa ser exercitado em teste. **A síntese 
 veio junto:** as cinco fórmulas seguem em `calculateAlternativeScores`, na rota, e
 a duplicação em relação ao `synthesizeBOCR` é achado da seção 2.4 do âncora.
 
+⚠ **O teste do handler não resolve essa duplicação nem a reduz.** Ele mostra que a
+cópia da rota reproduz a Tabela 12 **no caso de referência**; não mostra
+equivalência para toda entrada. **Diferença medida:** a cópia tem **cinco clamps
+`EPS_GUARD = 1e-12`** e o `synthesizeBOCR` **nenhum** — divergiria com mérito de
+peso nulo.
+
 ⚠ **`lib/ahp-ipc.ts` (486L) e `lib/graph-utils.ts` (328L) foram REMOVIDOS em
 `0ac4e95`, com A.21.** O instrumento aceita somente respostas completas, então não
 há LLSM nem grafo de comparações a manter.

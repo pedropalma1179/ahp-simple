@@ -42,7 +42,7 @@ const REFERENCIA: Record<
  * Ele não é artefato do teste: a seção 6 de `referencia-cr-individuais.md`
  * caracteriza o caso — R12 em SUB-B tem matriz perfeitamente consistente, o CR sai
  * -3,97e-16 em ponto flutuante, e a tabela registra `-0,00%`. O fenômeno tem teste
- * próprio abaixo, para que a normalização aqui não o esconda.
+ * próprio abaixo, com a ressalva de que preservá-lo NÃO é requisito metodológico.
  */
 const pct = (x: number) => Number((x * 100).toFixed(2)) + 0;
 
@@ -78,10 +78,22 @@ describe('CRs por respondente contra a referência de 09/09/2026', () => {
     expect(pct(w.meanCR)).toBeCloseTo(esperado.medio, 1);
   });
 
+  /**
+   * ⚠ RESSALVA, e ela importa mais que o teste: **`-0` NÃO é requisito
+   * metodológico.** É propriedade do último bit de um `double` numa matriz
+   * perfeitamente consistente — duas classes com razão 3, B1=B2=B3 e B4=B5 —, onde
+   * `lambdaMax` é exatamente `n` em aritmética real e 4,99999999999999822 em ponto
+   * flutuante.
+   *
+   * **O critério metodológico continua sendo o CR dentro da tolerância numérica
+   * definida.** Este teste existe para CARACTERIZAÇÃO: mostra que a migração
+   * preserva o último bit, e não só o valor arredondado, o que é evidência de que o
+   * caminho de cálculo não mudou. **Se uma mudança futura fizer este valor virar
+   * `+0` ou `1e-17`, isso não é regressão metodológica** — é outra soma em ponto
+   * flutuante, e o teste é que deve ser reescrito, com a nota correspondente na
+   * seção 6 de `docs/referencia-cr-individuais.md`.
+   */
   test('R12 em SUB-B reproduz o zero NEGATIVO da referência, seção 6', () => {
-    // Matriz perfeitamente consistente, duas classes com razão 3: B1=B2=B3 e
-    // B4=B5. lambdaMax é n em aritmética real e 4,99999999999999822 em ponto
-    // flutuante. A migração preserva o último bit, não só o valor arredondado.
     const w = calculateRespondentWeights(julgamentosDe('R12'), ALTS);
     const cr = w.subWeights.B.cr;
     expect(cr).toBeLessThanOrEqual(0);

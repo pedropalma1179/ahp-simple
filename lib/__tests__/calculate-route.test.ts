@@ -14,6 +14,14 @@
  * duplicação em relação ao `synthesizeBOCR` segue registrada como achado da seção
  * 2.4 do âncora, com tarefa própria.
  *
+ * ⚠ **O QUE ESTE ARQUIVO NÃO DEMONSTRA.** Que as duas implementações da síntese são
+ * equivalentes. Ele confere a da rota contra a Tabela 12 **no caso de referência** —
+ * um painel, doze respondentes, duas alternativas. **A diferença entre as duas está
+ * medida:** a cópia da rota tem cinco clamps `EPS_GUARD = 1e-12` e o
+ * `synthesizeBOCR` do motor não tem nenhum, o que divergiria justamente na borda,
+ * com mérito de peso nulo. **A pendência de unificação da seção 2.4 continua de pé,
+ * e este teste não a reduz.**
+ *
  * O Firestore entra por mock, com os documentos montados do fixture do painel de
  * 2026, e o `setDoc` é espionado — é o que permite afirmar "nenhuma escrita".
  */
