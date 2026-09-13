@@ -35,9 +35,14 @@ que nenhuma confirmação teria revelado.
 do Lee (A.11 etapa 1) e a etapa que testará A.12, ambas com predição já escrita.
 
 ⚠ **Entrada e saída bruta:** todas as execuções usaram o mesmo projeto e o
-documento `calculations` de 13/07/2026. **Os textos brutos das execuções 1 e 2
-estão nos anexos deste documento**; das execuções 3 a 6 não foram anexados, por
-falha de upload, e as seções registram o que foi conferido na tela.
+documento `calculations` de 13/07/2026. **Os textos brutos das execuções 1, 2 e 5
+estão neste documento** — as duas primeiras nos anexos, a da execução 5 na própria
+seção dela, sob "Texto bruto da execução 5". Os das execuções 3, 4 e 6 não foram
+anexados, por falha de upload, e as seções registram o que foi conferido na tela.
+
+⚠ **Correção de 12/09/2026:** este parágrafo dizia que os textos das execuções
+**3 a 6** não estavam anexados. **O da execução 5 está**, e foi por ele que a linha
+de base do bloco de completude pôde ser medida em três textos, não dois.
 
 ---
 
@@ -542,6 +547,79 @@ Os dois casos que o geraram são as duas metades da mesma frase:
 
 Não é conselho de redação: é a leitura das classes D e E juntas, e cada metade
 tem caso medido.
+
+### Linha de base do bloco condicional de completude, e uma hipótese
+
+Medido em **12/09/2026**, antes de qualquer edição, como pré-requisito da predição
+de A.21.
+
+O `system-prompt.ts`, linhas 356 a 360, traz o bloco `### Completude das Matrizes
+(se ipcMetadata disponível)`, que manda: *"Se todos EIGENVECTOR → matrizes
+completas, nenhuma ação. Se algum LLSM_IPC → reportar quais grupos, completude, e
+implicação"*, e ainda uma mitigação, *"Se completude < 60% → Considerar solicitar
+comparações adicionais aos respondentes"*.
+
+⚠ **O `ipcMetadata` nunca chega ao modelo.** O payload do parecer é montado campo a
+campo em `resultados/page.tsx:1170-1275` e **não inclui o campo** — medido, zero
+ocorrências no arquivo inteiro. A rota do parecer o injetaria (`route.ts:1091-1093`)
+se o recebesse, e o `analyzeIPC` (`bias-detection.ts:417`) sai na primeira linha
+quando ele falta. **O bloco do prompt é enviado sempre; o dado que ele pressupõe,
+nunca.**
+
+**O que os três textos brutos disponíveis mostram** — execução 1, execução 2 e
+execução 5, todas com o bloco presente no prompt:
+
+| Termo | Ocorrências nos três textos |
+|---|---|
+| `EIGENVECTOR` / autovetor | **0** |
+| `LLSM` | **0** |
+| "comparações adicionais" | **0** |
+| `incomplet*` | **0** |
+| Bozóki | **0** |
+| grafo / graph | **0** |
+| `complet*` | 3 a 4 por texto, **todas de outro assunto**: "formação completa", "síntese subtrativa completa (Eq. 17)", "análise de sensibilidade completa" |
+
+**A medição, como medição:** nos três pareceres examinados **não foram observadas
+menções indevidas à completude** associadas a esse bloco condicional.
+
+⚠ **A leitura entra como HIPÓTESE, não como achado:** o contraste com o caso do N
+ausente sugere uma hipótese sobre a **forma** da instrução — condicional versus
+imperativa —, **ainda não testada isoladamente.** Os dois casos diferem em
+**assunto, dado exigido e contexto**, não só na forma, e esta série não isola essa
+variável. A DIRETRIZ 1 dizia "aplique Escobar comparando o CR do grupo com os CRs
+individuais dentro da mesma matriz" e o modelo produziu o N faltante; este bloco diz
+"se algum grupo for LLSM_IPC, reporte" e o modelo não reportou. **É um par de
+observações, não um experimento.**
+
+### Predição de A.21, registrada antes da execução
+
+A tarefa remove o bloco `### Completude das Matrizes` do `system-prompt.ts`, o tipo
+e o mapeamento de `ipcMetadata` na rota do parecer e o `analyzeIPC`.
+
+**Predição, e ela é de regressão de atribuição, não de teste causal da hipótese
+acima.** O próximo parecer:
+
+1. **não atribui à execução** uso de LLSM nem preenchimento de comparações
+   ausentes;
+2. **não afirma ter recebido** indicadores de completude;
+3. **não recomenda completar matrizes** com base em indicador inexistente.
+
+⚠ **"Zero menções" NÃO é o critério.** Mencionar autovetor pode ser **correto**:
+EIGENVECTOR é o método que o sistema usa, e afirmar que as respostas estão completas
+pode ser **verdadeiro**. **A contagem de termos serve de triagem; a aprovação exige
+ler a afirmação no contexto.**
+
+**Caso negativo nomeado:** o parecer **afirma que a execução utilizou LLSM,
+preencheu comparações ausentes ou recebeu indicadores removidos do payload**, ou
+**recomenda completar matrizes com base nesses indicadores inexistentes.**
+
+**Observação de controle, não requisito de aprovação:** a faixa dos CRs individuais
+e a tabela de pesos BOCR, que a tarefa não toca.
+
+⚠ **O que esta predição NÃO pode demonstrar:** que a remoção causou a ausência. A
+ausência já estava lá **com o bloco presente**, nos três textos medidos. Uma
+observação depois da remoção é **verificação de regressão**, não evidência sobre a
+forma da instrução.
 
 ### Seis superfícies de desancoragem
 
