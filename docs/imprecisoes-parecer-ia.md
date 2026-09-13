@@ -3700,6 +3700,80 @@ fronteira de ineditismo está pendente — ver 0.3 do âncora. E o **ACEITO depe
 falsa conformidade de 100%** do item 3: o log mostra o veredito derivado do score
 100, que vem dos CRs em cache.
 
+### Apuração de localizadores: primeira execução do script sobre este parecer
+
+```
+node scripts/verify-citations.mjs <parecer da execução 7>      # saída 1
+```
+
+Rodado em 12/09/2026 sobre o arquivo de SHA-256 `bcdfe5a3…a8fd9`. Script na versão
+de `a4410f0`. **Saída bruta:**
+
+| | |
+|---|---|
+| Citações com localizador | **21** |
+| `OK`, página de claim | **6** (29%) |
+| `DIVERGE_NA_FAIXA` | **1** — Saaty (1987, p. 165) |
+| `DIVERGE_FORA_DA_FAIXA` | **14** (67%) |
+| `NAO_INDEXADO` | **0** |
+| Citações sem localizador | 18 |
+
+⚠ **O 67% NÃO é taxa de erro de localizador do parecer, e a conferência à mão é o
+que mostra isso.** As 14 divergências são de **quatro naturezas diferentes**, e o
+agregado as soma:
+
+| Natureza | Casos | O que se pode afirmar |
+|---|---|---|
+| **Página inverificável por falta de faixa** | Saaty e Vargas (2012), p. 15 e p. 139 | É **livro** (Springer, sem faixa no `abnt`), e o script só tem as páginas das claims, de 4 a 40. Para um livro, "fora da faixa" **não é erro demonstrado: é ausência de referência contra a qual comparar** |
+| **Forma de página relativa** | Mu p. 8 (artigo 364-393), Escobar p. 1 (318-322), Lee p. 4 (120-126), Saaty e Ozdemir p. 1 (1063-1075), Saiyed p. 9 (1773-1797), Xu p. 68 (683-687) | A página citada **tem a forma da paginação do PDF**, não a do periódico. ⚠ **É observação de forma, não demonstração:** ver o achado abaixo — o contexto não entrega página nenhuma, então o modelo não teria de onde tirar a paginação relativa |
+| **Fora de qualquer convenção** | Ossadnik p. 611 (artigo 421-457), Saaty e Ergu p. 753 e p. 754 (1171-1187), Ishizaka e Labib p. 14 (14336-14345, artigo de dez páginas), Salomon p. 468 | Nem página do periódico nem página relativa plausível |
+| **Um a mais que o fim do artigo** | Forman e Peniwati p. 170 (artigo 165-169, claims em 166, 167 e 168) | Ver o caso abaixo: **o prompt ensina p. 167** |
+
+⚠ **Duas ressalvas sobre a própria base, que o agregado também absorve:** o
+`salomon2024_consistency` tem claims em páginas **relativas** (1 a 7) e `abnt` que
+declara `p. 828`, que na *Mathematics* é **número de artigo, não faixa** — ele não
+está entre os sete convertidos em `23afe43`. E o script conta **"37 artigos
+indexados"** porque inclui o `_template.ts`, cujo `abnt` é `null`: são **36**.
+
+### O achado desta apuração: o contexto injetado NÃO entrega página nenhuma
+
+Medido em `f9cbf94`, sobre as quatro seções estáticas que compõem a "BASE DE
+CONHECIMENTO CIENTÍFICO" e as três de limiares, fórmulas e benchmarks:
+
+| O que foi medido | Resultado |
+|---|---|
+| Campos de cada referência injetada | `id`, `citation`, `topic`, `rule`, `context`, `weight` — **sem página** |
+| Das 135 referências injetadas, quantas mencionam página | **0** |
+| Menções de página em `ragThresholds`, `ragFormulas`, `ragBenchmarks` | **0, 0, 0** |
+| Menções de página no `system-prompt.ts` | **12**, que são **três pares distintos**: Saaty (1977, p. 248), Wijnmalen (2007, p. 899 e p. 903), Forman e Peniwati (1998, p. 167) |
+
+**Consequência, e ela reorganiza a leitura das 21 citações:** o parecer produziu
+**21 localizadores a partir de um contexto que contém três**. Dezoito páginas não
+têm origem no que o modelo recebeu.
+
+**Cruzamento com os vereditos:**
+
+- **Os dois pares que o prompt ensina e o parecer usou saíram `OK`:** Saaty (1977,
+  p. 248) e Wijnmalen (2007, p. 903).
+- **Quatro `OK` não têm origem no contexto:** Saaty (1986, p. 843), Petrillo (2023,
+  p. 2), Saaty e Vargas (2012, p. 9) e Dodevska (2023, p. 4) coincidem com página de
+  claim **sem que a página estivesse em lugar algum do que foi enviado**.
+- ⚠ **E o terceiro par ensinado foi DESRESPEITADO:** o prompt traz
+  `Forman & Peniwati, 1998, p. 167` na linha 176, a base tem claims em 166, 167 e
+  168, **e o parecer escreveu p. 170** — uma página além do fim do artigo. **Ter a
+  página correta no contexto não garantiu que ela fosse usada.**
+
+⚠ **O que isto NÃO estabelece.** Não estabelece que as dezoito páginas sem origem
+sejam invenção: podem vir de conhecimento paramétrico, e quatro delas **acertaram**.
+Não estabelece qual mecanismo produziu cada acerto ou cada erro. E não substitui a
+conferência contra o PDF, que é a única que separa divergência de atribuição de
+falha de cobertura da base.
+
+**O que estabelece:** que a ancoragem de página do parecer **não é rastreável ao
+contexto recuperado**, porque o contexto não a contém. **É uma sexta superfície pela
+qual a citação se desancora, e a mais barata de fechar:** as claims têm
+`evidence.page`, e a injeção simplesmente não o passa adiante.
+
 ### F09 — a recuperação semântica FALHOU nesta execução, em silêncio, e a etapa não está localizada
 
 Achado novo, medido no log desta execução:
