@@ -3572,7 +3572,7 @@ A ausência já estava lá nas três execuções anteriores, **com o bloco prese
 que esta execução estabelece é regressão de atribuição, não a influência da forma da
 instrução.
 
-### 2. Saiyed voltou, e o CANAL ESTÁ CONFIRMADO: injeção estática, não semântica
+### 2. Saiyed voltou, e a presença no contexto está demonstrada: injeção estática, não semântica
 
 O parecer cita "High power leads to cognitive biases..." e associa a presença de
 diretores e executivos a preocupação com viés. **A execução 5, sobre `28f4a95`,
@@ -3600,9 +3600,12 @@ registrava ausência de Saiyed, Neely e Ayan.**
 entrada `Saiyed et al. (2023)`, que o prompt entrega duas vezes, em duas seções
 diferentes da "BASE DE CONHECIMENTO CIENTÍFICO".
 
-⚠ **Portanto o RAG deixa de ser hipótese de canal nesta execução: é o canal medido.**
-E **conhecimento paramétrico não é necessário para explicar o retorno** — o que não
-o descarta como contribuição adicional.
+⚠ **O que isto estabelece, e só isto: a PRESENÇA da passagem no contexto enviado**,
+demonstrada pelo caminho executável (`route.ts:1147` e `:1155`) e pelo texto
+entregue. **Não determina quanto essa presença influenciou a geração**, e **não
+explica a ausência na execução 5** — o mesmo caminho estático existia em `28f4a95`.
+**Conhecimento paramétrico não é necessário para explicar o retorno**, o que não o
+descarta como contribuição adicional.
 
 ⚠ **E o canal semântico não participou:** o log traz cinco
 `[rag/semantic-retrieve] retrieval failed (silent failover): Unexpected end of JSON
@@ -3680,7 +3683,7 @@ fronteira de ineditismo está pendente — ver 0.3 do âncora. E o **ACEITO depe
 falsa conformidade de 100%** do item 3: o log mostra o veredito derivado do score
 100, que vem dos CRs em cache.
 
-### F09 — o canal semântico do RAG está QUEBRADO em produção, e falha em silêncio
+### F09 — a recuperação semântica FALHOU nesta execução, em silêncio, e a etapa não está localizada
 
 Achado novo, medido no log desta execução:
 
@@ -3692,14 +3695,32 @@ Achado novo, medido no log desta execução:
 **As cinco consultas falharam e o parecer foi gerado com zero chunks semânticos.** A
 seção "Evidências Semânticas Recuperadas (RAG Vetorial)" do prompt foi ao modelo
 vazia. **Nada na saída sinaliza isso** — é o modo de falha que este documento
-descreve, agora no recuperador.
+descreve, agora no recuperador. O caminho estava **ligado**: a linha de resumo só é
+impressa quando `semanticStats.enabled`, o que fixa `USE_RAG_SEMANTIC = true` neste
+deploy.
 
-⚠ **Consequência para A.18:** a reingestão pressupõe um índice que responde. **O
-estado atual não é "índice com dados antigos": é índice que não responde.** Medir a
-causa antes de reingerir.
+⚠ **O que está demonstrado é a FALHA DA RECUPERAÇÃO nesta execução, não que o índice
+esteja inacessível.** Correção de redação, 12/09/2026: a versão anterior desta seção
+afirmava que "o estado atual não é índice com dados antigos, é índice que não
+responde". **Isso excede a medição.**
+
+**Por que a mensagem não localiza a etapa:** o `catch` de
+`lib/rag/semantic-retrieve.ts:47` envolve **duas** chamadas — `embed(query, 'query')`
+na linha 45 e `querySimilar(vector, topK)` na 46. `Unexpected end of JSON input` pode
+vir do processamento da resposta de **qualquer uma das duas dependências**, e o log
+não distingue. **Índice desatualizado e recuperação falhando são condições
+independentes: uma não substitui a outra, e as duas podem valer ao mesmo tempo.**
+
+⚠ **E o campo `failedQueries` não conta falhas.** Medido em `route.ts:95`:
+`results.filter((r) => r.length === 0).length` — conta **resultado vazio**, então
+reúne consulta sem resultados e consulta com erro na mesma contagem. **Nesta
+execução, a evidência da falha são os cinco `console.warn`, não o campo.** Quem ler
+apenas a linha de resumo não consegue distinguir um índice vazio de um recuperador
+quebrado.
 
 ⚠ **Consequência para as execuções anteriores:** o quanto o caminho semântico
-contribuiu em cada uma **não está registrado**, porque o log só guarda contagens.
+contribuiu em cada uma **não está registrado**, porque o log só guarda contagens — e
+essas contagens têm a ambiguidade acima.
 
 ### F10 — a seção de 60 entradas é calculada e nunca injetada
 
@@ -3732,3 +3753,87 @@ commit e no deploy nomeados acima.
 sustentando 100% de conformidade e o veredito; reapareceu a interpretação do perfil
 profissional, agora com canal medido; e há atribuição cronologicamente impossível que
 o validador não cobre.
+
+---
+
+## Anexo 3: metadados e trechos da execução 7
+
+### Metadados da execução, do log de produção
+
+| Campo | Valor |
+|---|---|
+| Requisição | `POST /api/ai-reviewer` → **200** |
+| Instante | **2026-09-13T01:59:11Z** (12/09, 22:59 local) |
+| Deploy | `dpl_orQbNxPZQP8htwtZPvdUZ5gPhSbP`, target `production`, branch `main`, cache `MISS` |
+| Commit | **`f9cbf94550afb00fbe84d62a253be7357f8aa10b`** (`f9cbf94`) |
+| Deploy criado | 12/09/2026 22:51:56 local, estado `READY` |
+| Versão do código no log | `AI-REVIEWER v7.3.2` |
+| Modelo | `claude-opus-4-6`, com aviso de `thinking.type=enabled` depreciado |
+| Recuperação semântica | ligada, **5 consultas, 5 vazias, 0 chunks** |
+| Veredito emitido | `A (100/100) - ACEITO`, extraído da DECISÃO EDITORIAL |
+
+⚠ **O TEXTO INTEGRAL DO PARECER NÃO ESTÁ AQUI, e a razão é registrada em vez de
+contornada:** ele não foi fornecido na sessão que produziu este registro. O que
+existe é o conjunto de trechos abaixo, citados na leitura, mais o prefixo que o log
+de produção preserva. **Enquanto o integral não entrar, esta execução é a única da
+série sem dado primário completo**, e as seções 1 a 6 acima valem como leitura sobre
+citação parcial.
+
+**Para fechar a pendência basta colar o texto do parecer nesta seção.** Não
+reconstruir a partir dos trechos: a geração é estocástica e um texto recomposto não é
+o texto gerado.
+
+### O que o log preserva do início do parecer
+
+```
+## 📋 RESUMO DA SUBMISSÃO
+
+O estudo aplica o método AHP-BOCR para comparar duas alternativas tecnoló…
+```
+
+(o log trunca aqui; é o único trecho do corpo que a infraestrutura guarda)
+
+### Trechos citados na leitura, verbatim como foram reportados
+
+| # | Trecho | Onde a seção o trata |
+|---|---|---|
+| 1 | "High power leads to cognitive biases…" | item 2 |
+| 2 | associação entre presença de diretores e executivos e preocupação com viés | item 2 |
+| 3 | faixa **1,1%–9,6%**, **100% de conformidade**, nenhum respondente acima de 20% | item 3 |
+| 4 | condição suficiente de Xu satisfeita, dispensa de intervenções | item 3 |
+| 5 | "Schmidt, 2015, citado em Ishizaka & Labib, 2011" | item 4 |
+| 6 | razão **2,38:1** entre escores e "variações de grande magnitude" | item 5 |
+| 7 | "constitui contribuição original" | item 6 |
+| 8 | veredito **ACEITO** | item 6 |
+
+### Avisos do validador na mesma requisição, verbatim do log
+
+```
+CITACAO_INCOMPLETA: "Salomon (2024" — paper coautorado com Gomes; cite como "Salomon & Gomes (2024)"
+CITACAO_INCOMPLETA: "Kabak (2014" — paper coautorado com Dağdeviren; cite como "Kabak & Dağdeviren (2014)"
+CITACAO_INCOMPLETA: "Escobar (2004" — paper tem 3 autores; cite como "Escobar et al. (2004)"
+CITACAO_INCOMPLETA: "Lee (2009" — paper tem 3 autores; cite como "Lee et al. (2009)"
+CITACAO_INCOMPLETA: "Schmidt, 2015" — paper tem 5 autores; cite como "Schmidt et al. (2015)"
+CITACAO_INCOMPLETA: "Escobar, 2004" — paper tem 3 autores; cite como "Escobar et al. (2004)"
+ATRIBUICAO_SUBOTIMA: "Saaty (2003)" em contexto BOCR — para hierarquia de controle e fórmulas de síntese BOCR use "Saaty & Ozdemir (2003)"
+```
+
+⚠ **Sete avisos, nenhum bloqueio**, e o quinto toca o mesmo trecho da atribuição
+impossível **sem ver o problema**: corrige a contagem de autores de Schmidt e não
+questiona um artigo de 2011 citando um de 2015. É F06 em ação.
+
+### Payload, no que o log revela
+
+```
+bocrWeights: {"Benefits":0.37227664688843276,"Opportunities":0.1517028115083517,
+              "Costs":0.19743689619605773,"Risks":0.27858364540715785}
+demographicsSummary.fields.funcao: ["diretor","gerente","c_level"]
+sensitivityInflections: {"O":null,"C":null,"R":null,"B":null}
+Bias: CRs mapeados: CR=0.010504514795322372, CR=0.035945896757571656, CR=0.020820121915492394
+Usando statistics.byStatus: 12✅ 0⚠️ 0❌ 0❓   →   Validade: 100.0%   →   Score final: 100/100
+finalScores: firstValid { code: 'A1', score: 0.06412946722825451 }
+```
+
+⚠ **Os três CRs que o log mostra ficam entre 1,05% e 3,59%** — são do cache de maio,
+não os recalculados de 11,39% a 109,27%. **É a origem numérica do "100% de
+conformidade"**, e ela chega ao parecer pelo payload, não pelo prompt.
