@@ -4314,6 +4314,95 @@ valeu. ⚠ **Consequência a registrar sem decidir:** o mesmo texto que a verifi
 reprova é a fonte do veredito apresentado. **Isso toca a apresentação e PODE
 pertencer ao escopo da correção; a inclusão é decisão do pesquisador.**
 
+### Eixo 1 implementado: detecção e classificação dos resultados numéricos
+
+**Medido em 13/09/2026.** Dois commits sobre `54f118a`, publicado: **`7394cef`**,
+extração mecânica, e **`0f99fad`**, as três mudanças de comportamento. ⚠ **Esta
+etapa NÃO é proteção efetiva**, e a razão está no fim desta seção.
+
+#### O que mudou, e só isto
+
+| # | Mudança | Onde |
+|---|---|---|
+| 1 | a expressão de escores passou de `[\d.]+` para `[\d.,]+`, em fábrica para não herdar `lastIndex`, e o valor é normalizado antes de comparar. **Tolerância e casas inalteradas:** seguem `toFixed(4)` e `toFixed(6)`, e a guarda `> 0 && < 1` é a mesma | `lib/ai-reviewer/validate-review.ts:55` e `:58` |
+| 2 | `SCORE_NAO_RECONHECIDO` saiu de `warnings` e entrou em `issues`. **O texto da mensagem não mudou; mudou o balde** | `:148` |
+| 3 | `ValidationResult` ganhou `estado` (`aprovado`/`reprovado`/`inconclusivo`) e `inconclusivos[]`; `isValid` passou a ser `issues.length === 0 && inconclusivos.length === 0` | `:33`, `:186`, `:190` |
+
+⚠ **Por que o inconclusivo leva `isValid: false`:** a resposta não pode declarar
+"válido" e "inconclusivo" ao mesmo tempo. Quem precisa distinguir reprovado de
+inconclusivo lê `estado`, que tem três valores, e não `isValid`, que tem dois.
+
+**Precedência, implementada e testada:** havendo reprovação por outra regra **e**
+inconclusão numérica, prevalece **reprovado** no estado, e o motivo da inconclusão
+**é preservado** em `inconclusivos`, sem substituir o veredito.
+
+#### Os seis casos pelo handler real, antes e depois
+
+**Mesmo instrumento fora da árvore versionada**, cliente do modelo simulado,
+nenhum parecer real gerado. **Casos 1 a 4 com texto idêntico, variando só o valor
+no mesmo ponto.**
+
+| # | Entrada | ANTES de `0f99fad` | DEPOIS |
+|---|---|---|---|
+| 1 | referência, vírgula | `isValid true`, 0 *issues* | **aprovado**, 0 *issues* |
+| 2 | referência, ponto | `isValid true`, 0 *issues* | **aprovado**, 0 *issues* |
+| 3 | fictício, vírgula | `isValid true`, 0 *issues* | **reprovado**, 1 *issue* |
+| 4 | fictício, ponto | `isValid true`, 0 *issues*, 2 avisos | **reprovado**, 1 *issue*, 1 aviso |
+| 5 | afirmação sem referência válida | `isValid true`, 0 achados | **inconclusivo**, 1 motivo |
+| 6 | **controle**, sem afirmação | `isValid true`, 0 achados | **aprovado**, 0 achados |
+
+**Três leituras que a tabela exige, e nenhuma é decorativa:**
+
+1. **O caso 1 tem o mesmo resultado observável antes e depois, e a causa mudou.**
+   Antes o silêncio vinha de a vírgula **impedir** a comparação; agora vem de
+   comparação **feita** que confere. ⚠ **Resultado igual não é comportamento
+   igual**, e é por isso que a extração de `7394cef` foi conferida caso a caso
+   antes de mexer em nada.
+2. **No caso 4 os avisos caíram de dois para um** porque o achado de escore mudou
+   de balde. O aviso remanescente é `FORMULA_INCOMPLETA`, **fora deste eixo e não
+   tocado**.
+3. **O caso 6 continua não sendo inconclusivo.** Falta a **afirmação**, não a
+   referência, e regra sem afirmação aplicável não roda. ⚠ **Era o risco nomeado
+   antes de implementar:** criar um estado que dispara onde não há o que julgar.
+
+#### A extração, e a premissa que não se sustentava
+
+`7394cef` moveu 256 linhas da rota para `lib/ai-reviewer/`, em **dois** arquivos:
+`validate-review.ts`, com o validador, e `review-request.ts`, com o contrato da
+requisição e `getValidFinalScores`. **Dois, e não um, por medição:** `ReviewRequest`
+arrasta `IndividualStats` e `RespondentData` e tem **três consumidores que nada têm
+a ver com validação** — `calculateGrade`, `normalizeRequest` e `generateReview` —,
+e fazê-los importar de um arquivo chamado `validate-review.ts` seria dependência
+enganosa.
+
+⚠ **A premissa de que a extração era necessária para testar o validador NÃO se
+sustenta**, e fica registrada porque é da mesma família já corrigida em A.21.
+`roots`, no `jest.config.js`, limita onde os testes são **descobertos**, não de onde
+importam, e o ensaio de F06 exercitou o handler real sem exportar nada da rota. **A
+extração serve à legibilidade do teste e à separação entre movimento de código e
+mudança de comportamento** — que é a regra do `CLAUDE.md` —, não a uma restrição do
+jest.
+
+**Conferência da extração:** os seis casos pelo handler deram resultado **idêntico**
+antes e depois, com o corpo inteiro da resposta comparado. **Excluído da
+comparação: apenas `metadata.timestamp`**, o instante da execução, variável por
+natureza. Nada mais foi excluído.
+
+#### Consequência medida, registrada e não corrigida aqui
+
+**Com resultado puramente inconclusivo, a rota passa a registrar
+`VALIDAÇÃO FALHOU: []` no console**, porque o log depende de `!isValid` e imprime
+`issues`, que está vazio nesse caso. **É log, não resposta.** Corrigi-lo pertence ao
+eixo 2, que trata do contrato e da apresentação.
+
+#### Por que A.27 continua aberta
+
+⚠ **Medido, e não é ressalva de estilo:** nos seis casos, depois de `0f99fad`, a
+resposta seguiu com **`success: true`, `nota: A` e `veredicto: ACEITO`**, e o texto
+voltou **inteiro**, inclusive nos dois que agora reprovam. **O que existe ao fim do
+eixo 1 é o resultado da verificação disponível e não consultado.** O eixo 2 é o que
+o torna efetivo, e só ele fecha o aceite.
+
 ### Linha de base da suíte, nesta rodada
 
 `npm test` sai **0**, com **5 suítes e 91 testes**. A rodada não altera código, e a

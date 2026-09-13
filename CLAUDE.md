@@ -150,15 +150,18 @@ npm run build     # 17 páginas
 npx tsc --noEmit  # sai 0
 ```
 
-⚠ **Medição vigente, em 13/09/2026, no commit `8624cf0`:** `npm test` sai 0 com
-**5 suítes e 91 testes**, nenhuma falha.
+⚠ **Medição vigente, em 13/09/2026, no commit `0f99fad`:** `npm test` sai 0 com
+**6 suítes e 98 testes**, nenhuma falha.
 
 **Ambiente da medição, e é ambiente observado, não requisito do repositório:**
 Darwin arm64, Node v25.9.0, npm 11.12.1.
 
-**Outras execuções registradas, com ambiente e total:** runner do GitHub Actions em
-`a96aa34`, Node 24.x, 5 suítes e 91 testes; contêiner Linux x86_64 sobre clone em
-`8624cf0`, Node 22.22.2, 5 suítes e 91 testes, saída 0.
+**Outras execuções registradas, com ambiente e total:** o mesmo ambiente em
+`8624cf0`, 5 suítes e 91 testes, e em `7394cef`, 6 suítes e 97 testes; runner do
+GitHub Actions em `a96aa34`, Node 24.x, 5 suítes e 91 testes; contêiner Linux
+x86_64 sobre clone em `8624cf0`, Node 22.22.2, 5 suítes e 91 testes, saída 0.
+**A série cresce por testes novos, não por mudança de resultado:** os seis casos de
+`validate-review.test.ts` em `7394cef` e o teste de precedência em `0f99fad`.
 **São registros de execução, não afirmação de compatibilidade:** nenhuma matriz de
 versões foi testada.
 
