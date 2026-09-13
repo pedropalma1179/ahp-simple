@@ -3856,6 +3856,171 @@ o validador não cobre.
 
 ---
 
+## Validação computacional externa: diagnóstico da Fase 1
+
+**Commit examinado: `8624cf0`.** Os localizadores foram relidos nele, e o código é
+idêntico em `1fa59b4`: `git diff --stat 8624cf0..1fa59b4 -- '*.ts' '*.tsx'` sai
+vazio. Especificação, requisitos e decisões pendentes em
+`docs/validacao-externa-especificacao.md`; subitem de A.28 no âncora.
+
+⚠ **Limite que vale para o diagnóstico inteiro: o microserviço com AhpAnpLib NÃO
+está neste repositório.** Nada aqui estabelece o que ele calcula, o que compara ou
+com que tolerância. **A pergunta "os dois lados são efetivamente comparados?"
+permanece condicional**, e cada conclusão que dependa dela está marcada.
+
+### Os seis localizadores, reconfirmados
+
+| Citado | Em `8624cf0` |
+|---|---|
+| `app/api/validate-external/route.ts:52` | `return NextResponse.json(result);` |
+| `components/ExternalValidation.tsx:75` | `const hasRealMatrices = calculation.aggregatedMatrices?.bocr &&` |
+| `:202` | `console.warn('[ExternalValidation] Usando matrizes reconstruídas (legado)…')` |
+| `:301` | `result.all_valid ? 'VALIDAÇÃO APROVADA' : 'VALIDAÇÃO COM RESSALVAS'` |
+| `:391` | `"Os cálculos AHP do sistema foram validados contra a biblioteca AhpAnpLib` |
+| `:393` | `{matrixSource === 'real' ? ' reais' : ''} do projeto. A diferença máxima` |
+
+**Os seis conferem.** Zero divergência.
+
+### O que a API envia e o que volta
+
+**Envia**, por matriz: `{matrix, items, your_weights, your_cr}` — a matriz **e os
+resultados do sistema**. POST `/api/validate-external` com
+`{action: 'validate-project', matrices}` (`:207-212`). **Volta**:
+`{results, summary: {total_matrices, valid_matrices, max_weight_diff, max_cr_diff,
+issues}, all_valid, library, citation}`.
+
+**O componente não compara nada.** Envia os dois lados e exibe `max_weight_diff` e
+`max_cr_diff`. ⚠ **A comparação, se ocorre, ocorre no microserviço, que não foi
+lido.**
+
+### Achado 1: a matriz reconstruída é perfeitamente consistente por construção
+
+**Apuração, e é medição, não leitura do código.** Replicando exatamente
+`weightsToMatrix` (`:145-149`), que faz `matrix[i][j] = w[i]/w[j]`, sobre os
+`bocrWeights` do snapshot de 13/07 (`0.372277, 0.151703, 0.197437, 0.278584`), e
+passando o resultado pelo motor do próprio projeto (`principalEigenvector` e
+`consistency` de `lib/ahp-engine.ts`):
+
+| Grandeza | Valor medido |
+|---|---|
+| autovetor da matriz reconstruída | `0.372277, 0.151703, 0.197437, 0.278584` |
+| desvio máximo contra os pesos que a geraram | **2,776e-17** |
+| CR da matriz reconstruída | **0** exato |
+| λmax | **4,000000000000**, com n = 4 |
+| `your_cr` que o componente envia | **1,061e-2**, o CR real do sistema |
+
+**O que isto demonstra:** a matriz enviada no caminho reconstruído carrega o vetor
+de pesos e nada mais; seu autovetor é o próprio vetor que a gerou e sua
+inconsistência é nula.
+
+⚠ **O que isto NÃO demonstra, e a distinção é o ponto.** Não demonstra que a
+comparação no serviço "não pode reprovar". **Essa conclusão é CONDICIONAL:** vale
+**se** o serviço derivar o autovetor da matriz recebida e compará-lo a
+`your_weights`, e nesse caso a comparação de pesos é tautológica; e **se** ele
+derivar o CR da matriz e compará-lo a `your_cr`, a diferença de CR seria de
+**1,06 pontos percentuais contra zero**. **O serviço não foi lido, e a
+impossibilidade geral não está estabelecida.**
+
+**O que já estava registrado e permanece:** a linha de A.28 diz que o fallback
+"reconstrói a matriz a partir dos pesos, o que não equivale a validar os julgamentos
+originais". O que esta apuração acrescenta é o **valor medido** da propriedade, não
+a observação.
+
+### Achado 2: JSON inválido é omissão silenciosa, não falha
+
+`parseMatrix` (`:80-84`) devolve `null` em `catch`, e a matriz é então **descartada
+pela condição de guarda** (`:92`, `:104`, `:125`). **Não há erro, não há aviso, e
+não há queda para reconstrução** — `hasRealMatrices` já escolheu o caminho
+persistido. A matriz simplesmente não integra o `matrices` enviado, e
+`total_matrices` do resumo passa a contar só o que foi enviado.
+
+⚠ **Consequência a delimitar:** a tela pode exibir "3/3 matrizes válidas" com
+`all_valid: true` sobre um conjunto incompleto, **porque nada compara o que foi
+enviado contra o conjunto esperado**. Não medi essa exibição em execução: é leitura
+do caminho, e o estado correspondente é um dos nove requisitos da Fase 2.
+
+### Achado 3: a seleção do caminho não checa uma das matrizes
+
+`hasRealMatrices` (`:75-76`) testa `aggregatedMatrices?.bocr` e
+`aggregatedMatrices?.subcriteria`. **Não testa `.magnitude`.** Um documento com
+`bocr` e `subcriteria` e sem `magnitude` entra no caminho persistido, e a matriz de
+magnitude fica fora do envio pela guarda `:104`.
+
+**Não medido:** se existe documento nesse estado. O snapshot de 13/07 tem os três
+campos, medido: `aggregatedMatrices` com `bocr` (242 chars), `magnitude` (245) e
+`subcriteria` com `R, B, O, C`.
+
+### Achado 4: CR ausente vira zero
+
+`your_cr: calculation.bocrConsistency?.cr || 0` (`:98`), e a mesma forma em `:113` e
+`:133`. **CR ausente é enviado como 0**, que é consistência perfeita. É o inverso da
+convenção fixada em `docs/referencia-cr-individuais.md`: **célula vazia para
+indefinido, nunca zero.** `your_weights` ausente vira `[]` (`:134`).
+
+### Achado 5: o veredito governa cor e rótulo
+
+`all_valid` é usado em `:295`, `:298`, `:300`, `:301` e `:303`, e **em nenhum outro
+lugar do repositório** — busca por símbolo em `*.ts`, `*.tsx`, `*.mjs`, `*.py`,
+`*.json`. `matrixSource` em `:55`, `:275`, `:312` e `:393`, também só no componente.
+Importadores: `app/decisor/resultados/[projectId]/page.tsx:43` estático e `:4737` no
+render; nenhum reexport, nenhum `import()` dinâmico.
+
+⚠ **E o bloco da citação não depende do veredito.** Ele está dentro de
+`{result && …}` (`:388-397`) e não referencia `all_valid`: **com reprovação, o texto
+de aprovação é oferecido igual.** A linha `:393` troca apenas o qualificador,
+`{matrixSource === 'real' ? ' reais' : ''}`, então no caminho reconstruído a frase
+lê "as matrizes pareadas agregadas do projeto" — **descrição que não corresponde ao
+que foi enviado**, que é matriz derivada dos pesos.
+
+### Achado 6: três lugares oferecem texto pronto, não um
+
+| Local | O que oferece |
+|---|---|
+| `components/ExternalValidation.tsx:389-397` | "Citação para dissertação", afirma atestar a precisão matemática da implementação |
+| `components/NegativePriorityAlert.tsx:149-162` | "Texto Sugerido para Dissertação", com localizador `Lee (2009a, p.2891)` e recomendação de descartar alternativas |
+| `components/BiasAnalysisCard.tsx:427-441` | "Ver nota para dissertação", renderiza `biasAnalysis.academicNote`, gerado em `app/api/ai-reviewer/bias-detection.ts:215` |
+
+⚠ **`Lee (2009a, p. 2891)` não tem lastro no RAG:** os artigos indexados de Lee são
+`lee2009_wind.ts` e `lee2024_project.ts`, e A.11 registra Lee 2009a como não
+indexado. O número 2891 aparece uma vez na base, como **valor de célula** (`0.2891`)
+numa tabela de `lee2009_wind.ts:215`.
+
+**Não entram nesta lista, conferido:** o "Checklist para Dissertação"
+(`ExportReports.tsx:381`), que é lista de tarefas sem afirmação, e o `exportLatex`
+(`page.tsx:1663`), que exporta tabelas com `\caption` descritiva.
+
+⚠ **Os três contradizem a seção 1.3 do âncora**, que define painel de evidências e
+registra que o gestor não usa texto do software.
+
+⚠ **Limite da busca:** os padrões usados foram rótulo (`Citação para`,
+`para dissertação`, `para o manuscrito`), fragmentos da frase (`atestando`,
+`foram validados contra`, `precisão matemática`) e construção de texto
+(`citation:`, `latex`, `abnt`), em `*.ts` e `*.tsx`. **Texto equivalente com outra
+redação pode existir e não ser alcançado por esses padrões.**
+
+### A proveniência da Tabela 7: não há artefato que responda
+
+| Local consultado | Resultado |
+|---|---|
+| `docs/*.json` | só `calculations-13jul2026.json`, `calculatedAt: 2026-07-13T19:39:31.334Z`, `metadata.version: 5.0`, **com** `aggregatedMatrices` |
+| Resposta de validação guardada | nenhum arquivo do repositório contém `all_valid` ou `max_weight_diff` como dado |
+| Versões do manuscrito | nenhuma rastreada |
+| Backups de maio | `docs/ESTADO_ATUAL_07mai2026.md` e `_08mai2026.md`: zero ocorrências de `all_valid`, `max_weight_diff`, `AhpAnpLib`, "validação externa", "Tabela 7" ou `T7` |
+| Arquivos deletados no histórico | `_backup/20260205_165958/…`, de fevereiro, componentes de UI; nada de validação |
+| Logs | nenhum log de validação externa no repositório |
+
+⚠ **Delimitação, e ela é parte do achado:** a ausência vale para **o repositório git
+e o histórico de `git log --all`**, consultados em 13/09/2026. **Não cobre** o
+Firestore, o Railway, o Vercel nem arquivos locais fora do versionamento. **E busca
+sem ocorrência localiza lacuna; não demonstra ausência de conteúdo equivalente com
+outra redação.**
+
+⚠ **O snapshot de julho ter `aggregatedMatrices` não prova que a Tabela 7 saiu
+daquele caminho** — prova que, em 13/07, o campo existia. **A cronologia continua
+sem evidência**, e a afirmação de que a T7 é anterior ao recomputo permanece não
+estabelecida.
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
