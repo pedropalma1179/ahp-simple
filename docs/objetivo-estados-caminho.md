@@ -125,21 +125,35 @@ EVITADO, não cometido.** O levantamento revelou o problema antes da execução,
 procedimento funcionou. A terceira, sobre o botão de pular, registra um erro que
 eu cometi e corrigi na mesma rodada.
 
-⚠ **Mudança de decisão, registrada em 11/09/2026: os prompts de tarefa passam a
-ser versionados, em `tools/prompts/`.**
+⚠ **Terceira decisão sobre os prompts de tarefa, registrada em 13/09/2026, e é a
+que vale: os prompts NÃO são versionados no repositório.**
 
-Em `c9fc46f` os quatro documentos de conteúdo foram versionados e **os prompts
-ficaram fora**, com a razão de que guardar prompt executado no repositório é
-discutível.
+A sequência inteira, para que a próxima sessão não encontre três decisões
+contrárias sem saber qual vige. Em `c9fc46f` os quatro documentos de conteúdo
+foram versionados e os prompts ficaram fora, por se considerar discutível guardar
+prompt executado. Em 11/09/2026 a decisão mudou, e os prompts passariam a ser
+versionados em `tools/prompts/`, com o argumento de que o prompt registra os
+valores medidos na Fase 1 e os critérios de aceite. **O que foi medido:** na
+árvore de `8624cf0`, `tools/prompts/` continha apenas o README, e o prompt de
+validação externa foi identificado no commit local `b2ba0bc`, sem push.
 
-**O argumento que mudou:** o prompt registra os **valores medidos na Fase 1** e os
-critérios de aceite, o que permite conferir depois se o entregue era o pedido. Sem
-ele, a especificação da tarefa se perde: os prompts das primeiras vinte tarefas
-ficaram fora do repositório e alguns desapareceram, incluindo dois que tiveram de
-ser reescritos.
+**O que reverteu:** um prompt por tarefa é volume que cresce sozinho e atrapalha o
+fluxo, e o repositório é de código.
 
-**Esta entrada existe para que a próxima sessão não encontre duas decisões
-contrárias sem saber qual vale.** A que vale é esta.
+**A regra que substitui o versionamento:** escopo, medições e critérios de aceite
+ficam nos documentos da tarefa; o commit registra a alteração e a validação
+realizada. O prompt literal fica fora do repositório.
+
+⚠ **A regra é exigência, não constatação.** Não se conclui daqui que toda
+especificação já esteja preservada nos documentos. **Antes de retirar qualquer
+prompt existente, conferir essa cobertura**, item por item: se o prompt carrega
+escopo, medição ou critério de aceite que nenhum documento de tarefa registra, a
+retirada perde especificação, e o que falta se registra primeiro.
+
+**O buraco que a decisão de 11/09 tentava tapar continua real:** os prompts das
+primeiras vinte tarefas ficaram fora do repositório e alguns desapareceram,
+incluindo dois que tiveram de ser reescritos. A regra acima é o que responde por
+ele agora.
 
 - Confundir a **mecânica** de uma atribuição com a sua **adequação**. Ao auditar as
   seis ocorrências de `verbatim_quote` no `ingest-rag.ts` para A.17, classifiquei a
