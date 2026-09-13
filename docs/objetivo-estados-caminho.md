@@ -1,6 +1,13 @@
 # ahp-simple: objetivo, estados e caminho
 
-Documento âncora. Revisado em 11/09/2026. Último commit de código: `bf959b6`; os de documentação vieram depois.
+Documento âncora. **Revisado em 13/09/2026, medido em `494d672`.**
+
+⚠ **Três datas diferentes, porque revisão documental e alteração de código não são
+a mesma coisa:** o último commit de **código de produção** (`app/`, `lib/`,
+`components/`) é **`137ce23`**, de 12/09/2026; o último commit **não documental** é
+**`a96aa34`**, de 13/09/2026, e é **configuração de CI, não código de produção**;
+depois dele vieram **cinco commits exclusivamente de documentação**, sem um único
+arquivo sob `app/`, `lib/` ou `components/`.
 
 **Leia a Parte 0 antes de qualquer trabalho neste repositório.** Ela existe
 porque o desenvolvimento perdeu direção várias vezes: a memória se perde entre
@@ -652,10 +659,19 @@ máximo/mínimo factual continua no payload, sem classificação automática.
 
 ## 2.4 O que já está saneado
 
-**O repositório tem 145 arquivos rastreados**, medido em 12/09/2026 em `0ac4e95`,
-contra 298 no início do saneamento. ⚠ **Subiu de 139 para 145 com A.21**, e a
-direção é esperada: saíram dois módulos e dois testes, entraram três módulos de
-`lib/` e três arquivos de teste. **Meça antes de citar.** Um único derivador de prioridades,
+**O repositório tem 146 arquivos rastreados**, medido em 13/09/2026 em `494d672`,
+contra 298 no início do saneamento. ⚠ **A variação está toda explicada, e cada
+degrau tem causa nomeada:** 139 antes de A.21; **145** em `0ac4e95`, porque saíram
+dois módulos e dois testes e entraram três módulos de `lib/` e três arquivos de
+teste; **146** em `a96aa34`, com `.github/workflows/ci.yml` de A.24; **147** em
+`61d1d9a`, com `docs/validacao-externa-especificacao.md`; e **146** de novo em
+`494d672`, com a saída de `tools/prompts/README.md`.
+
+⚠ **A sequência explica a variação e não substitui a medição.** O valor acima foi
+medido agora, com `git ls-files | wc -l`, no commit citado. **Meça antes de citar**,
+e note que **os dois últimos degraus são documentais**: nenhum deles toca código.
+
+Um único derivador de prioridades,
 `lib/ahp-engine.ts`, validado por 30 verificações contra 24 valores de referência
 conferidos contra os 864 julgamentos brutos e contra a AhpAnpLib. Zero guardas
 silenciosas no caminho de cálculo. Um gravador único de `calculations`. Censo de doze
