@@ -4027,14 +4027,16 @@ estabelecida.
 corrige nada**: mede em quatro camadas separadas e registra. A consequência da
 reprovação é decisão do pesquisador, e está em aberto ao fim desta seção.
 
-⚠ **Estado do registro.** Entre `79f2b35` e `4c9900a` este registro ficou marcado
-como **parcial quanto ao aceite**, por duas pendências: faltava o ponteiro na linha
-de A.27 do âncora, e o ensaio do fluxo completo estava com o **alcance excedido**,
-atribuindo caso a caso um resultado de resposta composta. **As duas foram
-resolvidas:** o ponteiro em `4c9900a` e o alcance nesta mesma edição, com o ensaio
-de quatro chamadas independentes. ⚠ **O aceite de A.27 continua NÃO cumprido, e
-isso é por construção:** ele exige que a falha de verificação bloqueie ou ponha em
-quarentena visível, e **a Fase 1 é diagnóstico, não corrige nada**.
+⚠ **Estado do registro, e são DOIS aceites distintos que não se substituem.**
+
+| Aceite | Estado |
+|---|---|
+| **da Fase 1**, que é diagnosticar e registrar | **atendido.** As quatro camadas estão medidas, a natureza da evidência está declarada em cada afirmação, e as duas pendências que mantinham este registro parcial foram resolvidas: o ponteiro na linha de A.27 do âncora, em `4c9900a`, e o alcance do ensaio do fluxo completo, em `5e10ac1`, com o ensaio de quatro chamadas independentes |
+| **final de A.27**, que é a falha de verificação bloquear ou pôr em quarentena visível | **aberto**, e depende da Fase 2 |
+
+⚠ **O diagnóstico não é incompleto por não ter corrigido o comportamento:** corrigir
+**não pertencia** à Fase 1. O que as medições sustentam é a **reprodução** do
+defeito, com o alcance de cada ensaio declarado; **a correção continua pendente.**
 
 ⚠ **A natureza da evidência é declarada em cada afirmação**, com três rótulos:
 **medido** quando houve execução, **estabelecido por leitura** quando vem do código
@@ -4336,7 +4338,19 @@ recomendação**.
 4. **Escopo:** se a origem da nota e do veredito, do achado adjacente, entra na
    correção.
 
-**Recomendação, e é recomendação:** qualquer saída escolhida precisa distinguir três
+#### Recomendações do pesquisador para a Fase 2, registradas em 13/09/2026
+
+⚠ **São recomendações para DECIDIR antes de implementar, e não decisões.** Ficam
+aqui na mesma ordem das quatro pendências acima, uma para cada.
+
+| # | Recomendação | O que ela resolve, pela medição |
+|---|---|---|
+| 1 | **Reprovação: quarentena visível**, com o texto **separado** do parecer aprovado e **os motivos apresentados** | escolhe uma das duas opções que o aceite admitia, e a que preserva o texto para leitura em vez de descartá-lo |
+| 2 | **Avisos: exibição explícita, sem bloqueio automático de todos.** ⚠ **Número identificado como incompatível com os dados exige tratamento próprio: não pode seguir como aviso inofensivo** | o caso medido `0.9999` produz **aviso**, e aviso não derruba `isValid`; tratar só `issues` o deixaria passar, e tratar todo aviso como bloqueio bloquearia `FORMULA_INCOMPLETA`, que o ensaio mostrou constante e alheio ao escore |
+| 3 | **Verificação inconclusiva: estado explícito, sem equivalência com aprovação** | o caso medido `0,9999` devolve validação **indistinguível** de `0.0641`, que é correto: hoje inconclusivo e aprovado chegam iguais |
+| 4 | **Nota e veredito entram na correção**, para que `"A"` e `"ACEITO"` extraídos do texto **não se sobreponham** à reprovação nem à inconclusão | resolve o item 4 no sentido de **incluir**; o ensaio mediu `nota: "A"` e `veredicto: "ACEITO"` nas quatro chamadas, inclusive na que trazia número inventado |
+
+**Recomendação anterior, mantida:** qualquer saída escolhida precisa distinguir três
 estados na resposta, e não dois, porque hoje "verificado e aprovado", "verificado com
 aviso" e "não foi possível verificar" chegam à interface com a mesma forma, que é
 `success: true` com o texto inteiro.
