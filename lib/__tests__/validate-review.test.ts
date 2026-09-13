@@ -1,14 +1,15 @@
 /**
  * lib/__tests__/validate-review.test.ts
  *
- * Caracterização de `validateReviewOutput`, A.27 eixo 1, commit 1a.
+ * `validateReviewOutput`, A.27 eixo 1. Caracterizado em 1a, atualizado em 1b.
  *
- * ⚠ Cada teste afirma O QUE O CÓDIGO FAZ HOJE, e o comentário de uma linha diz
- * se aquilo é o comportamento desejado ou o defeito sob correção. O commit 1b
- * atualiza um a um os que descrevem defeito.
+ * ⚠ Em 1a cada teste afirmava O QUE O CÓDIGO FAZIA, com o comentário dizendo se
+ * aquilo era o desejado ou o defeito. Em 1b os quatro que descreviam defeito
+ * foram atualizados, e o comentário de cada um registra o comportamento antigo ao
+ * lado do novo. Os dois que descreviam o comportamento desejado — casos 2 e 6 —
+ * não mudaram de expectativa.
  *
- * Os seis casos são os mesmos exercitados pelo handler real, fora da árvore, e
- * os resultados coincidem: ver a mensagem do commit 1a.
+ * Os seis casos são os mesmos exercitados pelo handler real, fora da árvore.
  */
 
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
@@ -44,60 +45,97 @@ const FORMULA_INCOMPLETA =
 const deEscore = (avisos: string[]) => avisos.filter(w => w.startsWith('SCORE_'));
 
 describe('validateReviewOutput: caracterização dos seis casos', () => {
-  test('caso 1, valor de referência com VÍRGULA: nenhum achado de escore', () => {
-    // Comportamento de HOJE. Aqui o silêncio é o resultado correto, mas pelo motivo
-    // errado: a vírgula impede a comparação, então o acerto não foi verificado.
+  // ALTERADO em 1b. Antes: silêncio porque a vírgula impedia a comparação, então o
+  // acerto não era verificado. Agora: o valor é reconhecido, comparado e confere.
+  // O resultado observável é o mesmo — nenhum achado —, e o que mudou é que agora
+  // ele decorre de comparação feita. Os demais avisos seguem preservados.
+  test('caso 1, valor de referência com VÍRGULA: reconhecido, compatível, sem achado', () => {
     const r = validateReviewOutput(molde('0,0641'), [], dados(REF_VALIDA));
     expect(deEscore(r.warnings)).toEqual([]);
-    expect(r.issues).toEqual([]);
+    expect(deEscore(r.issues)).toEqual([]);
+    expect(r.estado).toBe('aprovado');
+    expect(r.inconclusivos).toEqual([]);
     expect(r.isValid).toBe(true);
     expect(r.warnings).toContain(FORMULA_INCOMPLETA);
   });
 
-  test('caso 2, valor de referência com PONTO: nenhum achado de escore', () => {
-    // Comportamento de HOJE, e é o desejado: o valor é reconhecido e confere.
+  // NÃO alterado em 1b quanto ao veredito: já era o comportamento desejado. Ganhou
+  // apenas a asserção dos campos novos.
+  test('caso 2, valor de referência com PONTO: reconhecido, compatível, sem achado', () => {
     const r = validateReviewOutput(molde('0.0641'), [], dados(REF_VALIDA));
     expect(deEscore(r.warnings)).toEqual([]);
-    expect(r.issues).toEqual([]);
+    expect(deEscore(r.issues)).toEqual([]);
+    expect(r.estado).toBe('aprovado');
+    expect(r.inconclusivos).toEqual([]);
     expect(r.isValid).toBe(true);
+    expect(r.warnings).toContain(FORMULA_INCOMPLETA);
   });
 
-  test('caso 3, valor FICTÍCIO com VÍRGULA: nenhum achado, e isto é o defeito', () => {
-    // DEFEITO sob correção: número inventado passa sem qualquer achado, porque a
-    // expressão captura "0" antes da vírgula e a guarda `> 0` aborta a regra 5.
+  // ALTERADO em 1b, e é a correção central. Antes: nenhum achado, isValid true — a
+  // expressão capturava "0" antes da vírgula e a guarda `> 0` abortava a regra.
+  // Agora: reconhecido, incompatível, REPROVA.
+  test('caso 3, valor FICTÍCIO com VÍRGULA: reconhecido, incompatível, reprova', () => {
     const r = validateReviewOutput(molde('0,9999'), [], dados(REF_VALIDA));
+    expect(r.issues).toContain(
+      'SCORE_NAO_RECONHECIDO: Score 0.9999 não encontrado nos dados injetados'
+    );
     expect(deEscore(r.warnings)).toEqual([]);
-    expect(r.issues).toEqual([]);
-    expect(r.isValid).toBe(true);
+    expect(r.estado).toBe('reprovado');
+    expect(r.isValid).toBe(false);
   });
 
-  test('caso 4, valor FICTÍCIO com PONTO: aviso, e aprovação mantida', () => {
-    // DEFEITO sob correção na segunda metade: o achado existe, mas como AVISO, e
-    // aviso não derruba `isValid`, que é `issues.length === 0`.
+  // ALTERADO em 1b. Antes: o achado existia, mas como AVISO, e aviso não derrubava
+  // `isValid`. Agora: o mesmo achado entra em `issues` e REPROVA. O texto da
+  // mensagem não mudou; mudou o balde.
+  test('caso 4, valor FICTÍCIO com PONTO: reconhecido, incompatível, reprova', () => {
     const r = validateReviewOutput(molde('0.9999'), [], dados(REF_VALIDA));
-    expect(deEscore(r.warnings)).toEqual([
-      'SCORE_NAO_RECONHECIDO: Score 0.9999 não encontrado nos dados injetados',
-    ]);
-    expect(r.issues).toEqual([]);
-    expect(r.isValid).toBe(true);
-  });
-
-  test('caso 5, afirmação de escore SEM referência válida: nenhum achado', () => {
-    // DEFEITO sob correção: a regra 5 não roda por falta de referência, e a ausência
-    // de verificação chega indistinguível de verificação aprovada.
-    const r = validateReviewOutput(molde('0.0641'), [], dados(REF_INVALIDA));
+    expect(r.issues).toContain(
+      'SCORE_NAO_RECONHECIDO: Score 0.9999 não encontrado nos dados injetados'
+    );
     expect(deEscore(r.warnings)).toEqual([]);
-    expect(r.issues).toEqual([]);
-    expect(r.isValid).toBe(true);
+    expect(r.estado).toBe('reprovado');
+    expect(r.isValid).toBe(false);
   });
 
+  // ALTERADO em 1b. Antes: nenhum achado e isValid true — ausência de verificação
+  // chegava indistinguível de verificação aprovada. Agora: estado INCONCLUSIVO com
+  // motivo explícito. ⚠ O teste afirma o ESTADO e o MOTIVO, não a negação de
+  // "aprovado": reprovação genérica satisfaria "não aprovado" e descumpriria a
+  // decisão de distinguir ausência de referência de reprovação.
+  test('caso 5, afirmação de escore SEM referência válida: inconclusivo com motivo', () => {
+    const r = validateReviewOutput(molde('0.0641'), [], dados(REF_INVALIDA));
+    expect(r.estado).toBe('inconclusivo');
+    expect(r.inconclusivos).toHaveLength(1);
+    expect(r.inconclusivos[0]).toMatch(/^SCORE_SEM_REFERENCIA: /);
+    expect(r.inconclusivos[0]).toMatch(/verificação numérica não pôde ser feita/);
+    expect(r.issues).toEqual([]);
+    expect(r.isValid).toBe(false);
+  });
+
+  // NÃO alterado em 1b quanto ao veredito, e é o ponto do controle: regra sem
+  // afirmação aplicável não roda, e ausência de achado continua não virando achado.
+  // ⚠ Em particular NÃO é inconclusivo: falta a afirmação, não a referência.
   test('caso 6, CONTROLE, sem afirmação de escore e sem referência: nenhum achado', () => {
-    // Comportamento de HOJE, e é o desejado: regra sem afirmação aplicável não roda,
-    // e não ter achado é o resultado certo. Este caso tem de continuar assim em 1b.
     const r = validateReviewOutput(TEXTO_CONTROLE, [], dados(REF_INVALIDA));
+    expect(r.estado).toBe('aprovado');
+    expect(r.inconclusivos).toEqual([]);
     expect(deEscore(r.warnings)).toEqual([]);
     expect(r.warnings).toEqual([]);
     expect(r.issues).toEqual([]);
     expect(r.isValid).toBe(true);
+  });
+
+  // Combinação, não caso isolado: os seis acima não verificam precedência.
+  test('precedência: reprovação por outra regra E inconclusão numérica', () => {
+    const texto = ['## RESUMO', 'A1: Score = 0.0641, conforme ChatGPT (2024).',
+                   '## DECISAO EDITORIAL', '**ACEITO**'].join('\n');
+    const r = validateReviewOutput(texto, [], dados(REF_INVALIDA));
+    // a reprovação prevalece no estado
+    expect(r.estado).toBe('reprovado');
+    expect(r.isValid).toBe(false);
+    expect(r.issues.some(i => i.startsWith('REFERENCIA_IA_PROIBIDA:'))).toBe(true);
+    // e o motivo da inconclusão numérica NÃO é descartado
+    expect(r.inconclusivos).toHaveLength(1);
+    expect(r.inconclusivos[0]).toMatch(/^SCORE_SEM_REFERENCIA: /);
   });
 });

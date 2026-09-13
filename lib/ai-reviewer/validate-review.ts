@@ -2,9 +2,12 @@
  * lib/ai-reviewer/validate-review.ts
  *
  * Validação pós-geração do texto do Parecer IA. Movida de
- * `app/api/ai-reviewer/route.ts` em A.27, eixo 1, commit 1a, SEM alteração de
- * comportamento: as sete regras, a ordem delas, o texto das mensagens e o
- * critério `isValid: issues.length === 0` são os mesmos.
+ * `app/api/ai-reviewer/route.ts` em A.27, eixo 1, commit 1a, sem alteração de
+ * comportamento. O commit 1b alterou TRÊS coisas, e só elas: a expressão de
+ * escores passou a reconhecer vírgula, o escore incompatível com os dados passou
+ * a REPROVAR em vez de avisar, e existe estado `inconclusivo` para quando há
+ * afirmação numérica e nenhuma referência válida. As sete regras e a ordem delas
+ * seguem as mesmas.
  *
  * Está em `lib/` para ser diretamente testável. ⚠ Isso NÃO era impedimento
  * antes: `roots`, no `jest.config.js`, limita onde os testes são DESCOBERTOS,
@@ -20,10 +23,40 @@ import { getValidFinalScores, type ReviewRequest } from './review-request';
 // VALIDAÇÃO PÓS-GERAÇÃO (Anti-Alucinação)
 // ============================================================
 
+/**
+ * ⚠ `isValid` é `false` tanto para reprovado quanto para inconclusivo: a resposta
+ * não pode declarar "válido" e "inconclusivo" ao mesmo tempo. Quem precisa
+ * distinguir os dois lê `estado`.
+ */
+export type EstadoValidacao = 'aprovado' | 'reprovado' | 'inconclusivo';
+
 export interface ValidationResult {
   isValid: boolean;
   issues: string[];
   warnings: string[];
+  /** Estado próprio da verificação, distinto de `isValid`, que só tem dois valores. */
+  estado: EstadoValidacao;
+  /**
+   * Motivos pelos quais alguma verificação não pôde julgar. ⚠ São PRESERVADOS
+   * mesmo quando há reprovação por outra regra: a reprovação prevalece no
+   * `estado`, e o motivo da inconclusão não é descartado.
+   */
+  inconclusivos: string[];
+}
+
+/**
+ * Padrão de reconhecimento de escore no texto, em fábrica para que cada uso
+ * receba uma expressão nova e não herde `lastIndex` de outro.
+ *
+ * ⚠ A classe aceita VÍRGULA desde A.27 eixo 1: antes era `[\d.]+`, e um escore
+ * escrito `0,9999` era capturado como `"0"`, que a guarda `> 0` descartava — o
+ * número inventado passava sem qualquer achado. Medido em F06.
+ */
+const padraoEscore = () => /Score\s*=?\s*([\d.,]+)/gi;
+
+/** Normaliza o separador decimal antes de comparar. Não altera tolerância nem casas. */
+function normalizarSeparador(bruto: string): number {
+  return parseFloat(bruto.replace(/,/g, '.'));
 }
 
 export function validateReviewOutput(
@@ -33,6 +66,7 @@ export function validateReviewOutput(
 ): ValidationResult {
   const issues: string[] = [];
   const warnings: string[] = [];
+  const inconclusivos: string[] = [];
 
   // 1. Verificar menção a "respondente não identificado" ou variantes
   const phantomPatterns = [
@@ -92,24 +126,35 @@ export function validateReviewOutput(
     }
   }
 
-  // 5. Verificar scores das alternativas (se disponíveis)
+  // 5. Verificar scores das alternativas
   const validFinalScores = getValidFinalScores(data);
+  const temAfirmacaoDeEscore = padraoEscore().test(review);
+
   if (validFinalScores.length > 0) {
-    const scoreRegex = /Score\s*=?\s*([\d.]+)/gi;
+    const scoreRegex = padraoEscore();
     let scoreMatch;
     const knownScores = new Set(validFinalScores.map(fs => fs.score.toFixed(4)));
     const knownScores6 = new Set(validFinalScores.map(fs => fs.score.toFixed(6)));
 
     while ((scoreMatch = scoreRegex.exec(review)) !== null) {
-      const reportedScore = parseFloat(scoreMatch[1]);
+      const reportedScore = normalizarSeparador(scoreMatch[1]);
       if (!isNaN(reportedScore) && reportedScore > 0 && reportedScore < 1) {
         const r4 = reportedScore.toFixed(4);
         const r6 = reportedScore.toFixed(6);
         if (!knownScores.has(r4) && !knownScores6.has(r6)) {
-          warnings.push(`SCORE_NAO_RECONHECIDO: Score ${reportedScore} não encontrado nos dados injetados`);
+          // ⚠ REPROVA desde A.27 eixo 1. Antes era aviso, e aviso não derruba
+          // `isValid`: um escore que não existe nos dados era apresentado como
+          // parecer aprovado.
+          issues.push(`SCORE_NAO_RECONHECIDO: Score ${reportedScore} não encontrado nos dados injetados`);
         }
       }
     }
+  } else if (temAfirmacaoDeEscore) {
+    // Há afirmação numérica a verificar e nenhuma referência válida nos dados:
+    // a verificação não pode julgar. ⚠ Isto NÃO é aprovação nem reprovação.
+    inconclusivos.push(
+      'SCORE_SEM_REFERENCIA: O parecer afirma escore, mas os dados não trazem nenhum finalScore válido para comparar; a verificação numérica não pôde ser feita'
+    );
   }
 
   // 6. Verificar limiares empíricos sem referência
@@ -136,9 +181,16 @@ export function validateReviewOutput(
   for (const issue of citationResult.issues) issues.push(issue);
   for (const warning of citationResult.warnings) warnings.push(warning);
 
+  // ⚠ Precedência: havendo reprovação por outra regra E inconclusão numérica,
+  // prevalece a REPROVAÇÃO no estado, e o motivo da inconclusão é preservado.
+  const estado: EstadoValidacao =
+    issues.length > 0 ? 'reprovado' : inconclusivos.length > 0 ? 'inconclusivo' : 'aprovado';
+
   return {
-    isValid: issues.length === 0,
+    isValid: issues.length === 0 && inconclusivos.length === 0,
     issues,
     warnings,
+    estado,
+    inconclusivos,
   };
 }

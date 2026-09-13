@@ -1395,6 +1395,10 @@ export async function POST(request: NextRequest) {
         isValid: validation.isValid,
         issues: validation.issues,
         warnings: validation.warnings,
+        // A.27 eixo 1, 1b: repasse dos campos novos. ⚠ Nenhum consumidor os lê
+        // ainda; o consumo é o eixo 2.
+        estado: validation.estado,
+        inconclusivos: validation.inconclusivos,
       },
       metadata: {
         version: API_VERSION,
