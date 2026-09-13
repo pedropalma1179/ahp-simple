@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import SYSTEM_PROMPT from './system-prompt';
-import { getKnowledgeContext, getKnowledgeStats, getCriticalRefs, getRefsByTopic, getRAGThresholds, getRAGFormulas, getRAGBenchmarks } from './knowledge';
+import { getKnowledgeStats, getCriticalRefs, getRefsByTopic, getRAGThresholds, getRAGFormulas, getRAGBenchmarks } from './knowledge';
 import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-detection';
 import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
 import { getRAGSemantic } from '@/lib/rag/semantic-retrieve';
@@ -705,7 +705,9 @@ async function generateReview(
     apiKey: process.env.ANTHROPIC_API_KEY,
   });
 
-  const knowledgeContext = getKnowledgeContext();
+  // A.32: `getKnowledgeContext()` era calculado aqui e NUNCA interpolado no prompt.
+  // A "BASE DE CONHECIMENTO CIENTÍFICO" é montada pelas quatro seções abaixo.
+  // A função permanece em `./knowledge` — decidir o destino dela é outra tarefa.
   const criticalRefs = getCriticalRefs();
   const crRefs = getRefsByTopic('consistência');
   const bocrRefs = getRefsByTopic('BOCR');
