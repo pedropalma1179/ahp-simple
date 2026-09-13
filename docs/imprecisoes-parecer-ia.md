@@ -3620,6 +3620,23 @@ medida**, e atribuí-la à remoção da autorização no prompt seria inferênci
 casos diferem em tema, conteúdo e contexto; influência relativa exige comparação
 controlada, que esta série não fez.
 
+⚠ **E o localizador que o parecer atribui DIVERGE, medido em 12/09/2026 com o texto
+integral em mãos.** O parecer cita **"Saiyed et al. (2023, p. 9)"**. A claim indexada
+declara `page: 1779`, `locator_type: "paragraph"`, `locator_id: "Section 2.4:
+Hypothesis Development"`, e o `abnt` do artigo dá a faixa **1773–1797**, na
+*Management Decision* v. 61, n. 6. **A página 9 está fora da faixa do artigo** — é
+`DIVERGE_FORA_DA_FAIXA` na taxonomia do `verify-citations.mjs`.
+
+**O caso é instrutivo porque separa duas coisas que costumam andar juntas:** o
+**texto** citado é fiel ao campo injetado, palavra por palavra, e o **localizador** é
+incompatível com a obra. **Transcrição fiel e localizador errado coexistem na mesma
+citação**, e nenhum dos dois verifica o outro — é a separação que a seção 7 do
+`CLAUDE.md` exige entre verificação de localizador, fidelidade de transcrição e
+sustentação da afirmação.
+
+⚠ **Nenhum campo do prompt entrega "p. 9".** A origem da página não está medida; o
+que está medido é que ela não vem da claim.
+
 **Segundo canal confirmado para a leitura do perfil profissional, e não é o Saiyed:**
 o payload envia `funcao: ["diretor","gerente","c_level"]` em `demographicsSummary`,
 e o prompt injeta a claim do **Neely (2020)** cujo tópico é *"Executive cognition is
@@ -3772,16 +3789,36 @@ o validador não cobre.
 | Recuperação semântica | ligada, **5 consultas, 5 vazias, 0 chunks** |
 | Veredito emitido | `A (100/100) - ACEITO`, extraído da DECISÃO EDITORIAL |
 
-⚠ **O TEXTO INTEGRAL DO PARECER NÃO ESTÁ AQUI, e a razão é registrada em vez de
-contornada:** ele não foi fornecido na sessão que produziu este registro. O que
-existe é o conjunto de trechos abaixo, citados na leitura, mais o prefixo que o log
-de produção preserva. **Enquanto o integral não entrar, esta execução é a única da
-série sem dado primário completo**, e as seções 1 a 6 acima valem como leitura sobre
-citação parcial.
+### Registro de incorporação do texto integral
 
-**Para fechar a pendência basta colar o texto do parecer nesta seção.** Não
-reconstruir a partir dos trechos: a geração é estocástica e um texto recomposto não é
-o texto gerado.
+**Incorporado em 12/09/2026**, fornecido pelo pesquisador nesta sessão a partir do
+texto que havia sido entregue antes a outro assistente. **Nada foi corrigido:**
+redação, números e citações estão como saíram, inclusive os erros — é dado primário.
+
+| Campo | Valor |
+|---|---|
+| **SHA-256 do arquivo do parecer** | `bcdfe5a3be836946c934b8ae437b1aa3b921743b121c503505f9f431a5ba8fd9` |
+| Tamanho | 136 linhas, 18.070 bytes, 17.577 caracteres (UTF-8, com quebra final) |
+| **Hash do commit do código** | `f9cbf94550afb00fbe84d62a253be7357f8aa10b` |
+
+⚠ **Os dois hashes identificam coisas diferentes e não se substituem:** o SHA-256 é
+do **arquivo de texto gerado**; o hash do commit é do **código que o gerou**. Um
+parecer regerado no mesmo commit terá outro SHA-256, porque a geração é estocástica.
+
+**Verificação que liga o texto à requisição, e não é formalidade:** o início do texto
+incorporado **casa exatamente** com o prefixo que o log de produção preservou —
+`## 📋 RESUMO DA SUBMISSÃO` seguido de *"O estudo aplica o método AHP-BOCR para
+comparar duas alternativas tecnoló…"*, ponto em que o log trunca. **É o que permite
+afirmar que este texto é o da requisição de 01:59:11Z, e não de outra execução.**
+
+⚠ **Não reconstruir texto de parecer a partir de trechos, em nenhuma execução
+futura:** a geração é estocástica, e um texto recomposto não é o texto gerado.
+
+**O SHA-256 é reconferível a partir deste documento**, e foi: extraindo o bloco entre
+os marcadores `⟪ início do texto gerado ⟫` e `⟪ fim do texto gerado ⟫`, retirando as
+quebras das bordas e acrescentando uma quebra final, o digest reproduz
+`bcdfe5a3…a8fd9`. **Se uma edição futura tocar o texto, o digest deixa de fechar** —
+é para isso que ele está aqui.
 
 ### O que o log preserva do início do parecer
 
@@ -3793,7 +3830,10 @@ O estudo aplica o método AHP-BOCR para comparar duas alternativas tecnoló…
 
 (o log trunca aqui; é o único trecho do corpo que a infraestrutura guarda)
 
-### Trechos citados na leitura, verbatim como foram reportados
+### Índice: de onde cada item da análise sai, no texto integral
+
+Antes da incorporação esta tabela era o que existia em lugar do texto. **Agora é
+índice de navegação**, e o texto integral está ao fim deste anexo.
 
 | # | Trecho | Onde a seção o trata |
 |---|---|---|
@@ -3837,3 +3877,156 @@ finalScores: firstValid { code: 'A1', score: 0.06412946722825451 }
 ⚠ **Os três CRs que o log mostra ficam entre 1,05% e 3,59%** — são do cache de maio,
 não os recalculados de 11,39% a 109,27%. **É a origem numérica do "100% de
 conformidade"**, e ela chega ao parecer pelo payload, não pelo prompt.
+
+---
+
+## Texto integral do parecer da execução 7
+
+⚠ **Daqui até o fim do arquivo é SAÍDA DO MODELO, incorporada sem edição.** Nada
+abaixo é análise, metadado ou log: esses ficam nas seções anteriores, de propósito.
+**Os erros estão preservados** — a faixa de CRs, a atribuição a Ishizaka e Labib, a
+página do Saiyed, a afirmação de originalidade. Corrigi-los aqui destruiria o dado.
+
+**SHA-256** `bcdfe5a3be836946c934b8ae437b1aa3b921743b121c503505f9f431a5ba8fd9` ·
+**commit** `f9cbf94` · **requisição** 2026-09-13T01:59:11Z
+
+### ⟪ início do texto gerado ⟫
+
+## 📋 RESUMO DA SUBMISSÃO
+
+O estudo aplica o método AHP-BOCR para comparar duas alternativas tecnológicas de Indústria 4.0 voltadas à otimização do consumo energético de estufas de cura em linha de pintura automotiva: (A1) controle em tempo real dos queimadores utilizando inteligência artificial e (A2) gêmeo digital CFD para simulação termodinâmica. O problema é motivado por um consumo anual de aproximadamente 5,9 milhões de m³ de gás natural (custo estimado de R$ 22,4 milhões), com desperdício energético estimado entre 20% e 25%, concentrado nas fases de *startup* e *set-back*.
+
+A avaliação foi realizada por 12 especialistas, todos com CR individual ≤ 0,10, cuja agregação de julgamentos foi conduzida por média geométrica (Saaty, 1990). Os pesos BOCR derivados da hierarquia de controle são B = 37,2%, O = 15,2%, C = 19,7% e R = 27,9%. A síntese das alternativas segue a fórmula subtrativa completa de Wijnmalen (2007, Eq. 17):
+
+Score_i = v_b × s_b × B_i + v_o × s_o × O_i − v_c × s_c × C_i − v_r × s_r × R_i
+
+onde v representa os pesos pessoais (hierarquia de controle) e s os *rescaling weights* (comensurabilidade entre dimensões). O ranking final posiciona A1 (score = 0,064129) à frente de A2 (score = 0,026937). A análise de sensibilidade não identificou pontos de virada em nenhuma das quatro dimensões BOCR.
+
+O perfil dos especialistas abrange formações em nível de mestrado e especialização, experiência entre 11 e mais de 30 anos, cargos de diretoria, gerência e nível executivo (*C-level*), e áreas de atuação em manufatura, otimização de custos, qualidade, financeiro, manutenção e P&D.
+
+---
+
+## ✅ PONTOS FORTES
+
+**1. Conformidade integral dos julgamentos individuais ao limiar de consistência.** Os 12 respondentes apresentam CRs individuais entre 1,1% e 9,6%, todos inferiores ao limiar CR ≤ 0,10. Saaty (1977, p. 248) estabelece: *"require the ratio to be very small; e.g., of the order of 0.1"*. A taxa de conformidade de 100% dispensa procedimentos de filtragem ou exclusão de respondentes. Salomon (2024, p. 468) corrobora a centralidade desta métrica: *"Consistency is a measure of the quality of data input in the AHP"*.
+
+**2. Fórmula de síntese com comensurabilidade explícita.** O sistema implementa a Eq. 17 de Wijnmalen (2007, p. 903), que incorpora *rescaling weights* (s) para garantir comensurabilidade entre as prioridades das sub-hierarquias BOCR: *"synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship"*. A forma completa com pesos pessoais (v) e *rescaling weights* (s) evita a distorção identificada pelo mesmo autor na utilização de recíprocos para custos e riscos.
+
+**3. Painel com diversidade funcional e senioridade.** O painel é composto por 12 especialistas com formação em nível de mestrado e especialização, experiência profissional entre 11 e mais de 30 anos, e ocupando cargos de direção, gerência e nível executivo. As áreas de atuação cobrem manufatura, otimização de custos, qualidade, financeiro, manutenção e P&D. Esta composição atende ao axioma de expectativas formulado por Saaty (1986, p. 843): *"thoughtful individuals who have reasons for their beliefs should make sure that their ideas are adequately represented"*.
+
+**4. Estrutura BOCR com quatro dimensões e subcritérios.** A organização em Benefícios, Oportunidades, Custos e Riscos, cada uma com cinco subcritérios (n = 5), atende ao princípio MECE. Petrillo et al. (2023, p. 2): *"The use of an MCDM model with these four main criteria aims for a mutually exclusive and collectively exhaustive (MECE) set of criteria"*. A distinção entre certeza e incerteza segue Mu (2016, p. 8): *"Can we reasonably be sure this benefit will occur?'; If the answer is 'Yes' it is a benefit, if the answer is 'No' it is an opportunity"*.
+
+**5. Detecção de viés com explicabilidade algorítmica.** O sistema combina análise algorítmica de consistência com geração de explicações via LLM (XAI), classificando o nível de risco como LOW com 100% de conformidade CR. A integração de detecção de viés e explicabilidade constitui contribuição original do sistema para auditoria de julgamentos em AHP.
+
+---
+
+## ⚠️ LIMITAÇÕES IDENTIFICADAS NOS DADOS
+
+**1. Homogeneidade de gênero no painel.** Todos os 12 respondentes são do gênero masculino. Embora esta composição possa refletir a demografia do setor automotivo industrial, a ausência de diversidade de gênero constitui um viés potencial de representação. Conforme a literatura de psicologia cognitiva, a homogeneidade demográfica pode amplificar vieses de confirmação grupal. A limitação é de natureza contextual e deve ser reportada como característica da amostra.
+
+**2. Peso de Riscos acima dos benchmarks setoriais.** O peso atribuído a Riscos (R = 27,9%) é consideravelmente superior aos valores reportados em estudos do setor energético: Kabak (2014) reporta R = 8% e Mu (2016) reporta R = 10%. Embora a diferença possa ser justificada pela especificidade do contexto automotivo (linha de pintura com requisitos de segurança e continuidade operacional), a magnitude da divergência (2,8 a 3,5 vezes os benchmarks) requer contextualização no manuscrito.
+
+---
+
+## 🔍 ANÁLISE DETALHADA
+
+### Consistência dos Julgamentos
+
+O CR global agregado da hierarquia de controle é 1,06%, inferior ao limiar CR ≤ 0,10 proposto por Saaty (1977). As quatro matrizes agregadas por dimensão BOCR apresentam CRs igualmente inferiores ao limiar:
+
+| Dimensão | n (subcritérios) | CR agregado | λmax | Status |
+|---|---|---|---|---|
+| Benefits | 5 | 1,10% | 5,0494 | ✅ |
+| Opportunities | 5 | 0,92% | 5,0414 | ✅ |
+| Costs | 5 | 2,60% | 5,1165 | ✅ |
+| Risks | 5 | 1,40% | 5,0626 | ✅ |
+
+Os CRs das matrizes agregadas referem-se a matrizes resultantes da aplicação da média geométrica sobre os 12 julgamentos individuais. Escobar (2004, p. 1): *"the paper proves that the inconsistency of the group is smaller than the largest individual inconsistency"*. Com N = 12 e max(CR individual) = 9,6%, a propriedade é satisfeita: todos os CRs agregados (máximo de 2,60%) são inferiores a 9,6%.
+
+Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%. Nenhum respondente excede o limiar de 0,20 acima do qual Saaty & Ergu (2015, p. 754) consideram os julgamentos não confiáveis: *"A CR greater than 0.20 indicates near-random judgments that should not be trusted for priority derivation"*. A conformidade de 100% ao limiar CR ≤ 0,10 dispensa aplicação do algoritmo de identificação da entrada mais inconsistente da PCM descrito por Saaty (2003).
+
+A dimensão Costs apresenta o maior CR agregado (2,60%). Embora inferior ao limiar, este valor é o mais elevado entre as quatro dimensões. Saaty & Vargas (2012, p. 9) contextualizam: *"An inconsistency of 10 percent or less implies that the adjustment is small compared to the actual values of the eigenvector entries"*. O CI correspondente, calculado como (λmax − n)/(n − 1) = (5,1165 − 5)/4 = 0,0291, confirma que o desvio em relação à consistência perfeita é reduzido.
+
+A convergência da consistência na agregação é coerente com o resultado demonstrado por Xu (2000, p. 68): *"this paper proves that the WGMCJM is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency"*. Uma vez que todos os 12 julgamentos individuais satisfazem CR ≤ 0,10, a condição suficiente para a aceitabilidade da matriz agregada é atendida.
+
+A compensação de inconsistências individuais pela média geométrica é documentada por Ossadnik et al. (2016, p. 611): *"Geometric aggregation leads to a compensation of single inconsistent matrices to consistent group judgments"*. A redução dos CRs individuais (máximo 9,6%) para CRs agregados (máximo 2,60%) é consistente com este efeito compensatório.
+
+### Pesos BOCR e Hierarquia de Controle
+
+Os pesos BOCR foram derivados de comparações pareadas entre os quatro méritos na hierarquia de controle, conforme Saaty (2003) e Lee (2009, p. 4): *"considering the benefits (B), opportunities (O), costs (C) and risks (R) of an alternative... is a more comprehensive way"*. A distribuição resultante é:
+
+| Mérito | Peso (v) | Rescaling (s) | v × s |
+|---|---|---|---|
+| Benefits | 0,3723 | 0,4393 | 0,1636 |
+| Opportunities | 0,1517 | 0,1593 | 0,0242 |
+| Costs | 0,1974 | 0,1868 | 0,0369 |
+| Risks | 0,2786 | 0,2146 | 0,0598 |
+
+O ratio máximo/mínimo é 2,45:1 (Benefits/Opportunities). Nenhuma dimensão excede 50% do peso total, o que evita dominância unilateral de um único mérito sobre a síntese. A dimensão Benefits (37,2%) é convergente com o valor de 37% reportado por Kabak (2014) no setor energético, e inferior ao peso de 46% reportado por Mu (2016) em contexto de cooperação internacional.
+
+A dimensão Risks (27,9%) diverge dos benchmarks publicados. Kabak (2014) reporta R = 8% e Mu (2016) reporta R = 10%. A divergência pode ser contextualizada pelo domínio de aplicação: em linha de pintura automotiva, riscos operacionais (interrupção de produção, falha de equipamento, não conformidade de qualidade) podem justificar peso proporcionalmente maior do que em estudos de planejamento energético de longo prazo. Saiyed et al. (2023, p. 9) alertam para viés cognitivo em painéis com alta concentração de poder: *"High power leads to cognitive biases creeping in, especially how the CEO frames the decision calculus and estimates risks inherent in decisions"*. A presença de diretores e executivos (*C-level*) no painel é um fator que merece atenção interpretativa, embora a diversidade de cargos (gerentes, diretores, *C-level*) mitigue parcialmente esta preocupação.
+
+O peso de Opportunities (15,2%) é o menor entre os quatro méritos. Comparado com Kabak (2014), que reporta O = 35%, a diferença é considerável. Esta distribuição sugere que o painel atribui menor relevância aos ganhos incertos (oportunidades) em comparação com os ganhos certos (benefícios) e com os custos e riscos, o que é coerente com um contexto industrial de decisão operacional onde a aversão ao risco e a priorização de benefícios tangíveis tendem a predominar.
+
+### Análise de Sensibilidade
+
+A análise de sensibilidade foi executada nas quatro dimensões BOCR (Benefits, Opportunities, Costs e Risks). Nenhum ponto de virada foi identificado em qualquer dimensão. Ishizaka & Labib (2011, p. 14) fundamentam a relevância desta análise: *"Sensitivity analysis for AHP is relevant only when alternatives are included in the hierarchy"* (Schmidt, 2015, citado em Ishizaka & Labib, 2011).
+
+A ausência de pontos de virada indica que a posição de A1 como alternativa preferida é preservada ao longo de toda a faixa de variação dos pesos BOCR. Como todos os CRs das sub-hierarquias são inferiores ao limiar de Saaty (1977), a estabilidade observada pode ser interpretada sem a qualificação exigida pela Diretriz 2 (tensão entre sensibilidade e CR crítico). Os pesos sobre os quais a sensibilidade foi calculada refletem preferências transitivas dos decisores.
+
+A diferença entre os scores das duas alternativas (A1 = 0,064129; A2 = 0,026937; ratio de 2,38:1) contribui para a ausência de pontos de virada: uma inversão de ranking exigiria variações de grande magnitude nos pesos de qualquer dimensão BOCR, o que é consistente com a estabilidade observada.
+
+### Análise de Viés e Fairness nos Julgamentos
+
+O nível de risco classificado pelo sistema é LOW, com 100% de conformidade ao limiar CR ≤ 0,10 de Saaty (1977). Nenhum respondente apresenta padrão de inconsistência que indique julgamentos aleatórios ou não transitivos.
+
+A análise de *Disparate Impact* (Dodevska et al., 2023) requer que o pesquisador defina o atributo sensível e os grupos de alternativas (privilegiado e discriminado). Dodevska et al. (2023, p. 4) definem: *"DI before optimization (DI_{bef}) is the ratio of average AHP rank comparison scores before optimization (overline{R}_{bef}) between privileged and discriminated groups"*. A infraestrutura para esta análise está disponível no sistema, porém a configuração do atributo sensível não foi realizada. A configuração é uma escolha contextual do pesquisador, não uma falha metodológica.
+
+### Fundamentação Teórica
+
+**Axiomas de Saaty (1986).** Os quatro axiomas são verificados pela estrutura do sistema. Saaty & Vargas (2012, p. 15) enunciam: *"there are four axioms in the AHP... concerned with the reciprocal relation, comparison of homogeneous elements, hierarchic and systems dependence"*.
+
+| Axioma | Verificação |
+|---|---|
+| Reciprocidade | Garantida pela estrutura da PCM (a_ji = 1/a_ij) |
+| Homogeneidade | Escala 1-9 limita comparações a uma ordem de magnitude |
+| Dependência | Estrutura hierárquica BOCR com sub-hierarquias funcionalmente dependentes |
+| Expectativas | Ranking reflete preferências agregadas de 12 especialistas qualificados |
+
+**Método de agregação.** A média geométrica é o método recomendado para AIJ. Forman & Peniwati (1998, p. 170) esclarecem: *"While either an arithmetic or geometric mean can be used for AIP, the geometric mean is more consistent with the meaning of both judgments and priorities"*. Saaty (1987, p. 165) fundamenta a propriedade recíproca: *"any rule to combine the judgments of several individuals should also satisfy the reciprocal property. A proof that the geometric mean... satisfies this condition"*. A aplicação de média aritmética seria inadequada, conforme Ossadnik et al. (2016): *"the arithmetic form of AIJ (AIJ (WAMM)) generates inconsistent collective pairwise comparison matrices, even if all individual judgments were consistent"*.
+
+**Fórmula de síntese.** A fórmula subtrativa completa (Wijnmalen, 2007, Eq. 17) é coerente com a recomendação de Saaty & Vargas (2012, p. 139): *"I do not recommend ever using multiplicative synthesis. It can lead to an undesirable ranking of the alternatives"*. A forma subtrativa permite scores negativos quando custos e riscos superam benefícios e oportunidades, conforme demonstrado por Saaty & Ozdemir (2003, p. 1): *"Annual Exten. -0.32 ; Amend NTR -0.07 ; PNTR 0.23"*. No presente estudo, ambas as alternativas apresentam scores positivos, indicando que benefícios e oportunidades ponderados superam custos e riscos ponderados.
+
+**Estrutura BOCR.** Saaty & Ergu (2015, p. 753) definem: *"A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR"*. A estrutura implementada atende este critério.
+
+**Paradigma metodológico.** O estudo não declara explicitamente o paradigma metodológico nos metadados. As características observadas (painel interno de 12 especialistas com cargos de gestão e direção, decisão operacional em contexto industrial específico, duas alternativas tecnológicas concretas) são consistentes com pesquisa-ação ou estudo de caso. Sob este paradigma, N = 12 é adequado, pois reflete o engajamento qualitativo dos *stakeholders* da decisão. As recomendações desta revisão são calibradas a este paradigma e podem não se aplicar a estudos que adotem paradigmas distintos (ex.: *survey* quantitativo).
+
+---
+
+## 💡 AÇÕES DE MITIGAÇÃO
+
+**1. Contextualizar o peso de Riscos no manuscrito.** O peso R = 27,9% diverge dos benchmarks de Kabak (2014) e Mu (2016) por fator de 2,8 a 3,5. O manuscrito deve documentar os fatores contextuais que justificam esta divergência (ex.: requisitos de segurança operacional em linha de pintura, risco de interrupção de produção, custos de não conformidade). A contextualização não altera os dados, mas fortalece a interpretação do ranking.
+
+**2. Configurar a análise de *Disparate Impact* para auditoria de fairness.** A infraestrutura de Dodevska et al. (2023) está disponível no sistema. O pesquisador pode definir o atributo sensível (ex.: tipo de tecnologia, fornecedor, maturidade tecnológica) e os grupos de alternativas para verificar se o ranking atende aos limites DI ∈ [0,80; 1,25]. Esta configuração é opcional e constitui uma camada adicional de auditoria.
+
+**3. Documentar a homogeneidade de gênero como característica da amostra.** O manuscrito deve registrar que o painel é integralmente masculino e contextualizar esta composição em relação à demografia do setor automotivo industrial. A documentação é um requisito de transparência, não uma invalidação dos resultados.
+
+---
+
+## 🎯 DECISÃO EDITORIAL
+
+**ACEITO**
+
+O estudo atende aos critérios de qualidade metodológica do AHP-BOCR conforme a literatura publicada:
+
+1. **Consistência:** CR ≤ 0,10 em todas as sub-hierarquias (máximo 2,60% em Costs) e em todos os 12 julgamentos individuais (máximo 9,6%). A conformidade é integral tanto no nível individual (Saaty, 1977) quanto no nível agregado (Escobar, 2004; Xu, 2000).
+
+2. **Painel:** N = 12 especialistas com diversidade funcional (seis áreas de atuação), senioridade (11 a mais de 30 anos de experiência) e formação pós-graduada. A composição atende ao axioma de expectativas (Saaty, 1986).
+
+3. **Síntese:** Fórmula subtrativa completa com *rescaling weights* (Wijnmalen, 2007, Eq. 17), agregação por média geométrica (Saaty, 1990; Forman & Peniwati, 1998), e verificação dos quatro axiomas de Saaty (1986).
+
+4. **Sensibilidade:** Ausência de pontos de virada nas quatro dimensões BOCR, indicando estabilidade do ranking de A1 sobre A2 ao longo de toda a faixa de variação dos pesos.
+
+As limitações identificadas (homogeneidade de gênero e divergência do peso de Riscos em relação a benchmarks) são de natureza contextual e não comprometem a validade metodológica do estudo. As ações de mitigação propostas referem-se à contextualização interpretativa no manuscrito, não à correção de procedimentos.
+
+### ⟪ fim do texto gerado ⟫
