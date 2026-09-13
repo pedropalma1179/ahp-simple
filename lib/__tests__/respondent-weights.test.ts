@@ -80,18 +80,23 @@ describe('CRs por respondente contra a referência de 09/09/2026', () => {
 
   /**
    * ⚠ RESSALVA, e ela importa mais que o teste: **`-0` NÃO é requisito
-   * metodológico.** É propriedade do último bit de um `double` numa matriz
-   * perfeitamente consistente — duas classes com razão 3, B1=B2=B3 e B4=B5 —, onde
-   * `lambdaMax` é exatamente `n` em aritmética real e 4,99999999999999822 em ponto
-   * flutuante.
+   * metodológico.**
+   *
+   * **`-0` e `+0` diferem pelo BIT DE SINAL, não pelo último bit de precisão.** A
+   * matriz é perfeitamente consistente — duas classes com razão 3, B1=B2=B3 e
+   * B4=B5 —, então `lambdaMax` é exatamente `n` em aritmética real. Em ponto
+   * flutuante a soma sai 4,99999999999999822, o CI fica -4,44e-16 e o CR -3,97e-16:
+   * um número negativo minúsculo, cujo arredondamento a duas casas produz `-0`. O
+   * que este teste fixa é o **sinal** desse resíduo, isto é, que `lambdaMax` saiu
+   * logo ABAIXO de `n`.
    *
    * **O critério metodológico continua sendo o CR dentro da tolerância numérica
-   * definida.** Este teste existe para CARACTERIZAÇÃO: mostra que a migração
-   * preserva o último bit, e não só o valor arredondado, o que é evidência de que o
-   * caminho de cálculo não mudou. **Se uma mudança futura fizer este valor virar
-   * `+0` ou `1e-17`, isso não é regressão metodológica** — é outra soma em ponto
-   * flutuante, e o teste é que deve ser reescrito, com a nota correspondente na
-   * seção 6 de `docs/referencia-cr-individuais.md`.
+   * definida.** Este teste existe para CARACTERIZAÇÃO: o sinal preservado é
+   * evidência de que o caminho de cálculo não mudou na migração. **Se uma mudança
+   * futura fizer o valor virar `+0` ou `1e-17`, isso não é regressão
+   * metodológica** — é outra ordem de soma em ponto flutuante, e o teste é que deve
+   * ser reescrito, com a nota correspondente na seção 6 de
+   * `docs/referencia-cr-individuais.md`.
    */
   test('R12 em SUB-B reproduz o zero NEGATIVO da referência, seção 6', () => {
     const w = calculateRespondentWeights(julgamentosDe('R12'), ALTS);
