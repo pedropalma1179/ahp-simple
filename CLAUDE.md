@@ -145,15 +145,27 @@ que entrou.
 ## 5. Comandos e limitações do ambiente
 
 ```
-npm test          # 55 testes, 1 falha esperada: o LLSM no censo do motor
+npm test          # total e ambiente na nota abaixo
 npm run build     # 17 páginas
 npx tsc --noEmit  # sai 0
 ```
 
-⚠ **Medidos em 12/09/2026, em `1f6674a`, e mudam.** A falha única é
-`o LLSM permanece confinado ao módulo de matrizes incompletas`, do censo.
-**Previsto depois de A.21**, que retira o IPC: a falha desaparece e o total cai
-pelos testes de IPC que saírem — **o valor não está previsto, mede-se na tarefa.**
+⚠ **Medição vigente, em 13/09/2026, no commit `8624cf0`:** `npm test` sai 0 com
+**5 suítes e 91 testes**, nenhuma falha.
+
+**Ambiente da medição, e é ambiente observado, não requisito do repositório:**
+Darwin arm64, Node v25.9.0, npm 11.12.1.
+
+**Outras execuções registradas, com ambiente e total:** runner do GitHub Actions em
+`a96aa34`, Node 24.x, 5 suítes e 91 testes; contêiner Linux x86_64 sobre clone em
+`8624cf0`, Node 22.22.2, 5 suítes e 91 testes, saída 0.
+**São registros de execução, não afirmação de compatibilidade:** nenhuma matriz de
+versões foi testada.
+
+⚠ **A falha única que esta nota previa deixou de existir.** Era
+`o LLSM permanece confinado ao módulo de matrizes incompletas`, do censo, e o
+teste passa desde `0ac4e95`, que retirou o IPC.
+
 **Meça antes de usar como critério de aceite**, e nunca herde um número: é erro
 registrado na seção 0.4 do âncora, ocorrido duas vezes.
 
