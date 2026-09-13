@@ -4019,6 +4019,7 @@ outra redação.**
 daquele caminho** — prova que, em 13/07, o campo existia. **A cronologia continua
 sem evidência**, e a afirmação de que a T7 é anterior ao recomputo permanece não
 estabelecida.
+
 ---
 
 ## F06: diagnóstico da verificação e da apresentação do parecer
@@ -4354,6 +4355,7 @@ aqui na mesma ordem das quatro pendências acima, uma para cada.
 estados na resposta, e não dois, porque hoje "verificado e aprovado", "verificado com
 aviso" e "não foi possível verificar" chegam à interface com a mesma forma, que é
 `success: true` com o texto inteiro.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
