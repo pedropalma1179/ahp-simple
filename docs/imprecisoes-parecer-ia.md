@@ -2520,6 +2520,83 @@ relativa para a do periódico é aritmética. Aqui, é releitura.
 
 ---
 
+## O mesmo fenômeno em cinco níveis: a lacuna preenchida com o que tinha a forma esperada
+
+A seção "A simetria: o instrumento de medição falha do mesmo modo que o objeto
+medido", adiante neste documento, estabelece **dois** níveis: o modelo e o script.
+Esta seção os generaliza para **cinco**, e o que a generalização muda é a
+atribuição do fenômeno.
+
+| Nível | A lacuna | O que a preencheu | O que pegou |
+|---|---|---|---|
+| **O modelo do Parecer IA** | a DIRETRIZ 1 exige um N por matriz; o payload informa apenas `totalRespondents` = 12 | "Os dados indicam 3 respondentes por dimensão BOCR", que é 12 ÷ 4 apresentado como dado lido | confrontar a exigência do prompt com o conteúdo do payload — **dois artefatos corretos**, um contra o outro |
+| **O script de apuração**, `verify-citations.mjs` | o conectivo `e` do padrão de dois autores admitia zero espaços dos dois lados, e "Conform" + "e" + "Neely" casou como se fossem dois autores | veredito `NAO_INDEXADO`, categoria inconclusiva do próprio catálogo do script, no lugar de uma divergência — e o agregado final ficou plausível | a contagem manual anterior, que já existia, e divergiu |
+| **A categoria "erro de vizinhança"** | não ter conferido o `page` das claims contra a faixa do `abnt` de cada artigo | uma causa: interpolação pelo modelo, explicação coerente para páginas dentro da faixa do artigo e fora de toda claim | conferir `page` contra `abnt`, artigo por artigo: as páginas eram reais do periódico e o RAG não as indexava |
+| **A especificação de A.21** | não ter procurado onde a validação de fato decide | "o IPC é inalcançável", sustentado na ausência do botão de pular e de qualquer gravação de `skipped` | ler o `handleFinalizeSurvey`, que valida **só conectividade do grafo** (linha 1018, com o stub declarado na 1017), e o `calculate`, que filtra por `completedAt` (linha 794) |
+| **A descrição da regra do `git add`** | a condição que torna a regra verdadeira: a deleção já estar no índice | "`git add` de caminho já deletado falha com `pathspec did not match any files`", enunciado geral, plausível, e **falso quando a deleção não está no índice** | reproduzir as duas formas em repositório descartável: com `git rm` antes sai 128 e não indexa nada; com `rm` simples sai 0 e indexa a deleção |
+
+### As três propriedades comuns
+
+**1. Nenhum sinalizou incompletude.** Não houve exceção, aviso, campo vazio nem
+veredito de "não sei". Em todos os cinco a lacuna **virou conteúdo**, e conteúdo
+afirmativo: o modelo escreveu "os dados indicam"; o script emitiu um veredito do
+seu próprio catálogo; a categoria entrou na decomposição ao lado das medidas; a
+especificação afirmou que o código era inalcançável; a regra foi escrita no
+imperativo. **A ausência de sinal não é acidente do formato: é o que define o
+fenômeno.** Um artefato que avisasse estar incompleto não teria preenchido nada.
+
+**2. O preenchimento tinha a forma esperada.** 12 ÷ 4 = 3 é um N plausível para
+quatro dimensões e doze respondentes; `NAO_INDEXADO` é um dos quatro vereditos
+legítimos; interpolação pelo modelo é exatamente o tipo de defeito que este registro
+documenta em outras superfícies; código órfão sem caminho é o que o saneamento vinha
+encontrando; e uma regra de `git` enunciada sem condição é a forma padrão de uma
+regra de `git`. ⚠ **Em nenhum dos cinco o preenchimento era anômalo. Nos cinco ele
+era a continuação natural do artefato que o produziu** — e, em pelo menos três,
+**confirmava o que quem media esperava encontrar.**
+
+**3. O que pegou, nos cinco, foi confrontar com fonte independente do próprio
+artefato.** Não foi reler, nem revisar o raciocínio, nem olhar com mais atenção: em
+cada caso entrou uma fonte de fora. O payload contra o prompt. A contagem manual
+contra o script. O `abnt` contra o `page`. O código da validação contra a busca
+pelo mecanismo. O repositório descartável contra a lembrança do incidente.
+
+⚠ **E reler não pega, por construção.** O preenchimento é coerente com o resto do
+artefato — foi dele que saiu. A releitura confirma a coerência interna, que é
+exatamente a propriedade que o defeito preserva. **Só quebra a coerência uma fonte
+que não participou da produção.**
+
+### A consequência: não é um fenômeno de LLM
+
+**Quatro dos cinco níveis não são modelo de linguagem.** Um é um regex. Um é uma
+categoria em prosa, escrita por quem mediu. Um é uma nota de tarefa no âncora. Um é
+uma frase de regra operacional.
+
+Então o que os cinco casos estabelecem **não é uma propriedade do modelo**: é uma
+propriedade de **artefato derivado sem verificação** — qualquer coisa produzida a
+partir de uma fonte incompleta e obrigada a entregar saída completa. O modelo é a
+instância mais rápida e mais fluente, **não uma classe separada.**
+
+Isso tem consequência para o protocolo deste projeto, e ela desloca o alvo. O PVB e
+os verificadores de saída foram construídos para o modelo. Os cinco níveis dizem
+que a mesma conferência se aplica ao instrumento, à categoria, à especificação e à
+regra — e **de todos esses, só a saída do modelo tem verificador automatizado.**
+
+⚠ **Delimitação do alcance.** São cinco casos, de um único observador, num único
+projeto, e as seções que os registram trazem as datas. **O que a série estabelece é
+a recorrência do mecanismo em tipos diferentes de artefato — não uma taxa, e não
+comparação de frequência entre os níveis.** Cinco casos não sustentam nenhuma das
+duas.
+
+⚠ **E uma ressalva sobre o terceiro nível, que é a mais importante da série:** o
+confronto com o `abnt` derrubou a **causa atribuída**, não necessariamente o
+fenômeno. O registro mantém em aberto se as três páginas não indexadas são escolha
+do modelo ou aproximação plausível, e **só o PDF decide.** Se forem aproximações, a
+categoria tinha razão de ser com a causa invertida. **A lacuna preenchida foi a
+explicação, não a observação** — e é por isso que o caso entra aqui: o defeito não
+foi ver o padrão, foi dar-lhe causa sem conferir a faixa.
+
+---
+
 ## Nota de método: medir e registrar a predição antes
 
 O que produziu os achados desta sessão não foi a disciplina de medir. Foi **medir
