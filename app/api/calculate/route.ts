@@ -40,6 +40,7 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { checkConnectivity, buildGraphFromJudgments, getCompletenessMetrics, type ComparisonGraph } from '@/lib/graph-utils';
 import { llsmIPC, buildPCM, calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
+import { aggregateMatrix, type AggregationResult } from '@/lib/aggregation';
 import {
   principalEigenvector,
   consistency as engineConsistency,
@@ -208,86 +209,11 @@ function extractRespondentId(response: any, idx: number): string {
 }
 
 // ============================================================================
-// AGREGAÇÃO DOS JULGAMENTOS (IPC AWARE)
+// AGREGAÇÃO DOS JULGAMENTOS
 // ============================================================================
-
-interface AggregationResult {
-  /** Matriz agregada. null = nenhum respondente fez esta comparação */
-  matrix: (number | null)[][];
-  /** Todas as células foram preenchidas? */
-  isComplete: boolean;
-  /** Número de células preenchidas (excluindo diagonal) */
-  filledCells: number;
-  /** Total de células possíveis (excluindo diagonal) */
-  totalCells: number;
-}
-
-function aggregateMatrix(
-  responses: ResponseData[],
-  type: string,
-  group: string | null,
-  items: string[]
-): AggregationResult {
-  const n = items.length;
-  const matrix: (number | null)[][] = Array(n).fill(null).map((_, i) =>
-    Array(n).fill(null).map((_, j) => (i === j ? 1 : null))
-  );
-  let filledCells = 0;
-  const totalCells = n * (n - 1) / 2;
-
-  for (let i = 0; i < n; i++) {
-    for (let k = i + 1; k < n; k++) {
-      const values: number[] = [];
-
-      for (const response of responses) {
-        if (!response.judgments) continue;
-
-        const judgment = response.judgments.find(jdg => {
-          const typeMatch = jdg.type === type;
-          const groupMatch = group === null || jdg.group === group;
-          const pairMatch = (jdg.itemA === items[i] && jdg.itemB === items[k]) ||
-            (jdg.itemA === items[k] && jdg.itemB === items[i]);
-          return typeMatch && groupMatch && pairMatch;
-        });
-
-        // MUDANÇA IPC: ignorar judgments pulados
-        if (judgment && !judgment.skipped && judgment.saatyValue != null) {
-          let saatyValue = judgment.saatyValue;
-
-          if (judgment.favors === 'equal') {
-            saatyValue = 1;
-          } else if (judgment.favors === 'B') {
-            if (judgment.itemA === items[i]) {
-              saatyValue = 1 / saatyValue;
-            }
-          } else if (judgment.favors === 'A') {
-            if (judgment.itemA === items[k]) {
-              saatyValue = 1 / saatyValue;
-            }
-          }
-
-          values.push(saatyValue);
-        }
-      }
-
-      if (values.length > 0) {
-        const pairLabel = `${group ?? type}[${items[i]}|${items[k]}]`;
-        const aggregated = aggregateAIJ(values, pairLabel);
-        matrix[i][k] = aggregated;
-        matrix[k][i] = 1 / aggregated;
-        filledCells++;
-      }
-      // Se values.length === 0: matrix[i][k] permanece null (IPC)
-    }
-  }
-
-  return {
-    matrix,
-    isComplete: filledCells === totalCells,
-    filledCells,
-    totalCells
-  };
-}
+// `aggregateMatrix` e `AggregationResult` foram movidos para `lib/aggregation.ts`
+// sem alteração de lógica, para que o handler desta rota possa ser exercitado em
+// teste. A síntese continua aqui, em `calculateAlternativeScores`.
 
 /**
  * Calcula pesos a partir de uma PCM que pode ser incompleta.
