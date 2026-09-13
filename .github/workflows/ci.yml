@@ -1,0 +1,63 @@
+# .github/workflows/ci.yml
+#
+# Motivo de existir: até A.24 nenhum teste protegia a entrega. O censo do motor
+# (`lib/__tests__/engine-census.test.ts`) é garantia declarada sem mecanismo se
+# depender de alguém rodar `npm test` antes do push — e as tarefas da fila mexem em
+# motor, payload e RAG.
+#
+# ⚠ Isto entrega o GATILHO, não a cobertura. A suíte protege o cálculo e não vê o
+# contrato do parecer nem a UI, que é onde as próximas tarefas mexem. A rede só fica
+# completa quando os testes previstos para a remoção do DI existirem. Registrado aqui
+# para que A.24 não se torne garantia declarada, que é o defeito que ela corrige.
+#
+# Decisões, e cada uma tem razão medida em 13/09/2026:
+#
+# - `node-version: 24.x` porque é o que a Vercel usa em produção (`nodeVersion` do
+#   projeto). CI e deploy divergentes produzem verde no CI e falha no deploy, que é
+#   exatamente o defeito que este workflow existe para não ter. O repositório não
+#   declara versão: não há `engines`, `.nvmrc` nem `.node-version`.
+#
+# - `npm ci` porque há `package-lock.json` em sincronia (`npm ci --dry-run` sai 0).
+#
+# - `npx --no-install tsc --noEmit` porque não existe script `typecheck` e não se
+#   cria alias no `package.json` para acomodar o runner. O `--no-install` é
+#   intencional: `typescript` já vem do lock e este passo não deve baixar nada.
+#
+# - NENHUM passo de lint: o `CLAUDE.md` registra que o ESLint é incompatível com o
+#   Next 14 neste projeto. O `next build` avisa que o ESLint não está instalado e
+#   segue com saída 0; o aviso não é falha.
+#
+# - Sem `continue-on-error`, sem `|| true`, sem `--passWithNoTests`, sem `set +e` e
+#   sem `if: always()`. Qualquer um dos três passos falhando derruba o job.
+
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24.x, a mesma versão da produção
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: npm
+
+      - name: Instalar dependências do lock
+        run: npm ci
+
+      - name: Typecheck
+        run: npx --no-install tsc --noEmit
+
+      - name: Build
+        run: npm run build
+
+      - name: Testes
+        run: npm test
