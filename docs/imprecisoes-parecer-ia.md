@@ -4344,12 +4344,23 @@ recomendação**.
 ⚠ **São recomendações para DECIDIR antes de implementar, e não decisões.** Ficam
 aqui na mesma ordem das quatro pendências acima, uma para cada.
 
-| # | Recomendação | O que ela resolve, pela medição |
+⚠ **A coluna da direita declara o ALCANCE**, e isso é deliberado: o ensaio mediu o
+comportamento de um handler diante de textos sintéticos, e **nenhuma das quatro
+recomendações é conclusão imposta por esses números**. Onde a medição apoia, o apoio
+está nomeado; onde ela não alcança, o limite está nomeado junto.
+
+| # | Recomendação | Base, e o que a medição NÃO sustenta |
 |---|---|---|
-| 1 | **Reprovação: quarentena visível**, com o texto **separado** do parecer aprovado e **os motivos apresentados** | escolhe uma das duas opções que o aceite admitia, e a que preserva o texto para leitura em vez de descartá-lo |
-| 2 | **Avisos: exibição explícita, sem bloqueio automático de todos.** ⚠ **Número identificado como incompatível com os dados exige tratamento próprio: não pode seguir como aviso inofensivo** | o caso medido `0.9999` produz **aviso**, e aviso não derruba `isValid`; tratar só `issues` o deixaria passar, e tratar todo aviso como bloqueio bloquearia `FORMULA_INCOMPLETA`, que o ensaio mostrou constante e alheio ao escore |
-| 3 | **Verificação inconclusiva: estado explícito, sem equivalência com aprovação** | o caso medido `0,9999` devolve validação **indistinguível** de `0.0641`, que é correto: hoje inconclusivo e aprovado chegam iguais |
-| 4 | **Nota e veredito entram na correção**, para que `"A"` e `"ACEITO"` extraídos do texto **não se sobreponham** à reprovação nem à inconclusão | resolve o item 4 no sentido de **incluir**; o ensaio mediu `nota: "A"` e `veredicto: "ACEITO"` nas quatro chamadas, inclusive na que trazia número inventado |
+| 1 | **Reprovação: quarentena visível**, com o texto **separado** do parecer aprovado e **os motivos apresentados** | **É escolha de funcionamento:** preservar o material para inspeção sem apresentá-lo como aprovado. ⚠ **Não é conclusão imposta pelos números do ensaio.** O aceite de A.27 admite bloquear ou pôr em quarentena, e **a medição não escolhe entre as duas**; a escolha é do pesquisador, e a justificativa dela é a finalidade, não o dado |
+| 2 | **Avisos: exibição explícita, sem bloqueio automático de todos.** ⚠ **Número identificado como incompatível com os dados exige tratamento próprio: não pode seguir como aviso inofensivo** | **Medido:** `FORMULA_INCOMPLETA` saiu nas quatro chamadas, logo **não distingue os quatro escores**; e aviso não derruba `isValid`, por `isValid: issues.length === 0`. ⚠ **Aviso constante NÃO é aviso dispensável**, e o ensaio **não demonstra** que esse aviso nunca deva bloquear. **A gravidade dele tem de ser definida pelo que a regra 2b efetivamente detecta** — texto que menciona fórmula sem distinguir pesos pessoais (`v`) de rescaling (`s`) —, e **essa definição não sai deste ensaio** |
+| 3 | **Verificação inconclusiva: estado explícito, sem equivalência com aprovação** | **Medido:** `0,9999` devolve validação **indistinguível** de `0.0641`, que é correto. ⚠ **Isso demonstra uma LACUNA DE DETECÇÃO, não um estado inconclusivo já reconhecido.** O "inconclusivo" é proposta para situações **identificáveis** em que a verificação não consegue julgar, e **não resolve sozinho uma falha silenciosa da expressão regular**: enquanto a regra não reconhecer o número, não há o que marcar como inconclusivo |
+| 4 | **Nota e veredito entram na correção**, para que `"A"` e `"ACEITO"` extraídos do texto **não se sobreponham** à reprovação nem à inconclusão | **Medido:** o handler **extraiu e devolveu** `nota: "A"` e `veredicto: "ACEITO"` nas quatro chamadas, inclusive na que trazia número inventado. ⚠ **O texto era SIMULADO por mock**, então o ensaio **não demonstra** que uma geração real produziria esses mesmos rótulos. O que ele demonstra é o **comportamento do handler** diante de um texto que os contém |
+
+⚠ **Consequência do item 3 para a especificação da Fase 2: são dois defeitos, e não
+um.** A **lacuna de detecção** da expressão de escores e a **ausência de estado
+inconclusivo** na resposta são distintas, e a segunda não cobre a primeira. **A Fase
+2 tem de tratá-las separadamente**, sob pena de criar um estado que nunca é atingido
+justamente nos casos que motivaram criá-lo.
 
 **Recomendação anterior, mantida:** qualquer saída escolhida precisa distinguir três
 estados na resposta, e não dois, porque hoje "verificado e aprovado", "verificado com
