@@ -161,13 +161,15 @@ describe('handler real de /api/calculate — painel completo', () => {
     expect(setDocSpy.mock.calls[0][0]).toEqual({ __col: 'calculations', __id: PROJECT_ID });
   });
 
-  test('as matrizes agregadas saem completas e pelo autovetor', async () => {
+  test('o documento gravado não carrega mais ipcMetadata', async () => {
+    // A.21: o campo saiu por consequência da remoção do IPC — é o resíduo `c` do
+    // âncora, que não exige script: a próxima recomputação grava sem ele.
     const res = await pedir();
     const body = await res.json();
     const c = body.calculation ?? body.data ?? body;
     const gravado = setDocSpy.mock.calls[0][1] as any;
-    expect(gravado.ipcMetadata.hasIncompleteGroups).toBe(false);
-    expect(gravado.ipcMetadata.bocr.method).toBe('EIGENVECTOR');
+    expect(gravado.ipcMetadata).toBeUndefined();
+    expect(c.ipcMetadata).toBeUndefined();
     expect(c.bocrConsistency.cr).toBeLessThan(0.1);
   });
 });

@@ -11,7 +11,7 @@ import { BOCR_CRITERIA, SUBCRITERIA, generateAllComparisons, Project, Alternativ
 import type { ComparisonItem, JudgmentItem } from '@/lib/types';
 import { calculateRespondentWeights } from '@/lib/respondent-weights';
 import { checkResponseCompleteness, describeIncompleteness } from '@/lib/completeness';
-import type { Judgment } from '@/lib/ahp-ipc';
+import type { JudgmentItem as Judgment } from '@/lib/types';
 
 // ============================================================
 // DADOS DEMOGRÁFICOS - OPÇÕES
@@ -523,105 +523,13 @@ import React from 'react';
 import { VideoBackground } from '@/components/VideoBackground';
 
 // ================================================================
-// VALIDAÇÃO IPC — Conectividade do Grafo via Union-Find
-// Bozóki et al. (2009), Teorema 1: solução única ↔ grafo conectado
+// A.21: a conectividade de grafo saiu daqui.
+// O union-find local (`checkGraphConnectivity`) e o realce das comparações
+// "obrigatórias" (`ipcGetRequiredComparisons`) existiam para admitir matriz
+// incompleta: bastava uma árvore geradora, e num bloco de alternativas com duas
+// alternativas isso era UMA comparação de cinco. Agora todas são obrigatórias, e
+// a validação é de completude, em `lib/completeness.ts`.
 // ================================================================
-
-interface GraphConnectivityResult {
-  connected: boolean;
-  components: number;
-  answeredCount: number;
-  minRequired: number;
-  totalPossible: number;
-}
-
-function checkGraphConnectivity(
-  nodes: string[],
-  comparisons: { itemA: string; itemB: string }[],
-  allJudgments: any[],
-  blockStartIndex: number
-): GraphConnectivityResult {
-  const n = nodes.length;
-  const minRequired = n - 1;
-  const totalPossible = comparisons.length;
-
-  if (n <= 1) return { connected: true, components: 1, answeredCount: 0, minRequired: 0, totalPossible };
-
-  const answeredEdges: [string, string][] = [];
-  let answeredCount = 0;
-
-  comparisons.forEach((comp, i) => {
-    const j = allJudgments[blockStartIndex + i];
-    if (j && !j.skipped) {
-      answeredEdges.push([comp.itemA, comp.itemB]);
-      answeredCount++;
-    }
-  });
-
-  if (answeredEdges.length === 0) {
-    return { connected: false, components: n, answeredCount: 0, minRequired, totalPossible };
-  }
-
-  // Union-Find com path compression + union by rank
-  const parent: Record<string, string> = {};
-  const rank: Record<string, number> = {};
-  nodes.forEach(nd => { parent[nd] = nd; rank[nd] = 0; });
-
-  function find(x: string): string {
-    if (parent[x] !== x) parent[x] = find(parent[x]);
-    return parent[x];
-  }
-  function union(a: string, b: string) {
-    const ra = find(a), rb = find(b);
-    if (ra === rb) return;
-    if (rank[ra] < rank[rb]) parent[ra] = rb;
-    else if (rank[ra] > rank[rb]) parent[rb] = ra;
-    else { parent[rb] = ra; rank[ra]++; }
-  }
-
-  answeredEdges.forEach(([a, b]) => union(a, b));
-  const roots = new Set(nodes.map(nd => find(nd)));
-
-  return { connected: roots.size === 1, components: roots.size, answeredCount, minRequired, totalPossible };
-}
-
-/**
- * Identifica comparações obrigatórias para conectar o grafo.
- * - Grafo conectado → todas false (nada mais obrigatório)
- * - Nenhuma resposta → primeiras n-1 como guia visual
- * - Caso contrário → comparações envolvendo ≥1 nó ainda isolado
- */
-function ipcGetRequiredComparisons(
-  nodes: string[],
-  comparisons: { itemA: string; itemB: string }[],
-  allJudgments: any[],
-  blockStartIndex: number
-): boolean[] {
-  const n = nodes.length;
-  if (n <= 2) return comparisons.map(() => true);
-
-  const connectedNodes = new Set<string>();
-  const answeredSet = new Set<number>();
-
-  comparisons.forEach((comp, i) => {
-    const j = allJudgments[blockStartIndex + i];
-    if (j && !j.skipped) {
-      connectedNodes.add(comp.itemA);
-      connectedNodes.add(comp.itemB);
-      answeredSet.add(i);
-    }
-  });
-
-  const { connected } = checkGraphConnectivity(nodes, comparisons, allJudgments, blockStartIndex);
-  if (connected) return comparisons.map(() => false);
-
-  if (connectedNodes.size === 0) return comparisons.map((_, i) => i < n - 1);
-
-  return comparisons.map((comp, i) => {
-    if (answeredSet.has(i)) return false;
-    return !connectedNodes.has(comp.itemA) || !connectedNodes.has(comp.itemB);
-  });
-}
 
 /**
  * Partículas flutuantes estilo "network" sobre o vídeo.
@@ -962,14 +870,13 @@ function AvaliacaoProjectPageInner() {
     );
   }
 
-  // === VALIDAÇÃO IPC REAL — Union-Find (Bozóki et al., 2009) ===
+  // === PROGRESSO POR BLOCO: todas as comparações são obrigatórias (A.21) ===
   const blockValidation = useMemo(() => {
     return blocks.map(block => {
-      const result = checkGraphConnectivity(block.nodes, block.comparisons, judgments, block.startIndex);
       const answeredTotal = block.comparisons.filter((_, i) => {
         return judgments[block.startIndex + i] != null;
       }).length;
-      return { ...result, answeredTotal, isComplete: answeredTotal === block.comparisons.length };
+      return { answeredTotal, isComplete: answeredTotal === block.comparisons.length };
     });
   }, [blocks, judgments]);
 
@@ -979,13 +886,6 @@ function AvaliacaoProjectPageInner() {
   const allBlocksValid = blockValidation.every(v => v.isComplete);
   const currentBlockValid = blockValidation[currentBlockIndex]?.isComplete ?? false;
   const currentBlockComplete = blockValidation[currentBlockIndex]?.isComplete ?? false;
-
-  /** Wrapper que chama a função global ipcGetRequiredComparisons */
-  function getRequiredComparisons(
-    nodes: string[], comparisons: any[], jdg: any[], startIndex: number
-  ): boolean[] {
-    return ipcGetRequiredComparisons(nodes, comparisons, jdg, startIndex);
-  }
 
   // ================================================================
   // HANDLER DE RESPOSTA POR BLOCO
@@ -3398,7 +3298,6 @@ function AvaliacaoProjectPageInner() {
           {blocks[currentBlockIndex] && (() => {
             const block = blocks[currentBlockIndex];
             const validation = blockValidation[currentBlockIndex];
-            const requiredMap = getRequiredComparisons(block.nodes, block.comparisons, judgments, block.startIndex);
 
             return (
               <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-visible">
@@ -3492,7 +3391,8 @@ function AvaliacaoProjectPageInner() {
                       const judgment = judgments[globalIndex];
                       const currentValue = judgment && !judgment.skipped ? judgment.rawSlider : null;
                       const isSkipped = judgment?.skipped === true;
-                      const isRequired = requiredMap[i];
+                      // Toda comparação não respondida é obrigatória.
+                      const isRequired = currentValue === null;
 
                       return (
                         <div key={`${block.id}-${i}`}>

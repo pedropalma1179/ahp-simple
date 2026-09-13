@@ -141,7 +141,10 @@ function arquivosComPadrao(padrao: RegExp): string[] {
 const AUTORIZADO_DERIVACAO = ['lib/ahp-engine.ts'];
 const AUTORIZADO_MEDIA_GEOMETRICA_LINHAS: string[] = [];
 const AUTORIZADO_TABELA_RI = ['lib/ahp-engine.ts'];
-const AUTORIZADO_LLSM = ['lib/ahp-ipc.ts'];
+// A.21 retirou o IPC: o instrumento aceita somente respostas completas, e não há
+// módulo autorizado a implementar o LLSM. Lista VAZIA — autorizar em qualquer
+// arquivo inverteria a garantia.
+const AUTORIZADO_LLSM: string[] = [];
 
 describe('Censo do motor de derivação', () => {
   test('apenas o motor implementa iteração de potência', () => {

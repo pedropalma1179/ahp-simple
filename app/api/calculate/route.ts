@@ -762,62 +762,17 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // MUDANÇA 3 — Verificar cálculo de CR individual (n-1 para grafo conectado)
-    // O número de nós (n) por grupo: BOCR = 4, Magnitudes = 4, Subcritérios = 5, Alternativas = projeto tem alternatives.length
-    const altCount = (project as any)?.alternatives?.length || 0;
-
+    // A.21: as guardas n-1 por grupo saíram. Elas anulavam o CR de uma matriz com
+    // menos de n-1 comparações, que é tolerância a matriz incompleta — e o loop das
+    // matrizes de alternativas tinha corpo vazio. Depois do portão de completude,
+    // toda resposta que chega aqui tem os 72 pares, e as guardas eram inalcançáveis.
     responses.forEach(r => {
       if (!r.judgments) return;
-
-      // Contar julgamentos preenchidos (que não sejam skip) por grupo
-      const validJudgments = r.judgments.filter((j: any) => j && j.favors);
-      
-      const counts: Record<string, number> = {};
-      validJudgments.forEach((j: any) => {
-        counts[j.group] = (counts[j.group] || 0) + 1;
-      });
-
-      // Função auxiliar para anular CR se faltar n-1
-      const invalidateCR = (obj: any, path: string[]) => {
-        if (!obj) return;
-        let curr = obj;
-        for (let i = 0; i < path.length - 1; i++) {
-          if (!curr[path[i]]) return;
-          curr = curr[path[i]];
-        }
-        const last = path[path.length - 1];
-        if (curr[last] !== undefined) {
-           curr[last] = -1; // Marcador para N/A
-        }
-      };
-
-      // BOCR (n=4 -> n-1=3)
-      if ((counts['BOCR'] || 0) < 3) invalidateCR(r, ['responses', 'bocrConsistency', 'cr']);
-      
-      // Subcritérios B, O, C, R (n=5 -> n-1=4)
-      if ((counts['B'] || 0) < 4) invalidateCR(r, ['responses', 'subConsistency', 'B', 'cr']);
-      if ((counts['O'] || 0) < 4) invalidateCR(r, ['responses', 'subConsistency', 'O', 'cr']);
-      if ((counts['C'] || 0) < 4) invalidateCR(r, ['responses', 'subConsistency', 'C', 'cr']);
-      if ((counts['R'] || 0) < 4) invalidateCR(r, ['responses', 'subConsistency', 'R', 'cr']);
-
-      // Alternativas (n=altCount -> n-1 = altCount - 1)
-      if (altCount > 0) {
-        const requiredExt = altCount - 1;
-        // B1..B5, O1..O5, C1..C5, R1..R5
-        ['B', 'O', 'C', 'R'].forEach(merit => {
-          for (let i = 1; i <= 5; i++) {
-             const grp = `${merit}${i}`;
-             if ((counts[grp] || 0) < requiredExt) {
-                // Not stored in response right now but good for future-proofing
-             }
-          }
-        });
-      }
 
       // Recalcular avgCR (CR governante = MAIOR CR das matrizes não triviais).
       // Aceitação no AHP é por matriz (Saaty, 1977): o respondente só é aceitável se
       // TODAS ficam sob 0,10, então o máximo governa — não a média. Inclui Magnitude.
-      // -1 é marcador de N/A (matriz sem n-1 comparações); excluído do máximo.
+      // O marcador -1 saiu com as guardas n-1: nada mais o produz.
       if (r.responses) {
          const crs = [
            r.responses.bocrConsistency?.cr,
@@ -826,7 +781,7 @@ export async function POST(request: NextRequest) {
            r.responses.subConsistency?.O?.cr,
            r.responses.subConsistency?.C?.cr,
            r.responses.subConsistency?.R?.cr
-         ].filter(val => val !== undefined && val !== null && val !== -1 && !isNaN(val));
+         ].filter(val => val !== undefined && val !== null && !isNaN(val));
          
          if (crs.length > 0) {
             r.responses.avgCR = Math.max(...crs);
@@ -883,8 +838,6 @@ export async function POST(request: NextRequest) {
     const subWeights: Record<string, number[]> = {};
     const subConsistency: Record<string, { cr: number; lambda: number }> = {};
     const subMatrices: Record<string, number[][]> = {};
-    const subMethods: Record<string, string> = {};
-    const subCompleteness: Record<string, { ratio: number; given: number; possible: number; isComplete: boolean }> = {};
 
     for (const merit of MERITS) {
       const subItems = Array.from(
@@ -897,8 +850,6 @@ export async function POST(request: NextRequest) {
       subWeights[merit] = subResult.weights;
       subConsistency[merit] = { cr: subResult.consistency.cr, lambda: subResult.consistency.lambda };
       subMatrices[merit] = subAggregation.matrix as number[][];
-      subMethods[merit] = subResult.method;
-      subCompleteness[merit] = subResult.completeness;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -1114,29 +1065,6 @@ export async function POST(request: NextRequest) {
       },
 
       // === IPC METADATA ===
-      ipcMetadata: {
-        bocr: {
-          method: bocrResult.method,
-          completeness: bocrResult.completeness
-        },
-        magnitude: {
-          method: magnitudeResult.method,
-          completeness: magnitudeResult.completeness
-        },
-        subcriteria: Object.fromEntries(
-          MERITS.map(m => [m, {
-            method: subMethods[m],
-            completeness: subCompleteness[m]
-          }])
-        ),
-        hasIncompleteGroups: [
-          bocrResult.method,
-          magnitudeResult.method,
-          ...Object.values(subMethods)
-        ].includes('LLSM_IPC'),
-        version: 'IPC-1.0',
-        reference: 'Bozóki, Fülöp & Rónyai (2009). On optimal completion of incomplete pairwise comparison matrices.'
-      }
     };
 
     // Salvar no Firestore
