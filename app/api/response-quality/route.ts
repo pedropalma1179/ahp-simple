@@ -4,9 +4,9 @@
 // Correções: IDs undefined, CR NaN, formatos variados, fallback para judgments brutos
 
 import { NextRequest, NextResponse } from 'next/server';
-import { calculateAllWeights } from '@/lib/ahp-ipc';
+import { calculateRespondentWeights } from '@/lib/respondent-weights';
 import { randomIndex } from '@/lib/ahp-engine';
-import type { Judgment } from '@/lib/ahp-ipc';
+import type { JudgmentItem as Judgment } from '@/lib/types';
 
 // ============================================================
 // CONSTANTES AHP - Saaty (1980)
@@ -157,7 +157,7 @@ function extractRespondentCRs(response: any): RespondentCRs {
 
 /**
  * Fallback: calcula CRs a partir dos judgments brutos quando o campo responses não existe.
- * Usa calculateAllWeights da lib ahp-ipc (mesma lógica do frontend e simulador).
+ * Usa calculateRespondentWeights (mesma lógica do frontend e do cálculo).
  */
 function computeCRsFromJudgments(response: any): RespondentCRs | null {
   const judgments = response.judgments || response.responses?.judgments;
@@ -172,7 +172,7 @@ function computeCRsFromJudgments(response: any): RespondentCRs | null {
   }
 
   try {
-    const result = calculateAllWeights(judgments as Judgment[], altCodes);
+    const result = calculateRespondentWeights(judgments as Judgment[], altCodes);
 
     return {
       bocr: result.bocrWeights.cr,
@@ -180,7 +180,8 @@ function computeCRsFromJudgments(response: any): RespondentCRs | null {
       opportunities: result.subWeights['O']?.cr || 0,
       costs: result.subWeights['C']?.cr || 0,
       risks: result.subWeights['R']?.cr || 0,
-      avgCR: result.avgCR,
+      // CR governante; o nome do campo é contrato com os consumidores.
+      avgCR: result.maxCR,
     };
   } catch (e) {
     console.warn('[QUALITY] Fallback CR computation failed:', e);

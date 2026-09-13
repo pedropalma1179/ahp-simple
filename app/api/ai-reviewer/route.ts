@@ -309,12 +309,6 @@ interface ReviewRequest {
   projectDescription?: string;
   sensitivityInflections?: Record<string, number | null>;
   alternatives?: Array<{ code: string; name: string; description?: string }>;
-  ipcMetadata?: {
-    bocr: { method: string; completeness: any };
-    magnitude: { method: string; completeness: any };
-    subcriteria: Record<string, { method: string; completeness: any }>;
-    hasIncompleteGroups: boolean;
-  };
   finalScores?: Array<{ code: string; name: string; score: number;[key: string]: any }>;
   demographicsSummary?: {
     total: number;
@@ -685,7 +679,6 @@ function normalizeRequest(rawData: any): ReviewRequest {
     overallStats: rawData.overallStats || rawData.qualityMetrics,
     sensitivityInflections: rawData.sensitivityInflections,
     demographicsSummary: rawData.demographicsSummary,
-    ipcMetadata: rawData.ipcMetadata,
     alternatives: rawData.alternatives || [],
     finalScores: rawData.finalScores || [],
     bocrConsistency: rawData.bocrConsistency || { cr: 0, lambda: 0 },
@@ -1088,13 +1081,6 @@ ${formulaSection}
 
 ${finalScoresSection}
 
-${data.ipcMetadata ? `
-## COMPLETUDE DAS MATRIZES (IPC)
-${JSON.stringify(data.ipcMetadata, null, 2)}
-
-Nota: Se hasIncompleteGroups = true, o método LLSM-IPC (Bozóki et al., 2010) foi utilizado para grupos com matrizes incompletas.
-Se hasIncompleteGroups = false, todas as matrizes são completas e o método clássico (Eigenvector) foi utilizado.
-` : ''}
 
 ${respondentSummary}
 
@@ -1634,7 +1620,6 @@ export async function POST(request: NextRequest) {
           respondents: mappedRespondents,
           finalScores: finalScores.length > 0 ? finalScores : undefined,
           sensitiveGroups,
-          ipcMetadata: data.ipcMetadata,
         });
         console.log(`${LOG_PREFIX} Bias OK: ${biasAnalysis.overallRiskLevel}, CR compliance: ${(biasAnalysis.crComplianceRate * 100).toFixed(1)}%, ${biasAnalysis.totalIndicators} indicadores`);
       } else {

@@ -38,14 +38,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { checkConnectivity, buildGraphFromJudgments, getCompletenessMetrics, type ComparisonGraph } from '@/lib/graph-utils';
-import { llsmIPC, buildPCM, calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
 import { aggregateMatrix, type AggregationResult } from '@/lib/aggregation';
+import { checkResponseCompleteness, describeIncompleteness } from '@/lib/completeness';
+import { calculateRespondentWeights } from '@/lib/respondent-weights';
 import {
   principalEigenvector,
   consistency as engineConsistency,
   aggregateAIJ,
-  randomIndex,
 } from '@/lib/ahp-engine';
 
 // ============================================================================
@@ -59,34 +58,6 @@ const SUBCRITERIA_PER_MERIT = 5;
 // FUNÇÕES MATEMÁTICAS BASE
 // ============================================================================
 
-/**
- * Completa uma PCM incompleta usando pesos calculados.
- * Para cada célula null, preenche com w_i/w_j.
- * Necessário para manter backward compatibility com código downstream
- * que espera number[][] (ex: serialização de aggregatedMatrices).
- */
-function completePCM(
-  partialMatrix: (number | null)[][],
-  weights: number[]
-): number[][] {
-  const n = partialMatrix.length;
-  const complete: number[][] = Array(n).fill(null).map(() => Array(n).fill(1));
-
-  for (let i = 0; i < n; i++) {
-    for (let j = 0; j < n; j++) {
-      if (i === j) {
-        complete[i][j] = 1;
-      } else if (partialMatrix[i][j] !== null) {
-        complete[i][j] = partialMatrix[i][j]!;
-      } else {
-        // Completar com wi/wj (Bozóki et al., 2009)
-        complete[i][j] = weights[j] > 0.0001 ? weights[i] / weights[j] : 1;
-      }
-    }
-  }
-
-  return complete;
-}
 
 // ============================================================================
 // INTERFACES
@@ -216,84 +187,48 @@ function extractRespondentId(response: any, idx: number): string {
 // teste. A síntese continua aqui, em `calculateAlternativeScores`.
 
 /**
- * Calcula pesos a partir de uma PCM que pode ser incompleta.
- * Se completa: usa eigenvector clássico (resultado idêntico ao atual).
- * Se incompleta + conectada: usa LLSM-IPC (Bozóki et al., 2009).
- * Se incompleta + desconectada: lança erro.
- * 
- * @returns { weights, consistency, method, completeness }
+ * Calcula pesos e consistência de uma PCM de grupo.
+ *
+ * Só há um caminho: matriz COMPLETA, derivada pelo motor. Matriz incompleta é
+ * erro, não caso de tratamento — o instrumento aceita somente respostas
+ * completas (A.21), e o portão de completude individual garante que toda resposta
+ * que chega aqui tem os 72 pares. Se ainda assim a matriz agregada vier
+ * incompleta, isso é defeito e tem de aparecer, não ser completado.
  */
-function calculateWeightsIPC(
+function calculateWeightsGroup(
   aggregation: AggregationResult,
   items: string[],
   groupLabel: string
 ): {
   weights: number[];
   consistency: { cr: number; ci: number; lambda: number };
-  method: 'EIGENVECTOR' | 'LLSM_IPC';
+  method: string;
   completeness: { ratio: number; given: number; possible: number; isComplete: boolean };
 } {
-  const n = items.length;
-
-  if (aggregation.isComplete) {
-    // Caminho clássico — 100% backward compatible
-    const completeMatrix = aggregation.matrix as number[][];
-    const eigen = principalEigenvector(completeMatrix, groupLabel);
-    const cons = engineConsistency(completeMatrix, groupLabel);
-    console.log(`[IPC] ${groupLabel}: COMPLETA (${aggregation.filledCells}/${aggregation.totalCells}), método ${eigen.method}`);
-    return {
-      weights: eigen.weights,
-      consistency: { cr: cons.cr, ci: cons.ci, lambda: cons.lambdaMax },
-      method: eigen.method,
-      completeness: {
-        ratio: 1.0,
-        given: aggregation.filledCells,
-        possible: aggregation.totalCells,
-        isComplete: true
-      }
-    };
+  if (!aggregation.isComplete) {
+    const faltando = aggregation.totalCells - aggregation.filledCells;
+    throw new Error(
+      `[CALCULATE] PCM agregada de ${groupLabel} está INCOMPLETA: ` +
+      `${aggregation.filledCells}/${aggregation.totalCells} células, ${faltando} sem nenhum ` +
+      `julgamento. O instrumento aceita somente respostas completas; não há caminho ` +
+      `para matriz incompleta.`
+    );
   }
 
-  // PCM incompleta — verificar conectividade
-  console.log(`[IPC] ${groupLabel}: INCOMPLETA (${aggregation.filledCells}/${aggregation.totalCells}), verificando conectividade...`);
-
-  // Construir grafo a partir da PCM agregada
-  const edges: [number, number][] = [];
-  for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) {
-      if (aggregation.matrix[i][j] !== null) {
-        edges.push([i, j]);
-      }
-    }
-  }
-  const graph: ComparisonGraph = { n, edges };
-  const connectivity = checkConnectivity(graph);
-
-  if (!connectivity.isConnected) {
-    const error = `[IPC] ERRO: PCM agregada para ${groupLabel} tem grafo DESCONECTADO ` +
-      `(${connectivity.componentCount} componentes). Não é possível calcular pesos. ` +
-      `Componentes: ${JSON.stringify(connectivity.components.map(c => c.map(idx => items[idx])))}`;
-    console.error(error);
-    throw new Error(error);
-  }
-
-  // Grafo conectado → usar LLSM-IPC
-  const llsmResult = llsmIPC(aggregation.matrix, graph);
-  console.log(`[IPC] ${groupLabel}: LLSM-IPC convergiu. Pesos: [${llsmResult.weights.map(w => w.toFixed(4)).join(', ')}], CR=${llsmResult.cr.toFixed(4)}`);
+  const completeMatrix = aggregation.matrix as number[][];
+  const eigen = principalEigenvector(completeMatrix, groupLabel);
+  const cons = engineConsistency(completeMatrix, groupLabel);
+  console.log(`[CALCULATE] ${groupLabel}: COMPLETA (${aggregation.filledCells}/${aggregation.totalCells}), método ${eigen.method}`);
 
   return {
-    weights: llsmResult.weights,
-    consistency: {
-      cr: llsmResult.cr,
-      ci: llsmResult.cr * randomIndex(n), // CI = CR × RI
-      lambda: llsmResult.lambdaMax
-    },
-    method: 'LLSM_IPC',
+    weights: eigen.weights,
+    consistency: { cr: cons.cr, ci: cons.ci, lambda: cons.lambdaMax },
+    method: eigen.method,
     completeness: {
-      ratio: aggregation.filledCells / aggregation.totalCells,
+      ratio: 1.0,
       given: aggregation.filledCells,
       possible: aggregation.totalCells,
-      isComplete: false
+      isComplete: true
     }
   };
 }
@@ -757,21 +692,56 @@ export async function POST(request: NextRequest) {
       return !excludedRespondentIds.includes(id);
     });
 
+    // ══════════════════════════════════════════════════════════════════════
+    // PORTÃO DE COMPLETUDE INDIVIDUAL (A.21)
+    //
+    // O instrumento aceita somente respostas completas. `completedAt` diz que o
+    // respondente clicou em finalizar, não que respondeu tudo: a validação antiga
+    // exigia apenas grafo conectado por bloco, e nos blocos de alternativas com
+    // duas alternativas o mínimo era UMA comparação de cinco.
+    //
+    // Este portão é DEFESA EM PROFUNDIDADE para documentos legados. O portão que
+    // fecha a porta é o da finalização, em `avaliacao/page.tsx`. Medido em
+    // 12/09/2026: dos doze respondentes do painel de 2026, ZERO são incompletos,
+    // então aqui não se espera efeito — e a ausência de efeito não é falha.
+    //
+    // Rejeição por incompletude NÃO entra em `excludedRespondentIds`: aquela lista
+    // é decisão metodológica do gestor, vem no corpo do POST e exige
+    // fundamentação. Esta é dado inválido, decidida pelo sistema.
+    // ══════════════════════════════════════════════════════════════════════
+    const rejectedIncomplete: { respondentId: string; matrizes: string[] }[] = [];
+    const completeResponses = responses.filter((r, idx) => {
+      const id = extractRespondentId(r, idx);
+      const relatorio = checkResponseCompleteness(r.judgments as any, alternatives);
+      if (relatorio.isComplete) return true;
+
+      rejectedIncomplete.push({ respondentId: id, matrizes: describeIncompleteness(relatorio) });
+      console.warn(
+        `[CALCULATE] Resposta rejeitada por incompletude: ${id} — ` +
+        `${relatorio.validPairs}/${relatorio.expectedPairs} pares válidos em ` +
+        `${relatorio.incompleteMatrices.length} matriz(es) com defeito`
+      );
+      return false;
+    });
+    responses.length = 0;
+    responses.push(...completeResponses);
+
     // Fallback: calcular campo responses para responses que têm judgments mas não têm pesos pré-calculados
     const altCodesForCalc = alternatives.map((a: any) => a.code);
     responses.forEach(r => {
       if (r.judgments && r.judgments.length > 0 && (!r.responses || !r.responses.avgCR)) {
         try {
-          const ipcResult = calculateAllWeights(r.judgments as IPCJudgment[], altCodesForCalc);
+          const ipcResult = calculateRespondentWeights(r.judgments as any, altCodesForCalc);
           r.responses = {
-            avgCR: ipcResult.avgCR,
+            // `avgCR` é o CR GOVERNANTE, o máximo entre as seis matrizes não
+            // triviais. O nome do campo é preservado por ser contrato de dados; a
+            // medida e sua apresentação são de A.25.
+            avgCR: ipcResult.maxCR,
             bocrWeights: ipcResult.bocrWeights.weights,
             bocrConsistency: {
               cr: ipcResult.bocrWeights.cr,
               lambda: ipcResult.bocrWeights.lambdaMax,
-              ci: ipcResult.bocrWeights.lambdaMax > 0
-                ? (ipcResult.bocrWeights.lambdaMax - ipcResult.bocrWeights.items.length) / (ipcResult.bocrWeights.items.length - 1)
-                : 0
+              ci: ipcResult.bocrWeights.ci
             },
             magnitudeWeights: ipcResult.magnitudeWeights.weights,
             magnitudeConsistency: {
@@ -785,7 +755,7 @@ export async function POST(request: NextRequest) {
               Object.entries(ipcResult.subWeights).map(([k, v]) => [k, { cr: v.cr, lambda: v.lambdaMax }])
             ),
           };
-          console.log(`[CALCULATE] Fallback: computed responses for ${extractRespondentId(r, 0)}, avgCR=${(ipcResult.avgCR * 100).toFixed(2)}%`);
+          console.log(`[CALCULATE] Fallback: computed responses for ${extractRespondentId(r, 0)}, CR governante=${(ipcResult.maxCR * 100).toFixed(2)}% em ${ipcResult.governingMatrix}`);
         } catch (e) {
           console.warn(`[CALCULATE] Fallback CR computation failed for response:`, e);
         }
@@ -871,9 +841,16 @@ export async function POST(request: NextRequest) {
     console.log(`[BOCR v5.0] Processando ${responseCount} respostas (Excluídos: ${excludedCount})`);
 
     if (responseCount === 0) {
+      // Nenhum respondente aceito: falha explícita, com os motivos NO CORPO, e
+      // nada é gravado — a única escrita desta rota é o `setDoc` do fim, então o
+      // resultado anterior permanece intacto.
       return NextResponse.json({
         success: false,
-        error: 'Todas as respostas completas foram excluídas. Impossível calcular.'
+        error: rejectedIncomplete.length > 0
+          ? 'Nenhuma resposta aceita: todas foram excluídas pelo gestor ou rejeitadas por incompletude.'
+          : 'Todas as respostas completas foram excluídas. Impossível calcular.',
+        excludedByDecision: excludedRespondentIds,
+        rejectedIncomplete
       }, { status: 400 });
     }
 
@@ -882,12 +859,10 @@ export async function POST(request: NextRequest) {
     // ══════════════════════════════════════════════════════════════════════
 
     const bocrAggregation = aggregateMatrix(responses, 'bocr', 'BOCR', [...MERITS]);
-    const bocrResult = calculateWeightsIPC(bocrAggregation, [...MERITS], 'BOCR');
+    const bocrResult = calculateWeightsGroup(bocrAggregation, [...MERITS], 'BOCR');
     const personalWeights = bocrResult.weights;
     const bocrConsistency = bocrResult.consistency;
-    const bocrMatrix = bocrAggregation.isComplete
-      ? bocrAggregation.matrix as number[][]
-      : completePCM(bocrAggregation.matrix, personalWeights);
+    const bocrMatrix = bocrAggregation.matrix as number[][];
     console.log('[BOCR v5.0] Personal weights:', personalWeights, `(${bocrResult.method})`);
 
     // ══════════════════════════════════════════════════════════════════════
@@ -895,12 +870,10 @@ export async function POST(request: NextRequest) {
     // ══════════════════════════════════════════════════════════════════════
 
     const magnitudeAggregation = aggregateMatrix(responses, 'magnitude', 'MAGNITUDE', [...MERITS]);
-    const magnitudeResult = calculateWeightsIPC(magnitudeAggregation, [...MERITS], 'MAGNITUDE');
+    const magnitudeResult = calculateWeightsGroup(magnitudeAggregation, [...MERITS], 'MAGNITUDE');
     const rescalingWeights = magnitudeResult.weights;
     const magnitudeConsistency = magnitudeResult.consistency;
-    const magnitudeMatrix = magnitudeAggregation.isComplete
-      ? magnitudeAggregation.matrix as number[][]
-      : completePCM(magnitudeAggregation.matrix, rescalingWeights);
+    const magnitudeMatrix = magnitudeAggregation.matrix as number[][];
     console.log('[BOCR v5.0] Rescaling weights:', rescalingWeights, `(${magnitudeResult.method})`);
 
     // ══════════════════════════════════════════════════════════════════════
@@ -919,13 +892,11 @@ export async function POST(request: NextRequest) {
         (_, i) => `${merit}${i + 1}`
       );
       const subAggregation = aggregateMatrix(responses, 'subcriteria', merit, subItems);
-      const subResult = calculateWeightsIPC(subAggregation, subItems, `SUB-${merit}`);
+      const subResult = calculateWeightsGroup(subAggregation, subItems, `SUB-${merit}`);
 
       subWeights[merit] = subResult.weights;
       subConsistency[merit] = { cr: subResult.consistency.cr, lambda: subResult.consistency.lambda };
-      subMatrices[merit] = subAggregation.isComplete
-        ? subAggregation.matrix as number[][]
-        : completePCM(subAggregation.matrix, subResult.weights);
+      subMatrices[merit] = subAggregation.matrix as number[][];
       subMethods[merit] = subResult.method;
       subCompleteness[merit] = subResult.completeness;
     }
@@ -944,7 +915,7 @@ export async function POST(request: NextRequest) {
       for (let subIdx = 0; subIdx < SUBCRITERIA_PER_MERIT; subIdx++) {
         const subCode = `${merit}${subIdx + 1}`;
         const altAggregation = aggregateMatrix(responses, 'alternatives', subCode, altCodes);
-        const altResult = calculateWeightsIPC(altAggregation, altCodes, `ALT-${subCode}`);
+        const altResult = calculateWeightsGroup(altAggregation, altCodes, `ALT-${subCode}`);
 
         altScores[subCode] = {};
         alternatives.forEach((alt: any, i: number) => {
@@ -1135,7 +1106,11 @@ export async function POST(request: NextRequest) {
           lee2009a: 'Lee (2009a) Supplier selection: Negative priorities, concordance analysis',
           alizadeh2020: 'Alizadeh et al. (2020) Energy policy: Sensitivity classification'
         },
-        excludedRespondentIds // Persistir lista de excluídos
+        excludedRespondentIds, // Persistir lista de excluídos: decisão do gestor
+        // Rejeição por integridade, decidida pelo sistema. Campo separado de
+        // propósito: no mesmo campo, um defeito de coleta passaria a parecer
+        // decisão de pesquisa. Vazio é o valor esperado.
+        rejectedIncomplete
       },
 
       // === IPC METADATA ===

@@ -172,6 +172,81 @@ describe('handler real de /api/calculate — painel completo', () => {
   });
 });
 
+describe('handler real de /api/calculate — portão de completude', () => {
+  /** Remove um par de um respondente, mantendo `completedAt`. */
+  function mutilar(respostas: any[], id: string) {
+    const alvo = respostas.find(r => r.id === id)!;
+    const i = alvo.judgments.findIndex(
+      (j: any) => j.type === 'subcriteria' && j.group === 'O' && j.itemA === 'O1' && j.itemB === 'O2'
+    );
+    alvo.judgments.splice(i, 1);
+    return alvo;
+  }
+
+  test('resposta incompleta COM completedAt é rejeitada e registrada', async () => {
+    const respostas = JSON.parse(JSON.stringify(RESPOSTAS));
+    mutilar(respostas, 'R05');
+    montarStore(respostas);
+
+    const res = await pedir();
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    const gravado = setDocSpy.mock.calls[0][1] as any;
+
+    expect(gravado.metadata.rejectedIncomplete).toEqual([
+      { respondentId: 'R05', matrizes: ['O: 1 comparação(ões) sem resposta'] }
+    ]);
+    expect(gravado.responseCount).toBe(11);
+  });
+
+  test('painel misto: só as respostas válidas participam, e o resultado muda', async () => {
+    const completo = await pedir();
+    const refBody = await completo.json();
+    const refCalc = refBody.calculation ?? refBody.data ?? refBody;
+    setDocSpy.mockClear();
+
+    const respostas = JSON.parse(JSON.stringify(RESPOSTAS));
+    mutilar(respostas, 'R05');
+    montarStore(respostas);
+
+    const res = await pedir();
+    const body = await res.json();
+    const c = body.calculation ?? body.data ?? body;
+
+    expect(c.responseCount).toBe(11);
+    // O respondente rejeitado não entra na agregação: com onze, os pesos mudam.
+    expect(c.bocrWeights.map(q4)).not.toEqual(refCalc.bocrWeights.map(q4));
+    // E a decisão do gestor continua num campo separado, vazia.
+    const gravado = setDocSpy.mock.calls[0][1] as any;
+    expect(gravado.metadata.excludedRespondentIds).toEqual([]);
+    expect(gravado.metadata.rejectedIncomplete).toHaveLength(1);
+  });
+
+  test('painel inteiro inválido: 400, motivos no corpo, e NENHUMA escrita', async () => {
+    const respostas = JSON.parse(JSON.stringify(RESPOSTAS));
+    for (const r of respostas) mutilar(respostas, r.id);
+    montarStore(respostas);
+
+    const res = await pedir();
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.rejectedIncomplete).toHaveLength(12);
+    expect(body.rejectedIncomplete[0]).toEqual({
+      respondentId: 'R01',
+      matrizes: ['O: 1 comparação(ões) sem resposta']
+    });
+    // O resultado anterior não é sobrescrito.
+    expect(setDocSpy).not.toHaveBeenCalled();
+  });
+
+  test('painel completo grava rejectedIncomplete vazio, que é o valor esperado hoje', async () => {
+    await pedir();
+    const gravado = setDocSpy.mock.calls[0][1] as any;
+    expect(gravado.metadata.rejectedIncomplete).toEqual([]);
+  });
+});
+
 describe('handler real de /api/calculate — guardas que já existem', () => {
   test('sem projectId devolve 400 e não escreve', async () => {
     const res = await pedir({} as any);

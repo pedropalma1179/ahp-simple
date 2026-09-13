@@ -58,7 +58,8 @@ import {
 } from '@/components/charts';
 import BentoGridDashboard from '@/components/BentoGridDashboard';
 import BOCRConsistencyMatrix from '@/components/BOCRConsistencyMatrix';
-import { calculateAllWeights, type Judgment as IPCJudgment } from '@/lib/ahp-ipc';
+import { calculateRespondentWeights } from '@/lib/respondent-weights';
+import type { JudgmentItem as IPCJudgment } from '@/lib/types';
 import { randomIndex } from '@/lib/ahp-engine';
 
 // As seis matrizes não triviais do respondente, na ordem da Tabela 22 do
@@ -85,7 +86,7 @@ function calcularCRsIndividuais(
   if (!alternativeCodes || alternativeCodes.length === 0) return null;
 
   try {
-    const result = calculateAllWeights(judgments, alternativeCodes);
+    const result = calculateRespondentWeights(judgments, alternativeCodes);
 
     // CR indefinido é null, nunca zero: zero num CR significa consistência
     // perfeita, e usá-lo como marcador de ausência é erro de leitura.
@@ -108,8 +109,8 @@ function calcularCRsIndividuais(
     if (definidos.length === 0) return null;
 
     // Governante: máximo sobre as matrizes com CR definido. Derivado aqui, e
-    // não de result.avgCR, cujo nome não corresponde ao que ele contém: ver o
-    // comentário sobre a renomeação em lib/ahp-ipc.ts, em calculateAllWeights.
+    // conferível contra `result.maxCR`, que aplica a mesma regra sobre as mesmas
+    // seis matrizes em `lib/respondent-weights.ts`.
     let matrizGovernante = definidos[0];
     for (const m of definidos) {
       if ((crs[m] as number) > (crs[matrizGovernante] as number)) matrizGovernante = m;
@@ -135,10 +136,11 @@ function recalcularCRBocrIndividual(
   if (!alternativeCodes || alternativeCodes.length === 0) return null;
 
   try {
-    const result = calculateAllWeights(judgments, alternativeCodes);
+    const result = calculateRespondentWeights(judgments, alternativeCodes);
 
     const crBocr = result.bocrWeights.cr;
-    const avgCR = result.avgCR;
+    // Nome mantido: é o CR governante, e o campo persistido se chama avgCR.
+    const avgCR = result.maxCR;
 
     if (isNaN(crBocr) || isNaN(avgCR)) return null;
 
@@ -263,6 +265,8 @@ interface CalculationResult {
     q1Features?: string[];
     references?: Record<string, string>;
     excludedRespondentIds?: string[]; // Adicionado para persistência
+    /** Recusadas pelo portão de completude (A.21). Vazio é o valor esperado. */
+    rejectedIncomplete?: { respondentId: string; matrizes: string[] }[];
   };
 }
 
@@ -3632,6 +3636,27 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                     {' '}{excludedIds.length} respondente{excludedIds.length > 1 ? 's' : ''}
                     {' '}fo{excludedIds.length > 1 ? 'ram' : 'i'} excluído{excludedIds.length > 1 ? 's' : ''} por
                     apresentar{excludedIds.length > 1 ? 'em' : ''} índice de consistência acima do limiar aceitável.
+                  </div>
+                )}
+
+                {/* Rejeição por incompletude. Frase PRÓPRIA, e não herda a
+                    justificativa por CR acima: uma é decisão metodológica do
+                    gestor, a outra é dado inválido recusado pelo sistema. */}
+                {(calculation?.metadata?.rejectedIncomplete?.length ?? 0) > 0 && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800 mt-4">
+                    <strong>⚠️ Respostas incompletas, recusadas pelo sistema:</strong>{' '}
+                    {calculation!.metadata!.rejectedIncomplete!.length} resposta
+                    {calculation!.metadata!.rejectedIncomplete!.length > 1 ? 's' : ''} não
+                    {calculation!.metadata!.rejectedIncomplete!.length > 1 ? ' entraram' : ' entrou'} no
+                    cálculo por não ter todas as comparações respondidas. Não é exclusão por
+                    consistência: é dado incompleto, e não depende de decisão metodológica.
+                    <ul className="list-disc list-inside mt-2">
+                      {calculation!.metadata!.rejectedIncomplete!.map((r: any) => (
+                        <li key={r.respondentId}>
+                          {r.respondentId}: {r.matrizes.join('; ')}
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </>

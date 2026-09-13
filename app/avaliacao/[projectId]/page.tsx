@@ -9,7 +9,8 @@ import { db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc, collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { BOCR_CRITERIA, SUBCRITERIA, generateAllComparisons, Project, Alternative, Respondent, groupComparisonsByBlock, ComparisonBlock } from '@/lib/data';
 import type { ComparisonItem, JudgmentItem } from '@/lib/types';
-import { calculateAllWeights } from '@/lib/ahp-ipc';
+import { calculateRespondentWeights } from '@/lib/respondent-weights';
+import { checkResponseCompleteness, describeIncompleteness } from '@/lib/completeness';
 import type { Judgment } from '@/lib/ahp-ipc';
 
 // ============================================================
@@ -805,6 +806,8 @@ function AvaliacaoProjectPageInner() {
   const [completedGroups, setCompletedGroups] = useState<Set<string>>(new Set());
 
   const [submitError, setSubmitError] = useState(false);
+  /** Matrizes incompletas nomeadas ao respondente quando ele tenta finalizar. */
+  const [incompleteDetail, setIncompleteDetail] = useState<string[]>([]);
   const blockContentRef = useRef<HTMLDivElement>(null);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
   const [modalInstructionStep, setModalInstructionStep] = useState(0);
@@ -970,8 +973,11 @@ function AvaliacaoProjectPageInner() {
     });
   }, [blocks, judgments]);
 
-  const allBlocksValid = blockValidation.every(v => v.connected);
-  const currentBlockValid = blockValidation[currentBlockIndex]?.connected ?? false;
+  // A.21: o instrumento aceita somente respostas completas. A conectividade do
+  // grafo deixa de governar avanço e finalização — ela admitia, num bloco de
+  // alternativas com duas alternativas, UMA comparação de cinco.
+  const allBlocksValid = blockValidation.every(v => v.isComplete);
+  const currentBlockValid = blockValidation[currentBlockIndex]?.isComplete ?? false;
   const currentBlockComplete = blockValidation[currentBlockIndex]?.isComplete ?? false;
 
   /** Wrapper que chama a função global ipcGetRequiredComparisons */
@@ -1014,37 +1020,41 @@ function AvaliacaoProjectPageInner() {
     setSubmitError(false);
   };
 
-  /** Stub de finalização. Etapa 4/4 substituirá por validação IPC completa. */
+  /**
+   * Finalização. O instrumento aceita somente respostas completas (A.21): a
+   * validação é de COMPLETUDE, par a par dentro de cada matriz, e não de
+   * conectividade do grafo. A conectividade admitia, num bloco de alternativas com
+   * duas alternativas, uma comparação de cinco.
+   */
   const handleFinalizeSurvey = async () => {
-    // Validar TODOS os blocos: grafo conectado é obrigatório (Bozóki et al., 2009)
-    const invalidBlockIndices = blockValidation
-      .map((v, i) => (!v.connected ? i : -1))
-      .filter(i => i >= 0);
+    const validJudgments = judgments.filter(j => j != null);
 
-    if (invalidBlockIndices.length > 0) {
+    const relatorio = checkResponseCompleteness(validJudgments as any, alternatives);
+    if (!relatorio.isComplete) {
       setSubmitError(true);
-      goToBlock(invalidBlockIndices[0]);
+      setIncompleteDetail(describeIncompleteness(relatorio));
+      const primeiroIncompleto = blockValidation.findIndex(v => !v.isComplete);
+      if (primeiroIncompleto >= 0) goToBlock(primeiroIncompleto);
       return;
     }
-
-    const validJudgments = judgments.filter(j => j != null);
+    setIncompleteDetail([]);
 
     setSaving(true);
     try {
       // Calcular pesos individuais e CR a partir dos judgments (Saaty, 1980)
       const altCodes = alternatives.map(a => a.code);
-      const ipcResult = calculateAllWeights(validJudgments as Judgment[], altCodes);
+      const ipcResult = calculateRespondentWeights(validJudgments as any, altCodes);
 
       // Montar campo responses no formato esperado pelo /api/response-quality e /api/calculate
       const responsesCalc = {
-        avgCR: ipcResult.avgCR,
+        // CR governante: o máximo entre as seis matrizes não triviais. O nome do
+        // campo é contrato de dados; a medida e sua apresentação são de A.25.
+        avgCR: ipcResult.maxCR,
         bocrWeights: ipcResult.bocrWeights.weights,
         bocrConsistency: {
           cr: ipcResult.bocrWeights.cr,
           lambda: ipcResult.bocrWeights.lambdaMax,
-          ci: ipcResult.bocrWeights.lambdaMax > 0
-            ? (ipcResult.bocrWeights.lambdaMax - ipcResult.bocrWeights.items.length) / (ipcResult.bocrWeights.items.length - 1)
-            : 0
+          ci: ipcResult.bocrWeights.ci
         },
         magnitudeWeights: ipcResult.magnitudeWeights.weights,
         magnitudeConsistency: {
@@ -3146,7 +3156,7 @@ function AvaliacaoProjectPageInner() {
   };
 
   const handleNextBlock = () => {
-    if (currentBlockIndex < blocks.length - 1 && blockValidation[currentBlockIndex]?.connected) {
+    if (currentBlockIndex < blocks.length - 1 && blockValidation[currentBlockIndex]?.isComplete) {
       setCompletedGroups(prev => {
         const next = new Set(prev);
         if (blocks[currentBlockIndex]) next.add(blocks[currentBlockIndex].id);
@@ -3171,7 +3181,7 @@ function AvaliacaoProjectPageInner() {
     if (targetIndex <= currentBlockIndex) return true;
     // Para avançar, todos os blocos de 0 até targetIndex-1 devem estar conectados
     for (let b = 0; b <= targetIndex - 1; b++) {
-      if (!blockValidation[b]?.connected) return false;
+      if (!blockValidation[b]?.isComplete) return false;
     }
     return true;
   };
@@ -3368,12 +3378,17 @@ function AvaliacaoProjectPageInner() {
               <div className="flex items-start gap-3">
                 <span className="text-red-400 text-lg">⚠️</span>
                 <div>
-                  <p className="text-sm font-semibold text-red-300">Responda mais comparações antes de finalizar</p>
+                  <p className="text-sm font-semibold text-red-300">Responda todas as comparações antes de finalizar</p>
                   <p className="text-sm text-red-300/80 mt-1">
-                    {blockValidation.filter(v => !v.connected).length === 1
-                      ? 'Há 1 bloco com comparações em destaque ainda não respondidas.'
-                      : `Há ${blockValidation.filter(v => !v.connected).length} blocos com comparações em destaque ainda não respondidas.`}
+                    {blockValidation.filter(v => !v.isComplete).length === 1
+                      ? 'Há 1 bloco com comparações não respondidas.'
+                      : `Há ${blockValidation.filter(v => !v.isComplete).length} blocos com comparações não respondidas.`}
                   </p>
+                  {incompleteDetail.length > 0 && (
+                    <ul className="text-sm text-red-300/80 mt-2 list-disc list-inside">
+                      {incompleteDetail.map((linha, i) => <li key={i}>{linha}</li>)}
+                    </ul>
+                  )}
                 </div>
               </div>
             </div>
@@ -3437,30 +3452,26 @@ function AvaliacaoProjectPageInner() {
                     project={project}
                   />
 
-                  {/* Indicador de progresso do bloco */}
-                  {block.nodes.length >= 3 && (
-                    <div className="mb-4 p-3 rounded-xl border" style={{
-                      background: validation?.isComplete ? '#f0fdf4' : validation?.connected ? '#eff6ff' : '#fef2f2',
-                      borderColor: validation?.isComplete ? '#bbf7d0' : validation?.connected ? '#bfdbfe' : '#fecaca',
-                    }}>
-                      <div className="flex items-center gap-2">
-                        <span>{validation?.isComplete ? '✅' : validation?.connected ? '👍' : '📋'}</span>
-                        <span className="text-sm font-medium" style={{ color: validation?.isComplete ? '#166534' : validation?.connected ? '#1e40af' : '#dc2626' }}>
-                          {validation?.isComplete
-                            ? 'Todas as comparações respondidas!'
-                            : validation?.connected
-                              ? `Pode avançar — responder as ${block.comparisons.length - (validation?.answeredTotal || 0)} restantes melhora a precisão`
-                              : `Responda todas as comparações para maior precisão dos resultados. Para prosseguir, é necessário responder ao menos as sinalizadas em destaque (faltam ${Math.max(1, (validation?.minRequired || 0) - (validation?.answeredCount || 0))}).`}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm text-gray-400 mt-1">
-                        <span>{validation?.answeredTotal || 0} de {block.comparisons.length} respondidas</span>
-                        {validation?.connected && !validation?.isComplete && (
-                          <span className="text-blue-500 font-medium">✓ Próximo bloco desbloqueado</span>
-                        )}
-                      </div>
+                  {/* Indicador de progresso do bloco.
+                      Renderiza para TODOS os blocos: com duas alternativas o bloco
+                      tem 2 nós, e a versão anterior escondia o contador justamente
+                      onde a validação antiga era mais frouxa. */}
+                  <div className="mb-4 p-3 rounded-xl border" style={{
+                    background: validation?.isComplete ? '#f0fdf4' : '#fef2f2',
+                    borderColor: validation?.isComplete ? '#bbf7d0' : '#fecaca',
+                  }}>
+                    <div className="flex items-center gap-2">
+                      <span>{validation?.isComplete ? '✅' : '📋'}</span>
+                      <span className="text-sm font-medium" style={{ color: validation?.isComplete ? '#166534' : '#dc2626' }}>
+                        {validation?.isComplete
+                          ? 'Todas as comparações respondidas!'
+                          : `Faltam ${block.comparisons.length - (validation?.answeredTotal || 0)} de ${block.comparisons.length}. Todas são necessárias para finalizar.`}
+                      </span>
                     </div>
-                  )}
+                    <div className="flex justify-between text-sm text-gray-400 mt-1">
+                      <span>{validation?.answeredTotal || 0} de {block.comparisons.length} respondidas</span>
+                    </div>
+                  </div>
 
                   {/* Legenda da escala */}
                   <div className="flex items-center justify-center mb-3 px-2 text-sm text-gray-400">
@@ -3609,10 +3620,10 @@ function AvaliacaoProjectPageInner() {
                     })}
                   </div>
 
-                  {validation?.connected && !validation?.isComplete && (
+                  {!validation?.isComplete && (
                     <div className="mt-4 p-3 rounded-lg bg-blue-50 border border-blue-200">
                       <p className="text-sm text-blue-700">
-                        💡 <strong>Próximo bloco desbloqueado!</strong> Responder as comparações restantes melhora a precisão dos resultados da pesquisa.
+                        💡 Responda todas as comparações deste bloco para avançar.
                       </p>
                     </div>
                   )}
@@ -3641,13 +3652,13 @@ function AvaliacaoProjectPageInner() {
 
             {currentBlockIndex < blocks.length - 1 ? (
               <button onClick={handleNextBlock}
-                disabled={!blockValidation[currentBlockIndex]?.connected}
+                disabled={!blockValidation[currentBlockIndex]?.isComplete}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0"
                 style={{
-                  background: blockValidation[currentBlockIndex]?.connected
+                  background: blockValidation[currentBlockIndex]?.isComplete
                     ? 'linear-gradient(135deg, #6366f1, #7c3aed)'
                     : 'rgba(255,255,255,0.1)',
-                  boxShadow: blockValidation[currentBlockIndex]?.connected
+                  boxShadow: blockValidation[currentBlockIndex]?.isComplete
                     ? '0 4px 12px rgba(99,102,241,0.3)'
                     : 'none',
                 }}>

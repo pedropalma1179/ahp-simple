@@ -157,9 +157,8 @@ export function analyzeBias(params: {
   respondents: RespondentInput[];
   finalScores?: AlternativeScore[];
   sensitiveGroups?: SensitiveGrouping;
-  ipcMetadata?: any;
 }): BiasAnalysisResult {
-  const { respondents, finalScores, sensitiveGroups, ipcMetadata } = params;
+  const { respondents, finalScores, sensitiveGroups } = params;
 
   const indicators: BiasIndicator[] = [];
 
@@ -185,12 +184,6 @@ export function analyzeBias(params: {
   indicators.push(...diAnalysis.indicators);
 
   // ============================================================
-  // ANÁLISE C: IPC (Bozóki et al., 2009)
-  // ============================================================
-  const ipcIndicators = analyzeIPC(ipcMetadata);
-  indicators.push(...ipcIndicators);
-
-  // ============================================================
   // AGREGAÇÃO
   //
   // Regras de classificação (transparentes e documentadas):
@@ -204,11 +197,13 @@ export function analyzeBias(params: {
   const hasDIViolation = diAnalysis.diValue !== null && (
     diAnalysis.diValue < DI_LOWER_BOUND || diAnalysis.diValue > DI_UPPER_BOUND
   );
-  const hasIPCCritical = ipcIndicators.some(i => i.severity === 'CRITICAL');
-
   let overallRiskLevel: 'LOW' | 'MODERATE' | 'CRITICAL';
 
-  if (hasDIViolation || crAnalysis.complianceRate === 0 || hasIPCCritical) {
+  // A.21: `hasIPCCritical` saiu daqui. Ele vinha de `analyzeIPC(ipcMetadata)`, e o
+  // dashboard nunca enviou `ipcMetadata` — medido em 12/09/2026, zero ocorrências
+  // do campo no payload montado em `resultados/page.tsx`. A função devolvia sempre
+  // `[]`, então a condição era sempre falsa e a classificação não muda.
+  if (hasDIViolation || crAnalysis.complianceRate === 0) {
     overallRiskLevel = 'CRITICAL';
   } else if (crAnalysis.complianceRate < 1.0) {
     overallRiskLevel = 'MODERATE';
@@ -410,83 +405,6 @@ function analyzeDisparateImpact(
   return { diValue: di, indicators };
 }
 
-// ============================================================
-// ANÁLISE C: IPC (Bozóki et al., 2009)
-// ============================================================
-
-function analyzeIPC(ipcMetadata?: any): BiasIndicator[] {
-  if (!ipcMetadata || !ipcMetadata.hasIncompleteGroups) {
-    return [];
-  }
-
-  const indicators: BiasIndicator[] = [];
-  const groupsToCheck = [
-    { name: 'BOCR', data: ipcMetadata.bocr },
-    { name: 'Magnitude', data: ipcMetadata.magnitude },
-    ...Object.entries(ipcMetadata.subcriteria || {}).map(([k, v]) => ({ name: `Subcritério ${k}`, data: v }))
-  ];
-
-  for (const group of groupsToCheck) {
-    const completeness = group.data?.completeness;
-    if (!completeness || completeness.isComplete) continue;
-
-    // Verificar grafo desconectado
-    // Se não foi possível calcular pesos, o backend já teria lançado erro, 
-    // mas aqui verificamos a conectividade teórica mínima (n-1)
-    const n = Math.round((1 + Math.sqrt(1 + 8 * completeness.possible)) / 2); // Inverso de n(n-1)/2
-    const minComparisons = n - 1;
-
-    if (completeness.given < minComparisons) {
-      indicators.push({
-        type: 'IPC_DISCONNECTED_GRAPH',
-        severity: 'CRITICAL',
-        source: 'Bozóki et al. (2009). Math. Comput. Model., 52, 318-333.',
-        threshold: `Mínimo de n-1 = ${minComparisons} comparações`,
-        observedValue: `${completeness.given} comparações`,
-        description: `Grafo desconectado em ${group.name}. Pesos não podem ser determinados unicamente.`,
-        evidence: `Teorema 1 (Bozóki et al., 2009): Unicidade requer grafo conectado.`,
-        recommendation: 'Solicitar mais comparações urgentemente.'
-      });
-    } else if (completeness.given === minComparisons) {
-      indicators.push({
-        type: 'IPC_MINIMAL_COMPARISONS',
-        severity: 'INFO',
-        source: 'Bozóki et al. (2009). Teorema 2 (Spanning Tree).',
-        threshold: `n-1 = ${minComparisons}`,
-        observedValue: `${completeness.given}`,
-        description: `Grupo ${group.name} possui conectividade mínima (árvore geradora).`,
-        evidence: 'Qualquer remoção adicional desconectará o grafo.',
-        recommendation: 'Monitorar consistência; redundância zero.'
-      });
-    }
-
-    if (completeness.ratio < 0.60) {
-      indicators.push({
-        type: 'IPC_LOW_COMPLETENESS',
-        severity: 'INFO',
-        source: 'Harker (1987). Math. Modelling, 9(11), 837-848.',
-        threshold: 'Completude < 60% (Empírico)',
-        observedValue: `${(completeness.ratio * 100).toFixed(1)}%`,
-        description: `Baixa completude em ${group.name}. Pode afetar robustez dos pesos.`,
-        evidence: `Apenas ${completeness.given}/${completeness.possible} comparações.`,
-        recommendation: 'Se possível, coletar mais dados para aumentar redundância.'
-      });
-    }
-
-    indicators.push({
-      type: 'IPC_METHOD_USED',
-      severity: 'INFO',
-      source: 'Bozóki et al. (2009). LLSM para IPC.',
-      threshold: 'N/A',
-      observedValue: 'LLSM-IPC',
-      description: `Método LLSM-IPC utilizado para ${group.name} (Matriz Incompleta).`,
-      evidence: 'Algoritmo iterativo convergiu.',
-      recommendation: 'Nenhuma ação necessária se CR estiver aceitável.'
-    });
-  }
-
-  return indicators;
-}
 
 // ============================================================
 // FUNÇÕES AUXILIARES

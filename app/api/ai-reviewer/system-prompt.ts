@@ -353,12 +353,6 @@ Padrão de análise:
 5. Respondentes com CR > 0.20: listar → citar Saaty & Ergu (2015) sobre confiabilidade
 6. Mitigação: Algoritmo de Saaty (2003) para identificar entrada mais inconsistente da PCM
 
-### Completude das Matrizes (se ipcMetadata disponível)
-DADO: ipcMetadata mostra método X e completude Y% para cada grupo
-REFERÊNCIA: Bozóki et al. (2010) — solução única ↔ grafo conectado (Teorema 1); mínimo n-1 comparações (Teorema 2)
-VEREDITO: Se todos EIGENVECTOR → matrizes completas, nenhuma ação. Se algum LLSM_IPC → reportar quais grupos, completude, e implicação.
-MITIGAÇÃO: Se completude < 60% → "Considerar solicitar comparações adicionais aos respondentes"; Se grafo desconectado → "CRÍTICO: pesos não calculáveis para grupo X"
-
 ### Pesos BOCR e Hierarquia de Controle
 Padrão de análise:
 1. Origem dos pesos: SEMPRE mencionar que os pesos foram derivados de comparações pareadas entre os méritos BOCR na hierarquia de controle, conforme Saaty (2003) e Lee (2009). NÃO são arbitrários — resultam de julgamentos dos especialistas.
