@@ -24,8 +24,9 @@ trecho-âncora.
 
 ```
 lib/ahp-engine.ts ......... motor determinístico único (autoridade de cálculo)
-lib/ahp-ipc.ts ............ matrizes incompletas (LLSM), caminho individual
-lib/graph-utils.ts ........ conectividade do grafo de comparações
+lib/respondent-weights.ts . pesos e CR de um respondente, matriz completa
+lib/completeness.ts ....... completude individual, par a par por matriz
+lib/aggregation.ts ........ PCM de grupo por média geométrica (AIJ)
 lib/data.ts ............... árvore de 20 subcritérios, tipos de domínio
 app/api/calculate/ ........ cálculo agregado, grava calculations/{projectId}
 app/api/ai-reviewer/ ...... camada de interpretação (LLM + RAG)
@@ -65,28 +66,42 @@ por `w[i]` e a guarda que ela exigiria.
 
 Validado pelo arnês contra 24 valores de referência.
 
-### `lib/ahp-ipc.ts` (490L)
+### `lib/completeness.ts` (222L)
 
-Matrizes incompletas e cálculo por respondente individual.
+Completude individual de uma resposta, **par a par dentro de cada matriz**, com a
+matriz identificada pela dupla `(type, group)`. Os pares esperados vêm de
+`generateAllComparisons`, a mesma função que monta o questionário.
 
 | Export | O que faz |
 |---|---|
-| `buildPCM(items, judgments)` | monta matriz `(number\|null)[][]` a partir dos julgamentos |
-| `eigenvectorMethod(pcm, label)` | **delega ao motor**; mantém a assinatura antiga `{weights, lambdaMax, cr}` |
-| `llsmIPC(pcm, graph)` | mínimos quadrados logarítmicos para matriz incompleta (Bozóki et al., 2009) |
-| `calculateGroupWeights(items, judgments, group)` | escolhe entre autovetor e LLSM pela completude |
-| `calculateAllWeights(judgments, alternatives)` | todos os blocos de um respondente |
-| `calculatePartialCR(...)` | feedback de consistência em tempo real na coleta |
+| `expectedMatrices(alternatives?)` | pares esperados por matriz, 26 matrizes e 72 pares com duas alternativas |
+| `checkResponseCompleteness(judgments, alternatives?)` | veredito com os defeitos por matriz |
+| `describeIncompleteness(report)` | uma linha por matriz, para mostrar ao respondente |
 
-Célula ausente numa matriz classificada como completa lança erro, em vez de virar
-1 como antes.
+⚠ **Contagem de julgamentos não é critério:** 72 com uma duplicata e um faltante
+tem o total esperado e está incompleta. Tem teste de controle negativo.
 
-### `lib/graph-utils.ts` (328L)
+### `lib/respondent-weights.ts` (187L)
 
-Trata as comparações como grafo. `checkConnectivity`, `getCompletenessMetrics`,
-`findBridgeEdges`, `validateSkip`, `getMinimumSpanningChain`,
-`buildGraphFromJudgments`. É o que permite ao respondente pular uma comparação
-sem desconectar o grafo.
+Pesos e consistência de um respondente, derivados **pelo motor**, com um caminho
+só: matriz completa. `buildCompletePCM` lança se faltar par, se um par repetir ou
+se um julgamento estiver pulado. Não herdou o `calcSafe` do módulo antigo, que
+engolia erro de conectividade e devolvia pesos uniformes com CR zero.
+
+`maxCR` é o CR governante — o máximo entre as seis matrizes não triviais, que é a
+medida fixada em `docs/referencia-cr-individuais.md`. O campo persistido continua
+se chamando `avgCR`, por contrato de dados; a medida é de A.25.
+
+### `lib/aggregation.ts` (116L)
+
+`aggregateMatrix`, movida de `calculate/route.ts` em `a5524d1` sem alteração de
+lógica, para que o handler da rota possa ser exercitado em teste. **A síntese não
+veio junto:** as cinco fórmulas seguem em `calculateAlternativeScores`, na rota, e
+a duplicação em relação ao `synthesizeBOCR` é achado da seção 2.4 do âncora.
+
+⚠ **`lib/ahp-ipc.ts` (486L) e `lib/graph-utils.ts` (328L) foram REMOVIDOS em
+`0ac4e95`, com A.21.** O instrumento aceita somente respostas completas, então não
+há LLSM nem grafo de comparações a manter.
 
 ### `app/api/calculate/route.ts` (1298L) — ROTA CENTRAL
 
@@ -94,8 +109,8 @@ sem desconectar o grafo.
 
 Fluxo do handler `POST`: lê projeto e alternativas → lê respondentes válidos →
 lê respostas com `completedAt` → deduplica por `respondentId` → aplica
-`excludedRespondentIds` do corpo → recalcula derivados ausentes → invalida CR por
-completude → agrega por AIJ → deriva pesos → compõe escores → cinco sínteses →
+`excludedRespondentIds` do corpo → **rejeita as incompletas, registrando em
+`metadata.rejectedIncomplete`** → recalcula derivados ausentes → agrega por AIJ → deriva pesos → compõe escores → cinco sínteses →
 concordância → sensibilidade → `setDoc`.
 
 | Função | Linha | O que faz |
@@ -424,11 +439,21 @@ Varre o código-fonte por **assinatura de comportamento**, não por nome.
 `FORA_DO_CENSO_DE_CODIGO` exclui `lib/rag/articles/`.
 
 Listas autorizadas descrevem o estado alvo. Falhas são trabalho pendente, não
-erro. Hoje 7 passam e 5 falham.
+erro. **Desde `0ac4e95` as doze passam** — é a primeira vez desde que o censo foi
+escrito. `AUTORIZADO_LLSM` está **vazio**, e a estrofe anterior deste inventário,
+que registrava 7 passando e 5 falhando, era de antes do saneamento das tabelas RI e
+da retirada do IPC.
 
-### `lib/__tests__/ahp-ipc.test.ts` (130L) e `graph-utils.test.ts` (185L)
+### `lib/__tests__/completeness.test.ts`, `respondent-weights.test.ts`, `calculate-route.test.ts`
 
-Testes originais do IPC e do grafo, 6 e 7 verificações.
+Entraram com A.21. O primeiro cobre a tabela de aceite da completude, com controle
+negativo. O segundo confere os doze respondentes contra
+`docs/referencia-cr-individuais.md`, as seis matrizes, o médio e o governante. O
+terceiro **exercita o handler real** de `calculate/route.ts` com Firestore
+simulado, em quatro casos, e é **o primeiro teste do repositório que executa código
+de `app/`**.
+
+⚠ Os de `ahp-ipc` e `graph-utils` saíram em `0ac4e95`, com os módulos.
 
 ### `lib/__tests__/fixtures/panel-2026.json`
 

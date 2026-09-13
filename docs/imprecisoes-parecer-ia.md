@@ -621,6 +621,25 @@ ausência já estava lá **com o bloco presente**, nos três textos medidos. Uma
 observação depois da remoção é **verificação de regressão**, não evidência sobre a
 forma da instrução.
 
+### Estado da execução: a remoção está feita, a conferência está pendente
+
+**Executada em 12/09/2026, em `ab268cd`.** Saíram do que o modelo recebe: o bloco
+`### Completude das Matrizes` do `system-prompt.ts`; o tipo, o mapeamento e a
+injeção de `ipcMetadata` na rota do parecer; e o `analyzeIPC`. Saiu também o
+`hasIPCCritical` da classificação de risco de viés, que era **sempre falso** porque
+`analyzeIPC` devolvia sempre lista vazia — medido antes de remover.
+
+⚠ **Nada foi conferido na saída ainda.** A verificação exige gerar um parecer, que é
+chamada paga, e **depende do usuário**. Até isso acontecer, o que este registro tem
+é: a predição escrita antes, a remoção feita, e a linha de base das três execuções
+anteriores.
+
+**Quando rodar, o que aprovar não é ausência de termos**, e sim ausência de
+atribuição: o parecer não afirmar que a execução usou LLSM, não afirmar ter recebido
+indicadores de completude, e não recomendar completar matrizes com base neles.
+Mencionar autovetor, ou afirmar que as respostas estão completas, **pode estar
+correto** — as duas coisas são verdadeiras sobre este painel.
+
 ### Seis superfícies de desancoragem
 
 Somando os achados registrados neste documento, o sistema tem **seis** superfícies

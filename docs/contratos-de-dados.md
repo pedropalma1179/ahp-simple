@@ -148,7 +148,7 @@ Gravado **só** por `calculate/route.ts:1320`, via `setDoc`. Lido por
 | `sensitivityTrajectories` | `{B,O,C,R: [21 x {weight, scores:{A1,A2}, winner, inflection}]}` | `SensitivityAnalysisPanel` |
 | `alerts` | `{hasNegativePriorities, negativeAlternatives, sensitivityCritical, lowConcordance}` | `NegativePriorityAlert` |
 | `metadata` | ver abaixo | dashboard |
-| `ipcMetadata` | `{bocr, magnitude, subcriteria: {method, completeness}, hasIncompleteGroups, version, reference}` | IA |
+| ~~`ipcMetadata`~~ | **removido em `0ac4e95`, com A.21.** A rota não grava mais o campo; documentos gravados antes ainda o têm até a próxima recomputação. Nunca chegou ao Parecer IA: o dashboard não o enviava |
 
 **`finalScores[i]`** — 24 campos por alternativa:
 
@@ -178,7 +178,20 @@ distingue.
 
 **`metadata`**: `projectName`, `alternativesCount`, `methodsCount`,
 `primaryMethod`, `version`, `q1Features[]`, `references{}`,
-`excludedRespondentIds[]`.
+`excludedRespondentIds[]`, `rejectedIncomplete[]`.
+
+⚠ **Os dois últimos são coisas diferentes, e o campo separado é deliberado:**
+
+| | `excludedRespondentIds` | `rejectedIncomplete` |
+|---|---|---|
+| Origem | decisão metodológica do gestor, vem no corpo do POST | portão de integridade, decidido pelo sistema |
+| Justificativa | exige fundamentação (ver F05) | nenhuma: é dado inválido |
+| Forma | `string[]` de respondentId | `[{respondentId, matrizes: string[]}]` |
+| Valor esperado hoje | `[]` | `[]` — **zero legados incompletos**, medido nos 864 julgamentos |
+
+**No mesmo campo, um defeito de coleta passaria a parecer decisão de pesquisa.** A
+rejeição vale para a resposta **no estado examinado**: completada depois, ela passa
+a ser válida.
 
 ---
 
@@ -198,6 +211,17 @@ distingue.
 ⚠ `excludedRespondentIds` vem do corpo e é persistido em
 `metadata.excludedRespondentIds`. É a base da recomputação por composição do
 painel.
+
+⚠ **Desde A.21, a rota só aceita resposta COMPLETA.** `completedAt` deixou de
+bastar: cada resposta é verificada par a par por matriz (`lib/completeness.ts`), e a
+que reprova é rejeitada **individualmente**, com o cálculo seguindo com as válidas.
+
+**Onde a rejeição aparece depende de haver cálculo:**
+
+| Situação | Destino |
+|---|---|
+| Há respondente aceito | persistida em `metadata.rejectedIncomplete`, no documento, e devolvida no POST |
+| Nenhum respondente aceito | **HTTP 400 com os motivos no corpo** (`rejectedIncomplete` e `excludedByDecision`), e **nada é gravado** — a única escrita da rota é o `setDoc` do fim, então o resultado anterior fica intacto |
 
 ### `POST /api/ai-reviewer`
 
