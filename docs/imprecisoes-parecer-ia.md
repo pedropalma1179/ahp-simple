@@ -4027,6 +4027,15 @@ estabelecida.
 corrige nada**: mede em quatro camadas separadas e registra. A consequência da
 reprovação é decisão do pesquisador, e está em aberto ao fim desta seção.
 
+⚠ **Estado do registro.** Entre `79f2b35` e `4c9900a` este registro ficou marcado
+como **parcial quanto ao aceite**, por duas pendências: faltava o ponteiro na linha
+de A.27 do âncora, e o ensaio do fluxo completo estava com o **alcance excedido**,
+atribuindo caso a caso um resultado de resposta composta. **As duas foram
+resolvidas:** o ponteiro em `4c9900a` e o alcance nesta mesma edição, com o ensaio
+de quatro chamadas independentes. ⚠ **O aceite de A.27 continua NÃO cumprido, e
+isso é por construção:** ele exige que a falha de verificação bloqueie ou ponha em
+quarentena visível, e **a Fase 1 é diagnóstico, não corrige nada**.
+
 ⚠ **A natureza da evidência é declarada em cada afirmação**, com três rótulos:
 **medido** quando houve execução, **estabelecido por leitura** quando vem do código
 lido, e **não medido** quando nenhuma das duas aconteceu.
@@ -4138,13 +4147,15 @@ warnings: [
 review devolvido contendo "0,9999": true
 ```
 
-**O que isto mede, caso a caso:**
-
-| Caso | Resultado medido |
-|---|---|
-| `Score = 0,9999`, fictício com vírgula | **nada**: nem *issue* nem aviso |
-| `Score = 0.9999`, fictício com ponto | **um aviso**, e só |
-| `Score = 0,0641` e `Score = 0.0641`, valor de referência | nada, como esperado |
+⚠ **ALCANCE DESTE ENSAIO, corrigido em 13/09/2026.** Os quatro casos estavam **no
+mesmo texto**, numa **única** chamada, então o que ele mede é o resultado da
+**resposta composta**, e **não** equivale a quatro execuções independentes. **O que
+este ensaio mede, exatamente:** *um texto contendo as quatro formas produziu um
+aviso de escore, nenhum `issue`, `isValid: true`, e foi devolvido integralmente com
+`success: true`.* ⚠ **A atribuição caso a caso NÃO sai daqui**, porque a resposta é
+uma só: uma tabela por caso construída sobre esta execução atribuiria a cada forma
+um resultado que só a composição produziu. A atribuição está no ensaio seguinte, com
+quatro chamadas separadas.
 
 ⚠ **O aviso `FORMULA_INCOMPLETA` é da regra 2b**, disparada pelo texto sintético do
 ensaio conter `Score =`, e **não pertence ao defeito sob medição**. Registrado para
@@ -4152,6 +4163,76 @@ não ser atribuído a ele.
 
 **Não medido:** a apresentação na interface para estas entradas. Ela tem conferência
 própria, na camada 4, e não sai deste ensaio.
+
+#### Ensaio com QUATRO CHAMADAS INDEPENDENTES, medido
+
+**Medido em 13/09/2026, no commit `4c9900a`.** Mesmo instrumento temporário, **fora
+da árvore versionada**, com `@anthropic-ai/sdk` e o recuperador semântico simulados
+por mock virtual, chamando o `POST` real da rota. **Nada em `app/`, `lib/` ou
+`components/` foi alterado, e nenhuma função foi exportada para permitir o ensaio.**
+**Nenhum parecer real foi gerado:** o cliente do modelo é simulado.
+
+**Desenho, que é o que distingue este ensaio do anterior:** quatro execuções
+**separadas** do processo de teste, cada uma com **um único ponto de escore** no
+texto. O molde é **idêntico** nas quatro, e **só o valor naquele ponto muda**:
+
+```
+## RESUMO
+A1: Score = ⟪VALOR⟫.
+## DECISAO EDITORIAL
+**ACEITO**
+```
+
+`finalScores` declara A1 em `0.06412946722825451` e A2 em `0.026937`, igual nas
+quatro. Os quatro valores no ponto cobrem o 2×2 entre **separador** e **pertinência
+aos dados**: `0,9999`, `0.9999`, `0,0641`, `0.0641`.
+
+**Resultado medido, a validação inteira de cada resposta, transcrita:**
+
+| Valor no ponto | `status` | `success` | `isValid` | `issues` | `warnings` |
+|---|---|---|---|---|---|
+| `0,9999` — fora dos dados, vírgula | 200 | `true` | `true` | `[]` | `FORMULA_INCOMPLETA` |
+| `0.9999` — fora dos dados, ponto | 200 | `true` | `true` | `[]` | `FORMULA_INCOMPLETA`, `SCORE_NAO_RECONHECIDO: Score 0.9999 não encontrado nos dados injetados` |
+| `0,0641` — nos dados, vírgula | 200 | `true` | `true` | `[]` | `FORMULA_INCOMPLETA` |
+| `0.0641` — nos dados, ponto | 200 | `true` | `true` | `[]` | `FORMULA_INCOMPLETA` |
+
+**Nas quatro**, além do quadro acima: `review` devolvido **byte a byte idêntico** ao
+texto simulado do modelo, `nota: "A"`, `veredicto: "ACEITO"`, e o campo `validation`
+**presente** no corpo da resposta.
+
+**O que a atribuição agora permite afirmar, e é medido:**
+
+1. **O aviso único do ensaio composto pertence a UMA das quatro formas.** Ele
+   aparece **somente** com `0.9999`, ponto e valor fora dos dados.
+2. **O valor fora dos dados escrito com vírgula não produz nada.** `0,9999` devolve
+   exatamente o mesmo quadro de validação que `0.0641`, que é um valor **correto**.
+   ⚠ **As duas linhas são indistinguíveis na resposta**, e uma carrega número
+   inventado.
+3. **`FORMULA_INCOMPLETA` é constante nas quatro**, então não é atribuível a nenhum
+   valor: confirma-se como efeito de `Score =` no texto, não do escore.
+4. **Nenhuma das quatro formas derruba o veredito nem retém o texto.** `isValid`
+   saiu `true` nas quatro, `success` é `true` nas quatro, e o texto voltou inteiro
+   nas quatro.
+
+**Mecanismo, medido em isolamento** — a expressão de `route.ts:1479` e a guarda da
+regra 5 exercitadas fora do repositório sobre o mesmo molde, com os `knownScores`
+computados dos mesmos `finalScores`:
+
+| Valor no ponto | grupo 1 capturado | `parseFloat` | guarda `>0 && <1` | comparação |
+|---|---|---|---|---|
+| `0,9999` | `"0"` | `0` | **falha** | **não acontece** |
+| `0.9999` | `"0.9999."` | `0.9999` | passa | `0.9999` ∉ `{0.0641, 0.0269}` → aviso |
+| `0,0641` | `"0"` | `0` | **falha** | **não acontece** |
+| `0.0641` | `"0.0641."` | `0.0641` | passa | `0.0641` ∈ `{0.0641, 0.0269}` → silêncio |
+
+⚠ **Detalhe novo, medido:** a classe `[\d.]+` **engole também o ponto final da
+frase**, e o grupo capturado é `"0.9999."`. Aqui o `parseFloat` absorve isso sem
+consequência; registrado porque em outra posição do texto poderia não absorver.
+
+⚠ **Isto fecha a lacuna de atribuição, e não amplia o alcance da medição.** As
+quatro chamadas continuam **não medindo** a apresentação na interface, que tem
+conferência própria na camada 4, e continuam **não exercitando** o ramo de
+`isValid: false` — ver a ressalva da camada 3.
 
 ### Camada 2, veredito
 
@@ -4167,7 +4248,15 @@ exatamente aviso. Com vírgula, não produz nem isso.
 
 ### Camada 3, resposta da API
 
-**Estabelecido por leitura**, `route.ts:1642-1676`, e **medido** pelo ensaio acima.
+**Estabelecido por leitura**, `route.ts:1642-1676`, com uma parte **medida** pelos
+ensaios acima.
+
+⚠ **Os dois achados desta camada têm naturezas diferentes, e não se confundem:**
+
+| Achado | Natureza da evidência |
+|---|---|
+| **o aviso não impediu a devolução do texto** | **medido**, nas cinco execuções: o texto voltou inteiro com `success: true`, inclusive na que produziu `SCORE_NAO_RECONHECIDO` |
+| **`isValid: false` também não impede a devolução** | **estabelecido por leitura** do trecho abaixo. ⚠ **Os ensaios retornaram `isValid: true` nas cinco execuções, portanto NÃO exercitaram esse ramo** |
 
 Com `isValid` falso, as linhas 1644 a 1650 fazem **apenas** `console.error` e
 `console.warn`. Em seguida, `:1665` monta:
