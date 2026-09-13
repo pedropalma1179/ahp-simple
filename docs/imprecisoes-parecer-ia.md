@@ -660,6 +660,15 @@ cobre **uma**:
 | **O artefato determinístico** | `metadata.q1Features` e `metadata.references` do documento de cálculo atribuem funcionalidades a autores; dois de onze sustentam | **não.** A atribuição nunca chega ao texto do parecer: vive em campo de metadados, persistido e exportado |
 | **O contexto recuperado** | o `knowledge.ts` monta a `description` colada a autor e ano, e o `conditions` sem marca que os separe do `quote`; o modelo cita a anotação do indexador como verbatim | **não.** A frase existe no contexto, com atribuição, e a whitelist valida autor e ano |
 
+⚠ **A quarta superfície ganhou um SEGUNDO caso medido em 12/09/2026, na execução 7, e
+ele tem a mesma forma do primeiro.** O item 7 do `system-prompt.ts`, linha 500, manda
+incluir o quote *"com a página (quando disponível)"*; **nenhuma das seções injetadas
+entrega página** — as 135 referências têm `citation`, `topic`, `rule` e `context`, e
+os blocos de limiares, fórmulas e benchmarks dão zero. **O parecer produziu 21
+localizadores a partir de um contexto que contém três.** O dado existe: 134 das 138
+key_claims têm `evidence.page` numérico. **É a tarefa A.33**, e a correção é a mesma
+de A.10: **fornecer o fato, não reescrever a instrução.**
+
 Verificar a saída contra o contexto recuperado cobre a primeira. As outras cinco
 exigem **verificar para trás**: o prompt contra a base, a base contra a fonte
 primária, o payload contra as exigências do prompt, o `metadata` contra o RAG, e o
