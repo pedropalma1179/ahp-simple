@@ -4518,7 +4518,11 @@ quando vem do código lido, e **não medido** quando nenhuma das duas aconteceu.
 
 ⚠ **Três coisas ficam separadas do começo ao fim:** o **sinal entregue ao
 modelo**, o **metadado devolvido pela rota**, e a **informação visível ao
-usuário**. As três foram medidas nesta rodada, e **não coincidem**.
+usuário**. **As duas primeiras foram medidas nesta rodada; a terceira foi
+estabelecida por LEITURA de `components/ParecerAISection.tsx`, sem execução da
+interface.** As três **não coincidem**. ⚠ **E o que um leitor concluiria de cada
+camada é interpretação, não observação: nenhum usuário foi observado nesta
+rodada.**
 
 ⚠ **Instrumentos temporários, fora da árvore versionada**, no diretório de
 trabalho da sessão. Nada em `app/`, `lib/` ou `components/` foi alterado, e
@@ -4611,17 +4615,20 @@ SyntaxError: Unexpected end of JSON input
    zero byte de corpo, sem `content-type`**, e `POST /query` devolveu **404, zero
    byte de corpo**. O domínio de topo do endpoint configurado é `upstash.io`.
 
-**O que as duas juntas estabelecem:** o serviço responde, a resposta é **404 com
-corpo vazio**, e o cliente tenta interpretar esse corpo vazio como JSON, o que
-produz exatamente a mensagem observada. **A etapa que falha, neste ambiente e
-hoje, é a consulta ao índice.**
+**O que as duas juntas estabelecem:** a pilha localiza o processamento da resposta
+dentro de `querySimilar`, e as sondas observaram **404 com corpo vazio** no endpoint
+configurado. ⚠ **Sem captura da própria requisição do SDK, isso não demonstra que
+ele recebeu aquelas respostas.** O mecanismo é **compatível e reproduzível**, e é
+assim que fica registrado. **A etapa que falha, neste ambiente e hoje, é a consulta
+ao índice.**
 
 ⚠ **O que elas NÃO estabelecem:** a razão do 404. Índice removido, índice
 renomeado, credencial de outro projeto e URL desatualizada são leituras
 compatíveis com o mesmo corpo vazio, e **nenhuma delas foi medida**. A conferência
 do valor configurado aqui contra o valor configurado em produção **não foi feita
-nesta rodada**, e a razão é que a segunda não está acessível deste ambiente sem
-expor segredo.
+nesta rodada**. ⚠ **E a razão não é risco de segredo:** a comparação se responde
+como **coincide ou não coincide**, sem divulgar valor nenhum. **O que faltou foi
+acesso, ou a conferência, nesta rodada.**
 
 #### Alcance desta sonda, declarado
 
@@ -4715,6 +4722,29 @@ byte**. Recuperação desligada, índice sem correspondência, falha de embeddin
 falha de consulta ao índice **entregam ao modelo exatamente o mesmo texto**. A
 única diferença entre eles vive no log e, parcialmente, nos metadados.
 
+⚠ **Os resumos criptográficos dos seis prompts NÃO estão registrados, e a busca por
+eles ficou sem resultado.** Busca feita em 14/09/2026 sobre `83c1ce7`, sem resultado
+predeterminado: **não encontrados nos artefatos consultados**. O algoritmo usado
+tampouco está nomeado em lugar nenhum, então nem os valores nem o método constam.
+
+**Locais examinados:** todos os arquivos rastreados do repositório, por sequência
+hexadecimal de 64 caracteres e pelos termos `resumo criptográfico`, `SHA`, `hash` e
+`digest`, que devolvem apenas os digests do parecer e dois valores alheios a esta
+seção; as mensagens de todos os commits do repositório, inclusive a de `c2d7d89`, que
+registra a rodada e não traz digest de prompt; os arquivos não rastreados do diretório
+de trabalho, que não existem; e o diretório de trabalho da sessão de 14/09/2026, que
+guarda apenas os instrumentos da Fase 2.
+
+**Locais NÃO acessíveis desta sessão:** os instrumentos temporários da Fase 1, que
+esta mesma seção declara terem ficado **fora da árvore versionada, no diretório de
+trabalho daquela sessão**, na máquina Windows; e o registro de saída daquela execução.
+
+⚠ **Ausência numa busca delimitada não é perda definitiva.** Enquanto os instrumentos
+da máquina Windows não forem consultados, o que se pode afirmar é o que está escrito
+acima, e nada além. **A solicitação continua pendente**, e os digests dos dois
+recortes do parecer, registrados no Anexo 3, **não a substituem**: identificam o texto
+gerado, não os prompts simulados.
+
 **A frase de ausência, verbatim do que foi capturado nos casos 1, 3, 4 e 5:**
 
 ```
@@ -4781,7 +4811,7 @@ correspondência, **o campo reúne as duas condições**, e o caso 6 mostra que 
 também não conta o mesmo que o log: **`failedQueries` igual a 3**, com **um**
 resultado vazio e **duas** exceções, contra **dois** avisos no `console.warn`.
 
-**Por onde o número sai, medido:**
+**Por onde o número sai, e a natureza da evidência muda por camada:**
 
 | Camada | O que carrega hoje | O que um leitor conclui |
 |---|---|---|
@@ -4835,8 +4865,11 @@ aberto é **como**.
    devolve um objeto em vez de um array. ⚠ **O que a medição sustenta:** a
    mensagem histórica não tem prefixo, e os erros próprios de `embed.ts` e
    `upstash-client.ts` têm; **a exceção que apareceu nas cinco consultas não é de
-   nenhum dos dois módulos**, é do processamento do corpo da resposta, então
-   **prefixo próprio não teria bastado** para localizar a etapa. **Recomendação
+   nenhum dos dois módulos**, é do processamento do corpo da resposta, então **os
+   prefixos dos erros explícitos existentes não envolveram essa exceção da
+   dependência**. ⚠ **Isso NÃO exclui acrescentar a etapa ao capturar a exceção**,
+   que continua sendo solução possível: o medido é que os prefixos já presentes não
+   alcançam essa exceção, não que prefixo algum alcance. **Recomendação
    técnica, rotulada como recomendação:** preservar a exceção original junto com a
    etapa, em vez de substituí-la por texto.
 3. **Exposição na interface.** Se a execução degradada aparece ao usuário, com que
@@ -4849,8 +4882,9 @@ aberto é **como**.
 4. **Comportamento quando toda a recuperação falhar.** Se o parecer continua sendo
    gerado com a base estática, se é gerado e marcado, ou se a geração é
    interrompida. ⚠ **O que a medição sustenta:** a base estática permanece por
-   caminho separado, então a alternativa "gerar e marcar" é possível sem perda de
-   conteúdo. ⚠ **O que a medição NÃO sustenta:** qualquer afirmação sobre a
+   caminho separado. Gerar e marcar preserva o contexto estático disponível. Não
+   foi medida equivalência de conteúdo ou de qualidade em relação à geração com
+   recuperação semântica. ⚠ **O que a medição NÃO sustenta:** qualquer afirmação sobre a
    qualidade do parecer gerado sem chunks semânticos. **Nenhum parecer real foi
    gerado nesta rodada**, e comparar pareceres com e sem recuperação é ensaio
    próprio, que não foi feito.
@@ -5010,16 +5044,30 @@ diz é que o parse não chegou ao fim, não qual corpo chegou.** Quem a tratar c
 de 404, ou como prova de corpo vazio, está lendo no log informação que ele não carrega.
 ⚠ **Não troque a atribuição indevida de 404 por outra, de corpo vazio.**
 
-⚠ **Segunda observação, e o alcance dela é menor do que a redação anterior dizia:**
-quando o **servidor local simulado** respondeu 404 com corpo JSON de erro, o SDK
-construiu `UpstashError` em vez de `SyntaxError`. **O que isso mede é o cliente:** dado
-um corpo JSON de erro, ele o trata como erro de aplicação e o status sobrevive.
+⚠ **Segunda observação, e o alcance dela é menor do que a redação anterior dizia:** o
+que respondeu foi o **servidor local simulado**, e o que o ensaio mede é o **cliente**.
+Com o corpo JSON de erro ensaiado, o SDK lança `UpstashError` em vez de `SyntaxError`.
+Isso não demonstra preservação do status HTTP na exceção.
+
+⚠ **Estabelecido por LEITURA do SDK 1.2.3 instalado, e a evidência é inspeção de
+código, não execução:** `UpstashError` é `class extends Error` com
+`constructor(message)` e `this.name`, nas linhas 2 a 7 do `dist/chunk-VZUGHHBV.mjs`,
+e a linha 75 lança `UpstashError` com o `body.error` interpolado. **Nenhum campo de
+status, e `res.status` não é passado.**
 
 ⚠ **Correção de alcance, 14/09/2026:** a redação anterior dizia que "o próprio serviço
 responde erro em JSON", **atribuindo ao Upstash real um comportamento que quem produziu
 foi o servidor local desta rodada**. **Como o Upstash real responde a esta credencial e
 a este caminho não foi medido em momento nenhum aqui.** A inferência sobre qual camada
 emitiu o 404 da Fase 1 não se sustenta neste ensaio.
+
+**Registro da instrumentação:** O SDK 1.2.3 não preserva o status HTTP em
+`UpstashError`. Para registrá-lo, será necessário acesso à resposta HTTP antes de
+essa informação deixar de estar disponível. O ponto de integração e o mecanismo de
+captura ainda precisam ser definidos.
+
+⚠ **A leitura do construtor não decide a implementação.** Ela estabelece que
+capturar apenas essa exceção é insuficiente para recuperar o status.
 
 #### 5. O que o status permite concluir
 
@@ -5079,11 +5127,13 @@ diz nada sobre o estado da recuperação**.
 
 **Causa não identificada.**
 
-O que a rodada fechou é o **mecanismo**, não a causa: **um corpo que o `JSON.parse`
-não consegue terminar**, vazio ou truncado, produz `Unexpected end of JSON input`, e
-como `res.json()` roda antes de `res.ok` a falha de parsing impede o tratamento
-posterior do status. Isso estava lido no enunciado e agora está **medido de ponta a
-ponta**, com o sintoma reproduzido em servidor local. ⚠ **A implicação não se inverte:**
+O que a rodada fechou é o **mecanismo**, não a causa: **nos casos ensaiados**, o
+corpo vazio e os quatro corpos truncados `[`, `{"a":`, `[1,` e `{"result":` produzem
+`Unexpected end of JSON input`, e como `res.json()` roda antes de `res.ok` a falha de
+parsing impede o tratamento posterior do status. Isso estava lido no enunciado e agora
+está **medido de ponta a ponta**, com o sintoma reproduzido em servidor local.
+⚠ **Não vale para todo corpo truncado:** `{` sozinho devolve outra mensagem, como a
+seção 4 desta apuração registra. ⚠ **A implicação não se inverte:**
 da mensagem não se deduz o status nem o corpo recebido. **Por que o serviço respondeu
 404 continua sem medição**, e nesta rodada continuaria mesmo com a credencial em mãos,
 por causa do bloqueio de egresso.
