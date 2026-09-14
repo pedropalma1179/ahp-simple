@@ -831,6 +831,15 @@ Nada novo se constrói sobre base contraditória.
 | ✅ A.32 | **Executada em `137ce23`.** **⚠ F10: remover o contexto calculado sem consumidor.** `getKnowledgeContext()` é chamado em `app/api/ai-reviewer/route.ts:708`, monta 60 entradas ordenadas por peso, e **tem uma única ocorrência no arquivo**: a própria atribuição. **O valor nunca é interpolado no prompt.** ⚠ **Limpeza MECÂNICA:** sai a atribuição e o símbolo do import da linha 9. **NÃO remover a função inteira** só porque esta chamada é inútil — ela é a keyword base que o comentário de `lib/rag/semantic-retrieve.ts:4` referencia, e decidir o destino dela é outra coisa. **Aceite, e a delimitação é parte dele: o que se demonstra por LEITURA é que a COMPOSIÇÃO TEXTUAL do prompt se preserva** — a variável não era interpolada, então nenhum caractere do que vai ao modelo depende dela. ⚠ **Isso NÃO é afirmar que o comportamento inteiro seja idêntico:** a chamada removida **deixa de executar**, e com ela a ordenação e a montagem das 60 entradas. Nada no prompt muda; o que o processo faz muda. **Afirmar identidade de comportamento seria mais amplo que a evidência.** Somam-se `tsc` 0 e a suíte inalterada ⚠ **A armadilha que este achado documenta:** auditar o contexto pela função de nome mais óbvio mede o que o modelo **não** recebe. Aconteceu na primeira sonda da execução 7 |
 | A.33 | **⚠ Passar `evidence.page` para o contexto injetado. É o SEGUNDO caso medido da QUARTA superfície de desancoragem — a interface entre prompt e payload —, e o mais barato de fechar.** **Medido em 12/09/2026, no parecer da execução 7:** o parecer produziu **21 localizadores** e o contexto recuperado contém **três**. Das quatro seções estáticas, as **135 referências injetadas** têm os campos `id`, `citation`, `topic`, `rule`, `context`, `weight` — **zero mencionam página** —, e `ragThresholds`, `ragFormulas` e `ragBenchmarks` dão **zero** também. As únicas páginas que chegam ao modelo são as **12 do `system-prompt.ts`**, que são **três pares distintos**: Saaty (1977, p. 248), Wijnmalen (2007, p. 899 e p. 903) e Forman e Peniwati (1998, p. 167). ⚠ **E o prompt EXIGE a página:** o item 7 da linha 500 manda incluir o quote *"com a página (quando disponível)"*. **É a classe E na mesma forma da DIRETRIZ 1:** instrução que exige fato que o payload não fornece, e o modelo preenche a lacuna para poder obedecer. **O dado existe e não é passado adiante:** das **138** key_claims, **134 têm `evidence.page` numérico**; as 4 sem página são 2 do `liang2022_ahp_undesirable` e 2 do `saaty1990_howtomake`. **Escopo, e é pequeno:** acrescentar o campo de página ao `ReferenceDoc` (`app/api/ai-reviewer/knowledge.ts:23`), preenchê-lo em `claimToRef` a partir de `claim.evidence.page`, e passá-lo nos quatro templates de `route.ts` (`:1147`, `:1155`, `:1163`, `:1171`). **Tratar a ausência explicitamente**, com a convenção já fixada em `referencia-cr-individuais.md`: **campo vazio para indefinido, nunca zero** — e, aqui, nunca uma página inventada para preencher a forma. ⚠ **ALTERA O QUE O MODELO RECEBE, logo EXIGE PREDIÇÃO ESCRITA ANTES**, em `docs/imprecisoes-parecer-ia.md`, com o caso negativo nomeado. **Sugestão de predição, a confirmar antes de executar:** as páginas dos artigos cujas claims forem citadas passam a coincidir com `evidence.page`, e o caso do **Forman e Peniwati** é o teste mais forte — hoje o prompt ensina p. 167, a base tem claims em 166, 167 e 168, **e o parecer escreveu p. 170**. **Caso negativo nomeado:** o parecer continuar produzindo página fora da faixa do artigo para claim cuja página foi injetada; se isso ocorrer, a lacuna de contexto não era a causa. **Controle:** a faixa dos CRs individuais, que esta tarefa não toca. ⚠ **O que esta tarefa NÃO resolve, e não deve prometer:** (a) as citações **sem** localizador, 18 no mesmo parecer; (b) as páginas que o modelo acerta **sem** origem no contexto — quatro na execução 7 —, que ficam sem explicação medida; (c) a **fidelidade da transcrição** e a **sustentação da afirmação**, que são as outras duas coisas que a seção 7 do `CLAUDE.md` manda manter separadas. ⚠ **Depende de A.16** para o conteúdo do campo citado, e **não depende de A.18**: a injeção estática não passa pelo índice semântico |
 
+**STATUS SUPERSEDENTE DE A.27, 14/09/2026: ✅ FECHADA no eixo 2, implementado em
+`ad729f7`.** O contrato de validação é versionado; aprovado mostra avisos e o
+parecer normal; reprovado e inconclusivo mostram estado, motivos e texto em
+quarentena; validação ausente, inválida ou contraditória vira verificação não
+confirmada, nunca aprovação. Nota e veredito só aparecem como classificação no
+estado aprovado. Medido no commit: `tsc` 0, **7 suítes e 105 testes** passando e
+build com **17 páginas**. Este status supera as frases históricas da linha A.27 que
+registram o estado após o eixo 1.
+
 **Ordem de execução, registrada em 13/09/2026.** A seção separa duas coisas que
 não são a mesma, e confundi-las é erro de rota registrado na 0.4.
 
@@ -846,12 +855,11 @@ consolida o que já está registrado na tarefa correspondente.
 
 **Prioridade escolhida**, que é decisão e muda sem que nada no código mude:
 
-1. **A.27**, por prioridade de correção. Ver a linha dela.
-2. **A.30**, localizar a etapa que falha, separar erro de resultado vazio e
+1. **A.30**, localizar a etapa que falha, separar erro de resultado vazio e
    sinalizar execução degradada nos metadados.
-3. **A.31**, critério explícito de pertinência na seleção temática, preservando os
+2. **A.31**, critério explícito de pertinência na seleção temática, preservando os
    artigos na base.
-4. **A.33**, com o escopo reconfirmado contra a decisão do contrato de proveniência
+3. **A.33**, com o escopo reconfirmado contra a decisão do contrato de proveniência
    antes de alterar páginas no contexto, e a predição registrada antes da edição.
 
 ⚠ **A ordem de 2 a 4 é prioridade, não dependência.** Nada aqui estabelece que

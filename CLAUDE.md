@@ -150,20 +150,27 @@ npm run build     # 17 páginas
 npx tsc --noEmit  # sai 0
 ```
 
-⚠ **Medição vigente, em 13/09/2026, no commit `0f99fad`:** `npm test` sai 0 com
-**6 suítes e 98 testes**, nenhuma falha.
+⚠ **Medição vigente, em 14/09/2026, no commit `ad729f7`:** `npm test` sai 0 com
+**7 suítes e 105 testes**, nenhuma falha.
 
 **Ambiente da medição, e é ambiente observado, não requisito do repositório:**
-Darwin arm64, Node v25.9.0, npm 11.12.1.
+Linux x86_64, Node v24.19.0, npm 11.9.0.
 
-**Outras execuções registradas, com ambiente e total:** o mesmo ambiente em
-`8624cf0`, 5 suítes e 91 testes, e em `7394cef`, 6 suítes e 97 testes; runner do
+**Outras execuções registradas, com ambiente e total:** Darwin arm64, Node
+v25.9.0 e npm 11.12.1 em `8624cf0`, 5 suítes e 91 testes, e em `7394cef`, 6
+suítes e 97 testes; runner do
 GitHub Actions em `a96aa34`, Node 24.x, 5 suítes e 91 testes; contêiner Linux
 x86_64 sobre clone em `8624cf0`, Node 22.22.2, 5 suítes e 91 testes, saída 0.
 **A série cresce por testes novos, não por mudança de resultado:** os seis casos de
-`validate-review.test.ts` em `7394cef` e o teste de precedência em `0f99fad`.
+`validate-review.test.ts` em `7394cef`, o teste de precedência em `0f99fad` e os
+sete casos do contrato de apresentação em `ad729f7`.
 **São registros de execução, não afirmação de compatibilidade:** nenhuma matriz de
 versões foi testada.
+
+**CI do último `main` anterior ao eixo 2, confirmado pela API:** no SHA completo de
+`747afae`, a execução `34789759002`, evento `push`, terminou `completed/success` em
+13/09/2026. O verde registra aquele SHA; não antecipa o resultado de commits
+posteriores.
 
 ⚠ **A falha única que esta nota previa deixou de existir.** Era
 `o LLSM permanece confinado ao módulo de matrizes incompletas`, do censo, e o

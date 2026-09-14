@@ -4410,6 +4410,10 @@ suíte serve só de linha de base.
 
 ### Decisões pendentes de F06
 
+⚠ **SEÇÃO HISTÓRICA.** As quatro decisões abaixo estavam pendentes ao fim do eixo
+1. Foram decididas pelo pesquisador em 14/09/2026 e implementadas no eixo 2; o
+registro de fechamento está depois das recomendações.
+
 ⚠ **Atenção: nenhuma destas está decidida.** O que segue são as opções com o que a
 medição diz sobre cada uma. Recomendação, onde houver, está registrada **como
 recomendação**.
@@ -4455,6 +4459,49 @@ justamente nos casos que motivaram criá-lo.
 estados na resposta, e não dois, porque hoje "verificado e aprovado", "verificado com
 aviso" e "não foi possível verificar" chegam à interface com a mesma forma, que é
 `success: true` com o texto inteiro.
+
+### Eixo 2 implementado: contrato e apresentação governados pela validação
+
+**Decisão do pesquisador, 14/09/2026.** Aprovado é exibido normalmente e mostra
+avisos; reprovado é identificado como **"Parecer reprovado na verificação"**, com
+motivos e texto em área de quarentena; inconclusivo é identificado como
+**"Verificação inconclusiva"**, com motivo e texto em quarentena; validação ausente
+ou inválida não autoriza aprovação e aparece como **"Verificação não confirmada"**.
+
+**Implementado em `ad729f7`.** O campo `success` continua informando que a geração
+terminou; ele não governa mais a autorização para apresentar o conteúdo como
+aprovado. A API agora emite contrato de validação `version: 1`. A fronteira de
+apresentação exige versão, booleano e arrays válidos e verifica a coerência entre
+`estado`, `isValid`, `issues` e `inconclusivos`. Ausência, versão desconhecida,
+payload parcial ou combinação contraditória caem em `nao_confirmado`, sempre em
+quarentena.
+
+Na interface, `validation` passa a ser copiado para o estado do parecer. Somente
+`aprovado` apresenta nota e veredito como classificação. Reprovado, inconclusivo e
+não confirmado exibem alerta, motivos e o texto em contêiner visualmente separado.
+Avisos são visíveis também no parecer aprovado. O texto continua acessível para
+inspeção nos estados de quarentena, como decidido.
+
+**O log vazio medido no eixo 1 também foi corrigido:** reprovação registra
+`issues`; inconclusão registra `inconclusivos`, com rótulos distintos. Isso muda o
+log, não o veredito da apresentação.
+
+#### Verificação do eixo 2
+
+Em ambiente Linux x86_64, Node v24.19.0 e npm 11.9.0, no commit `ad729f7`:
+
+- `npx tsc --noEmit`: saída 0;
+- `npm test -- --runInBand`: saída 0, **7 suítes e 105 testes**;
+- `npm run build`: saída 0, compilação concluída e **17 páginas** geradas.
+
+Os sete casos novos cobrem: aprovado com aviso; reprovado com preservação de
+`issues` e de inconclusão adjacente; inconclusivo com motivo; validação ausente;
+contrato sem versão; estado contraditório; e arrays inválidos. ⚠ São testes da
+decisão de contrato que governa a interface, não uma afirmação de que todo defeito
+possível do texto será detectado pelo validador.
+
+**Aceite de A.27 atendido:** falha e impossibilidade de verificação não são mais
+apresentadas como aprovação; permanecem acessíveis somente em quarentena visível.
 
 ---
 
