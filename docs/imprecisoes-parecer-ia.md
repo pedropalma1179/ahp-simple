@@ -4863,7 +4863,7 @@ distinguir as duas condições na próxima vez. **A dependência de A.18 continu
 valendo**, e por mais um motivo agora medido: reingerir contra um endpoint que
 devolve 404 pagaria embeddings sem destino verificável.
 
-#### Apuração do 404 na consulta ao índice: Fase 2 de A.30, 14/09/2026
+### Apuração do 404 na consulta ao índice: Fase 2 de A.30, 14/09/2026
 
 **O ambiente desta rodada não é o da Fase 1 nem o da execução 7, e isso governa
 tudo o que segue.** A Fase 1 rodou na máquina do pesquisador. A execução 7 rodou em
@@ -4882,13 +4882,17 @@ dela; o 404 da Fase 1 foi resposta de um serviço a uma requisição que chegou.
 **Os dois itens que exigem credencial e rede, a sonda do item 3 e a discriminação
 do item 4, são irrealizáveis aqui, e não por falta de tentativa.**
 
-⚠ **`c2d7d89` não existe nesta árvore nem no remoto.** `git merge-base
---is-ancestor` responde `Not a valid object name`, e a API do GitHub responde
-`No commit found for SHA`. **O registro da Fase 1 não está nos documentos
-versionados**, e o que esta seção usa dele vem do enunciado da tarefa, não de
-medição própria. HEAD desta rodada: `7422e87`.
+⚠ **`c2d7d89` não estava neste clone nem no remoto no momento desta medição.**
+`git merge-base --is-ancestor` respondeu `Not a valid object name`, e a API do
+GitHub respondeu `No commit found for SHA`. ⚠ **Correção de alcance, 14/09/2026:**
+a redação anterior concluía daí que o registro da Fase 1 **não estava versionado**, e
+isso excede a medição. **Ausência num clone e num remoto, numa data, é ausência
+naquele clone e naquele remoto, naquela data.** O commit existia na máquina do
+pesquisador e foi publicado depois, o que esta medição não tinha como ver. O que esta
+seção usa dele vem do enunciado da tarefa, não de medição própria. HEAD desta rodada:
+`7422e87`.
 
-##### 1. Forma da configuração
+#### 1. Forma da configuração
 
 **Não apurado neste ambiente, e a razão é que a variável não existe aqui.** Nenhuma
 das seis propriedades pôde ser lida: esquema, barra final, segmento de caminho,
@@ -4899,7 +4903,7 @@ vale para presença, comprimento e bordas do token.
 a normalização que a versão instalada aplica a cada uma dessas formas. Está na
 tabela do item 2, e serve para ler a caracterização quando o pesquisador a produzir.
 
-##### 2. O endereço que o SDK monta, medido e não apenas lido
+#### 2. O endereço que o SDK monta, medido e não apenas lido
 
 Instrumento temporário fora da árvore: um servidor HTTP local em `127.0.0.1`
 responde no lugar do Upstash, com **token falso**, e registra método, caminho,
@@ -4941,7 +4945,13 @@ whitespace or newline, which can cause errors!`, medido nas duas.
 ⚠ **Nada disto estabelece que a forma da URL configurada cause o 404.** A tabela diz
 o que cada forma produziria; qual delas está em uso continua **não apurado**.
 
-##### 3. Versão do SDK, e o que a sonda pôde e não pôde fazer
+⚠ **E o ensaio do SDK não conclui a apuração do endpoint real.** Ele rodou **neste
+contêiner e contra um servidor local**, com token falso, e o que mede é o
+comportamento do **cliente**. **A apuração do endpoint configurado na máquina Windows
+continua sendo a da Fase 1**, e o que falta nela, a razão do 404, não é coisa que
+ensaio com dependência simulada possa fechar.
+
+#### 3. Versão do SDK, e o que a sonda pôde e não pôde fazer
 
 `npm ls @upstash/vector --depth=0` nesta máquina: **`@upstash/vector@1.2.3`**, e
 **coincide com o lockfile de `7422e87`**, que fixa a mesma versão.
@@ -4965,7 +4975,7 @@ chamadas de escrita do repositório são `upsertChunk` e `deleteAll` em
 **Nenhum dos dois scripts rodou**, e os instrumentos desta rodada não importam
 `lib/rag/upstash-client.ts`.
 
-##### 4. Discriminar 404 de recurso e 404 de rota
+#### 4. Discriminar 404 de recurso e 404 de rota
 
 **Não apurado.** A comparação pedida, `/info` contra um caminho reconhecidamente
 inexistente com a mesma credencial, exige as duas coisas que faltam aqui.
@@ -4984,20 +4994,34 @@ mesmo servidor local, variando **só a resposta**:
 | **404** com corpo HTML | `SyntaxError: Unexpected token '<'` |
 | **200** com corpo JSON `{"result":[]}` | sem erro, resultado `[]` |
 
-⚠ **A mensagem não identifica o status: identifica corpo vazio.** Cinco status
-diferentes produzem a mesma frase. **Consequência direta sobre a execução 7: o log
-de produção não demonstra que a produção recebeu 404.** Demonstra que o corpo veio
-vazio. Quem tratar os cinco `Unexpected end of JSON input` do log como prova de 404
-está lendo no log uma informação que ele não carrega. **O 404 da Fase 1 veio da
-requisição crua, não desta mensagem, e vale para a máquina onde foi feita.**
+⚠ **A mensagem não identifica o status, e também não identifica o corpo.** O ensaio
+controlado demonstrou que cinco status diferentes, com corpo vazio, produzem a mesma
+mensagem. **O log histórico isolado não identifica o status, não demonstra corpo vazio
+e não localiza a etapa.** **O 404 com corpo vazio foi observado nas sondas
+independentes da máquina Windows**, na requisição crua, e não nesta mensagem.
 
-⚠ **Segunda consequência, e é a que aponta caminho:** o próprio serviço responde
-erro em JSON, e nesse caso o SDK constrói `UpstashError`. **Um 404 de zero byte não
-tem a forma de erro da camada de aplicação do Upstash.** Isso é sugestão de que a
-resposta veio de outra camada, e **é hipótese, não demonstração**, porque nada aqui
-mediu o comportamento do serviço real.
+⚠ **Correção de alcance, 14/09/2026:** a redação anterior desta seção dizia que a
+mensagem "identifica corpo vazio", e isso excede a medição. **Corpo não vazio produz a
+mesma frase.** Medido em `JSON.parse` nesta rodada: `[`, `{"a":`, `[1,` e `{"result":`
+devolvem todos `Unexpected end of JSON input`, igual ao corpo vazio. ⚠ **E nem todo
+corpo truncado devolve:** `{` sozinho devolve
+`Expected property name or '}' in JSON at position 1`, outra frase. **O que a mensagem
+diz é que o parse não chegou ao fim, não qual corpo chegou.** Quem a tratar como prova
+de 404, ou como prova de corpo vazio, está lendo no log informação que ele não carrega.
+⚠ **Não troque a atribuição indevida de 404 por outra, de corpo vazio.**
 
-##### 5. O que o status permite concluir
+⚠ **Segunda observação, e o alcance dela é menor do que a redação anterior dizia:**
+quando o **servidor local simulado** respondeu 404 com corpo JSON de erro, o SDK
+construiu `UpstashError` em vez de `SyntaxError`. **O que isso mede é o cliente:** dado
+um corpo JSON de erro, ele o trata como erro de aplicação e o status sobrevive.
+
+⚠ **Correção de alcance, 14/09/2026:** a redação anterior dizia que "o próprio serviço
+responde erro em JSON", **atribuindo ao Upstash real um comportamento que quem produziu
+foi o servidor local desta rodada**. **Como o Upstash real responde a esta credencial e
+a este caminho não foi medido em momento nenhum aqui.** A inferência sobre qual camada
+emitiu o 404 da Fase 1 não se sustenta neste ensaio.
+
+#### 5. O que o status permite concluir
 
 **Não houve status observado nesta rodada.** Sobre o status relatado na Fase 1, a
 delimitação do enunciado é mantida com as palavras que ele pede: **a associação da
@@ -5007,7 +5031,7 @@ credencial ao recurso permanece não confirmada.** A RFC 9110, seções 15.5.4 e
 401 ou 403**. Nada aqui demonstra que o Upstash faça isso; o que fica dito é que o
 status não basta para descartar.
 
-##### 6. Recurso ativo
+#### 6. Recurso ativo
 
 **Não apurado, e as vias tentadas ficam nomeadas.** A integração Vercel deste
 ambiente responde `list_teams`, `list_projects`, `get_project`, `list_deployments`,
@@ -5024,7 +5048,7 @@ como Sensitive. ⚠ **É documento anterior ao saneamento**, descreve a criaçã
 conta e **não estabelece que o recurso continue existindo**. É exatamente o item que
 a consulta ao console resolveria.
 
-##### 7. Local contra produção
+#### 7. Local contra produção
 
 **Projeto e deploy, medidos pela API da Vercel nesta rodada.** Projeto `ahp-simple`,
 time `i4-investment-decisions-2026`, plano hobby, `nodeVersion` 24.x.
@@ -5051,16 +5075,18 @@ janela legível, três horas sobre o deploy de produção atual, **nenhuma linha
 com `rag`**, o que é compatível com nenhum parecer gerado nesse intervalo e **não
 diz nada sobre o estado da recuperação**.
 
-##### Conclusão desta rodada
+#### Conclusão desta rodada
 
 **Causa não identificada.**
 
-O que a rodada fechou é o **mecanismo**, não a causa: um corpo de zero byte, em
-qualquer status, produz `Unexpected end of JSON input` porque `res.json()` roda
-antes de `res.ok`. Isso estava lido no enunciado e agora está **medido de ponta a
-ponta**, com o sintoma reproduzido em servidor local. **Por que o serviço respondeu
-404 continua sem medição**, e nesta rodada continuaria mesmo com a credencial em
-mãos, por causa do bloqueio de egresso.
+O que a rodada fechou é o **mecanismo**, não a causa: **um corpo que o `JSON.parse`
+não consegue terminar**, vazio ou truncado, produz `Unexpected end of JSON input`, e
+como `res.json()` roda antes de `res.ok` a falha de parsing impede o tratamento
+posterior do status. Isso estava lido no enunciado e agora está **medido de ponta a
+ponta**, com o sintoma reproduzido em servidor local. ⚠ **A implicação não se inverte:**
+da mensagem não se deduz o status nem o corpo recebido. **Por que o serviço respondeu
+404 continua sem medição**, e nesta rodada continuaria mesmo com a credencial em mãos,
+por causa do bloqueio de egresso.
 
 **Hipóteses que sobreviveram, com o que cada uma exige e o que a tornaria falsa:**
 
@@ -5072,11 +5098,14 @@ mãos, por causa do bloqueio de egresso.
 | **H4.** 404 ocultando proibição de acesso, na forma que a RFC 9110 admite | console, mais duas requisições comparando credencial válida e credencial errada no mesmo caminho | credencial válida devolver 200 no mesmo caminho |
 | **H5.** O 404 não veio do Upstash, e sim de intermediário na rede da Fase 1 | repetir a sonda de outra rede | o mesmo 404 de zero byte aparecer de rede independente |
 
-**Apoio medido para H5, e ele não a promove a causa:** o serviço responde erro em
-JSON, e um 404 assim construído produziria `UpstashError`, não `SyntaxError`. Zero
-byte não é a forma de erro da camada de aplicação. **Isso é indício de camada, não
-prova de origem**, e cai se o console mostrar recurso removido, porque aí H1 explica
-o mesmo dado.
+**O que H5 tem a seu favor, e é menos do que a redação anterior dizia:** a Fase 1
+observou, na requisição crua, **404 com zero byte e sem `content-type`**. ⚠ **Correção
+de alcance, 14/09/2026:** a redação anterior dizia que "o serviço responde erro em
+JSON" e concluía daí um indício sobre a camada que emitiu o 404. **Aquele
+comportamento é do servidor local do ensaio, não do Upstash real**, e o serviço real
+não foi medido aqui. **O que resta é uma observação sobre a forma da resposta da Fase
+1, e ela não estabelece qual camada a emitiu.** Cai igualmente se o console mostrar
+recurso removido, porque aí H1 explica o mesmo dado.
 
 ⚠ **Hipótese refutada, e fica registrada para não voltar:** espaço nas bordas da
 URL, pela medição do item 2. **Quebra de linha continua viva dentro de H3**, e as
@@ -5087,7 +5116,7 @@ problema ao conteúdo do índice. Nenhuma das três ganhou fundamento aqui, e a
 primeira perdeu: o SDK faz o que a leitura dizia que faz, medido em sete formas de
 URL e oito formas de resposta.
 
-##### O que a rodada seguinte precisa, e por que não entra aqui
+#### O que a rodada seguinte precisa, e por que não entra aqui
 
 **Quatro informações, e nenhuma delas é segredo.** Todas se respondem sem
 transcrever URL nem token:
@@ -5161,6 +5190,23 @@ os marcadores `⟪ início do texto gerado ⟫` e `⟪ fim do texto gerado ⟫`,
 quebras das bordas e acrescentando uma quebra final, o digest reproduz
 `bcdfe5a3…a8fd9`. **Se uma edição futura tocar o texto, o digest deixa de fechar** —
 é para isso que ele está aqui.
+
+⚠ **Dois recortes diferentes do mesmo texto, e confundi-los faz o digest parecer
+quebrado.** Aconteceu em 14/09/2026: uma conferência de integração publicou
+`607c7b3e…` como digest do parecer, e ele **não é**. Os dois foram remedidos neste
+documento, e os dois fecham, cada um sobre o seu recorte:
+
+| Recorte, definido pelo que entra | Linhas | Bytes | SHA-256 completo |
+|---|---|---|---|
+| **entre** os marcadores, bordas aparadas, com quebra final, que é a normalização do parágrafo acima | 136 | 18.070 | `bcdfe5a3be836946c934b8ae437b1aa3b921743b121c503505f9f431a5ba8fd9` |
+| marcadores **inclusos**, sem quebra final | 140 | 18.139 | `607c7b3e27037b054c768de175e58e59379ae5dac692e3855fe0e9a20c3a4134` |
+
+**O digest do parecer é o primeiro**, e é ele que fecha contra o arquivo entregue pelo
+pesquisador. **O segundo não o substitui:** serve para comparar este trecho entre dois
+commits, porque inclui os delimitadores e dispensa a normalização. ⚠ **Ao registrar
+qualquer um dos dois, escreva o hash completo e diga qual recorte ele cobre.** Hash
+abreviado sem o recorte nomeado foi o que produziu a divergência aparente, e o texto
+da execução 7 nunca foi tocado.
 
 ### O que o log preserva do início do parecer
 
