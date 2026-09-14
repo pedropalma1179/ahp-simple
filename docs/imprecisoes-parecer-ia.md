@@ -5192,6 +5192,67 @@ recuperação funcionando, e a medição do item 4 aumenta o alcance dela: **o q
 precisa sobreviver até o log não é só a etapa, é o status HTTP**, que hoje é
 destruído pelo `res.json()` antes do `res.ok`.
 
+### Restauração do índice e recorrência da hibernação, 14/09/2026
+
+⚠ **Tudo nesta seção é SAÍDA FORNECIDA PELO PESQUISADOR**, transcrita das saídas
+compartilhadas. **Nada aqui foi medido nesta sessão.** Os arquivos originais não
+foram acessados por quem redige, então **não há localização nem resumo criptográfico
+de artefato a registrar**, e nenhum se inventa. A atribuição vale para cada linha do
+que segue.
+
+#### A sequência, como foi fornecida
+
+| Momento | O que a saída fornecida mostra |
+|---|---|
+| **19:24:25 UTC**, antes da restauração | as sondas `/info` e `/query` **e a chamada real do SDK** receberam **404 com corpo vazio**, e o SDK terminou em `SyntaxError` |
+| estado do recurso | captura do console: índice `ahp-bocr-rag`, estado **`HIBERNATED`**, AWS `us-east-1` |
+| restauração | **ação manual informada pelo pesquisador**, entre os dois ensaios. ⚠ **Horário exato não registrado.** Tela posterior mostra **473 registros**, dimensão **1024** e métrica **COSINE**, que conferem com o que o código assume |
+| **19:40:23 UTC**, depois | `/info` e `/query` receberam **200**, e o SDK devolveu **cinco chunks**. A rota inexistente recebeu **404 com JSON válido** |
+| condições dos dois ensaios | mesmo HEAD, mesmo SDK e mesmos resumos dos módulos; árvore limpa; **flag ausente**. As propriedades sanitizadas coincidem, ⚠ **sem demonstrar identidade integral das credenciais** |
+| **nova hibernação** | **relatada pelo pesquisador poucos minutos depois**. ⚠ **Não há, no material recebido, nova captura de console nem novo ensaio HTTP dessa recorrência** |
+
+#### O que isto fecha da discriminação pendente, e o que não fecha
+
+⚠ **A discriminação entre 404 de recurso e 404 de rota, registrada como não apurada
+na seção anterior, aparece no ensaio de depois:** com o recurso ativo, a rota
+inexistente devolveu **404 com JSON válido**, enquanto `/info` e `/query` devolveram
+200. **O 404 de rota do serviço carrega corpo JSON.**
+
+**Consequência sobre a forma do 404 de antes:** o **zero byte** não tem a forma do
+404 de rota observado. ⚠ **Compatível não é demonstrado:** nada no material recebido
+identifica qual camada emitiu o corpo vazio, e isto é leitura de saída fornecida,
+não medição.
+
+#### As cinco hipóteses, com o que este material faz com cada uma
+
+| Hipótese | Estado |
+|---|---|
+| **H1.** recurso removido ou suspenso | **é a que o material sustenta:** o console fornecido mostra `HIBERNATED`, e depois da restauração manual o mesmo ensaio passou a 200 com cinco chunks. ⚠ **Associação, não causa demonstrada**, pela razão da conclusão abaixo |
+| **H2.** URL de outro recurso | **enfraquecida:** a mesma configuração devolveu 404 antes e 200 depois, com propriedades sanitizadas coincidentes nos dois ensaios. ⚠ **Não eliminada**, porque identidade integral das credenciais não foi demonstrada |
+| **H3.** segmento de caminho na URL | **retirada:** a URL do ensaio tem **zero segmentos**, saída fornecida. ⚠ **A normalização do SDK continua a ser preservada por compatibilidade, e isso não ressuscita a hipótese** |
+| **H4.** 404 ocultando proibição de acesso | **não eliminada, e não testada:** nenhuma requisição com credencial deliberadamente errada consta do material |
+| **H5.** 404 de intermediário na rede | **enfraquecida:** o mesmo caminho de rede, dezesseis minutos depois, devolveu 200. ⚠ **Não eliminada**, porque nada no material exclui intermediário intermitente |
+
+#### A conclusão, no alcance que ela tem
+
+- **A restauração está associada à recuperação operacional no ensaio local.** É o
+  que a sequência fornecida mostra, e é tudo o que ela mostra.
+- ⚠ **Disponibilidade contínua NÃO está demonstrada.** A recorrência foi relatada
+  poucos minutos depois, e não há captura nem ensaio dela no material recebido.
+- ⚠ **A execução 7 continua NÃO explicada.** Ela rodou em produção, em outro dia e
+  em outro ambiente, e nada neste material a alcança.
+- ⚠ **A inclusão dos chunks no contexto continua NÃO verificada.** O ensaio de
+  depois entregou cinco chunks **ao recuperador**; que eles cheguem ao prompt do
+  modelo é outra coisa, e a flag estava **ausente** nos dois ensaios.
+
+⚠ **NÃO houve predição registrada antes da restauração**, e isso se registra porque
+é exigência do método deste projeto, não porque mude o dado. A restauração era
+alteração **capaz** de restabelecer o fornecimento de contexto ao parecer, então a
+predição cabia. **Sem ela, a leitura do resultado não fecha a porta que uma predição
+datada fecharia:** com o número mudando depois da ação, "funcionou" e "havia outra
+causa" continuam cabendo no mesmo dado. É exatamente o modo de falha que a seção 2
+do `CLAUDE.md` descreve, agora no próprio diagnóstico.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
