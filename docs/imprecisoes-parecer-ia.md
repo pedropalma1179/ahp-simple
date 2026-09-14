@@ -4505,6 +4505,366 @@ apresentadas como aprovação; permanecem acessíveis somente em quarentena vis�
 
 ---
 
+## F09: diagnóstico da recuperação semântica, Fase 1 de A.30
+
+**Fase 1 de A.30, medida em 14/09/2026 no commit `7422e87`.** Esta rodada **não
+corrige nada**: observa os serviços reais uma etapa de cada vez, demonstra em
+separado como o software trata cada condição, e declara o alcance de cada
+evidência sem estendê-lo ao que a outra mediu.
+
+⚠ **A natureza da evidência é declarada em cada afirmação**, com os mesmos três
+rótulos de F06: **medido** quando houve execução, **estabelecido por leitura**
+quando vem do código lido, e **não medido** quando nenhuma das duas aconteceu.
+
+⚠ **Três coisas ficam separadas do começo ao fim:** o **sinal entregue ao
+modelo**, o **metadado devolvido pela rota**, e a **informação visível ao
+usuário**. As três foram medidas nesta rodada, e **não coincidem**.
+
+⚠ **Instrumentos temporários, fora da árvore versionada**, no diretório de
+trabalho da sessão. Nada em `app/`, `lib/` ou `components/` foi alterado, e
+nenhuma função foi exportada para permitir os ensaios. **Nenhuma escrita no
+índice:** as consultas da observação real são somente de leitura, e os clientes
+simulados recusam `upsert` e `reset` por construção.
+
+### Ambiente desta rodada
+
+| Item | Estado, medido |
+|---|---|
+| `git rev-parse --short HEAD` | `7422e87` |
+| `git branch --show-current` | `main` |
+| `git status --short` | vazio, árvore limpa |
+| `git diff HEAD -- docs/` | vazio, nenhuma alteração manual pendente |
+| arquivos rastreados | **151**, iguais antes e depois da rodada |
+| plataforma | `win32 x64`, Node `v24.12.0`, npm `11.18.0` |
+
+**Configuração carregada pelo mesmo caminho da aplicação**, que é `loadEnvConfig`
+de `@next/env`, e **antes** de qualquer importação da rota, porque
+`USE_RAG_SEMANTIC` é fixado no momento da importação, em `route.ts:40`.
+**Medido:** o único arquivo de env carregado é `.env.local`.
+
+| Variável | Estado, medido | Observação |
+|---|---|---|
+| `VOYAGE_API_KEY` | **presente** | valor não registrado em lugar nenhum |
+| `UPSTASH_VECTOR_REST_URL` | **presente** | valor não registrado em lugar nenhum |
+| `UPSTASH_VECTOR_REST_TOKEN` | **presente** | valor não registrado em lugar nenhum |
+| `USE_RAG_SEMANTIC` | **ausente**, sem valor definido | não é segredo, e a ausência é o dado |
+
+⚠ **Credencial presente não prova autenticação válida nem acesso ao índice.**
+Presença é presença, e o que se mediu depois desmente qualquer leitura mais
+generosa dessas três linhas.
+
+⚠ **`USE_RAG_SEMANTIC` ausente tem consequência direta:** `route.ts:40` compara
+com a cadeia `'true'`, então **neste ambiente a rota não executaria a recuperação
+semântica**. Os ensaios das seções seguintes fixaram a variável explicitamente
+antes de importar a rota, e isso está declarado em cada caso. **A execução 7
+rodou em produção**, com a variável verdadeira; o que se mede aqui descreve este
+ambiente, e a diferença fica registrada em vez de generalizada.
+
+### As cinco consultas aos serviços reais, com as duas etapas separadas
+
+**Medido.** Instrumento fora da árvore, importando `lib/rag/embed` e
+`lib/rag/upstash-client` **diretamente**, sem passar por `getRAGSemantic`, que é
+onde a distinção se perde. As cinco consultas são as de `RAG_SEMANTIC_QUERIES`,
+em `route.ts:44` a `:50`, com `topK` igual a 5, que é `route.ts:52`. Execução
+**sequencial**.
+
+| # | Consulta | `embed` | `querySimilar` |
+|---|---|---|---|
+| 1 | `consistência julgamentos AHP CR Saaty` | **sucesso**, dimensão **1024**, 600 ms | **falha**, tipo `SyntaxError`, mensagem `Unexpected end of JSON input`, 479 ms |
+| 2 | `BOCR síntese fórmula subtrativa Wijnmalen comensurabilidade` | **sucesso**, dimensão **1024**, 243 ms | **falha**, tipo `SyntaxError`, mensagem `Unexpected end of JSON input`, 451 ms |
+| 3 | `análise sensibilidade ranking AHP estabilidade` | **sucesso**, dimensão **1024**, 277 ms | **falha**, tipo `SyntaxError`, mensagem `Unexpected end of JSON input`, 445 ms |
+| 4 | `agregação média geométrica AIJ Forman Saaty grupo` | **sucesso**, dimensão **1024**, 244 ms | **falha**, tipo `SyntaxError`, mensagem `Unexpected end of JSON input`, 445 ms |
+| 5 | `viés cognitivo painel decisão MCDM` | **sucesso**, dimensão **1024**, 237 ms | **falha**, tipo `SyntaxError`, mensagem `Unexpected end of JSON input`, 444 ms |
+
+**Cinco de cinco em `embed`: sucesso. Cinco de cinco em `querySimilar`: falha.**
+Nenhuma etapa ficou sem estado, e **nenhum estado "não executado" ocorreu**, porque
+a etapa anterior nunca falhou.
+
+⚠ **O estado "sucesso com lista vazia" não apareceu, e não poderia:** ele não é
+estado possível de `embed`, cuja implementação lança erro para resposta sem dado e
+para dimensão inesperada (`embed.ts:59` a `:73`), **estabelecido por leitura**. E
+em `querySimilar` ele não ocorreu porque as cinco lançaram antes de devolver
+qualquer lista.
+
+#### Conferência à mão do caso mais visível
+
+⚠ **Primeiro agregado produzido por instrumento novo, logo conferido à mão antes
+de ser aceito.** O caso escolhido é o mais visível, que é a consulta 1, a primeira
+da lista e a mesma que abre o log da execução 7.
+
+**Medido, em duas evidências independentes:**
+
+1. **A pilha da exceção**, sanitizada, situa o erro em `JSON.parse` chamado por
+   `parseJSONFromBytes` dentro do undici, ou seja **no processamento do corpo da
+   resposta HTTP**, e não no código do repositório:
+
+```
+SyntaxError: Unexpected end of JSON input
+    at JSON.parse (<anonymous>)
+    at parseJSONFromBytes (node:internal/deps/undici/undici)
+    at successSteps (node:internal/deps/undici/undici)
+    at readAllBytes (node:internal/deps/undici/undici)
+```
+
+2. **Duas requisições somente de leitura ao endpoint configurado**, feitas fora do
+   cliente, registrando apenas metadados da resposta: `GET /info` devolveu **404,
+   zero byte de corpo, sem `content-type`**, e `POST /query` devolveu **404, zero
+   byte de corpo**. O domínio de topo do endpoint configurado é `upstash.io`.
+
+**O que as duas juntas estabelecem:** o serviço responde, a resposta é **404 com
+corpo vazio**, e o cliente tenta interpretar esse corpo vazio como JSON, o que
+produz exatamente a mensagem observada. **A etapa que falha, neste ambiente e
+hoje, é a consulta ao índice.**
+
+⚠ **O que elas NÃO estabelecem:** a razão do 404. Índice removido, índice
+renomeado, credencial de outro projeto e URL desatualizada são leituras
+compatíveis com o mesmo corpo vazio, e **nenhuma delas foi medida**. A conferência
+do valor configurado aqui contra o valor configurado em produção **não foi feita
+nesta rodada**, e a razão é que a segunda não está acessível deste ambiente sem
+expor segredo.
+
+#### Alcance desta sonda, declarado
+
+- **Uma falha reproduzida hoje localiza a etapa NESTE ensaio.** Ela **não prova**
+  a origem da falha histórica: o log da execução 7 preserva a mensagem, e **a
+  mensagem sozinha não estabelece nem a classe da exceção nem a chamada que a
+  originou**. O que se pode dizer é que a mensagem observada hoje é a mesma, e que
+  hoje ela vem de `querySimilar`. **Coincidência de mensagem não é identidade de
+  causa.**
+- **A sonda acima é sequencial; a rota executa as cinco com `Promise.all`**, em
+  `route.ts:93` a `:95`. Por isso a observação foi **repetida sob a mesma
+  concorrência**, e **medido:** as cinco em paralelo, 997 ms no total, com
+  **`embed` sucesso em dimensão 1024 nas cinco** e **`querySimilar` falha com
+  `SyntaxError` e a mesma mensagem nas cinco**. O resultado coincide com o
+  sequencial, e **é esse ensaio, não o sequencial, que descreve o modo como a rota
+  chama**.
+- **Este ambiente não é o da execução 7**, que rodou em produção. A comparação
+  entre os dois ambientes **não foi medida**.
+
+### As três montagens com a dependência simulada
+
+**Medido.** Aqui a dependência externa é simulada e **o caminho do software
+permanece real**: `embed`, `querySimilar`, `getRAGSemantic`, a agregação de
+`getSemanticChunks`, a formatação de `formatSemanticChunks` e o handler `POST`
+são os do repositório. A variável `USE_RAG_SEMANTIC` foi fixada em `'true'` antes
+da importação da rota, e as credenciais usadas são **fictícias**, porque os
+clientes estão simulados e nenhuma rede é tocada.
+
+| Montagem | O que `getRAGSemantic` devolve | `failedQueries` | Aviso do `catch` |
+|---|---|---|---|
+| a. `querySimilar` devolve **lista vazia** sem exceção | cinco arrays de zero elementos | **5** | **nenhum** |
+| b. `embed` **lança** exceção | cinco arrays de zero elementos | **5** | **cinco**, todos `[rag/semantic-retrieve] retrieval failed (silent failover): Unexpected end of JSON input` |
+| c. `querySimilar` **lança** exceção | cinco arrays de zero elementos | **5** | **cinco**, idênticos aos da montagem b |
+
+**As três produzem estatísticas iguais campo a campo**, e a linha de resumo de
+`route.ts:578` sai idêntica nas três:
+
+```
+[AI-REVIEWER] RAG semantic: 5 queries -> 0 raw -> 0 unique -> 0 final from 0 papers (top score N/A, 5 failed queries)
+```
+
+**Duas consequências medidas, e elas são distintas:**
+
+1. **Vazio e erro são indistinguíveis nos metadados e na linha de resumo.** A
+   montagem a, em que nada falhou, devolve o mesmo `failedQueries: 5` das
+   montagens b e c.
+2. **Erro de embedding e erro de consulta ao índice são indistinguíveis também no
+   log.** As montagens b e c produzem **a mesma quantidade e o mesmo texto** de
+   aviso. O único sinal que separa a montagem a das outras duas é a **presença**
+   dos avisos, que não está em nenhum campo estruturado.
+
+⚠ **Alcance:** isto demonstra **como o software trata** vazio e erro. **Não
+demonstra que o índice real produziu vazio legítimo.** Vazio legítimo do índice
+**não foi observado** nesta rodada: na consulta real das cinco, `querySimilar`
+lançou antes de devolver lista.
+
+⚠ **E não serviria de controle procurar tema fora do domínio no índice real:**
+`querySimilar` envia apenas `vector`, `topK` e `includeMetadata`, em
+`upstash-client.ts:113` a `:117`, **sem filtro nem limiar de score**, então uma
+consulta sem pertinência tende a devolver os vizinhos mais próximos assim mesmo.
+**Estabelecido por leitura.**
+
+### Os seis casos do contexto entregue ao modelo
+
+**Medido**, no mesmo desenho da seção anterior, capturando os argumentos recebidos
+pelo cliente Anthropic simulado, ou seja **`system` e `messages`**. **Nenhum
+parecer real foi gerado.**
+
+⚠ **A simulação entra nos clientes externos, não em `getRAGSemantic`.** Um
+substituto de `getRAGSemantic` devolvendo lista vazia pularia justamente o
+tratamento interno das falhas que esta rodada mede.
+
+| Caso | `enabled` | `queriesRan` | `rawChunks` | `finalChunks` | `failedQueries` | avisos | blocos na seção do prompt |
+|---|---|---|---|---|---|---|---|
+| 1. recuperação desabilitada | `false` | **0** | 0 | 0 | **0** | 0 | 0, com frase de ausência |
+| 2. sucesso com chunks conhecidos | `true` | 5 | **25** | **9** | **0** | 0 | **9** |
+| 3. sucesso vazio | `true` | 5 | 0 | 0 | **5** | 0 | 0, com frase de ausência |
+| 4. falha de embedding | `true` | 5 | 0 | 0 | **5** | **5** | 0, com frase de ausência |
+| 5. falha de consulta ao índice | `true` | 5 | 0 | 0 | **5** | **5** | 0, com frase de ausência |
+| 6. resultados mistos | `true` | 5 | **4** | **4** | **3** | **2** | **4** |
+
+**Onde cada coisa chega, medido nos seis casos:** o `system` é **idêntico** nos
+seis, com o mesmo resumo criptográfico, tem 37060 caracteres e **não contém** a
+seção semântica nem nenhum chunk. `messages` tem **um** elemento, de papel
+`user`, e é nele que a seção "Evidências Semânticas Recuperadas (RAG Vetorial)"
+aparece, sempre, inclusive quando não há o que recuperar.
+
+⚠ **Achado central desta seção, e ele é medido por resumo criptográfico, não por
+tamanho:** os casos **1, 3, 4 e 5** produzem **o mesmo prompt de usuário, byte a
+byte**. Recuperação desligada, índice sem correspondência, falha de embedding e
+falha de consulta ao índice **entregam ao modelo exatamente o mesmo texto**. A
+única diferença entre eles vive no log e, parcialmente, nos metadados.
+
+**A frase de ausência, verbatim do que foi capturado nos casos 1, 3, 4 e 5:**
+
+```
+## Evidências Semânticas Recuperadas (RAG Vetorial)
+
+_(nenhum chunk semântico recuperado nesta execução)_
+```
+
+⚠ **Isso confirma que o parecer não sai sem base**, e a formulação correta do
+defeito é outra: a recuperação semântica falha e o resultado **não distingue
+adequadamente essa falha de uma consulta vazia**. Os injetores estáticos
+continuam operando por caminho separado, e a própria frase de ausência é entregue
+ao modelo.
+
+#### A comparação com `finalChunks`
+
+**Medido no caso 2**, desenhado para que a deduplicação e o teto por artigo
+tivessem o que fazer: cinco respostas de cinco chunks cada, com repetições entre
+consultas e seis chunks distintos de um mesmo artigo.
+
+| Grandeza | Valor medido | O que a explica |
+|---|---|---|
+| `rawChunks` | **25** | cinco consultas por cinco resultados |
+| `uniqueChunks` | **14** | deduplicação por `id`, que descarta 11 repetições |
+| `finalChunks` | **9** | teto de 3 por `article_id`, em três artigos |
+| blocos no prompt | **9** | contados na seção semântica do texto capturado |
+| chunks identificáveis no prompt | **9** | marcadores próprios, um por chunk, todos os nove encontrados |
+
+**`finalChunks` coincide com o que o texto enviado contém**, nos casos 2 e 6.
+⚠ **`rawChunks` não coincide, e não precisa coincidir:** ele conta antes da
+deduplicação e do teto. **Nenhuma divergência entre `finalChunks` e o texto
+enviado foi observada nesta rodada.**
+
+**Transcrição do primeiro bloco da seção, no caso 2.** ⚠ A saída original traz um
+travessão antes de `score`, substituído aqui por `[travessao]` para respeitar a
+regra de redação desta rodada; o resto é literal:
+
+```
+**1. f09_artigo_alfa** (claim loc-a1, p. 101) [travessao] score: 0.950
+SENTINELA-F09-A1 texto do chunk a1.
+*Verbatim:* "verbatim do chunk a1"
+```
+
+⚠ **Os chunks deste ensaio são sintéticos**, com identificadores próprios, e **não
+vieram do índice**. O que o caso 2 demonstra é o **transporte**: o que a
+recuperação devolve chega ao contexto, na quantidade que `finalChunks` declara.
+**Ele não demonstra nada sobre o conteúdo do índice real.**
+
+### O alcance de `failedQueries`, e o que um leitor conclui hoje
+
+**Estabelecido por leitura**, em `route.ts:97`:
+
+```
+const failedQueries = results.filter((r) => r.length === 0).length;
+```
+
+⚠ **Correção de localizador:** a linha de A.30 no âncora e a seção F09 da
+execução 7 citam `route.ts:95`. **Medido no commit `7422e87`, a expressão está na
+linha 97.** O conteúdo registrado continua correto; o número mudou.
+
+**O que o campo conta:** resultado de comprimento zero. Como `getRAGSemantic`
+devolve lista vazia tanto no failover silencioso quanto na ausência de
+correspondência, **o campo reúne as duas condições**, e o caso 6 mostra que ele
+também não conta o mesmo que o log: **`failedQueries` igual a 3**, com **um**
+resultado vazio e **duas** exceções, contra **dois** avisos no `console.warn`.
+
+**Por onde o número sai, medido:**
+
+| Camada | O que carrega hoje | O que um leitor conclui |
+|---|---|---|
+| sinal entregue ao modelo | a frase de ausência, idêntica em quatro condições distintas | que não houve chunk nesta execução, **sem nenhuma informação sobre por quê** |
+| metadado devolvido pela rota | `metadata.knowledgeBase.semantic`, em `route.ts:1414`, com os oito campos de `SemanticStats` | que cinco consultas rodaram e cinco "falharam", **sem poder separar erro de ausência de correspondência**, e sem saber qual etapa |
+| linha de resumo do log | `route.ts:578`, com `5 failed queries` | o mesmo, e só aparece quando `enabled` é verdadeiro |
+| informação visível ao usuário | **nada** | nada |
+
+⚠ **A terceira camada é a mais severa, e é estabelecida por leitura:**
+`components/ParecerAISection.tsx` declara `knowledgeBase` com `refsUsed`,
+`criticalRefs` e `uniqueArticles`, nas linhas 18 a 22, e **o campo `semantic` não
+está no tipo nem é lido em lugar nenhum**. O que a interface exibe são `refsUsed`
+e `uniqueArticles`, nas linhas 329, 331 e 363, **que vêm da base estática e não
+mudam quando a recuperação semântica falha**. **Com as cinco consultas
+devolvendo vazio, a interface continua afirmando o mesmo número de referências e
+de artigos.**
+
+**Resposta direta à pergunta do item 7:** quem lê os metadados hoje, com as cinco
+consultas vazias, conclui que **houve cinco falhas de consulta**, o que é a
+leitura natural do nome do campo. **Essa leitura pode estar certa ou errada**, e
+os metadados não contêm o que a decidiria: a montagem a desta rodada produz o
+mesmo `failedQueries: 5` **sem nenhuma falha**.
+
+### Linha de base da suíte, nesta rodada
+
+`npm test` sai **0**, com **7 suítes e 105 testes**, em `win32 x64`, Node
+`v24.12.0` e npm `11.18.0`, no commit `7422e87`. **A rodada não altera código**, e
+a suíte serve só de linha de base. ⚠ **Registro de execução, não afirmação de
+compatibilidade.** `npm run build` **não foi executado**, por instrução da rodada.
+
+### Decisões pendentes de F09
+
+⚠ **Atenção: nenhuma destas está decidida.** O que segue são as decisões que a
+Fase 2 precisa tomar antes de qualquer correção. **Elas não repetem os requisitos
+que a linha de A.30 já fixou**, que são separar erro de vazio na instrumentação e
+sinalizar execução degradada nos metadados: esses são requisitos, e o que está em
+aberto é **como**.
+
+1. **Representação dos resultados de cada etapa.** Quantos estados o resultado de
+   uma consulta passa a ter, e se `embed` e `querySimilar` recebem estados
+   próprios ou um estado único com a etapa nomeada dentro. ⚠ **A medição delimita
+   o problema, e não escolhe a forma:** os estados que ocorreram nesta rodada são
+   quatro em `querySimilar`, contando "não executado", e três em `embed`, porque
+   "sucesso com lista vazia" não existe ali. **Recomendação técnica, rotulada como
+   recomendação:** qualquer forma escolhida precisa permitir que uma consulta
+   registre **etapa alcançada** e **etapa não executada**, porque foi exatamente
+   essa distinção que faltou na execução 7.
+2. **Mecanismo de propagação dos erros, com a origem preservada.** Se o failover
+   continua silencioso e o erro passa a viajar num campo do resultado, se a
+   exceção original é reempacotada com prefixo de etapa, ou se o recuperador
+   devolve um objeto em vez de um array. ⚠ **O que a medição sustenta:** a
+   mensagem histórica não tem prefixo, e os erros próprios de `embed.ts` e
+   `upstash-client.ts` têm; **a exceção que apareceu nas cinco consultas não é de
+   nenhum dos dois módulos**, é do processamento do corpo da resposta, então
+   **prefixo próprio não teria bastado** para localizar a etapa. **Recomendação
+   técnica, rotulada como recomendação:** preservar a exceção original junto com a
+   etapa, em vez de substituí-la por texto.
+3. **Exposição na interface.** Se a execução degradada aparece ao usuário, com que
+   texto, e em que lugar. ⚠ **Isto conversa diretamente com o eixo 2 de A.27**,
+   que já pôs em prática a ideia de que a interface não apresente como normal o
+   que não foi verificado. **Não decidido:** se recuperação degradada é condição
+   da mesma natureza que verificação reprovada, ou de natureza distinta e com
+   tratamento próprio. **A medição não escolhe**, e a diferença importa: a
+   validação julga o texto gerado, enquanto isto descreve o contexto que entrou.
+4. **Comportamento quando toda a recuperação falhar.** Se o parecer continua sendo
+   gerado com a base estática, se é gerado e marcado, ou se a geração é
+   interrompida. ⚠ **O que a medição sustenta:** a base estática permanece por
+   caminho separado, então a alternativa "gerar e marcar" é possível sem perda de
+   conteúdo. ⚠ **O que a medição NÃO sustenta:** qualquer afirmação sobre a
+   qualidade do parecer gerado sem chunks semânticos. **Nenhum parecer real foi
+   gerado nesta rodada**, e comparar pareceres com e sem recuperação é ensaio
+   próprio, que não foi feito.
+
+⚠ **Uma quinta questão fica registrada e não é decisão de engenharia:** a razão do
+404 do endpoint configurado. **Ela precede a correção pelo efeito prático**, porque
+nenhuma instrumentação nova recupera chunk de um índice que não responde, **e não
+a precede pela ordem das tarefas**, porque a instrumentação é o que permitirá
+distinguir as duas condições na próxima vez. **A dependência de A.18 continua
+valendo**, e por mais um motivo agora medido: reingerir contra um endpoint que
+devolve 404 pagaria embeddings sem destino verificável.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
