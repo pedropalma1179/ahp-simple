@@ -5211,17 +5211,16 @@ que segue.
 | condições dos dois ensaios | mesmo HEAD, mesmo SDK e mesmos resumos dos módulos; árvore limpa; **flag ausente**. As propriedades sanitizadas coincidem, ⚠ **sem demonstrar identidade integral das credenciais** |
 | **nova hibernação** | **relatada pelo pesquisador poucos minutos depois**. ⚠ **Não há, no material recebido, nova captura de console nem novo ensaio HTTP dessa recorrência** |
 
-#### O que isto fecha da discriminação pendente, e o que não fecha
+#### O que as respostas mostraram nos dois estados
 
-⚠ **A discriminação entre 404 de recurso e 404 de rota, registrada como não apurada
-na seção anterior, aparece no ensaio de depois:** com o recurso ativo, a rota
-inexistente devolveu **404 com JSON válido**, enquanto `/info` e `/query` devolveram
-200. **O 404 de rota do serviço carrega corpo JSON.**
+As respostas diferiram nos dois estados: antes, `/info` e a rota inexistente
+devolveram 404 com corpo vazio; depois, `/info` respondeu 200 e a rota inexistente
+respondeu 404 com JSON válido. Isso não identifica universalmente a origem de um 404.
 
-**Consequência sobre a forma do 404 de antes:** o **zero byte** não tem a forma do
-404 de rota observado. ⚠ **Compatível não é demonstrado:** nada no material recebido
-identifica qual camada emitiu o corpo vazio, e isto é leitura de saída fornecida,
-não medição.
+⚠ **Correção de alcance, 14/09/2026:** a redação anterior dizia que o ensaio
+**discrimina 404 de rota de 404 de recurso**, e isso excede o observado. **O que houve
+foi diferença entre dois estados do mesmo recurso**, e nada no material recebido
+identifica qual camada emitiu o corpo vazio.
 
 #### As cinco hipóteses, com o que este material faz com cada uma
 
@@ -5248,10 +5247,13 @@ não medição.
 ⚠ **NÃO houve predição registrada antes da restauração**, e isso se registra porque
 é exigência do método deste projeto, não porque mude o dado. A restauração era
 alteração **capaz** de restabelecer o fornecimento de contexto ao parecer, então a
-predição cabia. **Sem ela, a leitura do resultado não fecha a porta que uma predição
-datada fecharia:** com o número mudando depois da ação, "funcionou" e "havia outra
-causa" continuam cabendo no mesmo dado. É exatamente o modo de falha que a seção 2
-do `CLAUDE.md` descreve, agora no próprio diagnóstico.
+predição cabia. **A ausência fica registrada como limitação do
+procedimento**, e nada além disso.
+
+⚠ **Correção de alcance, 14/09/2026:** a redação anterior dizia que uma predição
+datada fecharia a porta das leituras alternativas do resultado. **Predição anterior
+não elimina causas alternativas por si só**, e afirmar que fecharia atribui a ela um
+alcance que ela não tem.
 
 ---
 
