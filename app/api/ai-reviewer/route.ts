@@ -11,6 +11,7 @@ import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-det
 import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
 import { getValidFinalScores, type ReviewRequest } from '@/lib/ai-reviewer/review-request';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
+import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-contract';
 import { getRAGSemantic } from '@/lib/rag/semantic-retrieve';
 import type { RetrievedChunk } from '@/lib/rag/upstash-client';
 
@@ -1364,8 +1365,10 @@ export async function POST(request: NextRequest) {
     );
     const validation = validateReviewOutput(review, respondentIds, data);
 
-    if (!validation.isValid) {
-      console.error(`${LOG_PREFIX} ⚠️ VALIDAÇÃO FALHOU:`, validation.issues);
+    if (validation.estado === 'reprovado') {
+      console.error(`${LOG_PREFIX} ⚠️ VALIDAÇÃO REPROVADA:`, validation.issues);
+    } else if (validation.estado === 'inconclusivo') {
+      console.warn(`${LOG_PREFIX} ⚠️ VALIDAÇÃO INCONCLUSIVA:`, validation.inconclusivos);
     }
     if (validation.warnings.length > 0) {
       console.warn(`${LOG_PREFIX} ⚠️ Avisos de validação:`, validation.warnings);
@@ -1391,15 +1394,9 @@ export async function POST(request: NextRequest) {
       veredicto: finalVeredicto,
       review,
       biasAnalysis: biasAnalysis || null,
-      validation: {
-        isValid: validation.isValid,
-        issues: validation.issues,
-        warnings: validation.warnings,
-        // A.27 eixo 1, 1b: repasse dos campos novos. ⚠ Nenhum consumidor os lê
-        // ainda; o consumo é o eixo 2.
-        estado: validation.estado,
-        inconclusivos: validation.inconclusivos,
-      },
+      // `success` informa que a geração terminou. A autorização para apresentar
+      // o texto vem exclusivamente deste contrato versionado (A.27, eixo 2).
+      validation: toReviewValidationContract(validation),
       metadata: {
         version: API_VERSION,
         model: MODEL_CONFIG.id,

@@ -1307,6 +1307,7 @@ export default function ResultadosPage() {
           nota: data.nota,
           veredicto: data.veredicto,
           review: data.review,
+          validation: data.validation,
           metadata: data.metadata
         });
         // Capturar análise de viés (Dodevska et al., 2023)

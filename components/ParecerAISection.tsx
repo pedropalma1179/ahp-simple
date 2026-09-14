@@ -5,12 +5,14 @@
 'use client';
 
 import React from 'react';
+import { decideReviewPresentation } from '@/lib/ai-reviewer/review-validation-contract';
 
 interface ParecerAISectionProps {
   aiReview: {
     nota?: string;
     veredicto?: string;
     review?: string;
+    validation?: unknown;
     metadata?: {
       model?: string;
       knowledgeBase?: {
@@ -31,6 +33,9 @@ export default function ParecerAISection({
 }: ParecerAISectionProps) {
   // Estado para feedback visual do botão Copiar
   const [copied, setCopied] = React.useState(false);
+  const presentation = aiReview
+    ? decideReviewPresentation(aiReview.validation)
+    : null;
 
   // Handler para copiar o markdown do parecer
   const handleCopy = async () => {
@@ -173,8 +178,33 @@ export default function ParecerAISection({
       {/* Conteúdo do Parecer */}
       {aiReview ? (
         <div>
-          {/* Badges de Classificação */}
-          {(aiReview.nota || aiReview.veredicto) && (
+          {presentation && presentation.estado !== 'aprovado' && (
+            <div className="mb-6 rounded-lg border-2 border-amber-400 bg-amber-50 p-5" role="alert">
+              <h4 className="text-lg font-bold text-amber-900">⚠️ {presentation.titulo}</h4>
+              <p className="mt-1 text-sm text-amber-800">
+                O conteúdo abaixo está em quarentena e não deve ser tratado como parecer aprovado.
+              </p>
+              <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-amber-900">
+                {presentation.motivos.map((motivo, index) => (
+                  <li key={index}>{motivo}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {presentation && presentation.warnings.length > 0 && (
+            <div className="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 p-4" role="status">
+              <h4 className="font-semibold text-yellow-900">Avisos da verificação</h4>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-yellow-800">
+                {presentation.warnings.map((warning, index) => (
+                  <li key={index}>{warning}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Nota e veredicto só pertencem à apresentação aprovada. */}
+          {presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (
             <div className="flex gap-3 mb-6 flex-wrap">
               {aiReview.nota && (() => {
                 const s = getNotaStyle(aiReview.nota!);
@@ -215,7 +245,11 @@ export default function ParecerAISection({
           {/* Review Text */}
           {aiReview.review && (
             <div className="mt-6">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+              <div className={`rounded-lg border p-6 ${
+                presentation?.quarantined
+                  ? 'border-amber-400 bg-amber-50'
+                  : 'border-gray-200 bg-gray-50'
+              }`}>
                 <div className="prose prose-sm max-w-none">
                   {/* Renderização simples do markdown */}
                   <div className="whitespace-pre-wrap font-sans text-gray-800 leading-relaxed">
