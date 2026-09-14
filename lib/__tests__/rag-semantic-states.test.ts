@@ -194,6 +194,12 @@ async function executar(
   }
 }
 
+/** Resumo criptográfico, para comparar contexto inteiro sem transcrevê-lo. */
+function resumo(texto: string): string {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  return require('crypto').createHash('sha256').update(texto).digest('hex');
+}
+
 /** Quatro chunks do mesmo artigo e um de outro, para o teto de 3 por artigo morder. */
 const cincoChunks: ChunkSimulado[] = [
   chunk('k1', 'artigo_alfa', 0.95),
@@ -250,44 +256,65 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     expect(r.messages[0].content).toContain('artigo_alfa');
   });
 
-  it('cinco vazias SEM erro: failedQueries conta 5: DEFEITO, conta vazio como falha', async () => {
+  it('cinco vazias SEM erro: contadas como emptyOk, e failedQueries em zero: CORRIGIDO', async () => {
     const r = await executar('true', false, Array(5).fill([]));
 
     expect(r.semantic.queriesRan).toBe(5);
-    expect(r.semantic.failedQueries).toBe(5); // nenhuma falhou, e o campo diz cinco
+    // ⚠ EXPECTATIVA ALTERADA pelo contrato novo, e a razão é o que o eixo corrige.
+    // Antes: `failedQueries` era 5, porque contava `r.length === 0` e reunia vazio
+    // legítimo com erro. Agora: `emptyOk` 5 e `errored` 0, e `failedQueries` deriva
+    // de `errored`.
+    expect(r.semantic.emptyOk).toBe(5);
+    expect(r.semantic.withResults).toBe(0);
+    expect(r.semantic.errored).toBe(0);
+    expect(r.semantic.failedQueries).toBe(0);
     expect(r.semantic.rawChunks).toBe(0);
     expect(r.avisos).toHaveLength(0); // sem erro, sem aviso
     expect(r.messages[0].content).toContain('nenhum chunk semântico recuperado');
   });
 
-  it('falha de EMBEDDING: resultado, avisos, e a consulta ao índice NÃO executa: DEFEITO', async () => {
+  it('falha de EMBEDDING: consulta ao índice registrada como NÃO EXECUTADA: CORRIGIDO', async () => {
     const r = await executar('true', true, Array(5).fill(cincoChunks));
 
-    expect(r.semantic.failedQueries).toBe(5);
+    expect(r.semantic.errored).toBe(5);
+    expect(r.semantic.failedQueries).toBe(5); // derivado de errored
     expect(r.consultasAoEmbed).toBe(5);
-    // ⚠ O `try` de semantic-retrieve.ts:44 lança em `embed`, na linha 45, antes de
-    // chegar a `querySimilar`, na 46. Zero chamadas ao cliente do índice demonstram
-    // que a consulta ao índice NÃO foi executada, e não que ela falhou.
+    // Zero chamadas ao cliente do índice: `querySimilar` NÃO executou.
     expect(r.consultasAoIndice).toBe(0);
     expect(r.avisos).toHaveLength(5);
     expect(r.avisos[0]).toContain('voyage indisponivel no ensaio');
+
+    // ⚠ O contrato novo registra a diferença, em vez de a perder:
+    const d = (r.semantic.queries as Array<Record<string, unknown>>)[0];
+    expect(d.etapa).toBe('embed');
+    expect(d.embedding).toBe('erro');
+    expect(d.consulta).toBe('nao_executado'); // NÃO é 'erro'
+    // Nenhuma tentativa fictícia: o duplo da Voyage nem chega ao transporte.
+    expect(d.tentativas).toEqual([]);
   });
 
-  it('falha de CONSULTA: mesmas contagens da falha de embedding: DEFEITO, indistinguíveis', async () => {
-    const r = await executar('true', false, Array(5).fill('lanca'));
+  it('falha de CONSULTA: DISTINGUÍVEL da falha de embedding pela etapa: CORRIGIDO', async () => {
+    const porConsulta = await executar('true', false, Array(5).fill('lanca'));
+    const porEmbed = await executar('true', true, Array(5).fill(cincoChunks));
 
-    expect(r.semantic.failedQueries).toBe(5);
-    expect(r.consultasAoIndice).toBe(5);
-    expect(r.avisos).toHaveLength(5);
-    // A etapa aparece só no TEXTO da mensagem do erro, que vem da dependência, e
-    // nada no contrato de `SemanticStats` a distingue da falha de embedding.
-    expect(r.avisos[0]).toContain('indice indisponivel no ensaio');
-    expect(r.semantic).toEqual(
-      expect.objectContaining({ enabled: true, queriesRan: 5, failedQueries: 5, rawChunks: 0 })
-    );
+    expect(porConsulta.semantic.errored).toBe(5);
+    expect(porConsulta.consultasAoIndice).toBe(5);
+    expect(porConsulta.avisos).toHaveLength(5);
+    expect(porConsulta.avisos[0]).toContain('indice indisponivel no ensaio');
+
+    // ⚠ As duas falhas tinham contagens IDÊNTICAS antes deste eixo. Agora diferem
+    // na etapa e nos dois estados, que é exatamente o que se queria separar.
+    const dConsulta = (porConsulta.semantic.queries as Array<Record<string, unknown>>)[0];
+    const dEmbed = (porEmbed.semantic.queries as Array<Record<string, unknown>>)[0];
+    expect(dConsulta.etapa).toBe('querySimilar');
+    expect(dEmbed.etapa).toBe('embed');
+    expect(dConsulta.embedding).toBe('concluido');
+    expect(dEmbed.embedding).toBe('erro');
+    expect(dConsulta.consulta).toBe('erro');
+    expect(dEmbed.consulta).toBe('nao_executado');
   });
 
-  it('falha de embedding e falha de consulta entregam o MESMO prompt: DEFEITO', async () => {
+  it('as quatro condições sem chunks entregam o MESMO prompt: COMPORTAMENTO ATUAL', async () => {
     const porEmbed = await executar('true', true, Array(5).fill(cincoChunks));
     const porConsulta = await executar('true', false, Array(5).fill('lanca'));
     const vazioLegitimo = await executar('true', false, Array(5).fill([]));
@@ -297,36 +324,98 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     expect(porConsulta.messages[0].content).toBe(porEmbed.messages[0].content);
     expect(vazioLegitimo.messages[0].content).toBe(porEmbed.messages[0].content);
     expect(desabilitada.messages[0].content).toBe(porEmbed.messages[0].content);
-    // E o `system` é o mesmo nas quatro.
+    // E o `system` é o mesmo nas QUATRO, o vazio legítimo inclusive.
     expect(porConsulta.system).toBe(porEmbed.system);
+    expect(vazioLegitimo.system).toBe(porEmbed.system);
     expect(desabilitada.system).toBe(porEmbed.system);
+
+    // ⚠ Isto registra COMPORTAMENTO ATUAL. Informar essas condições ao modelo é
+    // decisão própria, que não está tomada, e a identidade dos prompts não está
+    // classificada aqui como defeito cuja correção esteja decidida.
+  });
+
+  it('CONTEXTO preservado: system e messages idênticos aos da referência d658e50', async () => {
+    // ⚠ **Estes resumos NÃO foram recalculados com o candidato.** Vieram de uma
+    // execução do handler de `d658e50`, em checkout separado, com as MESMAS entradas
+    // e as MESMAS respostas simuladas, e estão fixados aqui como referência.
+    // Cobrem o `system` e os `messages` COMPLETOS, e não tamanho, título ou
+    // contagem de chunks.
+    const REFERENCIA: Record<string, { system: string; messages: string }> = {
+      comResultados: {
+        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
+        messages: '4e5d45c171ac17e3050df93636623620321db76f6f2485ad11672585f89b8b95',
+      },
+      vazio: {
+        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
+        messages: 'a3c60c056c3a9f541c22dcde519c1ead964f48a17a3577444595a4bdfe668459',
+      },
+      erro: {
+        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
+        messages: 'a3c60c056c3a9f541c22dcde519c1ead964f48a17a3577444595a4bdfe668459',
+      },
+      misto: {
+        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
+        messages: '4e5d45c171ac17e3050df93636623620321db76f6f2485ad11672585f89b8b95',
+      },
+    };
+
+    const casos: Record<string, Desfecho[]> = {
+      comResultados: Array(5).fill(cincoChunks),
+      vazio: Array(5).fill([]),
+      erro: Array(5).fill('lanca'),
+      misto: [cincoChunks, [], 'lanca', [], 'lanca'],
+    };
+
+    for (const [nome, desfechos] of Object.entries(casos)) {
+      const r = await executar('true', false, desfechos);
+      expect(resumo(r.system)).toBe(REFERENCIA[nome].system);
+      expect(resumo(JSON.stringify(r.messages))).toBe(REFERENCIA[nome].messages);
+    }
   });
 
   it('execução MISTA: uma categoria só não representa a execução: DEFEITO', async () => {
     const r = await executar('true', false, [cincoChunks, [], 'lanca', [], 'lanca']);
 
     expect(r.consultasAoIndice).toBe(5);
-    // `failedQueries` conta resultado VAZIO: um com resultado fora, quatro dentro,
-    // sendo dois vazios legítimos e dois erros.
-    expect(r.semantic.failedQueries).toBe(4);
-    // Os avisos contam só os ERROS, e são dois. As duas contagens divergem, e
-    // nenhuma delas descreve a execução.
+    // ⚠ EXPECTATIVA ALTERADA pelo contrato novo. Antes: `failedQueries` 4, porque
+    // reunia os dois vazios legítimos com os dois erros, e divergia dos dois avisos.
+    // Agora as três categorias descrevem a execução mista SEM colapsá-la:
+    expect(r.semantic.withResults).toBe(1);
+    expect(r.semantic.emptyOk).toBe(2);
+    expect(r.semantic.errored).toBe(2);
+    expect(r.semantic.failedQueries).toBe(2); // derivado de errored
+    // Disjuntas e somando queriesRan.
+    expect(
+      (r.semantic.withResults as number) + (r.semantic.emptyOk as number) + (r.semantic.errored as number)
+    ).toBe(r.semantic.queriesRan);
+    // Os avisos agora CONFEREM com `errored`, e não divergem mais.
     expect(r.avisos).toHaveLength(2);
-    // ⚠ O que se perde ao reduzir a execução a uma categoria: esta execução teve
-    // sucesso com resultados, sucesso vazio e erro AO MESMO TEMPO, e nenhum campo
-    // do contrato atual permite recompor isso. Medido aqui: 1 com resultados,
-    // 2 vazias e 2 com erro, contra um único número 4 e dois avisos.
     expect(r.semantic.rawChunks).toBe(5); // só a consulta bem sucedida contribui
     expect(r.semantic.finalChunks).toBe(4); // teto de 3 por artigo corta o quarto do alfa
+    // O diagnóstico por consulta permite recompor a execução inteira.
+    const porConsulta = r.semantic.queries as Array<Record<string, unknown>>;
+    expect(porConsulta.map((d) => d.consulta)).toEqual([
+      'com_resultados',
+      'vazio',
+      'erro',
+      'vazio',
+      'erro',
+    ]);
     expect(Object.keys(r.semantic).sort()).toEqual([
+      'contractVersion',
+      'emptyOk',
       'enabled',
+      'errored',
       'failedQueries',
       'finalChunks',
+      'httpAttempts',
+      'queries',
       'queriesRan',
       'rawChunks',
       'topScore',
       'uniqueArticles',
       'uniqueChunks',
+      'withResults',
     ]);
   });
 });

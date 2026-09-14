@@ -12,7 +12,8 @@ import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist'
 import { getValidFinalScores, type ReviewRequest } from '@/lib/ai-reviewer/review-request';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
 import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-contract';
-import { getRAGSemantic } from '@/lib/rag/semantic-retrieve';
+import { getRAGSemanticDiagnosticado } from '@/lib/rag/semantic-retrieve';
+import { VERSAO_CONTRATO_SEMANTICO, type DiagnosticoConsulta } from '@/lib/rag/diagnostico';
 import type { RetrievedChunk } from '@/lib/rag/upstash-client';
 
 // ============================================================
@@ -53,26 +54,59 @@ const RAG_SEMANTIC_TOPK_PER_QUERY = 5;
 const RAG_SEMANTIC_MAX_PER_ARTICLE = 3; // Cap por paper (decisão A3)
 const RAG_SEMANTIC_FINAL_TOPK = 20;     // Total injetado no prompt (decisão A4)
 
+/**
+ * Contrato dos metadados semânticos, A.30.
+ *
+ * ⚠ **`contractVersion` existe para distinguir registro antigo de novo.** Metadados
+ * gravados antes desta versão não têm o campo, e nesses `failedQueries` significa
+ * outra coisa: contava resultado VAZIO junto com erro.
+ *
+ * ⚠ **`withResults`, `emptyOk` e `errored` contam CONSULTAS EXECUTADAS**, são
+ * disjuntas e somam `queriesRan`. **`httpAttempts` tem unidade própria**, tentativas
+ * HTTP, e não se soma a consultas.
+ */
 interface SemanticStats {
+  contractVersion: number;
   enabled: boolean;
   queriesRan: number;
+  /** Consultas que voltaram com pelo menos um chunk. */
+  withResults: number;
+  /** Consultas que voltaram vazias SEM erro. */
+  emptyOk: number;
+  /** Consultas que falharam, em qualquer das duas etapas. */
+  errored: number;
   rawChunks: number;
   uniqueChunks: number;
   finalChunks: number;
   uniqueArticles: number;
   topScore: number | null;
+  /**
+   * ⚠ **Campo de COMPATIBILIDADE, derivado de `errored`**, nunca atualizado
+   * separadamente. **Mudou de significado:** antes contava `r.length === 0`, ou seja
+   * vazio legítimo e erro na mesma contagem; agora conta somente erro.
+   */
   failedQueries: number;
+  /** Tentativas HTTP somadas, unidade própria. */
+  httpAttempts: number;
+  /** Diagnóstico por consulta, na ordem de disparo. */
+  queries: DiagnosticoConsulta[];
 }
 
 const EMPTY_SEMANTIC_STATS: SemanticStats = {
+  contractVersion: VERSAO_CONTRATO_SEMANTICO,
   enabled: false,
   queriesRan: 0,
+  withResults: 0,
+  emptyOk: 0,
+  errored: 0,
   rawChunks: 0,
   uniqueChunks: 0,
   finalChunks: 0,
   uniqueArticles: 0,
   topScore: null,
   failedQueries: 0,
+  httpAttempts: 0,
+  queries: [],
 };
 
 /**
@@ -90,11 +124,22 @@ async function getSemanticChunks(): Promise<{ chunks: RetrievedChunk[]; stats: S
     return { chunks: [], stats: EMPTY_SEMANTIC_STATS };
   }
 
-  const results = await Promise.all(
-    RAG_SEMANTIC_QUERIES.map((q) => getRAGSemantic(q, RAG_SEMANTIC_TOPK_PER_QUERY))
+  const resultados = await Promise.all(
+    RAG_SEMANTIC_QUERIES.map((q, i) =>
+      getRAGSemanticDiagnosticado(q, RAG_SEMANTIC_TOPK_PER_QUERY, i)
+    )
   );
 
-  const failedQueries = results.filter((r) => r.length === 0).length;
+  // ⚠ Cada diagnóstico volta associado à SUA consulta, pelo índice de disparo, e
+  // `Promise.all` preserva a ordem. Nenhuma tentativa é atribuída a outra consulta.
+  const diagnosticos = resultados.map((r) => r.diagnostico);
+  const results = resultados.map((r) => r.chunks);
+
+  // As três categorias são disjuntas e somam `queriesRan`.
+  const withResults = diagnosticos.filter((d) => d.consulta === 'com_resultados').length;
+  const emptyOk = diagnosticos.filter((d) => d.consulta === 'vazio').length;
+  const errored = diagnosticos.filter((d) => d.embedding === 'erro' || d.consulta === 'erro').length;
+  const httpAttempts = diagnosticos.reduce((soma, d) => soma + d.tentativas.length, 0);
   const rawChunks = results.flat();
 
   // Dedupe por chunk_id, preservando a versão de maior score quando
@@ -124,14 +169,21 @@ async function getSemanticChunks(): Promise<{ chunks: RetrievedChunk[]; stats: S
   const finalChunks = capped.slice(0, RAG_SEMANTIC_FINAL_TOPK);
 
   const stats: SemanticStats = {
+    contractVersion: VERSAO_CONTRATO_SEMANTICO,
     enabled: true,
     queriesRan: RAG_SEMANTIC_QUERIES.length,
+    withResults,
+    emptyOk,
+    errored,
     rawChunks: rawChunks.length,
     uniqueChunks: deduped.length,
     finalChunks: finalChunks.length,
     uniqueArticles: new Set(finalChunks.map((c) => c.metadata.article_id)).size,
     topScore: finalChunks[0]?.score ?? null,
-    failedQueries,
+    // Derivado de `errored`, nunca atualizado separadamente.
+    failedQueries: errored,
+    httpAttempts,
+    queries: diagnosticos,
   };
 
   return { chunks: finalChunks, stats };
@@ -578,7 +630,9 @@ async function generateReview(
       `[AI-REVIEWER] RAG semantic: ${semanticStats.queriesRan} queries -> ` +
       `${semanticStats.rawChunks} raw -> ${semanticStats.uniqueChunks} unique -> ` +
       `${semanticStats.finalChunks} final from ${semanticStats.uniqueArticles} papers ` +
-      `(top score ${semanticStats.topScore?.toFixed(3) ?? 'N/A'}, ${semanticStats.failedQueries} failed queries)`
+      `(top score ${semanticStats.topScore?.toFixed(3) ?? 'N/A'}; ` +
+      `${semanticStats.withResults} with results, ${semanticStats.emptyOk} empty ok, ` +
+      `${semanticStats.errored} errored, over ${semanticStats.httpAttempts} http attempts)`
     );
   }
 

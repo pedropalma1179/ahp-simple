@@ -173,11 +173,12 @@ describe('cliente Voyage, comportamento atual', () => {
       expect(chamadas).toHaveLength(1);
       expect(desfecho).not.toBe('sem erro');
 
-      // ⚠ Achado desta rodada, e ele apareceu porque a suíte passou a demorar um
-      // minuto de relógio: `makeRequest.js:35` a 37 só chama `clearTimeout` DEPOIS
-      // que o `fetch` resolve, sem `finally`. Com o `fetch` lançando, o temporizador
-      // de 60000 ms fica PENDENTE. Aqui ele é falso e some no `clearAllTimers`;
-      // em produção, prenderia o processo por um minuto a cada falha de rede.
+      // ⚠ Observado: com o `fetch` REJEITANDO, um temporizador fica PENDENTE.
+      // `makeRequest.js:35` a 37 só chama `clearTimeout` depois que o `fetch`
+      // resolve, sem `finally`. O que este teste mede é a pendência, aqui em
+      // temporizador falso, que some no `clearAllTimers`. **O efeito fora deste
+      // ensaio não foi medido, e não se afirma.** O temporizador do SDK NÃO é
+      // corrigido neste eixo.
       expect(jest.getTimerCount()).toBeGreaterThan(0);
     } finally {
       jest.clearAllTimers();

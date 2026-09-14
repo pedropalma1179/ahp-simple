@@ -11,8 +11,154 @@
  */
 
 import { Index } from '@upstash/vector';
+import type { TentativaHttp } from './diagnostico';
 
 const EXPECTED_DIMS = 1024;
+
+// ============================================================
+// A.30 — TRANSPORTE DIAGNOSTICADO DO CAMINHO DE BUSCA
+// ============================================================
+// O SDK descarta o status HTTP: `UpstashError` só carrega a mensagem, e com corpo
+// vazio o parse falha antes e nem esse erro é construído. Para o status sobreviver é
+// preciso ver a resposta, e o `Requester` é o ponto de extensão PÚBLICO do SDK,
+// declarado em `dist/nodejs.d.mts:68`.
+//
+// ⚠ **Só o caminho de busca usa este transporte.** `upsertChunk` e `deleteAll`
+// seguem no singleton `getIndex()`, sem alteração.
+//
+// ⚠ **O comportamento do transporte é PRESERVADO, não melhorado:** mesma montagem de
+// URL, mesmo método, mesmos cabeçalhos, mesmo corpo, mesmas condições de repetição,
+// mesma quantidade de tentativas e mesmos intervalos. **Nenhum tempo limite novo,
+// nenhuma repetição por status.** O que muda é o diagnóstico.
+
+/** Versão do SDK, para o cabeçalho de telemetria. O lockfile fixa 1.2.3. */
+const VERSAO_SDK_UPSTASH = '1.2.3';
+/** `attempts` padrão do `HttpClient`, e o laço vai de 0 a ele: até seis chamadas. */
+const TENTATIVAS_PADRAO = 5;
+/** Intervalo entre tentativas, igual ao backoff padrão do SDK. */
+const esperaPadrao = (i: number) => Math.exp(i) * 50;
+
+/** Erro de aplicação, com o mesmo `name` e as mesmas propriedades próprias do SDK. */
+class UpstashError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UpstashError';
+  }
+}
+
+/** Reproduz `getRuntime()` do SDK. */
+function runtimeDaTelemetria(): string {
+  const versoes = process.versions as unknown as Record<string, string | undefined>;
+  if (typeof process === 'object' && typeof process.versions === 'object' && versoes.bun) {
+    return `bun@${versoes.bun}`;
+  }
+  const edge = (globalThis as unknown as Record<string, unknown>).EdgeRuntime;
+  return typeof edge === 'string' ? 'edge-light' : `node@${process.version}`;
+}
+
+/** Reproduz os três cabeçalhos de telemetria que o ramo de configuração monta. */
+function cabecalhosTelemetria(): Record<string, string> {
+  return {
+    'Upstash-Telemetry-Sdk': `upstash-vector-js@${VERSAO_SDK_UPSTASH}`,
+    'Upstash-Telemetry-Platform': process.env.VERCEL ? 'vercel' : process.env.AWS_REGION ? 'aws' : 'unknown',
+    'Upstash-Telemetry-Runtime': runtimeDaTelemetria(),
+  };
+}
+
+/**
+ * `Requester` que registra cada tentativa em `tentativas`, numeradas a partir de 1.
+ *
+ * ⚠ **O status é capturado ANTES de qualquer leitura**, então ele sobrevive mesmo
+ * quando o parse falha depois. Resposta não exitosa e falha de parsing **coexistem**:
+ * a tentativa fica com `status` e com `falha: 'leitura_ou_parsing'`.
+ */
+function criarRequester(url: string, token: string, tentativas: TentativaHttp[]) {
+  const baseUrl = url.replace(/\/$/, '');
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    authorization: `Bearer ${token}`,
+    ...cabecalhosTelemetria(),
+  };
+
+  return {
+    request: async <T = unknown>(req: { path?: string[]; body?: unknown }): Promise<{ result?: T; error?: string }> => {
+      const opcoes: RequestInit = {
+        cache: 'no-store',
+        method: 'POST',
+        headers,
+        body: JSON.stringify(req.body),
+        keepalive: true,
+      };
+      const endereco = [baseUrl, ...(req.path ?? [])].join('/');
+
+      let res: Response | null = null;
+      let ultimoErro: unknown = null;
+      let numero = 0;
+
+      // Mesmo laço do SDK: repete SÓ quando o `fetch` lança, e resposta não exitosa
+      // encerra o laço. ⚠ O ramo de `signal` do SDK é inalcançável neste caminho,
+      // porque nenhum `AbortSignal` é passado aqui, então não é reproduzido.
+      for (let i = 0; i <= TENTATIVAS_PADRAO; i++) {
+        numero = i + 1;
+        try {
+          res = await fetch(endereco, opcoes);
+          break;
+        } catch (erro) {
+          ultimoErro = erro;
+          tentativas.push({ numero, falha: 'transporte' });
+          if (i < TENTATIVAS_PADRAO) {
+            await new Promise((r) => setTimeout(r, esperaPadrao(i)));
+          }
+        }
+      }
+
+      if (!res) {
+        throw ultimoErro ?? new Error('Exhausted all retries');
+      }
+
+      const tentativa: TentativaHttp = { numero, status: res.status };
+      tentativas.push(tentativa);
+
+      let texto: string;
+      try {
+        texto = await res.text();
+        // Bytes EFETIVAMENTE LIDOS. `0` é leitura concluída com corpo vazio.
+        tentativa.bytes = Buffer.byteLength(texto, 'utf8');
+      } catch (erro) {
+        // Leitura não concluiu: `bytes` fica AUSENTE, e o status permanece.
+        tentativa.falha = 'leitura_ou_parsing';
+        throw erro;
+      }
+
+      let corpo: { result?: T; error?: string };
+      try {
+        corpo = JSON.parse(texto);
+      } catch (erro) {
+        tentativa.falha = 'leitura_ou_parsing';
+        throw erro;
+      }
+
+      if (!res.ok) {
+        tentativa.falha = 'http_nao_exitoso';
+        throw new UpstashError(`${corpo.error}`);
+      }
+
+      return { result: corpo.result, error: corpo.error };
+    },
+  };
+}
+
+/** Lê a configuração do índice. Mesma verificação de `getIndex()`. */
+function lerConfiguracao(): { url: string; token: string } {
+  const url = process.env.UPSTASH_VECTOR_REST_URL;
+  const token = process.env.UPSTASH_VECTOR_REST_TOKEN;
+  if (!url || !token) {
+    throw new Error(
+      '[rag/upstash-client] UPSTASH_VECTOR_REST_URL e/ou UPSTASH_VECTOR_REST_TOKEN ausentes.'
+    );
+  }
+  return { url, token };
+}
 
 /**
  * Lazy singleton do Index Upstash. Mesma justificativa de embed.ts:
@@ -100,6 +246,24 @@ export async function querySimilar(
   vector: number[],
   topK: number
 ): Promise<RetrievedChunk[]> {
+  return (await consultarIndice(vector, topK, [])).chunks;
+}
+
+/**
+ * Mesma consulta de `querySimilar`, devolvendo também o diagnóstico das tentativas.
+ *
+ * ⚠ **Um `Index` POR CONSULTA**, cada um com o seu `Requester`, que é o que garante
+ * que tentativa e resposta pertençam à consulta certa sob `Promise.all`. O singleton
+ * `getIndex()` continua servindo `upsertChunk` e `deleteAll`, sem alteração.
+ *
+ * @throws o mesmo que `querySimilar`, com `tentativas` já preenchido no momento em
+ *         que a exceção sobe
+ */
+export async function consultarIndice(
+  vector: number[],
+  topK: number,
+  tentativas: TentativaHttp[]
+): Promise<{ chunks: RetrievedChunk[]; tentativas: TentativaHttp[] }> {
   if (vector.length !== EXPECTED_DIMS) {
     throw new Error(
       `[rag/upstash-client] querySimilar: vetor com ${vector.length} dims, esperado ${EXPECTED_DIMS}.`
@@ -109,18 +273,22 @@ export async function querySimilar(
     throw new Error('[rag/upstash-client] querySimilar: topK deve ser >= 1.');
   }
 
-  const index = getIndex();
+  const { url, token } = lerConfiguracao();
+  const index = new Index(criarRequester(url, token, tentativas));
   const results = await index.query({
     vector,
     topK,
     includeMetadata: true,
   });
 
-  return results.map((r) => ({
-    id: String(r.id),
-    score: r.score,
-    metadata: r.metadata as unknown as ChunkMetadata,
-  }));
+  return {
+    chunks: results.map((r) => ({
+      id: String(r.id),
+      score: r.score,
+      metadata: r.metadata as unknown as ChunkMetadata,
+    })),
+    tentativas,
+  };
 }
 
 /**
