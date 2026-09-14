@@ -25,6 +25,10 @@
  * lido na apuração.
  */
 
+// ⚠ Marca o arquivo como MÓDULO. Sem isto o TypeScript o trata como script
+// global, e os nomes de topo colidem com os dos outros arquivos de teste.
+export {};
+
 const URL_FALSA = 'https://transporte-simulado.exemplo';
 const TOKEN_FALSO = 'token-falso-do-processo-de-teste';
 const DIMS = 1024;
@@ -33,6 +37,7 @@ type Chamada = {
   url: string;
   method: string;
   headerNames: string[];
+  authorization: string | null;
   authScheme: string | null;
   contentType: string | null;
   bodyBytes: number;
@@ -41,7 +46,13 @@ type Chamada = {
 
 let chamadas: Chamada[] = [];
 let fetchOriginal: typeof globalThis.fetch;
-let envOriginal: { url?: string; token?: string };
+let envOriginal: { url?: string; token?: string; voyage?: string };
+
+/** Restaura uma variável ao estado anterior, INCLUSIVE quando estava ausente. */
+function restaurarEnv(nome: string, anterior: string | undefined) {
+  if (anterior === undefined) delete process.env[nome];
+  else process.env[nome] = anterior;
+}
 
 /** Vetor de consulta com uma posição marcadora, para distinguir chamadas. */
 function vetor(marcador: number): number[] {
@@ -76,6 +87,7 @@ function instalarTransporte(responder: (c: Chamada, ordem: number) => Promise<Re
       url: String(input),
       method: init?.method ?? 'GET',
       headerNames: Object.keys(headers).map((h) => h.toLowerCase()).sort(),
+      authorization: auth ? String(auth) : null,
       authScheme: auth ? String(auth).split(' ')[0] : null,
       contentType: headers['Content-Type'] ?? headers['content-type'] ?? null,
       bodyBytes: Buffer.byteLength(body, 'utf8'),
@@ -99,6 +111,7 @@ beforeEach(() => {
   envOriginal = {
     url: process.env.UPSTASH_VECTOR_REST_URL,
     token: process.env.UPSTASH_VECTOR_REST_TOKEN,
+    voyage: process.env.VOYAGE_API_KEY,
   };
   process.env.UPSTASH_VECTOR_REST_URL = URL_FALSA;
   process.env.UPSTASH_VECTOR_REST_TOKEN = TOKEN_FALSO;
@@ -106,23 +119,28 @@ beforeEach(() => {
 
 afterEach(() => {
   globalThis.fetch = fetchOriginal;
-  if (envOriginal.url === undefined) delete process.env.UPSTASH_VECTOR_REST_URL;
-  else process.env.UPSTASH_VECTOR_REST_URL = envOriginal.url;
-  if (envOriginal.token === undefined) delete process.env.UPSTASH_VECTOR_REST_TOKEN;
-  else process.env.UPSTASH_VECTOR_REST_TOKEN = envOriginal.token;
+  // ⚠ As três voltam ao estado anterior, inclusive quando já estavam AUSENTES.
+  restaurarEnv('UPSTASH_VECTOR_REST_URL', envOriginal.url);
+  restaurarEnv('UPSTASH_VECTOR_REST_TOKEN', envOriginal.token);
+  restaurarEnv('VOYAGE_API_KEY', envOriginal.voyage);
 });
 
 describe('transporte HTTP do índice, comportamento atual', () => {
   it('método, caminho, autenticação e corpo enviados: CORRETO, é o contrato do serviço', async () => {
     instalarTransporte(async () => respostaOk(['c1']));
     const { querySimilar } = carregarCliente();
+    const vetorEnviado = vetor(1);
 
-    await querySimilar(vetor(1), 5);
+    await querySimilar(vetorEnviado, 5);
 
     expect(chamadas).toHaveLength(1);
     const c = chamadas[0];
     expect(c.method).toBe('POST');
     expect(c.url).toBe(URL_FALSA + '/query');
+    // ⚠ Compara o cabeçalho INTEIRO com o token fictício, e não só o esquema.
+    // É o que detecta alteração indevida no transporte candidato. Não expõe
+    // credencial real: o token é fictício e vive só neste processo.
+    expect(c.authorization).toBe('Bearer ' + TOKEN_FALSO);
     expect(c.authScheme).toBe('Bearer');
     expect(c.contentType).toBe('application/json');
     expect(c.headerNames).toEqual(
@@ -136,7 +154,8 @@ describe('transporte HTTP do índice, comportamento atual', () => {
     );
     const enviado = JSON.parse(c.body);
     expect(Object.keys(enviado).sort()).toEqual(['includeMetadata', 'topK', 'vector']);
-    expect(enviado.vector).toHaveLength(DIMS);
+    // ⚠ Compara o VETOR FORNECIDO posição a posição, e não só o comprimento.
+    expect(enviado.vector).toEqual(vetorEnviado);
     expect(enviado.topK).toBe(5);
     expect(enviado.includeMetadata).toBe(true);
   });
@@ -162,6 +181,45 @@ describe('transporte HTTP do índice, comportamento atual', () => {
 
     expect(chamadas).toHaveLength(2); // uma tentativa por falha, mais a bem sucedida
     expect(r.map((x) => x.id)).toEqual(['c1', 'c2']);
+  });
+
+  it('esgotamento das tentativas: limite e intervalos, com temporizadores simulados', async () => {
+    // CORRETO como comportamento do SDK, e é a referência da comparação futura:
+    // este laço passa a ser responsabilidade do transporte candidato.
+    jest.useFakeTimers();
+    const atrasos: number[] = [];
+    const setTimeoutFalso = globalThis.setTimeout;
+    (globalThis as unknown as Record<string, unknown>).setTimeout = ((
+      fn: (...a: unknown[]) => void,
+      ms?: number,
+      ...resto: unknown[]
+    ) => {
+      if (typeof ms === 'number') atrasos.push(ms);
+      return (setTimeoutFalso as unknown as (...a: unknown[]) => unknown)(fn, ms, ...resto);
+    }) as unknown as typeof globalThis.setTimeout;
+
+    try {
+      instalarTransporte(async () => {
+        throw new TypeError('fetch failed');
+      });
+      const { querySimilar } = carregarCliente();
+
+      const capturada = querySimilar(vetor(1), 5).catch((e) => e);
+      await jest.runAllTimersAsync();
+      const err = (await capturada) as Error;
+
+      // Limite: `attempts` padrão 5 e laço de 0 a attempts, então SEIS chamadas.
+      expect(chamadas).toHaveLength(6);
+      // Intervalos: backoff `Math.exp(i) * 50`, uma espera entre tentativas, cinco.
+      expect(atrasos).toHaveLength(5);
+      atrasos.forEach((ms, i) => expect(ms).toBeCloseTo(Math.exp(i) * 50, 6));
+      // O que chega ao chamador é a ÚLTIMA exceção do fetch, não um erro do SDK.
+      expect(err.name).toBe('TypeError');
+      expect(err.message).toBe('fetch failed');
+    } finally {
+      (globalThis as unknown as Record<string, unknown>).setTimeout = setTimeoutFalso;
+      jest.useRealTimers();
+    }
   });
 
   it('repete só quando o fetch LANÇA: resposta não exitosa encerra o laço: CORRETO', async () => {

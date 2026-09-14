@@ -1,0 +1,332 @@
+/**
+ * lib/__tests__/rag-semantic-states.test.ts
+ *
+ * Caracteriza os ESTADOS da recuperação semântica pelo HANDLER REAL de
+ * `app/api/ai-reviewer/route.ts`, com os clientes externos simulados.
+ *
+ * ⚠ **A simulação entra nos CLIENTES EXTERNOS, nunca em `getRAGSemantic`.**
+ * Substituir `getRAGSemantic` por uma lista vazia pularia justamente o tratamento
+ * interno das falhas que esta caracterização mede: o `try` único de
+ * `semantic-retrieve.ts:44` a 51 continua rodando, e `querySimilar` de
+ * `upstash-client.ts:99` também.
+ *
+ * ⚠ **`USE_RAG_SEMANTIC` é fixado no processo isolado do teste ANTES do `require`**,
+ * porque `route.ts:40` faz `process.env.USE_RAG_SEMANTIC === 'true'` na importação,
+ * comparação estrita de string. O ambiente é restaurado ao fim, **inclusive quando a
+ * variável já estava ausente**.
+ *
+ * ⚠ **Isto é caracterização, não correção.** Cada teste afirma o que o código faz
+ * hoje, e o comentário de uma linha diz se aquilo é comportamento correto ou defeito.
+ *
+ * ⚠ **Nenhuma escrita no índice, e nenhuma requisição real:** os três clientes
+ * externos são duplos, e as chaves são fictícias.
+ *
+ * **A captura de `system` e `messages` aqui é LINHA DE BASE**, e serve à verificação
+ * posterior de preservação do contexto.
+ */
+
+// ⚠ Marca o arquivo como MÓDULO. Sem isto o TypeScript o trata como script
+// global, e os nomes de topo colidem com os dos outros arquivos de teste.
+export {};
+
+const DIMS = 1024;
+const CHAVES_FALSAS = {
+  VOYAGE_API_KEY: 'chave-voyage-falsa-do-processo-de-teste',
+  UPSTASH_VECTOR_REST_URL: 'https://indice-simulado.exemplo',
+  UPSTASH_VECTOR_REST_TOKEN: 'token-upstash-falso-do-processo-de-teste',
+  ANTHROPIC_API_KEY: 'chave-anthropic-falsa-do-processo-de-teste',
+};
+const NOMES_ENV = [...Object.keys(CHAVES_FALSAS), 'USE_RAG_SEMANTIC'];
+
+type ChunkSimulado = { id: string; score: number; metadata: Record<string, unknown> };
+type Desfecho = ChunkSimulado[] | 'lanca';
+
+type Captura = {
+  status: number;
+  corpo: Record<string, unknown>;
+  semantic: Record<string, unknown>;
+  avisos: string[];
+  system: string;
+  messages: Array<{ role: string; content: string }>;
+  consultasAoIndice: number;
+  consultasAoEmbed: number;
+};
+
+let envOriginal: Record<string, string | undefined> = {};
+
+/** Restaura uma variável ao estado anterior, INCLUSIVE quando estava ausente. */
+function restaurarEnv(nome: string, anterior: string | undefined) {
+  if (anterior === undefined) delete process.env[nome];
+  else process.env[nome] = anterior;
+}
+
+function chunk(id: string, artigo: string, score: number): ChunkSimulado {
+  return {
+    id,
+    score,
+    metadata: {
+      article_id: artigo,
+      article_year: 2020,
+      article_type: 'paper',
+      chunk_type: 'claim',
+      chunk_index: 1,
+      text: 'texto do ' + id,
+      verbatim_quote: 'verbatim do ' + id,
+      page: 10,
+      locator_type: null,
+      locator_id: 'loc-' + id,
+      usable_as: null,
+    },
+  };
+}
+
+/** Payload mínimo que o handler aceita. */
+function payload() {
+  const balde = { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.03 };
+  return {
+    projectName: 'Projeto de ensaio A.30',
+    alternatives: [
+      { code: 'A1', name: 'Alternativa 1' },
+      { code: 'A2', name: 'Alternativa 2' },
+    ],
+    finalScores: [
+      { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+      { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+    ],
+    individualStats: {
+      Benefits: balde,
+      Opportunities: balde,
+      Costs: balde,
+      Risks: balde,
+    },
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
+  };
+}
+
+/**
+ * Executa o handler real com os clientes externos simulados.
+ *
+ * @param habilitado valor textual de `USE_RAG_SEMANTIC`, ou `undefined` para ausente
+ * @param embedFalha se o cliente Voyage deve lançar
+ * @param porConsulta desfecho de cada uma das cinco consultas ao índice
+ */
+async function executar(
+  habilitado: string | undefined,
+  embedFalha: boolean,
+  porConsulta: Desfecho[]
+): Promise<Captura> {
+  jest.resetModules();
+
+  for (const [nome, valor] of Object.entries(CHAVES_FALSAS)) process.env[nome] = valor;
+  restaurarEnv('USE_RAG_SEMANTIC', habilitado);
+
+  let consultasAoIndice = 0;
+  let consultasAoEmbed = 0;
+  const system: string[] = [];
+  const messages: Array<Array<{ role: string; content: string }>> = [];
+
+  jest.doMock('voyageai', () => ({
+    VoyageAIClient: class {
+      async embed() {
+        consultasAoEmbed += 1;
+        if (embedFalha) throw new Error('voyage indisponivel no ensaio');
+        return { data: [{ embedding: new Array(DIMS).fill(0.1) }] };
+      }
+    },
+  }));
+
+  jest.doMock('@upstash/vector', () => ({
+    Index: class {
+      async query() {
+        const desfecho = porConsulta[consultasAoIndice];
+        consultasAoIndice += 1;
+        if (desfecho === 'lanca') throw new Error('indice indisponivel no ensaio');
+        return desfecho ?? [];
+      }
+    },
+  }));
+
+  jest.doMock('@anthropic-ai/sdk', () => ({
+    __esModule: true,
+    default: class {
+      messages = {
+        create: async (args: { system: string; messages: Array<{ role: string; content: string }> }) => {
+          system.push(args.system);
+          messages.push(args.messages);
+          return { content: [{ type: 'text', text: 'PARECER DE ENSAIO' }] };
+        },
+      };
+    },
+  }));
+
+  const avisos: string[] = [];
+  const warnSpy = jest.spyOn(console, 'warn').mockImplementation((...a: unknown[]) => {
+    avisos.push(a.map(String).join(' '));
+  });
+  const logSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+  const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { POST } = require('@/app/api/ai-reviewer/route');
+    const req = { json: async () => payload() } as unknown as Parameters<typeof POST>[0];
+    const res = await POST(req);
+    const corpo = (await res.json()) as Record<string, unknown>;
+    const metadata = (corpo.metadata ?? {}) as Record<string, unknown>;
+    const kb = (metadata.knowledgeBase ?? {}) as Record<string, unknown>;
+
+    return {
+      status: res.status,
+      corpo,
+      semantic: (kb.semantic ?? {}) as Record<string, unknown>,
+      avisos,
+      system: system[0] ?? '',
+      messages: messages[0] ?? [],
+      consultasAoIndice,
+      consultasAoEmbed,
+    };
+  } finally {
+    warnSpy.mockRestore();
+    logSpy.mockRestore();
+    errorSpy.mockRestore();
+  }
+}
+
+/** Quatro chunks do mesmo artigo e um de outro, para o teto de 3 por artigo morder. */
+const cincoChunks: ChunkSimulado[] = [
+  chunk('k1', 'artigo_alfa', 0.95),
+  chunk('k2', 'artigo_alfa', 0.94),
+  chunk('k3', 'artigo_alfa', 0.93),
+  chunk('k4', 'artigo_alfa', 0.92),
+  chunk('k5', 'artigo_beta', 0.91),
+];
+
+beforeAll(() => {
+  for (const nome of NOMES_ENV) envOriginal[nome] = process.env[nome];
+});
+
+afterAll(() => {
+  // ⚠ As cinco voltam ao estado anterior, inclusive as que estavam ausentes.
+  for (const nome of NOMES_ENV) restaurarEnv(nome, envOriginal[nome]);
+});
+
+describe('os quatro estados da recuperação semântica, pelo handler real', () => {
+  it('desabilitada: estatísticas vazias e NENHUMA consulta sai: CORRETO', async () => {
+    const r = await executar(undefined, false, []);
+
+    expect(r.status).toBe(200);
+    expect(r.semantic.enabled).toBe(false);
+    expect(r.semantic.queriesRan).toBe(0);
+    expect(r.semantic.failedQueries).toBe(0);
+    expect(r.consultasAoEmbed).toBe(0);
+    expect(r.consultasAoIndice).toBe(0);
+    expect(r.avisos).toHaveLength(0);
+  });
+
+  it('a flag é comparação estrita de string: "TRUE" NÃO habilita: CORRETO', async () => {
+    const r = await executar('TRUE', false, []);
+
+    // `route.ts:40` compara com 'true' minúsculo, então 'TRUE' deixa desabilitado.
+    expect(r.semantic.enabled).toBe(false);
+    expect(r.consultasAoIndice).toBe(0);
+  });
+
+  it('cinco com resultados: contagens e failedQueries em zero: CORRETO', async () => {
+    const r = await executar('true', false, Array(5).fill(cincoChunks));
+
+    expect(r.semantic.enabled).toBe(true);
+    expect(r.semantic.queriesRan).toBe(5);
+    expect(r.consultasAoIndice).toBe(5);
+    expect(r.semantic.rawChunks).toBe(25); // cinco consultas por cinco resultados
+    expect(r.semantic.uniqueChunks).toBe(5); // as cinco devolvem os mesmos ids
+    expect(r.semantic.finalChunks).toBe(4); // teto de 3 por artigo corta o quarto do alfa
+    expect(r.semantic.uniqueArticles).toBe(2);
+    expect(r.semantic.failedQueries).toBe(0);
+    expect(r.avisos).toHaveLength(0);
+    // Os chunks chegam ao prompt do modelo, na seção semântica.
+    expect(r.messages[0].content).toContain('Evidências Semânticas Recuperadas');
+    expect(r.messages[0].content).toContain('artigo_alfa');
+  });
+
+  it('cinco vazias SEM erro: failedQueries conta 5: DEFEITO, conta vazio como falha', async () => {
+    const r = await executar('true', false, Array(5).fill([]));
+
+    expect(r.semantic.queriesRan).toBe(5);
+    expect(r.semantic.failedQueries).toBe(5); // nenhuma falhou, e o campo diz cinco
+    expect(r.semantic.rawChunks).toBe(0);
+    expect(r.avisos).toHaveLength(0); // sem erro, sem aviso
+    expect(r.messages[0].content).toContain('nenhum chunk semântico recuperado');
+  });
+
+  it('falha de EMBEDDING: resultado, avisos, e a consulta ao índice NÃO executa: DEFEITO', async () => {
+    const r = await executar('true', true, Array(5).fill(cincoChunks));
+
+    expect(r.semantic.failedQueries).toBe(5);
+    expect(r.consultasAoEmbed).toBe(5);
+    // ⚠ O `try` de semantic-retrieve.ts:44 lança em `embed`, na linha 45, antes de
+    // chegar a `querySimilar`, na 46. Zero chamadas ao cliente do índice demonstram
+    // que a consulta ao índice NÃO foi executada, e não que ela falhou.
+    expect(r.consultasAoIndice).toBe(0);
+    expect(r.avisos).toHaveLength(5);
+    expect(r.avisos[0]).toContain('voyage indisponivel no ensaio');
+  });
+
+  it('falha de CONSULTA: mesmas contagens da falha de embedding: DEFEITO, indistinguíveis', async () => {
+    const r = await executar('true', false, Array(5).fill('lanca'));
+
+    expect(r.semantic.failedQueries).toBe(5);
+    expect(r.consultasAoIndice).toBe(5);
+    expect(r.avisos).toHaveLength(5);
+    // A etapa aparece só no TEXTO da mensagem do erro, que vem da dependência, e
+    // nada no contrato de `SemanticStats` a distingue da falha de embedding.
+    expect(r.avisos[0]).toContain('indice indisponivel no ensaio');
+    expect(r.semantic).toEqual(
+      expect.objectContaining({ enabled: true, queriesRan: 5, failedQueries: 5, rawChunks: 0 })
+    );
+  });
+
+  it('falha de embedding e falha de consulta entregam o MESMO prompt: DEFEITO', async () => {
+    const porEmbed = await executar('true', true, Array(5).fill(cincoChunks));
+    const porConsulta = await executar('true', false, Array(5).fill('lanca'));
+    const vazioLegitimo = await executar('true', false, Array(5).fill([]));
+    const desabilitada = await executar(undefined, false, []);
+
+    // ⚠ Quatro condições distintas, UM único texto de usuário, byte a byte.
+    expect(porConsulta.messages[0].content).toBe(porEmbed.messages[0].content);
+    expect(vazioLegitimo.messages[0].content).toBe(porEmbed.messages[0].content);
+    expect(desabilitada.messages[0].content).toBe(porEmbed.messages[0].content);
+    // E o `system` é o mesmo nas quatro.
+    expect(porConsulta.system).toBe(porEmbed.system);
+    expect(desabilitada.system).toBe(porEmbed.system);
+  });
+
+  it('execução MISTA: uma categoria só não representa a execução: DEFEITO', async () => {
+    const r = await executar('true', false, [cincoChunks, [], 'lanca', [], 'lanca']);
+
+    expect(r.consultasAoIndice).toBe(5);
+    // `failedQueries` conta resultado VAZIO: um com resultado fora, quatro dentro,
+    // sendo dois vazios legítimos e dois erros.
+    expect(r.semantic.failedQueries).toBe(4);
+    // Os avisos contam só os ERROS, e são dois. As duas contagens divergem, e
+    // nenhuma delas descreve a execução.
+    expect(r.avisos).toHaveLength(2);
+    // ⚠ O que se perde ao reduzir a execução a uma categoria: esta execução teve
+    // sucesso com resultados, sucesso vazio e erro AO MESMO TEMPO, e nenhum campo
+    // do contrato atual permite recompor isso. Medido aqui: 1 com resultados,
+    // 2 vazias e 2 com erro, contra um único número 4 e dois avisos.
+    expect(r.semantic.rawChunks).toBe(5); // só a consulta bem sucedida contribui
+    expect(r.semantic.finalChunks).toBe(4); // teto de 3 por artigo corta o quarto do alfa
+    expect(Object.keys(r.semantic).sort()).toEqual([
+      'enabled',
+      'failedQueries',
+      'finalChunks',
+      'queriesRan',
+      'rawChunks',
+      'topScore',
+      'uniqueArticles',
+      'uniqueChunks',
+    ]);
+  });
+});
