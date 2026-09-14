@@ -4863,6 +4863,256 @@ distinguir as duas condições na próxima vez. **A dependência de A.18 continu
 valendo**, e por mais um motivo agora medido: reingerir contra um endpoint que
 devolve 404 pagaria embeddings sem destino verificável.
 
+#### Apuração do 404 na consulta ao índice: Fase 2 de A.30, 14/09/2026
+
+**O ambiente desta rodada não é o da Fase 1 nem o da execução 7, e isso governa
+tudo o que segue.** A Fase 1 rodou na máquina do pesquisador. A execução 7 rodou em
+produção, na Vercel. Esta rodada rodou num **contêiner remoto Linux x86_64, Node
+v22.22.2, npm 10.9.7**, sobre clone de `7422e87`, árvore limpa.
+
+**Medido neste contêiner:** `UPSTASH_VECTOR_REST_URL`, `UPSTASH_VECTOR_REST_TOKEN`,
+`VOYAGE_API_KEY` e `USE_RAG_SEMANTIC` estão **ausentes** de `process.env`, e não há
+`.env` nem `.env.local` no diretório de trabalho. **Medido também:** o proxy de
+egresso deste contêiner recusa `upstash.io`, `upstash.com` e `api.voyageai.com` com
+**403 no CONNECT**, antes de qualquer requisição HTTP.
+
+⚠ **Esse 403 do proxy local nada tem a ver com o 404 da Fase 1, e juntar os dois
+inverteria a conclusão.** O 403 é do proxy desta máquina, e a requisição nunca sai
+dela; o 404 da Fase 1 foi resposta de um serviço a uma requisição que chegou.
+**Os dois itens que exigem credencial e rede, a sonda do item 3 e a discriminação
+do item 4, são irrealizáveis aqui, e não por falta de tentativa.**
+
+⚠ **`c2d7d89` não existe nesta árvore nem no remoto.** `git merge-base
+--is-ancestor` responde `Not a valid object name`, e a API do GitHub responde
+`No commit found for SHA`. **O registro da Fase 1 não está nos documentos
+versionados**, e o que esta seção usa dele vem do enunciado da tarefa, não de
+medição própria. HEAD desta rodada: `7422e87`.
+
+##### 1. Forma da configuração
+
+**Não apurado neste ambiente, e a razão é que a variável não existe aqui.** Nenhuma
+das seis propriedades pôde ser lida: esquema, barra final, segmento de caminho,
+sufixo do host, comprimento e espaços nas bordas ficam **não apurados**, e o mesmo
+vale para presença, comprimento e bordas do token.
+
+**O que ficou medido no lugar, e é medição sobre o SDK, não sobre a configuração:**
+a normalização que a versão instalada aplica a cada uma dessas formas. Está na
+tabela do item 2, e serve para ler a caracterização quando o pesquisador a produzir.
+
+##### 2. O endereço que o SDK monta, medido e não apenas lido
+
+Instrumento temporário fora da árvore: um servidor HTTP local em `127.0.0.1`
+responde no lugar do Upstash, com **token falso**, e registra método, caminho,
+tamanho de corpo e cabeçalhos. **Nenhuma credencial real, nenhuma requisição ao
+serviço, nenhuma escrita em índice.** Sete formas de `baseUrl`, catorze chamadas,
+**doze requisições chegaram ao servidor local**, porque uma das formas não produz
+requisição alguma.
+
+| Forma da `baseUrl` passada ao SDK | Caminho que chegou ao servidor | Erro que o SDK devolveu |
+|---|---|---|
+| sem barra final, sem caminho | `POST <host>/info`, `POST <host>/query` | `SyntaxError: Unexpected end of JSON input` |
+| com **uma** barra final | `POST <host>/info`, `POST <host>/query` | idem |
+| com **duas** barras finais | `POST <host>//info`, `POST <host>//query` | idem |
+| com **segmento de caminho** extra | `POST <host>/algo/info`, `POST <host>/algo/query` | idem |
+| com segmento extra **e** barra final | `POST <host>/algo/info`, `POST <host>/algo/query` | idem |
+| com **espaço** no fim | **nenhuma requisição saiu** | `TypeError: Failed to parse URL from <host> /info` |
+| com **quebra de linha** no fim | `POST <host>/info`, `POST <host>/query` | `SyntaxError: Unexpected end of JSON input` |
+
+**O que isto mede.** Uma barra final é removida e a segunda não; um segmento de
+caminho é preservado e vira `/algo/query`; o método é **POST nas duas rotas**,
+inclusive em `info`. Confere com a leitura de `dist/chunk-VZUGHHBV.mjs`, e a
+conferência à mão do caso mais visível fecha: o corpo de `info` é o literal `[]`,
+**dois bytes**, e o de `query` começa em `{"vector":[1,0,0,` e termina em
+`],"topK":5,"includeMetadata":true}`, 2092 bytes. Cabeçalhos enviados, sem os que o
+`fetch` acrescenta: `authorization` no esquema `Bearer`, `content-type:
+application/json`, `upstash-telemetry-sdk`, `upstash-telemetry-platform` e
+`upstash-telemetry-runtime`.
+
+⚠ **Uma hipótese morreu aqui, e era plausível:** espaço nas bordas da URL **não
+explica o sintoma observado**. Com espaço no fim, o `join("/")` o deixa no meio do
+endereço, o parser de URL recusa, e o que sobe ao log é `TypeError: Failed to parse
+URL`, **sem requisição nenhuma**. O log da execução 7 diz `Unexpected end of JSON
+input`, que é outro erro. ⚠ **Delimitação, porque a diferença é fina:** isso refuta
+**espaço**, não espaço em branco em geral. **Quebra de linha é compatível com o
+sintoma**, porque o parser de URL a remove de qualquer posição e a requisição sai
+normalmente. As duas formas disparam o mesmo aviso do SDK, `The vector url contains
+whitespace or newline, which can cause errors!`, medido nas duas.
+
+⚠ **Nada disto estabelece que a forma da URL configurada cause o 404.** A tabela diz
+o que cada forma produziria; qual delas está em uso continua **não apurado**.
+
+##### 3. Versão do SDK, e o que a sonda pôde e não pôde fazer
+
+`npm ls @upstash/vector --depth=0` nesta máquina: **`@upstash/vector@1.2.3`**, e
+**coincide com o lockfile de `7422e87`**, que fixa a mesma versão.
+
+Os localizadores citados no enunciado foram **relidos no arquivo instalado aqui** e
+conferem: linha 20 faz `config.baseUrl.replace(/\/$/, "")`; linha 38 fixa
+`method: "POST"`; linha 48 monta o endereço, com uma diferença de transcrição sem
+consequência, `[this.baseUrl, ...req.path ?? []].join("/")` e não
+`[this.baseUrl, ...req.path].join("/")`; linha 261 define `const endpoint = "info"`;
+linhas 73 e 74 fazem `const body = await res.json()` **antes** de `if (!res.ok)`.
+
+**A sonda contra o endereço configurado é não apurada**, pelas duas razões do
+cabeçalho: não há credencial aqui, e o egresso para `upstash.io` está bloqueado.
+**Status HTTP, comprimento de corpo e cabeçalhos de resposta do serviço real
+continuam sem medição nesta rodada.** O `GET /info` da Fase 1 permanece como
+**observação histórica**, rotulado como tal, e não foi repetido.
+
+⚠ **Conferido antes de qualquer execução, e é o que mantém o critério 7:** as únicas
+chamadas de escrita do repositório são `upsertChunk` e `deleteAll` em
+`scripts/ingest-rag.ts` e `upsertChunk` em `scripts/test-rag-upstash.ts:62`.
+**Nenhum dos dois scripts rodou**, e os instrumentos desta rodada não importam
+`lib/rag/upstash-client.ts`.
+
+##### 4. Discriminar 404 de recurso e 404 de rota
+
+**Não apurado.** A comparação pedida, `/info` contra um caminho reconhecidamente
+inexistente com a mesma credencial, exige as duas coisas que faltam aqui.
+
+**O que ficou medido é outra discriminação, e ela muda a leitura do log.** Com o
+mesmo servidor local, variando **só a resposta**:
+
+| Resposta do servidor | O que o SDK devolve |
+|---|---|
+| **404** com corpo vazio | `SyntaxError: Unexpected end of JSON input` |
+| **401** com corpo vazio | `SyntaxError: Unexpected end of JSON input` |
+| **403** com corpo vazio | `SyntaxError: Unexpected end of JSON input` |
+| **500** com corpo vazio | `SyntaxError: Unexpected end of JSON input` |
+| **200** com corpo vazio | `SyntaxError: Unexpected end of JSON input` |
+| **404** com corpo JSON `{"error":"not found"}` | `UpstashError: not found` |
+| **404** com corpo HTML | `SyntaxError: Unexpected token '<'` |
+| **200** com corpo JSON `{"result":[]}` | sem erro, resultado `[]` |
+
+⚠ **A mensagem não identifica o status: identifica corpo vazio.** Cinco status
+diferentes produzem a mesma frase. **Consequência direta sobre a execução 7: o log
+de produção não demonstra que a produção recebeu 404.** Demonstra que o corpo veio
+vazio. Quem tratar os cinco `Unexpected end of JSON input` do log como prova de 404
+está lendo no log uma informação que ele não carrega. **O 404 da Fase 1 veio da
+requisição crua, não desta mensagem, e vale para a máquina onde foi feita.**
+
+⚠ **Segunda consequência, e é a que aponta caminho:** o próprio serviço responde
+erro em JSON, e nesse caso o SDK constrói `UpstashError`. **Um 404 de zero byte não
+tem a forma de erro da camada de aplicação do Upstash.** Isso é sugestão de que a
+resposta veio de outra camada, e **é hipótese, não demonstração**, porque nada aqui
+mediu o comportamento do serviço real.
+
+##### 5. O que o status permite concluir
+
+**Não houve status observado nesta rodada.** Sobre o status relatado na Fase 1, a
+delimitação do enunciado é mantida com as palavras que ele pede: **a associação da
+credencial ao recurso permanece não confirmada.** A RFC 9110, seções 15.5.4 e
+15.5.5, admite responder 404 para ocultar recurso cujo acesso é proibido, então
+**a exclusão da hipótese de autenticação ou autorização não decorre da ausência de
+401 ou 403**. Nada aqui demonstra que o Upstash faça isso; o que fica dito é que o
+status não basta para descartar.
+
+##### 6. Recurso ativo
+
+**Não apurado, e as vias tentadas ficam nomeadas.** A integração Vercel deste
+ambiente responde `list_teams`, `list_projects`, `get_project`, `list_deployments`,
+`get_runtime_logs` e `get_deployment_build_logs`, e **nenhuma delas expõe variáveis
+de ambiente**. Não há credencial de console Upstash aqui, e o egresso para
+`upstash.com` está bloqueado. Logo: existência, estado, nome, região, dimensão,
+métrica e coincidência de URL do recurso ativo ficam **todos não apurados**, e
+nenhum deles foi inferido do 404.
+
+**O que existe é registro documental, e não é evidência do estado de hoje.**
+`docs/RAG_DECISIONS.md` afirma índice `ahp-bocr-rag`, região `us-east-1`, 1024
+dimensões, COSINE, free tier, e as três variáveis no Vercel Production e Preview
+como Sensitive. ⚠ **É documento anterior ao saneamento**, descreve a criação da
+conta e **não estabelece que o recurso continue existindo**. É exatamente o item que
+a consulta ao console resolveria.
+
+##### 7. Local contra produção
+
+**Projeto e deploy, medidos pela API da Vercel nesta rodada.** Projeto `ahp-simple`,
+time `i4-investment-decisions-2026`, plano hobby, `nodeVersion` 24.x.
+
+⚠ **O deploy da execução 7 É identificável, e isto corrige a expectativa do
+enunciado.** O commit `f9cbf94550afb00fbe84d62a253be7357f8aa10b` tem deploy
+`dpl_orQbNxPZQP8htwtZPvdUZ5gPhSbP`, target `production`, estado `READY`, criado em
+`2026-09-13T01:51:56Z`. O deploy de produção seguinte, o de `d311a34`, foi criado em
+`2026-09-13T03:12:13Z`, então **a execução 7 caiu nessa janela de uma hora e vinte
+minutos**. Produção de hoje: `dpl_ChA3makJU8TmdHN365df1tDTcy9F`, commit `7422e87`,
+criado em `2026-09-14T14:29:41Z`.
+
+**Variáveis de produção: não apurado.** Nenhuma ferramenta disponível as lê, e
+portanto a pergunta "coincidem com as locais" fica sem resposta nas duas direções.
+**As locais desta máquina não servem de termo de comparação**, porque aqui elas não
+existem, e esta máquina não é a da Fase 1.
+
+**Log de produção da janela da execução 7: não apurado, e a razão é medida.** A
+consulta ao deploy `dpl_orQbNxPZQP8htwtZPvdUZ5gPhSbP` na janela de
+`2026-09-13T01:00Z` a `04:00Z` responde `400 Bad Request` com
+`ExceedsBillingLimitError`. **A mesma ferramenta, na última hora, devolve linhas
+normalmente**, o que separa limite de retenção de falha de ferramenta. Na última
+janela legível, três horas sobre o deploy de produção atual, **nenhuma linha casa
+com `rag`**, o que é compatível com nenhum parecer gerado nesse intervalo e **não
+diz nada sobre o estado da recuperação**.
+
+##### Conclusão desta rodada
+
+**Causa não identificada.**
+
+O que a rodada fechou é o **mecanismo**, não a causa: um corpo de zero byte, em
+qualquer status, produz `Unexpected end of JSON input` porque `res.json()` roda
+antes de `res.ok`. Isso estava lido no enunciado e agora está **medido de ponta a
+ponta**, com o sintoma reproduzido em servidor local. **Por que o serviço respondeu
+404 continua sem medição**, e nesta rodada continuaria mesmo com a credencial em
+mãos, por causa do bloqueio de egresso.
+
+**Hipóteses que sobreviveram, com o que cada uma exige e o que a tornaria falsa:**
+
+| Hipótese | O que a testaria | O que a tornaria falsa |
+|---|---|---|
+| **H1.** O recurso apontado não existe mais, removido ou suspenso | consulta ao console Upstash | console mostrar o índice ativo **e** a URL REST coincidir com a configurada |
+| **H2.** O recurso existe, e a URL configurada é de outro, anterior | comparar a URL do console com a configurada, respondido coincide ou não coincide | as duas coincidirem |
+| **H3.** A URL configurada tem segmento de caminho, e o SDK o preserva antes de `/query` | a caracterização das seis propriedades do item 1 | a URL configurada ter zero segmento depois do host |
+| **H4.** 404 ocultando proibição de acesso, na forma que a RFC 9110 admite | console, mais duas requisições comparando credencial válida e credencial errada no mesmo caminho | credencial válida devolver 200 no mesmo caminho |
+| **H5.** O 404 não veio do Upstash, e sim de intermediário na rede da Fase 1 | repetir a sonda de outra rede | o mesmo 404 de zero byte aparecer de rede independente |
+
+**Apoio medido para H5, e ele não a promove a causa:** o serviço responde erro em
+JSON, e um 404 assim construído produziria `UpstashError`, não `SyntaxError`. Zero
+byte não é a forma de erro da camada de aplicação. **Isso é indício de camada, não
+prova de origem**, e cai se o console mostrar recurso removido, porque aí H1 explica
+o mesmo dado.
+
+⚠ **Hipótese refutada, e fica registrada para não voltar:** espaço nas bordas da
+URL, pela medição do item 2. **Quebra de linha continua viva dentro de H3**, e as
+duas se separam na caracterização das seis propriedades.
+
+⚠ **O que esta rodada NÃO autoriza:** trocar biblioteca, reingerir, ou atribuir o
+problema ao conteúdo do índice. Nenhuma das três ganhou fundamento aqui, e a
+primeira perdeu: o SDK faz o que a leitura dizia que faz, medido em sete formas de
+URL e oito formas de resposta.
+
+##### O que a rodada seguinte precisa, e por que não entra aqui
+
+**Quatro informações, e nenhuma delas é segredo.** Todas se respondem sem
+transcrever URL nem token:
+
+1. as **seis propriedades** do item 1, produzidas na máquina onde a Fase 1 rodou;
+2. **status, comprimento de corpo e cabeçalhos** de `POST /info`, `POST /query` e
+   `POST /rota-que-nao-existe`, com a mesma credencial, que é a discriminação do
+   item 4;
+3. do console: o índice **existe, está ativo, suspenso ou foi removido**, com nome,
+   região, dimensão e métrica, e se a URL REST **coincide** com a configurada;
+4. se as variáveis de produção **coincidem** com as locais.
+
+⚠ **Correção de configuração não entra nesta rodada, e a razão é de método.** Se a
+apuração encontrar uma, ela pode restabelecer a recuperação sem tocar em código, e
+então **o contexto do modelo muda**. **A predição se registra antes de aplicar a
+alteração**, e basta que a alteração **seja capaz** de restabelecer o fornecimento
+de contexto ao parecer. Nesta rodada não há correção a registrar, porque a causa não
+foi identificada.
+
+⚠ **A correção da instrumentação não depende disto.** Separar erro de resultado
+vazio e fazer a origem do erro sobreviver até os metadados é defeito com ou sem
+recuperação funcionando, e a medição do item 4 aumenta o alcance dela: **o que
+precisa sobreviver até o log não é só a etapa, é o status HTTP**, que hoje é
+destruído pelo `res.json()` antes do `res.ok`.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
