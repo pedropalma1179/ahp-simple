@@ -160,9 +160,15 @@ describe('2. associação por obra e ano, nunca por sobrenome', () => {
 // 3. Divergência de outra obra contamina, e a triagem não roda
 // ============================================================
 describe('3. divergência por TRECHO, e triagem sempre calculada', () => {
+  // ⚠ **`trechoId` ACRESCENTADO depois**, e a razão é a correção 2 da rodada
+  // seguinte: a divergência deixou de vincular por CONTENÇÃO TEXTUAL e passou a
+  // vincular por identificador. **A intenção destes casos não mudou**, e continua
+  // sendo que a divergência vale para o trecho utilizado; o que mudou é o mecanismo
+  // pelo qual ela se vincula a ele.
   const DIVERGENTE_2010: ClaimDivergente[] = [
     {
       articleId: 'bozoki2010_ipc',
+      trechoId: 'claim-07',
       verbatimQuote: 'the graph is connected and acyclic',
       evidenceQuote: 'the graph is connected',
     },
@@ -181,7 +187,9 @@ describe('3. divergência por TRECHO, e triagem sempre calculada', () => {
 
   it('a divergência se aplica ao TRECHO utilizado, e aí sim é inconclusiva', () => {
     const parecer = 'Bozoki et al. (2010) demonstram unicidade sob conectividade.';
-    const evidencias = [ev('bozoki2010_ipc', ['Bozoki'], 2010, 'the graph is connected')];
+    const evidencias = [
+      { ...ev('bozoki2010_ipc', ['Bozoki'], 2010, 'the graph is connected'), trechoId: 'claim-07' },
+    ];
 
     const [linha] = prepararConferencia(parecer, evidencias, DIVERGENTE_2010, triar);
 
@@ -193,7 +201,9 @@ describe('3. divergência por TRECHO, e triagem sempre calculada', () => {
   it('linha INCONCLUSIVA por A.16 ainda assim tem a triagem CALCULADA', () => {
     const trecho = 'the graph is connected';
     const parecer = `Bozoki et al. (2010) afirmam que ${trecho} e nada mais e exigido aqui.`;
-    const evidencias = [ev('bozoki2010_ipc', ['Bozoki'], 2010, trecho)];
+    const evidencias = [
+      { ...ev('bozoki2010_ipc', ['Bozoki'], 2010, trecho), trechoId: 'claim-07' },
+    ];
 
     const [linha] = prepararConferencia(parecer, evidencias, DIVERGENTE_2010, triar);
 
