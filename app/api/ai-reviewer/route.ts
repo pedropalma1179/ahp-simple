@@ -204,10 +204,13 @@ function formatSemanticChunks(chunks: RetrievedChunk[]): string {
   return chunks
     .map((c, idx) => {
       const m = c.metadata;
-      const page = m.page ? `, p. ${m.page}` : '';
+      // ⚠ **A página NÃO vai mais para o contexto, A.33.** `ChunkMetadata.page`
+      // CONTINUA no contrato e no índice, para auditoria: o que muda é só o que a
+      // formatação leva ao modelo. Este era o Único código que interpolava página no
+      // prompt, medido percorrendo os blocos que o compõem.
       const locator = m.locator_id ? ` ${m.locator_id}` : '';
       const verbatim = m.verbatim_quote ?? 'N/A';
-      return `**${idx + 1}. ${m.article_id}** (${m.chunk_type}${locator}${page}) — score: ${c.score.toFixed(3)}
+      return `**${idx + 1}. ${m.article_id}** (${m.chunk_type}${locator}) — score: ${c.score.toFixed(3)}
 ${m.text}
 *Verbatim:* "${verbatim}"`;
     })

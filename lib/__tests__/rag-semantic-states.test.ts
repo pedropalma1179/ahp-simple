@@ -350,28 +350,38 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // classificada aqui como defeito cuja correção esteja decidida.
   });
 
-  it('CONTEXTO preservado: system e messages idênticos aos da referência d658e50', async () => {
-    // ⚠ **Estes resumos NÃO foram recalculados com o candidato.** Vieram de uma
-    // execução do handler de `d658e50`, em checkout separado, com as MESMAS entradas
-    // e as MESMAS respostas simuladas, e estão fixados aqui como referência.
-    // Cobrem o `system` e os `messages` COMPLETOS, e não tamanho, título ou
-    // contagem de chunks.
+  it('CONTEXTO: o que A.33 moveu, e o que continua igual a d658e50', async () => {
+    // ⚠ **A.33 MUDA O CONTEXTO DE PROPÓSITO**, então a linha de base saiu de
+    // `d658e50` e passa a ser a desta árvore. **O teste não deixa de existir por
+    // isso:** ele continua detectando mudança NÃO INTENCIONAL do contexto, que é para
+    // o que serve. O que muda é contra qual linha de base.
+    //
+    // ⚠ **A parte que NÃO se moveu é a evidência mais útil aqui**, e por isso os
+    // resumos de `d658e50` ficam nomeados no arquivo em vez de apagados: com zero
+    // chunks o `formatSemanticChunks` devolve o texto de ausência, sem página para
+    // retirar, então `vazio` e `erro` têm **o mesmo resumo de antes**. Só as duas
+    // condições que formatam chunk mudaram. **Isso demonstra que a retirada da
+    // página alcançou exatamente o bloco que a montava, e nada mais.**
+    const D658E50_MESSAGES_SEM_CHUNKS =
+      'a3c60c056c3a9f541c22dcde519c1ead964f48a17a3577444595a4bdfe668459';
+
+    // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
+    // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui
+    // foi medido num estado INTERMEDIÁRIO, antes de a página sair também do exemplo
+    // PROIBIDO, e a suíte o reprovou. **Resumo de contexto se mede depois da última
+    // alteração, nunca durante.**
+    const SYSTEM_A33 = '635fda53f7aa334dc0b30f8dab94b4bc6d30cbd3ec8e55dddcc134d001ec778e';
+
     const REFERENCIA: Record<string, { system: string; messages: string }> = {
       comResultados: {
-        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
-        messages: '4e5d45c171ac17e3050df93636623620321db76f6f2485ad11672585f89b8b95',
+        system: SYSTEM_A33,
+        messages: '99f733c470f02b8eae15333bd04e5cca831885e6d56e07e16162582632b5c8d7',
       },
-      vazio: {
-        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
-        messages: 'a3c60c056c3a9f541c22dcde519c1ead964f48a17a3577444595a4bdfe668459',
-      },
-      erro: {
-        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
-        messages: 'a3c60c056c3a9f541c22dcde519c1ead964f48a17a3577444595a4bdfe668459',
-      },
+      vazio: { system: SYSTEM_A33, messages: D658E50_MESSAGES_SEM_CHUNKS },
+      erro: { system: SYSTEM_A33, messages: D658E50_MESSAGES_SEM_CHUNKS },
       misto: {
-        system: 'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3',
-        messages: '4e5d45c171ac17e3050df93636623620321db76f6f2485ad11672585f89b8b95',
+        system: SYSTEM_A33,
+        messages: '99f733c470f02b8eae15333bd04e5cca831885e6d56e07e16162582632b5c8d7',
       },
     };
 
@@ -387,6 +397,13 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
       expect(resumo(r.system)).toBe(REFERENCIA[nome].system);
       expect(resumo(JSON.stringify(r.messages))).toBe(REFERENCIA[nome].messages);
     }
+
+    // ⚠ **O `system` de `d658e50` NÃO pode mais aparecer**: se voltasse, a reescrita
+    // das instruções teria sido desfeita sem que nada mais acusasse.
+    const r = await executar('true', false, Array(5).fill([]));
+    expect(resumo(r.system)).not.toBe(
+      'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3'
+    );
   });
 
   it('execução MISTA: uma categoria só não representa a execução: DEFEITO', async () => {
