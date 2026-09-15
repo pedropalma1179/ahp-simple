@@ -33,10 +33,17 @@ export interface SuspeitaTranscricao {
 /**
  * Limiar em PALAVRAS da maior corrida comum.
  *
- * ⚠ **Escolha de triagem, sem fonte na literatura, e fica dito.** Seis palavras
- * seguidas idênticas é raro por coincidência em prosa técnica e curto o bastante
- * para sobreviver a edição leve. **Não é limiar publicado**, e por isso este módulo
- * não decide nada sozinho.
+ * ⚠ **Escolha de triagem, sem fonte na literatura, e fica dito. Não é limiar
+ * publicado**, e por isso este módulo não decide nada sozinho.
+ *
+ * ⚠ **A justificativa anterior foi RETIRADA.** Ela dizia que seis palavras seguidas
+ * idênticas seriam **raras por coincidência em prosa técnica**, e **nenhuma medição
+ * de frequência foi feita**. Era afirmação sobre o corpus apresentada como se fosse
+ * conhecida.
+ *
+ * O que se pode dizer, e só isto: nos três controles, o limiar escolhido separou a
+ * transcrição das duas paráfrases. **Isso não demonstra validade geral nem permite
+ * concluir, por si só, como o limiar foi escolhido.**
  */
 export const LIMIAR_CORRIDA = 6;
 
