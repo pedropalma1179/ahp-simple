@@ -5758,6 +5758,20 @@ contexto, e o contexto pode ser fixado.
 dependência do índice e da Voyage, **não a da geração real**, que continua sendo o
 único jeito de observar a redação.
 
+> ⚠ **FECHAMENTO CORRIGIDO em 15/09/2026.** A redação anterior deixava entender que
+> a etapa 4 passara a depender **só da credencial**. **Não é verdade.** Fixar as
+> evidências elimina a dependência do índice, **e não entrega o resto.**
+>
+> **O que falta, e não apareceu no diff de nenhuma rodada até aqui:**
+>
+> | Falta | Por quê |
+> |---|---|
+> | **o conjunto efetivamente preparado, por caso** | C1, C2 e C3 estão **definidos**, e as evidências de C1 **não foram escritas** |
+> | **a identidade dos trechos** | cada evidência precisa de `articleId` e `trechoId`, que é o que vincula divergência de A.16 desde `80420df`; **os trechos fixados ainda não têm esses identificadores atribuídos** |
+> | **a conferência das fontes contra as publicações** | é a coluna 3, e depende de leitura; **nenhuma publicação foi aberta nesta série de rodadas** |
+>
+> **Três coisas faltam, e a credencial é uma delas**, não a única.
+
 **Configuração da execução, fixada antes:** modelo e parâmetros como
 `MODEL_CONFIG` os define no commit em que os pareceres forem gerados, **sem variação de
 temperatura entre os casos**; `USE_RAG_SEMANTIC` **verdadeiro** em C1 e C3 e
@@ -5934,6 +5948,61 @@ A.33, está exportado no módulo, e **o que ficou fora também**:
 | Cobertas, onze | Fora, quatro, com a razão |
 |---|---|
 | autor e ano; parentética; `et al.`; parentética com `et al.`; dois autores com `&`; dois autores com `e`; parentética com `&`; três autores; com localizador; autor hifenizado; autor acentuado | citação secundária, `(citando Miller, 1956)`; caixa alta ABNT, `(SAATY, 1977)`; composta num parêntese só; autor-entidade, que o prompt não ensina depois de A.33 |
+
+### Três correções na identidade da evidência, em `80420df`
+
+**SHA anterior nos três: `8fed6bc`.** As regressões de
+`lib/__tests__/a33-identidade-regressao.test.ts` reprovam **15 de 20** naquele commit.
+
+⚠ **CINCO dessas quinze são da espécie FRACA, e fica dito.** Reprovam com
+`extrairCitacoesComRevisao is not a function`, ou seja **pela ausência do símbolo
+novo**, não pelo comportamento defeituoso. Elas verificam o **acréscimo**, o registro
+de revisão manual, e **não demonstram defeito nenhum**. **Teste que reprova só porque
+um campo ainda não existia não é demonstração**, e foi esse o critério frouxo da
+rodada anterior.
+
+**As que demonstram são três, e as três alcançam o comportamento:**
+
+| | Antes, medido em `8fed6bc` | Asserção que falhou |
+|---|---|---|
+| **1** | `Forman e Peniwati (1998)` contra evidência de **Forman e Gass (1998)** saía com `obrasCandidatas: ["forman1998_gass"]` e `pendente_de_leitura`, ou seja **evidência identificada** | `expect(linha.obrasCandidatas).toEqual([])` |
+| **2** | divergência com os dois campos **vazios** tornava um trecho independente inconclusivo por A.16 | `expect(linha.motivo).not.toContain('A.16')` |
+| **3** | a composta produzia **UMA** entrada, `autores: ["Saaty"]`, ano 1977, forma `com_localizador` | `expect(c).toHaveLength(0)`, recebido 1 |
+
+⚠ **O terceiro é o pior desfecho**, e por isso vale nome próprio: **interpretação
+parcial produz entrada com a obra errada e PARECE cobertura**. Descarte silencioso
+seria ruim; isto é pior.
+
+**Medido também em `8fed6bc`:** `(SAATY, 1977)` produzia entrada com `autores:
+["SAATY"]` e `(ABNT, 2023)` com `autores: ["ABNT"]`, ambas classificadas como
+`parentetica`, **as duas declaradas fora no inventário do próprio arquivo**.
+
+**As regras que entraram:**
+
+| | Regra |
+|---|---|
+| **autoria** | comparação de **LISTA**. Sem `et al.`, lista completa **na ordem**; com `et al.`, os explicitados como **início** da lista da obra. Autoria incompatível **não** identifica; autoria **ausente** na evidência **não permite a conferência**, e a linha sai inconclusiva |
+| **divergência** | vincula por `articleId` mais `trechoId`, **nos dois lados**. Identificador ausente ou vazio **não gera correspondência**, e **contenção textual não é identidade em sentido nenhum** |
+| **formas fora** | saem do interpretado **e entram** em `revisaoManual`, com o **fragmento preservado** e a frase de contexto |
+
+⚠ **`FORMAS_FORA` passou de quatro entradas para três**, e a redução é um achado:
+**caixa alta ABNT e autor-entidade NÃO se distinguem pela forma.** `(SAATY, 1977)` e
+`(ABNT, 2023)` são o **mesmo padrão**, e separá-los exigiria saber se o token é
+sobrenome ou sigla, que é conhecimento que o módulo não tem. **Viraram uma entrada
+só**, com a razão escrita, em vez de duas que o código não conseguia honrar.
+
+⚠ **O que as regressões passaram a verificar:** **autores extraídos**, **ano
+extraído** e **candidatos associados**, e não só a contagem. **Produzir uma entrada
+não demonstra que a obra certa foi extraída**, e foi exatamente esse o critério que
+deixou os três defeitos passarem pela rodada anterior.
+
+**Dois testes da rodada anterior mudaram de expectativa**, e a razão é a correção 2:
+vinculavam a divergência por texto, e passam a vincular por `trechoId`. **A intenção
+não mudou; o mecanismo sim.**
+
+⚠ **Isto NÃO é extrator bibliográfico universal**, e a cobertura continua sendo a
+das formas que o prompt ensina. **O resto vai para revisão manual**, que é a decisão,
+não uma limitação a superar.
 
 ### Etapa 4: NÃO EXECUTADA
 
