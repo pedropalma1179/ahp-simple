@@ -32,6 +32,32 @@ const SENTINELAS = {
 };
 const TODAS_AS_SENTINELAS = Object.values(SENTINELAS);
 
+/**
+ * Comprimento do PREFIXO que tambem se procura, alem da sentinela inteira.
+ *
+ * ⚠ **Medido, e o motivo de este prefixo existir:** `JSON.parse` reproduz na
+ * mensagem do `SyntaxError` apenas o **começo** do corpo, e só dez caracteres.
+ * `JSON.parse('<FAKE_SECRET_SENTINEL_CORPO>')` produz
+ * `Unexpected token '<', "<FAKE_SECR"... is not valid JSON`. **Uma varredura que
+ * procurasse só a sentinela inteira passaria por cima desse vazamento**, e a
+ * primeira versão deste arquivo procurava só a inteira.
+ *
+ * ⚠ **Achado por CONTROLE POSITIVO, e não por leitura:** o vazamento foi
+ * reintroduzido de propósito no `descreverFalha`, e dos quatro casos de sentinela
+ * apenas **um** reprovou. O código corrigido não vaza, porque `descreverFalha` não
+ * recebe a exceção; **quem estava fraco era o instrumento.**
+ *
+ * ⚠ **NOVE, e não dez, e a diferença foi MEDIDA.** O eco tem dez caracteres do
+ * corpo, mas o corpo deste ensaio começa por `<`, que ocupa um deles: sobrevive
+ * `FAKE_SECR` e não `FAKE_SECRE`. **Com dez, o controle positivo ainda passava no
+ * caso de parsing**, e passava por um caractere. Prefixos sobreviventes medidos:
+ * nove com `<` na frente, dez sem ele e dez com espaço na frente.
+ */
+const PREFIXO = 9;
+
+/** Sentinela inteira e o prefixo de dez, que é o que sobrevive a um truncamento. */
+const AGULHAS = TODAS_AS_SENTINELAS.flatMap((s) => [s, s.slice(0, PREFIXO)]);
+
 const NOMES_ENV = [
   'VOYAGE_API_KEY',
   'UPSTASH_VECTOR_REST_URL',
@@ -106,6 +132,11 @@ function textoDeSaida(d: DiagnosticoConsulta, avisos: string[]): string {
   return JSON.stringify(d) + '\n' + avisos.join('\n');
 }
 
+/** Varre a saída por sentinela inteira E por prefixo, e nomeia qual agulha apareceu. */
+function semSentinela(saida: string) {
+  for (const agulha of AGULHAS) expect(saida).not.toContain(agulha);
+}
+
 beforeAll(() => {
   for (const n of NOMES_ENV) envOriginal[n] = process.env[n];
 });
@@ -168,7 +199,7 @@ describe('1. sanitização por categoria, e não cópia da dependência', () => 
       );
 
       const saida = textoDeSaida(diagnostico, avisos);
-      for (const s of TODAS_AS_SENTINELAS) expect(saida).not.toContain(s);
+      semSentinela(saida);
       expect(diagnostico.erro?.classificacao).toBe('transporte');
     } finally {
       w.mockRestore();
@@ -193,7 +224,7 @@ describe('1. sanitização por categoria, e não cópia da dependência', () => 
       const { diagnostico } = await getRAGSemanticDiagnosticado('consulta de ensaio', 5, 0);
 
       const saida = textoDeSaida(diagnostico, avisos);
-      for (const s of TODAS_AS_SENTINELAS) expect(saida).not.toContain(s);
+      semSentinela(saida);
       expect(diagnostico.erro?.classificacao).toBe('leitura_ou_parsing');
       // O status sobrevive, que é o campo estruturado que interessa.
       expect(diagnostico.tentativasConsulta[0].status).toBe(200);
@@ -219,7 +250,7 @@ describe('1. sanitização por categoria, e não cópia da dependência', () => 
       );
 
       const saida = textoDeSaida(diagnostico, avisos);
-      for (const s of TODAS_AS_SENTINELAS) expect(saida).not.toContain(s);
+      semSentinela(saida);
     } finally {
       w.mockRestore();
     }
@@ -243,7 +274,7 @@ describe('1. sanitização por categoria, e não cópia da dependência', () => 
       );
 
       const saida = textoDeSaida(diagnostico, avisos);
-      for (const s of TODAS_AS_SENTINELAS) expect(saida).not.toContain(s);
+      semSentinela(saida);
     } finally {
       w.mockRestore();
     }
