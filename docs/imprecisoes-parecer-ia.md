@@ -5255,6 +5255,121 @@ datada fecharia a porta das leituras alternativas do resultado. **Predição ant
 não elimina causas alternativas por si só**, e afirmar que fecharia atribui a ela um
 alcance que ela não tem.
 
+### Instrumentação da recuperação semântica, implementada em 14/09/2026
+
+**Eixo implementado sobre `d658e50`, em `3be55b9`.** ⚠ **A.30 permanece ABERTA**, e o
+que fica fora está no fim desta seção.
+
+#### A arquitetura, e por que ela é assim
+
+| Dependência | O que foi feito | Por quê |
+|---|---|---|
+| Upstash | `Requester` próprio pela extensão **pública** do SDK, `constructor(requesters?: Requester)` em `dist/nodejs.d.mts:68`, e um **`Index` por consulta**, restritos ao caminho de busca | é o único ponto em que a resposta HTTP existe: a interface `Requester` devolve `{result, error}`, e o status já foi descartado quando ela retorna |
+| Upstash, escrita | `upsertChunk` e `deleteAll` **seguem no singleton** `getIndex()`, sem alteração | o eixo é diagnóstico de busca, e alargar o escopo não teria fundamento |
+| Voyage | envoltório **só do `fetch` injetado**, afordância pública do SDK, `BaseClient.d.ts:15` | o `fetch` global **não** é substituído em produção, e o envoltório devolve a resposta **intacta**, sem ler nem clonar o corpo |
+
+⚠ **Nenhum interno foi importado e nenhum pacote foi modificado.** `HttpClient` não é
+exportado pelo `@upstash/vector`, então o transporte foi reimplementado no
+`Requester`, e é por isso que a comparação abaixo existe: **a equivalência não é
+suposta, é medida**.
+
+#### O contrato, versão 2
+
+**Três coisas que antes chegavam juntas passam a ser separadas:** a **etapa**, o
+**estado do embedding** e o **estado da consulta ao índice**.
+
+⚠ **Falha no embedding deixa a consulta ao índice como `nao_executado`**, com o array
+de tentativas **vazio**. Não há tentativa fictícia, e "não executada" não é "falhou".
+
+⚠ **Status ausente quando não houve resposta**, nunca inventado. **E resposta não
+exitosa e falha de parsing COEXISTEM:** a tentativa guarda `status` e
+`falha: 'leitura_ou_parsing'`, que é exatamente o que o SDK perdia.
+
+⚠ **Bytes são os EFETIVAMENTE LIDOS**, medidos com `Buffer.byteLength` do texto lido,
+e **não comprimento de string**. `bytes: 0` é leitura concluída com corpo vazio;
+leitura que não concluiu deixa o campo **ausente**.
+
+⚠ **A classificação vem de ONDE a falha ocorreu, e não de `err.name` nem da
+mensagem.** O transporte do Upstash sabe, porque controla o caminho inteiro. O
+envoltório da Voyage **não sabe** o que acontece depois da resposta, e registra essa
+limitação como `posterior_a_resposta_nao_classificada`. Valor lançado que não é
+`Error` também é tratado, sem supor `name`.
+
+**Resumo e compatibilidade.** `withResults`, `emptyOk` e `errored` contam **consultas
+executadas**, são disjuntas e somam `queriesRan`. `httpAttempts` tem **unidade
+própria**, tentativas HTTP, e não se soma a consultas.
+
+⚠ **`failedQueries` MUDOU DE SIGNIFICADO, e é por isso que o contrato é versionado.**
+Antes contava `results.filter((r) => r.length === 0).length`, reunindo **vazio
+legítimo com erro**. Agora é **derivado de `errored`**, nunca atualizado
+separadamente, e conta só erro. **Metadado sem `contractVersion` é do significado
+antigo**, e não deve ser comparado com o novo.
+
+#### A comparação, referência contra candidato
+
+**Dez casos, com o `@upstash/vector` REAL nos dois lados e a fronteira HTTP
+simulada.** ⚠ **A referência não foi recalculada com o candidato:** de um lado o SDK
+construído como `d658e50` o construía, do outro o `consultarIndice` desta árvore, no
+mesmo processo e contra o mesmo duplo de `fetch`.
+
+| Dimensão | Resultado |
+|---|---|
+| requisição | método, caminho, **token fictício inteiro**, cabeçalhos, corpo, `keepalive` e `cache` idênticos |
+| repetições | mesmos gatilhos, mesma quantidade, mesma sequência e mesmos intervalos |
+| resultados | mesmo conteúdo e mesma ordem; e, no erro, mesmo nome, mesma mensagem e **mesmas propriedades próprias da exceção** |
+| concorrência | cinco consultas com desfechos e repetições diferentes, cada tentativa e cada diagnóstico na consulta certa |
+| diagnóstico | estados e falhas distinguíveis, que é o que o eixo acrescenta |
+
+**Cobertos:** sucesso com resultados, sucesso vazio, falha sem resposta, falha seguida
+de sucesso, esgotamento das tentativas, HTTP não exitoso com JSON válido, corpo vazio,
+JSON inválido, **falha de leitura depois da resposta** e concorrência.
+
+⚠ **A caracterização anterior do transporte, treze testes de `50c80f5`, passa INTEIRA
+contra o candidato sem uma alteração.** É a evidência mais direta de que a requisição,
+as repetições e o resultado não mudaram.
+
+#### O contexto, verificado por execução e não por recálculo
+
+O handler de `d658e50` rodou **em checkout separado**, com as mesmas entradas e as
+mesmas respostas simuladas, e os resumos criptográficos do `system` e dos `messages`
+**completos** ficaram fixados no teste. Quatro casos, com resultados, vazio, erro e
+misto: **todos batem byte a byte**.
+
+⚠ **O aceite não foi reduzido a tamanho, a título nem a contagem de chunks:** o
+resumo cobre o texto inteiro dos dois campos.
+
+#### Estados demonstrados, e os limites
+
+| Demonstrado | Como |
+|---|---|
+| desabilitada | `enabled: false`, `queriesRan: 0`, nenhuma tentativa, nenhuma consulta ao embed nem ao índice |
+| com resultados, vazio e erro | separados nas três categorias disjuntas, e o caso misto recomposto pelo diagnóstico por consulta |
+| etapa não executada | falha de embedding com `consulta: 'nao_executado'` e zero tentativas |
+| status quando há resposta | 404 com corpo vazio e 200 com JSON inválido: o status **sobrevive** onde o SDK o perdia |
+| status ausente quando não há | seis tentativas de transporte, todas sem `status` e sem `bytes` |
+
+⚠ **O que NÃO está demonstrado, e fica dito:** nada aqui foi exercitado contra o
+índice real. **Verificação operacional é outra coisa**, e depende de o recurso estar
+disponível, que é o problema que esta tarefa não fechou.
+
+#### Verificação deste commit
+
+`tsc --noEmit` sai **0**. `npm test` sai **0**, com **11 suítes e 146 testes**, contra
+10 e 135 em `d658e50`. `npm run build` sai **0** e gera **17 páginas**. Ambiente
+observado: Linux x86_64, Node v22.22.2, npm 10.9.7.
+
+#### A.30 continua aberta
+
+- **Apresentação na interface.** O campo `semantic` continua sem leitor no
+  `ParecerAISection.tsx`, e expor execução degradada ao usuário é decisão própria.
+- **Tratamento da geração degradada.** Decisão própria, não tomada aqui.
+- **Verificação operacional** contra o índice real, que depende da disponibilidade do
+  recurso.
+- **A identidade dos prompts** nas quatro condições sem chunks permanece
+  **comportamento atual**: informar essas condições ao modelo depende de decisão
+  específica, e alterar o contexto do parecer exige predição registrada antes.
+- **A causa do 404 em produção**, e a execução 7, seguem sem explicação.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
