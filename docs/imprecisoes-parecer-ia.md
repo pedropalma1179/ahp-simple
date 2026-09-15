@@ -5496,7 +5496,16 @@ tendo telemetria enviada pelo caminho de busca, sem sinal de que isso ocorria.
 
 `npx tsc --noEmit` sai **0**. `npm test` sai **0**, com **12 suítes e 162 testes**,
 contra 11 e 146 em `3be55b9`. `npm run build` conclui e lista as **17 rotas**.
-Ambiente observado: Linux x86_64, Node v24.19.0, npm 11.9.0.
+Ambiente observado: Linux x86_64, Node v22.22.2, npm 10.9.7.
+
+> ⚠ **Este dado foi CORRIGIDO depois do commit `9c21288`.** A primeira redação
+> trazia `Node v24.19.0, npm 11.9.0`, que é o ambiente da nota da seção 5 do
+> `CLAUDE.md`, **herdado em vez de medido**. O número verdadeiro apareceu por acaso,
+> num cabeçalho `Upstash-Telemetry-Runtime` de uma saída de teste que dizia
+> `node@v22.22.2`, e `node --version` confirmou. **É o erro que a seção 5 do
+> `CLAUDE.md` nomeia, `nunca herde um número`, e que a seção 0.4 do âncora registra
+> duas vezes; esta é a terceira.** As demais medidas desta seção, tsc, suítes, testes
+> e rotas, foram executadas nesta árvore e não vieram de nota nenhuma.
 
 **A série cresce por testes novos:** os catorze casos do arquivo de regressões e os
 dois da telemetria. **Nenhum teste foi removido.** Os quatro que mudaram de
