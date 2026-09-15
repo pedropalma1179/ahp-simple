@@ -55,7 +55,7 @@ const TODAS_AS_SENTINELAS = Object.values(SENTINELAS);
  */
 const PREFIXO = 9;
 
-/** Sentinela inteira e o prefixo de dez, que é o que sobrevive a um truncamento. */
+/** Sentinela inteira e o prefixo medido, que é o que sobrevive a um truncamento. */
 const AGULHAS = TODAS_AS_SENTINELAS.flatMap((s) => [s, s.slice(0, PREFIXO)]);
 
 const NOMES_ENV = [
@@ -497,5 +497,138 @@ describe('4. o campo bytes saiu do contrato', () => {
     } finally {
       w.mockRestore();
     }
+  });
+});
+
+// ============================================================
+// 5. A varredura alcanca os METADADOS, e nao so o diagnostico
+// ============================================================
+/**
+ * ⚠ **Diagnóstico e metadados são superfícies DIFERENTES**, e o aceite pede as
+ * duas. As seções acima chamam `getRAGSemanticDiagnosticado` direto, então cobrem o
+ * diagnóstico e o aviso, **e não o corpo que a rota devolve**. Aqui a varredura passa
+ * pelo **handler real**, e o que se varre é o **corpo serializado inteiro**, que
+ * contém `metadata.knowledgeBase.semantic`.
+ *
+ * ⚠ **Os SDKs das duas dependências continuam REAIS**, e só o `@anthropic-ai/sdk` é
+ * duplo, para que nenhuma geração real ocorra e nenhuma requisição saia da máquina.
+ * Simular `voyageai` ou `@upstash/vector` retiraria o caminho por onde o texto da
+ * dependência chegaria aos metadados, que é justamente o que se quer vigiar.
+ */
+describe('5. nenhuma sentinela sobrevive nos METADADOS da rota', () => {
+  const CHAVES: Record<string, string> = {
+    VOYAGE_API_KEY: 'chave-voyage-falsa-do-processo-de-teste',
+    UPSTASH_VECTOR_REST_URL: URL_FALSA,
+    UPSTASH_VECTOR_REST_TOKEN: TOKEN_FALSO,
+    ANTHROPIC_API_KEY: 'chave-anthropic-falsa-do-processo-de-teste',
+    USE_RAG_SEMANTIC: 'true',
+  };
+  let envDaRota: Record<string, string | undefined> = {};
+
+  beforeEach(() => {
+    envDaRota = {};
+    for (const [n, v] of Object.entries(CHAVES)) {
+      envDaRota[n] = process.env[n];
+      process.env[n] = v;
+    }
+  });
+
+  afterEach(() => {
+    // ⚠ Restaura inclusive as que estavam AUSENTES.
+    for (const n of Object.keys(CHAVES)) restaurarEnv(n, envDaRota[n]);
+  });
+
+  /** Payload mínimo que o handler aceita, igual ao de `rag-semantic-states`. */
+  function payload() {
+    const balde = { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.03 };
+    return {
+      projectName: 'Projeto de ensaio A.30',
+      alternatives: [
+        { code: 'A1', name: 'Alternativa 1' },
+        { code: 'A2', name: 'Alternativa 2' },
+      ],
+      finalScores: [
+        { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+        { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+      ],
+      individualStats: { Benefits: balde, Opportunities: balde, Costs: balde, Risks: balde },
+      bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+      bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+      overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
+    };
+  }
+
+  /** Roda o handler real e devolve o corpo serializado inteiro, mais os avisos. */
+  async function rodarHandler(): Promise<{ corpo: string; avisos: string[]; semantic: unknown }> {
+    const avisos: string[] = [];
+    const w = jest.spyOn(console, 'warn').mockImplementation((...a: unknown[]) => {
+      avisos.push(a.map(String).join(' '));
+    });
+    const l = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+    const e = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    jest.doMock('@anthropic-ai/sdk', () => ({
+      __esModule: true,
+      default: class {
+        messages = {
+          create: async () => ({ content: [{ type: 'text', text: 'PARECER DE ENSAIO' }] }),
+        };
+      },
+    }));
+
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { POST } = require('@/app/api/ai-reviewer/route');
+      const req = { json: async () => payload() } as unknown as Parameters<typeof POST>[0];
+      const res = (await comTemporizadorFalso(() =>
+        POST(req)
+      )) as { json: () => Promise<unknown> };
+      const corpo = (await res.json()) as Record<string, unknown>;
+      const md = (corpo.metadata ?? {}) as Record<string, unknown>;
+      const kb = (md.knowledgeBase ?? {}) as Record<string, unknown>;
+      return { corpo: JSON.stringify(corpo), avisos, semantic: kb.semantic };
+    } finally {
+      w.mockRestore();
+      l.mockRestore();
+      e.mockRestore();
+    }
+  }
+
+  it('falha de TRANSPORTE com token e URL na mensagem: corpo da rota limpo', async () => {
+    instalarFetch(async (servico) => {
+      if (servico === 'voyage') return respostaVoyage();
+      throw new TypeError(
+        `connect falhou para ${SENTINELAS.url} com Authorization: Bearer ${SENTINELAS.token}`
+      );
+    });
+
+    const { corpo, avisos, semantic } = await rodarHandler();
+
+    // CONTROLE: os metadados semanticos existem mesmo, e registram as cinco falhas.
+    const st = semantic as Record<string, unknown>;
+    expect(st.enabled).toBe(true);
+    expect(st.errored).toBe(5);
+    expect((st.queries as unknown[]).length).toBe(5);
+
+    // ⚠ A varredura é do CORPO INTEIRO, metadados inclusos, mais os avisos.
+    semSentinela(corpo);
+    semSentinela(avisos.join('\n'));
+  });
+
+  it('falha de PARSING com trecho do corpo: corpo da rota limpo', async () => {
+    instalarFetch(async (servico) => {
+      if (servico === 'voyage') return respostaVoyage();
+      return new Response(`<${SENTINELAS.corpo}>`, {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+
+    const { corpo, avisos, semantic } = await rodarHandler();
+
+    const st = semantic as Record<string, unknown>;
+    expect(st.errored).toBe(5);
+    semSentinela(corpo);
+    semSentinela(avisos.join('\n'));
   });
 });
