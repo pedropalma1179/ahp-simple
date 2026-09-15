@@ -1,0 +1,107 @@
+{
+  "versaoPreparacao": 1,
+  "baseSha": "344d63121489348a7291725271564f06fe5ef5a5",
+  "dataUTC": "2026-09-15",
+  "estado": "dados fixados com pendências explícitas; geração não executada",
+  "predicao": "não testada",
+  "mainDevePermanecer": "33c1fdf6500242832994a17aa15b0a686704c029",
+  "payloadReferencia": {
+    "arquivo": "docs/calculations-13jul2026.json",
+    "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+    "sha256Bytes": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
+    "mesmoNosTresCasos": true,
+    "alcance": "Projeto de referência fixado pelo protocolo. Não é apresentado como captura de uma requisição HTTP de geração."
+  },
+  "modelo": {
+    "id": "claude-opus-4-6",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "enabled",
+      "budget_tokens": 5000
+    },
+    "temperature": {
+      "enviada": false,
+      "valor": null,
+      "observacao": "A chamada messages.create em route.ts não envia temperature. Preservar a mesma ausência nos três casos; nenhum valor padrão do serviço foi medido ou presumido."
+    }
+  },
+  "contextoComum": "contexto-estatico.json",
+  "casos": [
+    {
+      "caso": "C1",
+      "USE_RAG_SEMANTIC": "true",
+      "recuperacao": "simulada com evidências fixadas",
+      "dados": "C1-recuperacao.json",
+      "geracoesPlanejadas": 1,
+      "geracoesExecutadas": 0,
+      "shaDaExecucao": null,
+      "saida": null
+    },
+    {
+      "caso": "C2",
+      "USE_RAG_SEMANTIC": null,
+      "semanticaDaFlag": "variável ausente, não cadeia vazia nem false textual",
+      "recuperacao": "desligada",
+      "retornosPorConsulta": null,
+      "geracoesPlanejadas": 1,
+      "geracoesExecutadas": 0,
+      "shaDaExecucao": null,
+      "saida": null
+    },
+    {
+      "caso": "C3",
+      "USE_RAG_SEMANTIC": "true",
+      "recuperacao": "simulada vazia, sem chamar índice ou Voyage",
+      "retornosPorConsulta": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "geracoesPlanejadas": 1,
+      "geracoesExecutadas": 0,
+      "shaDaExecucao": null,
+      "saida": null
+    }
+  ],
+  "execucaoFutura": "Definir a flag apenas no processo isolado antes de importar route.ts; restaurar ambiente. Registrar SHA real junto de cada saída e capturar system/messages completos. Preservar as quatro seções e as outras três superfícies estáticas nos três casos. Nenhuma execução futura é autorizada por este arquivo.",
+  "resumoEvidencias": {
+    "claimsPreparadasDistintas": 101,
+    "unidadesAdicionais": 64,
+    "totalUnidades": 165,
+    "conferidas": 4,
+    "pendentes": 161,
+    "semTrechoId": 165,
+    "claimsComCamposDiferentes": 19
+  },
+  "pendenciasParaGeracao": [
+    "Resolver a ausência de id nas claims com decisão específica do autor; não houve autorização para criar esquema ou promover índice posicional a identidade.",
+    "Concluir a conferência dos trechos pendentes nomeados em evidencias.json e publicacoes.json, incluindo divergências de campos encaminhadas a A.16.",
+    "Preparar a execução isolada com o mesmo payload, conferir a montagem capturada contra estes dados e dispor da credencial do modelo. Nenhuma configuração persistente foi modificada."
+  ],
+  "integridadeDosDados": {
+    "identidade.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "d9b1e2dc75ff508be6391acbea268ace7b85956fce82cb2eebac1cb04a82868e"
+    },
+    "contexto-estatico.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "2a87891fd1f6e34da22cc61dbc6549fddbf32f8cf042b62a564151aad51d0b9a"
+    },
+    "evidencias.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "b977e41f1ba260b3635eecc70c713bdbc8f2297cde860f1d5d650e715d502947"
+    },
+    "publicacoes.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "f8fad0312923fd05626e44fcbe2ee97ee6465b51cbac56313c4f45855653668a"
+    },
+    "C1-recuperacao.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "2545c769be4c7d198ce903f3a625065019c3d874545393022ead96ee5e65353e"
+    }
+  },
+  "provenienciaHashes": "Resumos calculados nesta preparação sobre os arquivos agora escritos. Não são resumos de prompts da Fase 1 nem saídas de geração.",
+  "verificacaoCodigo": "Nenhum código de produção ou teste alterado; suíte e build não executados nesta rodada, conforme o aceite de dados/documentação."
+}

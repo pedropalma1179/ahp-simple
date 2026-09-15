@@ -1,0 +1,1245 @@
+{
+  "baseSha": "344d63121489348a7291725271564f06fe5ef5a5",
+  "medicao": "Importação local do agregador lib/rag/index.ts, sem importar clientes externos. Inspeção de cada objeto key_claims.",
+  "regra": "identificador não certifica o conteúdo",
+  "artigos": 36,
+  "articleIdsUnicos": true,
+  "claims": 138,
+  "claimsComId": 0,
+  "claimsSemId": 138,
+  "duplicidadesEntreIdsPresentes": 0,
+  "unicidadeDosIdsDeClaim": "Não estabelecida. A ausência de IDs não é unicidade comprovada.",
+  "exemploDoEnunciado": {
+    "articleId": "alizadeh2020_energy",
+    "valor": "bocr_additive",
+    "localReal": "formulas[0].id",
+    "naoEhIdDeClaim": true
+  },
+  "enderecosNaoSaoIdentificadores": "arquivo, campo e índice BaseZero localizam dados somente no SHA fixado. Não são trechoId, nem autorização para criar IDs. ReferenceDoc.id e IDs posicionais de chunks também não são IDs existentes de claims.",
+  "porArtigo": [
+    {
+      "articleId": "alizadeh2020_energy",
+      "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+      "sha256Arquivo": "41e2a254e284a9cf996ba547641cf0ef0fc5e5ec2a8d870e62de3877c160fbb8",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "aullhyde2006_experiment",
+      "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+      "sha256Arquivo": "93755ec439bbaa4f08484c31b6117d1b96f422db1893f01a71f3a3193956e026",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+      "sha256Arquivo": "dd4748a3d72b50d37f83013145a4cc84b39f438bcd319eb85f31db14b95213a4",
+      "claims": 6,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "bozoki2010_ipc",
+      "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+      "sha256Arquivo": "09aa481583f7c818ae10b63c60c176d6d0916d38d6ad7584d5d3644b1e9a803e",
+      "claims": 6,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "demirtas2008_integrated",
+      "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+      "sha256Arquivo": "26b7a816b3502c5d97aac916a3ddb5d781f7478e5077ca45fa5e6766e76eee35",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "dodevska2023when",
+      "arquivo": "lib/rag/articles/dodevska2023when.ts",
+      "sha256Arquivo": "8c74324e578812834abca56720fda83ba5471a7f97c2b7e2b751acb48b7d7398",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/dodevska2023when.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/dodevska2023when.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/dodevska2023when.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "escobar2004_note",
+      "arquivo": "lib/rag/articles/escobar2004_note.ts",
+      "sha256Arquivo": "9794e6aa00b7b6a5dd404385830df0e31c43f9b4c2eb6f741d1ba6783da63efc",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/escobar2004_note.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/escobar2004_note.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "forman1998_aggregating",
+      "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+      "sha256Arquivo": "1f8f0ee700ae41c0416d1bc358cd132232b253067caa7915d2d1060f2f18f75a",
+      "claims": 5,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        }
+      ]
+    },
+    {
+      "articleId": "goepel2018_ahpos",
+      "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+      "sha256Arquivo": "2ef910fef1fe5f2722ea6db01249ddb4bec939f8a825a64286dbea5031453f34",
+      "claims": 9,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 6
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 7
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 8
+        }
+      ]
+    },
+    {
+      "articleId": "harker1987_incomplete",
+      "arquivo": "lib/rag/articles/harker1987_incomplete.ts",
+      "sha256Arquivo": "e8291eac271fb553ec8294cf1b83a64618fb9ff4ecc473b37697725a131e9846",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/harker1987_incomplete.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/harker1987_incomplete.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/harker1987_incomplete.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "ishizaka2011review",
+      "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+      "sha256Arquivo": "71cf0bb80d7f6e8e03da688f0fea59d6790c5d864164391513e0669cea5051e0",
+      "claims": 4,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        }
+      ]
+    },
+    {
+      "articleId": "kabak2014_prioritization",
+      "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+      "sha256Arquivo": "97dd02c645698ab1c1e216bb588532c6b0af077b44f61d779efcc0f14b466324",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "lee2009_wind",
+      "arquivo": "lib/rag/articles/lee2009_wind.ts",
+      "sha256Arquivo": "8cf6c17e52ec4854640e352f319ad3843e07941f371b5eaf38b9adb56333a02c",
+      "claims": 4,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        }
+      ]
+    },
+    {
+      "articleId": "lee2024_project",
+      "arquivo": "lib/rag/articles/lee2024_project.ts",
+      "sha256Arquivo": "38842ce77c7ed87bdc2ba919a65c4e5231362fad80938a6e6a70f218522980f6",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2024_project.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2024_project.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "liang2022_ahp_undesirable",
+      "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+      "sha256Arquivo": "f541f4e8af38db6b6682484db72d864af486abd11b4713dc12b9562a878e38c8",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "mu2016_bocr",
+      "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+      "sha256Arquivo": "691cfbf0d208eb6d7685333a66f6a06f935af611348865924848e3eaf32f3f93",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+      "sha256Arquivo": "f5acf4bb88f9832de9369e5aa9503005d1a596577fbb63749a53fe4a0b7f58c6",
+      "claims": 6,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "ossadnik2016_group_aggregation",
+      "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+      "sha256Arquivo": "058a3f038a37d8ac0abce5a7cdd0497c65be59bc5cd3dc3d089709ba160f454a",
+      "claims": 5,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        }
+      ]
+    },
+    {
+      "articleId": "petrillo2023state",
+      "arquivo": "lib/rag/articles/petrillo2023state.ts",
+      "sha256Arquivo": "8f34217c69207fcdcc4cb784cc7ae9464fd9bc95bebc55ab98aca274c20a41af",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1977_scaling",
+      "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+      "sha256Arquivo": "4b44bd347a9fc1836df68d6543a0359771f3be6d6ae854cdf8b0011cd2116242",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1986_axiomatic",
+      "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+      "sha256Arquivo": "ea3ee144086098ee46190c2a292fe05f4645dd069efc19139db10dc656d43541",
+      "claims": 6,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1987_whatitis",
+      "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+      "sha256Arquivo": "7e4e379dd5c47a71bbafb3332bd4ff22e54c4abd5b87783e2200b1b6f6c60df4",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1990_howtomake",
+      "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+      "sha256Arquivo": "9fc0ef4e4c2e60a66f4ff46d89bfd56c7c799314be2827ec6c3185db93ff4d8c",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saaty2003_eigenvector",
+      "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+      "sha256Arquivo": "d0f3d33ed21d8d6852a5045e2690b95f4e593085f2edaa54af1c1481d1d22179",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saaty2015_trustworthy",
+      "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+      "sha256Arquivo": "02756e6db6fef5eced183415236d8569102f820b30ba42b84e359b451a982eab",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "saatyOzdemir2003_negative",
+      "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+      "sha256Arquivo": "2816dbc59655b5914bcd429911e2df443a0b4259f866397d10e75cb3b00a8616",
+      "claims": 6,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "saatyVargas1984_rankpreservation",
+      "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+      "sha256Arquivo": "258d0aed64c19d7ba2f48ff4235fcc2df5ff97c4062d752fb99490d7972bd4a6",
+      "claims": 6,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "saatyVargas2012",
+      "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+      "sha256Arquivo": "658be2327541dc35f91d98d7113c213baab0eb1e9529612e6fb1310ecb7f876c",
+      "claims": 8,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 6
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 7
+        }
+      ]
+    },
+    {
+      "articleId": "saiyed2023_ceoPowerUET",
+      "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+      "sha256Arquivo": "e2f938ceb3938df8ef18233333055f5c3ab5c400b4afc1b23ae0c6afc2d9bce3",
+      "claims": 6,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "salomon2016_absolute",
+      "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+      "sha256Arquivo": "f20da66c2d6372d5e5acf630bd0752bf8f522532cb5725e090c8be225d24f745",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "salomon2024_consistency",
+      "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+      "sha256Arquivo": "5100a63045bc7ad2e239bb320e6ea6e84becb6cdd5e1d5d84ab81c040b79a108",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "schmidt2015_review",
+      "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+      "sha256Arquivo": "75538ee6a9ce87990ac964a7dbd610eb4afd88ecafcf710af4e037a3612804bd",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "schmidt2016_priorities",
+      "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+      "sha256Arquivo": "c6440cdd2e58bde6573628cdf75a3c55e236a7b19f838dd866afcb92b92e3f6c",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "tavana2023_revolution",
+      "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+      "sha256Arquivo": "e2a53fc1fe1c85317f4bd751c1f77a43085951c0043ca93bbc3ad7d48cef71e1",
+      "claims": 3,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "wijnmalen2007_bocr",
+      "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+      "sha256Arquivo": "d24c49fda401ff092a4d46b0be3035a3c6e84ef8dbf530ab6209c21b18e3b1fd",
+      "claims": 5,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        }
+      ]
+    },
+    {
+      "articleId": "xu2000_consistency",
+      "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+      "sha256Arquivo": "62ab0ea91f65be68ffeee8ef8e34eaa5e680da50065a6357f71d0926be16f3d3",
+      "claims": 2,
+      "idsPresentesNaoVazios": 0,
+      "idsRepetidos": [],
+      "resultadoUnicidade": "não estabelecida: nenhuma claim tem campo id",
+      "claimsSemIdentificador": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    }
+  ]
+}
