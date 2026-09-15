@@ -6042,6 +6042,128 @@ com a predição não testada. Permanecem pendentes o conjunto preparado por cas
 a identidade dos trechos fixados, a conferência contra as publicações e o acesso
 necessário à geração real. Os trechos originais no contexto foram preservados.
 
+### Preparação de dados da etapa 4, sobre `344d631`, sem geração
+
+**Preparado em 15/09/2026; dados publicados em `b1111fb`.** Os três casos estão
+escritos em `docs/dados/a33-etapa4/casos.json`. Nenhuma chamada ao modelo, à Voyage
+ou ao índice ocorreu. **A predição continua não testada e a preparação tem
+pendências explícitas.** `main` permanece em `33c1fdf`.
+
+**A premissa sobre os IDs não se confirmou na base.** A importação local do
+agregador encontrou **36 artigos com IDs distintos e 138 claims; nenhuma claim
+possui `id`**. A unicidade do ID da claim dentro de cada artigo **não está
+estabelecida**: zero duplicidades entre zero IDs presentes não a demonstra.
+O exemplo `bocr_additive` pertence a `formulas[0].id` de
+`alizadeh2020_energy`, não a uma claim. `identidade.json` registra cada artigo,
+a contagem e os endereços das 138 ausências, com SHA e resumo do arquivo.
+
+**identificador não certifica o conteúdo**. Nenhum `trechoId` foi inventado.
+`ReferenceDoc.id`, o ID posicional do chunk e o endereço `arquivo/campo/índice`
+não foram promovidos a identidade de claim. Esses endereços apenas localizam o
+registro no SHA fixado. `articleId` foi preservado e `trechoId` ficou `null`;
+a lista dos sem identificador recuperável está em `evidencias.json`. A identidade
+insuficiente continua impedindo o instrumento de declarar evidência identificada,
+inclusive quando a comparação do texto com a publicação foi realizada.
+
+**Contexto fixado, presente nos três casos:**
+
+| Superfície | Unidades fixadas |
+|---|---:|
+| Referências sobre Consistência e Validação de Dados | 93 ocorrências |
+| Referências sobre Metodologia BOCR | 28 ocorrências |
+| Referências sobre Análise de Sensibilidade e Robustez | 6 ocorrências |
+| Referências Críticas Adicionais (Alta Prioridade) | 8 ocorrências |
+| Limiares Publicados (RAG) | 18 |
+| Fórmulas de Síntese BOCR Validadas (RAG) | 36 |
+| Benchmarks Empíricos de Estudos Publicados | 10 |
+
+As quatro primeiras somam **135 ocorrências de 100 claims distintas**. As outras
+três superfícies também permanecem: dizer apenas quatro seções não descreve todo
+o material estático. `contexto-estatico.json` guarda referências, endereços e
+textos formatados; o arquivo do `system` está fixado por SHA-256, com seus exemplos
+identificados como instruções, não como evidência recuperada. Isso não é captura
+de `system/messages` completos nem substitui a captura na execução futura.
+
+| Caso | Recuperação fixada | Flag no processo futuro |
+|---|---|---|
+| C1 | Três chunks escritos em `C1-recuperacao.json`: `saaty1977_scaling`, claim de índice 0; `wijnmalen2007_bocr`, índice 0; `forman1998_aggregating`, índice 2 | `true` |
+| C2 | Desligada; todo o contexto estático acima permanece | ausente |
+| C3 | Cinco retornos simulados vazios; mesmo contexto estático | `true` |
+
+C1 usa uma claim de cada publicação já nomeada no protocolo, nos eixos de
+consistência, comensurabilidade e AIJ. As respostas por consulta e sua ordem estão
+escritas; o score **1 é sintético**, não similaridade medida. Nenhum diagnóstico
+HTTP foi fabricado. Duas claims já aparecem no estático; a de Forman acrescenta
+uma, totalizando **101 claims distintas preparadas**. Os 64 limiares, fórmulas e
+benchmarks são contados separadamente, total de **165 unidades**, e têm lista de
+pendências própria. ID de fórmula não foi tratado como ID de claim.
+
+**Configuração, estabelecida por leitura da chamada atual:** mesmo
+`claude-opus-4-6`, `max_tokens: 16000`, `thinking` habilitado com orçamento de
+5000 nos três. **A rota não envia `temperature`**; o manifesto preserva essa
+mesma ausência, sem atribuir valor padrão ao serviço. Mesmo projeto
+`docs/calculations-13jul2026.json`, fixado por SHA-256, **uma geração futura por
+caso e zero executadas**. Os campos de saída e SHA da execução estão vazios e
+serão preenchidos junto da execução real. A flag só será definida no processo
+isolado, antes da importação, com restauração; nenhuma configuração persistente
+foi alterada nesta preparação.
+
+**Conferência por trecho:** quatro unidades conferidas, **161 pendentes**.
+O estado de cada uma, seu endereço e motivo estão em `evidencias.json`;
+`publicacoes.json` lista as **35 obras**, as tentativas realizadas e quais ainda
+não foram abertas. Não se apresenta a busca como exaustiva. Foram lidas as notas
+da base antes das conferências, e os dados de edição das duas publicações usadas
+foram cotejados. Os quatro recortes são:
+
+| Obra e endereço na base fixada | Conferência realizada |
+|---|---|
+| Forman e Peniwati (1998), `key_claims[2]` | Segmentos separados pelas reticências localizados na seção 6, página 167; omissão explícita preservada, sem apresentar o recorte como frase contínua |
+| Forman e Peniwati (1998), `key_claims[4]` | Início da frase localizado na seção 6, página 168; anotado que a frase da publicação continua |
+| Ossadnik, Schinke e Kaspar (2016), `key_claims[0]` | Texto localizado na seção 4.3.2.2 do HTML do editor; diferença de caixa na inicial registrada |
+| Ossadnik, Schinke e Kaspar (2016), `key_claims[2]` | Recorte localizado na mesma seção; atribuição subsequente a Aull-Hyde registrada sem conferir aquela outra publicação por extensão |
+
+Fontes consultadas: [cópia da publicação de Forman e Peniwati](https://www.researchgate.net/profile/Manuel-Serafin-Plasencia/post/Why_we_used_to_take_Geometric_mean_instead_of_arithmetic_mean_in_Analytic_hierarchy_process/attachment/59d624e879197b807798339e/AS%3A315317371244544%401452188927234/download/Forman%2Band%2BPeniwati%2C%2B1998.%2BAggregating%2BIndividual%2BJudgments%2Band%2BPriorities%2Bwith%2Bthe%2BAHP.pdf)
+e [texto de Ossadnik e colaboradores no editor](https://link.springer.com/article/10.1007/s10726-015-9448-4).
+As páginas da base de Ossadnik não foram conferidas em PDF; a localização lida é
+a seção do HTML. Conferência desses recortes não certifica paráfrase ainda não
+gerada, nem todas as claims das obras. As páginas ficam como dados de auditoria.
+
+Saaty (1977) e Wijnmalen (2007) permanecem pendentes: as páginas do editor
+retornaram 403 nesta ferramenta e não foi obtido texto integral utilizável.
+As demais tentativas e ausências de tentativa estão nomeadas, sem converter
+falta de acesso em ausência universal da publicação. **19 das 101 claims
+preparadas têm campos diferentes após `trim`**; esse é o critério aplicado, não
+um juízo de sentido. Todas continuam pendentes, sem eleger `verbatim_quote` ou
+`evidence.quote`. Nenhuma divergência de A.16 foi reconciliada. Os textos
+originais e suas páginas na base foram preservados.
+
+**Verificação anterior a este registro:** leitura dos seis JSON; correspondência
+dos endereços e valores com a base; lista integral dos sem identidade e dos
+pendentes; igualdade exata dos quatro templates com as expressões da rota e das
+outras três superfícies com as funções atuais; três casos, três chunks de C1,
+cinco vazios de C3, integridade do payload e resumos SHA-256 completos. Os hashes
+são desta preparação, não os seis resumos históricos dos prompts da Fase 1.
+A contagem de arquivos rastreados passou de **164 a 170**. Somente dados e
+documentação: **tsc, build e suíte não foram repetidos** nesta rodada. O CI do
+commit de dados é observação separada, sem herdar o resultado do código anterior.
+
+**Histórico e publicação conferidos:** `344d631`, `c0b4bcf`, `482d2d6`,
+`8fed6bc`, `1444892`, `33c1fdf`, `c2d7d89` e `f6d881c` são ancestrais de
+`b1111fb`, todos com código de saída **0**. A sessão usa Bash/Linux; esses são
+os códigos dos comandos executados, não uma alegação de execução em PowerShell.
+O CI **35026934508**, no SHA completo
+`b1111fb55e5d67f32108698589c97ff3ec7e130f`, foi observado como
+`completed/success`. Isso registra o commit de dados; não antecipa o CI deste
+registro documental. O conteúdo anterior dos dois documentos e o Anexo 3
+permaneceram idênticos, descontando apenas os acréscimos desta rodada.
+
+**O que ainda falta para a geração:** resolver a ausência de IDs mediante decisão
+específica, concluir a conferência das unidades pendentes e tratar em A.16 os
+campos divergentes utilizados; preparar a execução isolada, conferir o contexto
+capturado contra os dados fixados e dispor da credencial do modelo. A rodada não
+mede a disponibilidade dessa credencial. A.33 segue em revisão; esta preparação
+não libera geração real nem avanço de `main`.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
