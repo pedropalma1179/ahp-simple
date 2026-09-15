@@ -1,0 +1,3252 @@
+{
+  "snapshotMedido": "745b4966727e2c507b162570e5fbec11d149b1e3",
+  "protocoloAnterior": "195e8a838ed8b97c2a746c227240eccb35875068",
+  "algoritmo": "SHA-256",
+  "comprimentoHexadecimal": 64,
+  "esquemaAdotado": false,
+  "negativos": [
+    "Não é identidade de claim estável.",
+    "Não é atestado de fidelidade à publicação."
+  ],
+  "alvo": "Versão do quote com artigo e localizador; não versiona todos os campos da unidade ou todo o texto formatado.",
+  "entradas": {
+    "docs/dados/a33-etapa4/evidencias.json": {
+      "sha256": "b977e41f1ba260b3635eecc70c713bdbc8f2297cde860f1d5d650e715d502947",
+      "bytes": 371842
+    },
+    "docs/dados/a33-etapa4/contexto-estatico.json": {
+      "sha256": "2a87891fd1f6e34da22cc61dbc6549fddbf32f8cf042b62a564151aad51d0b9a",
+      "bytes": 199367
+    },
+    "docs/dados/a33-etapa4/C1-recuperacao.json": {
+      "sha256": "2545c769be4c7d198ce903f3a625065019c3d874545393022ead96ee5e65353e",
+      "bytes": 10637
+    }
+  },
+  "medicoes": {
+    "claims": {
+      "denominador": 101,
+      "localizadores": {
+        "locator_type": {
+          "ausente": 0,
+          "nulo": 0,
+          "vazio": 0,
+          "textoNaoVazio": 101
+        },
+        "locator_id": {
+          "ausente": 0,
+          "nulo": 3,
+          "vazio": 0,
+          "textoNaoVazio": 98
+        },
+        "ambosAusentes": 0,
+        "ambosIndisponiveis": 0,
+        "algumIndisponivel": 3
+      },
+      "quotes": {
+        "ausente": 0,
+        "nulo": 0,
+        "vazio": 0,
+        "textoNaoVazio": 101
+      },
+      "candidatosRepetidos": {
+        "grupos": 1,
+        "unidades": 2,
+        "excedentes": 1,
+        "membros": [
+          {
+            "candidatoSha256": "fa65691c7b1328c00fde3681b553a38b8f11a34798037ac2c51505e21bacd429",
+            "unidades": [
+              {
+                "indiceUnidade": 86,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 89,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 3
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "quotesByteAIgual": {
+        "grupos": 1,
+        "unidades": 2,
+        "excedentes": 1,
+        "membros": [
+          {
+            "quoteSha256": "098de837fe08885185a52d976709cac518a51763ad7f873d2c025c67fe421ac6",
+            "bytes": 123,
+            "unidades": [
+              {
+                "indiceUnidade": 86,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 89,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 3
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "indistinguiveisPelaComposicao": {
+        "grupos": 1,
+        "unidades": 2,
+        "excedentes": 1,
+        "comCamposCompletos": {
+          "grupos": 1,
+          "unidades": 2,
+          "excedentes": 1
+        },
+        "comInformacaoIncompleta": {
+          "grupos": 0,
+          "unidades": 0,
+          "excedentes": 0
+        },
+        "membros": [
+          {
+            "candidatoSha256": "fa65691c7b1328c00fde3681b553a38b8f11a34798037ac2c51505e21bacd429",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 86,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 89,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 3
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "colisoesCriptograficasObservadas": {
+        "grupos": 0,
+        "unidades": 0,
+        "excedentes": 0
+      }
+    },
+    "adicionais": {
+      "denominador": 64,
+      "localizadores": {
+        "locator_type": {
+          "ausente": 10,
+          "nulo": 0,
+          "vazio": 0,
+          "textoNaoVazio": 54
+        },
+        "locator_id": {
+          "ausente": 10,
+          "nulo": 1,
+          "vazio": 0,
+          "textoNaoVazio": 53
+        },
+        "ambosAusentes": 10,
+        "ambosIndisponiveis": 10,
+        "algumIndisponivel": 11
+      },
+      "quotes": {
+        "ausente": 10,
+        "nulo": 0,
+        "vazio": 0,
+        "textoNaoVazio": 54
+      },
+      "candidatosRepetidos": {
+        "grupos": 2,
+        "unidades": 5,
+        "excedentes": 3,
+        "membros": [
+          {
+            "candidatoSha256": "84b8f7b205cac1c57b1f906cd5383aca4504601ea496f5cba977e160d43d9f0e",
+            "unidades": [
+              {
+                "indiceUnidade": 110,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 111,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "3eeb7808638a6ba8826fa56db25d14eeb02193574d9465cd09d6864c3b57c92a",
+            "unidades": [
+              {
+                "indiceUnidade": 137,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 138,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 139,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "quotesByteAIgual": {
+        "grupos": 3,
+        "unidades": 10,
+        "excedentes": 7,
+        "membros": [
+          {
+            "quoteSha256": "24f466cf3a77717e18a2c789063f14cbecf6344d49c95ca7118ae31092f53bbc",
+            "bytes": 88,
+            "unidades": [
+              {
+                "indiceUnidade": 110,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 111,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "10603986a1e013900bfe343b3132ec494dbadd01fac2cff369ba493b01881d77",
+            "bytes": 84,
+            "unidades": [
+              {
+                "indiceUnidade": 126,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 127,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 128,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 2
+                }
+              },
+              {
+                "indiceUnidade": 129,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 130,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "7751fac278f3616c68d3255455c613658503beac671fc8757d8e656e69ff5edd",
+            "bytes": 82,
+            "unidades": [
+              {
+                "indiceUnidade": 137,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 138,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 139,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "indistinguiveisPelaComposicao": {
+        "grupos": 2,
+        "unidades": 5,
+        "excedentes": 3,
+        "comCamposCompletos": {
+          "grupos": 2,
+          "unidades": 5,
+          "excedentes": 3
+        },
+        "comInformacaoIncompleta": {
+          "grupos": 0,
+          "unidades": 0,
+          "excedentes": 0
+        },
+        "membros": [
+          {
+            "candidatoSha256": "84b8f7b205cac1c57b1f906cd5383aca4504601ea496f5cba977e160d43d9f0e",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 110,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 111,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "3eeb7808638a6ba8826fa56db25d14eeb02193574d9465cd09d6864c3b57c92a",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 137,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 138,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 139,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "colisoesCriptograficasObservadas": {
+        "grupos": 0,
+        "unidades": 0,
+        "excedentes": 0
+      }
+    },
+    "total": {
+      "denominador": 165,
+      "localizadores": {
+        "locator_type": {
+          "ausente": 10,
+          "nulo": 0,
+          "vazio": 0,
+          "textoNaoVazio": 155
+        },
+        "locator_id": {
+          "ausente": 10,
+          "nulo": 4,
+          "vazio": 0,
+          "textoNaoVazio": 151
+        },
+        "ambosAusentes": 10,
+        "ambosIndisponiveis": 10,
+        "algumIndisponivel": 14
+      },
+      "quotes": {
+        "ausente": 10,
+        "nulo": 0,
+        "vazio": 0,
+        "textoNaoVazio": 155
+      },
+      "candidatosRepetidos": {
+        "grupos": 6,
+        "unidades": 13,
+        "excedentes": 7,
+        "membros": [
+          {
+            "candidatoSha256": "d31f3f82824704e99dc982a7398c5685fbe71a7305a8dc2a61ae92936b169a3d",
+            "unidades": [
+              {
+                "indiceUnidade": 69,
+                "tipo": "claim",
+                "articleId": "saatyVargas2012",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 108,
+                "tipo": "limiar",
+                "articleId": "saatyVargas2012",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 0
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "fa65691c7b1328c00fde3681b553a38b8f11a34798037ac2c51505e21bacd429",
+            "unidades": [
+              {
+                "indiceUnidade": 86,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 89,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 3
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "912822a687b2b1f2caa0993d895d01a9cd4e6fcd30cd046d185faaac2c262b3c",
+            "unidades": [
+              {
+                "indiceUnidade": 88,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 2
+                }
+              },
+              {
+                "indiceUnidade": 154,
+                "tipo": "formula",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "fdcbfb7df9b7f103cafb28690ad186efba2f956c0618d5387ad5cf193fc7e90b",
+            "unidades": [
+              {
+                "indiceUnidade": 90,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 152,
+                "tipo": "formula",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "84b8f7b205cac1c57b1f906cd5383aca4504601ea496f5cba977e160d43d9f0e",
+            "unidades": [
+              {
+                "indiceUnidade": 110,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 111,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "3eeb7808638a6ba8826fa56db25d14eeb02193574d9465cd09d6864c3b57c92a",
+            "unidades": [
+              {
+                "indiceUnidade": 137,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 138,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 139,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "quotesByteAIgual": {
+        "grupos": 9,
+        "unidades": 22,
+        "excedentes": 13,
+        "membros": [
+          {
+            "quoteSha256": "049cdee72e1f782ae4d736765424115a89920b6ef61eda2a0736924a06c1f5e6",
+            "bytes": 54,
+            "unidades": [
+              {
+                "indiceUnidade": 0,
+                "tipo": "claim",
+                "articleId": "alizadeh2020_energy",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 119,
+                "tipo": "formula",
+                "articleId": "alizadeh2020_energy",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 0
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "d9bc5ac1f3c56f4a74705ca93231ad987c12b4a936a70c626d4c91c8423bf50f",
+            "bytes": 97,
+            "unidades": [
+              {
+                "indiceUnidade": 13,
+                "tipo": "claim",
+                "articleId": "demirtas2008_integrated",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 2
+                }
+              },
+              {
+                "indiceUnidade": 125,
+                "tipo": "formula",
+                "articleId": "demirtas2008_integrated",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 1
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "b87d9dae865866f2ff3bf894224e53414210a140df943f11bee4bf250e2ac9a8",
+            "bytes": 72,
+            "unidades": [
+              {
+                "indiceUnidade": 69,
+                "tipo": "claim",
+                "articleId": "saatyVargas2012",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 108,
+                "tipo": "limiar",
+                "articleId": "saatyVargas2012",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 0
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "098de837fe08885185a52d976709cac518a51763ad7f873d2c025c67fe421ac6",
+            "bytes": 123,
+            "unidades": [
+              {
+                "indiceUnidade": 86,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 89,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 3
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "f3e0b15220c556af6877330c5cad0a7cf319c6c1da4f176fe1b40931db4d32cd",
+            "bytes": 151,
+            "unidades": [
+              {
+                "indiceUnidade": 88,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 2
+                }
+              },
+              {
+                "indiceUnidade": 154,
+                "tipo": "formula",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "7e6719087b2b2b1cb2a63789271e05721e4b35c518c65a2ab577fd19ebb8b035",
+            "bytes": 109,
+            "unidades": [
+              {
+                "indiceUnidade": 90,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 152,
+                "tipo": "formula",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "24f466cf3a77717e18a2c789063f14cbecf6344d49c95ca7118ae31092f53bbc",
+            "bytes": 88,
+            "unidades": [
+              {
+                "indiceUnidade": 110,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 111,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "10603986a1e013900bfe343b3132ec494dbadd01fac2cff369ba493b01881d77",
+            "bytes": 84,
+            "unidades": [
+              {
+                "indiceUnidade": 126,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 127,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 128,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 2
+                }
+              },
+              {
+                "indiceUnidade": 129,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 130,
+                "tipo": "formula",
+                "articleId": "kabak2014_prioritization",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              }
+            ]
+          },
+          {
+            "quoteSha256": "7751fac278f3616c68d3255455c613658503beac671fc8757d8e656e69ff5edd",
+            "bytes": 82,
+            "unidades": [
+              {
+                "indiceUnidade": 137,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 138,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 139,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "indistinguiveisPelaComposicao": {
+        "grupos": 6,
+        "unidades": 13,
+        "excedentes": 7,
+        "comCamposCompletos": {
+          "grupos": 6,
+          "unidades": 13,
+          "excedentes": 7
+        },
+        "comInformacaoIncompleta": {
+          "grupos": 0,
+          "unidades": 0,
+          "excedentes": 0
+        },
+        "membros": [
+          {
+            "candidatoSha256": "d31f3f82824704e99dc982a7398c5685fbe71a7305a8dc2a61ae92936b169a3d",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 69,
+                "tipo": "claim",
+                "articleId": "saatyVargas2012",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 108,
+                "tipo": "limiar",
+                "articleId": "saatyVargas2012",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 0
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "fa65691c7b1328c00fde3681b553a38b8f11a34798037ac2c51505e21bacd429",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 86,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 0
+                }
+              },
+              {
+                "indiceUnidade": 89,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 3
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "912822a687b2b1f2caa0993d895d01a9cd4e6fcd30cd046d185faaac2c262b3c",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 88,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 2
+                }
+              },
+              {
+                "indiceUnidade": 154,
+                "tipo": "formula",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "fdcbfb7df9b7f103cafb28690ad186efba2f956c0618d5387ad5cf193fc7e90b",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 90,
+                "tipo": "claim",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "key_claims",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 152,
+                "tipo": "formula",
+                "articleId": "wijnmalen2007_bocr",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "84b8f7b205cac1c57b1f906cd5383aca4504601ea496f5cba977e160d43d9f0e",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 110,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 1
+                }
+              },
+              {
+                "indiceUnidade": 111,
+                "tipo": "limiar",
+                "articleId": "salomon2024_consistency",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+                  "campo": "thresholds",
+                  "indiceBaseZero": 2
+                }
+              }
+            ]
+          },
+          {
+            "candidatoSha256": "3eeb7808638a6ba8826fa56db25d14eeb02193574d9465cd09d6864c3b57c92a",
+            "camposCompletos": true,
+            "unidades": [
+              {
+                "indiceUnidade": 137,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 3
+                }
+              },
+              {
+                "indiceUnidade": 138,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 4
+                }
+              },
+              {
+                "indiceUnidade": 139,
+                "tipo": "formula",
+                "articleId": "liang2022_ahp_undesirable",
+                "enderecoNaBase": {
+                  "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+                  "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+                  "campo": "formulas",
+                  "indiceBaseZero": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "colisoesCriptograficasObservadas": {
+        "grupos": 0,
+        "unidades": 0,
+        "excedentes": 0
+      }
+    }
+  },
+  "avaliacao": {
+    "claims": {
+      "denominador": 101,
+      "camposCompletos": 98,
+      "completosEUnicosNoTotal": 93,
+      "discriminaveisComoVersaoDoQuote": 93,
+      "excluidas": 8
+    },
+    "adicionais": {
+      "denominador": 64,
+      "camposCompletos": 53,
+      "completosEUnicosNoTotal": 45,
+      "discriminaveisComoVersaoDoQuote": 14,
+      "excluidas": 50
+    },
+    "total": {
+      "denominador": 165,
+      "camposCompletos": 151,
+      "completosEUnicosNoTotal": 138,
+      "discriminaveisComoVersaoDoQuote": 107,
+      "excluidas": 58
+    }
+  },
+  "elegiveis": [
+    {
+      "indiceUnidade": 0,
+      "tipo": "claim",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 1,
+      "tipo": "claim",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 2,
+      "tipo": "claim",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 3,
+      "tipo": "claim",
+      "articleId": "aullhyde2006_experiment",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 4,
+      "tipo": "claim",
+      "articleId": "aullhyde2006_experiment",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 5,
+      "tipo": "claim",
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 6,
+      "tipo": "claim",
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 7,
+      "tipo": "claim",
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 8,
+      "tipo": "claim",
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      }
+    },
+    {
+      "indiceUnidade": 9,
+      "tipo": "claim",
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      }
+    },
+    {
+      "indiceUnidade": 10,
+      "tipo": "claim",
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      }
+    },
+    {
+      "indiceUnidade": 11,
+      "tipo": "claim",
+      "articleId": "bozoki2010_ipc",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 12,
+      "tipo": "claim",
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 13,
+      "tipo": "claim",
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 14,
+      "tipo": "claim",
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 15,
+      "tipo": "claim",
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 16,
+      "tipo": "claim",
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 17,
+      "tipo": "claim",
+      "articleId": "escobar2004_note",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/escobar2004_note.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 18,
+      "tipo": "claim",
+      "articleId": "escobar2004_note",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/escobar2004_note.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 19,
+      "tipo": "claim",
+      "articleId": "forman1998_aggregating",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      }
+    },
+    {
+      "indiceUnidade": 20,
+      "tipo": "claim",
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 21,
+      "tipo": "claim",
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      }
+    },
+    {
+      "indiceUnidade": 22,
+      "tipo": "claim",
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 6
+      }
+    },
+    {
+      "indiceUnidade": 23,
+      "tipo": "claim",
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 7
+      }
+    },
+    {
+      "indiceUnidade": 24,
+      "tipo": "claim",
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 8
+      }
+    },
+    {
+      "indiceUnidade": 25,
+      "tipo": "claim",
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 26,
+      "tipo": "claim",
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 27,
+      "tipo": "claim",
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 28,
+      "tipo": "claim",
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      }
+    },
+    {
+      "indiceUnidade": 29,
+      "tipo": "claim",
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 30,
+      "tipo": "claim",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 31,
+      "tipo": "claim",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 32,
+      "tipo": "claim",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 33,
+      "tipo": "claim",
+      "articleId": "lee2024_project",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2024_project.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 34,
+      "tipo": "claim",
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 35,
+      "tipo": "claim",
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 36,
+      "tipo": "claim",
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 37,
+      "tipo": "claim",
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 38,
+      "tipo": "claim",
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 39,
+      "tipo": "claim",
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 40,
+      "tipo": "claim",
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 41,
+      "tipo": "claim",
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      }
+    },
+    {
+      "indiceUnidade": 42,
+      "tipo": "claim",
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      }
+    },
+    {
+      "indiceUnidade": 43,
+      "tipo": "claim",
+      "articleId": "ossadnik2016_group_aggregation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 44,
+      "tipo": "claim",
+      "articleId": "ossadnik2016_group_aggregation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 45,
+      "tipo": "claim",
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 46,
+      "tipo": "claim",
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 47,
+      "tipo": "claim",
+      "articleId": "saaty1977_scaling",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 48,
+      "tipo": "claim",
+      "articleId": "saaty1977_scaling",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 49,
+      "tipo": "claim",
+      "articleId": "saaty1986_axiomatic",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      }
+    },
+    {
+      "indiceUnidade": 50,
+      "tipo": "claim",
+      "articleId": "saaty1987_whatitis",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 51,
+      "tipo": "claim",
+      "articleId": "saaty1987_whatitis",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 52,
+      "tipo": "claim",
+      "articleId": "saaty1987_whatitis",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 53,
+      "tipo": "claim",
+      "articleId": "saaty1990_howtomake",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 54,
+      "tipo": "claim",
+      "articleId": "saaty1990_howtomake",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 55,
+      "tipo": "claim",
+      "articleId": "saaty2003_eigenvector",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 56,
+      "tipo": "claim",
+      "articleId": "saaty2003_eigenvector",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 57,
+      "tipo": "claim",
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 58,
+      "tipo": "claim",
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 59,
+      "tipo": "claim",
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 60,
+      "tipo": "claim",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 61,
+      "tipo": "claim",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 62,
+      "tipo": "claim",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 63,
+      "tipo": "claim",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      }
+    },
+    {
+      "indiceUnidade": 64,
+      "tipo": "claim",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      }
+    },
+    {
+      "indiceUnidade": 65,
+      "tipo": "claim",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      }
+    },
+    {
+      "indiceUnidade": 66,
+      "tipo": "claim",
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 67,
+      "tipo": "claim",
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      }
+    },
+    {
+      "indiceUnidade": 68,
+      "tipo": "claim",
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      }
+    },
+    {
+      "indiceUnidade": 70,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 71,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 72,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      }
+    },
+    {
+      "indiceUnidade": 73,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      }
+    },
+    {
+      "indiceUnidade": 74,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      }
+    },
+    {
+      "indiceUnidade": 75,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 6
+      }
+    },
+    {
+      "indiceUnidade": 76,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 7
+      }
+    },
+    {
+      "indiceUnidade": 77,
+      "tipo": "claim",
+      "articleId": "saiyed2023_ceoPowerUET",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 79,
+      "tipo": "claim",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 80,
+      "tipo": "claim",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 81,
+      "tipo": "claim",
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 82,
+      "tipo": "claim",
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 83,
+      "tipo": "claim",
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 84,
+      "tipo": "claim",
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 85,
+      "tipo": "claim",
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 87,
+      "tipo": "claim",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 91,
+      "tipo": "claim",
+      "articleId": "xu2000_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 92,
+      "tipo": "claim",
+      "articleId": "xu2000_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 95,
+      "tipo": "claim",
+      "articleId": "saaty1986_axiomatic",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      }
+    },
+    {
+      "indiceUnidade": 96,
+      "tipo": "claim",
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 97,
+      "tipo": "claim",
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 98,
+      "tipo": "claim",
+      "articleId": "bozoki2010_ipc",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 99,
+      "tipo": "claim",
+      "articleId": "bozoki2010_ipc",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 100,
+      "tipo": "claim",
+      "articleId": "forman1998_aggregating",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 101,
+      "tipo": "limiar",
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 103,
+      "tipo": "limiar",
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 104,
+      "tipo": "limiar",
+      "articleId": "lee2024_project",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2024_project.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 105,
+      "tipo": "limiar",
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 106,
+      "tipo": "limiar",
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 107,
+      "tipo": "limiar",
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 109,
+      "tipo": "limiar",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 112,
+      "tipo": "limiar",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 3
+      }
+    },
+    {
+      "indiceUnidade": 113,
+      "tipo": "limiar",
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 114,
+      "tipo": "limiar",
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 115,
+      "tipo": "limiar",
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 2
+      }
+    },
+    {
+      "indiceUnidade": 116,
+      "tipo": "limiar",
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    },
+    {
+      "indiceUnidade": 117,
+      "tipo": "limiar",
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      }
+    },
+    {
+      "indiceUnidade": 118,
+      "tipo": "limiar",
+      "articleId": "xu2000_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      }
+    }
+  ],
+  "excluidas": [
+    {
+      "indiceUnidade": 69,
+      "tipo": "claim",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 78,
+      "tipo": "claim",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "locator_id: ausente, nulo ou vazio"
+      ]
+    },
+    {
+      "indiceUnidade": 86,
+      "tipo": "claim",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 88,
+      "tipo": "claim",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 89,
+      "tipo": "claim",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 90,
+      "tipo": "claim",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 93,
+      "tipo": "claim",
+      "articleId": "salomon2016_absolute",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "locator_id: ausente, nulo ou vazio"
+      ]
+    },
+    {
+      "indiceUnidade": 94,
+      "tipo": "claim",
+      "articleId": "salomon2016_absolute",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "locator_id: ausente, nulo ou vazio"
+      ]
+    },
+    {
+      "indiceUnidade": 102,
+      "tipo": "limiar",
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "locator_id: ausente, nulo ou vazio"
+      ]
+    },
+    {
+      "indiceUnidade": 108,
+      "tipo": "limiar",
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 110,
+      "tipo": "limiar",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 111,
+      "tipo": "limiar",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "candidato repetido no conjunto total"
+      ]
+    },
+    {
+      "indiceUnidade": 119,
+      "tipo": "formula",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 120,
+      "tipo": "formula",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 121,
+      "tipo": "formula",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 122,
+      "tipo": "formula",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 123,
+      "tipo": "formula",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 124,
+      "tipo": "formula",
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 125,
+      "tipo": "formula",
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 126,
+      "tipo": "formula",
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 127,
+      "tipo": "formula",
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 128,
+      "tipo": "formula",
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 129,
+      "tipo": "formula",
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 130,
+      "tipo": "formula",
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 131,
+      "tipo": "formula",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 132,
+      "tipo": "formula",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 133,
+      "tipo": "formula",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 134,
+      "tipo": "formula",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 135,
+      "tipo": "formula",
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 136,
+      "tipo": "formula",
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 137,
+      "tipo": "formula",
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "candidato repetido no conjunto total",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 138,
+      "tipo": "formula",
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "motivos": [
+        "candidato repetido no conjunto total",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 139,
+      "tipo": "formula",
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 5
+      },
+      "motivos": [
+        "candidato repetido no conjunto total",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 140,
+      "tipo": "formula",
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 141,
+      "tipo": "formula",
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 142,
+      "tipo": "formula",
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 143,
+      "tipo": "formula",
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 144,
+      "tipo": "formula",
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 145,
+      "tipo": "formula",
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 146,
+      "tipo": "formula",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 147,
+      "tipo": "formula",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 148,
+      "tipo": "formula",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 149,
+      "tipo": "formula",
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 150,
+      "tipo": "formula",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 151,
+      "tipo": "formula",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 152,
+      "tipo": "formula",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "motivos": [
+        "candidato repetido no conjunto total",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 153,
+      "tipo": "formula",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "motivos": [
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 154,
+      "tipo": "formula",
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "motivos": [
+        "candidato repetido no conjunto total",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 155,
+      "tipo": "benchmark",
+      "articleId": "lee2024_project",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2024_project.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 156,
+      "tipo": "benchmark",
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 157,
+      "tipo": "benchmark",
+      "articleId": "saiyed2023_ceoPowerUET",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 158,
+      "tipo": "benchmark",
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 159,
+      "tipo": "benchmark",
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 160,
+      "tipo": "benchmark",
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 161,
+      "tipo": "benchmark",
+      "articleId": "ossadnik2016_group_aggregation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 162,
+      "tipo": "benchmark",
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 163,
+      "tipo": "benchmark",
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    },
+    {
+      "indiceUnidade": 164,
+      "tipo": "benchmark",
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "empirical_data"
+      },
+      "motivos": [
+        "locator_type: ausente, nulo ou vazio",
+        "locator_id: ausente, nulo ou vazio",
+        "quote: ausente, nulo ou vazio",
+        "o quote não é o trecho de evidência efetivamente usado em todas as origens desta unidade"
+      ]
+    }
+  ],
+  "pendenciasInalteradas": {
+    "trechoIdNulo": 165,
+    "publicacoesPendentes": 161,
+    "claimsComCamposDiferentes": 19
+  },
+  "rastreabilidade": "rastreabilidade.json"
+}
