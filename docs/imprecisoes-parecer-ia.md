@@ -6164,6 +6164,184 @@ capturado contra os dados fixados e dispor da credencial do modelo. A rodada nã
 mede a disponibilidade dessa credencial. A.33 segue em revisão; esta preparação
 não libera geração real nem avanço de `main`.
 
+### A.33: identidade derivada, medição sem adoção em 15/09/2026
+
+**Protocolo declarado antes dos números:** `195e8a8`, publicado antes de
+executar a medição. A composição, a serialização e os critérios de avaliação
+estão em `docs/dados/a33-identidade-derivada/protocolo.md`. O commit
+`5935579` acrescenta o instrumento, 12 controles e os dois arquivos de
+resultados. Este registro foi escrito depois da verificação.
+
+**Snapshot medido:** `745b4966727e2c507b162570e5fbec11d149b1e3`, árvore
+`fba94a766db8f378331d0e7324210557a88ea4de`. São **165 unidades: 101 claims
+preparadas distintas e 64 adicionais**, estas com 18 limiares, 36 fórmulas e
+10 benchmarks. O snapshot da preparação contém endereços históricos da base
+em `344d63121489348a7291725271564f06fe5ef5a5`; os dois SHAs têm funções
+diferentes e ambos constam na rastreabilidade.
+
+**Composição avaliada, não adotada:** `articleId`,
+`dadosOriginais.evidence.locator_type`, `dadosOriginais.evidence.locator_id`
+e SHA-256 de `dadosOriginais.evidence.quote`, nessa ordem. Os dois resumos,
+do texto e da composição, usam **SHA-256 completo, 64 caracteres hexadecimais**.
+Não há fallback para `verbatim_quote`, nem escolha de qual campo é fiel à
+publicação. O prefixo é `A33-candidato-v1`; cada componente é um vetor JSON
+com o nome do campo e seu valor tipado. O separador entre componentes é o byte
+**RS, 0x1E**: caracteres de controle dentro de strings são escapados pelo
+`JSON.stringify`, de modo que esse byte não ocorre cru dentro dos componentes.
+Codificação **UTF-8, sem BOM e sem quebra final** na composição.
+
+Propriedade ausente, `null` explícito e texto vazio são representados,
+respectivamente, por `["ausente"]`, `["nulo"]` e `["texto", ""]`.
+`evidence` ausente ou nulo deixa seus campos filhos ausentes, e a condição do
+pai fica registrada. **Nenhum `trim`, dobra de espaços, alteração de caixa,
+remoção de aspas ou acentos, nem normalização Unicode foi aplicado.** Tipos
+inesperados e substitutos UTF-16 isolados interrompem o cálculo, para não
+converter valores diferentes silenciosamente. Os endereços, índices posicionais
+e tipos de unidade não entram na composição.
+
+**Limite de natureza:** a candidata identifica uma **versão do trecho citado em
+`evidence.quote` e de seus localizadores**, como estão neste snapshot.
+**Não é identidade de claim estável. Não é atestado de fidelidade à publicação.**
+Também não resume todos os campos de uma unidade nem todo o texto formatado
+fornecido: mudar a afirmação, mantendo o mesmo recorte e localizador, pode manter
+a candidata. **identificador não certifica o conteúdo**.
+
+**Localizadores, com ausência separada de nulo e vazio:**
+
+| Medição | Claims, 101 | Adicionais, 64 | Total, 165 |
+|---|---:|---:|---:|
+| `locator_type` ausente | 0 | 10 | 10 |
+| `locator_type` nulo ou vazio | 0 | 0 | 0 |
+| `locator_id` ausente | 0 | 10 | 10 |
+| `locator_id` nulo | 3 | 1 | 4 |
+| `locator_id` vazio | 0 | 0 | 0 |
+| Ambos ausentes | 0 | 10 | 10 |
+| Pelo menos um indisponível | 3 | 11 | 14 |
+
+Os quatro `locator_id` nulos são `salomon2024_consistency/key_claims[0]`,
+`salomon2016_absolute/key_claims[1]` e `[2]`, e
+`dodevska2023when/thresholds[0]`. Os dez casos sem ambos os localizadores são
+os benchmarks, que também não possuem `evidence.quote`; seus artigos e
+endereços estão nomeados no relatório. Nenhum texto de quote é nulo ou vazio:
+há 155 strings não vazias e dez propriedades ausentes.
+
+**Repetições:** cada célula abaixo informa **grupos / unidades envolvidas**.
+Grupos são medidos dentro de cada população; o total também encontra os que
+cruzam claims e unidades adicionais, por isso não é a soma das duas colunas.
+
+| Medição | Claims, 101 | Adicionais, 64 | Total, 165 |
+|---|---:|---:|---:|
+| Candidatas repetidas | 1 / 2 | 2 / 5 | 6 / 13 |
+| Quotes byte a byte iguais a outro | 1 / 2 | 3 / 10 | 9 / 22 |
+| Registros indistinguíveis pela composição | 1 / 2 | 2 / 5 | 6 / 13 |
+| Colisões criptográficas observadas | 0 / 0 | 0 / 0 | 0 / 0 |
+
+Os seis grupos repetidos têm os quatro campos completos e idênticos antes do
+hash. **Um resumo não distingue esses registros.** São indistinguíveis pela
+composição proposta, não necessariamente registros completos idênticos. A lista
+integral, os resumos completos e os membros estão em `medicao.json`. Todos os
+índices abaixo começam em zero e são endereços na base histórica, não IDs:
+
+| Artigo | Unidades com mesma composição |
+|---|---|
+| `saatyVargas2012` | `key_claims[0]`, `thresholds[0]` |
+| `wijnmalen2007_bocr` | `key_claims[0]`, `key_claims[3]` |
+| `wijnmalen2007_bocr` | `key_claims[2]`, `formulas[4]` |
+| `wijnmalen2007_bocr` | `key_claims[4]`, `formulas[2]` |
+| `salomon2024_consistency` | `thresholds[1]`, `thresholds[2]` |
+| `liang2022_ahp_undesirable` | `formulas[3]`, `formulas[4]`, `formulas[5]` |
+
+**Controle por leitura dos dados:** as duas claims de Wijnmalen têm afirmações
+diferentes; os dois limiares de Salomon têm valores e contextos diferentes;
+as três fórmulas de Liang têm expressões diferentes. Em cada grupo, artigo,
+localizador e quote coincidem. O instrumento não inventou um sufixo posicional
+para separar os membros. As diferenças dos demais campos não foram corrigidas
+nem reconciliadas nesta rodada.
+
+**Avaliação pelos critérios declarados previamente:** campos completos,
+candidata única entre as 165 unidades e uso efetivo de `evidence.quote` como
+recorte no template de origem. Completude e unicidade são mostradas antes do
+último critério, para não ocultar a razão das exclusões.
+
+| Critério | Claims, 101 | Adicionais, 64 | Total, 165 |
+|---|---:|---:|---:|
+| Quatro campos completos | 98 | 53 | 151 |
+| Completos e únicos no total | 93 | 45 | 138 |
+| Discrimináveis como versão do quote fornecido | 93 | 14 | 107 |
+| Fora do alcance declarado | 8 | 50 | 58 |
+
+**O candidato não serve como identidade geral das 165 unidades.** Na finalidade
+mais estreita declarada, **107 atendem aos critérios: 93 claims e 14 limiares**.
+As **58 exclusões**, nomeadas uma a uma em `medicao.json`, dividem-se sem
+sobreposição em 14 com campos incompletos, 13 com composição repetida e 31
+fórmulas completas e únicas cujo template não fornece `evidence.quote` como
+recorte. As outras cinco fórmulas já estão entre as repetições. As 36 fórmulas
+e os dez benchmarks ficam fora; unicidade de hash dos benchmarks sem quote
+não é identificação de um texto inexistente.
+
+As oito claims excluídas são `saatyVargas2012/key_claims[0]`,
+`salomon2024_consistency/key_claims[0]`,
+`salomon2016_absolute/key_claims[1]` e `[2]`, e
+`wijnmalen2007_bocr/key_claims[0]`, `[2]`, `[3]` e `[4]`.
+**C1 permanece bloqueado nessa proposta:** sua claim de Wijnmalen, índice 0,
+é membro do grupo repetido com a de índice 3. As de Saaty e Forman atendem aos
+critérios, mas isso não basta para o conjunto fixado de C1. Não se substituiu
+esse conjunto por outro para fazer a candidata funcionar.
+
+**Rastreabilidade separada:**
+`docs/dados/a33-identidade-derivada/rastreabilidade.json` tem 165 entradas,
+inclusive as excluídas. Cada candidata liga-se ao SHA do snapshot medido, ao
+arquivo e à posição na preparação, ao endereço histórico na base e aos textos
+preparados por origem. As quatro seções estáticas são recompostas e conferidas
+contra o texto fixado, com as demais superfícies e os três chunks de C1.
+Os textos são os preparados para fornecimento, **não captura de chamada ao
+modelo**. `empirical_data` é objeto, não vetor: fica explícito que não há índice
+da base aplicável, sem fabricar um. **Endereço não é identidade.** A posição
+permanece rastreabilidade e nunca é promovida a `trechoId`.
+
+**Sem adoção:** `candidatoSha256` é campo de avaliação próprio. Os **165
+`trechoId` continuam nulos**, e os seis arquivos da preparação são byte a byte
+idênticos aos de `745b496`. Os **161 pendentes de conferência das publicações**
+e as **19 claims com campos divergentes** continuam como estavam. A medição
+não escolhe entre `verbatim_quote` e `evidence.quote`, não confere publicações
+por extensão e não reconcilia A.16. A conferência das publicações é frente
+separada, que também pode ser executada pelo agente quando houver acesso;
+não se transfere integralmente ao pesquisador.
+
+**Verificação concluída antes deste registro:**
+`node scripts/measure-a33-identity.cjs` saiu 0; recomputação independente em
+Python dos 165 candidatos, das seis repetições de composição e dos nove grupos
+de quotes confirmou os resultados. Foram conferidos os 165 IDs nulos e a
+preservação dos dados de entrada. Os 12 testes novos cobrem ausente/nulo/vazio,
+separador, UTF-8 e ausência de normalização, rejeição de tipos inválidos,
+independência do endereço, repetições entre populações, limites dos templates,
+proibição de fallback e correspondência dos textos com o snapshot.
+
+**Medido nesta sessão:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **18 suítes e 240 testes**, contra
+17 e 228 antes; a diferença são os 12 controles novos. Ambiente Linux x64,
+Node v24.19.0, npm 11.9.0. Build não foi executado, pois não foi exigido nesta
+rodada; não se herda uma contagem de páginas. O protocolo acrescentou um
+arquivo e a medição quatro: **170 para 171 para 175 arquivos rastreados**.
+A atualização destes dois documentos não exige repetir a suíte.
+
+**Histórico:** `745b496`, `344d631`, `482d2d6`, `8fed6bc`, `1444892`,
+`33c1fdf`, `c2d7d89`, `f6d881c` e `195e8a8` são ancestrais de `5935579`,
+todos com código de saída **0**. Estes são códigos de comandos executados em
+Bash/Linux, não uma alegação de `$LASTEXITCODE` medido em PowerShell. O protocolo
+`195e8a838ed8b97c2a746c227240eccb35875068` teve o CI `35028541220`
+observado como `completed/success`. A medição
+`593557972cddda095a51ce0ccb656ef998949e7c` teve o CI `35029862860`
+observado como `completed/success`. O CI deste registro documental é observação
+própria, sem herdar nenhum dos dois resultados.
+
+**O que falta:** decisão do autor sobre os números, resolução do alcance
+insuficiente para o conjunto fixado, conferência das publicações pendentes e
+tratamento em A.16 das divergências utilizadas, além da preparação da execução
+isolada com credencial. **Nenhuma geração real ocorreu.** A.33 continua em
+revisão, com a predição não testada; `main` permanece em `33c1fdf`. Nenhuma
+alteração da base de artigos, configuração ou índice, e nenhuma reingestão.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
