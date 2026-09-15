@@ -33,7 +33,7 @@ function ev(
   trecho: string,
   extra: Partial<EvidenciaEnviada> = {}
 ): EvidenciaEnviada {
-  return { articleId, autores, ano, trecho, origem: 'recuperada', ...extra };
+  return { articleId, trechoId: 'trecho-fixture', autores, ano, trecho, origem: 'recuperada', ...extra };
 }
 
 // ============================================================
@@ -129,7 +129,7 @@ describe('2. divergência vinculada por identificador, nunca por texto', () => {
   it('campo de divergência VAZIO não casa com trecho nenhum', () => {
     const parecer = 'Bozoki et al. (2010) demonstram unicidade.';
     const evidencias = [
-      ev('bozoki2010_ipc', ['Bozoki', 'Fulop', 'Ronyai'], 2010, 'um trecho independente qualquer'),
+      ev('bozoki2010_ipc', ['Bozoki', 'Fulop', 'Ronyai'], 2010, 'um trecho independente qualquer', { trechoId: undefined }),
     ];
     const divergentes: ClaimDivergente[] = [
       { articleId: 'bozoki2010_ipc', verbatimQuote: '', evidenceQuote: '' },
@@ -140,13 +140,14 @@ describe('2. divergência vinculada por identificador, nunca por texto', () => {
     // ⚠ O ANTES, medido: `t.includes('')` é SEMPRE verdadeiro, então o campo vazio
     // casava com qualquer trecho e a linha saía inconclusiva por A.16.
     expect(linha.motivo).not.toContain('A.16');
-    expect(linha.resultado).toBe('pendente_de_leitura');
+    expect(linha.resultado).toBe('inconclusiva');
+    expect(linha.motivo).toContain('Identidade insuficiente');
   });
 
   it('trecho que é SUBCADEIA de uma divergência não é contaminado por ela', () => {
     const parecer = 'Bozoki et al. (2010) demonstram unicidade.';
     const evidencias = [
-      ev('bozoki2010_ipc', ['Bozoki', 'Fulop', 'Ronyai'], 2010, 'the graph is connected'),
+      ev('bozoki2010_ipc', ['Bozoki', 'Fulop', 'Ronyai'], 2010, 'the graph is connected', { trechoId: undefined }),
     ];
     const divergentes: ClaimDivergente[] = [
       {
@@ -160,7 +161,8 @@ describe('2. divergência vinculada por identificador, nunca por texto', () => {
 
     // ⚠ O ANTES: `v.includes(t)` dava verdadeiro e contaminava.
     expect(linha.motivo).not.toContain('A.16');
-    expect(linha.resultado).toBe('pendente_de_leitura');
+    expect(linha.resultado).toBe('inconclusiva');
+    expect(linha.motivo).toContain('Identidade insuficiente');
   });
 
   it('com identificador nos DOIS lados, a divergência vincula e a linha é inconclusiva', () => {
@@ -189,7 +191,7 @@ describe('2. divergência vinculada por identificador, nunca por texto', () => {
   it('identificador ausente na EVIDÊNCIA não gera correspondência', () => {
     const parecer = 'Bozoki et al. (2010) demonstram unicidade.';
     const evidencias = [
-      ev('bozoki2010_ipc', ['Bozoki', 'Fulop', 'Ronyai'], 2010, 'the graph is connected'),
+      ev('bozoki2010_ipc', ['Bozoki', 'Fulop', 'Ronyai'], 2010, 'the graph is connected', { trechoId: undefined }),
     ];
     const divergentes: ClaimDivergente[] = [
       {
@@ -205,6 +207,8 @@ describe('2. divergência vinculada por identificador, nunca por texto', () => {
     // ⚠ Texto idêntico ao `evidenceQuote`, e ainda assim NÃO vincula: a identidade
     // vem do identificador, não do conteúdo.
     expect(linha.motivo).not.toContain('A.16');
+    expect(linha.resultado).toBe('inconclusiva');
+    expect(linha.motivo).toContain('Identidade insuficiente');
   });
 
   it('identificador VAZIO nos dois lados não gera correspondência', () => {
@@ -219,6 +223,8 @@ describe('2. divergência vinculada por identificador, nunca por texto', () => {
     const [linha] = prepararConferencia(parecer, evidencias, divergentes, triar);
 
     expect(linha.motivo).not.toContain('A.16');
+    expect(linha.resultado).toBe('inconclusiva');
+    expect(linha.motivo).toContain('Identidade insuficiente');
   });
 });
 
@@ -308,5 +314,61 @@ describe('3. nenhuma forma declarada FORA produz entrada interpretada', () => {
     );
     expect(interpretadas).toHaveLength(1);
     expect(revisaoManual).toHaveLength(0);
+  });
+});
+
+// Regressão sobre 482d2d6: não vincular divergência não prova identidade.
+describe('identidade recuperável antes da conclusão, com triagem independente', () => {
+  const parecer = 'Bozoki et al. (2010) demonstram unicidade.';
+  const evidencia = {
+    articleId: 'bozoki2010_ipc', trechoId: 'claim-01',
+    autores: ['Bozoki', 'Fulop', 'Ronyai'], ano: 2010,
+    trecho: 'um trecho independente qualquer', origem: 'recuperada' as const,
+  };
+  const divergencia = {
+    articleId: 'bozoki2010_ipc', trechoId: 'claim-01',
+    verbatimQuote: '', evidenceQuote: '',
+  };
+
+  it.each([
+    ['trechoId', undefined], ['trechoId', ''], ['trechoId', '   '],
+    ['articleId', undefined], ['articleId', ''], ['articleId', '   '],
+  ])('%s insuficiente (%s) não identifica nem atribui A.16', (campo, valor) => {
+    const incompleta = { ...evidencia, [campo as string]: valor };
+    // Dados de entrada podem omitir articleId apesar da declaração TypeScript.
+    const [linha] = prepararConferencia(parecer, [incompleta], [divergencia], triar);
+    expect(linha.resultado).toBe('inconclusiva');
+    expect(linha.motivo).toContain('Identidade insuficiente');
+    expect(linha.motivo).not.toContain('A.16');
+    expect(linha.autoresExtraidos).toEqual(['Bozoki']);
+    expect(linha.anoExtraido).toBe(2010);
+    expect(linha.obrasCandidatas).toEqual([incompleta.articleId]);
+  });
+
+  it.each([
+    ['claim-02', 'pendente_de_leitura', false],
+    ['claim-01', 'inconclusiva', true],
+  ])('identidades completas: divergência %s preserva o controle', (trechoId, resultado, vincula) => {
+    const [linha] = prepararConferencia(parecer, [evidencia], [{ ...divergencia, trechoId }], triar);
+    expect(linha.resultado).toBe(resultado);
+    expect(linha.motivo.includes('A.16')).toBe(vincula);
+    expect(linha.autoresExtraidos).toEqual(['Bozoki']);
+    expect(linha.anoExtraido).toBe(2010);
+    expect(linha.obrasCandidatas).toEqual(['bozoki2010_ipc']);
+  });
+
+  it.each([
+    ['texto disponível', true, 'sinalizada', 1],
+    ['texto disponível', false, 'nao_sinalizada', 1],
+    ['', false, 'nao_avaliada', 0],
+  ])('sem identidade: texto %s e triagem %s são independentes', (trecho, sinalizada, estado, chamadas) => {
+    const triagem = jest.fn(() => ({ sinalizada: sinalizada as boolean }));
+    const [linha] = prepararConferencia(parecer,
+      [{ ...evidencia, trechoId: undefined, trecho: trecho as string }], [], triagem);
+    expect(linha.resultado).toBe('inconclusiva');
+    expect(linha.motivo).toContain('Identidade insuficiente');
+    expect(linha.motivo).not.toContain('A.16');
+    expect(linha.triagem).toBe(estado);
+    expect(triagem).toHaveBeenCalledTimes(chamadas as number);
   });
 });

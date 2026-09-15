@@ -29,7 +29,8 @@ function ev(
   trecho: string,
   origem: EvidenciaEnviada['origem'] = 'recuperada'
 ): EvidenciaEnviada {
-  return { articleId, autores, ano, trecho, origem };
+  // Identidade sintética explícita; estes controles testam associação e triagem.
+  return { articleId, trechoId: 'trecho-fixture', autores, ano, trecho, origem };
 }
 
 describe('separador de frases, que foi a causa REAL do primeiro contraexemplo', () => {

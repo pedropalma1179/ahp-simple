@@ -221,16 +221,16 @@ function separarAutores(bruto: string): string[] {
  * **não substitui a leitura do parecer**.
  */
 /**
- * Abrevia\u00e7\u00f5es cujo ponto N\u00c3O termina frase.
+ * Abreviações cujo ponto NÃO termina frase.
  *
- * \u26a0 **`al.` \u00e9 a que importa, e foi medida:** partir a frase em todo ponto seguido de
- * espa\u00e7o quebrava `Dodevska et al. (2023)` em `Dodevska et` e `al. (2023)`, e a
- * cita\u00e7\u00e3o **desaparecia inteira**, porque nenhum dos dois peda\u00e7os casa. O padr\u00e3o de
- * cita\u00e7\u00e3o estava certo; quem errava era o separador de frases.
+ * ⚠ **`al.` é a que importa, e foi medida:** partir a frase em todo ponto seguido de
+ * espaço quebrava `Dodevska et al. (2023)` em `Dodevska et` e `al. (2023)`, e a
+ * citação **desaparecia inteira**, porque nenhum dos dois pedaços casa. O padrão de
+ * citação estava certo; quem errava era o separador de frases.
  */
 const ABREVIACOES = ['al', 'eq', 'p', 'pp', 'cf', 'ed', 'vol', 'fig', 'et al'];
 
-/** Separa frases sem partir abrevia\u00e7\u00e3o. */
+/** Separa frases sem partir abreviação. */
 function separarFrases(texto: string): string[] {
   const brutas = texto.split(/(?<=[.!?])\s+/);
   const frases: string[] = [];
@@ -250,35 +250,35 @@ export interface FragmentoParaRevisao {
   fragmento: string;
   /** Qual forma de `FORMAS_FORA` foi reconhecida. */
   forma: string;
-  /** A frase em que apareceu, para a revis\u00e3o humana ter contexto. */
+  /** A frase em que apareceu, para a revisão humana ter contexto. */
   afirmacao: string;
 }
 
-/** Todo par\u00eantese que contenha um ano de quatro d\u00edgitos \u00e9 candidato a cita\u00e7\u00e3o. */
+/** Todo parêntese que contenha um ano de quatro dígitos é candidato a citação. */
 const RX_PARENTESE_COM_ANO = /\([^)]*\b\d{4}\b[^)]*\)/g;
 
 /**
  * Reconhece as formas declaradas FORA, para que sejam REGISTRADAS.
  *
- * \u26a0 **Descarte silencioso n\u00e3o \u00e9 aceit\u00e1vel**, e interpreta\u00e7\u00e3o parcial \u00e9 pior: produz
+ * ⚠ **Descarte silencioso não é aceitável**, e interpretação parcial é pior: produz
  * entrada com a obra errada e **parece cobertura**. A forma sai do conjunto
- * interpretado **e entra no registro de revis\u00e3o manual**, com o fragmento original.
+ * interpretado **e entra no registro de revisão manual**, com o fragmento original.
  */
 function formaExcluida(fragmento: string): string | null {
   const dentro = fragmento.replace(/^\(|\)$/g, '');
 
-  // Composta: v\u00e1rios anos, ou soma expl\u00edcita, num par\u00eantese s\u00f3.
+  // Composta: vários anos, ou soma explícita, num parêntese só.
   const anos = dentro.match(/\b\d{4}\b/g) ?? [];
   if (anos.length > 1 || /\s\+\s/.test(dentro)) return 'composta_em_um_parentese';
 
-  // Secund\u00e1ria: a obra citada n\u00e3o \u00e9 a fonte atribu\u00edda.
+  // Secundária: a obra citada não é a fonte atribuída.
   if (/\b(citando|apud)\b/i.test(dentro)) return 'citacao_secundaria';
 
-  // Caixa alta: o nome vem todo em mai\u00fasculas.
-  // \u26a0 **Caixa alta ABNT e autor-entidade N\u00c3O se distinguem pela forma**, e por isso
-  // a mesma regra recolhe os dois. `(SAATY, 1977)` e `(ABNT, 2023)` s\u00e3o id\u00eanticos
-  // como padr\u00e3o; separ\u00e1-los exigiria saber se o token \u00e9 sobrenome ou sigla, que \u00e9
-  // conhecimento que este m\u00f3dulo n\u00e3o tem. **Os dois v\u00e3o para revis\u00e3o manual.**
+  // Caixa alta: o nome vem todo em maiúsculas.
+  // ⚠ **Caixa alta ABNT e autor-entidade NÃO se distinguem pela forma**, e por isso
+  // a mesma regra recolhe os dois. `(SAATY, 1977)` e `(ABNT, 2023)` são idênticos
+  // como padrão; separá-los exigiria saber se o token é sobrenome ou sigla, que é
+  // conhecimento que este módulo não tem. **Os dois vão para revisão manual.**
   const nome = dentro.split(',')[0].trim();
   if (nome.length > 1 && nome === nome.toUpperCase() && /[A-Z\u00c0-\u00de]/.test(nome)) {
     return 'caixa_alta_ou_entidade';
@@ -287,10 +287,10 @@ function formaExcluida(fragmento: string): string | null {
 }
 
 /**
- * Extrai as cita\u00e7\u00f5es interpretadas E o que vai para revis\u00e3o manual.
+ * Extrai as citações interpretadas E o que vai para revisão manual.
  *
- * \u26a0 **Produzir uma entrada n\u00e3o demonstra que a obra certa foi extra\u00edda.** Foi esse
- * o crit\u00e9rio frouxo que deixou passar a composta virando uma \u00fanica obra de Saaty.
+ * ⚠ **Produzir uma entrada não demonstra que a obra certa foi extraída.** Foi esse
+ * o critério frouxo que deixou passar a composta virando uma única obra de Saaty.
  */
 export function extrairCitacoesComRevisao(parecer: string): {
   interpretadas: CitacaoExtraida[];
@@ -312,8 +312,8 @@ export function extrairCitacoesComRevisao(parecer: string): {
       }
     }
 
-    // O restante da frase \u00e9 o que se interpreta. Os fragmentos exclu\u00eddos saem do
-    // texto para que nenhuma parte deles seja lida como cita\u00e7\u00e3o.
+    // O restante da frase é o que se interpreta. Os fragmentos excluídos saem do
+    // texto para que nenhuma parte deles seja lida como citação.
     let restante = frase;
     for (const e of excluidos) restante = restante.split(e).join(' ');
 
@@ -332,7 +332,7 @@ export function extrairCitacoesComRevisao(parecer: string): {
         const autores = separarAutores(bruto);
         if (autores.length === 0) continue;
 
-        // Caixa alta tamb\u00e9m na forma narrativa, que o par\u00eantese sozinho n\u00e3o pega.
+        // Caixa alta também na forma narrativa, que o parêntese sozinho não pega.
         const primeiro = autores[0];
         if (primeiro.length > 1 && primeiro === primeiro.toUpperCase()) {
           revisaoManual.push({
@@ -364,11 +364,11 @@ export function extrairCitacoesComRevisao(parecer: string): {
 }
 
 /**
- * Localiza as cita\u00e7\u00f5es INTERPRETADAS do parecer.
+ * Localiza as citações INTERPRETADAS do parecer.
  *
- * \u26a0 **O que fica fora est\u00e1 em `FORMAS_FORA`**, e n\u00e3o \u00e9 descartado: vai para
+ * ⚠ **O que fica fora está em `FORMAS_FORA`**, e não é descartado: vai para
  * `extrairCitacoesComRevisao().revisaoManual`, com o fragmento preservado. O total
- * desta fun\u00e7\u00e3o **n\u00e3o substitui a leitura do parecer**.
+ * desta função **não substitui a leitura do parecer**.
  */
 export function extrairCitacoes(parecer: string): CitacaoExtraida[] {
   return extrairCitacoesComRevisao(parecer).interpretadas;
@@ -481,6 +481,21 @@ export function prepararConferencia(
       triagem,
       motivoTriagem,
     };
+
+    // Identidade e vinculação de divergência são verificações independentes.
+    // A triagem acima usa o texto disponível mesmo quando faltam identificadores.
+    const identidadeInsuficiente = recuperadas.some((e) =>
+      [e.articleId, e.trechoId].some((id) => typeof id !== 'string' || id.trim() === '')
+    );
+    if (identidadeInsuficiente) {
+      return {
+        ...base,
+        evidenciaEnviada: recuperadas.map((e) => e.trecho).join('\n\n'),
+        resultado: 'inconclusiva' as const,
+        motivo:
+          'Identidade insuficiente: toda evidência recuperada precisa de articleId e trechoId não vazios. Não permite concluir sobre sustentação.',
+      };
+    }
 
     // Condição 1: fonte não localizada.
     if (obrasCandidatas.length === 0) {
