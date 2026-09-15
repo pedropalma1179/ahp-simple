@@ -5606,6 +5606,154 @@ anterior porque o escopo desta rodada era outro.
 
 ---
 
+## A.33: paráfrase com fonte identificada, sem páginas
+
+**Predição registrada em 15/09/2026, sobre `33c1fdf`, ANTES de qualquer alteração de
+instrução.** ⚠ **Esta decisão SUBSTITUI a proposta anterior de A.33**, que era
+acrescentar `evidence.page` ao contexto injetado. A linha de A.33 no âncora descreve a
+proposta antiga, e fica superada por esta seção.
+
+### Estado de partida, medido
+
+`git rev-parse --short HEAD` dá **`33c1fdf`**; `git status --short` e `git diff HEAD`
+saem **vazios**, árvore limpa, na branch `integra/a30-registros`.
+
+**Confirmado:** `app/api/ai-reviewer/system-prompt.ts` **não mudou** entre `0e21f9e` e
+`33c1fdf`, por `git diff --stat` vazio, então os localizadores do inventário valem na
+base integrada.
+
+### Duas divergências do inventário, e a primeira é de escopo
+
+⚠ **São DOZE ocorrências de exemplo com página literal, e não dez.** As dez previstas
+são **82, 166, 169, 176, 244, 246, 265, 268, 273 e 282**; medidas por
+`git grep -n -E "\bp\. ?[0-9]"`, aparecem também **319 e 323**.
+
+⚠ **E a que falta é a mais imitativa das doze.** A linha 323 está no bloco
+**EXEMPLO INTEGRAL DE PARÁGRAFO NO ESTILO REQUERIDO**, na metade rotulada
+**CORRETO**, e ensina `Saaty (1977, p. 248)` seguido da transcrição entre aspas. A 319
+é a metade rotulada **PROIBIDO**, que também carrega a página, e está proibida por
+outras razões, D1, D2, D4 e D7, **não pela página**. **Deixar as duas como estão
+ensinaria a forma anterior no exemplo mais visível do arquivo.**
+
+**É o quinto caso consecutivo de escopo subestimado na primeira contagem**, e o padrão
+da seção 3 do `CLAUDE.md` se repete: o item omitido não estava na borda, estava no
+centro.
+
+⚠ **Instrumento que falhou, e o modo de falha é novo aqui.** A primeira busca usou
+`git grep -iE "p[áa]gina"`, com **classe de caracteres contendo acento**, e devolveu
+**zero linhas, saída 1**, escondendo a linha 159. `git grep -i "página"` devolve
+**quatro**. **Classe com caractere multibyte não é confiável neste ambiente**, com
+`LANG` e `LC_ALL` vazios; literal ou alternativas separadas funcionam. Conferido com
+controle positivo, `verbatim` dá 14 linhas, e negativo, termo inexistente dá saída 1.
+
+### Localizadores reancorados, por nome
+
+⚠ **Os números da linha de A.33 são de 12/09 e estão deslocados.** Medidos agora:
+
+| Alvo | Onde está hoje | O que a linha de A.33 dizia |
+|---|---|---|
+| `ReferenceDoc` | `app/api/ai-reviewer/knowledge.ts:23` | `:23`, ainda válido |
+| `claimToRef` | `app/api/ai-reviewer/knowledge.ts:49` | não numerado lá |
+| os quatro templates | `route.ts:1062`, `:1070`, `:1078`, `:1085` | `:1147`, `:1155`, `:1163`, `:1171` |
+| `formatSemanticChunks` | `route.ts:201`, página montada em `:207` | não citado |
+
+### O que leva PÁGINA ao modelo, e é um caminho só
+
+**Medido, lendo cada bloco que entra no prompt:** `formatSemanticChunks` é o **único**
+código que interpola página, em `route.ts:207`, a partir de `ChunkMetadata.page`. Os
+quatro templates emitem `citation`, `topic`, `context` e `rule`, **sem página**;
+`getRAGThresholds`, `getRAGFormulas` e `getRAGBenchmarks` **não emitem página**.
+
+⚠ **O comportamento relevante é que chunk com página PODE introduzi-la no contexto.**
+Quanto ela aparece depende da execução e da configuração, e **isso não foi medido em
+produção**.
+
+### O que leva VERBATIM ao modelo, e são QUATRO caminhos
+
+⚠ **Achado desta apuração, e não previsto no escopo recebido.** Retirar a exigência de
+verbatim das instruções **não retira a transcrição do contexto**. Medidos:
+
+| Caminho | O que entrega | Tem página |
+|---|---|---|
+| `formatSemanticChunks`, `route.ts:210` | `*Verbatim:* "..."`, rótulo explícito, do `verbatim_quote` | sim, em `:207` |
+| os quatro templates, `route.ts:1062` e seguintes | `Fundamento: ${ref.rule}`, e `rule` é `evidence.quote \|\| verbatim_quote \|\| claim` | não |
+| `getRAGThresholds` | `*Fonte:* artigo (ano) - "evidence.quote"` | não |
+| `getRAGFormulas` | `*Condições:* conditions`, que é **texto do indexador**, e é a tarefa A.15 | não |
+
+⚠ **Isto é a maior ameaça à predição, e fica dita antes de medir:** o contexto segue
+entregando o texto exato da fonte em três dos quatro caminhos, um deles com o rótulo
+`Verbatim`. **A instrução passará a pedir paráfrase enquanto o material continua sendo
+transcrição**, e o caso negativo terceiro, transcrição sem sinalização, é exatamente o
+que essa combinação favorece.
+
+⚠ **NÃO está sendo alterado nesta tarefa.** O escopo recebido, item 8, alcança
+**somente a página** em `formatSemanticChunks`. **Retirar ou renomear o rótulo
+`Verbatim`, ou trocar o que os outros três caminhos entregam, altera o que o modelo
+recebe e é decisão própria**, que precisa da sua predição. Fica registrado como
+pendente, e como a explicação mais provável se a predição abaixo for refutada.
+
+### A predição
+
+**O parecer deixa de apresentar localizadores de página e deixa de apresentar
+transcrição, preservando identificação e sentido das fontes.**
+
+**Casos negativos, e são quatro. Qualquer um refuta.**
+
+| | Caso negativo |
+|---|---|
+| 1 | qualquer **página** nas citações do parecer |
+| 2 | **transcrição apresentada como citação direta**, entre aspas |
+| 3 | ⚠ **transcrição sem sinalização**, o mesmo texto sem aspas. **Retirar aspas não transforma transcrição em paráfrase**, e este é o modo de falha mais provável |
+| 4 | **perda da identificação da fonte** ou **alteração de sentido** |
+
+**Controle:** as referências continuam identificáveis e vinculadas às fontes, e a
+paráfrase representa o conteúdo do trecho de origem.
+
+⚠ **O caso 3 não se verifica lendo o parecer isoladamente.** Exige comparar a
+afirmação com o `verbatim_quote` guardado, e é o que a triagem da etapa 3 existe para
+apoiar, **sem decidir**.
+
+### Definição da etapa 4, fixada ANTES de qualquer execução
+
+⚠ **Definir depois de ver o resultado invalidaria a avaliação**, então os três itens
+abaixo ficam fechados aqui.
+
+**Casos, e são três, o conjunto pequeno pedido:**
+
+| Caso | Payload | Por que este |
+|---|---|---|
+| C1 | o projeto de referência de `docs/calculations-13jul2026.json`, o mesmo das 24 saídas publicadas | é o único payload cujo resultado numérico já está conferido, então divergência de citação não se confunde com divergência de cálculo |
+| C2 | o mesmo payload, com a recuperação semântica **desligada** | separa o que vem dos chunks do que vem das quatro seções estáticas |
+| C3 | o mesmo payload, com a recuperação **ligada e devolvendo vazio** | isola a condição em que o modelo cita sem chunk nenhum recuperado |
+
+**Fontes que serão conferidas, nomeadas antes:** as publicações dos três pares que hoje
+o prompt ensina, **Saaty (1977)**, **Wijnmalen (2007)** e **Forman e Peniwati (1998)**,
+mais **toda obra que o parecer citar** nos três casos, ainda que não esteja nesta
+lista. ⚠ **Antes de conferir localizador contra um PDF, ler o campo `notes`** e
+confirmar que o PDF é a edição de onde as claims saíram, que é regra da seção 7 do
+`CLAUDE.md` e já custou horas.
+
+**Configuração da execução, fixada antes:** modelo e parâmetros como
+`MODEL_CONFIG` os define no commit em que os pareceres forem gerados, **sem variação de
+temperatura entre os casos**; `USE_RAG_SEMANTIC` **verdadeiro** em C1 e C3 e
+**ausente** em C2; **uma geração por caso**, e o SHA registrado junto de cada saída.
+⚠ **Uma geração por caso não mede variabilidade do modelo**, e o registro dirá isso
+em vez de tratar três amostras como tendência.
+
+**O que reprova, e o que fica inconclusivo:** qualquer um dos quatro casos negativos
+refuta a predição. **Trecho com divergência não resolvida entre `verbatim_quote` e
+`evidence.quote`, das treze de A.16, sai como INCONCLUSIVA**, sem escolher lado.
+
+### Dependência de A.16, a revisar na etapa 4
+
+A tabela de dependências registra que A.33 depende de A.16 **pelo conteúdo do campo
+citado**. ⚠ **Essa justificativa cai junto com o campo de página**, porque o campo
+deixa de ir ao contexto. A candidata a dependência efetiva é outra: **o
+`verbatim_quote` como referência da conferência de sustentação**. A conclusão vai para
+as duas linhas depois da etapa 4, **e não antes**.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
