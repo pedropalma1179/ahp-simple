@@ -6004,6 +6004,44 @@ não mudou; o mecanismo sim.**
 das formas que o prompt ensina. **O resto vai para revisão manual**, que é a decisão,
 não uma limitação a superar.
 
+### Identidade insuficiente separada da vinculação de divergência, em `c0b4bcf`
+
+**Medido em 15/09/2026, sobre `482d2d6`.** Antes da correção, os nove casos
+novos de identidade insuficiente reprovaram na asserção de resultado: esperado
+`inconclusiva`, recebido `pendente_de_leitura`. Os dois controles novos com
+identificadores completos já passavam. O arquivo somou 9 falhas e 22 sucessos
+nessa execução, incluindo os vinte testes anteriores.
+
+A validação agora exige `articleId` e `trechoId` não vazios em cada evidência
+recuperada associada. Ausência, cadeia vazia ou apenas espaços levam a
+**inconclusiva por identidade insuficiente**, antes da vinculação de divergência.
+`trechoDivergente` não foi alterada: responde somente se existe divergência
+vinculada. Não encontrar vínculo não estabelece identidade.
+
+A triagem continua anterior e independente: com texto disponível, os testes
+exercitam `sinalizada` e `nao_sinalizada`; sem texto, `nao_avaliada` e nenhuma
+chamada à função de triagem. Com identidade completa, identificadores distintos
+continuam sem vínculo e `pendente_de_leitura`; iguais continuam inconclusivos
+por A.16. Os testes antigos de identidade insuficiente preservam a ausência de
+atribuição a A.16 e passam a exigir o motivo específico. Os controles de
+associação receberam identificadores sintéticos explícitos nos dados de teste.
+
+**Onze testes novos:** seis de identificador insuficiente, dois controles de
+identidade completa e três de independência da triagem. **Verificação executada:**
+`tsc --noEmit` 0; 17 suítes e **228 testes**, todos passando; build 0, **17 páginas
+estáticas e 18 rotas**. Ambiente medido: Linux x64, Node v24.19.0, npm 11.9.0.
+O build avisou que ESLint não está instalado; isso não impediu sua conclusão.
+Nenhum comando de lint foi executado separadamente.
+
+**Escapes conferidos:** das 27 linhas com escapes Unicode, 26 eram comentários e
+foram convertidas para caracteres legíveis. A outra é uma expressão regular e
+foi preservada. Nenhuma forma de citação foi acrescentada ou alterada.
+
+Contagem de arquivos rastreados: **164 antes e depois**. A.33 continua em revisão,
+com a predição não testada. Permanecem pendentes o conjunto preparado por caso,
+a identidade dos trechos fixados, a conferência contra as publicações e o acesso
+necessário à geração real. Os trechos originais no contexto foram preservados.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
