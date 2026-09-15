@@ -5423,6 +5423,25 @@ a varredura devolvia o agregado esperado, "nenhuma sentinela sobrevive", e o agr
 estava certo por acidente. **Um resultado que confirma a expectativa merece a mesma
 conferência que um que a contradiz.**
 
+⚠ **A varredura também cobria só METADE da superfície que o aceite nomeia.** As
+regressões chamavam `getRAGSemanticDiagnosticado` direto, então varriam o diagnóstico
+e o aviso, **e não o corpo que a rota devolve**. Dois casos novos passam pelo
+**handler real**, com os SDKs das duas dependências reais e só o `@anthropic-ai/sdk`
+duplo, e varrem o **corpo serializado inteiro**.
+
+**O que eles mostram em `3be55b9`, e é a evidência mais direta do defeito 1:** o corpo
+devolvido ao cliente da API trazia, nas **cinco** consultas,
+`"mensagem":"connect falhou para https://sentinela-url.exemplo/caminho-secreto com
+Authorization: Bearer FAKE_SECRET_SENTINEL_TOKEN"`, dentro de
+`metadata.knowledgeBase.semantic.queries`. **Não era só log: era resposta HTTP.**
+
+⚠ **E o caso de parsing só foi pego pelo PREFIXO:** o corpo trazia
+`"Unexpected token '<', \"<FAKE_SECR\"... is not valid JSON"`, e a sentinela inteira
+não aparece ali. **A varredura da primeira versão teria declarado esse corpo limpo.**
+
+**Controle positivo dos dois casos novos:** com o vazamento reintroduzido, ambos
+reprovam, um pela sentinela inteira e outro pelo prefixo.
+
 ⚠ **O que se perde, e é perda consciente:** duas falhas da mesma classificação
 produzem texto **idêntico**. O que as distingue são os campos estruturados, etapa,
 status e tentativas. **O texto da dependência não volta por configuração**, porque a
@@ -5511,8 +5530,18 @@ tendo telemetria enviada pelo caminho de busca, sem sinal de que isso ocorria.
 
 #### Verificação deste commit
 
-`npx tsc --noEmit` sai **0**. `npm test` sai **0**, com **12 suítes e 162 testes**,
-contra 11 e 146 em `3be55b9`. `npm run build` conclui e lista as **17 rotas**.
+`npx tsc --noEmit` sai **0**. `npm test` sai **0**, com **12 suítes e 164 testes**,
+contra 11 e 146 em `3be55b9`. `npm run build` conclui, gerando **17 páginas
+estáticas** e listando **18 rotas**.
+
+> ⚠ **Dois números diferentes, e a primeira redação os confundiu.** Ela dizia
+> `lista as 17 rotas`, juntando o valor de um com o nome do outro. **Contados à
+> mão na saída do build:** `Generating static pages (17/17)` e **dezoito** linhas na
+> tabela de rotas, duas do topo mais nove de `api` mais sete de página. O `17
+> páginas` das notas anteriores e do `CLAUDE.md` é o primeiro número, e está
+> **correto**; foi o meu `rotas` que estava errado. A conferência à mão só aconteceu
+> porque um `grep -c` devolveu 18 e contrariou a aritmética que eu havia feito de
+> cabeça.
 Ambiente observado: Linux x86_64, Node v22.22.2, npm 10.9.7.
 
 > ⚠ **Este dado foi CORRIGIDO depois do commit `9c21288`.** A primeira redação
@@ -5524,8 +5553,9 @@ Ambiente observado: Linux x86_64, Node v22.22.2, npm 10.9.7.
 > duas vezes; esta é a terceira.** As demais medidas desta seção, tsc, suítes, testes
 > e rotas, foram executadas nesta árvore e não vieram de nota nenhuma.
 
-**A série cresce por testes novos:** os catorze casos do arquivo de regressões e os
-dois da telemetria. **Nenhum teste foi removido.** Os quatro que mudaram de
+**A série cresce por testes novos:** os **dezesseis** casos do arquivo de regressões,
+catorze das cinco correções mais dois da varredura pelos metadados, e os dois da
+telemetria. **Nenhum teste foi removido.** Os quatro que mudaram de
 expectativa estão nomeados aqui, com a razão de cada um:
 
 | Teste | O que afirmava | Por que mudou |
