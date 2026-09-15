@@ -5680,17 +5680,20 @@ verbatim das instruções **não retira a transcrição do contexto**. Medidos:
 | `getRAGThresholds` | `*Fonte:* artigo (ano) - "evidence.quote"` | não |
 | `getRAGFormulas` | `*Condições:* conditions`, que é **texto do indexador**, e é a tarefa A.15 | não |
 
-⚠ **Isto é a maior ameaça à predição, e fica dita antes de medir:** o contexto segue
-entregando o texto exato da fonte em três dos quatro caminhos, um deles com o rótulo
-`Verbatim`. **A instrução passará a pedir paráfrase enquanto o material continua sendo
-transcrição**, e o caso negativo terceiro, transcrição sem sinalização, é exatamente o
-que essa combinação favorece.
+> ⚠ **INFERÊNCIA RETIRADA em 15/09/2026.** A redação anterior chamava esta tabela de
+> **a maior ameaça à predição** e de **a explicação mais provável** caso ela fosse
+> refutada. **As duas coisas eram inferência sem medição**, e ficam retiradas.
+>
+> **Manter o texto original no contexto NÃO contradiz pedir paráfrase na saída:** o
+> modelo precisa **receber** a evidência para reformulá-la. E o rótulo `Verbatim`
+> **descreve a origem do material**, não constitui instrução de transcrever nem
+> demonstra causa de falha.
+>
+> ⚠ **Os trechos originais fornecidos ao modelo são PRESERVADOS**, e retirá-los do
+> contexto **não está autorizado**.
 
-⚠ **NÃO está sendo alterado nesta tarefa.** O escopo recebido, item 8, alcança
-**somente a página** em `formatSemanticChunks`. **Retirar ou renomear o rótulo
-`Verbatim`, ou trocar o que os outros três caminhos entregam, altera o que o modelo
-recebe e é decisão própria**, que precisa da sua predição. Fica registrado como
-pendente, e como a explicação mais provável se a predição abaixo for refutada.
+A tabela acima fica como **descrição do que o contexto entrega**, que é informação
+útil para a conferência da etapa 4, e **não como hipótese de causa**.
 
 ### A predição
 
@@ -5726,12 +5729,34 @@ abaixo ficam fechados aqui.
 | C2 | o mesmo payload, com a recuperação semântica **desligada** | separa o que vem dos chunks do que vem das quatro seções estáticas |
 | C3 | o mesmo payload, com a recuperação **ligada e devolvendo vazio** | isola a condição em que o modelo cita sem chunk nenhum recuperado |
 
+⚠ **Os trechos são conferidos contra as PUBLICAÇÕES**, e **`verbatim_quote` não é
+eleito referência correta por padrão**. Ele é um dos dois campos, e o registro de
+A.16 mostra divergência **nas duas direções**: em parte das claims o fiel é o
+`evidence.quote`. **A referência é a publicação.**
+
 **Fontes que serão conferidas, nomeadas antes:** as publicações dos três pares que hoje
 o prompt ensina, **Saaty (1977)**, **Wijnmalen (2007)** e **Forman e Peniwati (1998)**,
 mais **toda obra que o parecer citar** nos três casos, ainda que não esteja nesta
 lista. ⚠ **Antes de conferir localizador contra um PDF, ler o campo `notes`** e
 confirmar que o PDF é a edição de onde as claims saíram, que é regra da seção 7 do
 `CLAUDE.md` e já custou horas.
+
+**Evidências fixadas ANTES, por caso**, e esta é a decisão que **destrava a etapa 4**:
+
+| Caso | Evidências |
+|---|---|
+| C1 | as evidências são **fixadas previamente**, escritas antes da geração e mantidas |
+| C2 | recuperação desligada, então só as quatro seções estáticas |
+| C3 | recuperação **simulada vazia** |
+
+⚠ **Assim a geração real avalia a REDAÇÃO sem depender da disponibilidade do índice e
+sem reingestão.** A hibernação recorrente, que é o problema de A.30, **deixa de
+bloquear a etapa 4**: o que a etapa 4 pergunta é o que o modelo escreve dado um
+contexto, e o contexto pode ser fixado.
+
+⚠ **Isso NÃO dispensa a credencial do modelo.** Fixar evidência remove a
+dependência do índice e da Voyage, **não a da geração real**, que continua sendo o
+único jeito de observar a redação.
 
 **Configuração da execução, fixada antes:** modelo e parâmetros como
 `MODEL_CONFIG` os define no commit em que os pareceres forem gerados, **sem variação de
@@ -5781,11 +5806,19 @@ descritas em A.16 aparecem na amostra lida à mão: no `ayan2023` o `evidence.qu
 continua após o ponto em que o `verbatim_quote` para, e no `bozoki2010` é o
 `verbatim_quote` que segue além.
 
+⚠ **O CRITÉRIO APLICADO, declarado, porque o número é dele e não absoluto:**
+igualdade exata das duas cadeias após `trim`. **26 é o resultado DESSE critério**, e
+outro critério daria outro número.
+
+⚠ **Normalizar espaço e aspas tipográficas NÃO demonstra que as 26 sejam diferenças
+substantivas de sentido.** Demonstra apenas que **nenhuma delas é só gráfica**.
+Quantas alteram sentido **não foi medido**, e afirmar que alteram seria a mesma
+inferência que este registro retira em outros pontos.
+
 ⚠ **NÃO reconciliei os dois números, e não afirmo que o registro esteja errado.** Os
 critérios podem diferir, e a base pode ter crescido desde aquela medição.
-**Reconciliar é tarefa de A.16, não de A.33.** Para o item 15 vale o conjunto
-**maior**, que é o conservador: mais linhas saem inconclusivas, e nenhuma sai
-concluída por engano.
+**A reconciliação é A.16, não A.33.** Para o item 15 vale o conjunto **maior**, que é
+o conservador: mais linhas saem inconclusivas, e nenhuma sai concluída por engano.
 
 ### O que foi alterado, etapas 2 e 3, em `50f0794` e `b9a4488`
 
@@ -5839,8 +5872,22 @@ reprovou. **Resumo de contexto se mede depois da última alteração, nunca dura
 | paráfrase fiel | não sinalizada | 1 | 0,07 | não sinalizada |
 | paráfrase que altera o sentido | provavelmente não sinalizada | 1 | 0,07 | não sinalizada |
 
-**Os três saíram como declarado, e nenhum limiar foi ajustado depois.** O limiar cai
-num intervalo largo entre 1 e 15, então **não foi escolhido para caber nos casos**.
+**Os três saíram como declarado.**
+
+> ⚠ **DUAS JUSTIFICATIVAS RETIRADAS em 15/09/2026.**
+>
+> A primeira dizia que seis palavras seguidas idênticas seriam **raras por
+> coincidência em prosa técnica**. **Nenhuma medição de frequência foi feita**, e
+> era afirmação sobre o corpus apresentada como se fosse conhecida. Saiu também do
+> comentário do código, em `b1c9d4a`.
+>
+> A segunda dizia que o intervalo entre 1 e 15 provaria que o limiar **não foi
+> ajustado aos casos**. **Ele não prova isso:** mostra apenas que vários limiares
+> separariam estes três exemplos.
+
+**A redação que vale:** nos três controles, o limiar escolhido separou a transcrição
+das duas paráfrases. Isso não demonstra validade geral nem permite concluir, por si
+só, como o limiar foi escolhido.
 
 ⚠ **O terceiro é o LIMITE, e está registrado como tal, não como defeito.** A triagem
 é léxica, não semântica: ela não vê inversão de sentido. **Sinalizar os três seria
@@ -5857,6 +5904,36 @@ A seleção do contexto era **por LINHA**, e nos templates do prompt a citação
 nome do autor do trecho que ele acompanha, e a triagem comparava a afirmação com um
 cabeçalho sem conteúdo. **Passou a ser por BLOCO.** Quem pegou foi o teste da suspeita
 de transcrição, **antes de o instrumento produzir qualquer agregado**.
+
+### Três correções no instrumento de conferência, em `89f657e`
+
+**SHA anterior nos três: `1444892`.** As regressões de
+`lib/__tests__/a33-conferencia-regressao.test.ts` reprovam **13 de 13** naquele
+commit.
+
+| | Antes, medido | Depois |
+|---|---|---|
+| **1** | `(Wijnmalen, 2007)`, `(Forman e Peniwati, 1998)` e `Dodevska et al. (2023)` davam **zero entradas**. Asserção que falhou: `extrairCitacoes(parecer).length` maior que 0, **recebido 0** | onze formas cobertas, inventariadas por leitura, mais quatro declaradas fora |
+| **2** | para Saaty (1977), entravam como evidência um **exemplo de instrução** e um trecho de **Saaty (1980)** | associação por **obra e ano**, com a origem da evidência no dado |
+| **3** | divergência em `bozoki2010_ipc` tornava inconclusiva uma afirmação de **Bozoki (2013)**, e a triagem **não rodava** | divergência por **trecho**, e triagem calculada **sempre** |
+
+⚠ **A causa do primeiro NÃO era a que o contraexemplo sugeria.** O padrão parentético
+funcionava. Quem quebrava `Dodevska et al. (2023)` era o **separador de frases**, que
+partia em todo ponto seguido de espaço e cortava `et al.` ao meio, em `Dodevska et` e
+`al. (2023)`, de modo que **nenhum dos dois pedaços casava**. **O padrão de citação
+estava certo; quem errava era o separador.** Os dois foram corrigidos.
+
+⚠ **O booleano não obrigava a devolver `false`.** O retorno antecipado escrevia
+`false` **sem executar a triagem**, e o contrato simplesmente **não oferecia estado
+adequado** para "não avaliada". O campo passou a ter **três** estados, e
+`nao_sinalizada` ficou reservado à triagem que **rodou** e não sinalizou.
+
+**O inventário das formas**, derivado por leitura do `system-prompt.ts` depois de
+A.33, está exportado no módulo, e **o que ficou fora também**:
+
+| Cobertas, onze | Fora, quatro, com a razão |
+|---|---|
+| autor e ano; parentética; `et al.`; parentética com `et al.`; dois autores com `&`; dois autores com `e`; parentética com `&`; três autores; com localizador; autor hifenizado; autor acentuado | citação secundária, `(citando Miller, 1956)`; caixa alta ABNT, `(SAATY, 1977)`; composta num parêntese só; autor-entidade, que o prompt não ensina depois de A.33 |
 
 ### Etapa 4: NÃO EXECUTADA
 
