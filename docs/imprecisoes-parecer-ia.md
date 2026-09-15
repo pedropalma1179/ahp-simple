@@ -5744,13 +5744,151 @@ em vez de tratar três amostras como tendência.
 refuta a predição. **Trecho com divergência não resolvida entre `verbatim_quote` e
 `evidence.quote`, das treze de A.16, sai como INCONCLUSIVA**, sem escolher lado.
 
-### Dependência de A.16, a revisar na etapa 4
+### Dependência de A.16, revisada
 
-A tabela de dependências registra que A.33 depende de A.16 **pelo conteúdo do campo
-citado**. ⚠ **Essa justificativa cai junto com o campo de página**, porque o campo
-deixa de ir ao contexto. A candidata a dependência efetiva é outra: **o
-`verbatim_quote` como referência da conferência de sustentação**. A conclusão vai para
-as duas linhas depois da etapa 4, **e não antes**.
+A tabela de dependências registrava que A.33 depende de A.16 **pelo conteúdo do campo
+citado**. ⚠ **Essa justificativa CAI junto com o campo de página**, porque o campo
+deixa de ir ao contexto: nada do que A.33 injeta depende de qual dos dois campos de
+citação está correto.
+
+⚠ **Mas a dependência NÃO desaparece, e só muda de objeto.** A candidata se confirma:
+o `verbatim_quote` é a **referência da conferência de sustentação**, porque o terceiro
+caso negativo, transcrição sem sinalização, só se detecta comparando a afirmação com o
+trecho guardado. Com a divergência aberta, **o trecho de comparação é ambíguo**, e a
+linha sai `inconclusiva`.
+
+**Conclusão, e é uma troca e não uma remoção:**
+
+| | Antes | Agora |
+|---|---|---|
+| O que depende | a **implementação**, pelo conteúdo do campo injetado | a **verificação da etapa 4**, pelo trecho de comparação |
+| Efeito de A.16 estar aberta | bloquearia injetar o campo | **não bloqueia a implementação**, e torna inconclusivas as linhas afetadas |
+
+### Divergências de A.16, medidas nesta rodada
+
+⚠ **Medição própria, e ela NÃO bate com o registro vigente.** Comparando
+`verbatim_quote` com `evidence.quote` por igualdade exata após `trim`, em todas as
+claims que têm os dois campos:
+
+| | Medido aqui, 15/09/2026 | Registro vigente |
+|---|---|---|
+| claims com os dois campos | **138** | 123 |
+| divergentes | **26**, em 15 artigos | 13 |
+
+**Nenhuma das 26 é só de formatação**, conferido normalizando espaço e aspas
+tipográficas: o contador de diferenças apenas gráficas dá **zero**. E as duas direções
+descritas em A.16 aparecem na amostra lida à mão: no `ayan2023` o `evidence.quote`
+continua após o ponto em que o `verbatim_quote` para, e no `bozoki2010` é o
+`verbatim_quote` que segue além.
+
+⚠ **NÃO reconciliei os dois números, e não afirmo que o registro esteja errado.** Os
+critérios podem diferir, e a base pode ter crescido desde aquela medição.
+**Reconciliar é tarefa de A.16, não de A.33.** Para o item 15 vale o conjunto
+**maior**, que é o conservador: mais linhas saem inconclusivas, e nenhuma sai
+concluída por engano.
+
+### O que foi alterado, etapas 2 e 3, em `50f0794` e `b9a4488`
+
+**As cinco instruções normativas saíram**, e as **doze** ocorrências de exemplo foram
+revistas. **Medido depois de editar: ZERO ocorrências de `p. N` no prompt**, e zero
+ocorrências da palavra `verbatim` nas instruções.
+
+**As duas referências normativas erradas saíram** junto com as regras que sustentavam.
+⚠ **Não foram substituídas por outro número de seção.** A norma **não foi consultada
+nesta sessão**, e trocar um localizador não conferido por outro repetiria o defeito em
+vez de corrigi-lo. A informação de que §5.3 seria §7.1.1 na edição de 2023 veio do
+pesquisador, e fica registrada como tal, **sem entrar no prompt**.
+
+**A metade PROIBIDO do exemplo integral FICA**, agora com D5 e D7 na lista de
+violações. ⚠ **Contra-exemplo rotulado não ensina a forma, ensina a evitá-la**, e o
+arquivo já usa pares PROIBIDO e CORRETO em D5, D7 e D8. **Mas a página saiu também
+dela**, porque o aceite pede zero páginas no `system` e o aceite governa.
+
+**`formatSemanticChunks` parou de interpolar a página.** ⚠ **`ChunkMetadata.page`
+continua no contrato e no índice, e `evidence.page` continua nos artigos.**
+
+### O que os testes de montagem demonstram, e o que NÃO demonstram
+
+**Sete casos**, em `lib/__tests__/a33-montagem-contexto.test.ts`: zero páginas no
+`system` e nos `messages` nos três casos, com chunks, sem chunks e misto.
+
+⚠ **O chunk do ensaio tem `page: 248` PREENCHIDO de propósito**, então o zero é
+**retirada** e não ausência. Um chunk sem página não distinguiria as duas coisas.
+
+⚠ **Isto verifica MONTAGEM, e NÃO a predição.** O cliente do LLM é simulado, então
+**nenhuma redação é gerada**, e nada ali diz o que o parecer escreveria.
+
+**O contexto de referência mudou de propósito**, então os resumos de `d658e50` deixam
+de ser a linha de base. **O teste permanece**, porque continua detectando mudança
+**não intencional**. ⚠ **E a parte que NÃO se moveu é a evidência mais útil:** com
+zero chunks o resumo de `messages` é **idêntico ao de `d658e50`**, porque não havia
+página a retirar ali. **Só as duas condições que formatam chunk mudaram**, o que
+demonstra que a retirada alcançou o bloco que a montava e nada mais.
+
+⚠ **O resumo do `system` foi REMEDIDO.** O primeiro valor fixado saiu de um estado
+**intermediário**, antes de a página sair também do exemplo PROIBIDO, e a suíte o
+reprovou. **Resumo de contexto se mede depois da última alteração, nunca durante.**
+
+### A triagem, e os três controles
+
+**Medido, com limiar de seis palavras, e o esperado de cada um declarado antes:**
+
+| Controle | Esperado, antes | Corrida comum | Fração | Resultado |
+|---|---|---|---|---|
+| transcrição sem aspas | sinalizada | **15** | 1,00 | **sinalizada** |
+| paráfrase fiel | não sinalizada | 1 | 0,07 | não sinalizada |
+| paráfrase que altera o sentido | provavelmente não sinalizada | 1 | 0,07 | não sinalizada |
+
+**Os três saíram como declarado, e nenhum limiar foi ajustado depois.** O limiar cai
+num intervalo largo entre 1 e 15, então **não foi escolhido para caber nos casos**.
+
+⚠ **O terceiro é o LIMITE, e está registrado como tal, não como defeito.** A triagem
+é léxica, não semântica: ela não vê inversão de sentido. **Sinalizar os três seria
+falso positivo geral.**
+
+⚠ **Calibração fraca, e fica dito:** as duas paráfrases dos controles **foram escritas
+por mim**, para serem boas paráfrases. **Paráfrase de modelo real pode pontuar mais
+alto**, e só a etapa 4 mostra isso. Três casos escritos à mão não são calibração.
+
+### Defeito achado no instrumento de conferência, antes de usá-lo
+
+A seleção do contexto era **por LINHA**, e nos templates do prompt a citação e o
+`Fundamento:` são **linhas vizinhas do mesmo bloco**. Filtrar por linha separava o
+nome do autor do trecho que ele acompanha, e a triagem comparava a afirmação com um
+cabeçalho sem conteúdo. **Passou a ser por BLOCO.** Quem pegou foi o teste da suspeita
+de transcrição, **antes de o instrumento produzir qualquer agregado**.
+
+### Etapa 4: NÃO EXECUTADA
+
+**A mudança está implementada e a predição permanece não testada.**
+
+⚠ **Os testes de montagem NÃO a testaram**, e não são apresentados como se tivessem.
+Eles medem o que chega ao modelo; a predição é sobre o que o modelo escreve.
+
+**Por que não foi executada, medido nesta sessão:** `ANTHROPIC_API_KEY`,
+`VOYAGE_API_KEY`, `UPSTASH_VECTOR_REST_URL` e `UPSTASH_VECTOR_REST_TOKEN` estão
+**ausentes** neste ambiente, e não há arquivo `.env`. **O egresso funciona**, e
+`api.anthropic.com` responde **401**, que é alcance sem credencial. **Sem credencial
+não há parecer gerado, e sem parecer gerado não há etapa 4.**
+
+**O que fica PRONTO para o pesquisador executar**, em `lib/rag/conferencia-sustentacao.ts`:
+
+| Coluna | Quem preenche |
+|---|---|
+| 1, afirmação produzida | a máquina, extraindo as citações do parecer |
+| 2, evidência enviada ao modelo | a máquina, localizando o bloco da fonte no contexto |
+| 3, trecho da fonte original | **o pesquisador**, abrindo a publicação |
+| 4, resultado | decorre das três, e sai `inconclusiva` sozinha quando A.16 diverge |
+
+⚠ **A conferência NÃO é atribuída inteira ao pesquisador**, e tampouco é concluída
+sozinha: as colunas 1 e 2 já estão automáticas, e só a 3 depende de leitura.
+
+⚠ **Limite declarado do extrator:** ele pega a forma `Autor (ano)`, que é a que a
+instrução nova ensina. **Citação escrita de outro jeito escapa**, então o total dele
+**não substitui a leitura do parecer**.
+
+**Os três casos, as fontes e a configuração continuam como fixados acima**, antes de
+qualquer execução, e não foram revisados depois.
 
 ---
 
