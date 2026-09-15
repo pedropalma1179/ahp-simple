@@ -5289,6 +5289,11 @@ exitosa e falha de parsing COEXISTEM:** a tentativa guarda `status` e
 e **não comprimento de string**. `bytes: 0` é leitura concluída com corpo vazio;
 leitura que não concluiu deixa o campo **ausente**.
 
+> ⚠ **AFIRMAÇÃO SUPERADA, e preservada de propósito.** Medido depois: `res.text()`
+> **decodifica**, e o que `Buffer.byteLength` mede é o texto decodificado, não a
+> resposta. O campo saiu do contrato. Ver "As cinco correções da instrumentação",
+> correção 4.
+
 ⚠ **A classificação vem de ONDE a falha ocorreu, e não de `err.name` nem da
 mensagem.** O transporte do Upstash sabe, porque controla o caminho inteiro. O
 envoltório da Voyage **não sabe** o que acontece depois da resposta, e registra essa
@@ -5369,6 +5374,179 @@ observado: Linux x86_64, Node v22.22.2, npm 10.9.7.
   **comportamento atual**: informar essas condições ao modelo depende de decisão
   específica, e alterar o contexto do parecer exige predição registrada antes.
 - **A causa do 404 em produção**, e a execução 7, seguem sem explicação.
+
+---
+
+### As cinco correções da instrumentação, 15/09/2026
+
+**Corrigido sobre `3be55b9`, em `d66ca2a`.** Os cinco contraexemplos foram
+reproduzidos **antes** da correção, e cada um virou regressão em
+`lib/__tests__/rag-diagnostico-regressao.test.ts`. **SHA anterior nos cinco casos:
+`3be55b9`.**
+
+⚠ **O "antes" desta seção é medido, e não lido do código.** A execução das
+regressões contra `3be55b9` reprovou **13 dos 14** casos, e o décimo quarto é um
+controle de caminho exitoso, que passa dos dois lados. As saídas literais de cada
+"antes" estão nas tabelas abaixo.
+
+⚠ **Três dos cinco contraexemplos foram reproduzidos por sonda separada**, e não pela
+regressão: escrita contra a API corrigida, ela para na ausência do símbolo antes de
+chegar à asserção de interesse. **A sonda rodou contra `3be55b9` e foi descartada
+depois**, porque o que ela mede é estado que deixou de existir.
+
+#### 1. Sanitização que não sanitizava
+
+| | |
+|---|---|
+| **Antes, medido** | `erro.mensagem` = `connect falhou para https://sentinela-url.exemplo/caminho-secreto com Authorization: Bearer FAKE_SECRET_SENTINEL_TOKEN`, e o mesmo texto no `console.warn`. Objeto lançado: `erro.mensagem` = `{"credencial":"FAKE_SECRET_SENTINEL_OBJETO","nome":"FAKE_SECRET_SENTINEL_NOME"}`. `name` adulterado: `erro.nome` = `ErroFAKE_SECRET_SENTINEL_NOME` |
+| **Asserção que falhou** | `expect(saida).not.toContain(s)`, linhas 171, 196, 222 e 246 do arquivo de regressões, para as sentinelas `FAKE_SECRET_SENTINEL_TOKEN`, `FAKE_SECRET_SENTINEL_OBJETO` e `FAKE_SECRET_SENTINEL_NOME`; e `descreverFalha is not a function` no caso da mensagem pública |
+| **Depois** | `erro.mensagem` = `a requisição saiu e nenhuma resposta chegou`, fixa por classificação. `Object.keys(erro)` = `['classificacao', 'mensagem']`: o campo `nome` **saiu do contrato** |
+
+**`descreverFalha` não recebe o valor lançado.** Não é filtro sobre a mensagem da
+dependência: é a **ausência de caminho** por onde ela chegue à saída. Filtro exigiria
+saber o que procurar, e o vazamento medido veio de três vetores diferentes.
+
+⚠ **O que se perde, e é perda consciente:** duas falhas da mesma classificação
+produzem texto **idêntico**. O que as distingue são os campos estruturados, etapa,
+status e tentativas. **O texto da dependência não volta por configuração**, porque a
+configuração que o trouxesse de volta seria a que vaza.
+
+#### 2. Tentativas das duas etapas no mesmo array
+
+| | |
+|---|---|
+| **Antes, medido** | com `UPSTASH_VECTOR_REST_TOKEN` ausente e a Voyage respondendo 200: `[rag/semantic-retrieve] consulta 0 falhou na etapa querySimilar (status 200, 1 tentativa(s), nao_classificada)`, com **zero** requisições ao índice. `tentativas` = `[{"numero":1,"status":200}]` |
+| **Asserção que falhou** | `expect(diagnostico.tentativasConsulta).toEqual([])`, linha 275: recebido `undefined` |
+| **Depois** | `tentativasConsulta` = `[]`, `tentativasEmbed` = `[{numero:1, status:200}]`, e o aviso diz `sem resposta, 0 tentativa(s), anterior_a_chamada` |
+
+⚠ **O status era verdadeiro; a atribuição é que era falsa.** O 200 existiu, e era da
+Voyage. Um agregado assim não se anuncia: ele tem a forma exata do que se esperaria
+ver. **Este é o modo de falha que o próprio projeto documenta no modelo do Parecer
+IA**, e desta vez ele apareceu no instrumento.
+
+⚠ **A numeração também denunciava**, e passou despercebida: o array misto trazia
+`numero` reiniciando em 1 no meio da sequência, porque cada envoltório numerava pelo
+comprimento do array como se ele fosse só seu.
+
+#### 3. Ausência de resposta classificada como transporte
+
+Entra `anterior_a_chamada`. **São três condições, e não duas.**
+
+| | |
+|---|---|
+| **Antes, medido, 3a** | sem `VOYAGE_API_KEY`: `classificacao` = `transporte`, `tentativas` = `[]`, chamadas à Voyage = **0** |
+| **Antes, medido, 3b** | embed com 503 na tentativa 1 e rejeição na 2: `classificacao` = `posterior_a_resposta_nao_classificada`, com `tentativas` = `[{numero:1,status:503},{numero:2,falha:'transporte'}]` |
+| **Asserção que falhou** | `expect(diagnostico.tentativasEmbed).toEqual([])`, linha 316, recebido `undefined`; e `expect(diagnostico.tentativasEmbed).toHaveLength(2)`, linha 416 |
+| **Depois** | 3a dá `anterior_a_chamada` com `tentativasEmbed` = `[]`; 3b dá `transporte`, porque a tentativa relevante é a **última** |
+
+⚠ **Dois defeitos distintos na mesma linha.** O primeiro é de vocabulário: faltava a
+condição "não chegou a sair". O segundo é de quantificador: `tentativas.some(t =>
+t.status !== undefined)` pergunta se **alguma** tentativa respondeu, quando a pergunta
+é sobre a **última**. Um histórico com uma resposta no início e nenhuma no fim
+satisfaz o `some` e não satisfaz a intenção.
+
+⚠ **A diferença entre as duas etapas é o quanto cada envoltório SABE**, e por isso a
+classificação é assimétrica: o do índice controla o transporte inteiro e marca a
+própria tentativa; o da Voyage vê até a resposta.
+
+#### 4. `bytes` retirado do contrato
+
+| | |
+|---|---|
+| **Antes, medido** | corpo de **um** byte `0xFF`, status 404: `bytes` registrado = **3** |
+| **Asserção que falhou** | `expect(t).toHaveLength(1)` sobre `diagnostico.tentativasConsulta`, linha 463, recebido `undefined` |
+| **Depois** | `Object.keys(tentativa)` não contém `bytes`; `status` = 404 e `falha` = `leitura_ou_parsing` continuam |
+
+**A causa:** `res.text()` decodifica, e byte inválido vira o caractere de reposição
+`U+FFFD`, que em UTF-8 ocupa três bytes. O campo media o **texto decodificado**, sob
+nome de bytes da resposta.
+
+⚠ **A asserção anterior PASSAVA**, `bytes` igual a 10 num corpo ASCII de 10
+caracteres, e era a coincidência que a tornava convincente. **Corpo ASCII é o caso
+mais visível, e ele não distingue as duas leituras.** É o mesmo padrão que a seção 3
+do `CLAUDE.md` registra em três instrumentos anteriores.
+
+⚠ **A correção PERDE informação**, e a perda está registrada no teste: leitura que
+não conclui e leitura que conclui vazia eram distinguidas por `bytes` ausente contra
+`bytes` zero, e deixam de ser. **Preferiu-se perder a distinção a mantê-la sobre um
+número que media outra coisa.**
+
+#### 5. Telemetria incondicional
+
+| | |
+|---|---|
+| **Antes, medido, com `UPSTASH_DISABLE_TELEMETRY` definida** | referência: **zero** cabeçalhos `Upstash-Telemetry-*`. Candidato: **três**, `Platform`, `Runtime` e `Sdk` |
+| **Asserção que falhou** | a comparação de cabeçalhos de `equivalentes`, agora exercitada pelo caso "variável DEFINIDA" em `rag-transporte-comparacao.test.ts:430` |
+| **Depois** | zero cabeçalhos dos dois lados com a variável definida; os mesmos três dos dois lados com ela ausente |
+
+⚠ **A comparação anterior era exaustiva em dez dimensões e rodava num estado só.**
+Com a variável ausente os dois lados coincidem, e a divergência só existe no outro
+estado. **Cobertura de dimensões não é cobertura de estados**, e foi a primeira que
+se confundiu com a segunda.
+
+⚠ **A conferição nova não se contenta com a igualdade.** Duas listas vazias também
+são iguais, e passariam sem que cabeçalho nenhum fosse montado: por isso o caso da
+variável ausente afirma a **lista dos três nomes**, e não só a coincidência entre os
+lados.
+
+**Consequência fora do ensaio:** o operador que desligou a telemetria continuaria
+tendo telemetria enviada pelo caminho de busca, sem sinal de que isso ocorria.
+
+#### Verificação deste commit
+
+`npx tsc --noEmit` sai **0**. `npm test` sai **0**, com **12 suítes e 162 testes**,
+contra 11 e 146 em `3be55b9`. `npm run build` conclui e lista as **17 rotas**.
+Ambiente observado: Linux x86_64, Node v24.19.0, npm 11.9.0.
+
+**A série cresce por testes novos:** os catorze casos do arquivo de regressões e os
+dois da telemetria. **Nenhum teste foi removido.** Os quatro que mudaram de
+expectativa estão nomeados aqui, com a razão de cada um:
+
+| Teste | O que afirmava | Por que mudou |
+|---|---|---|
+| `rag-transporte-comparacao`, corpo vazio | `bytes` igual a 0 | o campo saiu do contrato, correção 4 |
+| `rag-transporte-comparacao`, JSON inválido em 200 | `bytes` igual a 10 | idem, e era a asserção que **passava** por coincidência |
+| `rag-semantic-states`, falha de embedding | aviso continha `voyage indisponivel no ensaio` | a mensagem da dependência não chega mais à saída, correção 1 |
+| `rag-semantic-states`, falha de consulta | aviso continha `indice indisponivel no ensaio` | idem |
+
+⚠ **A equivalência de transporte foi remedida**, contra o `@upstash/vector` real, e
+agora nos **dois** estados da telemetria. **Os quatro resumos de contexto de
+`d658e50` continuam batendo byte a byte**, nas quatro condições sem chunks: o
+diagnóstico segue sem tocar no que o modelo recebe.
+
+⚠ **Uma classificação de `rag-semantic-states` é propriedade do DUPLO, e não do
+cliente real.** Os duplos de `voyageai` e `@upstash/vector` lançam sem passar pelo
+`fetch`, então nenhuma tentativa se registra e a classificação correta ali é
+`anterior_a_chamada`. **Com o cliente real, indisponibilidade de rede dá
+`transporte`**, e isso está medido no arquivo de regressões. O teste diz isso no
+próprio comentário, para que a etiqueta não seja lida como afirmação sobre produção.
+
+#### O que estas cinco correções ALCANÇARAM e não corrigiram
+
+⚠ **O temporizador de tempo limite da Voyage, que vaza quando o `fetch` rejeita**,
+foi alcançado pela regressão do caso de transporte. Ele **não foi corrigido**, porque
+está fora deste escopo: é defeito do SDK, caracterizado em
+`rag-voyage-transport.test.ts`, e `makeRequest.js:35` a 37 só chama `clearTimeout`
+depois que o `fetch` resolve, sem `finally`. **As regressões que o alcançam usam
+temporizador falso**, que o recolhe dentro do ensaio. **Nada se afirma sobre o efeito
+fora dele.**
+
+**Efeito colateral medido do mesmo ajuste:** o arquivo de regressões caiu de **13,9 s
+para 1,08 s**, porque o backoff real do Upstash somava cerca de 4,5 s em cada um dos
+três casos de esgotamento. **O aviso do jest sobre processo que não encerra
+desapareceu junto**, e ele vinha do temporizador pendente.
+
+#### O que permanece fora, e continua aberto
+
+**Nada abaixo foi tocado por estas cinco correções**, e a lista repete a do eixo
+anterior porque o escopo desta rodada era outro.
+
+- **Apresentação na interface** do campo `semantic`.
+- **Tratamento da geração degradada.**
+- **Verificação operacional** contra o índice real.
+- **A identidade dos prompts** nas quatro condições sem chunks.
+- **A causa do 404 em produção**, e a execução 7.
+- **O temporizador da Voyage**, pelas razões acima.
 
 ---
 
