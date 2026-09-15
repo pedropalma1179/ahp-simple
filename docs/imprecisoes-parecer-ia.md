@@ -5406,6 +5406,23 @@ depois**, porque o que ela mede é estado que deixou de existir.
 dependência: é a **ausência de caminho** por onde ela chegue à saída. Filtro exigiria
 saber o que procurar, e o vazamento medido veio de três vetores diferentes.
 
+⚠ **A varredura de sentinelas é instrumento NOVO, e falhou na primeira conferência.**
+O controle positivo reintroduziu o vazamento de propósito no `descreverFalha`, e dos
+quatro casos de sentinela **só um reprovou**. **O código corrigido não vazava; quem
+estava fraco era o instrumento**, que procurava a sentinela **inteira**, e
+`JSON.parse` reproduz só **dez caracteres** do corpo na mensagem do `SyntaxError`.
+
+A varredura passou a procurar também o **prefixo**, e o comprimento dele foi **medido,
+não escolhido**: nove, e não dez, porque o corpo do ensaio começa por `<`, que ocupa um
+dos dez do eco. **Com dez, o controle ainda passava no caso de parsing, e passava por um
+caractere.** Com nove, e o controle estendido a `name` e a valor que não é `Error`, os
+**quatro** reprovam.
+
+⚠ **É o mesmo padrão da seção 3 do `CLAUDE.md`, e o quarto instrumento a cair nele:**
+a varredura devolvia o agregado esperado, "nenhuma sentinela sobrevive", e o agregado
+estava certo por acidente. **Um resultado que confirma a expectativa merece a mesma
+conferência que um que a contradiz.**
+
 ⚠ **O que se perde, e é perda consciente:** duas falhas da mesma classificação
 produzem texto **idêntico**. O que as distingue são os campos estruturados, etapa,
 status e tentativas. **O texto da dependência não volta por configuração**, porque a
