@@ -282,15 +282,28 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // Zero chamadas ao cliente do índice: `querySimilar` NÃO executou.
     expect(r.consultasAoIndice).toBe(0);
     expect(r.avisos).toHaveLength(5);
-    expect(r.avisos[0]).toContain('voyage indisponivel no ensaio');
+    // ⚠ **EXPECTATIVA ALTERADA, e a alteração é o ponto.** Antes o aviso repetia a
+    // mensagem do duplo, `voyage indisponivel no ensaio`, porque a mensagem da
+    // exceção era repassada. **Aqui o duplo produz texto inofensivo; em produção o
+    // mesmo caminho já foi medido carregando URL e credencial.** O aviso agora traz a
+    // ETAPA e a CLASSIFICAÇÃO, que é o que permite agir, e nada da dependência.
+    expect(r.avisos[0]).toContain('falhou na etapa embed');
+    expect(r.avisos[0]).not.toContain('voyage indisponivel no ensaio');
 
     // ⚠ O contrato novo registra a diferença, em vez de a perder:
     const d = (r.semantic.queries as Array<Record<string, unknown>>)[0];
     expect(d.etapa).toBe('embed');
     expect(d.embedding).toBe('erro');
     expect(d.consulta).toBe('nao_executado'); // NÃO é 'erro'
-    // Nenhuma tentativa fictícia: o duplo da Voyage nem chega ao transporte.
-    expect(d.tentativas).toEqual([]);
+    // Nenhuma tentativa fictícia, em NENHUMA das duas etapas.
+    expect(d.tentativasEmbed).toEqual([]);
+    expect(d.tentativasConsulta).toEqual([]);
+    // ⚠ `anterior_a_chamada` aqui é PROPRIEDADE DO DUPLO, e não do cliente real: o
+    // duplo de `voyageai` lança sem passar pelo `fetch`, então nenhuma tentativa se
+    // registra, e isso é exatamente o que a classificação diz. **Com o cliente real,
+    // uma indisponibilidade de rede daria `transporte`**, medido em
+    // `rag-diagnostico-regressao.test.ts`.
+    expect((d.erro as Record<string, unknown>).classificacao).toBe('anterior_a_chamada');
   });
 
   it('falha de CONSULTA: DISTINGUÍVEL da falha de embedding pela etapa: CORRIGIDO', async () => {
@@ -300,7 +313,10 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     expect(porConsulta.semantic.errored).toBe(5);
     expect(porConsulta.consultasAoIndice).toBe(5);
     expect(porConsulta.avisos).toHaveLength(5);
-    expect(porConsulta.avisos[0]).toContain('indice indisponivel no ensaio');
+    // ⚠ **EXPECTATIVA ALTERADA pela mesma razão do caso anterior**, e o que substitui
+    // a mensagem da dependência é a ETAPA, que aqui é a outra das duas.
+    expect(porConsulta.avisos[0]).toContain('falhou na etapa querySimilar');
+    expect(porConsulta.avisos[0]).not.toContain('indice indisponivel no ensaio');
 
     // ⚠ As duas falhas tinham contagens IDÊNTICAS antes deste eixo. Agora diferem
     // na etapa e nos dois estados, que é exatamente o que se queria separar.

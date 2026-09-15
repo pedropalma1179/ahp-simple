@@ -33,8 +33,15 @@ export type EstadoConsulta = 'com_resultados' | 'vazio' | 'erro' | 'nao_executad
  * ela ocorreu. O envoltório do Upstash sabe, porque controla o transporte inteiro;
  * o da Voyage não sabe o que acontece depois da resposta, e usa
  * `posterior_a_resposta_nao_classificada`.
+ *
+ * ⚠ **`anterior_a_chamada` e `transporte` são condições DIFERENTES**, e confundi-las
+ * atribui ao transporte uma falha que nunca chegou a tocá-lo. Falta de credencial e
+ * vetor com dimensão errada abortam ANTES de qualquer requisição sair; `transporte`
+ * afirma que a chamada saiu e nenhuma resposta voltou. **Nunca se afirma transporte
+ * sem tentativa registrada.**
  */
 export type ClassificacaoFalha =
+  | 'anterior_a_chamada'
   | 'transporte'
   | 'http_nao_exitoso'
   | 'leitura_ou_parsing'
@@ -44,27 +51,29 @@ export type ClassificacaoFalha =
 /**
  * Uma tentativa HTTP. ⚠ **Unidade própria:** tentativas não se somam a consultas,
  * e uma consulta pode gerar várias tentativas.
+ *
+ * ⚠ **Tentativa pertence a UMA etapa.** O array em que ela vive é o que diz a qual,
+ * e por isso `DiagnosticoConsulta` tem dois arrays e não um.
  */
 export interface TentativaHttp {
-  /** Ordem dentro da consulta, começando em 1. */
+  /** Ordem dentro da ETAPA, começando em 1. */
   numero: number;
   /** ⚠ AUSENTE quando não houve resposta. Nunca inventado. */
   status?: number;
-  /**
-   * Bytes efetivamente LIDOS do corpo. `0` significa leitura concluída com corpo
-   * vazio. ⚠ **Ausente quando a leitura não concluiu**, e ausente quando o corpo
-   * não é lido por decisão, como no envoltório da Voyage.
-   */
-  bytes?: number;
   /** Classificação da falha desta tentativa, quando houve. */
   falha?: ClassificacaoFalha;
 }
 
-/** Erro sanitizado. ⚠ Sem credencial, sem URL completa e sem corpo arbitrário. */
+/**
+ * Falha descrita para saída.
+ *
+ * ⚠ **Nada aqui vem da exceção.** Sem `name`, sem `message`, sem corpo de resposta e
+ * sem serialização do valor lançado. A mensagem é FIXA por classificação, escolhida
+ * neste arquivo, porque a exceção de uma dependência é texto que este projeto não
+ * controla e que já foi medido carregando URL e credencial.
+ */
 export interface ErroDiagnosticado {
-  /** `name` quando o valor lançado é `Error`; rótulo do tipo quando não é. */
-  nome: string;
-  /** Mensagem sanitizada, truncada. */
+  /** Texto público, fixo por `classificacao`. Não é a mensagem da exceção. */
   mensagem: string;
   classificacao: ClassificacaoFalha;
 }
@@ -77,40 +86,37 @@ export interface DiagnosticoConsulta {
   etapa: Etapa | null;
   embedding: EstadoEmbedding;
   consulta: EstadoConsulta;
-  /** Tentativas HTTP da consulta ao índice, numeradas. */
-  tentativas: TentativaHttp[];
+  /** Tentativas HTTP da etapa de embedding, numeradas a partir de 1. */
+  tentativasEmbed: TentativaHttp[];
+  /** Tentativas HTTP da consulta ao índice, numeradas a partir de 1. */
+  tentativasConsulta: TentativaHttp[];
   erro?: ErroDiagnosticado;
 }
 
-const LIMITE_MENSAGEM = 300;
+/**
+ * Mensagem pública de cada classificação. ⚠ **Descreve a CONDIÇÃO, não o incidente.**
+ * Duas falhas da mesma classificação produzem exatamente o mesmo texto, e isso é
+ * deliberado: o que distingue uma da outra são os campos estruturados.
+ */
+const MENSAGEM_POR_CLASSIFICACAO: Record<ClassificacaoFalha, string> = {
+  anterior_a_chamada: 'a etapa abortou antes de qualquer requisição sair',
+  transporte: 'a requisição saiu e nenhuma resposta chegou',
+  http_nao_exitoso: 'a resposta chegou com status não exitoso',
+  leitura_ou_parsing: 'a resposta chegou e não foi possível lê-la ou interpretá-la',
+  posterior_a_resposta_nao_classificada:
+    'a resposta chegou e a falha ocorreu depois dela, sem classificação segura',
+  nao_classificada: 'falha sem classificação',
+};
 
 /**
- * Sanitiza um valor lançado, seja ele `Error` ou não.
+ * Descreve a falha a partir da classificação, e SÓ dela.
  *
- * ⚠ **Nome e mensagem são complementares, não a base da classificação.** Quem chama
- * informa a classificação, porque só o chamador sabe onde a falha ocorreu.
+ * ⚠ **Não recebe o valor lançado**, de propósito: assim não há caminho por onde
+ * texto de dependência chegue à saída. Quem chama informa a classificação, porque só
+ * o chamador sabe onde a falha ocorreu.
  */
-export function sanitizarErro(valor: unknown, classificacao: ClassificacaoFalha): ErroDiagnosticado {
-  if (valor instanceof Error) {
-    return {
-      nome: valor.name,
-      mensagem: String(valor.message).slice(0, LIMITE_MENSAGEM),
-      classificacao,
-    };
-  }
-  // ⚠ Valor lançado que não é `Error`: registra o tipo, sem supor `name`.
-  const tipo = valor === null ? 'null' : typeof valor;
-  let mensagem: string;
-  try {
-    mensagem = typeof valor === 'object' ? JSON.stringify(valor) ?? String(valor) : String(valor);
-  } catch {
-    mensagem = '[valor não serializável]';
-  }
-  return {
-    nome: `NaoErro(${tipo})`,
-    mensagem: mensagem.slice(0, LIMITE_MENSAGEM),
-    classificacao,
-  };
+export function descreverFalha(classificacao: ClassificacaoFalha): ErroDiagnosticado {
+  return { mensagem: MENSAGEM_POR_CLASSIFICACAO[classificacao], classificacao };
 }
 
 /** Diagnóstico de uma consulta que nem chegou a rodar o `embed`. */
@@ -120,6 +126,7 @@ export function diagnosticoNaoIniciado(indice: number): DiagnosticoConsulta {
     etapa: null,
     embedding: 'nao_executado',
     consulta: 'nao_executado',
-    tentativas: [],
+    tentativasEmbed: [],
+    tentativasConsulta: [],
   };
 }

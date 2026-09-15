@@ -43,7 +43,7 @@ type Lado = {
 };
 
 let fetchOriginal: typeof globalThis.fetch;
-let envOriginal: { url?: string; token?: string };
+let envOriginal: { url?: string; token?: string; telemetria?: string };
 
 function vetor(marcador: number): number[] {
   const v = new Array(DIMS).fill(0);
@@ -193,6 +193,7 @@ beforeEach(() => {
   envOriginal = {
     url: process.env.UPSTASH_VECTOR_REST_URL,
     token: process.env.UPSTASH_VECTOR_REST_TOKEN,
+    telemetria: process.env.UPSTASH_DISABLE_TELEMETRY,
   };
 });
 
@@ -202,6 +203,9 @@ afterEach(() => {
   else process.env.UPSTASH_VECTOR_REST_URL = envOriginal.url;
   if (envOriginal.token === undefined) delete process.env.UPSTASH_VECTOR_REST_TOKEN;
   else process.env.UPSTASH_VECTOR_REST_TOKEN = envOriginal.token;
+  // ⚠ Restaurada inclusive quando estava AUSENTE, que é o caso do ambiente de teste.
+  if (envOriginal.telemetria === undefined) delete process.env.UPSTASH_DISABLE_TELEMETRY;
+  else process.env.UPSTASH_DISABLE_TELEMETRY = envOriginal.telemetria;
 });
 
 describe('referência contra candidato, transporte do índice', () => {
@@ -250,8 +254,11 @@ describe('referência contra candidato, transporte do índice', () => {
     // parsing, que COEXISTEM: 404 e leitura ou parsing na mesma tentativa.
     expect(t[0].status).toBe(404);
     expect(t[0].falha).toBe('leitura_ou_parsing');
-    // Leitura CONCLUIU com corpo vazio, então bytes é 0 e não ausente.
-    expect(t[0].bytes).toBe(0);
+    // ⚠ A asserção de `bytes` SAIU daqui porque o campo saiu do contrato, e não
+    // porque passou a incomodar: ele contava o texto DECODIFICADO sob nome de bytes
+    // da resposta. O que este caso tinha de dizer, corpo vazio que não interpreta,
+    // continua dito pelo par status mais falha, que são campos medidos.
+    expect(Object.keys(t[0])).not.toContain('bytes');
   });
 
   it('JSON inválido em 200: mesma exceção, e o status 200 sobrevive no diagnóstico', async () => {
@@ -266,7 +273,10 @@ describe('referência contra candidato, transporte do índice', () => {
     const t = (cand as Lado & { tentativas?: TentativaHttp[] }).tentativas ?? [];
     expect(t[0].status).toBe(200);
     expect(t[0].falha).toBe('leitura_ou_parsing');
-    expect(t[0].bytes).toBe(10); // bytes LIDOS, medidos, não comprimento de string
+    // ⚠ Aqui a asserção anterior era `bytes` igual a 10, e ela PASSAVA: com corpo
+    // ASCII o número coincide com o da resposta. A coincidência é que a tornava
+    // convincente, e ela desaparecia com um byte inválido.
+    expect(Object.keys(t[0])).not.toContain('bytes');
   });
 
   it('falha SEM resposta: mesma exceção, e NENHUM status inventado', async () => {
@@ -279,7 +289,7 @@ describe('referência contra candidato, transporte do índice', () => {
     const t = (cand as Lado & { tentativas?: TentativaHttp[] }).tentativas ?? [];
     expect(t).toHaveLength(6);
     expect(t.every((x) => x.status === undefined)).toBe(true); // status AUSENTE
-    expect(t.every((x) => x.bytes === undefined)).toBe(true); // leitura não concluiu
+    expect(t.every((x) => Object.keys(x).indexOf('bytes') === -1)).toBe(true);
     expect(t.map((x) => x.numero)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
@@ -310,7 +320,7 @@ describe('referência contra candidato, transporte do índice', () => {
     expect(t[1].status).toBe(200);
   });
 
-  it('falha de LEITURA depois da resposta: status preservado e bytes AUSENTE', async () => {
+  it('falha de LEITURA depois da resposta: status preservado e falha marcada', async () => {
     // Corpo que rejeita na leitura, e não no parsing. Só o candidato distingue.
     const corpoQueFalha = new ReadableStream({
       start(controller) {
@@ -326,8 +336,11 @@ describe('referência contra candidato, transporte do índice', () => {
     const t = (cand as Lado & { tentativas?: TentativaHttp[] }).tentativas ?? [];
     expect(t).toHaveLength(1);
     expect(t[0].status).toBe(502); // status capturado ANTES da leitura
+    // ⚠ Leitura que NÃO conclui e leitura que conclui vazia eram distinguidas por
+    // `bytes` ausente contra `bytes` zero. **Essa distinção foi PERDIDA na correção**,
+    // e é perda consciente: o campo que a carregava não media o que o nome dizia.
     expect(t[0].falha).toBe('leitura_ou_parsing');
-    expect(t[0].bytes).toBeUndefined(); // leitura NÃO concluiu
+    expect(Object.keys(t[0])).not.toContain('bytes');
   });
 
   it('consultas concorrentes com desfechos diferentes: cada diagnóstico na sua consulta', async () => {
@@ -371,5 +384,57 @@ describe('referência contra candidato, transporte do índice', () => {
     expect(diags[3].map((t) => t.falha)).toEqual(['transporte', 'transporte', undefined]);
     expect(diags[3][2].status).toBe(200);
     expect(diags.every((d) => d.map((t) => t.numero).every((n, i) => n === i + 1))).toBe(true);
+  });
+});
+
+/**
+ * ⚠ **A telemetria é dimensão de comparação, e não detalhe de cabeçalho.** Ela decide
+ * se dados de uso saem da máquina, e o desligamento é escolha do operador. O
+ * candidato montava os três cabeçalhos INCONDICIONALMENTE, e a comparação anterior não
+ * pegou isso porque rodou só com a variável ausente, que é o estado em que os dois
+ * lados coincidem. **Um estado só não verifica uma condição.**
+ */
+describe('telemetria, nos DOIS estados da variável', () => {
+  const chavesDeTelemetria = (h: Record<string, string>) =>
+    Object.keys(h)
+      .filter((k) => /^upstash-telemetry-/i.test(k))
+      .map((k) => k.toLowerCase())
+      .sort();
+
+  const respostaVazia = () =>
+    Promise.resolve(
+      new Response(JSON.stringify({ result: [] }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
+
+  it('variável AUSENTE: os três cabeçalhos, iguais nos dois lados', async () => {
+    delete process.env.UPSTASH_DISABLE_TELEMETRY;
+    const ref = await rodar('referencia', respostaVazia);
+    const cand = await rodar('candidato', respostaVazia);
+    equivalentes(ref, cand);
+
+    // Conferida à mão a lista, e não só a igualdade: duas listas vazias também
+    // seriam iguais, e passariam sem que cabeçalho nenhum fosse montado.
+    expect(chavesDeTelemetria(ref.registros[0].headers)).toEqual([
+      'upstash-telemetry-platform',
+      'upstash-telemetry-runtime',
+      'upstash-telemetry-sdk',
+    ]);
+    expect(chavesDeTelemetria(cand.registros[0].headers)).toEqual(
+      chavesDeTelemetria(ref.registros[0].headers)
+    );
+  });
+
+  it('variável DEFINIDA: nenhum cabeçalho de telemetria, nos dois lados', async () => {
+    process.env.UPSTASH_DISABLE_TELEMETRY = '1';
+    const ref = await rodar('referencia', respostaVazia);
+    const cand = await rodar('candidato', respostaVazia);
+    equivalentes(ref, cand);
+
+    // ⚠ O contraexemplo: a referência mandava zero e o candidato mandava três.
+    expect(chavesDeTelemetria(ref.registros[0].headers)).toEqual([]);
+    expect(chavesDeTelemetria(cand.registros[0].headers)).toEqual([]);
   });
 });

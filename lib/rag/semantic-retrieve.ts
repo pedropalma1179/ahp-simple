@@ -15,7 +15,8 @@
 import { embed, embedDiagnosticado } from './embed';
 import { querySimilar, consultarIndice, type RetrievedChunk } from './upstash-client';
 import {
-  sanitizarErro,
+  descreverFalha,
+  type ClassificacaoFalha,
   type DiagnosticoConsulta,
   type TentativaHttp,
 } from './diagnostico';
@@ -72,6 +73,11 @@ export interface ResultadoSemantico {
  *
  * ⚠ **Falha no `embed` deixa a consulta ao índice como NÃO EXECUTADA**, sem
  * tentativa fictícia: o array de tentativas fica vazio, e não com um erro inventado.
+ *
+ * ⚠ **Cada etapa tem o SEU array de tentativas.** Um array único atribuía à consulta
+ * ao índice o status da resposta do embedding, e o aviso chegava a dizer falha em
+ * `querySimilar` com status 200 e uma tentativa quando nenhuma requisição ao índice
+ * havia saído.
  */
 export async function getRAGSemanticDiagnosticado(
   query: string,
@@ -85,59 +91,87 @@ export async function getRAGSemanticDiagnosticado(
     throw new Error('[rag/semantic-retrieve] topK must be a positive integer');
   }
 
-  const tentativas: TentativaHttp[] = [];
+  const tentativasEmbed: TentativaHttp[] = [];
+  const tentativasConsulta: TentativaHttp[] = [];
   const diagnostico: DiagnosticoConsulta = {
     indice,
     etapa: null,
     embedding: 'nao_executado',
     consulta: 'nao_executado',
-    tentativas,
+    tentativasEmbed,
+    tentativasConsulta,
   };
 
   // Etapa 1, embedding. Falhando aqui, a etapa 2 fica NÃO EXECUTADA.
   let vector: number[];
   try {
-    vector = await embedDiagnosticado(query, 'query', tentativas);
+    vector = await embedDiagnosticado(query, 'query', tentativasEmbed);
     diagnostico.embedding = 'concluido';
-  } catch (err) {
+  } catch {
     diagnostico.embedding = 'erro';
     diagnostico.etapa = 'embed';
-    // ⚠ A classificação vem de ONDE a falha ocorreu, e não do `name` nem da
-    // mensagem. Aqui o envoltório do `fetch` só enxerga até a resposta: uma falha
-    // posterior a ela não pode ser classificada com segurança, e fica assim dita.
-    const houveResposta = tentativas.some((t) => t.status !== undefined);
-    diagnostico.erro = sanitizarErro(
-      err,
-      houveResposta ? 'posterior_a_resposta_nao_classificada' : 'transporte'
-    );
-    avisar(indice, diagnostico);
+    // ⚠ A classificação vem de ONDE a falha ocorreu, e a exceção não é consultada:
+    // nem `name`, nem mensagem, nem serialização do valor lançado.
+    diagnostico.erro = descreverFalha(classificarEtapa(tentativasEmbed, 'embed'));
+    avisar(indice, diagnostico, tentativasEmbed);
     return { chunks: [], diagnostico };
   }
 
   // Etapa 2, consulta ao índice. O transporte próprio classifica com certeza.
   try {
-    const { chunks } = await consultarIndice(vector, topK, tentativas);
+    const { chunks } = await consultarIndice(vector, topK, tentativasConsulta);
     diagnostico.consulta = chunks.length > 0 ? 'com_resultados' : 'vazio';
     return { chunks, diagnostico };
-  } catch (err) {
+  } catch {
     diagnostico.consulta = 'erro';
     diagnostico.etapa = 'querySimilar';
-    const ultima = tentativas[tentativas.length - 1];
-    diagnostico.erro = sanitizarErro(err, ultima?.falha ?? 'nao_classificada');
-    avisar(indice, diagnostico);
+    diagnostico.erro = descreverFalha(classificarEtapa(tentativasConsulta, 'querySimilar'));
+    avisar(indice, diagnostico, tentativasConsulta);
     return { chunks: [], diagnostico };
   }
 }
 
 /**
+ * Classifica a falha de uma etapa pelo HISTÓRICO DELA, e só dele.
+ *
+ * ⚠ **São TRÊS condições, e não duas.** Nenhuma tentativa registrada significa que a
+ * etapa abortou antes de a requisição sair, e chamar isso de transporte atribui a ele
+ * uma falha que nunca o tocou: credencial ausente e vetor com dimensão errada caem
+ * aí. Só há transporte quando houve tentativa e nenhuma resposta voltou.
+ *
+ * ⚠ **A tentativa relevante é a ÚLTIMA, e não qualquer uma.** Uma busca por
+ * "houve alguma resposta no histórico" classificava como posterior à resposta um caso
+ * em que a primeira tentativa respondeu 503 e a última nem chegou a responder.
+ *
+ * ⚠ **A diferença entre as duas etapas é o quanto cada envoltório SABE.** O do
+ * índice controla o transporte inteiro e marca a própria tentativa; o da Voyage vê até
+ * a resposta, e o que acontece depois dela fica dito como não classificado.
+ */
+function classificarEtapa(
+  tentativas: TentativaHttp[],
+  etapa: 'embed' | 'querySimilar'
+): ClassificacaoFalha {
+  const ultima = tentativas[tentativas.length - 1];
+  if (!ultima) return 'anterior_a_chamada';
+  if (etapa === 'querySimilar') return ultima.falha ?? 'nao_classificada';
+  return ultima.status === undefined ? 'transporte' : 'posterior_a_resposta_nao_classificada';
+}
+
+/**
  * Aviso por consulta, com a ETAPA e o STATUS quando houve resposta.
  *
- * ⚠ **Mensagem sanitizada**, sem credencial, sem URL e sem corpo de resposta.
+ * ⚠ **Nada da exceção entra aqui:** a mensagem é a pública, fixa por classificação.
+ * Antes, a mensagem da dependência era repassada, e ela já foi medida carregando URL
+ * e credencial.
+ *
+ * ⚠ **O histórico consultado é o DA ETAPA QUE FALHOU**, recebido por parâmetro. Com
+ * um array único, o status da resposta do embedding aparecia num aviso de falha na
+ * consulta ao índice.
  */
-function avisar(indice: number, d: DiagnosticoConsulta): void {
-  const ultima = d.tentativas[d.tentativas.length - 1];
+function avisar(indice: number, d: DiagnosticoConsulta, daEtapa: TentativaHttp[]): void {
+  const ultima = daEtapa[daEtapa.length - 1];
   const status = ultima?.status === undefined ? 'sem resposta' : `status ${ultima.status}`;
-  const tentativas = `${d.tentativas.length} tentativa(s)`;
+  const tentativas = `${daEtapa.length} tentativa(s)`;
   console.warn(
     `[rag/semantic-retrieve] consulta ${indice} falhou na etapa ${d.etapa} ` +
       `(${status}, ${tentativas}, ${d.erro?.classificacao}): ${d.erro?.mensagem}`

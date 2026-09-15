@@ -139,7 +139,12 @@ async function getSemanticChunks(): Promise<{ chunks: RetrievedChunk[]; stats: S
   const withResults = diagnosticos.filter((d) => d.consulta === 'com_resultados').length;
   const emptyOk = diagnosticos.filter((d) => d.consulta === 'vazio').length;
   const errored = diagnosticos.filter((d) => d.embedding === 'erro' || d.consulta === 'erro').length;
-  const httpAttempts = diagnosticos.reduce((soma, d) => soma + d.tentativas.length, 0);
+  // ⚠ Soma as tentativas das DUAS etapas. Elas vivem em arrays separados porque
+  // tentativa pertence a uma etapa, e o total continua sendo o de tentativas HTTP.
+  const httpAttempts = diagnosticos.reduce(
+    (soma, d) => soma + d.tentativasEmbed.length + d.tentativasConsulta.length,
+    0
+  );
   const rawChunks = results.flat();
 
   // Dedupe por chunk_id, preservando a versão de maior score quando

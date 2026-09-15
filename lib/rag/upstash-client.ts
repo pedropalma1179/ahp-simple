@@ -56,8 +56,19 @@ function runtimeDaTelemetria(): string {
   return typeof edge === 'string' ? 'edge-light' : `node@${process.version}`;
 }
 
-/** Reproduz os três cabeçalhos de telemetria que o ramo de configuração monta. */
+/**
+ * Reproduz o ramo de telemetria do construtor do SDK, INCLUSIVE o desligamento.
+ *
+ * ⚠ **`UPSTASH_DISABLE_TELEMETRY` é honrado**, como em `dist/nodejs.js:937`: qualquer
+ * valor verdadeiro zera os três cabeçalhos. Montá-los incondicionalmente enviaria
+ * telemetria que a referência não envia, e o operador que desligou a telemetria não
+ * teria como saber.
+ *
+ * ⚠ **A leitura é em tempo de montagem do `Requester`**, que é quando o SDK também a
+ * faz: o construtor do `Index` lê o ambiente ao construir, não a cada requisição.
+ */
 function cabecalhosTelemetria(): Record<string, string> {
+  if (process.env.UPSTASH_DISABLE_TELEMETRY) return {};
   return {
     'Upstash-Telemetry-Sdk': `upstash-vector-js@${VERSAO_SDK_UPSTASH}`,
     'Upstash-Telemetry-Platform': process.env.VERCEL ? 'vercel' : process.env.AWS_REGION ? 'aws' : 'unknown',
@@ -71,6 +82,10 @@ function cabecalhosTelemetria(): Record<string, string> {
  * ⚠ **O status é capturado ANTES de qualquer leitura**, então ele sobrevive mesmo
  * quando o parse falha depois. Resposta não exitosa e falha de parsing **coexistem**:
  * a tentativa fica com `status` e com `falha: 'leitura_ou_parsing'`.
+ *
+ * ⚠ **Nenhuma contagem de bytes é registrada.** `res.text()` decodifica, e byte
+ * inválido vira caractere de reposição: um byte medido virava três. O que sobrava era
+ * o tamanho do texto decodificado, e não o da resposta, sob o nome errado.
  */
 function criarRequester(url: string, token: string, tentativas: TentativaHttp[]) {
   const baseUrl = url.replace(/\/$/, '');
@@ -122,10 +137,8 @@ function criarRequester(url: string, token: string, tentativas: TentativaHttp[])
       let texto: string;
       try {
         texto = await res.text();
-        // Bytes EFETIVAMENTE LIDOS. `0` é leitura concluída com corpo vazio.
-        tentativa.bytes = Buffer.byteLength(texto, 'utf8');
       } catch (erro) {
-        // Leitura não concluiu: `bytes` fica AUSENTE, e o status permanece.
+        // Leitura não concluiu. O status permanece: ele foi capturado antes.
         tentativa.falha = 'leitura_ou_parsing';
         throw erro;
       }
