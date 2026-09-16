@@ -7152,6 +7152,145 @@ PDFs**, ou entregar os três arquivos a uma sessão que os alcance. Enquanto iss
 indicador honesto é **0 de 3 trechos de C1 com atendimento demonstrado ao critério
 atual**.
 
+### A.33: a comparação recebida sobre os três trechos de C1, em 16/09/2026
+
+**Gravação:** `835cd55c0196d90d2d365bc7845d2773385fef50`, sobre a base
+`d0c7314e0323e36ce1b635f276a52dcbcb4e2244`. **Branch de trabalho declarada:**
+`claude/loving-shannon-661fy9`, no mesmo SHA de `integra/a30-registros`, com
+integração por **fast-forward** ao fim. Resultados em
+`docs/dados/a33-conferencia-c1/conferencia.json`, bloco `comparacaoRecebida`.
+
+⚠ **ESTA EXECUÇÃO REGISTRA UMA COMPARAÇÃO RECEBIDA.** Ela **não consultou as
+publicações** e **não apresenta a conferência como leitura própria**. A comparação
+das fontes foi feita **sobre texto extraído** dos PDFs, por outra sessão.
+
+**A proveniência é declarada POR AFIRMAÇÃO**, em quatro entradas:
+
+| Afirmação | Quem comparou | Material consultado | Sessão |
+|---|---|---|---|
+| os resultados por campo das três fontes | sessão de análise | **texto extraído** dos PDFs | não esta |
+| SHA-256, contagem de páginas e posição da página no PDF | sessão de análise | os **arquivos PDF** | não esta |
+| o que este commit grava | esta execução | este prompt | **esta** |
+| **o lado da BASE de cada comparação** | esta execução | `evidencias.json`, no repositório | **esta** |
+
+⚠ **SHA-256, versão e contagem de páginas NÃO foram medidos nesta execução.** Cada
+entrada de `arquivosConsultados` carrega `origemDestesValores` dizendo isso, e o
+teste reprova se algum for apresentado como medição própria.
+
+⚠ **Texto extraído não é a página impressa.** A extração pode corromper notação
+matemática, e foi o que ocorreu no Saaty. **Distinguir o que está impresso, o que a
+extração corrompeu e o que o recorte preparado alterou exige inspeção visual**, que
+**não** foi feita.
+
+**Os três arquivos, com página impressa e posição no PDF em campos distintos:**
+
+| Fonte | Identificador | Página impressa | Posição no PDF | Diferença | Páginas |
+|---|---|---:|---:|---:|---:|
+| Saaty 1977 | ISSN 0022-2496 | 237 | 4 | **233** | 48 |
+| Wijnmalen 2007 | doi 10.1016/j.mcm.2007.03.020 | 899 | 8 | **891** | 14 |
+| Forman e Peniwati 1998 | PII S0377-2217(97)00244-0 | 167 | 3 | **164** | 5 |
+
+Os SHA-256 completos estão no registro. ⚠ **Confundir página impressa com posição
+no PDF apontaria para outro lugar do arquivo**, e a diferença é de três ordens de
+grandeza em dois dos casos.
+
+**Os três resultados:**
+
+| Trecho | `verbatim_quote` | `evidence.quote` | sustentação | unidade |
+|---|---|---|---|---|
+| Forman `key_claims[2]` | confere | confere | **sustentada** | permanece conferida pelo registro histórico |
+| Wijnmalen `key_claims[0]` | **não confere** | **não confere** | **sustentada** | **pendente por não correspondência textual** |
+| Saaty `key_claims[0]` | **não conferido** | **não conferido** | inconclusiva | **pendente** |
+
+**Forman.** A seção 6 contém os dois fragmentos, e a elisão está sinalizada por
+reticências no recorte. O texto sustenta a exigência da média geométrica para AIJ,
+**no contexto de reciprocidade apresentado**. ⚠ **Conteúdo conferido sobre texto
+extraído, não sobre a página impressa.** Os elementos de rastreabilidade —
+referência, PII, versão publicada, página impressa, posição no PDF e SHA-256
+completo — estão **registrados, com a origem declarada**, e **não medidos aqui**.
+**A conferência histórica está preservada com o seu alcance e não foi revogada**, e
+a pendência atual é nomeada: a inspeção visual da página 167 não foi feita.
+
+**Wijnmalen.** Sob o marcador da página 899, seção 4 *Commensurability*, o texto
+extraído traz **"Synthesis however requires commensurate priorities on a common
+scale."** — e o recorte da base **omite `however`, sem sinalizar a supressão**.
+⚠ **A diferença compromete a fidelidade literal e não demonstra que a claim esteja
+errada:** o parágrafo explica por que prioridades vindas dos quatro modelos precisam
+estar numa escala comum, e a claim fica **sustentada**. **O achado segue para A.16**,
+⚠ **e a base NÃO é corrigida nesta rodada**: ele se **soma** às 19 divergências
+existentes **sem ser reconciliado** com elas.
+
+**Saaty.** ⚠ **Nada aqui se grava como conclusão.** A passagem aparece sob o
+marcador da página 237, e **a expressão matemática está corrompida na extração**.
+⚠ **Essa diferença não pode ser atribuída à publicação nem à base sem inspeção
+visual.** Falta **um item só**: inspecionar visualmente a página 237, verificando **a
+expressão matemática** e **a capitalização do início do trecho**.
+
+**O que foi medido NESTA execução, e é o lado da base, que está no repositório:**
+
+- **Wijnmalen:** o recorte da base **não contém** `however`, e começa por
+  `synthesis` em **minúscula**, não `Synthesis`. ⚠ **A minúscula não é
+  adjudicada:** um recorte pode legitimamente começar no meio da frase, e separar
+  escolha de recorte de erro de transcrição exige a página impressa.
+- **Forman:** o recorte **sinaliza a elisão com reticências**, na posição 100.
+- **Saaty:** o recorte carrega a expressão em **notação LaTeX**,
+  `\lambda_{max} = n`, com uma única contrabarra. ⚠ **Notação LaTeX na base contra
+  notação tipografada na página significa que a comparação literal desse trecho não
+  se resolve por extração:** o recorte já é uma transcrição, e só a página impressa
+  separa transcrição fiel de divergência. **É a razão técnica da pendência do
+  Saaty**, e ela não aparecia antes.
+
+**As contagens não mudam, e são histórico.** **4 conferidas e 161 pendentes**, sobre
+**165 unidades distintas**, sem somar cópias. ⚠ **Nenhuma conferência nova é
+declarada**, porque a leitura foi **parcial** — texto extraído, sem inspeção visual —
+e o protocolo exige a evidência documental prevista. ⚠ **Elas não se convertem em
+atendimento aos critérios novos**, e o indicador de atendimento ao critério atual
+**continua 0 de 3**.
+
+⚠ **Não se escreve subtração de pendências**, e o registro diz por quê: **Forman já
+estava entre as quatro**, e **examinar Saaty e Wijnmalen não os tornou conferidos**.
+⚠ **Nenhum total é antecipado.**
+
+⚠ **O registro datado da rodada sem acesso NÃO foi substituído.** O vetor `trechos[]`
+continua com `nao conferido` e motivo `publicacao inacessivel`, e o bloco novo é
+**observação posterior, com proveniência própria**; cada trecho ganhou um ponteiro
+`vejaTambem` para não induzir leitura errada. **Os nove testes anteriores seguem
+intactos** como histórico datado, e **cinco novos** cobrem o bloco recebido.
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **21 suítes e 297 testes**, contra 21 e
+292 antes, diferença de **5** casos novos. ⚠ **E também na condição do CI**, em
+**clone raso de um commit**: `tsc` **0** e os mesmos **21 suítes e 297 testes**. Os
+testes novos foram conferidos por **quatro contraexemplos**: apresentar o SHA-256
+como medido aqui **reprova**; confundir página impressa com posição no PDF
+**reprova**; declarar conferência nova ou converter histórico em atendimento atual
+**reprova**; e substituir o registro datado da rodada sem acesso **reprova**. O
+restauro foi conferido por resumo idêntico.
+
+**Nada foi alterado** em `lib/rag/articles/`, nos artefatos da etapa 4, nos textos
+preparados, nos `trechoId`, no índice, nas 19 divergências de A.16 ou em `main`.
+**Nenhum PDF na árvore**, conferido por `git status --short`, por `git ls-files` e
+pelo diff. **Nenhuma geração**, real ou simulada.
+
+⚠ **Predição não cabe**: a rodada grava uma conferência e **não altera o contexto
+entregue ao modelo**. **A predição de A.33 segue não testada.**
+
+**Publicação e CI, estado observado.** Publicado em
+`claude/loving-shannon-661fy9`, e `integra/a30-registros` avançou por
+**fast-forward** até `835cd55c0196d90d2d365bc7845d2773385fef50`, conferido antes
+que `origin/integra/a30-registros` era **ancestral** do topo, código de saída **0**
+em Bash — comandos em Bash/Linux, e **não se apresenta `$LASTEXITCODE` de
+PowerShell como medido nesta sessão**. **Sem `--force`, sem rebase e sem `amend`**,
+e `git log --merges` sobre o intervalo sai **vazio**. As execuções
+**`35124511720`** e **`35124514932`**, sobre o SHA completo
+`835cd55c0196d90d2d365bc7845d2773385fef50`, foram observadas
+**`completed/success`**, na branch de trabalho e na de integração, com os sete
+passos em `success`. O CI deste commit documental é observação posterior. ⚠ **`main` permanece
+em `33c1fdf`**, lida e não tocada.
+
+⚠ **A conferência de C1 NÃO está concluída.** Saaty permanece **pendente de inspeção
+visual**, e Wijnmalen tem **não correspondência textual observada na extração**.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
