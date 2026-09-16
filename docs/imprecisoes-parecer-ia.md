@@ -8136,6 +8136,111 @@ individuais**, o controle já declarado de A.33.
 | J1 | a claim é a aprovada, tem até 120 caracteres, e chega ao `topic` **sem corte** |
 | snapshot | as unidades 47, 86 e 89 de `evidencias.json` seguem com o texto antigo, **por decisão** |
 
+### A.16: a correção executada, em 16/09/2026
+
+**Gravação, na branch de sessão `correcao/a16-trechos-c1`:**
+
+| Commit | Natureza | O que entra |
+|---|---|---|
+| `3db365c` | registro | a predição acima, **antes** de qualquer edição da base |
+| `8b057d9` | **mecânica** | E1, E2 e E3; teste novo; os dois controles por resumo |
+| `b567d99` | **julgamento** | J1; dois casos no teste novo; os dois controles de novo |
+
+⚠ **A predição entrou primeiro na branch errada**, `inspecao/wijnmalen-forman`,
+ainda sem publicação. A branch de sessão foi criada sobre ela, e a
+`inspecao/wijnmalen-forman` local voltou a `23a3463`, **igual ao remoto**. O commit
+da predição não foi reescrito.
+
+⚠ **A primeira mensagem de `b567d99` citava o commit textual por um SHA que não
+existe**, escrito sem medir. Corrigida antes de qualquer publicação, **só a
+mensagem**, com a árvore conferida idêntica. É a regra da seção 9 do `CLAUDE.md`
+aplicada ao próprio registro: número não medido não se afirma.
+
+#### Critérios, medidos depois de executar
+
+| # | Critério | Observado |
+|---|---|---|
+| 1 | diff por commit | `8b057d9`: 5 linhas na base, 2 no Saaty e 3 no Wijnmalen; `b567d99`: 1 linha, e os testes |
+| 2 | formas antigas em `lib/` | forma transformada, `A` maiúsculo e claim antiga: **uma ocorrência cada, todas no teste novo**, como contraexemplo |
+| 3 | base viva | **idêntica, byte a byte, à medida na simulação**: 26 divergências, a mesma lista |
+| 4 | montagem sem chunks | **idêntica, byte a byte, à simulada antes da predição**; a tabela da predição vale célula a célula |
+| 5 | SHA-256 da base | em disco e no blob: `5cd0efe6…` no Saaty, `78d63b48…` no Wijnmalen, com LF |
+| 6 | `npx tsc --noEmit` | **0**, nesta máquina e no clone |
+| 7 | suíte | tabela abaixo |
+| 8 | fora do escopo | `docs/dados/`, `app/` e `scripts/` sem diferença desde `23a3463`; `main` em `33c1fdf` |
+
+| Medição | `tsc` | Suítes | Testes | Passando | Saída |
+|---|---:|---:|---:|---:|---:|
+| esta máquina, `8b057d9` | 0 | 22 | 319 | 316 | 1 |
+| esta máquina, `b567d99` | 0 | 22 | 321 | 320 | 1 |
+| **clone raso LF, `8b057d9`** | **0** | **22** | **319** | **319** | **0** |
+| **clone raso LF, `b567d99`** | **0** | **22** | **321** | **321** | **0** |
+
+Nesta máquina, em `8b057d9`, falharam as três já registradas; em `b567d99`, **só a do
+CRLF**, e os dois intermitentes passaram nessa execução. **Nada disso foi
+corrigido.** O clone usou `core.autocrlf=false` e o `node_modules` desta árvore por
+junção, removida depois.
+
+**Os nove testes novos** estão em `lib/__tests__/a16-correcao-trechos-c1.test.ts`, e
+foram conferidos por contraexemplo, **cada um reprovando o caso previsto**:
+
+- **base antiga**, com os bytes do `HEAD` anterior: reprovam os quatro casos que
+  dependem da correção textual — Wijnmalen `[0]`, Wijnmalen `[3]`, Saaty `[0]` e a
+  ausência das formas antigas —, e passam a referência, os contraexemplos e a trava
+  do snapshot;
+- **snapshot propagado**, com o texto novo gravado em `evidencias.json`: reprova a
+  trava;
+- **claim antiga**: reprova os dois casos de J1;
+- **claim de 153 caracteres**: reprova a chegada ao `topic`, **pelo corte**, com o
+  valor recebido terminando em *adjusted ...*. ⚠ **Na primeira versão do caso, o
+  contraexemplo reprovava por ser outra redação, e não pelo corte**; o caso passou a
+  comparar o `topic` com a claim viva, e só então isolou o que devia medir.
+
+Restauro por SHA-256 idêntico em todos.
+
+**Os dois controles por resumo** reprovam com a base antiga, e guardam os valores
+anteriores nomeados:
+
+| Controle | A.33 ou antes | Com E1 a E3 | Com J1 |
+|---|---|---|---|
+| `messages` com chunks | `99f733c4…` | `0d8a7ae9…` | **`0353b393…`** |
+| `messages` sem chunks | `a3c60c05…`, de `d658e50` | `ac297571…` | **`10935922…`** |
+| `system` | `635fda53…` | o mesmo | **o mesmo** |
+| SHA-256 do Saaty | `4b44bd34…`, em `medicao.json` | `5cd0efe6…` | `5cd0efe6…` |
+| SHA-256 do Wijnmalen | `d24c49fd…`, em `medicao.json` | `01f26c6a…` | **`78d63b48…`** |
+
+`medicao.json` **não** foi reescrito: as duas exceções são enumeradas no teste, com o
+valor medido e o corrente, e **os resultados da medição continuam iguais**.
+
+#### O que muda no estado, e o que não muda
+
+- **Na base:** Saaty `key_claims[0]` e Wijnmalen `key_claims[0]` passam a trazer o
+  texto impresso nos dois campos, e a claim de Wijnmalen `key_claims[0]` passa a ser
+  a redação sustentada. **As três unidades do snapshot, 47, 86 e 89, NÃO mudam**, e
+  as conferências registradas de C1 descrevem essas unidades: **4 conferidas e 161
+  pendentes**, e o critério atual em **1 de 3**, **inalterados**. Mover Saaty e
+  Wijnmalen para conferidos exige a versão nova do snapshot e a conferência dela,
+  que é etapa própria.
+- ⚠ **Achado sobre a partição das treze, do `CLAUDE.md`:** ela classifica o
+  Wijnmalen entre os casos em que **o `evidence.quote` é o fiel**. Em
+  `key_claims[3]` ele **não era**: era a forma transformada, agora corrigida.
+  **O `CLAUDE.md` não foi alterado**; a partição é sobre qual campo diverge do
+  outro, e esta rodada mostrou que o campo escolhido ainda precisa de conferência
+  contra o impresso, que é o segundo resíduo que A.16 já nomeia.
+- **Em A.16 continuam abertos:** o `verbatim_quote` e a claim de Wijnmalen
+  `key_claims[3]`, e as demais divergências. **26 entre 138** na base viva, a mesma
+  lista.
+- **Achado registrado e NÃO corrigido:** `claimToRef` corta `topic` acima de 120
+  caracteres, sem outro sinal além das reticências.
+- **Predição:** registrada e **não testada**; a de A.33 também segue não testada.
+- ⚠ **Credenciais, observado nesta máquina:** o `.env.local`, ignorado pelo git,
+  **define** as quatro variáveis da etapa 4; **os valores não foram lidos**. A seção
+  seguinte mediu a ausência num **contêiner**, e segue verdadeira para aquele
+  ambiente. **Aqui, a etapa 4 não depende de credencial, e sim do snapshot novo e da
+  decisão de gerar.**
+- **Não foi feito:** reingestão, geração, publicação da branch, integração, e
+  alteração em `docs/dados/`, `app/`, `scripts/` ou `main`.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
