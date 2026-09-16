@@ -119,10 +119,20 @@
         "resultadoDestaRodada": "pendente por campo nao conferido",
         "motivo": "publicacao inacessivel",
         "condicoesDaSecao4": {
-          "doisCamposConferem": false,
-          "claimSustentada": false,
+          "doisCamposConferem": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
+          "claimSustentada": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
           "semDivergenciaA16": true,
-          "semLocalizadorDivergente": "nao avaliavel sem acesso"
+          "semLocalizadorDivergente": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
+          "nota": "Ausencia de avaliacao nao e resultado negativo. Tres das quatro condicoes ficam NAO AVALIADAS, com motivo; semDivergenciaA16 permanece true porque foi medido sobre comparacaoDosCampos.iguais, que nao depende da publicacao."
         },
         "nota": "Permanece pendente. Nada foi movido."
       }
@@ -205,10 +215,20 @@
         "resultadoDestaRodada": "pendente por campo nao conferido",
         "motivo": "publicacao inacessivel",
         "condicoesDaSecao4": {
-          "doisCamposConferem": false,
-          "claimSustentada": false,
+          "doisCamposConferem": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
+          "claimSustentada": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
           "semDivergenciaA16": true,
-          "semLocalizadorDivergente": "nao avaliavel sem acesso"
+          "semLocalizadorDivergente": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
+          "nota": "Ausencia de avaliacao nao e resultado negativo. Tres das quatro condicoes ficam NAO AVALIADAS, com motivo; semDivergenciaA16 permanece true porque foi medido sobre comparacaoDosCampos.iguais, que nao depende da publicacao."
         },
         "nota": "Permanece pendente. Nada foi movido."
       }
@@ -295,10 +315,20 @@
         "resultadoDestaRodada": "pendente por campo nao conferido",
         "motivo": "publicacao inacessivel",
         "condicoesDaSecao4": {
-          "doisCamposConferem": false,
-          "claimSustentada": false,
+          "doisCamposConferem": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
+          "claimSustentada": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
           "semDivergenciaA16": true,
-          "semLocalizadorDivergente": "nao avaliavel sem acesso"
+          "semLocalizadorDivergente": {
+            "estado": "nao avaliado",
+            "motivo": "publicacao inacessivel na rodada de 16/09/2026: nada foi observado"
+          },
+          "nota": "Ausencia de avaliacao nao e resultado negativo. Tres das quatro condicoes ficam NAO AVALIADAS, com motivo; semDivergenciaA16 permanece true porque foi medido sobre comparacaoDosCampos.iguais, que nao depende da publicacao."
         },
         "nota": "A unidade PERMANECE conferida pelo registro anterior, que esta rodada preserva e NAO revoga. O resultado desta rodada e sobre a REconferencia, que nao foi possivel."
       }
@@ -349,5 +379,44 @@
     "main em 33c1fdf",
     "as quatro conferencias anteriores",
     "evidencias.json, contexto-estatico.json, C1-recuperacao.json e casos.json, byte a byte"
-  ]
+  ],
+  "ausenciaNaoEhNegativa": "Correcao de 16/09/2026. O registro anterior trazia doisCamposConferem: false e claimSustentada: false ao lado de avaliacoes INCONCLUSIVAS por falta de acesso. false afirmaria que os textos nao correspondem e que a claim nao se sustenta, e nada disso foi observado. Os dois passam a nao avaliado, com motivo. semDivergenciaA16 continua true, porque essa condicao FOI conferida e nao depende da publicacao.",
+  "tresIndicadores": {
+    "nota": "Tres indicadores DISTINTOS, e eles nao se substituem. Isto preserva o historico sem transformar conferencia antiga, de alcance menor, em liberacao atual.",
+    "contagemHistoricaPreservada": {
+      "conferidas": 4,
+      "pendentes": 161,
+      "denominador": 165,
+      "formanEstaEntreAsQuatro": true,
+      "formanEndereco": [
+        "forman1998_aggregating key_claims[2]"
+      ],
+      "unidadesAnterioresFORAdestaRevisao": 3,
+      "detalheForaDestaRevisao": [
+        "forman1998_aggregating key_claims[4]",
+        "ossadnik2016_group_aggregation key_claims[0]",
+        "ossadnik2016_group_aggregation key_claims[2]"
+      ],
+      "alcance": "Contagem historica, com o alcance que cada conferencia teve na sua epoca. ⚠ As tres unidades fora desta revisao NAO passam automaticamente a atender aos criterios novos: elas nao foram reavaliadas."
+    },
+    "novasConferenciasNaRodadaAnterior": {
+      "total": 0,
+      "alcance": "A rodada de 16/09/2026 documentou impedimento de acesso e NAO concluiu nenhuma conferencia nova."
+    },
+    "trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual": {
+      "total": 0,
+      "denominador": 3,
+      "alcance": "Zero de tres ANTES da rodada de fechamento. Criterio atual e o das quatro condicoes, com correspondencia textual e sustentacao avaliadas SEPARADAMENTE contra a publicacao. Nenhum dos tres o atende por demonstracao, inclusive forman1998_aggregating key_claims[2], cuja conferencia historica nao traz veredito separado de sustentacao."
+    }
+  },
+  "rodadaDeFechamento": {
+    "data": "2026-09-16",
+    "base": "a4a8f4c49000b26cc4d2db96a75699b297926344",
+    "oQueFoiPedido": "Fechar a conferencia com os tres PDFs em maos, em C:\\AHP-BOCR\\preservado\\, rodando na maquina Windows.",
+    "oQueFoiExecutado": "Apenas os dois ajustes no registro existente, da secao 2 do prompt. A conferencia das publicacoes NAO foi executada.",
+    "porQue": "A sessao NAO e a maquina Windows. Medido: uname diz Linux 6.18.44-fc-v33 x86_64, Ubuntu 24.04.4 LTS, em conteiner. Nao existe C:\\AHP-BOCR\\preservado, nem /mnt/c, nem /c, nem qualquer montagem de disco Windows; mount lista so /dev/vda em /, squashfs de skills e volumes somente leitura do proprio agente. find por *.pdf em todo o sistema devolve dois arquivos, ambos de infraestrutura: um exemplo de skill e um asset de erro do LibreOffice. find por AHP-BOCR ou preservado nao devolve nada. /mnt/attach e /mnt/user-data/working estao vazios.",
+    "falsoPositivoDescartado": "A busca por arquivos recentes encontrou caminhos com saaty1977 e wijnmalen2007 em /tmp/jest_0, que sao CACHE DE TRANSPILACAO do jest sobre os .ts do proprio repositorio, e NAO publicacoes. Nome de arquivo e hipotese, nao evidencia.",
+    "consequencia": "Os tres trechos continuam com os campos de citacao NAO CONFERIDOS e a sustentacao INCONCLUSIVA, pelo motivo da rodada anterior. Nenhum resultado foi inventado, e nenhuma unidade mudou de estado.",
+    "comoDestravar": "Executar este mesmo prompt a partir de uma sessao na maquina que tem os PDFs, ou anexar os tres arquivos a uma sessao que os alcance. Sem a publicacao aberta, qualquer resultado de confere seria afirmacao sem lastro."
+  }
 }

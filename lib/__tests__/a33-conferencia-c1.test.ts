@@ -135,6 +135,47 @@ describe('A.33: registro da conferência de C1', () => {
     }
   });
 
+  test('ausência de avaliação NÃO é registrada como resultado negativo', () => {
+    for (const t of conferencia.trechos) {
+      const c = t.resultadoDaUnidade.condicoesDaSecao4;
+      // ⚠ `false` afirmaria que os textos não correspondem e que a claim não se
+      // sustenta. Nada disso foi observado: a publicação não foi aberta.
+      for (const chave of ['doisCamposConferem', 'claimSustentada', 'semLocalizadorDivergente']) {
+        expect(`${t.identidade.articleId}.${chave}`).toBe(`${t.identidade.articleId}.${chave}`);
+        expect(c[chave]).not.toBe(false);
+        expect(c[chave].estado).toBe('nao avaliado');
+        expect(c[chave].motivo).toBeTruthy();
+      }
+      // ⚠ Este FOI conferido, sobre `comparacaoDosCampos.iguais`, que não depende
+      // da publicação. Continua `true`, e não vira "não avaliado".
+      expect(c.semDivergenciaA16).toBe(true);
+    }
+    // O campo diz por que `false` era errado: afirmaria o que não se observou.
+    expect(conferencia.ausenciaNaoEhNegativa).toMatch(/nada disso foi observado/i);
+    expect(conferencia.ausenciaNaoEhNegativa).toMatch(/semDivergenciaA16 continua true/i);
+  });
+
+  test('os TRÊS indicadores ficam separados, e o histórico não vira liberação atual', () => {
+    const i = conferencia.tresIndicadores;
+    // 1: contagem histórica, preservada com o alcance de cada época.
+    expect(i.contagemHistoricaPreservada.conferidas).toBe(estado('conferido').length);
+    expect(i.contagemHistoricaPreservada.pendentes).toBe(estado('pendente').length);
+    expect(i.contagemHistoricaPreservada.formanEstaEntreAsQuatro).toBe(true);
+    // ⚠ Forman está DENTRO desta revisão, então sobram três anteriores fora dela.
+    expect(i.contagemHistoricaPreservada.unidadesAnterioresFORAdestaRevisao).toBe(3);
+    expect(i.contagemHistoricaPreservada.detalheForaDestaRevisao).toHaveLength(3);
+    expect(i.contagemHistoricaPreservada.alcance).toMatch(/NAO passam automaticamente|não passam automaticamente/i);
+    // 2: nenhuma conferência nova foi concluída na rodada anterior.
+    expect(i.novasConferenciasNaRodadaAnterior.total).toBe(0);
+    // 3: nenhum trecho de C1 demonstra atendimento ao critério atual.
+    expect(i.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total).toBe(0);
+    expect(i.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.denominador).toBe(3);
+    // ⚠ Os três são indicadores DISTINTOS: 4 conferidas no histórico não é o
+    // mesmo que 4 atendendo ao critério atual, e o registro não os confunde.
+    expect(i.contagemHistoricaPreservada.conferidas)
+      .not.toBe(i.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total);
+  });
+
   test('o registro declara o alcance do "confere" e a regra de agregação', () => {
     expect(conferencia.alcanceDoConfere).toMatch(/RECORTE/);
     // A frase de alcance exigida: nenhum resultado certifica afirmação futura.
