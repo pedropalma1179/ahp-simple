@@ -7317,6 +7317,267 @@ em `33c1fdf`**, lida e não tocada.
 ⚠ **A conferência de C1 NÃO está concluída.** Saaty permanece **pendente de inspeção
 visual**, e Wijnmalen tem **não correspondência textual observada na extração**.
 
+### A.33: medição dos três PDFs e inspeção visual de Saaty p. 237, em 16/09/2026
+
+**Gravação:** `a00fb5e3b8758b989d732d63c4bf8fcdae473581`, correção do ISSN, e
+`ae580c641a821800480c719e32cda45f183d2769`, medição, sobre a base
+`99bc69f78a258a4d2782f1fd01d93d4bd3da84ef`. **Branch de sessão declarada:**
+`inspecao/saaty-237`, com integração em `integra/a30-registros` por
+**fast-forward** ao fim. Resultados em
+`docs/dados/a33-conferencia-c1/medicao-pdfs.json`, e o instrumento em
+`docs/dados/a33-conferencia-c1/instrumentos/medir_pdfs.py`.
+
+⚠ **Esta rodada MEDIU na própria sessão de execução**, na máquina Windows que tem
+os arquivos, e **o que ela mediu deixa de ser valor recebido**. Sem geração, sem
+alteração da base de artigos, dos textos preparados ou do índice, sem reingestão.
+⚠ **Os PDFs ficam fora do repositório**, em `C:\AHP-BOCR\preservado\`.
+
+**Porta de entrada.** Os três arquivos foram localizados, e a busca foi a listagem
+de `C:\AHP-BOCR\` e de `C:\AHP-BOCR\preservado\`:
+
+| Fonte | Arquivo | Bytes |
+|---|---|---:|
+| Saaty 1977 | `AHP_Scalling_Method_Saaty_1977.pdf` | 2 687 181 |
+| Wijnmalen 2007 | `Analysis_of_benefits_opportunities_costs_and_risks_BOCR_with_the_AHP_ANP.pdf` | 386 555 |
+| Forman e Peniwati 1998 | `Aggregating_individual_judgments_and_priorities_with_the_AHP.pdf` | 479 080 |
+
+Topo em `99bc69f78a258a4d2782f1fd01d93d4bd3da84ef`, branch `inspecao/saaty-237`,
+`git status --short` vazio, `git diff HEAD` vazio, e
+`git merge-base --is-ancestor origin/integra/a30-registros HEAD` com código **0**.
+Comandos em Git Bash, código por `$?`.
+
+#### O SHA-256, recalculado aqui
+
+Os três foram recalculados **por três vias** — `sha256sum`, `certutil -hashfile` e
+`hashlib` no instrumento — e as três deram o mesmo valor. **Os três coincidem com
+os registrados.** ⚠ **São dois fatos, e ficam separados no registro:**
+
+| Fato | O que ele demonstra |
+|---|---|
+| o recálculo | **verifica o arquivo efetivamente acessado nesta execução** |
+| a coincidência com o valor recebido | **confirma a igualdade dos hashes, e nada além disso** |
+
+⚠ **A coincidência NÃO demonstra que a extração anterior veio destes arquivos.** A
+extração da outra sessão não está disponível aqui, e esse vínculo continua **não
+estabelecido**.
+
+#### A posição da página, verificada e não assumida
+
+**Procedimento:** renderizar com PDFium a posição registrada e as duas vizinhas, e
+**ler, na imagem, o número impresso no cabeçalho**.
+
+| Fonte | Página impressa | Marcadores lidos nas posições | Posição medida | Registrada |
+|---|---:|---|---:|---:|
+| Saaty 1977 | 237 | 236, **237**, 238 em 3, 4, 5 | **4** | 4 |
+| Wijnmalen 2007 | 899 | 898, **899**, 900 em 7, 8, 9 | **8** | 8 |
+| Forman e Peniwati 1998 | 167 | 166, **167**, 168 em 2, 3, 4 | **3** | 3 |
+
+**As três coincidem.** ⚠ **Isso verifica a posição NESTES arquivos**, e não
+demonstra que a extração anterior tenha vindo deles. As contagens de páginas, 48,
+14 e 5, também coincidem.
+
+⚠ **Saaty e Forman são digitalizações**: cada página é um mosaico de tiras de
+imagem de 1 bit, sob uma camada de texto OCR. **Antes de olhar**, contei os
+operadores que mostram texto por modo de renderização: **todos estão no modo 3,
+invisível**, nas cinco primeiras posições do Saaty e nas três olhadas do Forman.
+**A imagem olhada é a digitalização, e não a camada OCR**, que é justamente a que
+corrompe a notação. Wijnmalen é composto em pdfeTeX, com texto vetorial visível.
+
+#### Saaty p. 237, inspeção visual
+
+**Ferramenta:** PDFium 153.0.7999.0, por pypdfium2 5.13.0, e Pillow 12.1.0 para
+recortar e ampliar; a leitura foi feita **olhando as imagens**. **Procedimento:**
+renderizar a posição 4 inteira para localizar a frase; renderizá-la a 300/72, a
+resolução nativa das tiras, cerca de 300 dpi; recortar as três linhas do
+parágrafo; ampliar duas vezes o início; e renderizar as posições 1 a 3 para situar
+a frase na seção e ler o contexto da `claim`.
+
+**Os três pontos, e nenhum foi assumido:**
+
+| Ponto | O que traz |
+|---|---|
+| **impresso** | *"It turns out that **a** reciprocal matrix A with positive entries is consistent if and only if **λmax = n** (Theorem 1 below)."* |
+| **extração** | *"It turns out that **a** reciprocal matrix A with positive entries is consistent if and only if **h max = a** (Theorem 1 below)."* |
+| **recorte** | `A reciprocal matrix A with positive entries is consistent if and only if \lambda_{max} = n` |
+
+No impresso, **λ está em itálico, com o subíndice `max` em tipo redondo** e corpo
+menor, e ***n* em itálico**. **A primeira letra do trecho é `a` MINÚSCULA**, porque
+a frase impressa abre com *It turns out that*.
+
+⚠ **A extração é NOVA e documentada**, da camada de texto **deste** arquivo, por
+quatro vias que trazem as mesmas palavras: os operadores crus, o `extract_text` do
+pypdf, o PDFium e o `pdftotext`. **Não é a extração da outra sessão**, que não está
+disponível. A descrição recebida, *expressão corrompida na extração*, é
+**compatível** com o observado, ⚠ **e compatibilidade não é identidade**.
+
+**O recorte é idêntico, byte a byte, aos dois campos da base**, e os dois campos são
+idênticos entre si. **O recorte preparado não introduziu diferença própria.** A base
+registra *Extracted on 2026-02-11* e *Extraction prompt version v3.0*, **e não
+registra o texto de entrada**; o trecho está no arquivo desde `7f46e3a`, de
+16/04/2026. A base é, portanto, **anterior** à extração da outra sessão, que não
+pode ter sido a sua fonte.
+
+**As diferenças, cada uma confrontada com os três pontos:**
+
+| | Transformação | Impresso | Extração | Recorte | Onde surgiu |
+|---|---|---|---|---|---|
+| D1.a | supressão **não sinalizada** de *It turns out that* | não | não | **sim** | **origem não determinada** |
+| D1.b | **caixa**: `a` → `A`, não sinalizada | não | não | **sim** | **origem não determinada** |
+| D2.a | λ lido como `h` | não | **sim** | não | na camada OCR deste arquivo |
+| D2.b | *n* lido como `a` | não | **sim** | não | na camada OCR deste arquivo |
+| D2.c | subíndice achatado em palavra separada | não | **sim** | não | na camada OCR deste arquivo |
+| D2.d | conversão para LaTeX, **com os mesmos símbolos** | não | não | **sim** | **origem não determinada** |
+| D3.a | truncamento **não sinalizado** de *(Theorem 1 below).* | não | não | **sim** | **origem não determinada** |
+
+⚠ **A expressão matemática tem QUATRO transformações**, três na extração e uma na
+base, e as quatro constam. ⚠ **As da extração são determinadas para ESTE arquivo**;
+que a extração anterior seja a mesma não está demonstrado.
+
+⚠ **Nas quatro de origem não determinada, a atribuição não foi forçada.** A
+evidência disponível estreita o lugar: **não estão no impresso nem na camada de
+texto deste arquivo, e o recorte as herdou da base**; surgiram, portanto, na
+criação da base ou no texto que a alimentou. ⚠ **A pendência é específica:
+identificar o texto de entrada da extração v3.0 de 11/02/2026**, para separar
+escolha do extrator de transcrição herdada. ⚠ **O recorte não carrega os erros da
+camada OCR**, `h` e `a`, então essa camada **não** é o texto de onde ele foi
+copiado literalmente.
+
+**Classificação, no vocabulário vigente:**
+
+| Campo | Resultado | Motivo |
+|---|---|---|
+| `verbatim_quote` | **não confere** | **alteração de caixa não sinalizada na primeira letra**, D1.b: o impresso traz `a`, precedido de *It turns out that*, e o recorte traz `A`, apresentando como início de frase o que no impresso é continuação dela. **Nenhuma palavra, símbolo ou proposição foi trocada.** |
+| `evidence.quote` | **não confere** | o mesmo: os dois campos são idênticos |
+| localizador | compatível | p. 237 na posição 4; a seção 2, *Ratio Scales from Reciprocal Pairwise Comparison Matrices*, começa na p. 235, e as pp. 236 e 237 não trazem título até a frase |
+
+⚠ **Nenhuma categoria nova.** ⚠ **O critério aplicado é a correspondência literal,
+e há nele uma decisão que fica registrada para revisão do autor:** a conversão de
+notação, D2.d, **não** foi contada como não correspondência, porque texto plano não
+reproduz subíndice e os símbolos correspondem; a alteração de caixa, D1.b, **foi**,
+porque texto plano reproduz a minúscula e o recorte a trocou.
+
+**Sustentação da `claim`: sustentada.** Na p. 237, a matriz recíproca de entradas
+positivas é consistente se e somente se λmax = *n*; na p. 236, consistente é a
+propriedade cardinal a_ij a_jk = a_ik, e λmax é o autovalor que o período sobre
+Perron-Frobenius caracteriza como real, positivo e de maior módulo; na p. 235, a
+matriz compara *n* objetos. ⚠ **Sustentada no domínio que o trecho declara**,
+o de matriz recíproca de entradas positivas, restrição que a `claim` omite e que no
+AHP é a da matriz de comparações.
+
+**Unidade: continua pendente**, agora **por não correspondência textual com a
+página impressa**. Das quatro condições, falta uma: os dois campos conferirem. A
+redação do encaminhamento é: *"Achado adicional encaminhado à A.16, de não
+correspondência com a página impressa da publicação. A contagem histórica das 19
+divergências entre campos permanece inalterada."* ⚠ **Fora das 19**, pelo mesmo
+critério de Wijnmalen: os dois campos coincidem entre si e diferem do impresso.
+⚠ **A base NÃO foi corrigida.**
+
+#### A precisão bibliográfica, em `a00fb5e`
+
+⚠ **O ISSN identifica o PERIÓDICO, não o artigo**, e aparecia como
+`identificadorDaObra` do Saaty. O campo passa a dois, `identificadorDoArtigo` e
+`identificadorDoPeriodico`. **DOI e PII continuam identificando o artigo**, no
+Wijnmalen e no Forman. Para o Saaty, o registro diz **"identificador de artigo não
+registrado"**, ⚠ **o que descreve o registro, e não afirma nada sobre o artigo.**
+A frase que agrupava os três passou a distinguir: medidas **8 ocorrências** antes,
+em quatro arquivos, e **uma** depois, a do teste que a proíbe. **Isto não reabre
+as duas correções aceitas em `99bc69f`.**
+
+**Achado registrado sem adoção:** o título nos metadados do arquivo do Saaty traz
+`PII: 0022-2496(77)90033-5`. **É metadado, não texto impresso, e não foi
+verificado contra o editor**, então **não ocupa** o identificador de artigo.
+Adotá-lo é decisão fora desta rodada. Nos outros dois, o título dos metadados
+coincide com o DOI e com o PII registrados.
+
+#### Estado de verificação por arquivo
+
+| | Antes | Depois |
+|---|---|---|
+| caminho, nome e tamanho | não registrados | **medidos** |
+| SHA-256 | recebido | **recalculado, coincidente** |
+| contagem de páginas | recebida | **medida, coincidente** |
+| posição da página impressa | recebida | **verificada nos arquivos, coincidente** |
+| texto de Saaty p. 237 | pendente de inspeção visual | **inspecionado: não confere** |
+| vínculo entre a extração anterior e os arquivos | não estabelecido | **continua não estabelecido** |
+| versão do arquivo | não demonstrada | **continua não demonstrada** |
+| texto de Wijnmalen p. 899 | não correspondência **na extração** | **continua como estava**: não inspecionado |
+| texto de Forman p. 167 | confere **na extração** | **continua como estava**: não inspecionado |
+
+Os valores recebidos ficam **preservados como recebidos**, com ponteiro para a
+medição, e o estado anterior da rastreabilidade fica em `estadoAte99bc69f`.
+
+⚠ **As contagens não mudam:** **4 conferidas e 161 pendentes**, sobre **165
+distintas**. Saaty era pendente e continua pendente. ⚠ **Nenhum total é
+antecipado**, e o indicador de atendimento ao critério atual **continua 0 de 3**.
+
+#### O instrumento, e a conferência da sua primeira execução
+
+`medir_pdfs.py` mede o que é mecânico e **não lê as imagens**: a leitura do
+marcador e da frase é observação, registrada à parte. **Roda fora da suíte**,
+porque depende dos PDFs. Na primeira execução, **o caso mais visível foi conferido
+à mão**: as imagens da frase, do início ampliado e da página a 300 dpi que ele gera
+têm **SHA-256 idêntico** ao das inspecionadas antes dele, e os três cabeçalhos alvo
+que ele gera foram olhados e trazem 237, 899 e 167. O SHA-256 de cada imagem está
+no registro: com o PDF de mesmo SHA-256 e as mesmas versões, a renderização se
+reproduz.
+
+#### Verificação medida, depois de executar
+
+**Linha de base nesta máquina, antes de qualquer alteração rastreada**, Windows 11,
+Node v24.12.0, npm 11.18.0: `tsc` **0**; `jest --runInBand` saiu **1**. Na primeira
+execução, **3 falhas em 2 suítes**, de **299** testes, sem os nomes guardados; na
+segunda, **1 falha**, com **298** passando.
+
+⚠ **As falhas são ambientais, e a causa foi medida:**
+
+- **CRLF.** O `~/.gitconfig` desta máquina tem `core.autocrlf=true`; `git ls-files
+  --eol` mostra `i/lf w/crlf` nos dados da etapa 4, e o teste *casos.json volta a
+  registrar o resumo vigente* compara o SHA-256 dos bytes da árvore com o do blob.
+- **Tempo.** Duas de `rag-diagnostico-regressao` estouram o limite de 5000 ms em
+  parte das execuções completas; **isolada, a suíte passa 16 de 16 em menos de 2
+  s**.
+
+| Medição | `tsc` | Suítes | Testes | Passando | Saída |
+|---|---:|---:|---:|---:|---:|
+| linha de base, 2ª execução | 0 | 21 | 299 | 298 | 1 |
+| depois de `a00fb5e` | 0 | 21 | 300 | 299 | 1 |
+| depois de `ae580c6` | 0 | 21 | 305 | 302 | 1 |
+| **clone raso de um commit, LF, em `ae580c6`** | **0** | **21** | **305** | **305** | **0** |
+
+⚠ **Na condição do CI**, clone raso de **um** commit com checkout LF, **tudo passa**.
+O teste de C1 passou de 17 para **22** casos. **Testes ajustados, um a um:** três
+asserções da frase agrupada, em `a00fb5e`, porque a frase mudou por pedido
+explícito; e duas de estado, em `ae580c6`, porque o item 12 do pedido tira do
+estado "recebido" o que foi medido — o estado anterior fica em
+`estadoAte99bc69f`. **Os casos novos foram conferidos por onze contraexemplos**,
+dois em `a00fb5e` e nove em `ae580c6`, cada um reprovando **exatamente** o caso
+previsto, entre eles: a coincidência do SHA-256 passando a provar o vínculo, a
+expressão perdendo transformações, origem não determinada sem pendência,
+categoria nova, recorte divergindo dos dados versionados, Saaty movido para
+conferido com condição em falta, e o vínculo com a extração anterior dado como
+verificado. **Restauro por SHA-256 idêntico.**
+
+**Nada foi alterado** em `lib/rag/articles/`, nos artefatos da etapa 4, nos textos
+preparados, nos `trechoId`, no índice, nas 19 divergências de A.16 ou em `main`.
+**Nenhum PDF na árvore**, conferido por `git status --short`, por
+`git ls-files '*.pdf'`, que devolve 0, e pelo diff. **Nenhuma geração.**
+
+⚠ **Predição não cabe**: a rodada mede arquivos e **não altera o contexto entregue
+ao modelo**. **A predição de A.33 segue não testada.**
+
+**Publicação e CI, estado observado.** `inspecao/saaty-237` foi publicada com
+`a00fb5e` e `ae580c6` num só push, código **0**. A execução **`35135930664`**,
+evento `push`, sobre o SHA completo `ae580c641a821800480c719e32cda45f183d2769`,
+foi observada **`completed/success`**, com os sete passos em `success`, entre eles
+typecheck, build e testes. ⚠ **`a00fb5e` não tem execução própria**: a API devolve
+zero execuções para esse SHA, porque o push publicou os dois commits juntos. O CI
+deste commit documental, e o da integração, são observação posterior.
+⚠ **`main` permanece em `33c1fdf`**, lida e não tocada.
+
+⚠ **A conferência de C1 NÃO está concluída.** Wijnmalen segue com **não
+correspondência observada na extração**, e **as confirmações visuais do texto de
+Wijnmalen e de Forman não foram feitas nesta rodada**.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
