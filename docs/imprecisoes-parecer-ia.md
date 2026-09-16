@@ -7931,6 +7931,211 @@ completo `4309f7e662091f050c220c458d042d856e342352`, foi observada
 **`completed/success`**. O CI deste commit documental, e o da integração, são
 observação posterior. ⚠ **`main` permanece em `33c1fdf`**.
 
+### A.16: três trechos corrigidos na base e uma claim reescrita — predição registrada ANTES, em 16/09/2026
+
+**Base:** `23a3463`, branch `inspecao/wijnmalen-forman`, árvore limpa. **Decisão do
+autor, nesta sessão:** corrigir em `lib/rag/articles/` os dois trechos de C1 que não
+conferem, **a partir das inspeções já registradas** — `medicao-pdfs.json`, campo
+`inspecaoVisualSaaty237`, e `inspecao-wijnmalen-forman.json`, `trechos[0]`. **Nenhum
+PDF foi reaberto.** O CI de `23a3463` foi observado antes de começar:
+`35154248514` e `35154259492`, `completed/success`, nas duas branches.
+
+⚠ **Exige predição porque altera o que o modelo recebe.** O contexto estático é
+montado da base em tempo de execução: `claimToRef`, em
+`app/api/ai-reviewer/knowledge.ts`, põe a `claim` em `topic` e o `evidence.quote` em
+`rule`.
+
+#### Escopo, decidido antes de editar
+
+| # | Unidade | Campo | Antes | Depois | Natureza |
+|---|---|---|---|---|---|
+| E1 | `saaty1977_scaling` `key_claims[0]` | `verbatim_quote` e `evidence.quote` | `A reciprocal matrix A with positive entries is consistent if and only if \lambda_{max} = n` | o mesmo, com **`a` minúsculo** | mecânica: D1.b |
+| E2 | `wijnmalen2007_bocr` `key_claims[0]` | `verbatim_quote` e `evidence.quote` | `synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship` | `Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.` | mecânica: W1.a, W1.b e W2.a |
+| E3 | `wijnmalen2007_bocr` `key_claims[3]` | **só** `evidence.quote` | o mesmo de E2 | o mesmo de E2 | mecânica: mesmo texto, mesma página, mesmo localizador |
+| J1 | `wijnmalen2007_bocr` `key_claims[0]` | `claim` | `Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.` | `BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.` | **julgamento**: sustentação parcial |
+
+**E1 a E3 e J1 vão em commits separados**, pela regra de não misturar critério
+mecânico com julgamento.
+
+**As razões de cada escolha:**
+
+- **E1, forma mínima.** O motivo registrado do *não confere* é só a caixa, D1.b. **O
+  início suprimido, D1.a, e a remissão final, D3.a, ficam**, e a notação LaTeX segue
+  como representação equivalente escolhida.
+- **E2, a frase vai até o ponto final.** O truncamento W2.a apagava entre o que é a
+  relação. ⚠ **A ligadura `ﬁ` de *benefits* é transcrita como `f` e `i`**:
+  normalização declarada, porque a ligadura é glifo, não letra, e o PDFium já a
+  entrega assim.
+- **E3, só o `evidence.quote`.** O `verbatim_quote` e a `claim` de `key_claims[3]`
+  ficam para A.16, e **a unidade continua divergente**: os dois campos seguem
+  diferentes. Sem E3, o modelo receberia **as duas versões do mesmo trecho**, com a
+  mesma página.
+- **J1, apoio na inspeção registrada:** a primeira frase do terceiro parágrafo,
+  *"Synthesis however requires commensurate priorities on a common scale"*, e a
+  última do quarto, *"BOCR synthesis of priorities is deceiving if it is composed of
+  sets of measures that have not been adjusted relative to each other and are
+  therefore not commensurate."* **Saem os três pontos que carregavam o excesso:**
+  *on different factors*, *before synthesis* e *to guarantee valid BOCR outcomes*.
+- ⚠ **J1, o comprimento, medido antes de editar.** A primeira redação aprovada tinha
+  **153** caracteres, e `claimToRef` corta `topic` acima de 120, em 117 mais
+  reticências: **o modelo receberia a claim sem "is deceiving"**, isto é, sem o
+  predicado. O autor escolheu a versão de **119** caracteres, que chega inteira.
+  ⚠ **O corte no código NÃO é corrigido aqui**, e fica registrado como achado: é uma
+  interface entre base e prompt que apaga texto sem sinal além das reticências.
+- **O snapshot `docs/dados/a33-etapa4/` NÃO é propagado**, por decisão do autor. Os
+  textos preparados e os `trechoId` ficam como estão, e **uma nova versão do
+  snapshot é etapa própria, antes da etapa 4**. As conferências registradas de C1
+  descrevem as unidades do snapshot, e **não mudam**.
+
+#### O que foi medido antes, simulando a edição principal
+
+**A edição E1, E2, E3 e J1 foi aplicada na árvore, medida e revertida**, antes deste
+registro. Dois instrumentos: a base viva, lida por `getAllArticles`; e a montagem
+pelo **handler real**, com os três clientes simulados e sem chunks, por um teste
+**temporário e não versionado** que reutiliza, por faixa de linhas, o harness de
+`a33-montagem-contexto.test.ts`.
+
+⚠ **Instrumento novo, conferido na primeira execução, e ele errou no centro:** deu
+**zero em tudo**, porque procurava a base de conhecimento no `system`, e ela vai nos
+`messages`. Corrigido antes de aceitar qualquer número. **Conferência à mão depois
+da correção:** as quatro seções têm **93, 28, 6 e 8** entradas, **135** no total, o
+número registrado; antes da edição, o `textoFormatado` das quatro seções de
+`contexto-estatico.json` está contido, byte a byte, no contexto montado; e o
+`system` montado tem o SHA-256 `635fda53…`, **o mesmo** que
+`rag-semantic-states.test.ts` fixa.
+
+**O que chega ao modelo, antes e depois, sem chunks:**
+
+| Cadeia | Seção de consistência | Seção BOCR | Seções de sensibilidade e críticas | Total |
+|---|---:|---:|---:|---:|
+| Wijnmalen, forma transformada | 2 → **0** | 2 → **0** | 0 → 0 | 4 → **0** |
+| Wijnmalen, forma corrigida | 0 → **2** | 0 → **2** | 0 → 0 | 0 → **4** |
+| Saaty, `A` maiúsculo | 1 → **0** | 0 → 0 | 0 → 0 | 1 → **0** |
+| Saaty, `a` minúsculo | 0 → **1** | 0 → 0 | 0 → 0 | 0 → **1** |
+| claim antiga de `key_claims[0]` | 1 → **0** | 1 → **0** | 0 → 0 | 2 → **0** |
+| claim nova, **inteira** | 0 → **1** | 0 → **1** | 0 → 0 | 0 → **2** |
+| **controle:** Saaty `key_claims[1]` | 1 → 1 | 0 → 0 | 0 → 0 | 1 → 1 |
+| **controle:** Wijnmalen `key_claims[1]` | 1 → 1 | 1 → 1 | 0 → 0 | 2 → 2 |
+
+- **Nenhuma referência mudou de seção:** 93, 28, 6 e 8 antes e depois, e as
+  referências de Wijnmalen (2007) e Saaty (1977) são as mesmas em cada seção. ⚠ **A
+  seleção é por substring**, que é A.31, e a claim nova acrescenta *bocr* e
+  *synthesis*; a medição mostra que isso não moveu nada, porque o alias `cr` já
+  punha todas as claims do Wijnmalen na seção de consistência.
+- **O `system` não muda.** Os `messages` crescem **384 bytes**, exatamente
+  4 × (211 − 123) + 2 × (119 − 103).
+- **Seções de sensibilidade e críticas: idênticas ao snapshot. Consistência e BOCR:
+  deixam de coincidir com ele**, que é a consequência de não propagar.
+- **Base viva: 26 divergências entre 138 claims com os dois campos, a mesma lista
+  antes e depois**; Saaty e Wijnmalen `key_claims[0]` com os dois campos iguais;
+  `key_claims[3]` continua na lista. Conferido na primeira execução: o 26 é o número
+  registrado, e a lista traz `wijnmalen2007_bocr[2]`, `[3]` e `[4]`, como o protocolo
+  de C1 diz.
+- ⚠ **O trecho de Forman `key_claims[2]` NÃO está no contexto estático**: zero
+  ocorrências. Ele só chega pelos chunks de C1, e por isso não serve de controle aqui.
+
+**A suíte, esta máquina, Windows 11, Node v24.12.0:**
+
+| Medição | Suítes | Testes | Passando | Falhas |
+|---|---:|---:|---:|---|
+| linha de base, `23a3463` | 21 | 312 | 309 | CRLF de `casos.json` e os dois intermitentes, as já registradas |
+| **com a edição simulada** | 21 | 312 | 309 | CRLF; os dois intermitentes **passaram nesta execução**; e **duas novas** |
+
+**As duas novas são controles por resumo SHA-256, e a mudança é intencional:**
+`rag-semantic-states.test.ts`, *CONTEXTO: o que A.33 moveu*, que fixa o resumo dos
+`messages`; e `a33-identidade-revisada-medicao.test.ts`, *resultados publicados
+correspondem às entradas*, que fixa o SHA-256 dos arquivos-fonte da medição
+publicada. **Nessa segunda, os resultados da medição continuam iguais**; só o
+SHA-256 dos dois arquivos editados diverge. **A correção é atualizar a referência
+nomeando o valor anterior, e não apagar o controle.** `medicao.json` é medição
+histórica e **não** se reescreve.
+
+⚠ **Erro de ambiente pego antes deste registro:** reverter a simulação com
+`git apply -R`, sob `core.autocrlf=true`, regravou os dois arquivos com **CRLF**, e o
+SHA-256 em disco deixou de bater com o registrado. Restaurados com os bytes exatos do
+`HEAD`: **`4b44bd34…`** para o Saaty e **`d24c49fd…`** para o Wijnmalen, os mesmos de
+`medicao.json`, e LF na árvore.
+
+#### A predição
+
+**Alcance:** pareceres gerados **depois** da edição. Na etapa 4, **C2**, com a
+recuperação semântica desligada, e **C3**, com a recuperação simulada vazia, recebem
+**só** o contexto estático, e é neles que P1 e P2 valem.
+
+⚠ **C1 fica FORA:** os chunks fixados em `C1-recuperacao.json`, que esta tarefa não
+propaga, trazem a forma transformada do Wijnmalen e o Saaty com `A` maiúsculo. **C1
+receberia as duas versões**, e a predição para ele espera o snapshot novo. ⚠ **Em
+produção, com o índice real:** o índice não foi reingerido, que é A.18, e **o
+conteúdo dos chunks guardados para estas claims NÃO foi medido nesta sessão.**
+
+**Precedente observado, e é o que dá poder de discriminação a P1:** o parecer da
+execução 7 citou **literalmente a forma transformada**, *"synthesis requires
+commensurate priorities on a common scale. Therefore, there is a need to know the
+magnitude relationship"*, com minúscula, sem *however* e parando em *relationship*,
+atribuída a Wijnmalen (2007, **p. 903**), junto dos *rescaling weights* — que é a
+claim de `key_claims[3]`.
+
+- **P1.** Nenhum parecer de C2 ou C3 traz a forma transformada: *synthesis requires
+  commensurate priorities* **sem** *however*, nem uma citação desse trecho que pare
+  em *magnitude relationship* sem o complemento.
+- **P2.** Nenhum parecer de C2 ou C3 atribui a Wijnmalen (2007) a **garantia de
+  resultados BOCR válidos** condicionada à comensurabilidade prévia **dos fatores**.
+  ⚠ **O marcador é a garantia de validade do resultado, e NÃO a palavra
+  "garantir"**: a claim de `key_claims[3]`, que continua no contexto, diz
+  *"necessários para garantir a comensurabilidade"*, e casar pela palavra acusaria
+  falso positivo.
+- **Saaty: sem predição de saída.** A mudança é só de caixa, e uma citação posta no
+  início de frase recapitalizaria **legitimamente**; nenhuma leitura do parecer
+  distingue os dois casos. **A verificação do Saaty é contra a fonte e contra a
+  montagem**, e não contra a saída.
+
+**Caso negativo nomeado:** a forma transformada, P1, ou a garantia de validade, P2,
+aparece num parecer de C2 ou C3. **Como a montagem desses casos tem ZERO ocorrências
+das duas formas, medido acima, a origem não seria o contexto estático:** seria
+conhecimento prévio do modelo ou um canal da montagem não mapeado, e a ocorrência se
+confere contra o contexto capturado da própria execução.
+
+**Controle:** Saaty `key_claims[1]` e Wijnmalen `key_claims[1]`, que a tarefa não toca,
+com as mesmas ocorrências no contexto antes e depois; o `system`, idêntico; as seções
+de sensibilidade e críticas, idênticas ao snapshot; e, na saída, **a faixa dos CRs
+individuais**, o controle já declarado de A.33.
+
+⚠ **Limite desta predição, declarado antes:**
+
+- **Confirmação é evidência FRACA.** A instrução vigente, desde A.33, pede paráfrase e
+  não exige citação direta, então a ausência da forma transformada **também é
+  esperada sem esta correção**. **O resultado informativo é a refutação.** Separar as
+  duas causas pediria um parecer gerado com a base antiga e a instrução nova, que não
+  está planejado.
+- **Não testa** a fidelidade da paráfrase, a sustentação do que o parecer afirma, nem
+  **a predição de A.33, que segue não testada**.
+- **A etapa 4 fica desatualizada** nas seções de consistência e BOCR até o snapshot
+  novo: `contexto-estatico.json` deixa de coincidir com a montagem nessas duas.
+
+#### Critérios de aceite, fixados antes
+
+| # | Critério | Esperado |
+|---|---|---|
+| 1 | `git diff HEAD --stat` de cada commit | mecânico: os dois arquivos da base e os testes, com **5 linhas** trocadas na base, 2 no Saaty e 3 no Wijnmalen; J1: **1 linha** no Wijnmalen, e os testes |
+| 2 | forma transformada do Wijnmalen, por `git grep -o -c`, em `lib/` | **0** fora dos testes que a usam como contraexemplo; em `docs/` fica, porque é registro |
+| 3 | base viva | 26 divergências, a mesma lista; `key_claims[0]` dos dois artigos com os dois campos iguais |
+| 4 | montagem | a tabela acima, célula a célula |
+| 5 | SHA-256 em disco dos dois arquivos | igual ao do blob commitado, com LF |
+| 6 | `npx tsc --noEmit` | sai **0** |
+| 7 | suíte | os comportamentos novos passam; **REGISTRO** do total observado **depois** de executar, sem número antecipado; falhas aceitas só as três já registradas |
+| 8 | `docs/dados/`, `C1-recuperacao.json`, `trechoId`, as 19 do snapshot, `main` | **inalterados** |
+
+**Comportamentos que precisam passar**, em teste novo:
+
+| Caso | Resultado esperado |
+|---|---|
+| Wijnmalen `key_claims[0]`, os dois campos | iguais à frase impressa registrada em `inspecao-wijnmalen-forman.json` |
+| Wijnmalen `key_claims[3]`, `evidence.quote` | igual à mesma frase; `verbatim_quote` diferente dela, e a unidade segue divergente |
+| Saaty `key_claims[0]`, os dois campos | começam com `a` minúsculo e, com `\lambda_{max}` lido como `λmax`, estão contidos na frase impressa registrada em `medicao-pdfs.json` |
+| contraexemplos | a forma transformada, o `A` maiúsculo e a frase sem *however* **reprovam** |
+| J1 | a claim é a aprovada, tem até 120 caracteres, e chega ao `topic` **sem corte** |
+| snapshot | as unidades 47, 86 e 89 de `evidencias.json` seguem com o texto antigo, **por decisão** |
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
