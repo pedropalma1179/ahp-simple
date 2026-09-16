@@ -7049,6 +7049,109 @@ institucional, cópia fornecida pelo autor, ou acesso a partir de máquina sem a
 política de egresso. **Sem isso, os trechos de C1 continuam pendentes por campo não
 conferido**, e a etapa 4 segue condicionada.
 
+### A.33: dois ajustes no registro de C1, e a conferência que não pôde ocorrer
+
+**Ajustes:** `a3d0f88eda326ce2240565c52103c11019b6725b`, sobre a base
+`a4a8f4c49000b26cc4d2db96a75699b297926344`. **Branch de trabalho declarada:**
+`claude/loving-shannon-661fy9`, no mesmo SHA de `integra/a30-registros`, com
+integração por **fast-forward** ao fim. Este registro vem **depois** da
+verificação.
+
+⚠ **A conferência das publicações NÃO foi executada, e a razão é de ambiente.** O
+prompt mandava rodar na máquina Windows, onde estão os três PDFs em
+`C:\AHP-BOCR\preservado\`. **Esta sessão não é aquela máquina.** Medido, e não
+suposto:
+
+| O que foi medido | Resultado |
+|---|---|
+| `uname -srm` e `/etc/os-release` | Linux 6.18.44-fc-v33 x86_64, Ubuntu 24.04.4 LTS, em contêiner |
+| `C:\AHP-BOCR\preservado`, `/mnt/c`, `/c`, `/AHP-BOCR` | **nenhum existe** |
+| `mount` | só `/dev/vda` em `/`, mais squashfs de skills e volumes somente leitura do agente. **Nenhum disco Windows** |
+| `find / -iname '*.pdf'` | **dois** arquivos, ambos de infraestrutura: um exemplo de skill e um asset de erro do LibreOffice |
+| `find / -iname 'AHP-BOCR' -o -iname 'preservado'` | **nada** |
+| `/mnt/attach` e `/mnt/user-data/working` | **vazios** |
+
+⚠ **Um falso positivo foi descartado, e vale registrar.** A varredura por arquivos
+recentes devolveu caminhos contendo `saaty1977` e `wijnmalen2007`, em
+`/tmp/jest_0`. **São cache de transpilação do jest sobre os `.ts` do próprio
+repositório**, não publicações. **Nome de arquivo é hipótese, não evidência**, e
+tomá-lo por PDF teria produzido uma conferência inteira sobre o artefato errado.
+
+**Consequência, e nada foi inventado para contorná-la:** os três trechos seguem com
+os campos de citação **não conferidos** e a sustentação **inconclusiva**, pelo
+motivo já registrado. **Nenhuma unidade mudou de estado**, e **nenhum PDF entrou na
+árvore**. Sem a publicação aberta, qualquer "confere" seria afirmação sem lastro —
+exatamente o modo de falha que este projeto documenta.
+
+**O que FOI executado são os dois ajustes da seção 2**, que não dependem dos PDFs.
+
+**Ajuste 2.1: ausência de avaliação não é resultado negativo.** O registro trazia
+`doisCamposConferem: false` e `claimSustentada: false` **ao lado de avaliações
+inconclusivas por falta de acesso**. ⚠ **`false` afirmaria que os textos não
+correspondem e que a claim não se sustenta, e nada disso foi observado.** Os três
+campos não observados — os dois acima e `semLocalizadorDivergente` — passam a
+**`{ estado: "nao avaliado", motivo: … }`**. ⚠ **`semDivergenciaA16: true`
+permanece**, porque **essa condição foi efetivamente conferida**, sobre
+`comparacaoDosCampos.iguais`, e **não depende da publicação**.
+
+**Ajuste 2.2: separar conferência histórica de atendimento ao critério atual.** O
+registro passa a trazer **três indicadores distintos**, que não se substituem:
+
+| Indicador | Estado |
+|---|---:|
+| contagem histórica preservada | **4** conferidas e **161** pendentes, com Forman entre as quatro e **3** unidades anteriores **fora** desta revisão |
+| novas conferências na rodada anterior | **0** |
+| trechos de C1 com atendimento demonstrado ao critério atual | **0 de 3** |
+
+⚠ **As três unidades anteriores fora desta revisão não passam automaticamente a
+atender aos critérios novos**: elas não foram reavaliadas, e o registro diz isso.
+⚠ **Quatro conferidas no histórico não é o mesmo que quatro atendendo ao critério
+atual**, e o teste guarda justamente a distinção entre os dois números.
+
+**Forman continua dentro da revisão, e por isso as anteriores fora dela são três.**
+Sua reavaliação — sustentação da `claim`, versão consultada e resumo criptográfico
+do arquivo — **continua pendente**, porque depende do PDF. ⚠ **O registro histórico
+dele está preservado com o seu alcance**, e **não foi promovido** a atendimento do
+critério atual.
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **21 suítes e 292 testes**, contra 21 e
+290 antes, diferença de **2** casos novos. ⚠ **E também na condição do CI**, em
+**clone raso de um commit**: `tsc` **0** e os mesmos **21 suítes e 292 testes**.
+
+⚠ **Os sete testes da rodada anterior seguem intactos**, como **histórico datado** da
+ausência de acesso e das contagens daquela rodada, e os **dois novos** cobrem os
+ajustes **sem substituir aquela evidência**. Os novos foram conferidos por **três
+contraexemplos**: voltar a afirmar `false` onde nada foi observado **reprova**;
+apagar o `semDivergenciaA16` que **foi** conferido **reprova**; e apresentar o
+histórico como atendimento ao critério atual **reprova**. O restauro foi conferido
+por resumo idêntico.
+
+**Nada foi alterado** em `lib/rag/articles/`, nos textos preparados, nos `trechoId`,
+no índice, nas 19 divergências de A.16 ou em `main`. **Nenhuma geração**, real ou
+simulada. **Nenhum PDF na árvore**, conferido por `git status --short` e pelo diff.
+
+⚠ **Predição não cabe**: a rodada corrige registro e **não altera o contexto
+entregue ao modelo**. **A predição de A.33 segue não testada.**
+
+**Publicação e CI, estado observado.** Publicado em
+`claude/loving-shannon-661fy9`, e `integra/a30-registros` avançou por
+**fast-forward** até `a3d0f88eda326ce2240565c52103c11019b6725b`, conferido antes
+que `origin/integra/a30-registros` era **ancestral** do topo, código de saída **0**
+em Bash — comandos executados em Bash/Linux, e **não se apresenta `$LASTEXITCODE`
+de PowerShell como medido nesta sessão**. **Sem `--force`, sem rebase e sem
+`amend`**, e `git log --merges` sobre o intervalo sai **vazio**. As execuções
+**`35120552613`** e **`35120556094`**, sobre o SHA completo
+`a3d0f88eda326ce2240565c52103c11019b6725b`, foram observadas
+**`completed/success`**, na branch de trabalho e na de integração, com os sete
+passos em `success`. O CI deste commit documental é observação posterior. ⚠ **`main`
+permanece em `33c1fdf`**, lida e não tocada.
+
+**O que destrava:** executar o prompt de fechamento **a partir da máquina que tem os
+PDFs**, ou entregar os três arquivos a uma sessão que os alcance. Enquanto isso, o
+indicador honesto é **0 de 3 trechos de C1 com atendimento demonstrado ao critério
+atual**.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
