@@ -426,7 +426,7 @@
           "total": 1
         }
       ],
-      "estadoAtual": "UM de tres, pela inspecao de Wijnmalen e Forman: Forman reune as quatro condicoes com a pagina impressa aberta; Saaty e Wijnmalen nao conferem com o impresso. Depende do ponto de criterio sobre a enfase retirada em Forman. O alcance abaixo e o texto da rodada anterior, preservado.",
+      "estadoAtual": "UM de tres, pela inspecao de Wijnmalen e Forman: Forman reune as quatro condicoes com a pagina impressa aberta; Saaty e Wijnmalen nao conferem com o impresso. A perda do italico em Forman foi aceita neste recorte, com a transformacao declarada, porque must permanece. O alcance abaixo e o texto da rodada anterior, preservado.",
       "alcance": "Zero de tres. ⚠ A comparacao recebida NAO altera este indicador: ela foi feita sobre TEXTO EXTRAIDO, sem inspecao visual, e o criterio atual exige a evidencia documental prevista. Forman ficou conferido no CONTEUDO sobre extracao, Wijnmalen teve NAO CORRESPONDENCIA textual, e Saaty, inspecionado visualmente depois, NAO confere com a pagina impressa, em medicao-pdfs.json. Nenhuma nova conferencia foi declarada."
     }
   },
@@ -596,7 +596,7 @@
         "encaminhamento": "Achado adicional encaminhado à A.16, de não correspondência com o texto extraído da publicação. A contagem histórica das 19 divergências entre campos permanece inalterada. ⚠ A base NAO e corrigida nesta rodada.",
         "porQueNaoSeSomaAs19": "⚠ Sao CRITERIOS DIFERENTES, e por isso o achado nao entra naquela contagem. As 19 registram divergencia ENTRE CAMPOS DA BASE, verbatim_quote contra evidence.quote. Neste trecho os dois campos COINCIDEM entre si, e diferem do TEXTO EXTRAIDO da publicacao. Somar os dois numeros misturaria medidas de coisas distintas.",
         "medicaoPosterior": "Posicao da p. 899 verificada depois no arquivo, em medicao-pdfs.json. O TEXTO da secao 4 NAO foi inspecionado visualmente: a nao correspondencia de however continua observada NA EXTRACAO.",
-        "inspecaoVisualPosterior": "Feita depois, com o paragrafo completo, em inspecao-wijnmalen-forman.json: os dois campos NAO conferem com o impresso, por omissao de however e alteracao de caixa, ambas nao sinalizadas; e a claim fica PARCIALMENTE SUSTENTADA, em vez de sustentada, como dizia este bloco, porque o paragrafo e a Tabela 6 registram casos que a claim omite. Este bloco e o registro RECEBIDO, e nao foi substituido."
+        "inspecaoVisualPosterior": "Feita depois, com o paragrafo completo, em inspecao-wijnmalen-forman.json: os dois campos NAO conferem com o impresso, por omissao de however e alteracao de caixa, ambas nao sinalizadas; e a claim fica PARCIALMENTE SUSTENTADA, em vez de sustentada, como dizia este bloco, porque a claim exige comensurabilidade das prioridades dos fatores antes de qualquer sintese, e o artigo admite quociente significativo quando os produtos tem unidades compativeis, sem exigir que os quatro totais sejam individualmente iguais. Este bloco e o registro RECEBIDO, e nao foi substituido."
       },
       {
         "articleId": "saaty1977_scaling",

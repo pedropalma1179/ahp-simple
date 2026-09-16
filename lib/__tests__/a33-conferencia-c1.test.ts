@@ -667,14 +667,47 @@ describe('A.33: inspeção visual de Wijnmalen p. 899 e Forman p. 167', () => {
     }
     expect(w.classificacao.verbatim_quote.resultado).toBe('nao confere');
     expect(w.sustentacaoDaClaim.resultado).toBe('parcialmente sustentada');
-    // ⚠ A condição perdida aparece na SUSTENTAÇÃO, e não na correspondência.
-    expect(w.sustentacaoDaClaim.condicaoOmitidaPelaClaim).toMatch(/Tabela 6/);
+    // ⚠ A ressalva aparece na SUSTENTAÇÃO, na redação prescrita, e não na correspondência.
+    const ws = w.sustentacaoDaClaim;
+    expect(ws.condicaoOmitidaPelaClaim).toBe(
+      'A claim exige comensurabilidade das prioridades dos fatores antes de qualquer síntese, enquanto o '
+      + 'artigo admite um quociente significativo quando os produtos têm unidades compatíveis, sem exigir '
+      + 'que os quatro totais sejam individualmente iguais.');
     expect(w.classificacao.verbatim_quote.motivo).not.toMatch(/Tabela 6|produto/);
+    // ⚠ Ordenação correta não é resultado integralmente válido, e os produtos iguais
+    // não dispensam comensurabilidade: ficam na mesma unidade.
+    expect(ws.sobreATabela6).toMatch(/SEPARA ordenacao de indicacao de rentabilidade/);
+    expect(ws.sobreATabela6).toMatch(/Ordenacao correta NAO equivale a resultado BOCR integralmente valido/);
+    expect(ws.fundamentoNoTexto).toMatch(/NAO dispensa toda comensurabilidade/);
+    expect(ws.fundamentoNoTexto).toMatch(/PRODUTOS ficam na mesma unidade/);
+    expect(ws.sobreGuarantee).toMatch(/nao significa que nenhum caso particular possa funcionar/);
+    expect(ws.sobreGuarantee).toMatch(/formulacao INDISCRIMINADA da exigencia para os fatores/);
+    expect(ws.independenciaDosCampos).toMatch(/INDEPENDE/);
+    // Os dois argumentos retirados não voltam.
+    expect(JSON.stringify(ws)).not.toMatch(/sempre da a ordenacao|SEM que as prioridades|omite esses casos/);
     expect(f.classificacao.verbatim_quote.resultado).toBe('confere');
     expect(f.sustentacaoDaClaim.resultado).toBe('sustentada');
-    // A ênfase retirada é transformação declarada e ponto de critério, e não some.
-    expect(f.classificacao.verbatim_quote.motivo).toMatch(/must/);
-    expect(f.classificacao.pontoDeCriterio).toMatch(/revisao do autor/);
+    // ⚠ O confere se sustenta pelo must que PERMANECE, e não pela claim.
+    expect(f.classificacao.verbatim_quote.motivo).toMatch(/must PERMANECE, preservando a obrigacao expressa pelo autor/);
+    expect(f.classificacao.decisaoSobreAEnfase).toMatch(/NESTE recorte/);
+    expect(f.classificacao.decisaoSobreAEnfase).toMatch(/NAO regra geral de que enfase tipografica nunca carrega significado/);
+    expect(f.classificacao.pontoDeCriterio).toBeUndefined();
+    expect(f.classificacao.verbatim_quote.motivo).not.toMatch(/strictly|claim/);
+    expect(f.sustentacaoDaClaim.oQueSustenta).not.toMatch(/strictly/);
+    // ⚠ Nenhum ponto de critério segue pendente.
+    expect(inspecao.oQueNaoSeAnuncia).toMatch(/Nao ha decisao de criterio pendente/);
+    expect(inspecao.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.dependeDe).toBeUndefined();
+    // ⚠ Saaty: só a justificativa muda, e o resultado segue não confere pela caixa.
+    const criterioSaaty = medicao.inspecaoVisualSaaty237.classificacao.criterioAplicado;
+    expect(criterioSaaty).toContain(
+      'A conversão para LaTeX é uma representação equivalente escolhida, aceita porque preserva os símbolos '
+      + 'e a relação matemática, com a transformação declarada.');
+    expect(criterioSaaty).toMatch(/Nao ha decisao pendente/);
+    expect(medicao.inspecaoVisualSaaty237.classificacao.verbatim_quote.resultado).toBe('nao confere');
+    // ⚠ A alegação de impossibilidade do meio não aparece em nenhum dos três registros.
+    for (const r of [medicao, inspecao, conferencia]) {
+      expect(JSON.stringify(r)).not.toMatch(/reproduz sub[ií]ndice|qualquer texto plano|texto plano ele se perde/);
+    }
   });
 
   test('cada diferença contra os TRÊS pontos, com todas as transformações e sem origem forçada', () => {
@@ -699,6 +732,17 @@ describe('A.33: inspeção visual de Wijnmalen p. 899 e Forman p. 167', () => {
     // ⚠ A datação afasta uma EXECUÇÃO, e não o uso anterior do mesmo PDF.
     expect(inicio.evidenciaDisponivel).toMatch(/NAO afasta que este mesmo PDF/);
     expect(f.diferencas.map((d: any) => d.transformacoes[0].id)).toEqual(['F1.a', 'F2.a', 'F3.a']);
+    // ⚠ Nenhuma diferença, nos dois registros, atribui a transformação à v3.0 ou a
+    // uma extração datada: a origem segue não determinada até haver evidência do percurso.
+    const diferencas = [...inspecao.trechos.flatMap((t: any) => t.diferencas),
+      ...medicao.inspecaoVisualSaaty237.diferencas];
+    expect(JSON.stringify(diferencas)).not.toMatch(/v3\.0|fevereiro|extrator|criacao da base/);
+    // A repetição em key_claims[3] demonstra repetição, e não a origem.
+    const rep = w.alcanceObservadoNaBase.oQueARepeticaoDemonstra;
+    expect(rep).toMatch(/REPETICAO DA DIVERGENCIA/);
+    expect(rep).toMatch(/NAO demonstra que a extracao v3\.0 a produziu/);
+    expect(rep).toMatch(/reutilizacao ou outra transformacao intermediaria/);
+    expect(rep).toMatch(/NAO DETERMINADA/);
   });
 
   test('agregação, contagens e indicador saem da medição, e C1 não se anuncia liberado', () => {

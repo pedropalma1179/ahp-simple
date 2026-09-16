@@ -257,9 +257,9 @@
       "ondeFoiLido": "docs/dados/a33-etapa4/evidencias.json, porTrecho[47].dadosOriginais, campos verbatim_quote e evidence.quote",
       "igualABase": "IDENTICO, byte a byte, aos dois campos de lib/rag/articles/saaty1977_scaling.ts, key_claims[0], e os dois campos sao identicos entre si. A cadeia tem 90 caracteres e uma unica contrabarra.",
       "consequencia": "O recorte preparado NAO introduziu diferenca propria: o que difere do impresso ja esta na base.",
-      "sobreABase": "O cabecalho do arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada. O trecho esta no arquivo desde 7f46e3a, de 2026-04-16, o commit mais antigo do arquivo no historico. A base e, portanto, ANTERIOR a extracao da outra sessao, que nao pode ter sido a sua fonte."
+      "sobreABase": "O cabecalho do arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada. O trecho esta no arquivo desde 7f46e3a, de 2026-04-16, o commit mais antigo do arquivo no historico. A base e, portanto, ANTERIOR a extracao da outra sessao, que nao pode ter sido a sua fonte. ⚠ O cabecalho descreve o arquivo, e NAO demonstra o percurso de cada trecho."
     },
-    "semDiferenca": "De reciprocal ate o segundo if, as palavras do recorte coincidem letra a letra com o impresso. O italico de A se perde, como em qualquer texto plano.",
+    "semDiferenca": "De reciprocal ate o segundo if, as palavras do recorte coincidem letra a letra com o impresso. O italico de A nao e reproduzido no recorte, transformacao que fica declarada.",
     "diferencas": [
       {
         "id": "D1",
@@ -282,8 +282,8 @@
           "recorte": "A reciprocal: TEM a diferenca, identica a da base"
         },
         "ondeSurgiu": "origem nao determinada",
-        "evidenciaDisponivel": "A diferenca nao esta no impresso nem na camada de texto deste arquivo, e o recorte a reproduz da base. Ela surgiu, portanto, na criacao da base ou no texto que a alimentou, e nao na preparacao do recorte.",
-        "pendencia": "identificar o texto de entrada da extracao v3.0 de 2026-02-11, que a base nao registra, para separar escolha do extrator de transcricao herdada"
+        "evidenciaDisponivel": "A diferenca nao esta no impresso nem na camada de texto deste arquivo, e o recorte a reproduz da base, byte a byte. Isso a LOCALIZA na base, e NAO demonstra em que ponto do percurso ate a base ela surgiu: pode ter havido reutilizacao de texto ou transformacao intermediaria.",
+        "pendencia": "reconstituir o percurso do texto ate a base -- fonte, vias, e eventuais reutilizacoes ou transformacoes intermediarias --, que a base nao registra"
       },
       {
         "id": "D2",
@@ -322,7 +322,7 @@
           "D2.d": "origem nao determinada"
         },
         "evidenciaDisponivel": "Para D2.d: a notacao LaTeX nao esta no impresso nem na camada de texto deste arquivo, que traz h e a; a base a traz desde 2026-04-16, e o recorte a herdou. O recorte NAO carrega os erros da camada de texto, entao essa camada nao e o texto de onde ele foi copiado literalmente.",
-        "pendencia": "Para D2.d, a mesma de D1: o texto de entrada da extracao v3.0 de 2026-02-11."
+        "pendencia": "Para D2.d, a mesma de D1: reconstituir o percurso do texto ate a base."
       },
       {
         "id": "D3",
@@ -366,7 +366,8 @@
         "localizadorInterno": "Section 2: a secao 2, Ratio Scales from Reciprocal Pairwise Comparison Matrices, comeca na p. 235, e as pp. 236 e 237 nao trazem titulo de secao ate a frase",
         "tipo": "paragraph: terceiro paragrafo da p. 237"
       },
-      "criterioAplicado": "Correspondencia LITERAL do recorte com o impresso, a vigente. ⚠ A conversao de notacao para texto plano, D2.d, NAO foi contada como nao correspondencia, porque o texto plano nao reproduz subindice e os simbolos correspondem. A alteracao de caixa, D1.b, FOI, porque o texto plano reproduz a minuscula e o recorte a trocou. Tratar as duas de modo diferente e decisao de criterio, e fica registrada para revisao do autor.",
+      "criterioAplicado": "Correspondencia LITERAL do recorte com o impresso, a vigente. D2.d: A conversão para LaTeX é uma representação equivalente escolhida, aceita porque preserva os símbolos e a relação matemática, com a transformação declarada. D1.b: a alteracao de caixa troca um caractere do trecho citado, e e por ela que os dois campos nao conferem. Nao ha decisao pendente sobre este resultado.",
+      "correcaoDaJustificativa": "Corrigida em 16/09/2026, sem mudar o resultado. A justificativa anterior, em 96bd6bb, apoiava a aceitacao de D2.d numa impossibilidade do meio, e a deixava como decisao de criterio pendente. Ela foi substituida pela redacao acima.",
       "nenhumaCategoriaNova": true
     },
     "sustentacaoDaClaim": {

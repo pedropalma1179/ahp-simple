@@ -119,7 +119,8 @@
         {
           "localizador": "p. 899, Tabela 6, no alto da pagina, Summary of findings using equally weighted expressions for BOCR synthesis",
           "porQue": "o paragrafo remete a As was shown earlier, e a tabela resume o resultado anterior",
-          "oQueTraz": "Para a expressao multiplicativa, expressao (4): Always yields correct ordering of alternatives, yes, com a nota 'yes' holds for any weighting scheme; Always yields correct indication of profitability, no, com a nota yes, if B*O = C*R nos totais. As duas expressoes aditivas, (5) e (6): no e no."
+          "oQueTraz": "Para a expressao multiplicativa, expressao (4): Always yields correct ordering of alternatives, yes, com a nota 'yes' holds for any weighting scheme; Always yields correct indication of profitability, no, com a nota yes, if B*O = C*R nos totais. As duas expressoes aditivas, (5) e (6): no e no.",
+          "efeitoNaAvaliacao": "A tabela separa ordenacao de rentabilidade; ordenacao correta nao equivale a resultado integralmente valido, e por isso ela NAO fundamenta a ressalva."
         },
         {
           "localizador": "p. 899, secao 4, quarto paragrafo, ultima frase",
@@ -142,7 +143,7 @@
         "texto": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
         "ondeFoiLido": "docs/dados/a33-etapa4/evidencias.json, porTrecho[86].dadosOriginais, verbatim_quote e evidence.quote",
         "igualABase": "IDENTICO aos dois campos de lib/rag/articles/wijnmalen2007_bocr.ts, key_claims[0], que sao identicos entre si. O recorte preparado nao introduziu diferenca propria.",
-        "sobreABase": "O arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada; o trecho esta no arquivo desde 7f46e3a, de 2026-04-16."
+        "sobreABase": "O arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada; o trecho esta no arquivo desde 7f46e3a, de 2026-04-16. ⚠ O cabecalho descreve o arquivo, e NAO demonstra o percurso de cada trecho."
       },
       "semDiferenca": "requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship: letra a letra igual ao impresso.",
       "diferencas": [
@@ -168,8 +169,8 @@
             "W1.a": "origem nao determinada",
             "W1.b": "origem nao determinada"
           },
-          "evidenciaDisponivel": "As duas nao estao no impresso nem na camada de texto deste arquivo, lida por tres vias, e o recorte as herda da base. ⚠ A datacao da base afasta como origem a EXECUCAO da outra sessao, de setembro de 2026, e NAO afasta que este mesmo PDF, ou esta mesma camada de texto, tenham sido usados antes, na extracao de fevereiro, por uma via que as introduziu.",
-          "pendencia": "identificar o texto de entrada e a via da extracao v3.0 de 2026-02-11, que a base nao registra"
+          "evidenciaDisponivel": "As duas nao estao no impresso nem na camada de texto deste arquivo, lida por tres vias, e o recorte as herda da base. Isso as LOCALIZA na base, e NAO demonstra em que ponto do percurso ate a base elas surgiram: pode ter havido reutilizacao de texto ou transformacao intermediaria. ⚠ A datacao da base afasta como origem a EXECUCAO da outra sessao, de setembro de 2026, e NAO afasta que este mesmo PDF, ou esta mesma camada de texto, tenham sido usados antes, em algum ponto desse percurso.",
+          "pendencia": "reconstituir o percurso do texto ate a base -- fonte, vias, e eventuais reutilizacoes ou transformacoes intermediarias --, que a base nao registra"
         },
         {
           "id": "W2",
@@ -212,9 +213,14 @@
         "resultado": "parcialmente sustentada",
         "contextoUsado": "o terceiro paragrafo inteiro, e, alcancados por remissao, a Tabela 6 e o quarto paragrafo, com os localizadores em leituraAlemDoParagrafo",
         "oQueSustenta": "A exigencia geral: Synthesis however requires commensurate priorities on a common scale, no terceiro paragrafo; e, no quarto, BOCR synthesis of priorities is deceiving if it is composed of sets of measures that have not been adjusted relative to each other and are therefore not commensurate.",
-        "condicaoOmitidaPelaClaim": "O proprio paragrafo registra um caso em que o resultado de razao e significativo SEM que as prioridades de cada fator sejam comensuraveis: quando o produto de beneficio e oportunidades iguala o de custos e riscos, os PRODUTOS das prioridades normalizadas ficam na mesma unidade e o quociente produz resultados BOCR significativos. A Tabela 6, a que o paragrafo remete, diz ainda que a expressao multiplicativa (4) sempre da a ordenacao correta das alternativas, para qualquer esquema de pesos, e a indicacao correta de lucratividade se aquela igualdade valer. A claim, universal, com must e guarantee, omite esses casos.",
-        "naoSupridoPeloAvaliador": "⚠ O avaliador NAO acrescentou a claim a restricao que a tornaria integralmente sustentada, por exemplo limita-la as expressoes aditivas ou ao caso em que os totais sao desconhecidos. A omissao fica registrada, e e ela que faz a sustentacao ser parcial.",
-        "comparacaoComORecebido": "O resultado recebido, sobre extracao, dizia sustentada. Esta rodada, com o paragrafo completo e a Tabela 6, registra parcialmente sustentada. O recebido fica preservado em conferencia.json."
+        "condicaoOmitidaPelaClaim": "A claim exige comensurabilidade das prioridades dos fatores antes de qualquer síntese, enquanto o artigo admite um quociente significativo quando os produtos têm unidades compatíveis, sem exigir que os quatro totais sejam individualmente iguais.",
+        "fundamentoNoTexto": "Terceiro paragrafo: 'also in the case where the product of benefit and opportunities would equal the product of costs and risks, would the products of the corresponding normalized priorities be in the same unit and would their quotient produce meaningful BOCR ratio results.' ⚠ Esse caso NAO dispensa toda comensurabilidade: o proprio paragrafo explica que os PRODUTOS ficam na mesma unidade, e e isso que torna o quociente significativo.",
+        "sobreATabela6": "⚠ A Tabela 6 SEPARA ordenacao de indicacao de rentabilidade: para a expressao multiplicativa (4), a ordenacao das alternativas e sempre correta, e a indicacao de rentabilidade so e correta se B*O = C*R nos totais. Ordenacao correta NAO equivale a resultado BOCR integralmente valido, e NAO atenua a exigencia. A tabela entra como leitura da remissao, e nao como fundamento da ressalva.",
+        "sobreGuarantee": "⚠ guarantee nao significa que nenhum caso particular possa funcionar sem a condicao geral. O excesso da claim esta na formulacao INDISCRIMINADA da exigencia para os fatores, e nao simplesmente na existencia de um caso favoravel.",
+        "naoSupridoPeloAvaliador": "⚠ O avaliador NAO acrescentou a claim a restricao que a tornaria integralmente sustentada. A ressalva fica registrada, e e ela que faz a sustentacao ser parcial.",
+        "independenciaDosCampos": "⚠ Os dois campos de citacao continuam nao confere, e isso INDEPENDE desta avaliacao de sustentacao.",
+        "comparacaoComORecebido": "O resultado recebido, sobre extracao, dizia sustentada. Esta rodada, com o paragrafo completo, registra parcialmente sustentada, pela ressalva acima. O recebido fica preservado em conferencia.json.",
+        "correcaoDaJustificativa": "Corrigida em 16/09/2026, sem mudar o resultado. A versao de 96bd6bb usava a Tabela 6 como atenuante da exigencia e lia o caso dos produtos iguais como dispensa de comensurabilidade. Os dois argumentos foram retirados, e a ressalva passou a redacao acima."
       },
       "resultadoDaUnidade": {
         "estadoAnterior": "pendente",
@@ -232,7 +238,8 @@
       },
       "alcanceObservadoNaBase": {
         "oQue": "O mesmo texto transformado, synthesis requires ... magnitude relationship, e tambem o evidence.quote de wijnmalen2007_bocr key_claims[3], com a mesma pagina 899 e o mesmo localizador Section 4. Essa unidade e porTrecho[89], uma das 19, porque o verbatim_quote dela e outro.",
-        "comoFicaRegistrado": "Observacao de ALCANCE para A.16: a nao correspondencia com o impresso se estende a esse campo, por ser o mesmo texto. ⚠ key_claims[3] NAO foi conferida nesta rodada, a sua claim nao foi avaliada, e a contagem das 19 nao muda."
+        "comoFicaRegistrado": "Observacao de ALCANCE para A.16: a nao correspondencia com o impresso se estende a esse campo, por ser o mesmo texto. ⚠ key_claims[3] NAO foi conferida nesta rodada, a sua claim nao foi avaliada, e a contagem das 19 nao muda.",
+        "oQueARepeticaoDemonstra": "Encontrar o mesmo texto em duas unidades demonstra REPETICAO DA DIVERGENCIA. ⚠ NAO demonstra que a extracao v3.0 a produziu, nem que ela se propagou a partir de uma unidade: pode ter havido reutilizacao ou outra transformacao intermediaria. A origem segue NAO DETERMINADA ate existir evidencia do percurso."
       }
     },
     {
@@ -298,14 +305,14 @@
           "pdftotext 4.00, -enc UTF-8"
         ],
         "resultado": "As tres vias trazem, depois da normalizacao declarada, Treating the group as a new ‘individual’ with AIJ requires satisfaction of the reciprocity condition for the judgments, e Thus, for AIJ, the geometric mean must be used.",
-        "diferencaEntreVias": "pypdf entrega condi- com espaco antes da quebra; PDFium marca o hifen com U+FFFE; pdftotext junta a palavra. Todas trazem aspas tipograficas com -enc UTF-8. Nenhuma traz o italico: em texto plano ele se perde, embora a camada OCR o marque pela fonte.",
+        "diferencaEntreVias": "pypdf entrega condi- com espaco antes da quebra; PDFium marca o hifen com U+FFFE; pdftotext junta a palavra. Todas trazem aspas tipograficas com -enc UTF-8. Nenhuma traz o italico na saida em texto, embora a camada OCR o marque pela fonte.",
         "fonteDasPalavras": "Thus, for AIJ, the geometric mean: TimesNewRoman; must: TimesNewRoman,Italic; be used.: TimesNewRoman"
       },
       "recorte": {
         "texto": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
         "ondeFoiLido": "docs/dados/a33-etapa4/evidencias.json, porTrecho[100].dadosOriginais, verbatim_quote e evidence.quote",
         "igualABase": "IDENTICO aos dois campos de lib/rag/articles/forman1998_aggregating.ts, key_claims[2], que sao identicos entre si. As aspas sao dois apostrofos ASCII, U+0027, e as reticencias sao tres pontos, na posicao 100.",
-        "sobreABase": "O arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada; o trecho esta no arquivo desde 7f46e3a, de 2026-04-16."
+        "sobreABase": "O arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada; o trecho esta no arquivo desde 7f46e3a, de 2026-04-16. ⚠ O cabecalho descreve o arquivo, e NAO demonstra o percurso de cada trecho."
       },
       "semDiferenca": "Os dois segmentos coincidem letra a letra com o impresso, na ordem, ressalvadas as transformacoes F1 a F3 abaixo, nenhuma de letra. O primeiro abre frase, e o segundo e uma frase inteira.",
       "supressaoSinalizada": "O intervalo entre os segmentos esta sinalizado pelas reticencias, e corresponde ao trechoSuprimido acima. Nao e transformacao nao sinalizada; e o que a supressao retira entra na avaliacao da sustentacao.",
@@ -327,8 +334,8 @@
           "ondeSurgiu": {
             "F1.a": "origem nao determinada"
           },
-          "evidenciaDisponivel": "Nenhuma das tres vias produz apostrofos ASCII com UTF-8; o pdftotext em Latin-1 produz `individual', que tambem nao e o recorte. A base nao registra a via de fevereiro.",
-          "pendencia": "identificar a via da extracao v3.0 de 2026-02-11"
+          "evidenciaDisponivel": "Nenhuma das tres vias produz apostrofos ASCII com UTF-8; o pdftotext em Latin-1 produz `individual', que tambem nao e o recorte. A base nao registra o percurso do texto ate ela.",
+          "pendencia": "a mesma de W1: reconstituir o percurso do texto ate a base"
         },
         {
           "id": "F2",
@@ -347,7 +354,7 @@
           "ondeSurgiu": {
             "F2.a": "origem nao determinada"
           },
-          "evidenciaDisponivel": "Toda extracao em texto plano desta camada, pelas tres vias, ja perde o italico. Isso mostra onde a perda PODE surgir, e nao em qual etapa da criacao da base ela surgiu.",
+          "evidenciaDisponivel": "A saida em texto das tres vias, sobre esta camada, ja nao traz o italico. Isso mostra um ponto em que a perda PODE surgir, e nao em que ponto do percurso ate a base ela surgiu.",
           "pendencia": "a mesma de F1"
         },
         {
@@ -374,7 +381,7 @@
       "classificacao": {
         "verbatim_quote": {
           "resultado": "confere",
-          "motivo": "As letras dos dois segmentos coincidem com o impresso, na ordem, e a supressao entre eles esta sinalizada por reticencias. Transformacoes DECLARADAS, nenhuma de palavra: aspas tipograficas representadas por apostrofos ASCII, F1.a; hifenizacao de fim de linha desfeita, F3.a; e a enfase em italico de must nao reproduzida, F2.a."
+          "motivo": "As letras dos dois segmentos coincidem com o impresso, na ordem, e a supressao entre eles esta sinalizada por reticencias. A palavra must PERMANECE, preservando a obrigacao expressa pelo autor, e por isso a perda do italico, F2.a, e aceita neste recorte, com a transformacao declarada. Tambem declaradas: aspas tipograficas representadas por apostrofos ASCII, F1.a, e hifenizacao de fim de linha desfeita, F3.a."
         },
         "evidence.quote": {
           "resultado": "confere",
@@ -384,14 +391,15 @@
           "resultado": "compativel",
           "detalhe": "p. 167 na posicao 3; section 6"
         },
-        "pontoDeCriterio": "⚠ A enfase retirada, F2.a, NAO foi contada como nao correspondencia, porque nenhuma letra muda. E decisao de criterio, registrada para revisao do autor: se enfase do autor contar como parte do texto, o resultado dos dois campos passa a nao confere, e o indicador de criterio atual volta a zero.",
+        "decisaoSobreAEnfase": "A perda do italico de must e aceita NESTE recorte, com a transformacao declarada, porque a palavra must permanece e preserva a obrigacao expressa pelo autor. ⚠ E decisao sobre ESTE caso, e NAO regra geral de que enfase tipografica nunca carrega significado. ⚠ A claim NAO entra nesta justificativa: parafrase nao compensa perda no trecho citado, e usar a claim para atestar a fidelidade da citacao inverteria a ordem das duas verificacoes.",
+        "correcaoDaJustificativa": "Corrigida em 16/09/2026, sem mudar o resultado. Na versao de 96bd6bb, a perda do italico ficava como ponto de criterio pendente, e a sustentacao recorria a um intensificador da claim. A enfase foi decidida pela redacao acima, e o argumento pela claim saiu.",
         "nenhumaCategoriaNova": true
       },
       "sustentacaoDaClaim": {
         "claim": "AIJ strictly requires the use of the geometric mean.",
         "resultado": "sustentada",
         "contextoUsado": "o primeiro paragrafo da secao 6, inteiro, e, alcancado por remissao, o primeiro periodo da secao 5",
-        "oQueSustenta": "A conclusao explicita do autor, para AIJ e sem outra restricao de dominio: Thus, for AIJ, the geometric mean must be used, com must em italico. O strictly da claim corresponde a essa enfase.",
+        "oQueSustenta": "A conclusao explicita do autor, para AIJ e sem outra restricao de dominio: Thus, for AIJ, the geometric mean must be used, com must em italico.",
         "fundamentoQueAClaimNaoCarrega": "O paragrafo fundamenta o must em duas premissas: tratar o grupo como novo individuo com AIJ exige reciprocidade; e, com reciprocidade, so a media geometrica satisfaz o principio de Pareto e a condicao de homogeneidade, segundo Aczel e Saaty (1983) e Aczel e Roberts (1989). A claim nao carrega essas premissas, e o recorte as suprime.",
         "naoSupridoPeloAvaliador": "⚠ O avaliador NAO acrescentou as premissas a claim para sustenta-la: a sustentacao vem da frase conclusiva, que o autor enuncia para AIJ sem restricao. Fica registrado que a forca do must, no argumento do autor, depende de aceitar Pareto e homogeneidade como exigencias, como o autor faz.",
         "comparacaoComORecebido": "O resultado recebido, sobre extracao, dizia sustentada, e o registro historico dizia no contexto de reciprocidade apresentado. Esta rodada chega ao mesmo resultado com o paragrafo completo."
@@ -405,7 +413,7 @@
           "claimSustentada": true,
           "semDivergenciaA16": true,
           "semLocalizadorDivergente": true,
-          "nota": "Observado com a pagina aberta. O ponto de criterio sobre a enfase fica registrado em classificacao."
+          "nota": "Observado com a pagina aberta. A decisao sobre a enfase esta em classificacao."
         }
       }
     }
@@ -425,9 +433,9 @@
     ],
     "antes": 0,
     "porQueMudou": "Pela medicao: Forman reune as quatro condicoes com a pagina impressa aberta. Saaty nao confere com o impresso, em medicao-pdfs.json, e Wijnmalen nao confere e tem claim parcialmente sustentada.",
-    "dependeDe": "o ponto de criterio sobre a enfase retirada em Forman"
+    "enfaseEmForman": "decidida: a perda do italico e aceita neste recorte, com a transformacao declarada; ver trechos[1].classificacao.decisaoSobreAEnfase"
   },
-  "oQueNaoSeAnuncia": "⚠ NAO se anuncia C1 como liberado. As tres inspecoes visuais de C1 estao feitas, com resultado registrado para cada trecho: um atende ao criterio atual e dois seguem pendentes por nao correspondencia com o impresso. Ficam em aberto as pendencias de origem, que dependem do texto de entrada da extracao de fevereiro, e dois pontos de criterio para revisao do autor, a caixa em Saaty e a enfase em Forman.",
+  "oQueNaoSeAnuncia": "⚠ NAO se anuncia C1 como liberado: dois dos tres trechos nao conferem. As tres inspecoes visuais de C1 estao feitas, com resultado registrado para cada trecho: um atende ao criterio atual e dois seguem pendentes por nao correspondencia com o impresso. As origens das transformacoes seguem NAO DETERMINADAS ate existir evidencia do percurso do texto ate a base. Nao ha decisao de criterio pendente: a enfase em Forman foi decidida, e o resultado de Saaty nao tem decisao pendente.",
   "pendenciaTecnica": {
     "natureza": "Registrada em SEPARADO dos resultados bibliograficos. Nada foi corrigido nesta rodada.",
     "testesIntermitentes": {
@@ -443,5 +451,25 @@
     "crlf": "Ja caracterizado na rodada de Saaty: core.autocrlf=true no ~/.gitconfig desta maquina, arvore com CRLF, e o teste de resumo de casos.json compara os bytes da arvore com o blob. NAO se corrige aqui.",
     "naoAlterado": "configuracao da maquina, testes de transporte e os dois testes intermitentes"
   },
-  "predicao": "Nao cabe: a rodada mede arquivos e nao altera o contexto entregue ao modelo. ⚠ A predicao de A.33 segue nao testada."
+  "predicao": "Nao cabe: a rodada mede arquivos e nao altera o contexto entregue ao modelo. ⚠ A predicao de A.33 segue nao testada.",
+  "correcaoDeJustificativas": {
+    "data": "2026-09-16",
+    "base": "96bd6bb1b78eb6d76bbec574a968258db625048b",
+    "branchDeSessao": "inspecao/wijnmalen-forman",
+    "natureza": "Correcao DELIMITADA de justificativas. Sem nova inspecao de PDF, sem ampliar o instrumento, sem geracao, sem alterar a base.",
+    "nenhumResultadoMuda": {
+      "wijnmalen": "nao confere, e parcialmente sustentada",
+      "forman": "confere, e sustentada",
+      "saaty": "nao confere, em medicao-pdfs.json",
+      "criterioAtual": "1 de 3",
+      "historico": "4 conferidas e 161 pendentes"
+    },
+    "corrigidas": [
+      "Wijnmalen: a ressalva passou a redacao prescrita; a Tabela 6 separa ordenacao de rentabilidade e nao atenua a exigencia; o caso dos produtos iguais nao dispensa comensurabilidade; guarantee nao exclui caso particular, e o excesso esta na formulacao indiscriminada",
+      "Forman: confere porque must permanece; a claim nao entra na justificativa; decisao sobre este caso, e nao regra geral sobre enfase",
+      "Saaty: a conversao para LaTeX e representacao equivalente escolhida, em medicao-pdfs.json, sem alegacao de impossibilidade do meio",
+      "Origem: a repeticao em key_claims[3] demonstra repeticao da divergencia, e nao que a v3.0 a produziu; nenhuma formulacao atribui a transformacao a v3.0, e a origem segue nao determinada"
+    ],
+    "textoAnterior": "96bd6bb, no historico do git"
+  }
 }
