@@ -6535,6 +6535,202 @@ foi executada nesta rodada. Adoção, aplicação e geração dependem dos passo
 posteriores. **A.33 segue em revisão e a predição não foi testada.** Base, índice,
 configuração e `main` em `33c1fdf` permanecem intactos.
 
+### A.33: H-T aplicado como `trechoId`, passo 3, em 16/09/2026
+
+**Protocolo anterior às edições:** `fe095c4755f0edae3a0a086bcc1427a9cb9f94f4`, em
+`docs/dados/a33-identidade-aplicada/protocolo.md`, publicado **antes de qualquer
+alteração dos artefatos**. **Aplicação:** `307304daa12cf11bcc81928371e80b113c652760`.
+**Base:** `c8b7b2388c262c5c915b5f9c1968f0fca96c378d`, sobre o snapshot medido
+`b3fe3d7a0c78b8129e185cbce0099ef606fb844e`. Este registro vem **depois** da
+verificação.
+
+**Decisão do autor, e não foi reaberta:** adotar **H-T** como `trechoId`. Ele
+identifica a **versão do conteúdo usado na conferência** e **preserva a identidade
+quando muda apenas a classificação ou o rótulo**. H-U e H-T empataram em **164 de
+165**, contra 107 da composição anterior; a escolha é de objeto versionado, não de
+cobertura.
+
+**Cobertura aplicada: 164 identificadas e UMA exceção.** A exceção é
+`lib/rag/articles/saiyed2023_ceoPowerUET.ts`, `empirical_data`, índice **157** de
+`porTrecho`, que fica com `trechoId: null` nas suas **três** ocorrências.
+**O motivo, explícito:** insuficiência para o **critério** de benchmark fixado no
+protocolo **antes** da medição — o mínimo exigia ao menos um dos sete campos
+quantitativos disponível, e os sete são nulos. ⚠ **Não é defeito da base**, não é
+colisão e não é impossibilidade de calcular uma versão dos metadados. O dado não
+foi corrigido e o critério não foi mudado depois do resultado.
+
+⚠ **Saiyed permanece no contexto estático dos três casos**, em
+`outrasTresSuperficies[2]`, "Benchmarks Empíricos de Estudos Publicados", casos
+C1, C2 e C3, e continua citado no `textoFormatado`. **A exclusão é da cobertura de
+identidade elegível, não do contexto:** retirá-lo mudaria o contexto que os três
+casos comparam.
+
+**O que foi gravado é a composição COMPLETA**, não apenas o resumo: prefixo
+`A33-por-tipo-v2`, e os componentes `articleId`, `tipo`, `idNativo` e
+`versaoSha256`, cada um `JSON.stringify([nome, valorTipado])`, separados por **RS,
+`U+001E`, byte `0x1E`**, prefixo primeiro e sem separador final. UTF-8, sem BOM;
+SHA-256 completo de 64 hexadecimais minúsculos; ausente é `["ausente"]` e difere de
+nulo, de vazio e de zero; **nenhuma normalização textual**, e a única normalização
+estrutural é a ordenação de chaves por UTF-16. **O ID nativo fica literal:** nas
+**36** fórmulas o componente 4 traz o `id` do dado, e nas **101** claims traz
+`["ausente"]`, sem substituto. Todos os parâmetros estão na seção 3 do protocolo
+desta rodada.
+
+**Propagação, medida:** **532** campos `trechoId` já existentes foram preenchidos,
+resolvidos por `enderecoNaBase` e **nunca por posição**:
+
+| Artefato | Vetor | Campos |
+|---|---|---:|
+| `evidencias.json` | `porTrecho[]` | 165 |
+| `evidencias.json` | `semIdentificadorRecuperavel[]` | 165 |
+| `contexto-estatico.json` | `quatroSecoes[].referencias[]` | 135 |
+| `contexto-estatico.json` | `outrasTresSuperficies[].enderecos[]` | 64 |
+| `C1-recuperacao.json` | `trechos[]` | 3 |
+
+**165 unidades distintas alcançadas, 0 órfãos, 164 valores distintos entre unidades
+distintas.** Os **três** chunks fixados de C1 — Saaty, Wijnmalen e Forman —
+carregam o valor da sua unidade, e os três existem no registro.
+
+⚠ **A aritmética do diff fecha em 529, e não em 532**, e a diferença tem nome: as
+**três** ocorrências de Saiyed recebem `null`, que já era `null`, e não produzem
+linha de diff. 328 em `evidencias.json`, 198 em `contexto-estatico.json` e 3 em
+`C1-recuperacao.json`. **Toda linha alterada dos três artefatos menciona
+`trechoId`.**
+
+**O arquivo muda porque ganha um campo; o TEXTO não muda, e isso foi medido**, não
+lido do diff. Três resumos por artefato, declarados antes de editar e registrados
+em `docs/dados/a33-identidade-aplicada/resumos-texto.json`, campos `antes` e
+`depois`:
+
+| Artefato | `sha256Arquivo` | `sha256Estrutural` | `sha256Texto` | raízes |
+|---|---|---|---|---:|
+| `evidencias.json` | `b977e41f…` → `ea491749…` | `bdfa9437…` **igual** | `bdc54df3…` **igual** | 165 |
+| `contexto-estatico.json` | `2a87891f…` → `643da427…` | `aa6c7b04…` **igual** | `6d4dcf80…` **igual** | 150 |
+| `C1-recuperacao.json` | `2545c769…` → `ef71a113…` | `08cea498…` **igual** | `0220e203…` **igual** | 14 |
+
+**As 329 raízes comparadas têm zero divergência**, e a relação por raiz existe
+justamente para **localizar** a diferença: resumo único que não bate não diz onde
+falhou. O **estrutural** cobre a árvore inteira com todo `trechoId` removido, e é
+controle **mais forte** que o de texto, porque pega também número e booleano.
+⚠ **O `trechoId` novo não entra em nenhum dos dois controles** — nenhuma raiz
+declarada o contém, então a exclusão é estrutural além de declarada — e **os
+identificadores ANTIGOS continuam dentro**: `dadosOriginais.id`, `chunk.id`,
+`chunk.metadata.article_id`, `referenceDoc.id`, `evidence.locator_id` e
+`evidence.locator_type`.
+
+⚠ **O identificador novo não integra o texto entregue ao modelo**, e isso foi
+conferido **no contexto montado**, não só nos artefatos: os 165 conjuntos de texto
+reconstruídos por `suppliedTexts` — template das quatro seções, das três superfícies
+adicionais e dos chunks de C1 — não contêm o prefixo `A33-por-tipo-v2`, nem o
+separador RS, nem nenhum dos 164 valores gravados.
+
+**Recálculo independente, e é demonstração e não declaração.** Implementação
+própria em **Python 3.11.15**, a partir dos dados do **snapshot** por `git show`,
+usando **exclusivamente** as regras descritas no registro. **Não** reutiliza a
+função de aplicação, **não** importa `measure-a33-identity-v2.cjs` e **não** toma a
+preimagem armazenada como entrada. O exemplo é a **claim de Wijnmalen fixada em
+C1**, `key_claims[0]`, índice 86, e a conferência é do **valor completo e de cada
+componente**, não só do resumo:
+
+| Componente | Valor |
+|---:|---|
+| 0 | `A33-por-tipo-v2` |
+| 1 | `["articleId",["texto","wijnmalen2007_bocr"]]` |
+| 2 | `["tipo",["texto","key_claims"]]` |
+| 3 | `["idNativo",["ausente"]]` |
+| 4 | `["versaoSha256",["texto","33bbc89b…be2c2c"]]` |
+
+**Os cinco coincidem, e o valor completo coincide.** Além do exemplo, as duas
+implementações concordam nas **164**, com **zero divergências**, em quatro ramos de
+tipo: 101 claims, 18 limiares, 36 fórmulas e 9 benchmarks. As 164 chaves são
+**distintas**.
+
+**H-U preservado, e sem virar identificador.** Continua em
+`docs/dados/a33-identidade-revisada/rastreabilidade.json`, campo `principal[].U`,
+nas 165 linhas, com prefixo `A33-universal-v2`. Nenhum `trechoId` gravado é uma
+candidata H-U, e **nenhum segundo identificador concorrente foi criado**.
+
+**`lib/rag/articles/` inalterada**, conferido no diff: `git diff --stat` do diretório
+sai vazio. O índice não foi tocado e **não houve reingestão**, que é A.18.
+
+**`casos.json` repõe o que a aplicação tornou falso**, e só isso: os resumos dos
+três arquivos alterados em `integridadeDosDados` — conferidos **vigentes e
+coincidentes antes** da escrita, portanto afirmação viva e não registro de época —
+e `resumoEvidencias.semTrechoId`, de **165** para **1**. Nenhum texto preparado de
+`casos.json` foi reescrito.
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **20 suítes e 275 testes**, contra 19 e
+261 antes, diferença de **14** casos de uma suíte nova. **Ambiente observado, e é
+ambiente observado, não requisito:** Linux x86_64, **Node v22.22.2**, **npm
+10.9.7** — diferente do da rodada anterior, que foi Node v24.19.0 e npm 11.9.0.
+`node_modules` não existia no clone, e `npm install` levou 18 segundos. Nenhum build
+foi executado. ⚠ **Nenhum teste foi removido.** Duas asserções que exigiam
+`trechoId` nulo **na árvore de trabalho** foram **substituídas**: guardavam que a
+medição não preenche IDs, e agora guardam que a medição **não lê** `trechoId`, o
+que continua verdadeiro e é o que aquelas suítes existem para proteger.
+
+⚠ **Instrumento novo, e ele foi conferido antes de ter os números aceitos.** Três
+ramos distintos à mão: os **sete** `sha256TextoUTF8` que o próprio
+`contexto-estatico.json` registra, recalculados e todos coincidentes; a unidade 0 de
+`porTrecho`, que colhe **6** strings, com `evidence.page` corretamente fora por ser
+número; e a claim de Wijnmalen. Depois, **três contraexemplos** que fazem a suíte
+falhar, cada um num ramo diferente: texto formatado alterado, valor propagado de
+outra unidade, e órfão. Nos três a restauração foi conferida byte a byte.
+⚠ **O contraexemplo do valor propagado NÃO fez o teste de texto falhar**, e isso é
+a demonstração de que o resumo de texto exclui mesmo o `trechoId`.
+
+**Duas ressalvas de alcance, e elas ficam no registro:**
+
+⚠ **O controle negativo demonstra independência dos campos de rastreabilidade
+variados naquele ensaio**, e **não estabilidade geral**. A sensibilidade à redação é
+**deliberada**: corrigir a redação de uma claim muda sua versão de conteúdo.
+
+⚠ **Os campos quantitativos nulos de Saiyed demonstram insuficiência para o critério
+de benchmark**, e **não provam defeito na base**.
+
+⚠ **A atribuição de identidade não transforma as 161 pendências em evidências
+conferidas.** As **161 pendências de publicação** e as **4 conferidas** continuam
+como estavam, e as **19 divergências de A.16 seguem abertas**, sem escolha de lado
+entre `verbatim_quote` e `evidence.quote`. Identidade recuperável torna a conferência
+de sustentação **possível**; não a executa, e não é atestado de fidelidade à
+publicação. **Identificador não certifica o conteúdo.**
+
+**Resíduo nomeado, e não corrigido de passagem:** o vetor
+`semIdentificadorRecuperavel` e os campos `identidade` e `motivo` das 165 unidades
+descrevem a ausência de **ID nativo na base**, que esta rodada **não muda** — H-T é
+identidade **derivada** de versão, e o ID nativo da fórmula continua literal no
+componente 4, não promovido a `trechoId`. Mas o **nome** daquele vetor passa a
+conviver com um `trechoId` preenchido, e **quem o ler sem este registro vai concluir
+o contrário do que os dados dizem**. Renomear ou reescrever aqueles textos é decisão
+do autor, fora do que esta rodada autorizou, e **não foi feita**.
+
+**Escopo dos commits:** `fe095c4` traz a declaração, o instrumento e os resumos de
+antes, **sem alterar dado algum**; `307304d` traz os dados e os testes; este registro
+vem depois da verificação. A suíte **não se repete** por alteração documental.
+
+**Histórico:** `195e8a8`, `5935579`, `b3fe3d7`, `4f2a42a`, `059d3fc` e `c8b7b238`
+foram conferidos **ancestrais** de HEAD por `git merge-base --is-ancestor`, todos com
+código de saída **0**. Comandos executados em Bash/Linux; **não se apresenta
+`$LASTEXITCODE` de PowerShell como medido nesta sessão**. A branch da sessão partiu
+de `33c1fdf`, com árvore limpa, e foi avançada por **fast-forward** até `c8b7b238`,
+sem descartar alteração alguma. ⚠ **`main` permanece em `33c1fdf`**, lido e não
+tocado.
+
+**Publicação e CI, estado observado.** A branch publicada é
+`claude/loving-shannon-661fy9`, e o push entregou os dois commits de uma vez.
+A execução **`35104656211`**, evento `push`, workflow `CI`, no SHA completo
+`307304daa12cf11bcc81928371e80b113c652760`, foi observada
+**`completed/success`** pela API. ⚠ **`fe095c4` não tem execução própria**,
+porque o CI dispara por push e não por commit; o verde registra o SHA do topo, e
+**não se apresenta o de `fe095c4` como medido**. O CI deste registro documental é
+observação posterior.
+
+**A.33 avança para a conferência das evidências contra as publicações, começando
+pelos trechos de C1. A geração continua condicionada, e a predição de A.33 continua
+NÃO testada:** ela só se torna verificável quando C1, C2 e C3 forem gerados, e
+**nenhum parecer, real ou simulado, foi produzido nesta rodada**.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
