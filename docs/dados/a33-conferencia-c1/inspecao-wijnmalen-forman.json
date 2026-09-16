@@ -1,0 +1,447 @@
+{
+  "rodada": "A.33: inspecao visual de Wijnmalen p. 899 e Forman p. 167, com paragrafo completo e nova extracao",
+  "data": "2026-09-16",
+  "base": "2e7d3cf05ba78753547565287857b1d951b9dca2",
+  "branchDeSessao": "inspecao/wijnmalen-forman",
+  "natureza": "MEDICAO feita nesta sessao, na maquina Windows que tem os arquivos. Sem geracao, sem alteracao da base de artigos, dos textos preparados ou do indice, sem reingestao, e nenhum PDF na arvore.",
+  "proveniencia": "⚠ A NOVA conferencia tem proveniencia PROPRIA: a extracao desta rodada esta vinculada aos SHA-256 recalculados aqui, e a leitura do impresso foi feita olhando a renderizacao destes mesmos arquivos. A extracao ANTIGA, da outra sessao, permanece com o seu limite historico, e recuperar o vinculo dela NAO e pre-requisito desta rodada.",
+  "saatyFechado": "Saaty nao e reaberto aqui: o resultado dele fica em medicao-pdfs.json.",
+  "ambiente": {
+    "sistema": "Windows 11 Enterprise 10.0.26100",
+    "shell": "Git Bash; codigos de saida por $?",
+    "python": "3.14.0",
+    "pypdf": "6.14.2",
+    "pypdfium2": "5.13.0",
+    "pdfium": "153.0.7999.0",
+    "pillow": "12.1.0",
+    "pdftotext": "pdftotext version 4.00, do Git for Windows, chamado com -enc UTF-8"
+  },
+  "instrumento": {
+    "arquivo": "docs/dados/a33-conferencia-c1/instrumentos/inspecionar_paragrafos.py",
+    "comando": "python docs/dados/a33-conferencia-c1/instrumentos/inspecionar_paragrafos.py C:/AHP-BOCR/preservado <pasta temporaria fora do repositorio>",
+    "codigoDeSaida": 0,
+    "oQueFaz": "Recalcula o SHA-256 e o compara com o registrado em medicao-pdfs.json, e NAO segue com arquivo de hash divergente. Conta operadores de texto por modo de renderizacao e imagens da pagina. Localiza o paragrafo pelas coordenadas da propria camada de texto, renderiza a pagina a 300 dpi e recorta o paragrafo. Extrai o paragrafo por tres vias.",
+    "oQueNaoFaz": "NAO le as imagens: a leitura do impresso e observacao, registrada abaixo. NAO roda na suite, porque depende dos PDFs.",
+    "normalizacaoDaExtracao": "Para comparar, o marcador de hifen do PDFium e o hifen de fim de linha sao desfeitos, inclusive com espaco antes da quebra; quebras viram espaco; espacos repetidos se reduzem. Ligaduras NAO se desfazem na normalizacao: a comparacao sem ligaduras e um campo separado.",
+    "conferenciaDaPrimeiraExecucao": {
+        "oQueAconteceu": "Na primeira execucao, a verificacao de presenca das frases deu FALSO em tres vias para frases que estavam no impresso: Wijnmalen por pypdf e por pdftotext, e o primeiro segmento de Forman por pypdf. Conferido a mao antes de aceitar.",
+        "causas": [
+          "pypdf e pdftotext preservam a ligadura tipografica fi como U+FB01 em benefits, e a frase buscada usava f e i separados",
+          "pypdf entrega condi- com um espaco antes da quebra de linha, e a normalizacao so desfazia hifen imediatamente seguido de quebra"
+        ],
+        "correcao": "A normalizacao passou a aceitar espaco antes da quebra, e a comparacao sem ligaduras entrou como campo separado, com a lista das ligaduras encontradas por via.",
+        "ramoNegativo": "Conferido tambem o outro ramo: o texto dos recortes da base, synthesis requires e 'individual' com apostrofos ASCII, NAO aparece em nenhuma das tres extracoes; o segundo segmento de Forman aparece nas tres.",
+        "codificacao": "Sem -enc UTF-8, o pdftotext escreve em Latin-1 e as aspas saem como `individual'; com UTF-8, as tres vias trazem as aspas tipograficas."
+    }
+  },
+  "portaDeEntrada": {
+    "arquivosLocalizados": 2,
+    "local": "C:\\AHP-BOCR\\preservado\\",
+    "repositorio": {
+      "gitFetch": 0,
+      "sha": "2e7d3cf05ba78753547565287857b1d951b9dca2",
+      "branch": "inspecao/wijnmalen-forman",
+      "gitStatusShort": "vazio",
+      "gitDiffHead": "vazio, 0 bytes",
+      "origin/integra/a30-registros": "2e7d3cf05ba78753547565287857b1d951b9dca2",
+      "ancestralidade": {
+        "comando": "git merge-base --is-ancestor origin/integra/a30-registros HEAD",
+        "codigoDeSaida": 0
+      },
+      "main": "33c1fdf6500242832994a17aa15b0a686704c029"
+    }
+  },
+  "arquivos": [
+    {
+      "fonte": "Wijnmalen 2007",
+      "caminho": "C:\\AHP-BOCR\\preservado\\Analysis_of_benefits_opportunities_costs_and_risks_BOCR_with_the_AHP_ANP.pdf",
+      "tamanhoBytes": 386555,
+      "sha256Recalculado": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
+      "sha256Registrado": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
+      "sha256Coincide": true,
+      "procedimentoDoHash": "sha256sum do Git Bash e hashlib no instrumento, iguais",
+      "conferencia": "prossegue: hash coincidente"
+    },
+    {
+      "fonte": "Forman e Peniwati 1998",
+      "caminho": "C:\\AHP-BOCR\\preservado\\Aggregating_individual_judgments_and_priorities_with_the_AHP.pdf",
+      "tamanhoBytes": 479080,
+      "sha256Recalculado": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
+      "sha256Registrado": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
+      "sha256Coincide": true,
+      "procedimentoDoHash": "sha256sum do Git Bash e hashlib no instrumento, iguais",
+      "conferencia": "prossegue: hash coincidente"
+    }
+  ],
+  "regraDeNotacaoDestaRodada": "Transformacao de notacao e representacao equivalente ESCOLHIDA, e nao imposicao do meio, porque texto plano comporta Unicode e outras convencoes. Aceita-se quando preserva simbolos e relacoes, e com a transformacao declarada.",
+  "trechos": [
+    {
+      "identidade": {
+        "articleId": "wijnmalen2007_bocr",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        "indiceEmPorTrecho": 86
+      },
+      "arquivo": {
+        "fonte": "Wijnmalen 2007",
+        "sha256": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
+        "paginaImpressa": 899,
+        "posicao": 8
+      },
+      "tipoDoArquivo": "texto vetorial VISIVEL, composto em pdfeTeX",
+      "procedimento": {
+        "ferramenta": "PDFium 153.0.7999.0, por pypdfium2 5.13.0, e Pillow 12.1.0 para recortar; leitura OLHANDO as imagens",
+        "passos": [
+          "1. confirmar o tipo: os 85 operadores de texto da pagina estao no modo 0, visivel, e a pagina nao tem imagem",
+          "2. ⚠ NAO se aplica exclusao de camada: nao ha digitalizacao por baixo, e a renderizacao desse texto E a pagina a inspecionar",
+          "3. renderizar a posicao 8 a 300 dpi e localizar a secao 4, Commensurability, que esta inteira nesta pagina, com quatro paragrafos",
+          "4. recortar o terceiro paragrafo, de Numbers on derived ratio scales a meaningful BOCR ratio results, pelas coordenadas da propria camada de texto: 30 a 520 pontos na horizontal, 306,9 a 433,1 a partir do topo",
+          "5. ampliar as linhas da frase citada, e ler tambem o quarto paragrafo e a Tabela 6, no alto da pagina"
+        ],
+        "imagens": {
+          "pagina_300dpi": "d86bf742cb9a38beebaa2d5e4757517b359548ead5c98150991338cdf3304513",
+          "paragrafo": "c9104bd24d4222d3ab94e97f78a2b9144336bf3868d5cdeb942aa8f0ae0d5d67",
+          "tabela6": "1036620f3787f59d48d86b1fbccf9c5ae9fc497557d9eb9ae920fd88338ff8f4"
+        }
+      },
+      "impresso": {
+        "localizacao": "p. 899, posicao 8, secao 4 Commensurability, terceiro paragrafo, linhas 4 a 6",
+        "fraseComoImpressa": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "capitalizacao": "Synthesis com S MAIUSCULO, inicio de frase, depois de ... with the priorities on the other factors.",
+        "tipografia": "sem italico no paragrafo; as letras fi de benefits sao composta em ligadura, como e usual em TeX",
+        "paragrafoCompleto": "Diz que numeros em escalas de razao que somam um, sem a unidade explicita, podem enganar; que as prioridades so medem entre alternativas, e nao entre os tipos de medida; que por isso nao ha garantia de que as prioridades de beneficio sejam comensuraveis com as dos outros fatores; e traz a frase citada. Depois: 'Only in the case where these totals are all equal, would a transformation into priorities normalized to the unit sum produce commensurate priorities.' E: 'As was shown earlier, also in the case where the product of benefit and opportunities would equal the product of costs and risks, would the products of the corresponding normalized priorities be in the same unit and would their quotient produce meaningful BOCR ratio results.'"
+      },
+      "leituraAlemDoParagrafo": [
+        {
+          "localizador": "p. 899, Tabela 6, no alto da pagina, Summary of findings using equally weighted expressions for BOCR synthesis",
+          "porQue": "o paragrafo remete a As was shown earlier, e a tabela resume o resultado anterior",
+          "oQueTraz": "Para a expressao multiplicativa, expressao (4): Always yields correct ordering of alternatives, yes, com a nota 'yes' holds for any weighting scheme; Always yields correct indication of profitability, no, com a nota yes, if B*O = C*R nos totais. As duas expressoes aditivas, (5) e (6): no e no."
+        },
+        {
+          "localizador": "p. 899, secao 4, quarto paragrafo, ultima frase",
+          "porQue": "a claim fala em resultados validos, e o paragrafo seguinte conclui sobre isso",
+          "oQueTraz": "Similar to B/C analysis, BOCR synthesis of priorities is deceiving if it is composed of sets of measures that have not been adjusted relative to each other and are therefore not commensurate."
+        }
+      ],
+      "leituraNaoFeita": "A definicao dos simbolos da Tabela 6, com os indices t e m, NAO foi consultada: o proprio paragrafo enuncia a condicao em palavras, o produto de beneficio e oportunidades igual ao de custos e riscos.",
+      "extracao": {
+        "natureza": "TERCEIRA coisa, distinta do impresso e do recorte: extracao da camada de texto vetorial DESTE arquivo, vinculada ao SHA-256 6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
+        "vias": [
+          "pypdf 6.14.2, extract_text",
+          "PDFium 153.0.7999.0, get_text_range",
+          "pdftotext 4.00, -enc UTF-8"
+        ],
+        "resultado": "As tres vias trazem, depois da normalizacao declarada, Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "diferencaEntreVias": "pypdf e pdftotext preservam a ligadura fi como U+FB01, em benefits; PDFium a entrega como f e i. Nenhuma das tres contem synthesis requires, com minuscula e sem however."
+      },
+      "recorte": {
+        "texto": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+        "ondeFoiLido": "docs/dados/a33-etapa4/evidencias.json, porTrecho[86].dadosOriginais, verbatim_quote e evidence.quote",
+        "igualABase": "IDENTICO aos dois campos de lib/rag/articles/wijnmalen2007_bocr.ts, key_claims[0], que sao identicos entre si. O recorte preparado nao introduziu diferenca propria.",
+        "sobreABase": "O arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada; o trecho esta no arquivo desde 7f46e3a, de 2026-04-16."
+      },
+      "semDiferenca": "requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship: letra a letra igual ao impresso.",
+      "diferencas": [
+        {
+          "id": "W1",
+          "onde": "inicio do trecho",
+          "transformacoes": [
+            {
+              "id": "W1.a",
+              "natureza": "alteracao de caixa NAO sinalizada: Synthesis, inicio de frase no impresso, vira synthesis"
+            },
+            {
+              "id": "W1.b",
+              "natureza": "omissao NAO sinalizada de however, dentro do trecho, entre o sujeito e o verbo"
+            }
+          ],
+          "confronto": {
+            "impresso": "Synthesis however requires: a diferenca NAO esta no impresso",
+            "extracao": "Synthesis however requires, nas tres vias: a diferenca NAO esta na camada de texto deste arquivo",
+            "recorte": "synthesis requires: TEM as duas transformacoes, identicas as da base"
+          },
+          "ondeSurgiu": {
+            "W1.a": "origem nao determinada",
+            "W1.b": "origem nao determinada"
+          },
+          "evidenciaDisponivel": "As duas nao estao no impresso nem na camada de texto deste arquivo, lida por tres vias, e o recorte as herda da base. ⚠ A datacao da base afasta como origem a EXECUCAO da outra sessao, de setembro de 2026, e NAO afasta que este mesmo PDF, ou esta mesma camada de texto, tenham sido usados antes, na extracao de fevereiro, por uma via que as introduziu.",
+          "pendencia": "identificar o texto de entrada e a via da extracao v3.0 de 2026-02-11, que a base nao registra"
+        },
+        {
+          "id": "W2",
+          "onde": "fim do trecho",
+          "transformacoes": [
+            {
+              "id": "W2.a",
+              "natureza": "truncamento NAO sinalizado no meio da frase: o recorte termina em relationship, e o impresso continua com between total benefits and total costs and total opportunities and total risks. O recorte perde o termo que diz entre o que e a relacao de magnitude."
+            }
+          ],
+          "confronto": {
+            "impresso": "... the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+            "extracao": "a mesma continuacao, nas tres vias",
+            "recorte": "... the magnitude relationship, e acaba ai"
+          },
+          "ondeSurgiu": {
+            "W2.a": "origem nao determinada"
+          },
+          "evidenciaDisponivel": "A continuacao esta no impresso e na camada de texto, e falta na base e no recorte.",
+          "pendencia": "a mesma de W1"
+        }
+      ],
+      "classificacao": {
+        "verbatim_quote": {
+          "resultado": "nao confere",
+          "motivo": "Omissao NAO sinalizada de however dentro do trecho, W1.b, e alteracao de caixa NAO sinalizada na primeira letra, W1.a: o impresso traz Synthesis however requires, e o recorte traz synthesis requires. O recorte tambem termina no meio da frase sem sinal, W2.a. As demais palavras coincidem letra a letra."
+        },
+        "evidence.quote": {
+          "resultado": "nao confere",
+          "motivo": "O mesmo de verbatim_quote: os dois campos sao identicos, e as diferencas com o impresso sao as mesmas."
+        },
+        "localizador": {
+          "resultado": "compativel",
+          "detalhe": "p. 899 na posicao 8; secao 4; paragraph: terceiro paragrafo da secao"
+        },
+        "nenhumaCategoriaNova": true
+      },
+      "sustentacaoDaClaim": {
+        "claim": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+        "resultado": "parcialmente sustentada",
+        "contextoUsado": "o terceiro paragrafo inteiro, e, alcancados por remissao, a Tabela 6 e o quarto paragrafo, com os localizadores em leituraAlemDoParagrafo",
+        "oQueSustenta": "A exigencia geral: Synthesis however requires commensurate priorities on a common scale, no terceiro paragrafo; e, no quarto, BOCR synthesis of priorities is deceiving if it is composed of sets of measures that have not been adjusted relative to each other and are therefore not commensurate.",
+        "condicaoOmitidaPelaClaim": "O proprio paragrafo registra um caso em que o resultado de razao e significativo SEM que as prioridades de cada fator sejam comensuraveis: quando o produto de beneficio e oportunidades iguala o de custos e riscos, os PRODUTOS das prioridades normalizadas ficam na mesma unidade e o quociente produz resultados BOCR significativos. A Tabela 6, a que o paragrafo remete, diz ainda que a expressao multiplicativa (4) sempre da a ordenacao correta das alternativas, para qualquer esquema de pesos, e a indicacao correta de lucratividade se aquela igualdade valer. A claim, universal, com must e guarantee, omite esses casos.",
+        "naoSupridoPeloAvaliador": "⚠ O avaliador NAO acrescentou a claim a restricao que a tornaria integralmente sustentada, por exemplo limita-la as expressoes aditivas ou ao caso em que os totais sao desconhecidos. A omissao fica registrada, e e ela que faz a sustentacao ser parcial.",
+        "comparacaoComORecebido": "O resultado recebido, sobre extracao, dizia sustentada. Esta rodada, com o paragrafo completo e a Tabela 6, registra parcialmente sustentada. O recebido fica preservado em conferencia.json."
+      },
+      "resultadoDaUnidade": {
+        "estadoAnterior": "pendente",
+        "estadoPosterior": "pendente",
+        "motivo": "pendente por NAO CORRESPONDENCIA TEXTUAL com a pagina impressa, e com claim parcialmente sustentada",
+        "condicoesDaSecao4": {
+          "doisCamposConferem": false,
+          "claimSustentada": false,
+          "semDivergenciaA16": true,
+          "semLocalizadorDivergente": true,
+          "nota": "Aqui false e OBSERVACAO, com a pagina aberta: os dois campos diferem do impresso, e a claim e so parcialmente sustentada."
+        },
+        "encaminhamento": "Achado encaminhado à A.16, de não correspondência com a página impressa da publicação, agora confirmada visualmente. A contagem histórica das 19 divergências entre campos permanece inalterada. ⚠ A base NAO e corrigida nesta rodada.",
+        "porQueNaoSeSomaAs19": "⚠ Sao CRITERIOS DIFERENTES. As 19 registram divergencia ENTRE CAMPOS DA BASE. Neste trecho os dois campos COINCIDEM entre si, e diferem da PAGINA IMPRESSA."
+      },
+      "alcanceObservadoNaBase": {
+        "oQue": "O mesmo texto transformado, synthesis requires ... magnitude relationship, e tambem o evidence.quote de wijnmalen2007_bocr key_claims[3], com a mesma pagina 899 e o mesmo localizador Section 4. Essa unidade e porTrecho[89], uma das 19, porque o verbatim_quote dela e outro.",
+        "comoFicaRegistrado": "Observacao de ALCANCE para A.16: a nao correspondencia com o impresso se estende a esse campo, por ser o mesmo texto. ⚠ key_claims[3] NAO foi conferida nesta rodada, a sua claim nao foi avaliada, e a contagem das 19 nao muda."
+      }
+    },
+    {
+      "identidade": {
+        "articleId": "forman1998_aggregating",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        "indiceEmPorTrecho": 100
+      },
+      "arquivo": {
+        "fonte": "Forman e Peniwati 1998",
+        "sha256": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
+        "paginaImpressa": 167,
+        "posicao": 3
+      },
+      "tipoDoArquivo": "DIGITALIZACAO com camada OCR",
+      "procedimento": {
+        "ferramenta": "PDFium 153.0.7999.0, por pypdfium2 5.13.0, e Pillow 12.1.0 para recortar; leitura OLHANDO as imagens",
+        "passos": [
+          "1. separar digitalizacao e OCR: a pagina tem 28 tiras de imagem, e TODOS os 661 operadores de texto estao no modo 3, invisivel. A imagem olhada e a digitalizacao.",
+          "2. renderizar a posicao 3 a 300 dpi e localizar a secao 6, Geometric mean or arithmetic mean with AIJ and AIP, na coluna direita",
+          "3. recortar a coluna direita do titulo da secao ate provided a_i >= 0 and b_i >= 0: 270 a 515 pontos na horizontal, 146,1 a 669,7 a partir do topo, pelas coordenadas da camada OCR",
+          "4. ampliar as linhas dos dois segmentos citados",
+          "5. renderizar a p. 168, posicao 4, para ver se o paragrafo continua: NAO continua, a p. 168 abre paragrafo novo, recuado, sobre AIP"
+        ],
+        "imagens": {
+          "pagina_300dpi": "44246bb26662b2be5777b0fad04d145bdf9cb82c67fcbb507841459e77f04efc",
+          "paragrafo": "f92e62e237e3c36093b65a37e4d4e9a6e0ee06786811a9bb6e081fc223db6549"
+        }
+      },
+      "impresso": {
+        "localizacao": "p. 167, posicao 3, coluna direita, secao 6, primeiro paragrafo, que vai do inicio da secao ate o fim da coluna",
+        "primeiroSegmentoComoImpresso": "Treating the group as a new ‘individual’ with AIJ requires satisfaction of the reciprocity condi- tion for the judgments.",
+        "segundoSegmentoComoImpresso": "Thus, for AIJ, the geometric mean must be used.",
+        "tipografia": "aspas SIMPLES TIPOGRAFICAS, abertura e fechamento, em ‘individual’; must em ITALICO, e a camada OCR marca essa palavra com a fonte TimesNewRoman,Italic, e as vizinhas com TimesNewRoman; condition hifenizada em fim de linha, condi- e tion",
+        "capitalizacao": "Treating e Thus comecam frase no impresso, com maiuscula",
+        "trechoSuprimido": "Entre os dois segmentos, o impresso traz: for the judgments. Aczel and Saaty (1983), and in a more general paper Aczel and Roberts (1989), have shown that when aggregating the judgments of n individuals where the reciprocal property is assumed even for a single n-tuple, only the geometric mean satisfies the Pareto principle (unanimity condition) and the homogeneity condition (if all individuals judge a ratio t times as large as another ratio, then the synthesized judgment should also be t times as large).",
+        "paragrafoCompleto": "Abre com: In general one must decide in advance whether to represent a group by aggregating their individual judgments (AIJ) or by aggregating their individual (final) priorities (AIP), but not both. Segue com os dois segmentos e o trecho suprimido. Depois trata de AIP: either an arithmetic or geometric mean can be used; para medidas de escala intervalar, a media aritmetica; para escala de razao, as we always have with AHP, as duas sao significativas; e a agregacao de prioridades individuais satisfaz Pareto com either uma ou outra, em italico, seguido das duas desigualdades e de provided a_i >= 0 and b_i >= 0."
+      },
+      "leituraAlemDoParagrafo": [
+        {
+          "localizador": "p. 167, coluna esquerda, secao 5, The Pareto principle and AHP, primeiro periodo",
+          "porQue": "o paragrafo invoca o principio de Pareto",
+          "oQueTraz": "The Pareto (unanimity, agreement) principle essentially says that given two alternatives A and B, if each member of a group of individuals prefers A to B, then the group must prefer A to B.",
+          "efeitoNaAvaliacao": "nenhum: a claim nao menciona Pareto, e o paragrafo ja o qualifica como unanimity condition"
+        },
+        {
+          "localizador": "p. 168, posicao 4, coluna esquerda, primeiro paragrafo",
+          "porQue": "confirmar onde o paragrafo termina",
+          "oQueTraz": "paragrafo novo, recuado: James and James (1968) provide definitions of arithmetic and geometric means ... for the AIP case"
+        }
+      ],
+      "leituraNaoFeita": "A definicao da condicao de reciprocidade NAO foi buscada: a claim nao a menciona, e o paragrafo afirma por si que AIJ a exige.",
+      "extracao": {
+        "natureza": "TERCEIRA coisa, distinta do impresso e do recorte: extracao da camada OCR DESTE arquivo, vinculada ao SHA-256 959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
+        "vias": [
+          "pypdf 6.14.2, extract_text",
+          "PDFium 153.0.7999.0, get_text_range",
+          "pdftotext 4.00, -enc UTF-8"
+        ],
+        "resultado": "As tres vias trazem, depois da normalizacao declarada, Treating the group as a new ‘individual’ with AIJ requires satisfaction of the reciprocity condition for the judgments, e Thus, for AIJ, the geometric mean must be used.",
+        "diferencaEntreVias": "pypdf entrega condi- com espaco antes da quebra; PDFium marca o hifen com U+FFFE; pdftotext junta a palavra. Todas trazem aspas tipograficas com -enc UTF-8. Nenhuma traz o italico: em texto plano ele se perde, embora a camada OCR o marque pela fonte.",
+        "fonteDasPalavras": "Thus, for AIJ, the geometric mean: TimesNewRoman; must: TimesNewRoman,Italic; be used.: TimesNewRoman"
+      },
+      "recorte": {
+        "texto": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+        "ondeFoiLido": "docs/dados/a33-etapa4/evidencias.json, porTrecho[100].dadosOriginais, verbatim_quote e evidence.quote",
+        "igualABase": "IDENTICO aos dois campos de lib/rag/articles/forman1998_aggregating.ts, key_claims[2], que sao identicos entre si. As aspas sao dois apostrofos ASCII, U+0027, e as reticencias sao tres pontos, na posicao 100.",
+        "sobreABase": "O arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada; o trecho esta no arquivo desde 7f46e3a, de 2026-04-16."
+      },
+      "semDiferenca": "Os dois segmentos coincidem letra a letra com o impresso, na ordem, ressalvadas as transformacoes F1 a F3 abaixo, nenhuma de letra. O primeiro abre frase, e o segundo e uma frase inteira.",
+      "supressaoSinalizada": "O intervalo entre os segmentos esta sinalizado pelas reticencias, e corresponde ao trechoSuprimido acima. Nao e transformacao nao sinalizada; e o que a supressao retira entra na avaliacao da sustentacao.",
+      "diferencas": [
+        {
+          "id": "F1",
+          "onde": "aspas em individual",
+          "transformacoes": [
+            {
+              "id": "F1.a",
+              "natureza": "representacao: aspas simples tipograficas, U+2018 e U+2019, viram dois apostrofos ASCII, U+0027. A funcao de citacao se preserva."
+            }
+          ],
+          "confronto": {
+            "impresso": "‘individual’",
+            "extracao": "‘individual’ nas tres vias, com UTF-8",
+            "recorte": "'individual'"
+          },
+          "ondeSurgiu": {
+            "F1.a": "origem nao determinada"
+          },
+          "evidenciaDisponivel": "Nenhuma das tres vias produz apostrofos ASCII com UTF-8; o pdftotext em Latin-1 produz `individual', que tambem nao e o recorte. A base nao registra a via de fevereiro.",
+          "pendencia": "identificar a via da extracao v3.0 de 2026-02-11"
+        },
+        {
+          "id": "F2",
+          "onde": "must, no segundo segmento",
+          "transformacoes": [
+            {
+              "id": "F2.a",
+              "natureza": "enfase do autor NAO reproduzida: must esta em italico no impresso, e o recorte e texto plano sem marca de enfase, nem declaracao de que ela foi retirada"
+            }
+          ],
+          "confronto": {
+            "impresso": "must em italico",
+            "extracao": "must sem enfase nas tres vias, embora a camada OCR marque a palavra com fonte italica",
+            "recorte": "must sem enfase"
+          },
+          "ondeSurgiu": {
+            "F2.a": "origem nao determinada"
+          },
+          "evidenciaDisponivel": "Toda extracao em texto plano desta camada, pelas tres vias, ja perde o italico. Isso mostra onde a perda PODE surgir, e nao em qual etapa da criacao da base ela surgiu.",
+          "pendencia": "a mesma de F1"
+        },
+        {
+          "id": "F3",
+          "onde": "condition, no primeiro segmento",
+          "transformacoes": [
+            {
+              "id": "F3.a",
+              "natureza": "hifenizacao de fim de linha desfeita: condi- e tion, no impresso, viram condition. E artefato de composicao, e nao muda palavra."
+            }
+          ],
+          "confronto": {
+            "impresso": "condi- / tion",
+            "extracao": "pypdf mantem condi-; PDFium e pdftotext juntam",
+            "recorte": "condition"
+          },
+          "ondeSurgiu": {
+            "F3.a": "origem nao determinada"
+          },
+          "evidenciaDisponivel": "Duas das tres vias ja juntam a palavra; a base nao registra a via.",
+          "pendencia": "a mesma de F1"
+        }
+      ],
+      "classificacao": {
+        "verbatim_quote": {
+          "resultado": "confere",
+          "motivo": "As letras dos dois segmentos coincidem com o impresso, na ordem, e a supressao entre eles esta sinalizada por reticencias. Transformacoes DECLARADAS, nenhuma de palavra: aspas tipograficas representadas por apostrofos ASCII, F1.a; hifenizacao de fim de linha desfeita, F3.a; e a enfase em italico de must nao reproduzida, F2.a."
+        },
+        "evidence.quote": {
+          "resultado": "confere",
+          "motivo": "O mesmo de verbatim_quote: os dois campos sao identicos."
+        },
+        "localizador": {
+          "resultado": "compativel",
+          "detalhe": "p. 167 na posicao 3; section 6"
+        },
+        "pontoDeCriterio": "⚠ A enfase retirada, F2.a, NAO foi contada como nao correspondencia, porque nenhuma letra muda. E decisao de criterio, registrada para revisao do autor: se enfase do autor contar como parte do texto, o resultado dos dois campos passa a nao confere, e o indicador de criterio atual volta a zero.",
+        "nenhumaCategoriaNova": true
+      },
+      "sustentacaoDaClaim": {
+        "claim": "AIJ strictly requires the use of the geometric mean.",
+        "resultado": "sustentada",
+        "contextoUsado": "o primeiro paragrafo da secao 6, inteiro, e, alcancado por remissao, o primeiro periodo da secao 5",
+        "oQueSustenta": "A conclusao explicita do autor, para AIJ e sem outra restricao de dominio: Thus, for AIJ, the geometric mean must be used, com must em italico. O strictly da claim corresponde a essa enfase.",
+        "fundamentoQueAClaimNaoCarrega": "O paragrafo fundamenta o must em duas premissas: tratar o grupo como novo individuo com AIJ exige reciprocidade; e, com reciprocidade, so a media geometrica satisfaz o principio de Pareto e a condicao de homogeneidade, segundo Aczel e Saaty (1983) e Aczel e Roberts (1989). A claim nao carrega essas premissas, e o recorte as suprime.",
+        "naoSupridoPeloAvaliador": "⚠ O avaliador NAO acrescentou as premissas a claim para sustenta-la: a sustentacao vem da frase conclusiva, que o autor enuncia para AIJ sem restricao. Fica registrado que a forca do must, no argumento do autor, depende de aceitar Pareto e homogeneidade como exigencias, como o autor faz.",
+        "comparacaoComORecebido": "O resultado recebido, sobre extracao, dizia sustentada, e o registro historico dizia no contexto de reciprocidade apresentado. Esta rodada chega ao mesmo resultado com o paragrafo completo."
+      },
+      "resultadoDaUnidade": {
+        "estadoAnterior": "conferido",
+        "estadoPosterior": "conferido",
+        "motivo": "As quatro condicoes estao atendidas com a pagina impressa aberta. A unidade ja era conferida pelo registro historico, e a contagem historica nao muda.",
+        "condicoesDaSecao4": {
+          "doisCamposConferem": true,
+          "claimSustentada": true,
+          "semDivergenciaA16": true,
+          "semLocalizadorDivergente": true,
+          "nota": "Observado com a pagina aberta. O ponto de criterio sobre a enfase fica registrado em classificacao."
+        }
+      }
+    }
+  ],
+  "contagens": {
+    "conferidas": 4,
+    "pendentes": 161,
+    "denominador": 165,
+    "movidas": 0,
+    "nota": "A medicao NAO muda a contagem historica: Wijnmalen era pendente e continua pendente, e Forman ja estava entre as quatro conferidas."
+  },
+  "trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual": {
+    "total": 1,
+    "denominador": 3,
+    "quais": [
+      "forman1998_aggregating key_claims[2]"
+    ],
+    "antes": 0,
+    "porQueMudou": "Pela medicao: Forman reune as quatro condicoes com a pagina impressa aberta. Saaty nao confere com o impresso, em medicao-pdfs.json, e Wijnmalen nao confere e tem claim parcialmente sustentada.",
+    "dependeDe": "o ponto de criterio sobre a enfase retirada em Forman"
+  },
+  "oQueNaoSeAnuncia": "⚠ NAO se anuncia C1 como liberado. As tres inspecoes visuais de C1 estao feitas, com resultado registrado para cada trecho: um atende ao criterio atual e dois seguem pendentes por nao correspondencia com o impresso. Ficam em aberto as pendencias de origem, que dependem do texto de entrada da extracao de fevereiro, e dois pontos de criterio para revisao do autor, a caixa em Saaty e a enfase em Forman.",
+  "pendenciaTecnica": {
+    "natureza": "Registrada em SEPARADO dos resultados bibliograficos. Nada foi corrigido nesta rodada.",
+    "testesIntermitentes": {
+      "suite": "lib/__tests__/rag-diagnostico-regressao.test.ts",
+      "casos": [
+        "1. sanitização por categoria, e não cópia da dependência › erro com token e URL na MENSAGEM: nenhuma sentinela sobrevive",
+        "1. sanitização por categoria, e não cópia da dependência › valor lançado que NÃO é Error, com campo sensível: nada é serializado"
+      ],
+      "comportamentoObservado": "Nesta maquina, em execucoes completas de jest --runInBand, os dois casos ultrapassaram o tempo limite de 5000 ms em parte das execucoes; com a suite isolada, ela passou 16 de 16 em menos de 2 s; e no clone raso com LF e no CI, passou.",
+      "causa": "⚠ NAO ESTABELECIDA. Ultrapassar o tempo limite e passar isoladamente demonstra o comportamento observado, e nao estabelece sozinho a causa.",
+      "correcaoDeRegistroAnterior": "O registro da rodada de Saaty chamou essas duas falhas de ambientais e disse que a causa foi medida. Para elas, isso afirmava mais do que se mediu, e o texto foi corrigido no registro experimental e no ancora. As mensagens de a00fb5e e ae580c6 dizem ambientais e ficam como estao."
+    },
+    "crlf": "Ja caracterizado na rodada de Saaty: core.autocrlf=true no ~/.gitconfig desta maquina, arvore com CRLF, e o teste de resumo de casos.json compara os bytes da arvore com o blob. NAO se corrige aqui.",
+    "naoAlterado": "configuracao da maquina, testes de transporte e os dois testes intermitentes"
+  },
+  "predicao": "Nao cabe: a rodada mede arquivos e nao altera o contexto entregue ao modelo. ⚠ A predicao de A.33 segue nao testada."
+}

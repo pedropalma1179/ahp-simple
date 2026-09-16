@@ -407,8 +407,26 @@
       "alcance": "A rodada de 16/09/2026 documentou impedimento de acesso e NAO concluiu nenhuma conferencia nova."
     },
     "trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual": {
-      "total": 0,
+      "total": 1,
       "denominador": 3,
+      "quais": [
+        "forman1998_aggregating key_claims[2]"
+      ],
+      "historico": [
+        {
+          "rodada": "conferencia sem acesso e comparacao recebida, 16/09/2026",
+          "total": 0
+        },
+        {
+          "rodada": "medicao dos PDFs e inspecao visual de Saaty p. 237, ae580c6",
+          "total": 0
+        },
+        {
+          "rodada": "inspecao visual de Wijnmalen p. 899 e Forman p. 167, inspecao-wijnmalen-forman.json",
+          "total": 1
+        }
+      ],
+      "estadoAtual": "UM de tres, pela inspecao de Wijnmalen e Forman: Forman reune as quatro condicoes com a pagina impressa aberta; Saaty e Wijnmalen nao conferem com o impresso. Depende do ponto de criterio sobre a enfase retirada em Forman. O alcance abaixo e o texto da rodada anterior, preservado.",
       "alcance": "Zero de tres. ⚠ A comparacao recebida NAO altera este indicador: ela foi feita sobre TEXTO EXTRAIDO, sem inspecao visual, e o criterio atual exige a evidencia documental prevista. Forman ficou conferido no CONTEUDO sobre extracao, Wijnmalen teve NAO CORRESPONDENCIA textual, e Saaty, inspecionado visualmente depois, NAO confere com a pagina impressa, em medicao-pdfs.json. Nenhuma nova conferencia foi declarada."
     }
   },
@@ -553,7 +571,8 @@
         "pendenciaAtual": "Inspecao visual da pagina 167 nao foi feita. A conferencia do conteudo permanece sobre texto extraido.",
         "conferenciaHistorica": "PRESERVADA com o seu alcance: o registro anterior, em conferenciaPublicacao de porTrecho[100], descreve a localizacao e a correspondencia dos segmentos, sem veredito separado de sustentacao e sem versao nem resumo criptografico. Esta rodada NAO o revoga.",
         "unidade": "permanece conferida pelo registro historico; a rodada nao declara conferencia nova",
-        "medicaoPosterior": "Posicao da p. 167 verificada depois no arquivo, em medicao-pdfs.json. O TEXTO da secao 6 NAO foi inspecionado visualmente: a inspecao visual da pagina 167 continua por fazer."
+        "medicaoPosterior": "Posicao da p. 167 verificada depois no arquivo, em medicao-pdfs.json. O TEXTO da secao 6 NAO foi inspecionado visualmente: a inspecao visual da pagina 167 continua por fazer.",
+        "inspecaoVisualPosterior": "Feita depois, com o paragrafo completo, em inspecao-wijnmalen-forman.json: os dois campos CONFEREM com o impresso, com tres transformacoes declaradas, entre elas a enfase de must nao reproduzida; claim SUSTENTADA. Este bloco e o registro RECEBIDO, e nao foi substituido."
       },
       {
         "articleId": "wijnmalen2007_bocr",
@@ -576,7 +595,8 @@
         "unidade": "pendente por NAO CORRESPONDENCIA TEXTUAL",
         "encaminhamento": "Achado adicional encaminhado à A.16, de não correspondência com o texto extraído da publicação. A contagem histórica das 19 divergências entre campos permanece inalterada. ⚠ A base NAO e corrigida nesta rodada.",
         "porQueNaoSeSomaAs19": "⚠ Sao CRITERIOS DIFERENTES, e por isso o achado nao entra naquela contagem. As 19 registram divergencia ENTRE CAMPOS DA BASE, verbatim_quote contra evidence.quote. Neste trecho os dois campos COINCIDEM entre si, e diferem do TEXTO EXTRAIDO da publicacao. Somar os dois numeros misturaria medidas de coisas distintas.",
-        "medicaoPosterior": "Posicao da p. 899 verificada depois no arquivo, em medicao-pdfs.json. O TEXTO da secao 4 NAO foi inspecionado visualmente: a nao correspondencia de however continua observada NA EXTRACAO."
+        "medicaoPosterior": "Posicao da p. 899 verificada depois no arquivo, em medicao-pdfs.json. O TEXTO da secao 4 NAO foi inspecionado visualmente: a nao correspondencia de however continua observada NA EXTRACAO.",
+        "inspecaoVisualPosterior": "Feita depois, com o paragrafo completo, em inspecao-wijnmalen-forman.json: os dois campos NAO conferem com o impresso, por omissao de however e alteracao de caixa, ambas nao sinalizadas; e a claim fica PARCIALMENTE SUSTENTADA, em vez de sustentada, como dizia este bloco, porque o paragrafo e a Tabela 6 registram casos que a claim omite. Este bloco e o registro RECEBIDO, e nao foi substituido."
       },
       {
         "articleId": "saaty1977_scaling",
@@ -612,7 +632,7 @@
       "semSubtracao": "⚠ NAO se escreve subtracao do tipo \"158 pela frente\". Ela nao representa as pendencias: Forman JA estava entre as quatro, e examinar Saaty e Wijnmalen NAO os tornou conferidos.",
       "nenhumTotalAntecipado": "⚠ Nenhum total e antecipado. O numero sai da conferencia, quando ela se completar."
     },
-    "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Saaty foi inspecionado visualmente depois e permanece pendente, por nao correspondencia com a pagina impressa; Wijnmalen tem nao correspondencia textual observada NA EXTRACAO, sem confirmacao visual.",
+    "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Saaty foi inspecionado visualmente depois e permanece pendente, por nao correspondencia com a pagina impressa; Wijnmalen tem nao correspondencia textual observada NA EXTRACAO, e confirmada depois na pagina impressa, em inspecao-wijnmalen-forman.json. As tres inspecoes visuais estao feitas, e C1 NAO se anuncia como liberado: ver inspecaoWijnmalenForman.",
     "rastreabilidadeNaoDemonstrada": {
       "estado": "PARCIALMENTE VERIFICADO: SHA-256, paginas e posicao medidos na sessao de execucao; vinculo com a extracao anterior e versao AINDA NAO VERIFICADOS",
       "estadoAte99bc69f": "recebido e AINDA NAO VERIFICADO",
@@ -639,6 +659,15 @@
     "instrumento": "docs/dados/a33-conferencia-c1/instrumentos/medir_pdfs.py",
     "natureza": "MEDICAO feita na sessao de execucao, na maquina que tem os arquivos, POSTERIOR aos blocos acima, que ficam preservados com as suas datas.",
     "resumo": "Os tres SHA-256, as tres contagens de paginas e as tres posicoes de pagina impressa foram medidos e coincidem com os recebidos. Saaty p. 237 foi inspecionado visualmente: os dois campos NAO conferem com a pagina impressa, por alteracao de caixa nao sinalizada na primeira letra; a expressao esta em notacao LaTeX com os mesmos simbolos do impresso; a extracao da camada de texto deste arquivo troca lambda por h e n por a; a claim e sustentada; a unidade continua pendente. As contagens nao mudam.",
-    "oQueNaoFoiFeito": "Inspecao visual do TEXTO de Wijnmalen p. 899 e de Forman p. 167. O vinculo entre a extracao da outra sessao e estes arquivos continua nao estabelecido."
+    "oQueNaoFoiFeito": "Inspecao visual do TEXTO de Wijnmalen p. 899 e de Forman p. 167. O vinculo entre a extracao da outra sessao e estes arquivos continua nao estabelecido.",
+    "feitoDepois": "A inspecao visual de Wijnmalen p. 899 e Forman p. 167, em inspecao-wijnmalen-forman.json."
+  },
+  "inspecaoWijnmalenForman": {
+    "data": "2026-09-16",
+    "registro": "docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json",
+    "instrumento": "docs/dados/a33-conferencia-c1/instrumentos/inspecionar_paragrafos.py",
+    "natureza": "INSPECAO VISUAL com paragrafo completo e NOVA extracao vinculada aos SHA-256 recalculados, POSTERIOR aos blocos acima, que ficam preservados com as suas datas. A extracao antiga permanece com o seu limite historico.",
+    "resumo": "Wijnmalen: os dois campos NAO conferem com o impresso, por omissao de however e alteracao de caixa, nao sinalizadas; claim PARCIALMENTE SUSTENTADA; unidade pendente. Forman: os dois campos CONFEREM, com transformacoes declaradas; claim SUSTENTADA; as quatro condicoes atendidas. Contagem historica inalterada; indicador de criterio atual em 1 de 3.",
+    "pendenciaTecnica": "Os dois testes intermitentes de rag-diagnostico-regressao ficam registrados em separado, como comportamento observado e SEM causa estabelecida, em inspecao-wijnmalen-forman.json, pendenciaTecnica."
   }
 }

@@ -168,8 +168,9 @@ describe('A.33: registro da conferência de C1', () => {
     expect(i.contagemHistoricaPreservada.alcance).toMatch(/NAO passam automaticamente|não passam automaticamente/i);
     // 2: nenhuma conferência nova foi concluída na rodada anterior.
     expect(i.novasConferenciasNaRodadaAnterior.total).toBe(0);
-    // 3: nenhum trecho de C1 demonstra atendimento ao critério atual.
-    expect(i.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total).toBe(0);
+    // 3: na rodada sem acesso, nenhum trecho de C1 demonstrava atendimento ao
+    // critério atual. ⚠ Esse valor é HISTÓRICO; o atual sai da inspeção posterior.
+    expect(i.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.historico[0].total).toBe(0);
     expect(i.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.denominador).toBe(3);
     // ⚠ Os três são indicadores DISTINTOS: 4 conferidas no histórico não é o
     // mesmo que 4 atendendo ao critério atual, e o registro não os confunde.
@@ -352,8 +353,9 @@ describe('A.33: registro da conferência de C1', () => {
     expect(JSON.stringify(semAProibicao)).not.toMatch(/158/);
     // ⚠ E nada de anunciar a conferência de C1 como concluída.
     expect(conferencia.comparacaoRecebida.oQueNaoSeAnuncia).toMatch(/NAO se anuncia a conclusao integral/);
-    // O indicador de critério atual continua 0 de 3, apesar do recebido.
-    expect(conferencia.tresIndicadores.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total).toBe(0);
+    // Na rodada do recebido, o indicador de critério atual continuou 0 de 3:
+    // o recebido não o alterou. ⚠ Valor HISTÓRICO daquela rodada.
+    expect(conferencia.tresIndicadores.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.historico[0].total).toBe(0);
   });
 
   test('o registro DATADO da rodada sem acesso não foi substituído', () => {
@@ -533,8 +535,9 @@ describe('A.33: medição dos PDFs na sessão de execução', () => {
       .toContain('A contagem histórica das 19 divergências entre campos permanece inalterada.');
     expect(saaty.resultadoDaUnidade.porQueNaoSeSomaAs19).toMatch(/CRITERIOS DIFERENTES/);
     expect(evidencias.porTrecho.filter((x: any) => x.comparacaoDosCampos?.iguais === false)).toHaveLength(19);
+    // ⚠ O indicador da rodada de Saaty é o HISTÓRICO daquela rodada.
     expect(medicao.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total)
-      .toBe(conferencia.tresIndicadores.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total);
+      .toBe(conferencia.tresIndicadores.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.historico[1].total);
   });
 
   test('só o medido deixa de ser recebido, e a conclusão integral de C1 não se anuncia', () => {
@@ -553,7 +556,8 @@ describe('A.33: medição dos PDFs na sessão de execução', () => {
     expect(n.oQueNAOestaDemonstrado.join(' | ')).toMatch(/vinculo entre extracao e PDF NAO esta estabelecido/);
     expect(medicao.estadoDeVerificacaoPorArquivo.continuaComoEstava.join(' | '))
       .toMatch(/vinculo entre a extracao da outra sessao/);
-    // ⚠ Wijnmalen e Forman não ganharam confirmação visual do TEXTO.
+    // ⚠ NA RODADA DE SAATY, Wijnmalen e Forman não ganharam confirmação visual do
+    // TEXTO. É o registro histórico daquela rodada; a inspeção deles é posterior.
     for (const f of ['Wijnmalen 2007', 'Forman e Peniwati 1998']) {
       expect(medicao.arquivos.find((x: any) => x.fonte === f).textoNaoInspecionado).toMatch(/NAO foi inspecionado/);
     }
@@ -563,5 +567,193 @@ describe('A.33: medição dos PDFs na sessão de execução', () => {
     const s = r.porTrecho.find((t: any) => t.articleId === 'saaty1977_scaling');
     expect(s.alcance).toMatch(/NADA aqui se grava como conclusao/);
     expect(s.inspecaoPosterior).toMatch(/medicao-pdfs\.json/);
+  });
+});
+
+/**
+ * ⚠ A inspeção de Wijnmalen p. 899 e Forman p. 167 roda FORA da suíte, porque os
+ * PDFs ficam fora do repositório. Estes casos travam a coerência do registro com
+ * os dados versionados, e o que ele se permite concluir.
+ */
+describe('A.33: inspeção visual de Wijnmalen p. 899 e Forman p. 167', () => {
+  const inspecao = ler('docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json');
+  const porArticle: Record<string, any> = Object.fromEntries(
+    inspecao.trechos.map((t: any) => [t.identidade.articleId, t]));
+  const w = porArticle['wijnmalen2007_bocr'];
+  const f = porArticle['forman1998_aggregating'];
+  const vocabulario = ['confere', 'confere com localizador divergente', 'nao confere', 'nao conferido, com motivo'];
+  const estados = ['sustentada', 'parcialmente sustentada', 'nao sustentada', 'inconclusiva'];
+  const todas = (c: any) => c.doisCamposConferem && c.claimSustentada && c.semDivergenciaA16 && c.semLocalizadorDivergente;
+
+  test('os dois SHA-256 foram recalculados, e a nova extração se vincula a eles', () => {
+    expect(inspecao.arquivos.map((a: any) => a.fonte).sort()).toEqual(['Forman e Peniwati 1998', 'Wijnmalen 2007']);
+    for (const a of inspecao.arquivos) {
+      const m = medicao.arquivos.find((x: any) => x.fonte === a.fonte);
+      expect(a.sha256Recalculado).toMatch(/^[0-9a-f]{64}$/);
+      // ⚠ O registrado vem da rodada anterior, e não de cópia à mão.
+      expect(a.sha256Registrado).toBe(m.sha256.recalculadoNestaSessao);
+      expect(a.sha256Coincide).toBe(a.sha256Recalculado === a.sha256Registrado);
+      // ⚠ Hash divergente para a conferência daquele arquivo.
+      const trechosDoArquivo = inspecao.trechos.filter((t: any) => t.arquivo.fonte === a.fonte);
+      if (!a.sha256Coincide) {
+        expect(a.conferencia).toMatch(/INTERROMPIDA/);
+        expect(trechosDoArquivo).toHaveLength(0);
+      }
+      for (const t of trechosDoArquivo) {
+        expect(t.arquivo.sha256).toBe(a.sha256Recalculado);
+        // A extração é uma TERCEIRA coisa, vinculada a este hash.
+        expect(t.extracao.natureza).toMatch(/TERCEIRA coisa/);
+        expect(t.extracao.natureza).toContain(a.sha256Recalculado);
+        expect(t.extracao.vias.length).toBeGreaterThanOrEqual(2);
+        // A página e a posição são as verificadas antes, no mesmo arquivo.
+        expect(t.arquivo.paginaImpressa).toBe(m.posicaoDaPaginaImpressa.paginaImpressa);
+        expect(t.arquivo.posicao).toBe(m.posicaoDaPaginaImpressa.posicaoMedida);
+      }
+    }
+    expect(inspecao.proveniencia).toMatch(/proveniencia PROPRIA/);
+    expect(inspecao.proveniencia).toMatch(/NAO e pre-requisito/);
+  });
+
+  test('o procedimento respeita o TIPO de cada arquivo', () => {
+    expect(w.tipoDoArquivo).toMatch(/texto vetorial VISIVEL/);
+    expect(w.procedimento.passos.join(' ')).toMatch(/NAO se aplica exclusao de camada/);
+    expect(w.procedimento.passos.join(' ')).toMatch(/E a pagina a inspecionar/);
+    expect(f.tipoDoArquivo).toMatch(/DIGITALIZACAO com camada OCR/);
+    expect(f.procedimento.passos.join(' ')).toMatch(/modo 3, invisivel/);
+    expect(f.procedimento.passos.join(' ')).toMatch(/A imagem olhada e a digitalizacao/);
+    for (const t of inspecao.trechos) {
+      expect(t.procedimento.ferramenta).toMatch(/PDFium/);
+      expect(t.procedimento.imagens.paragrafo).toMatch(/^[0-9a-f]{64}$/);
+    }
+  });
+
+  test('o PARÁGRAFO COMPLETO foi lido, e o que foi além dele tem localizador', () => {
+    for (const t of inspecao.trechos) {
+      expect(t.impresso.paragrafoCompleto).toBeTruthy();
+      expect(t.leituraAlemDoParagrafo.length).toBeGreaterThanOrEqual(1);
+      for (const l of t.leituraAlemDoParagrafo) {
+        expect(l.localizador).toMatch(/p\. \d+/);
+        expect(l.porQue).toBeTruthy();
+      }
+    }
+    // A remissão "As was shown earlier" leva à Tabela 6, e isso está registrado.
+    expect(w.leituraAlemDoParagrafo.some((l: any) => /Tabela 6/.test(l.localizador))).toBe(true);
+    // O impresso traz o que o recorte perdeu, e o recorte não o traz.
+    expect(w.impresso.fraseComoImpressa).toMatch(/^Synthesis however requires/);
+    expect(w.impresso.fraseComoImpressa).toContain(
+      'requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between');
+    expect(w.recorte.texto).not.toMatch(/however/i);
+    expect(f.impresso.segundoSegmentoComoImpresso).toBe('Thus, for AIJ, the geometric mean must be used.');
+    expect(f.impresso.tipografia).toMatch(/must em ITALICO/);
+  });
+
+  test('os dois campos e a sustentação ficam SEPARADOS, nos estados vigentes, sem condição suprida', () => {
+    for (const t of inspecao.trechos) {
+      const u = evidencias.porTrecho[t.identidade.indiceEmPorTrecho];
+      expect(u.articleId).toBe(t.identidade.articleId);
+      expect(u.enderecoNaBase).toEqual(t.identidade.enderecoNaBase);
+      // ⚠ O recorte é o dos dados versionados, e a base NÃO foi corrigida.
+      expect(u.dadosOriginais.verbatim_quote).toBe(t.recorte.texto);
+      expect(u.dadosOriginais.evidence.quote).toBe(t.recorte.texto);
+      for (const campo of ['verbatim_quote', 'evidence.quote']) {
+        expect(vocabulario).toContain(t.classificacao[campo].resultado);
+        expect(t.classificacao[campo].motivo).toBeTruthy();
+      }
+      expect(t.classificacao.nenhumaCategoriaNova).toBe(true);
+      // ⚠ Só os quatro estados; domínio e condição vão na justificativa.
+      expect(estados).toContain(t.sustentacaoDaClaim.resultado);
+      expect(t.sustentacaoDaClaim.claim).toBe(u.dadosOriginais.claim);
+      expect(t.sustentacaoDaClaim.naoSupridoPeloAvaliador).toMatch(/NAO acrescentou/);
+    }
+    expect(w.classificacao.verbatim_quote.resultado).toBe('nao confere');
+    expect(w.sustentacaoDaClaim.resultado).toBe('parcialmente sustentada');
+    // ⚠ A condição perdida aparece na SUSTENTAÇÃO, e não na correspondência.
+    expect(w.sustentacaoDaClaim.condicaoOmitidaPelaClaim).toMatch(/Tabela 6/);
+    expect(w.classificacao.verbatim_quote.motivo).not.toMatch(/Tabela 6|produto/);
+    expect(f.classificacao.verbatim_quote.resultado).toBe('confere');
+    expect(f.sustentacaoDaClaim.resultado).toBe('sustentada');
+    // A ênfase retirada é transformação declarada e ponto de critério, e não some.
+    expect(f.classificacao.verbatim_quote.motivo).toMatch(/must/);
+    expect(f.classificacao.pontoDeCriterio).toMatch(/revisao do autor/);
+  });
+
+  test('cada diferença contra os TRÊS pontos, com todas as transformações e sem origem forçada', () => {
+    const origens: string[] = [];
+    for (const t of inspecao.trechos) {
+      for (const d of t.diferencas) {
+        expect(Object.keys(d.confronto).sort()).toEqual(['extracao', 'impresso', 'recorte']);
+        expect(Object.keys(d.ondeSurgiu).sort()).toEqual(d.transformacoes.map((x: any) => x.id).sort());
+        for (const o of Object.values<string>(d.ondeSurgiu)) {
+          origens.push(o);
+          if (o === 'origem nao determinada') {
+            expect(d.evidenciaDisponivel).toBeTruthy();
+            expect(d.pendencia).toBeTruthy();
+          }
+        }
+      }
+    }
+    expect(origens).toContain('origem nao determinada');
+    // ⚠ Duas transformações no início do trecho de Wijnmalen, e as duas constam.
+    const inicio = w.diferencas.find((d: any) => d.onde === 'inicio do trecho');
+    expect(inicio.transformacoes.map((x: any) => x.id)).toEqual(['W1.a', 'W1.b']);
+    // ⚠ A datação afasta uma EXECUÇÃO, e não o uso anterior do mesmo PDF.
+    expect(inicio.evidenciaDisponivel).toMatch(/NAO afasta que este mesmo PDF/);
+    expect(f.diferencas.map((d: any) => d.transformacoes[0].id)).toEqual(['F1.a', 'F2.a', 'F3.a']);
+  });
+
+  test('agregação, contagens e indicador saem da medição, e C1 não se anuncia liberado', () => {
+    for (const t of inspecao.trechos) {
+      const c = t.resultadoDaUnidade.condicoesDaSecao4;
+      const r = t.classificacao;
+      expect(c.doisCamposConferem).toBe(r.verbatim_quote.resultado === 'confere' && r['evidence.quote'].resultado === 'confere');
+      expect(c.claimSustentada).toBe(t.sustentacaoDaClaim.resultado === 'sustentada');
+      expect(c.semLocalizadorDivergente).toBe(r.localizador.resultado === 'compativel');
+      expect(t.resultadoDaUnidade.estadoPosterior).toBe(todas(c) ? 'conferido' : 'pendente');
+      // ⚠ Os dados versionados não mudaram de estado.
+      expect(evidencias.porTrecho[t.identidade.indiceEmPorTrecho].conferenciaPublicacao.estado)
+        .toBe(t.resultadoDaUnidade.estadoAnterior);
+    }
+    expect(inspecao.contagens.conferidas).toBe(estado('conferido').length);
+    expect(inspecao.contagens.pendentes).toBe(estado('pendente').length);
+    expect(inspecao.contagens.movidas).toBe(0);
+    // O indicador é a soma do que as três inspeções observaram, nada antecipado.
+    const atendem = inspecao.trechos.filter((t: any) => todas(t.resultadoDaUnidade.condicoesDaSecao4))
+      .map((t: any) => `${t.identidade.articleId} key_claims[${t.identidade.enderecoNaBase.indiceBaseZero}]`);
+    const saatyAtende = todas(medicao.inspecaoVisualSaaty237.resultadoDaUnidade.condicoesDaSecao4);
+    const ind = inspecao.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual;
+    expect(ind.total).toBe(atendem.length + (saatyAtende ? 1 : 0));
+    expect(ind.quais).toEqual(atendem);
+    const atual = conferencia.tresIndicadores.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual;
+    expect(atual.total).toBe(ind.total);
+    expect(atual.historico[atual.historico.length - 1].total).toBe(ind.total);
+    // ⚠ Fora das 19, e as 19 seguem 19.
+    expect(w.resultadoDaUnidade.encaminhamento)
+      .toContain('A contagem histórica das 19 divergências entre campos permanece inalterada.');
+    const divergentes = evidencias.porTrecho.filter((x: any) => x.comparacaoDosCampos?.iguais === false);
+    expect(divergentes).toHaveLength(19);
+    // O alcance observado na base, medido nos dados: o mesmo texto em key_claims[3].
+    const u89 = evidencias.porTrecho[89];
+    expect(u89.articleId).toBe('wijnmalen2007_bocr');
+    expect(u89.enderecoNaBase.indiceBaseZero).toBe(3);
+    expect(u89.dadosOriginais.evidence.quote).toBe(w.recorte.texto);
+    expect(divergentes).toContain(u89);
+    expect(w.alcanceObservadoNaBase.comoFicaRegistrado).toMatch(/NAO foi conferida/);
+    expect(inspecao.oQueNaoSeAnuncia).toMatch(/NAO se anuncia C1 como liberado/);
+  });
+
+  test('a pendência técnica fica SEPARADA, como comportamento observado e sem causa estabelecida', () => {
+    const p = inspecao.pendenciaTecnica.testesIntermitentes;
+    expect(p.causa).toMatch(/NAO ESTABELECIDA/);
+    expect(p.causa).toMatch(/nao estabelece sozinho a causa/);
+    expect(p.comportamentoObservado).toMatch(/5000 ms/);
+    const fonte = fs.readFileSync(path.join(raiz, p.suite), 'utf8');
+    expect(p.casos).toHaveLength(2);
+    for (const caso of p.casos) {
+      // Os dois casos existem na suíte nomeada, com esse nome.
+      expect(fonte).toContain(caso.split(' › ')[1]);
+    }
+    expect(inspecao.pendenciaTecnica.naoAlterado).toMatch(/os dois testes intermitentes/);
+    // ⚠ Separada dos resultados bibliográficos.
+    expect(JSON.stringify(inspecao.trechos)).not.toMatch(/rag-diagnostico|intermitente/);
   });
 });
