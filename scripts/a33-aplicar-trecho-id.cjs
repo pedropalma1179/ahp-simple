@@ -128,6 +128,35 @@ function noCaminho(raiz, caminho) {
   return atual;
 }
 
+/** Grava, ou remove, o valor sob um caminho. Base da reconstrução do estado anterior. */
+function gravarNoCaminho(raiz, caminho, valor, remover) {
+  const passos = [];
+  for (const passo of caminho.split('.')) {
+    const [nome, ...indices] = passo.split('[');
+    if (nome) passos.push(nome);
+    for (const i of indices) passos.push(Number(i.replace(']', '')));
+  }
+  let atual = raiz;
+  for (let i = 0; i < passos.length - 1; i++) atual = atual[passos[i]];
+  const ultimo = passos[passos.length - 1];
+  if (remover) delete atual[ultimo];
+  else atual[ultimo] = valor;
+  return raiz;
+}
+
+/**
+ * Reconstrói o estado ANTERIOR aplicando de volta os valores enumerados.
+ *
+ * ⚠ Existe para que o controle não dependa do histórico do git: num clone raso,
+ * como o do CI, o commit de referência não existe. A reconstrução parte do
+ * estado corrente e desfaz **apenas** os caminhos da lista.
+ */
+function reconstruirAnterior(depoisJson, enumerados) {
+  const arvore = JSON.parse(JSON.stringify(semTrechoId(depoisJson)));
+  for (const e of enumerados) gravarNoCaminho(arvore, e.caminho, e.antes, !e.existiaAntes);
+  return arvore;
+}
+
 /**
  * Confere o controle estrutural contra uma lista EXAUSTIVA de exceções.
  *
@@ -255,7 +284,7 @@ function run(modo) {
   return { modo, snapshotMedido: SNAPSHOT_MEDIDO, antes, depois, elegiveis: elegiveis.length, nulos: linhas.length - elegiveis.length, gravadas: gravadas.length, excecao: EXCECAO, casos };
 }
 
-module.exports = { resumos, medirTodos, calcular, aplicar, textos, semTrechoId, chaveEndereco, diferencas, noCaminho, conferirExcecoes, sha256, utf8, DADOS, RAIZES, ARQUIVOS, EXCECAO, PREFIXO_HT, run };
+module.exports = { resumos, medirTodos, calcular, aplicar, textos, semTrechoId, chaveEndereco, diferencas, noCaminho, gravarNoCaminho, reconstruirAnterior, conferirExcecoes, sha256, utf8, DADOS, RAIZES, ARQUIVOS, EXCECAO, PREFIXO_HT, run };
 
 if (require.main === module) {
   const modo = process.argv[2] === 'aplicar' ? 'aplicar' : 'resumos';

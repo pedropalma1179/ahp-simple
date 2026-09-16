@@ -9,7 +9,6 @@
 export {};
 const fs = require('node:fs');
 const path = require('node:path');
-const { execFileSync } = require('node:child_process');
 const aplicacao = require('../../scripts/a33-aplicar-trecho-id.cjs');
 const { candidate } = require('../../scripts/measure-a33-identity-v2.cjs');
 const { suppliedTexts } = require('../../scripts/measure-a33-identity.cjs');
@@ -215,21 +214,46 @@ describe('A.33: H-T aplicado como trechoId', () => {
     'controle estrutural de %s: SÓ as diferenças enumeradas, e todas elas',
     (arquivo: string) => {
       const bloco = declarado.alteracoesAdministrativas;
-      const versionado = JSON.parse(
-        execFileSync('git', ['show', `${bloco.referenciaVersionada}:${DADOS}${arquivo}`], { cwd: raiz, maxBuffer: 30 * 1024 * 1024 }).toString('utf8'));
       const atual = ler(DADOS + arquivo);
       const enumerados = bloco.caminhos.filter((e: any) => e.arquivo === arquivo);
-      const r = aplicacao.conferirExcecoes(versionado, atual, enumerados);
-      // ⚠ Diferença fora da lista reprova, e a falha NOMEIA o caminho.
-      expect(r.naoCobertas).toEqual([]);
-      // ⚠ Exceção enumerada que não foi usada também reprova: lista frouxa é
-      // lista que esconde, e seria a porta para exceção ampla.
+      const referencia = bloco.referenciaEstrutural.porArquivo[arquivo];
+      const sha = (v: any) => aplicacao.sha256(aplicacao.utf8(JSON.stringify(v === undefined ? null : v)));
+
+      // ⚠ Reconstrói o estado anterior desfazendo SÓ os caminhos enumerados. Não
+      // usa `git show`: no clone raso do CI o commit de referência não existe, e
+      // medir apenas na máquina local foi a hipótese não testada que derrubou a
+      // execução 35109761970.
+      const reconstruido = aplicacao.reconstruirAnterior(atual, enumerados);
+
+      // ⚠ ESTE é o controle que pega tudo: se algo mudou FORA da lista, a
+      // reconstrução carrega a mudança e deixa de bater com a referência. A
+      // comparação por chave vem primeiro, para a falha NOMEAR onde foi.
+      expect(Object.keys(referencia.porChave).sort().map((k) => `${k}:${sha(reconstruido[k])}`))
+        .toEqual(Object.keys(referencia.porChave).sort().map((k) => `${k}:${referencia.porChave[k]}`));
+      expect(sha(reconstruido)).toBe(referencia.sha256);
+
+      const r = aplicacao.conferirExcecoes(reconstruido, atual, enumerados);
+      // ⚠ Exceção enumerada que não foi usada reprova: lista frouxa é lista que
+      // esconde, e seria a porta para exceção ampla. Isto NÃO é redundante com o
+      // resumo acima, que nada diz sobre entrada inútil na lista.
       expect(r.semUso.map((e: any) => e.caminho)).toEqual([]);
-      // ⚠ Cada caminho enumerado tem os DOIS valores fixados por resumo, então
-      // nada se altera por dentro de uma exceção sem reprovar.
+      // ⚠ Os dois valores de cada caminho ficam fixados por resumo. Também não é
+      // redundante: confere o que a lista AFIRMA contra o que os dados têm.
       expect(r.valoresErrados.map((e: any) => e.caminho)).toEqual([]);
-      // O contexto estático não tem alteração administrativa alguma nesta rodada.
-      if (arquivo === 'contexto-estatico.json') expect(r.folhasQueDiferem).toBe(0);
+      // ⚠ `naoCobertas` seria vacuo aqui, porque a reconstrução foi construída
+      // desfazendo exatamente esses caminhos. Quem carrega essa garantia é a
+      // comparação com a referência, acima, e não esta linha.
+      expect(r.naoCobertas).toEqual([]);
+
+      if (arquivo === 'contexto-estatico.json') {
+        // Nenhuma alteração administrativa aqui nesta rodada.
+        expect(enumerados).toHaveLength(0);
+        expect(r.folhasQueDiferem).toBe(0);
+      } else {
+        // A reconstrução TEM de diferir do estado corrente; se não diferir, nada
+        // foi desfeito e o controle estaria passando sem medir coisa alguma.
+        expect(sha(reconstruido)).not.toBe(sha(aplicacao.semTrechoId(atual)));
+      }
     });
 
   test('a distinção de identidade é POR UNIDADE, e as 36 fórmulas têm ID nativo', () => {

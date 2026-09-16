@@ -3436,6 +3436,7 @@
         "arquivo": "evidencias.json",
         "caminho": "resumo.semTrechoId",
         "motivo": "Contagem de unidades sem trechoId: 165 antes da adocao, 1 depois.",
+        "existiaAntes": true,
         "antes": 165,
         "depois": 1,
         "sha256Antes": "bc52dd634277c4a34a2d6210994a9a5e2ab6d33bb4a3a8963410e00ca6c15a02",
@@ -3445,6 +3446,8 @@
         "arquivo": "evidencias.json",
         "caminho": "resumo.idNativoNaBase",
         "motivo": "Acrescentado: alcance MEDIDO da ausencia de ID nativo, por tipo, sem estende-la as formulas.",
+        "existiaAntes": false,
+        "antes": null,
         "depois": {
           "alcance": "Medido no snapshot b3fe3d7. A ausencia de ID nativo vale para as claims, os limiares e os benchmarks; NAO se estende as formulas, que tem id proprio no dado. Identidade nativa e identidade derivada sao coisas distintas, e a segunda nao supre a primeira.",
           "ausente": 129,
@@ -3465,6 +3468,8 @@
         "arquivo": "evidencias.json",
         "caminho": "identidadeDerivada",
         "motivo": "Acrescentado: nomeia o esquema adotado e aponta protocolo, resultado e excecao.",
+        "existiaAntes": false,
+        "antes": null,
         "depois": "H-T, prefixo A33-por-tipo-v2, adotado em 307304daa12cf11bcc81928371e80b113c652760. Protocolo em docs/dados/a33-identidade-aplicada/protocolo.md; resultado e excecao em docs/dados/a33-identidade-aplicada/aplicacao.json. O valor fica em trechoId. NAO promove indice posicional nem ID nativo a identificador, e nao certifica conteudo.",
         "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
         "sha256Depois": "1e8af06a39ef121282a9a329de28396bb2b4e8f9f237cb35b6f4b1932001eabf"
@@ -3473,9 +3478,9 @@
         "arquivo": "evidencias.json",
         "caminho": "semIdentificadorRecuperavel",
         "motivo": "As 164 pendencias resolvidas saem do vetor; permanece so quem nao tem identificador recuperavel, com motivo apontando para aplicacao.json.",
-        "antes": {
-          "vetorComEntradas": 165,
-          "primeira": {
+        "existiaAntes": true,
+        "antes": [
+          {
             "articleId": "alizadeh2020_energy",
             "enderecoNaBase": {
               "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
@@ -3485,8 +3490,1637 @@
             },
             "motivo": "insuficiente: claim sem id"
           },
-          "valorExatoRecuperavelPor": "git show a84c35be21d8687f4b48cac03f6f6acf950298db:docs/dados/a33-etapa4/evidencias.json"
-        },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "aullhyde2006_experiment",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "aullhyde2006_experiment",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ayan2023_weightingMethodsMCDM",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ayan2023_weightingMethodsMCDM",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ayan2023_weightingMethodsMCDM",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ayan2023_weightingMethodsMCDM",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ayan2023_weightingMethodsMCDM",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ayan2023_weightingMethodsMCDM",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 5,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "bozoki2010_ipc",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "demirtas2008_integrated",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "demirtas2008_integrated",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "dodevska2023when",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/dodevska2023when.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "dodevska2023when",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/dodevska2023when.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "dodevska2023when",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/dodevska2023when.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "escobar2004_note",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/escobar2004_note.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "escobar2004_note",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/escobar2004_note.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "forman1998_aggregating",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "goepel2018_ahpos",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "goepel2018_ahpos",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "goepel2018_ahpos",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 6,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "goepel2018_ahpos",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 7,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "goepel2018_ahpos",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 8,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ishizaka2011review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ishizaka2011review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ishizaka2011review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ishizaka2011review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "kabak2014_prioritization",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "lee2024_project",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2024_project.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "liang2022_ahp_undesirable",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "liang2022_ahp_undesirable",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "mu2016_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "mu2016_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "mu2016_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "neely2020_upperEchelonsMetacritiques",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "neely2020_upperEchelonsMetacritiques",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "neely2020_upperEchelonsMetacritiques",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "neely2020_upperEchelonsMetacritiques",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 5,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ossadnik2016_group_aggregation",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "ossadnik2016_group_aggregation",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "petrillo2023state",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/petrillo2023state.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "petrillo2023state",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/petrillo2023state.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1977_scaling",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1977_scaling",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1986_axiomatic",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1987_whatitis",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1987_whatitis",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1987_whatitis",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1990_howtomake",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1990_howtomake",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty2003_eigenvector",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty2003_eigenvector",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty2015_trustworthy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty2015_trustworthy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty2015_trustworthy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 5,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas1984_rankpreservation",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas1984_rankpreservation",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas1984_rankpreservation",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 5,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 6,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 7,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saiyed2023_ceoPowerUET",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "schmidt2016_priorities",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "schmidt2016_priorities",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "tavana2023_revolution",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "tavana2023_revolution",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "tavana2023_revolution",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "xu2000_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "xu2000_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "salomon2016_absolute",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "salomon2016_absolute",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saaty1986_axiomatic",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 5,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "saatyVargas1984_rankpreservation",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "schmidt2015_review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "bozoki2010_ipc",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "bozoki2010_ipc",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "forman1998_aggregating",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          {
+            "articleId": "demirtas2008_integrated",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "dodevska2023when",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/dodevska2023when.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "ishizaka2011review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "lee2024_project",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2024_project.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "liang2022_ahp_undesirable",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "mu2016_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "saaty2015_trustworthy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "saatyVargas2012",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "schmidt2015_review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "schmidt2015_review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "schmidt2015_review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "schmidt2016_priorities",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "schmidt2016_priorities",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "xu2000_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+              "campo": "thresholds",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "demirtas2008_integrated",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "demirtas2008_integrated",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "kabak2014_prioritization",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "kabak2014_prioritization",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "kabak2014_prioritization",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "kabak2014_prioritization",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "kabak2014_prioritization",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "lee2009_wind",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2009_wind.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "liang2022_ahp_undesirable",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "liang2022_ahp_undesirable",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "liang2022_ahp_undesirable",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "liang2022_ahp_undesirable",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 5,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "mu2016_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "mu2016_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "petrillo2023state",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/petrillo2023state.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "petrillo2023state",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/petrillo2023state.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "petrillo2023state",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/petrillo2023state.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "petrillo2023state",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/petrillo2023state.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "saatyOzdemir2003_negative",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 1,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 2,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 3,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "wijnmalen2007_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+              "campo": "formulas",
+              "indiceBaseZero": 4,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "lee2024_project",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/lee2024_project.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "salomon2024_consistency",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "saiyed2023_ceoPowerUET",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "tavana2023_revolution",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "mu2016_bocr",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "ossadnik2016_group_aggregation",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "schmidt2016_priorities",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "schmidt2015_review",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          },
+          {
+            "articleId": "kabak2014_prioritization",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId"
+          }
+        ],
         "depois": [
           {
             "articleId": "saiyed2023_ceoPowerUET",
@@ -3505,6 +5139,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[0].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3517,6 +5152,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[1].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3529,6 +5165,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[2].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3541,6 +5178,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[3].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3553,6 +5191,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[4].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3565,6 +5204,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[5].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3577,6 +5217,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[6].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3589,6 +5230,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[7].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3601,6 +5243,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[8].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3613,6 +5256,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[9].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3625,6 +5269,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[10].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3637,6 +5282,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[11].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3649,6 +5295,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[12].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3661,6 +5308,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[13].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3673,6 +5321,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[14].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3685,6 +5334,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[15].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3697,6 +5347,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[16].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3709,6 +5360,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[17].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3721,6 +5373,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[18].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3733,6 +5386,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[19].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3745,6 +5399,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[20].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3757,6 +5412,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[21].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3769,6 +5425,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[22].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3781,6 +5438,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[23].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3793,6 +5451,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[24].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3805,6 +5464,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[25].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3817,6 +5477,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[26].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3829,6 +5490,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[27].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3841,6 +5503,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[28].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3853,6 +5516,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[29].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3865,6 +5529,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[30].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3877,6 +5542,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[31].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3889,6 +5555,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[32].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3901,6 +5568,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[33].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3913,6 +5581,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[34].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3925,6 +5594,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[35].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3937,6 +5607,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[36].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3949,6 +5620,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[37].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3961,6 +5633,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[38].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3973,6 +5646,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[39].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3985,6 +5659,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[40].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -3997,6 +5672,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[41].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4009,6 +5685,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[42].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4021,6 +5698,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[43].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4033,6 +5711,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[44].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4045,6 +5724,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[45].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4057,6 +5737,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[46].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4069,6 +5750,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[47].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4081,6 +5763,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[48].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4093,6 +5776,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[49].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4105,6 +5789,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[50].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4117,6 +5802,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[51].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4129,6 +5815,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[52].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4141,6 +5828,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[53].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4153,6 +5841,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[54].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4165,6 +5854,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[55].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4177,6 +5867,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[56].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4189,6 +5880,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[57].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4201,6 +5893,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[58].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4213,6 +5906,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[59].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4225,6 +5919,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[60].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4237,6 +5932,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[61].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4249,6 +5945,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[62].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4261,6 +5958,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[63].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4273,6 +5971,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[64].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4285,6 +5984,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[65].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4297,6 +5997,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[66].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4309,6 +6010,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[67].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4321,6 +6023,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[68].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4333,6 +6036,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[69].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4345,6 +6049,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[70].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4357,6 +6062,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[71].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4369,6 +6075,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[72].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4381,6 +6088,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[73].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4393,6 +6101,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[74].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4405,6 +6114,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[75].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4417,6 +6127,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[76].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4429,6 +6140,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[77].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4441,6 +6153,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[78].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4453,6 +6166,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[79].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4465,6 +6179,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[80].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4477,6 +6192,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[81].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4489,6 +6205,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[82].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4501,6 +6218,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[83].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4513,6 +6231,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[84].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4525,6 +6244,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[85].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4537,6 +6257,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[86].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4549,6 +6270,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[87].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4561,6 +6283,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[88].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4573,6 +6296,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[89].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4585,6 +6309,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[90].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4597,6 +6322,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[91].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4609,6 +6335,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[92].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4621,6 +6348,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[93].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4633,6 +6361,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[94].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4645,6 +6374,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[95].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4657,6 +6387,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[96].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4669,6 +6400,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[97].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4681,6 +6413,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[98].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4693,6 +6426,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[99].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4705,6 +6439,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[100].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "insuficiente: claim sem id",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4717,6 +6452,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[101].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4729,6 +6465,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[102].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4741,6 +6478,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[103].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4753,6 +6491,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[104].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4765,6 +6504,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[105].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4777,6 +6517,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[106].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4789,6 +6530,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[107].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4801,6 +6543,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[108].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4813,6 +6556,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[109].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4825,6 +6569,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[110].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4837,6 +6582,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[111].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4849,6 +6595,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[112].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4861,6 +6608,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[113].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4873,6 +6621,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[114].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4885,6 +6634,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[115].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4897,6 +6647,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[116].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4909,6 +6660,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[117].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4921,6 +6673,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[118].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4933,6 +6686,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[119].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4945,6 +6699,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[120].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4957,6 +6712,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[121].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4969,6 +6725,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[122].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4981,6 +6738,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[123].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -4993,6 +6751,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[124].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5005,6 +6764,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[125].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5017,6 +6777,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[126].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5029,6 +6790,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[127].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5041,6 +6803,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[128].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5053,6 +6816,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[129].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5065,6 +6829,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[130].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5077,6 +6842,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[131].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5089,6 +6855,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[132].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5101,6 +6868,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[133].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5113,6 +6881,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[134].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5125,6 +6894,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[135].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5137,6 +6907,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[136].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5149,6 +6920,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[137].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5161,6 +6933,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[138].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5173,6 +6946,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[139].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5185,6 +6959,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[140].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5197,6 +6972,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[141].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5209,6 +6985,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[142].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5221,6 +6998,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[143].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5233,6 +7011,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[144].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5245,6 +7024,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[145].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5257,6 +7037,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[146].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5269,6 +7050,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[147].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5281,6 +7063,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[148].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5293,6 +7076,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[149].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5305,6 +7089,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[150].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5317,6 +7102,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[151].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5329,6 +7115,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[152].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5341,6 +7128,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[153].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5353,6 +7141,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[154].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5365,6 +7154,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[155].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5377,6 +7167,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[156].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5389,6 +7180,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[157].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": null,
@@ -5401,6 +7193,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[158].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5413,6 +7206,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[159].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5425,6 +7219,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[160].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5437,6 +7232,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[161].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5449,6 +7245,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[162].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5461,6 +7258,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[163].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5473,6 +7271,7 @@
         "arquivo": "evidencias.json",
         "caminho": "porTrecho[164].identidade",
         "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "existiaAntes": true,
         "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
         "depois": {
           "derivada": "A33-por-tipo-v2",
@@ -5485,6 +7284,7 @@
         "arquivo": "C1-recuperacao.json",
         "caminho": "identidade",
         "motivo": "A declaracao de falta de identidade passa a descrever a identidade derivada aplicada e o vinculo das copias por chunk.id.",
+        "existiaAntes": true,
         "antes": "O id posicional de chunk reproduz a convenção já existente em scripts/ingest-rag.ts. Não é id de claim nem preenche trechoId. A falta está declarada no sidecar.",
         "depois": "O id posicional de chunk reproduz a convencao ja existente em scripts/ingest-rag.ts, e continua nao sendo id de claim. A identidade de trecho e a derivada H-T, aplicada em 307304daa12cf11bcc81928371e80b113c652760: cada entrada de trechos tem trechoId preenchido, e as copias de chunk se vinculam a essas entradas por chunk.id. O identificador NAO entra no texto enviado ao modelo.",
         "sha256Antes": "db2b4fc2b3a135db2439802dfbcbac2598a513f24f714764be8b607c13713c87",
@@ -5494,6 +7294,7 @@
         "arquivo": "casos.json",
         "caminho": "pendenciasParaGeracao[0]",
         "motivo": "A pendencia de esquema de identidade deixou de existir: H-T foi adotado.",
+        "existiaAntes": true,
         "antes": "Resolver a ausência de id nas claims com decisão específica do autor; não houve autorização para criar esquema ou promover índice posicional a identidade.",
         "depois": "Identidade de trecho resolvida: o autor adotou H-T e a aplicacao gravou trechoId em 164 das 165 unidades, em 307304daa12cf11bcc81928371e80b113c652760. Indice posicional NAO foi promovido a identidade. Permanece fora da cobertura o benchmark de saiyed2023_ceoPowerUET, com motivo em docs/dados/a33-identidade-aplicada/aplicacao.json, campo excecao.",
         "sha256Antes": "d186c744b1dd4ce18417f63c7ffc61434556f82ffe35e56f284c16bfc6fba93b",
@@ -5503,6 +7304,7 @@
         "arquivo": "casos.json",
         "caminho": "integridadeDosDados",
         "motivo": "Resumo vigente dos tres arquivos alterados nesta rodada.",
+        "existiaAntes": true,
         "antes": {
           "C1-recuperacao.json": {
             "algoritmo": "SHA-256",
@@ -5550,7 +7352,69 @@
         "sha256Antes": "a9288b0272ac9f98d81c2844345e780a10d84505cf2c1e54d111c43fd7dcdbc0",
         "sha256Depois": "ec4203c0f091b2d873641bea970bf33a7ee73aa0e6aeca1672dfc317777aae14"
       }
-    ]
+    ],
+    "referenciaEstrutural": {
+      "nota": "Resumos da arvore estrutural (sem trechoId) do estado em a84c35b, global e por chave de primeiro nivel. O teste RECONSTROI esse estado desfazendo os caminhos enumerados sobre o estado corrente e compara com estes resumos. ⚠ Existe porque o CI usa clone raso: git show do commit de referencia falha la, e medir so na maquina local era a hipotese nao testada que derrubou a execucao 35109761970.",
+      "porArquivo": {
+        "evidencias.json": {
+          "sha256": "bdfa9437bd8c16590010cb98d13024eb6bcb78020891f791025c686b41ee7a1c",
+          "porChave": {
+            "baseSha": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+            "criterioConferencia": "6b1fb51b4f729970eb70e482da83812d9c3f097d424b2f9265aab5d6ab869365",
+            "porTrecho": "1e16ff74d93b74c5f300ff957a92f473b02f727b3b170b23f0ee888d4cf3e979",
+            "regra": "7a74bad8464a4e5b98ca1be082d80e90e4c3197a433695739251327e0c7d9296",
+            "resumo": "444dc91395f3536617306d432a4ac00a99f2aa880b0caf4b70145c97af71d2ec",
+            "semIdentificadorRecuperavel": "983116e0c59763637ad4cfc00407f178c39606af488dcef7bac4252dd56e8e0f"
+          }
+        },
+        "contexto-estatico.json": {
+          "sha256": "aa6c7b04c2857fd4e8e73ca450edcdf92e2540beb0398e0d846d0a4ba3bef98b",
+          "porChave": {
+            "alcance": "1779c6b5812c92e92a2efcd4415c242b6c2d746fe36c1a09e369e4ea08a692d6",
+            "baseSha": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+            "outrasTresSuperficies": "4bb8ef8d0d264f3818e7281fec0b571ab033c22a61863b7dd449f1e2a1999e57",
+            "preservacao": "9470486f8a7d1170ced8f81bf3bf1f6ba32f5a5e03c0a2b857c25aa5a97c5ddf",
+            "quatroSecoes": "51b5ef80dca253ff484259304a5e445f180ba18fb28798e7b785afbfb7e74ae8",
+            "system": "b2df916d2e36f55bc82d05fef0202ff6a4ae2c2e68981fd3c9fb8ea91002d725"
+          }
+        },
+        "C1-recuperacao.json": {
+          "sha256": "08cea4986ae2912503b9c82eae21b19cbf356049f5e07324a44895ee0c68ae01",
+          "porChave": {
+            "baseSha": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+            "criterioEscolha": "fac0f2df27ff5508edb30bb6c5118520669b518363859e38aa2c1d24eb1e58ca",
+            "finalChunksEsperados": "448530ee988a90ec0260234d76806de86c282a74f95fb90231ede6bf26382798",
+            "identidade": "db2b4fc2b3a135db2439802dfbcbac2598a513f24f714764be8b607c13713c87",
+            "limite": "8a435edb2ee787ed74d11bc548314f2331d9eaaa8ec33d00ab890ccab02407c7",
+            "origem": "5d11a53b55e45c45bf9ae454f0c2fe1cf11f686e619b326cecab6699102145aa",
+            "porConsulta": "b2f050337b3c15720c07daaa5fd398273b85ecfd0cc099f75ae5254140749ced",
+            "score": "6138b5b85c2bd4241c2f007b9c6fd68ca1ba29d2f6bb5431ea21e03e4d32e23f",
+            "trechos": "d7ccb618d5b60e7a183c11360a27ef31e717f4e5a8b01ce8faba94460963a5d5"
+          }
+        },
+        "casos.json": {
+          "sha256": "e77285c3f5fcde059affdab80586be72f52038633cb391b3d52d3569a68b1073",
+          "porChave": {
+            "baseSha": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+            "casos": "c17547fe5b120961f6c532c5b6c0d6af028c4bbdec8c59518c7b3393a08d1a94",
+            "contextoComum": "96bb436e279da80767fa90c6d614b7995faca8f63d3ac473d6539d2587ad7db6",
+            "dataUTC": "918ad75fe37202c6d8e306f4019d5fea852e72fb75aae73cff50f3d1cd6e2e3a",
+            "estado": "3fd1efc953ed79b9a761378c9d6b8774de4a04581160ea270b5ede858a87a644",
+            "execucaoFutura": "5ebc0e7904f210388d45c2b62cd30e220c6ce18a3cad3687baf8c5236df70f98",
+            "integridadeDosDados": "a9288b0272ac9f98d81c2844345e780a10d84505cf2c1e54d111c43fd7dcdbc0",
+            "mainDevePermanecer": "6f52b81aac2dbeededfc16e8d92de0b8d5d8485d29d0d43e5a6c1e378378fddc",
+            "modelo": "8b4d02fb23f90e6cbce07c0ee91924c49e5e5dd7f3362d7ff19d406a024020cd",
+            "payloadReferencia": "d30501838c655042947f1f31a0528f7b4af28bdc77988a04d6a7b00cdcff10a2",
+            "pendenciasParaGeracao": "b334983f8cc372e33d77dab4a4e71bf2028449b97b0edd1fae735710103f875c",
+            "predicao": "3f642a54a5f96249edd87b4e3de98d7bb74e26788d981dc424b2bf7abd2d7d6f",
+            "provenienciaHashes": "b9e6f6cbab5cd7b23459236770c4af706bc879164bf1c57829cd90ca7c1a1b54",
+            "resumoEvidencias": "e3eec0bc73f96079f714744da552d0d8dc991347a855a4e1a1872cd1ffb76596",
+            "verificacaoCodigo": "59be1efda646068ca767832295a630005ccadd3a08ba77a9a778c326bfe66388",
+            "versaoPreparacao": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+          }
+        }
+      }
+    }
   },
   "momentoDosBlocos": {
     "antes": "Estado em b3fe3d7a0c78b8129e185cbce0099ef606fb844e, ANTES da aplicacao de H-T. E a referencia dos resumos TEXTUAIS, e continua valendo: os resumos de texto tem de coincidir com este bloco em qualquer rodada posterior.",
