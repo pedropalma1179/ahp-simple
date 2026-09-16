@@ -462,9 +462,11 @@
         "sha256DoArquivo": "de5f6a8b0f5f83aefc53dd1fb5107cf90dd07c11cc3e3c55f87b112539cef9e7",
         "paginas": 48,
         "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
-        "identificadorDaObra": "ISSN 0022-2496",
+        "identificadorDoArtigo": "identificador de artigo nao registrado",
+        "identificadorDoPeriodico": "ISSN 0022-2496",
+        "sobreOIdentificadorDoArtigo": "Nenhum identificador de artigo esta registrado aqui, e o ISSN NAO ocupa esse lugar: ele identifica o periodico. Isto descreve o que o registro contem, e nao e afirmacao sobre o artigo.",
         "versaoDoArquivoConsultado": null,
-        "porQueVersaoENula": "DOI, PII e ISSN identificam a OBRA, e NAO demonstram qual versao do arquivo foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
+        "porQueVersaoENula": "DOI e PII identificam o ARTIGO, e o ISSN identifica o PERIODICO. Nenhum deles identifica o ARQUIVO nem demonstra qual versao dele foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
         "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
         "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
       },
@@ -477,9 +479,10 @@
         "sha256DoArquivo": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
         "paginas": 14,
         "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
-        "identificadorDaObra": "doi 10.1016/j.mcm.2007.03.020",
+        "identificadorDoArtigo": "doi 10.1016/j.mcm.2007.03.020",
+        "identificadorDoPeriodico": "nao registrado",
         "versaoDoArquivoConsultado": null,
-        "porQueVersaoENula": "DOI, PII e ISSN identificam a OBRA, e NAO demonstram qual versao do arquivo foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
+        "porQueVersaoENula": "DOI e PII identificam o ARTIGO, e o ISSN identifica o PERIODICO. Nenhum deles identifica o ARQUIVO nem demonstra qual versao dele foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
         "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
         "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
       },
@@ -492,9 +495,10 @@
         "sha256DoArquivo": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
         "paginas": 5,
         "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
-        "identificadorDaObra": "PII S0377-2217(97)00244-0",
+        "identificadorDoArtigo": "PII S0377-2217(97)00244-0",
+        "identificadorDoPeriodico": "nao registrado",
         "versaoDoArquivoConsultado": null,
-        "porQueVersaoENula": "DOI, PII e ISSN identificam a OBRA, e NAO demonstram qual versao do arquivo foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
+        "porQueVersaoENula": "DOI e PII identificam o ARTIGO, e o ISSN identifica o PERIODICO. Nenhum deles identifica o ARQUIVO nem demonstra qual versao dele foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
         "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
         "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
       }
@@ -586,7 +590,7 @@
         "que cada SHA-256 corresponde ao arquivo que a outra sessao efetivamente leu",
         "que a pagina impressa declarada ocupa a posicao declarada NAQUELE arquivo",
         "que o texto extraido usado na comparacao veio daqueles arquivos: o vinculo entre extracao e PDF NAO esta estabelecido",
-        "qual VERSAO de arquivo foi consultada, porque DOI, PII e ISSN identificam a obra e nao o arquivo"
+        "qual VERSAO de arquivo foi consultada, porque DOI e PII identificam o artigo, o ISSN identifica o periodico, e nenhum deles identifica o arquivo"
       ],
       "sobreAAritmetica": "⚠ Conferir que 899 menos 8 da 891 valida a SUBTRACAO, e NAO demonstra que a pagina impressa 899 ocupe a oitava posicao naquele arquivo. A aritmetica e sobre os numeros declarados, nao sobre o PDF.",
       "oQueOsTestesVerificam": "Os testes verificam o FORMATO de 64 caracteres hexadecimais, a declaracao de origem e o estado de nao verificacao. ⚠ Eles NAO verificam correspondencia com os PDFs, e nao ha instrumento aqui que o faca.",

@@ -198,10 +198,14 @@ describe('A.33: registro da conferência de C1', () => {
       expect(a.localizadorDaOrigem).toMatch(/NAO HA localizador verificavel/);
       // ⚠ Só o FORMATO do resumo é verificado. Correspondência com o PDF, não.
       expect(a.sha256DoArquivo).toMatch(/^[0-9a-f]{64}$/);
-      // ⚠ DOI, PII e ISSN identificam a OBRA. A versão do arquivo fica nula.
-      expect(a.identificadorDaObra).toBeTruthy();
+      // ⚠ DOI e PII identificam o ARTIGO; o ISSN, o PERIÓDICO. Nenhum deles
+      // identifica o arquivo, e a versão do arquivo fica nula.
+      expect(a.identificadorDoArtigo).toBeTruthy();
+      expect(a.identificadorDoPeriodico).toBeTruthy();
+      expect(a.identificadorDaObra).toBeUndefined();
       expect(a.versaoDoArquivoConsultado).toBeNull();
-      expect(a.porQueVersaoENula).toMatch(/identificam a OBRA/);
+      expect(a.porQueVersaoENula).toMatch(/DOI e PII identificam o ARTIGO, e o ISSN identifica o PERIODICO/);
+      expect(a.porQueVersaoENula).toMatch(/Nenhum deles identifica o ARQUIVO/);
       expect(a.versao).toBeUndefined();
     }
     // ⚠ Texto extraído não é a página impressa, e o registro diz isso.
@@ -219,7 +223,8 @@ describe('A.33: registro da conferência de C1', () => {
     expect(juntos).toMatch(/SHA-256 corresponde ao arquivo/);
     expect(juntos).toMatch(/pagina impressa declarada ocupa a posicao declarada/);
     expect(juntos).toMatch(/vinculo entre extracao e PDF NAO esta estabelecido/);
-    expect(juntos).toMatch(/DOI, PII e ISSN identificam a obra e nao o arquivo/);
+    expect(juntos).toMatch(
+      /DOI e PII identificam o artigo, o ISSN identifica o periodico, e nenhum deles identifica o arquivo/);
     // ⚠ A aritmética é aritmética, e o registro diz isso.
     expect(n.sobreAAritmetica).toMatch(/valida a SUBTRACAO/);
     expect(n.sobreAAritmetica).toMatch(/NAO demonstra/);
@@ -353,6 +358,28 @@ describe('A.33: registro da conferência de C1', () => {
       expect(t.vejaTambem).toMatch(/comparacaoRecebida/);
       expect(t.vejaTambem).toMatch(/nao foram substituidos/);
     }
+  });
+
+  test('o ISSN identifica o PERIÓDICO, e o Saaty fica sem identificador de artigo registrado', () => {
+    const porFonte = Object.fromEntries(
+      conferencia.comparacaoRecebida.arquivosConsultados.map((a: any) => [a.fonte, a]));
+    const s = porFonte['Saaty 1977'];
+    expect(s.identificadorDoPeriodico).toBe('ISSN 0022-2496');
+    // ⚠ A redação prescrita: o que se afirma é que NÃO ESTÁ REGISTRADO aqui.
+    expect(s.identificadorDoArtigo).toBe('identificador de artigo nao registrado');
+    expect(s.sobreOIdentificadorDoArtigo).toMatch(/o ISSN NAO ocupa esse lugar/);
+    // DOI e PII continuam identificando o artigo.
+    expect(porFonte['Wijnmalen 2007'].identificadorDoArtigo).toBe('doi 10.1016/j.mcm.2007.03.020');
+    expect(porFonte['Forman e Peniwati 1998'].identificadorDoArtigo).toBe('PII S0377-2217(97)00244-0');
+    // ⚠ Nenhum ISSN no lugar de identificador de artigo.
+    for (const a of conferencia.comparacaoRecebida.arquivosConsultados) {
+      expect(a.identificadorDoArtigo).not.toMatch(/ISSN/);
+    }
+    const texto = JSON.stringify(conferencia);
+    // ⚠ A frase que agrupava os três como identificadores da obra saiu do registro.
+    expect(texto).not.toMatch(/DOI, PII e ISSN/);
+    // ⚠ E nada afirma ou sugere que o identificador do artigo não exista.
+    expect(texto).not.toMatch(/(nao|não) (existe|possui|tem) (identificador|DOI|PII)|inexistente/i);
   });
 
   test('o registro declara o alcance do "confere" e a regra de agregação', () => {

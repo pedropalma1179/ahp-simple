@@ -7184,7 +7184,8 @@ como identificar a mensagem, o artefato ou a sessão que os produziu.
 ao arquivo que a outra sessão leu; que a página impressa declarada ocupa a posição
 declarada **naquele** arquivo; que o texto extraído veio daqueles arquivos, ou seja
 **o vínculo entre extração e PDF não está estabelecido**; e **qual versão de arquivo
-foi consultada**, porque ⚠ **DOI, PII e ISSN identificam a OBRA, não o arquivo**.
+foi consultada**, porque ⚠ **DOI e PII identificam o ARTIGO, o ISSN identifica o
+PERIÓDICO, e nenhum deles identifica o arquivo**.
 Por isso `versaoDoArquivoConsultado` ficou **`null`**, com o motivo.
 
 ⚠ **Conferir que 899 menos 8 dá 891 valida a SUBTRAÇÃO**, e **não demonstra** que a
@@ -7199,11 +7200,16 @@ extração corrompeu e o que o recorte preparado alterou exige inspeção visual
 
 **Os três arquivos, com página impressa e posição no PDF em campos distintos:**
 
-| Fonte | Identificador | Página impressa | Posição no PDF | Diferença | Páginas |
-|---|---|---:|---:|---:|---:|
-| Saaty 1977 | ISSN 0022-2496 | 237 | 4 | **233** | 48 |
-| Wijnmalen 2007 | doi 10.1016/j.mcm.2007.03.020 | 899 | 8 | **891** | 14 |
-| Forman e Peniwati 1998 | PII S0377-2217(97)00244-0 | 167 | 3 | **164** | 5 |
+| Fonte | Identificador do artigo | Identificador do periódico | Página impressa | Posição no PDF | Diferença | Páginas |
+|---|---|---|---:|---:|---:|---:|
+| Saaty 1977 | identificador de artigo não registrado | ISSN 0022-2496 | 237 | 4 | **233** | 48 |
+| Wijnmalen 2007 | doi 10.1016/j.mcm.2007.03.020 | não registrado | 899 | 8 | **891** | 14 |
+| Forman e Peniwati 1998 | PII S0377-2217(97)00244-0 | não registrado | 167 | 3 | **164** | 5 |
+
+⚠ **Corrigido na rodada de medição de 16/09/2026:** esta tabela trazia o ISSN na
+coluna de identificador, como se identificasse o artigo. **O ISSN identifica o
+periódico.** Para o Saaty, o que se registra é que **nenhum identificador de artigo
+está registrado aqui**, e não que ele falte ao artigo.
 
 Os SHA-256 completos estão no registro. ⚠ **Confundir página impressa com posição
 no PDF apontaria para outro lugar do arquivo**, e a diferença é de três ordens de
