@@ -424,7 +424,7 @@
   },
   "comparacaoRecebida": {
     "data": "2026-09-16",
-    "natureza": "⚠ ESTA EXECUCAO REGISTRA UMA COMPARACAO RECEBIDA. Ela NAO consultou as publicacoes, e NAO apresenta a conferencia como leitura propria. A comparacao das fontes foi feita sobre TEXTO EXTRAIDO dos PDFs, por outra sessao.",
+    "natureza": "⚠ ESTA EXECUCAO REGISTRA UMA COMPARACAO RECEBIDA. Ela NAO consultou as publicacoes, e NAO apresenta a conferencia como leitura propria. A comparacao das fontes foi feita sobre TEXTO EXTRAIDO dos PDFs, por outra sessao. ⚠ A RASTREABILIDADE DOS PDFs NAO ESTA DEMONSTRADA: os valores de arquivo estao recebidos e ainda nao verificados, e o vinculo entre a extracao e o PDF nao esta estabelecido. Ver rastreabilidadeNaoDemonstrada.",
     "proveniencia": [
       {
         "afirmacao": "os resultados por campo das tres fontes",
@@ -456,41 +456,50 @@
       {
         "fonte": "Saaty 1977",
         "referencia": "Journal of Mathematical Psychology 15, 234 a 281. ISSN 0022-2496",
-        "identificador": "ISSN 0022-2496",
-        "versao": "versao publicada, identificada pela referencia do periodico",
         "paginaImpressa": 237,
         "posicaoNoPdf": 4,
         "diferencaEntreOsDois": 233,
         "sha256DoArquivo": "de5f6a8b0f5f83aefc53dd1fb5107cf90dd07c11cc3e3c55f87b112539cef9e7",
         "paginas": 48,
-        "origemDestesValores": "sessao de analise, que teve os arquivos. NAO medido nesta execucao."
+        "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
+        "identificadorDaObra": "ISSN 0022-2496",
+        "versaoDoArquivoConsultado": null,
+        "porQueVersaoENula": "DOI, PII e ISSN identificam a OBRA, e NAO demonstram qual versao do arquivo foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
+        "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
+        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
       },
       {
         "fonte": "Wijnmalen 2007",
         "referencia": "Mathematical and Computer Modelling 46, 892 a 905",
-        "identificador": "doi 10.1016/j.mcm.2007.03.020",
-        "versao": "versao publicada, identificada pelo doi",
         "paginaImpressa": 899,
         "posicaoNoPdf": 8,
         "diferencaEntreOsDois": 891,
         "sha256DoArquivo": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
         "paginas": 14,
-        "origemDestesValores": "sessao de analise, que teve os arquivos. NAO medido nesta execucao."
+        "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
+        "identificadorDaObra": "doi 10.1016/j.mcm.2007.03.020",
+        "versaoDoArquivoConsultado": null,
+        "porQueVersaoENula": "DOI, PII e ISSN identificam a OBRA, e NAO demonstram qual versao do arquivo foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
+        "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
+        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
       },
       {
         "fonte": "Forman e Peniwati 1998",
         "referencia": "European Journal of Operational Research 108, 165 a 169",
-        "identificador": "PII S0377-2217(97)00244-0",
-        "versao": "versao publicada, identificada pelo PII",
         "paginaImpressa": 167,
         "posicaoNoPdf": 3,
         "diferencaEntreOsDois": 164,
         "sha256DoArquivo": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
         "paginas": 5,
-        "origemDestesValores": "sessao de analise, que teve os arquivos. NAO medido nesta execucao."
+        "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
+        "identificadorDaObra": "PII S0377-2217(97)00244-0",
+        "versaoDoArquivoConsultado": null,
+        "porQueVersaoENula": "DOI, PII e ISSN identificam a OBRA, e NAO demonstram qual versao do arquivo foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
+        "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
+        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
       }
     ],
-    "paginaImpressaNaoEhPosicaoNoPdf": "⚠ Sao campos DISTINTOS, e a diferenca e de 233 no Saaty, 891 no Wijnmalen e 164 no Forman. Confundi-los faria o localizador apontar para outro lugar do arquivo.",
+    "paginaImpressaNaoEhPosicaoNoPdf": "⚠ Sao campos DISTINTOS, e confundi-los faria o localizador apontar para outro lugar do arquivo. As diferencas declaradas sao 233 no Saaty, 891 no Wijnmalen e 164 no Forman. ⚠ A conferencia dessas diferencas e ARITMETICA sobre os numeros declarados: ela NAO demonstra que a pagina impressa ocupe aquela posicao no arquivo, o que exigiria abrir o PDF.",
     "porTrecho": [
       {
         "articleId": "forman1998_aggregating",
@@ -531,9 +540,10 @@
         },
         "oQueFoiObservado": "Sob o marcador da pagina 899, secao 4 Commensurability, o texto extraido traz \"Synthesis however requires commensurate priorities on a common scale.\" O recorte da base OMITE however, SEM sinalizar a supressao.",
         "medidoNestaExecucao": "O recorte da base NAO contem a palavra however, e comeca por synthesis em MINUSCULA, nao Synthesis. As duas observacoes sao do lado da BASE e foram medidas aqui. ⚠ A minuscula nao e adjudicada: um recorte pode legitimamente comecar no meio da frase, e separar escolha de recorte de erro de transcricao exige a pagina impressa.",
-        "alcance": "⚠ A diferenca compromete a FIDELIDADE LITERAL e NAO demonstra que a claim esteja errada. O paragrafo explica por que prioridades vindas dos quatro modelos precisam estar numa escala comum. ⚠ Conferido no TEXTO EXTRAIDO fornecido, e vinculado ao PDF pelos dados de arquivosConsultados.",
+        "alcance": "⚠ A diferenca compromete a FIDELIDADE LITERAL e NAO demonstra que a claim esteja errada. O paragrafo explica por que prioridades vindas dos quatro modelos precisam estar numa escala comum. ⚠ Conferido no TEXTO EXTRAIDO fornecido. ⚠ O vinculo entre essa extracao e o PDF identificado NAO esta demonstrado: ver rastreabilidadeNaoDemonstrada.",
         "unidade": "pendente por NAO CORRESPONDENCIA TEXTUAL",
-        "encaminhamento": "O achado segue para A.16. ⚠ A base NAO e corrigida nesta rodada, e o achado se SOMA as 19 divergencias existentes SEM ser reconciliado com elas."
+        "encaminhamento": "Achado adicional encaminhado à A.16, de não correspondência com o texto extraído da publicação. A contagem histórica das 19 divergências entre campos permanece inalterada. ⚠ A base NAO e corrigida nesta rodada.",
+        "porQueNaoSeSomaAs19": "⚠ Sao CRITERIOS DIFERENTES, e por isso o achado nao entra naquela contagem. As 19 registram divergencia ENTRE CAMPOS DA BASE, verbatim_quote contra evidence.quote. Neste trecho os dois campos COINCIDEM entre si, e diferem do TEXTO EXTRAIDO da publicacao. Somar os dois numeros misturaria medidas de coisas distintas."
       },
       {
         "articleId": "saaty1977_scaling",
@@ -568,6 +578,19 @@
       "semSubtracao": "⚠ NAO se escreve subtracao do tipo \"158 pela frente\". Ela nao representa as pendencias: Forman JA estava entre as quatro, e examinar Saaty e Wijnmalen NAO os tornou conferidos.",
       "nenhumTotalAntecipado": "⚠ Nenhum total e antecipado. O numero sai da conferencia, quando ela se completar."
     },
-    "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Saaty permanece pendente de inspecao visual, e Wijnmalen tem nao correspondencia textual observada NA EXTRACAO."
+    "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Saaty permanece pendente de inspecao visual, e Wijnmalen tem nao correspondencia textual observada NA EXTRACAO.",
+    "rastreabilidadeNaoDemonstrada": {
+      "estado": "recebido e AINDA NAO VERIFICADO",
+      "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE.",
+      "oQueNAOestaDemonstrado": [
+        "que cada SHA-256 corresponde ao arquivo que a outra sessao efetivamente leu",
+        "que a pagina impressa declarada ocupa a posicao declarada NAQUELE arquivo",
+        "que o texto extraido usado na comparacao veio daqueles arquivos: o vinculo entre extracao e PDF NAO esta estabelecido",
+        "qual VERSAO de arquivo foi consultada, porque DOI, PII e ISSN identificam a obra e nao o arquivo"
+      ],
+      "sobreAAritmetica": "⚠ Conferir que 899 menos 8 da 891 valida a SUBTRACAO, e NAO demonstra que a pagina impressa 899 ocupe a oitava posicao naquele arquivo. A aritmetica e sobre os numeros declarados, nao sobre o PDF.",
+      "oQueOsTestesVerificam": "Os testes verificam o FORMATO de 64 caracteres hexadecimais, a declaracao de origem e o estado de nao verificacao. ⚠ Eles NAO verificam correspondencia com os PDFs, e nao ha instrumento aqui que o faca.",
+      "comoSeResolve": "Vincular os valores a evidencia original -- mensagem, artefato ou arquivo identificavel -- ou reconferir com os arquivos ao alcance. Ate la o estado correto e recebido e nao verificado."
+    }
   }
 }

@@ -191,19 +191,71 @@ describe('A.33: registro da conferência de C1', () => {
     const deOutra = r.proveniencia.filter((p: any) => /nao esta/.test(p.sessao));
     expect(deOutra.length).toBeGreaterThanOrEqual(2);
     expect(deOutra.some((p: any) => /SHA-256/.test(p.afirmacao))).toBe(true);
-    // ⚠ Nenhum valor de arquivo é apresentado como medido aqui.
+    // ⚠ Nenhum valor de arquivo é apresentado como medido nem como verificado.
     for (const a of r.arquivosConsultados) {
-      expect(a.origemDestesValores).toMatch(/NAO medido nesta execucao/);
+      expect(a.origemDestesValores).toMatch(/NAO medidos nesta execucao e NAO verificados/);
+      expect(a.estadoDeVerificacao).toBe('recebido e AINDA NAO VERIFICADO');
+      expect(a.localizadorDaOrigem).toMatch(/NAO HA localizador verificavel/);
+      // ⚠ Só o FORMATO do resumo é verificado. Correspondência com o PDF, não.
       expect(a.sha256DoArquivo).toMatch(/^[0-9a-f]{64}$/);
-      expect(a.versao).toBeTruthy();
-      expect(a.identificador).toBeTruthy();
+      // ⚠ DOI, PII e ISSN identificam a OBRA. A versão do arquivo fica nula.
+      expect(a.identificadorDaObra).toBeTruthy();
+      expect(a.versaoDoArquivoConsultado).toBeNull();
+      expect(a.porQueVersaoENula).toMatch(/identificam a OBRA/);
+      expect(a.versao).toBeUndefined();
     }
     // ⚠ Texto extraído não é a página impressa, e o registro diz isso.
     expect(r.avisoSobreExtracao).toMatch(/NAO E A PAGINA IMPRESSA/);
     expect(r.avisoSobreExtracao).toMatch(/exige inspecao visual/);
   });
 
-  test('página impressa e posição no PDF são campos DISTINTOS, com a diferença registrada', () => {
+  test('a rastreabilidade dos PDFs NÃO é apresentada como demonstrada', () => {
+    const n = conferencia.comparacaoRecebida.rastreabilidadeNaoDemonstrada;
+    expect(n.estado).toBe('recebido e AINDA NAO VERIFICADO');
+    expect(n.localizadorDaOrigem).toMatch(/NAO HA localizador verificavel/);
+    // ⚠ Os quatro itens que o registro declara NÃO demonstrados.
+    expect(n.oQueNAOestaDemonstrado).toHaveLength(4);
+    const juntos = n.oQueNAOestaDemonstrado.join(' | ');
+    expect(juntos).toMatch(/SHA-256 corresponde ao arquivo/);
+    expect(juntos).toMatch(/pagina impressa declarada ocupa a posicao declarada/);
+    expect(juntos).toMatch(/vinculo entre extracao e PDF NAO esta estabelecido/);
+    expect(juntos).toMatch(/DOI, PII e ISSN identificam a obra e nao o arquivo/);
+    // ⚠ A aritmética é aritmética, e o registro diz isso.
+    expect(n.sobreAAritmetica).toMatch(/valida a SUBTRACAO/);
+    expect(n.sobreAAritmetica).toMatch(/NAO demonstra/);
+    // ⚠ E o que os testes cobrem está dito, sem sugerir mais do que cobrem.
+    expect(n.oQueOsTestesVerificam).toMatch(/NAO verificam correspondencia com os PDFs/);
+    // A natureza do bloco avisa antes de qualquer resultado.
+    expect(conferencia.comparacaoRecebida.natureza).toMatch(/RASTREABILIDADE DOS PDFs NAO ESTA DEMONSTRADA/);
+    // ⚠ Em lugar nenhum o vínculo extração-PDF aparece como estabelecido.
+    expect(JSON.stringify(conferencia)).not.toMatch(/vinculado ao PDF/);
+  });
+
+  test('o achado de Wijnmalen NÃO é somado às 19 divergências entre campos', () => {
+    const w = conferencia.comparacaoRecebida.porTrecho
+      .find((t: any) => t.articleId === 'wijnmalen2007_bocr');
+    // A redação prescrita, verbatim.
+    expect(w.encaminhamento).toContain(
+      'Achado adicional encaminhado à A.16, de não correspondência com o texto extraído da publicação.');
+    expect(w.encaminhamento).toContain(
+      'A contagem histórica das 19 divergências entre campos permanece inalterada.');
+    // ⚠ A soma numérica saiu do registro inteiro.
+    expect(JSON.stringify(conferencia)).not.toMatch(/se SOMA as 19|soma[m-]?\s*se\s+as\s+19/i);
+    // ⚠ E o registro diz POR QUE são critérios diferentes.
+    expect(w.porQueNaoSeSomaAs19).toMatch(/CRITERIOS DIFERENTES/);
+    expect(w.porQueNaoSeSomaAs19).toMatch(/ENTRE CAMPOS DA BASE/);
+    expect(w.porQueNaoSeSomaAs19).toMatch(/os dois campos COINCIDEM entre si/);
+    // As 19 continuam sendo 19 nos dados, e nada foi acrescentado a elas.
+    expect(evidencias.porTrecho.filter((u: any) => u.comparacaoDosCampos?.iguais === false))
+      .toHaveLength(19);
+    // O trecho de C1 continua FORA das 19: seus dois campos coincidem.
+    const u = evidencias.porTrecho[86];
+    expect(u.articleId).toBe('wijnmalen2007_bocr');
+    expect(u.comparacaoDosCampos.iguais).toBe(true);
+    expect(u.dadosOriginais.verbatim_quote).toBe(u.dadosOriginais.evidence.quote);
+  });
+
+  test('página impressa e posição no PDF são campos DISTINTOS, e a conferência é ARITMÉTICA', () => {
     const esperado: Record<string, number[]> = {
       'Saaty 1977': [237, 4, 233],
       'Wijnmalen 2007': [899, 8, 891],
@@ -213,11 +265,17 @@ describe('A.33: registro da conferência de C1', () => {
       const [pagina, pdf, dif] = esperado[a.fonte];
       expect(a.paginaImpressa).toBe(pagina);
       expect(a.posicaoNoPdf).toBe(pdf);
-      // A diferença é aritmética, e confundir os dois campos apontaria para
-      // outro lugar do arquivo.
+      // ⚠ Isto confere a SUBTRAÇÃO sobre os números declarados. NÃO demonstra
+      // que a página impressa ocupe aquela posição no arquivo — isso exigiria
+      // abrir o PDF, e nenhum instrumento aqui o faz.
       expect(a.paginaImpressa - a.posicaoNoPdf).toBe(dif);
       expect(a.diferencaEntreOsDois).toBe(dif);
     }
+    // E o registro declara esse limite, em vez de deixá-lo implícito.
+    expect(conferencia.comparacaoRecebida.paginaImpressaNaoEhPosicaoNoPdf)
+      .toMatch(/ARITMETICA sobre os numeros declarados/);
+    expect(conferencia.comparacaoRecebida.paginaImpressaNaoEhPosicaoNoPdf)
+      .toMatch(/NAO demonstra que a pagina impressa ocupe aquela posicao/);
   });
 
   test('os três resultados recebidos, e o lado da BASE conferido aqui', () => {

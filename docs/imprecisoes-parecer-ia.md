@@ -7173,9 +7173,24 @@ das fontes foi feita **sobre texto extraído** dos PDFs, por outra sessão.
 | o que este commit grava | esta execução | este prompt | **esta** |
 | **o lado da BASE de cada comparação** | esta execução | `evidencias.json`, no repositório | **esta** |
 
-⚠ **SHA-256, versão e contagem de páginas NÃO foram medidos nesta execução.** Cada
-entrada de `arquivosConsultados` carrega `origemDestesValores` dizendo isso, e o
-teste reprova se algum for apresentado como medição própria.
+⚠ **A RASTREABILIDADE DOS PDFs NÃO ESTÁ DEMONSTRADA.** Os valores de arquivo estão
+**recebidos e ainda não verificados**, e cada entrada de `arquivosConsultados`
+carrega `estadoDeVerificacao` e `localizadorDaOrigem` dizendo isso. ⚠ **Não há
+localizador verificável da evidência original:** os valores entraram no repositório
+**pelo texto do prompt** da rodada registrada em `835cd55`, e esta execução não tem
+como identificar a mensagem, o artefato ou a sessão que os produziu.
+
+**O que NÃO está demonstrado**, e fica dito no registro: que cada SHA-256 corresponde
+ao arquivo que a outra sessão leu; que a página impressa declarada ocupa a posição
+declarada **naquele** arquivo; que o texto extraído veio daqueles arquivos, ou seja
+**o vínculo entre extração e PDF não está estabelecido**; e **qual versão de arquivo
+foi consultada**, porque ⚠ **DOI, PII e ISSN identificam a OBRA, não o arquivo**.
+Por isso `versaoDoArquivoConsultado` ficou **`null`**, com o motivo.
+
+⚠ **Conferir que 899 menos 8 dá 891 valida a SUBTRAÇÃO**, e **não demonstra** que a
+página impressa 899 ocupe a oitava posição naquele arquivo. ⚠ **Os testes verificam o
+formato de 64 caracteres, a declaração de origem e o estado de não verificação; eles
+NÃO verificam correspondência com os PDFs**, e nenhum instrumento aqui o faz.
 
 ⚠ **Texto extraído não é a página impressa.** A extração pode corromper notação
 matemática, e foi o que ocorreu no Saaty. **Distinguir o que está impresso, o que a
@@ -7217,8 +7232,13 @@ scale."** — e o recorte da base **omite `however`, sem sinalizar a supressão*
 ⚠ **A diferença compromete a fidelidade literal e não demonstra que a claim esteja
 errada:** o parágrafo explica por que prioridades vindas dos quatro modelos precisam
 estar numa escala comum, e a claim fica **sustentada**. **O achado segue para A.16**,
-⚠ **e a base NÃO é corrigida nesta rodada**: ele se **soma** às 19 divergências
-existentes **sem ser reconciliado** com elas.
+⚠ **e a base NÃO é corrigida nesta rodada**. ⚠ **O achado NÃO se soma
+numericamente às 19**, e a razão é de critério: **as 19 registram divergência entre
+campos da base**, `verbatim_quote` contra `evidence.quote`, e **neste trecho os dois
+campos coincidem entre si** e diferem do texto extraído. A redação vigente é:
+*"Achado adicional encaminhado à A.16, de não correspondência com o texto extraído da
+publicação. A contagem histórica das 19 divergências entre campos permanece
+inalterada."*
 
 **Saaty.** ⚠ **Nada aqui se grava como conclusão.** A passagem aparece sob o
 marcador da página 237, e **a expressão matemática está corrompida na extração**.
