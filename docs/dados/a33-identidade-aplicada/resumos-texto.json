@@ -1,0 +1,1727 @@
+{
+  "rodada": "A.33, passo 3: aplicação de H-T como trechoId",
+  "declaradoEm": "2026-09-16, antes de qualquer edição dos artefatos",
+  "snapshotMedido": "b3fe3d7a0c78b8129e185cbce0099ef606fb844e",
+  "protocoloDaMedicao": "4f2a42a054f917e0cd85fe22f2f0512355b4c233",
+  "medicaoAprovada": "059d3fcdc7f2b13d9ff0e83a2e53db9fa0e4723b",
+  "recuperacaoDoAnterior": "Pelo snapshot versionado, por SHA: git show b3fe3d7a0c78b8129e185cbce0099ef606fb844e:<caminho>. Os quatro artefatos da etapa 4 foram conferidos byte a byte contra esse SHA antes da aplicação, por git diff --quiet, sem diferença. ⚠ O estado de antes NÃO se reconstrói a partir dos dados já alterados.",
+  "alcanceDoResumoDeTexto": {
+    "algoritmo": "SHA-256",
+    "codificacao": "UTF-8, sem BOM e sem quebra acrescentada",
+    "normalizacao": "nenhuma normalização textual: sem trim, dobra de espaços, caixa, acentos, aspas, quebras ou normalização Unicode",
+    "ordemDeSerializacao": "chaves de objeto em ordem sort() de strings, UTF-16; vetores na ordem própria; cada string colhida vira o par [caminho, valor] e o conjunto é serializado por JSON.stringify",
+    "exclusao": "o campo trechoId NÃO entra. Nenhuma raiz declarada o contém: ele é irmão de dadosOriginais, de referenceDoc e de chunk, e a exclusão é portanto estrutural além de declarada.",
+    "identificadoresAntigosPermanecem": [
+      "dadosOriginais.id",
+      "chunk.id",
+      "chunk.metadata.article_id",
+      "chunk.metadata.chunk_index",
+      "referenceDoc.id",
+      "evidence.locator_id",
+      "evidence.locator_type"
+    ],
+    "raizes": {
+      "evidencias.json": [
+        "porTrecho[*].dadosOriginais"
+      ],
+      "contexto-estatico.json": [
+        "system",
+        "quatroSecoes[*].textoFormatado",
+        "quatroSecoes[*].sha256TextoUTF8",
+        "quatroSecoes[*].referencias[*].referenceDoc",
+        "outrasTresSuperficies[*].textoFormatado",
+        "outrasTresSuperficies[*].sha256TextoUTF8"
+      ],
+      "C1-recuperacao.json": [
+        "trechos[*].chunk",
+        "porConsulta[*].consulta",
+        "porConsulta[*].retornoChunks[*]",
+        "finalChunksEsperados[*]"
+      ]
+    },
+    "tresResumosPorArtefato": {
+      "sha256Arquivo": "bytes do arquivo inteiro. MUDA na aplicação, porque o arquivo ganha um campo.",
+      "sha256Estrutural": "árvore JSON inteira com todo trechoId removido. NÃO pode mudar. É controle mais forte que o de texto: pega também números e booleanos.",
+      "sha256Texto": "somente as raízes declaradas acima. NÃO pode mudar."
+    },
+    "relacaoPorItem": "porItem traz um resumo por raiz — 165 unidades em evidencias.json, 150 raízes em contexto-estatico.json e 14 em C1-recuperacao.json — para LOCALIZAR a diferença. Resumo único que não bate não diz onde falhou."
+  },
+  "ambienteObservado": "Linux x86_64, Node v22.22.2, npm 10.9.7. É ambiente observado, não requisito.",
+  "antes": {
+    "evidencias.json": {
+      "arquivo": "docs/dados/a33-etapa4/evidencias.json",
+      "sha256Arquivo": "b977e41f1ba260b3635eecc70c713bdbc8f2297cde860f1d5d650e715d502947",
+      "sha256Estrutural": "bdfa9437bd8c16590010cb98d13024eb6bcb78020891f791025c686b41ee7a1c",
+      "sha256Texto": "bdc54df3b84dc2094c68e394b674025be368b0ea835ea70ba451b3fdab688583",
+      "raizes": 165,
+      "stringsDeTexto": 1140,
+      "porItem": [
+        {
+          "raiz": "porTrecho[0].dadosOriginais",
+          "strings": 6,
+          "sha256": "b91de8d63c01be37ef1a702a0092ba38c4f19edf93b9caa7f07bebf770989d0b"
+        },
+        {
+          "raiz": "porTrecho[1].dadosOriginais",
+          "strings": 6,
+          "sha256": "ee7775f349fd8d7eaa2a40e9d022d49bd6f6a072b4f82220511f9ea8c74e2b20"
+        },
+        {
+          "raiz": "porTrecho[2].dadosOriginais",
+          "strings": 6,
+          "sha256": "93023c540fb9638e3f3c030c2493513b722fe8ad2edfb6e8f84ffaf28e400f40"
+        },
+        {
+          "raiz": "porTrecho[3].dadosOriginais",
+          "strings": 6,
+          "sha256": "226e54ab4961945bfc53e75255bbd62fc2cdc03075074f44543456a5193b7b54"
+        },
+        {
+          "raiz": "porTrecho[4].dadosOriginais",
+          "strings": 6,
+          "sha256": "78902004db4ad84c06d249818128ca64886ad585e9e80abbe543e8e22d4f6612"
+        },
+        {
+          "raiz": "porTrecho[5].dadosOriginais",
+          "strings": 6,
+          "sha256": "bc0ed61f08aa26290e8ebb00be940c634416ea1b86853197b869d37b4013391b"
+        },
+        {
+          "raiz": "porTrecho[6].dadosOriginais",
+          "strings": 6,
+          "sha256": "49eb5a4f8e06328ecc7df922d5d93689951243bf02ae8b412ff13b29e5940f82"
+        },
+        {
+          "raiz": "porTrecho[7].dadosOriginais",
+          "strings": 6,
+          "sha256": "d1288212bd4f84f18279d2ae7fbf8ac28d0e2f6001a6bdb4a50f98e8c2813075"
+        },
+        {
+          "raiz": "porTrecho[8].dadosOriginais",
+          "strings": 6,
+          "sha256": "1e44f956aedba9ca49956c0075a7f3d6a19a7eddd4f5960583f7d270d41967ce"
+        },
+        {
+          "raiz": "porTrecho[9].dadosOriginais",
+          "strings": 6,
+          "sha256": "2e726356aa6eb1d0d8f891d156e7f250069edc7758ce5157a5b9a7763088abf2"
+        },
+        {
+          "raiz": "porTrecho[10].dadosOriginais",
+          "strings": 6,
+          "sha256": "1735683db58fb3cc847ba7299771e05c5e37bd09b6b77092493b1270c9297e50"
+        },
+        {
+          "raiz": "porTrecho[11].dadosOriginais",
+          "strings": 6,
+          "sha256": "cddf7bdf1dd7d66af8dd30e3fbab26eaa48c49a6f57dcd07ad598284f7360e8e"
+        },
+        {
+          "raiz": "porTrecho[12].dadosOriginais",
+          "strings": 6,
+          "sha256": "6979b040a37d388730d51dfdc03ff5d0bd34b507257c97fdaf2ebb02841a4dca"
+        },
+        {
+          "raiz": "porTrecho[13].dadosOriginais",
+          "strings": 6,
+          "sha256": "133ccb9cd659b62b215cab72600037030ebe0462ff1c80a11486ff73b9dcd24b"
+        },
+        {
+          "raiz": "porTrecho[14].dadosOriginais",
+          "strings": 6,
+          "sha256": "177db60502162b6d16aeb27c7cf228c4e838ca5278c7c492077ebe5c5fa80948"
+        },
+        {
+          "raiz": "porTrecho[15].dadosOriginais",
+          "strings": 6,
+          "sha256": "4d098bf6efbb15072e48bb5d071209ade4515e5f06406c3dd7f64f373e85b8ec"
+        },
+        {
+          "raiz": "porTrecho[16].dadosOriginais",
+          "strings": 6,
+          "sha256": "872574a60486df2ce3e9cafc9c39957786961380df66d9352e0e0850982f4e09"
+        },
+        {
+          "raiz": "porTrecho[17].dadosOriginais",
+          "strings": 6,
+          "sha256": "56aad9db7e080a7e8767b743a2e3bd462e6450560319821d80081fd78b37939a"
+        },
+        {
+          "raiz": "porTrecho[18].dadosOriginais",
+          "strings": 6,
+          "sha256": "7610a7ffa267469b8ccc3dcbd80157ea90b1a3b4a234d6f887011e8c8e252020"
+        },
+        {
+          "raiz": "porTrecho[19].dadosOriginais",
+          "strings": 6,
+          "sha256": "0eba981061900ce57116b3612179e2902ea118f996dfea3438e99c4215d7934c"
+        },
+        {
+          "raiz": "porTrecho[20].dadosOriginais",
+          "strings": 6,
+          "sha256": "20df9a8d186fc34d7048409e4b7040855f0e21ab4ad2bd0be76130c710665a75"
+        },
+        {
+          "raiz": "porTrecho[21].dadosOriginais",
+          "strings": 6,
+          "sha256": "a2fb4fae5bf227d38829a512fd8bc03cf0133d4b16e8d17730952f64b5886f9d"
+        },
+        {
+          "raiz": "porTrecho[22].dadosOriginais",
+          "strings": 6,
+          "sha256": "cccac27cb3e7471395a6864a9dfd2b5897cefb31d1be48e685031824534a6b95"
+        },
+        {
+          "raiz": "porTrecho[23].dadosOriginais",
+          "strings": 6,
+          "sha256": "45473db018a69ee64661b6b06d383d7c312e06486416abcb3f544046429763d9"
+        },
+        {
+          "raiz": "porTrecho[24].dadosOriginais",
+          "strings": 6,
+          "sha256": "6574245723f0d0316a169eee43c33fb8461cd34d5a9b5e6736fa7411dd7c2360"
+        },
+        {
+          "raiz": "porTrecho[25].dadosOriginais",
+          "strings": 6,
+          "sha256": "636a11ff8524629beecbdd6d87d134b05ea9e00d5d013eaa22bd52c16d0121b0"
+        },
+        {
+          "raiz": "porTrecho[26].dadosOriginais",
+          "strings": 6,
+          "sha256": "4370120761ffb3fb001ed07d37938a209444ffc081b2f2b9cd4dc85fa3582160"
+        },
+        {
+          "raiz": "porTrecho[27].dadosOriginais",
+          "strings": 6,
+          "sha256": "d886c521598caabb8809f91b89c20fde8a789bc37ce57554ecd636270f1af2dd"
+        },
+        {
+          "raiz": "porTrecho[28].dadosOriginais",
+          "strings": 6,
+          "sha256": "1e6eca6147bfc07156bc0b211976d6d2b548b00ce1ae374ae20397d2f6b1d39a"
+        },
+        {
+          "raiz": "porTrecho[29].dadosOriginais",
+          "strings": 6,
+          "sha256": "31defb0977f1748ee14cb8aa86c79f5ae127634b3a8c340b401503886c609ee4"
+        },
+        {
+          "raiz": "porTrecho[30].dadosOriginais",
+          "strings": 6,
+          "sha256": "7f8c3cf76610979ea5817f1431d94f60d23a19eea5b50111dbd3baf4d1f8c31f"
+        },
+        {
+          "raiz": "porTrecho[31].dadosOriginais",
+          "strings": 6,
+          "sha256": "40204ac71a03620dee348ecc427cb2621e10e8068437afb5eabe5efb2560b0bc"
+        },
+        {
+          "raiz": "porTrecho[32].dadosOriginais",
+          "strings": 6,
+          "sha256": "edacf0e401de1f0bc38cdafa68298913b1c208146b7dcb759b5a7c587a850aa2"
+        },
+        {
+          "raiz": "porTrecho[33].dadosOriginais",
+          "strings": 6,
+          "sha256": "7db9b8ae849caec58a6cf7d1ea0f7e129136d8945880e65a108a476058114b9a"
+        },
+        {
+          "raiz": "porTrecho[34].dadosOriginais",
+          "strings": 6,
+          "sha256": "593bd9b90ccf74c2f275cdc6813a711ea2a53240e343869c2e5e7146c9203f00"
+        },
+        {
+          "raiz": "porTrecho[35].dadosOriginais",
+          "strings": 6,
+          "sha256": "6856cc97b9afde90a6975db51e46be7331a5df58032804b25579685e203106b1"
+        },
+        {
+          "raiz": "porTrecho[36].dadosOriginais",
+          "strings": 6,
+          "sha256": "f773421a98ae04e89233fa2dc8eff2ed5662d2948c3d065de99f1998097313a6"
+        },
+        {
+          "raiz": "porTrecho[37].dadosOriginais",
+          "strings": 6,
+          "sha256": "ea0b5e1f89a9d394e57274f40f9ef508bb8f86deecf8f948ac4a5fd03282acf5"
+        },
+        {
+          "raiz": "porTrecho[38].dadosOriginais",
+          "strings": 6,
+          "sha256": "9dc9b5f00cab8bee5a6f4fd75648a68bdcf06d5fa958ebea3353233772ebffa4"
+        },
+        {
+          "raiz": "porTrecho[39].dadosOriginais",
+          "strings": 6,
+          "sha256": "60f83337417e9ed3d862c6f078cc067ca5073614e62168331aa455b78504b98c"
+        },
+        {
+          "raiz": "porTrecho[40].dadosOriginais",
+          "strings": 6,
+          "sha256": "5364640dfa577cc90a02729f559d9412ebeb36981c3d992090cf566a5af53bff"
+        },
+        {
+          "raiz": "porTrecho[41].dadosOriginais",
+          "strings": 6,
+          "sha256": "e88ebfd7de7ed9ed2158af74fe59756e8b8afa3f604b72f531c85c184f23b134"
+        },
+        {
+          "raiz": "porTrecho[42].dadosOriginais",
+          "strings": 6,
+          "sha256": "711e8adfef08c02ee1c095aeb1130e69ce801f93ea527113f749f73d605ce456"
+        },
+        {
+          "raiz": "porTrecho[43].dadosOriginais",
+          "strings": 6,
+          "sha256": "5ad31a912830affc4fc49225f8455676283418481fa503c7e942290ce2b9e826"
+        },
+        {
+          "raiz": "porTrecho[44].dadosOriginais",
+          "strings": 6,
+          "sha256": "dcee4e93128419a902323846ea47b5a55246ef1af9e0c91dfc4f69fd83a5065b"
+        },
+        {
+          "raiz": "porTrecho[45].dadosOriginais",
+          "strings": 6,
+          "sha256": "7969dd47f2f28ada104fb40f71988b877c48f18384323c5229cb7305fa6af75d"
+        },
+        {
+          "raiz": "porTrecho[46].dadosOriginais",
+          "strings": 6,
+          "sha256": "1b22d6d2913b6970181f55582c9ad81c441a3a79d9b92b584c9e8f5eafea62bd"
+        },
+        {
+          "raiz": "porTrecho[47].dadosOriginais",
+          "strings": 6,
+          "sha256": "e1ee5e7435c9160687275a4783965c8eff895f995c3cbef29952b78bcc946f1f"
+        },
+        {
+          "raiz": "porTrecho[48].dadosOriginais",
+          "strings": 6,
+          "sha256": "445e4731551258275a70b8113a706d707c1feb898288e3cc6f130fc4f6932e89"
+        },
+        {
+          "raiz": "porTrecho[49].dadosOriginais",
+          "strings": 6,
+          "sha256": "6fb3967523a82b1e6f4b2bf6ce257d4b4a416a265ef17447f762d9d9a43e7332"
+        },
+        {
+          "raiz": "porTrecho[50].dadosOriginais",
+          "strings": 6,
+          "sha256": "44dcedd65746ea8459d03d4f7bba9bea44d227f672ab1bbdc355d04386103cff"
+        },
+        {
+          "raiz": "porTrecho[51].dadosOriginais",
+          "strings": 6,
+          "sha256": "510089aedb3bbb97fa39c1e215710df2a4c20c9b061111013c967b8d6d2b6ce6"
+        },
+        {
+          "raiz": "porTrecho[52].dadosOriginais",
+          "strings": 6,
+          "sha256": "4d3d82c127073154c01f896f575a7bb6f8cd0f3263d627cc48844739a44c9f00"
+        },
+        {
+          "raiz": "porTrecho[53].dadosOriginais",
+          "strings": 6,
+          "sha256": "107eb746360a64837f426e5e426ce8fde52c2082ccf2c189e98209f311547ae4"
+        },
+        {
+          "raiz": "porTrecho[54].dadosOriginais",
+          "strings": 6,
+          "sha256": "c729aa9387c213112c903b13ab18b51ecfc35219828f7a82aa16ae9b267c966b"
+        },
+        {
+          "raiz": "porTrecho[55].dadosOriginais",
+          "strings": 6,
+          "sha256": "ff08a69f7b2d9ecec3ed6e838bedec8da9abdb96c50795e4a74d41778d753d0b"
+        },
+        {
+          "raiz": "porTrecho[56].dadosOriginais",
+          "strings": 6,
+          "sha256": "c8a4f1d5bc60c3d02124d25665640d10e56c6be38a2f2c7a5101f5838d383907"
+        },
+        {
+          "raiz": "porTrecho[57].dadosOriginais",
+          "strings": 6,
+          "sha256": "de48002f836f906453c03522ae5c8ec50ff807ed3251aa79fc4869611c262d7a"
+        },
+        {
+          "raiz": "porTrecho[58].dadosOriginais",
+          "strings": 6,
+          "sha256": "e2f4abdd5971c8fba1f483c0ca2fd5be429ca2e9507dda78a7cbc2c14a2a6829"
+        },
+        {
+          "raiz": "porTrecho[59].dadosOriginais",
+          "strings": 6,
+          "sha256": "f3f2df5dca2e00052bbda739601660c68057e7d96fe4e033188f0eb6c49ec482"
+        },
+        {
+          "raiz": "porTrecho[60].dadosOriginais",
+          "strings": 6,
+          "sha256": "5e86ef5f877691044ffedb043d6dc6d0df64adf96cadb57e44d85ad9de254d55"
+        },
+        {
+          "raiz": "porTrecho[61].dadosOriginais",
+          "strings": 6,
+          "sha256": "663aef25a742a425e1e5f2bbb7ff2a40174b3d657af1b00b19ef98eba9b5546b"
+        },
+        {
+          "raiz": "porTrecho[62].dadosOriginais",
+          "strings": 6,
+          "sha256": "20fc0bf9e36bff3552062b9141f3338c4a2b32911ce91fb78648e2f5baa9ef49"
+        },
+        {
+          "raiz": "porTrecho[63].dadosOriginais",
+          "strings": 6,
+          "sha256": "1da0e56041176fa5880fe33a6e84e5d684bd3fcdf61a94a5df5873073ceeb4ac"
+        },
+        {
+          "raiz": "porTrecho[64].dadosOriginais",
+          "strings": 6,
+          "sha256": "c6a83d03059a37d6b2b061bd56ab457f950b9f8cf009b6708c21d68882bca36a"
+        },
+        {
+          "raiz": "porTrecho[65].dadosOriginais",
+          "strings": 6,
+          "sha256": "7a0c1f4c1de20ee34a200e52562fab91357e2b7d1aba549dcb6448a76e6418cd"
+        },
+        {
+          "raiz": "porTrecho[66].dadosOriginais",
+          "strings": 6,
+          "sha256": "fe5f53b7a426cebd1a617637e0c725fe5d0a14ab7dea8c22660d403c18fdfd53"
+        },
+        {
+          "raiz": "porTrecho[67].dadosOriginais",
+          "strings": 6,
+          "sha256": "211ee7870296d138efbcb391a323524c1bea19bb69175c9c2ea73be36ae233c9"
+        },
+        {
+          "raiz": "porTrecho[68].dadosOriginais",
+          "strings": 6,
+          "sha256": "3c6f25b3d53f28fcc22fa5e883236d4ebe5a3d9b1efb2bca6ad2f10d6e18fb6f"
+        },
+        {
+          "raiz": "porTrecho[69].dadosOriginais",
+          "strings": 6,
+          "sha256": "5a5fc76ad6c114b0a3bb1c140697565589dd26697b2661429a41c6b447d51101"
+        },
+        {
+          "raiz": "porTrecho[70].dadosOriginais",
+          "strings": 6,
+          "sha256": "873b7654b0c016399b3e097749c5ae633649d8719b247c1f28f6cc01a26346b3"
+        },
+        {
+          "raiz": "porTrecho[71].dadosOriginais",
+          "strings": 6,
+          "sha256": "40d87dbe855b25186df65431641a2d0bb0601b7d9ec583eaf1a8a1803500c7f9"
+        },
+        {
+          "raiz": "porTrecho[72].dadosOriginais",
+          "strings": 6,
+          "sha256": "678b18b61ffc2342ff662a664decb98f55ce3e1f8cf05b08e4c5f500903e0b29"
+        },
+        {
+          "raiz": "porTrecho[73].dadosOriginais",
+          "strings": 6,
+          "sha256": "d470bb460d8ddb52e96a9fb659d97882f3dc0264da66fe0966adfe69d9c8ce07"
+        },
+        {
+          "raiz": "porTrecho[74].dadosOriginais",
+          "strings": 6,
+          "sha256": "9e0f398bb5109819ae49d69d0d233082f00239ef3e666e3dfb9bdb4ecfe8ba33"
+        },
+        {
+          "raiz": "porTrecho[75].dadosOriginais",
+          "strings": 6,
+          "sha256": "b550d106647e92610fa043ea9ef756e116df4bde2fbb94438e88fe3e9953a01a"
+        },
+        {
+          "raiz": "porTrecho[76].dadosOriginais",
+          "strings": 6,
+          "sha256": "3f27576eada253a695c528e19634ff1311284fa9ef8e41d3478e771ab5d0a857"
+        },
+        {
+          "raiz": "porTrecho[77].dadosOriginais",
+          "strings": 6,
+          "sha256": "7377060c6468e28ece330abee9a684815236db845c62ff5934fe5cd0024c3698"
+        },
+        {
+          "raiz": "porTrecho[78].dadosOriginais",
+          "strings": 5,
+          "sha256": "c4fcc69a67918a1329517e7b880f6de8ef13b900354005638d7ac26420200a69"
+        },
+        {
+          "raiz": "porTrecho[79].dadosOriginais",
+          "strings": 6,
+          "sha256": "b7f293676249a13d61995c769c5f9f6a5531555e816fa9100fe297c31de230d8"
+        },
+        {
+          "raiz": "porTrecho[80].dadosOriginais",
+          "strings": 6,
+          "sha256": "54ce609f6ef7267f5292de2562b4a78a31d3d2832a86e810a7ad07fc5e28f21c"
+        },
+        {
+          "raiz": "porTrecho[81].dadosOriginais",
+          "strings": 6,
+          "sha256": "595c2e027c90ad5a46a46dd0e64a8d0668e08113cda733037c97e5b6a1c531d3"
+        },
+        {
+          "raiz": "porTrecho[82].dadosOriginais",
+          "strings": 6,
+          "sha256": "98ac28c881f36a6ca550b130a69bb9101caf5d837b4077b9d9a7da7db04aa85e"
+        },
+        {
+          "raiz": "porTrecho[83].dadosOriginais",
+          "strings": 6,
+          "sha256": "7401f15b2e4dcb0c10294ea3431137bb632d011e987d38e9d765f6f3c3b9c7d2"
+        },
+        {
+          "raiz": "porTrecho[84].dadosOriginais",
+          "strings": 6,
+          "sha256": "2f78fe1cd4b6f299a22d136190e04bf2db01242ec7076fee2aedf0ae8d4d600f"
+        },
+        {
+          "raiz": "porTrecho[85].dadosOriginais",
+          "strings": 6,
+          "sha256": "62db0c9b8a5da680e48e40a01bf23aa0c6eaa2622a1b601724d63c12d31d7b93"
+        },
+        {
+          "raiz": "porTrecho[86].dadosOriginais",
+          "strings": 6,
+          "sha256": "d6003d1f4b15abc460d5dafa6f68cdcfc8a9c71fbec4064f7a74ddfdca2bbbff"
+        },
+        {
+          "raiz": "porTrecho[87].dadosOriginais",
+          "strings": 6,
+          "sha256": "3ff326a5f51e91235dd1ca72c57fa174cafac435f3adeef4bce6c86691082122"
+        },
+        {
+          "raiz": "porTrecho[88].dadosOriginais",
+          "strings": 6,
+          "sha256": "29b01ecf57131602305c3160f990527d3ad1fd902a71c97fdcadbe7f0367ff5c"
+        },
+        {
+          "raiz": "porTrecho[89].dadosOriginais",
+          "strings": 6,
+          "sha256": "83256fd02014860cbce80aed5a83447d454b1b7c5c19cffba24eb01f647cf8fa"
+        },
+        {
+          "raiz": "porTrecho[90].dadosOriginais",
+          "strings": 6,
+          "sha256": "62dca17783c7b3c4c821d9196463e6f7e7053732c54076f3f3f677df2867f4d9"
+        },
+        {
+          "raiz": "porTrecho[91].dadosOriginais",
+          "strings": 6,
+          "sha256": "922ac6f3736dcd26066dc07364e3929aa9dab930019dc36a4e41d3a20b459a77"
+        },
+        {
+          "raiz": "porTrecho[92].dadosOriginais",
+          "strings": 6,
+          "sha256": "a58442845e4b714d0d3b22ee4e2610f0bd2aa556ab260a4ec08b5e1b913c2f11"
+        },
+        {
+          "raiz": "porTrecho[93].dadosOriginais",
+          "strings": 5,
+          "sha256": "984505fd9f864578c275c45196457970b1abc93d80f50340e5f619193b10b69e"
+        },
+        {
+          "raiz": "porTrecho[94].dadosOriginais",
+          "strings": 5,
+          "sha256": "dd174aa33301246c956502f72a39c946a07c48a4c5c162211e1f2a37e8e90cfc"
+        },
+        {
+          "raiz": "porTrecho[95].dadosOriginais",
+          "strings": 6,
+          "sha256": "2dd9e5d4fd0adc1eb92ceeb18181eb343ed7efb3b3f7eec6bd4781d95ccbd1d4"
+        },
+        {
+          "raiz": "porTrecho[96].dadosOriginais",
+          "strings": 6,
+          "sha256": "8fa33146e25d5f112fe79b529e6ba13b9269a3091f3ad6b2d8e874c47c1ff878"
+        },
+        {
+          "raiz": "porTrecho[97].dadosOriginais",
+          "strings": 6,
+          "sha256": "945f7d3b7dc845dd5038d96a971cba2cbe5bb2803764a6b6b5a425c0285880b9"
+        },
+        {
+          "raiz": "porTrecho[98].dadosOriginais",
+          "strings": 6,
+          "sha256": "ecb86cac3bab6ea6b7bf325ba227ff1cb3e9eed1eb4140de519528155b77ef29"
+        },
+        {
+          "raiz": "porTrecho[99].dadosOriginais",
+          "strings": 6,
+          "sha256": "2d13462ec0d8117e52dae4ebb337539cd4da0bdfba4e3084ea74a1d906971b66"
+        },
+        {
+          "raiz": "porTrecho[100].dadosOriginais",
+          "strings": 6,
+          "sha256": "f647426335e4b01e1ef805481a62e44f6e8cab115801eda4beffb704696992eb"
+        },
+        {
+          "raiz": "porTrecho[101].dadosOriginais",
+          "strings": 7,
+          "sha256": "fea1ef282b5bb356f2f3e5af40dbe1b478337eec7a1f4f6ad10b6fd7005721b3"
+        },
+        {
+          "raiz": "porTrecho[102].dadosOriginais",
+          "strings": 6,
+          "sha256": "a1a7df89f36c81a0a881c06459de102fe669ae449f7fe5e0af97f5d89c61f7c7"
+        },
+        {
+          "raiz": "porTrecho[103].dadosOriginais",
+          "strings": 7,
+          "sha256": "0429b7b2762ed359cd8fa4632b971e263aeb64d21d93d50f88afbd8df6f474db"
+        },
+        {
+          "raiz": "porTrecho[104].dadosOriginais",
+          "strings": 7,
+          "sha256": "80492f62a565f99a6f226f8161cef2817394f994bc56500e259c5cbf02942f59"
+        },
+        {
+          "raiz": "porTrecho[105].dadosOriginais",
+          "strings": 7,
+          "sha256": "fe6f59e3f590bc926886ed101e6a0ac529cbb7fd928f8755991ff39b39f8d715"
+        },
+        {
+          "raiz": "porTrecho[106].dadosOriginais",
+          "strings": 7,
+          "sha256": "596ad3e71ab29923017e4ababb69234fd4cb4f4ddf4efbc7f4ebfa9478c41f06"
+        },
+        {
+          "raiz": "porTrecho[107].dadosOriginais",
+          "strings": 7,
+          "sha256": "169ca270887660f45aa0494ab08b4fec18602f2adb30c91e1d80e615a9d05030"
+        },
+        {
+          "raiz": "porTrecho[108].dadosOriginais",
+          "strings": 7,
+          "sha256": "c48187c5976d2f619dfd11bbf18dd4d518ab2fc3b8a21b49c63e8500a9295304"
+        },
+        {
+          "raiz": "porTrecho[109].dadosOriginais",
+          "strings": 7,
+          "sha256": "8edfb41cbc46d5ac2770c224e5bede777acb49220ecae59c103ea9801db8bd5b"
+        },
+        {
+          "raiz": "porTrecho[110].dadosOriginais",
+          "strings": 7,
+          "sha256": "ec14871d96b79a6dbdbbb440077a636035585d6cfc36f2874fc1243e864268ac"
+        },
+        {
+          "raiz": "porTrecho[111].dadosOriginais",
+          "strings": 7,
+          "sha256": "fe6f574f5b81e62e8bc22ac053b42a2bd5463873978c57db5b2eb7da6420bac3"
+        },
+        {
+          "raiz": "porTrecho[112].dadosOriginais",
+          "strings": 7,
+          "sha256": "ad90f2c006b6eebe26b323609774a37ed3bc6b32baab5c7b5612e40460d5b628"
+        },
+        {
+          "raiz": "porTrecho[113].dadosOriginais",
+          "strings": 7,
+          "sha256": "b2b21bcc5bd6233ed6331d66214169b66302ee83356792b6319e9dbabdb18a95"
+        },
+        {
+          "raiz": "porTrecho[114].dadosOriginais",
+          "strings": 7,
+          "sha256": "e415844428dd3021d14e6fcc18ca94afe9d3e33ba055ad2b9577511b6bac6f47"
+        },
+        {
+          "raiz": "porTrecho[115].dadosOriginais",
+          "strings": 7,
+          "sha256": "74d3ac1171125b08ed94611a6e90f593a28c8e073b2a0e4b974e2ef57619d63a"
+        },
+        {
+          "raiz": "porTrecho[116].dadosOriginais",
+          "strings": 7,
+          "sha256": "aa63c44146f80e61d75df96bba2899a78f5325b1bcf573747113d39b18a1f3f5"
+        },
+        {
+          "raiz": "porTrecho[117].dadosOriginais",
+          "strings": 7,
+          "sha256": "c745866b4b402c9f1fce6ad193167e7dce82dbbcc4d2c9e129ea237aa9346cc4"
+        },
+        {
+          "raiz": "porTrecho[118].dadosOriginais",
+          "strings": 7,
+          "sha256": "35ebfbd0a3bc5437e8aab30fa71f70363682d53c73b4bb84c7ced40149993234"
+        },
+        {
+          "raiz": "porTrecho[119].dadosOriginais",
+          "strings": 16,
+          "sha256": "60df5b77faaa2852559123c1e960f77b2c1339c04ea8c8c4b93b2a7154af963b"
+        },
+        {
+          "raiz": "porTrecho[120].dadosOriginais",
+          "strings": 15,
+          "sha256": "d922f28af058b64d6f16896521cbeffd8b1b5ce9b397d4cdbf8abf3b935b1720"
+        },
+        {
+          "raiz": "porTrecho[121].dadosOriginais",
+          "strings": 15,
+          "sha256": "eef0007c4cca9e91fb59f7ff7b7d05f0c0e15d10fd094e5cfa546319b3af2ebe"
+        },
+        {
+          "raiz": "porTrecho[122].dadosOriginais",
+          "strings": 15,
+          "sha256": "4f818a00c14cd68a6930742f65bd6923548a6e08514708d74de5d6391925ae5c"
+        },
+        {
+          "raiz": "porTrecho[123].dadosOriginais",
+          "strings": 12,
+          "sha256": "8de0f64a40f86c8667a0a24bff5a9443867fd1af2e66da18a079cc8c04fdd07a"
+        },
+        {
+          "raiz": "porTrecho[124].dadosOriginais",
+          "strings": 11,
+          "sha256": "e437e43c5c9b6d5224347ba73ba09d74cd459dc27e8068dc3c21919dcc1fd990"
+        },
+        {
+          "raiz": "porTrecho[125].dadosOriginais",
+          "strings": 11,
+          "sha256": "03675afa5dd58da542dad197fe2b93c4d016d3db36aec510940052bfff04a117"
+        },
+        {
+          "raiz": "porTrecho[126].dadosOriginais",
+          "strings": 11,
+          "sha256": "e918a7d476c4af852c8d02becc5f606062349ee78a5527293d24a0df14505a6a"
+        },
+        {
+          "raiz": "porTrecho[127].dadosOriginais",
+          "strings": 11,
+          "sha256": "24af7ca99132378d9bdfe702a7cb3a2c2dda71cf0a486b2bc62407e25d57e7bc"
+        },
+        {
+          "raiz": "porTrecho[128].dadosOriginais",
+          "strings": 11,
+          "sha256": "2362dae93bbd251727f9fafbfe384db710ebbc81171dbd9bbff2973c0cc095c0"
+        },
+        {
+          "raiz": "porTrecho[129].dadosOriginais",
+          "strings": 11,
+          "sha256": "6e0f3ee07af405107a675ebb5dd7627f889db7138d992a7e71f9ad8dd694dbbf"
+        },
+        {
+          "raiz": "porTrecho[130].dadosOriginais",
+          "strings": 10,
+          "sha256": "6567ca13e9c70d95bb86dc9a317bd4b090a54cdd09c12f48095d8178949420fe"
+        },
+        {
+          "raiz": "porTrecho[131].dadosOriginais",
+          "strings": 11,
+          "sha256": "37ba939a3159c2bb7db7cd8208a3ee11e41f8d77f6932b9a6d51f782bc05d867"
+        },
+        {
+          "raiz": "porTrecho[132].dadosOriginais",
+          "strings": 10,
+          "sha256": "09fe77f8a2bf2091f159feeb77515d03c46c9bff1ee94e3a7d350be90d9426e7"
+        },
+        {
+          "raiz": "porTrecho[133].dadosOriginais",
+          "strings": 9,
+          "sha256": "a20f67743969ec7a882845a9e614b7b7df7d1fa874c232a4121e5b91e7928475"
+        },
+        {
+          "raiz": "porTrecho[134].dadosOriginais",
+          "strings": 9,
+          "sha256": "65a276641e1febab3bec69a39ddf12c20387028a244454f0a9dbc09fbc88a7c2"
+        },
+        {
+          "raiz": "porTrecho[135].dadosOriginais",
+          "strings": 9,
+          "sha256": "6f277dec6b4e6c57ed3334be7f0ad11f62922cfd3a0304ee8aeae21e45a7e140"
+        },
+        {
+          "raiz": "porTrecho[136].dadosOriginais",
+          "strings": 10,
+          "sha256": "cd421c130b8c8f59074fe4c2ba8d8369b670e7f5b36a44361884143e75cb0ec6"
+        },
+        {
+          "raiz": "porTrecho[137].dadosOriginais",
+          "strings": 9,
+          "sha256": "ad997c79cee229a92a9d6a6a85c146949bee146286d523a792531b6c9e5059e1"
+        },
+        {
+          "raiz": "porTrecho[138].dadosOriginais",
+          "strings": 10,
+          "sha256": "739be02e0cc79e74f6a751b16b8df574897690c1b7ffed14f907424312fbf8bb"
+        },
+        {
+          "raiz": "porTrecho[139].dadosOriginais",
+          "strings": 10,
+          "sha256": "b9353bcb34fbe0c9777c47a39855fa1bf918ba4b853a2b5409e817119b435cdc"
+        },
+        {
+          "raiz": "porTrecho[140].dadosOriginais",
+          "strings": 12,
+          "sha256": "97f2f8dd2c693c1fc7d8323f30f56f1dd5cdf8ba7acb0e0c3749c4a542ff6cc4"
+        },
+        {
+          "raiz": "porTrecho[141].dadosOriginais",
+          "strings": 12,
+          "sha256": "ff48fbdd38e06f536876abac9c1fd675b49db240a8984307b8cef94809f00ced"
+        },
+        {
+          "raiz": "porTrecho[142].dadosOriginais",
+          "strings": 11,
+          "sha256": "81d7526603740f05a69a6a4a03ad761b22ffcea480228288ba140e7df1f68f7d"
+        },
+        {
+          "raiz": "porTrecho[143].dadosOriginais",
+          "strings": 11,
+          "sha256": "889332d60434e32847df871c235661486f80bde26f3da46369e95b7b4cf0e6b8"
+        },
+        {
+          "raiz": "porTrecho[144].dadosOriginais",
+          "strings": 11,
+          "sha256": "26ac8c126b65d3cd0ae2bd5b0296ce873b55b870296cd0691d7173e886f67883"
+        },
+        {
+          "raiz": "porTrecho[145].dadosOriginais",
+          "strings": 11,
+          "sha256": "9cc700d19bb22fe085ef95a2c0be6ed3b30599b0da606e05b755f15e26c82ce9"
+        },
+        {
+          "raiz": "porTrecho[146].dadosOriginais",
+          "strings": 10,
+          "sha256": "df4b0ea63da971c784e1f45df517679cde2f7c7cefeaca44eb768dab317cd059"
+        },
+        {
+          "raiz": "porTrecho[147].dadosOriginais",
+          "strings": 11,
+          "sha256": "1381ebe850cc92a4467de189a0335660f43ed0ddfec951d54f562a2609992dec"
+        },
+        {
+          "raiz": "porTrecho[148].dadosOriginais",
+          "strings": 11,
+          "sha256": "14010df7b245a40393279b7e2826082b5b594125b755e818729c50d64a545a04"
+        },
+        {
+          "raiz": "porTrecho[149].dadosOriginais",
+          "strings": 10,
+          "sha256": "6e45f4c77111d6603595a27d79a7c2f04cf4e40f7573fc6c3ac5857c92954200"
+        },
+        {
+          "raiz": "porTrecho[150].dadosOriginais",
+          "strings": 10,
+          "sha256": "0c9b2fc395c2886d155457839715efd94a95304aa805d5b872ecc1602a71d23b"
+        },
+        {
+          "raiz": "porTrecho[151].dadosOriginais",
+          "strings": 9,
+          "sha256": "1c42f7c53afb74ba7351b4af72bb57a761559c1f6aa9f15293b4152600ffeeba"
+        },
+        {
+          "raiz": "porTrecho[152].dadosOriginais",
+          "strings": 8,
+          "sha256": "d3f576b91fbec4c30ea4ea78fe98bd75ffcf7c5068f227c02d13ed2ad0f2d6eb"
+        },
+        {
+          "raiz": "porTrecho[153].dadosOriginais",
+          "strings": 9,
+          "sha256": "2ccc57393bb8b83537e3163fb906ed1e387b634e1faea8e0d946b354b145e5df"
+        },
+        {
+          "raiz": "porTrecho[154].dadosOriginais",
+          "strings": 10,
+          "sha256": "08b809193ec25a24ec484f740ffca053ae0f0cba926d57a38b0dee38c4e9b410"
+        },
+        {
+          "raiz": "porTrecho[155].dadosOriginais",
+          "strings": 2,
+          "sha256": "f3c7dd9e1d351cf0d9f8bb917fb8b0d861d3303930b7ef01c0d283c653a62b4d"
+        },
+        {
+          "raiz": "porTrecho[156].dadosOriginais",
+          "strings": 2,
+          "sha256": "215bc9d44d599ca31ba708e0300f406bb0f710259c0b140d76214e2fa8cb7045"
+        },
+        {
+          "raiz": "porTrecho[157].dadosOriginais",
+          "strings": 2,
+          "sha256": "a7b34d5f90d3074638fa7426ba57b521294320ae98ecb22231d44063e3928083"
+        },
+        {
+          "raiz": "porTrecho[158].dadosOriginais",
+          "strings": 2,
+          "sha256": "d447a7bbfbe9d749cce03d6e9758d36a9fcfd1f9dd98e5aef87bb4d354321d89"
+        },
+        {
+          "raiz": "porTrecho[159].dadosOriginais",
+          "strings": 2,
+          "sha256": "d82d70d7370c7dd740f291698ec270d4dde12fdccbc77e202b5d46e6a25e29e0"
+        },
+        {
+          "raiz": "porTrecho[160].dadosOriginais",
+          "strings": 2,
+          "sha256": "2d18da2dbc349713c704a14f98402e08a16237216893c95e9e364a1272474610"
+        },
+        {
+          "raiz": "porTrecho[161].dadosOriginais",
+          "strings": 2,
+          "sha256": "5a8e726b25a8121ba2bd2d68ae70c52af5101fb444549046168b62267891550c"
+        },
+        {
+          "raiz": "porTrecho[162].dadosOriginais",
+          "strings": 2,
+          "sha256": "2b6d3221d2109c79397e0b0d41d546acbc762be4891f67f9813ba36a205da2f0"
+        },
+        {
+          "raiz": "porTrecho[163].dadosOriginais",
+          "strings": 2,
+          "sha256": "cce6048ac17bc0b9754719ea3878048713d99f9a9aa32fc24957be87bdc7b8b5"
+        },
+        {
+          "raiz": "porTrecho[164].dadosOriginais",
+          "strings": 2,
+          "sha256": "50c83c2c6699062584ca865bd2a6ca0eaee1640d668faf6e9d2dee41b7773068"
+        }
+      ]
+    },
+    "contexto-estatico.json": {
+      "arquivo": "docs/dados/a33-etapa4/contexto-estatico.json",
+      "sha256Arquivo": "2a87891fd1f6e34da22cc61dbc6549fddbf32f8cf042b62a564151aad51d0b9a",
+      "sha256Estrutural": "aa6c7b04c2857fd4e8e73ca450edcdf92e2540beb0398e0d846d0a4ba3bef98b",
+      "sha256Texto": "6d4dcf8008b4c7c981234c061a3401df0131a2ef0fbd3662a4a8023b3d5c57c5",
+      "raizes": 150,
+      "stringsDeTexto": 692,
+      "porItem": [
+        {
+          "raiz": "system",
+          "strings": 3,
+          "sha256": "5c2953ffa75c670f9cdf69a562b12b6c3309058a509f509e5d07d675271bbcc1"
+        },
+        {
+          "raiz": "quatroSecoes[0].textoFormatado",
+          "strings": 1,
+          "sha256": "3391ce819ba9e9890be97b1aee254ed2bd3fe833a1244268349f4c8a76c1ea17"
+        },
+        {
+          "raiz": "quatroSecoes[0].sha256TextoUTF8",
+          "strings": 1,
+          "sha256": "6a9271611f9e4d82f2fc8fa1f9de7a4a7a5450903fbc9ab33a2edb411b2f860e"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[0].referenceDoc",
+          "strings": 5,
+          "sha256": "ed5ee4b83ad2873d0c38e1c54bff1ca003c148c0242cdb2999e91c9ba7aad0ae"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[1].referenceDoc",
+          "strings": 5,
+          "sha256": "78a2507ac48faa6de5fd65d9861d871672211d9e4a2a880f0bc0d624fc75c791"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[2].referenceDoc",
+          "strings": 5,
+          "sha256": "1616a1c9f7eeb4170e4de766b99258971d2f1576c1e7f5c235c67d860ab540b0"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[3].referenceDoc",
+          "strings": 5,
+          "sha256": "91c82a69e894bf0d6fade6ca21d8734227891dc2f0bd292b392f225d40615f2b"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[4].referenceDoc",
+          "strings": 5,
+          "sha256": "01673dd70b12d7cadc91c76c4904708ec1d808c3fc988fc4a09a123e9ed93686"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[5].referenceDoc",
+          "strings": 5,
+          "sha256": "3098c9c18c395aaeddbbd38eb20e4e98754b7ddeffe8275c6a051d715de8dd02"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[6].referenceDoc",
+          "strings": 5,
+          "sha256": "88198a39d9cf0ad8593bb13e75e35e71f6703ebab50a0071e415510e2330ea40"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[7].referenceDoc",
+          "strings": 5,
+          "sha256": "5cc8c61e742265fb21a77f459d1dae1471232b15076a8e8a6b590fbf934b2d18"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[8].referenceDoc",
+          "strings": 5,
+          "sha256": "143ef590f7d0f42b427cd789e94834e1930a6773d6d127a35f54fe39999572b2"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[9].referenceDoc",
+          "strings": 5,
+          "sha256": "3a13399046e40b65e5fa7b1e414275ea80c1f23191391591b643e251d925b076"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[10].referenceDoc",
+          "strings": 5,
+          "sha256": "5ff94f437bbbb14908da267ceba1b728686e67c0c7a31f64e1d699aa2fa1f323"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[11].referenceDoc",
+          "strings": 5,
+          "sha256": "089fbaf38215031d0ed8526fec7177e2af193736e4c1a3f45ad652665fb7ae2a"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[12].referenceDoc",
+          "strings": 5,
+          "sha256": "0bd34a590848f8b43d85abd601937aed26cbab8ede8cba813fe2f2f2423e870f"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[13].referenceDoc",
+          "strings": 5,
+          "sha256": "210457255d4b51fa104b424bc316b8994f510dfacbca652681e2f54b37c0ef8e"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[14].referenceDoc",
+          "strings": 5,
+          "sha256": "2492fc0006a307d96fc638d1676b462dd369cae40b60343a1133b6f58ab75376"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[15].referenceDoc",
+          "strings": 5,
+          "sha256": "11b9ab2ddb3660658871aac91b32440a9cf87fbd31b805716485b179c6740d27"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[16].referenceDoc",
+          "strings": 5,
+          "sha256": "ddcc45596e6f351c0cd142da02004726d96956456917088113086b344548dd8c"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[17].referenceDoc",
+          "strings": 5,
+          "sha256": "e8500ac98925d879d8c1e6bdb6a6457a9cd5b83c10d7f6e3a7aaa8bc6b6682ad"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[18].referenceDoc",
+          "strings": 5,
+          "sha256": "54c63631218a1f5ecb518ce127f54ea63d9620e40afc0d7421dd3464b388ce96"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[19].referenceDoc",
+          "strings": 5,
+          "sha256": "18463f68e36b86de5c63a94e6a6459d2c4df1e30d10e7d2aa562000c8b09d73b"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[20].referenceDoc",
+          "strings": 5,
+          "sha256": "300ea93b36c7a67456a328bcfcf03b50a21a0b87e08e9a9968005ed10b498b0b"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[21].referenceDoc",
+          "strings": 5,
+          "sha256": "ec59a07204177d5c7bc2a19af0449b58e1882830690535a8c63de786754582e7"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[22].referenceDoc",
+          "strings": 5,
+          "sha256": "e572dca4976f2ab414e4dc9e20131ddaf55212303e1eed103981bd0f46f845fd"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[23].referenceDoc",
+          "strings": 5,
+          "sha256": "fc7c351cee9300593254b6c574bffdc3ba0c8cbe60af27703f3782db761642aa"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[24].referenceDoc",
+          "strings": 5,
+          "sha256": "7e63bc35d302df5511ba1bf1b0c1028d52f2f5a44332053461d3a9941057db76"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[25].referenceDoc",
+          "strings": 5,
+          "sha256": "712ff5c2098881c04576fe4cfcf2b636d3f4f311dbad98b96168171a9dcf13a9"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[26].referenceDoc",
+          "strings": 5,
+          "sha256": "f99a653548186b1da41ca7937507dcd07f07d740365a28e42e99f19a76385d15"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[27].referenceDoc",
+          "strings": 5,
+          "sha256": "5df07441f674282e263257b09e3aa6f5c7b2e65aa32d019b42039571128eba7e"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[28].referenceDoc",
+          "strings": 5,
+          "sha256": "0a773e535443dc55fad1b8976339ce86d9f1e97b513969f72a2a63fe27a958ea"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[29].referenceDoc",
+          "strings": 5,
+          "sha256": "028042af1084fc633cd56befada156653125cccb4d6d6233c3181af7767f56e3"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[30].referenceDoc",
+          "strings": 5,
+          "sha256": "45307ac33e4672c331f46df1ac9b88438f1a7893f29b3bb500b74cdd49c7bb54"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[31].referenceDoc",
+          "strings": 5,
+          "sha256": "3286ef266b1d1b294d0039241328f534aa2cb2d48507e583c145b3e73f83e99e"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[32].referenceDoc",
+          "strings": 5,
+          "sha256": "94cb4a9a36f4e097211ddaeb474c8f33bc0f3b8733a68bfb6df6c806e44b8605"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[33].referenceDoc",
+          "strings": 5,
+          "sha256": "567517ad6bcdb436f2c2306d9859646f63244d167d684a582ae761a642697058"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[34].referenceDoc",
+          "strings": 5,
+          "sha256": "3523d9ec57875adc2608b99d7645330e7ce726aecb7fa238f9544983db23974f"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[35].referenceDoc",
+          "strings": 5,
+          "sha256": "870c5258de4825516bd5074fb960a0778ef443fbc62fc2b4c6dc0aebc456a54b"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[36].referenceDoc",
+          "strings": 5,
+          "sha256": "919c8ad813b25cf688d3d46e6be1b04aae413348a815a017f70e541464524c52"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[37].referenceDoc",
+          "strings": 5,
+          "sha256": "d265bfdd9985b547a787230545f625799304569cc50bae3ab127fa4b5b3c97c5"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[38].referenceDoc",
+          "strings": 5,
+          "sha256": "9c699bff68a806b9edd9e0da1c67c4a8d541856ea81dcbf1e19cf17b72baa726"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[39].referenceDoc",
+          "strings": 5,
+          "sha256": "b61056e9119aa410866366773d3a62e0805c5ae206bb3dbf92931fddba2545ba"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[40].referenceDoc",
+          "strings": 5,
+          "sha256": "8c8e85aaea7e116473267973c7f7869ab4beadc4c9c55c282162d70d8d383954"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[41].referenceDoc",
+          "strings": 5,
+          "sha256": "c9fd1bebde46feaf33b97d927e7c631a49dd9b657d0e52539e8d3cfc5962f88c"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[42].referenceDoc",
+          "strings": 5,
+          "sha256": "26aab22997ddc4368c7e575ad004f61042f3f38da11c34decc170e271358b3d7"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[43].referenceDoc",
+          "strings": 5,
+          "sha256": "f0467cc23fb8a260b9a7a50d3d9f481665fe07157137289e731ff3cf9beb1ba4"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[44].referenceDoc",
+          "strings": 5,
+          "sha256": "8ed127871af65bb49bbd41d3d4818e688bb18d033ff47ddb78e01063bc7d867a"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[45].referenceDoc",
+          "strings": 5,
+          "sha256": "58b80936774796912abad7677439bb504c77cb1fffd169aee453d124dba98dab"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[46].referenceDoc",
+          "strings": 5,
+          "sha256": "d37cc6f60546bb6a633099b030b5dc1a9b1193987cb8757a884156a4eb4c6624"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[47].referenceDoc",
+          "strings": 5,
+          "sha256": "45c7ca3a7bd80625d2c7f7ff45ffaf2d019349444c82d43883b1562eed9dec48"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[48].referenceDoc",
+          "strings": 5,
+          "sha256": "efeef8a379ccc1b2fafeeee64d38e47c2635e8e9a0a6e392040585b0d4a4ad6b"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[49].referenceDoc",
+          "strings": 5,
+          "sha256": "d62c9ad76074183f22c56aebe42d8e919ac55a163bb2ef7130f378eca82393b8"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[50].referenceDoc",
+          "strings": 5,
+          "sha256": "d3bdfd1d10254c3c6c98361cef68d5dfc898f1f07fa73ca1804c844b45ee4f58"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[51].referenceDoc",
+          "strings": 5,
+          "sha256": "7ba0214d0b377c9d3d0527a5ed42cbc5930a15192a3d2c03da7763c7663534f2"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[52].referenceDoc",
+          "strings": 5,
+          "sha256": "5b9533874b90df31bc4c80ea1f0583211a3255220b7bf717c679958f5ecbf56d"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[53].referenceDoc",
+          "strings": 5,
+          "sha256": "1d98768b676aab7f913aafe19fcaecf2d70e5ee0b8f82083d9f14b484c6df02b"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[54].referenceDoc",
+          "strings": 5,
+          "sha256": "ecffb1a7985d0a0e95e596d55bd6b5b3494def408b7ace98134a6a00ba800961"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[55].referenceDoc",
+          "strings": 5,
+          "sha256": "ddc0845f109f67df13cd568319e21264761efbd9a20838b19602752bb2f1be3f"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[56].referenceDoc",
+          "strings": 5,
+          "sha256": "2bbc79bdd0ab199adbf2d1017bf3d68ed3184751473ed37fca5fa12457236b9c"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[57].referenceDoc",
+          "strings": 5,
+          "sha256": "637635c51eda27da523068a712e733161c150887a2ad0609093295e8585bd8ea"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[58].referenceDoc",
+          "strings": 5,
+          "sha256": "28287776b841fc025217dd5c1259beb9c9f18b1dc51491a048bcd4948b3bb5af"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[59].referenceDoc",
+          "strings": 5,
+          "sha256": "be9a9c84ef25953fb493da54f95ff81e1263ee724ef0eb9bb99f8b418234f6e4"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[60].referenceDoc",
+          "strings": 5,
+          "sha256": "484f7beee81bec79399b0b5bcf5057c45069fe99e47fa11bb73960729604b490"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[61].referenceDoc",
+          "strings": 5,
+          "sha256": "a4633caffc439a9d44eeda160fd6abca5dc8f1008749e1a410cc95f397a923a9"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[62].referenceDoc",
+          "strings": 5,
+          "sha256": "e3cc5b493e2b1dbfcae6cc71d1911ae9f8be6257fe3851783565ab4702a741d0"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[63].referenceDoc",
+          "strings": 5,
+          "sha256": "2cad2c3e53dfaf753894f1155189051e67ebd35e21f38c4c7731246786b0a1d8"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[64].referenceDoc",
+          "strings": 5,
+          "sha256": "e4caa3b129f2ac63540d7b29dc196a85386c2a2e178558ae06b916da462eebe3"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[65].referenceDoc",
+          "strings": 5,
+          "sha256": "a1feaff5f443c47d356dab576d0967cf710456e1832bab08bb7220ec57aed7cb"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[66].referenceDoc",
+          "strings": 5,
+          "sha256": "4eff0a17e6f7fe1ed4a33fe03e1bdae024ec5ed3b8e78df94208b7c91d5996a8"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[67].referenceDoc",
+          "strings": 5,
+          "sha256": "df97ff442eeac66d75837edec3aa505761736a64643882b0674bff787581e285"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[68].referenceDoc",
+          "strings": 5,
+          "sha256": "470bf0496706aa5d83d66131fb402d04d3f22630ef7b6361b03e69a44dfdceb3"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[69].referenceDoc",
+          "strings": 5,
+          "sha256": "18bbe321ce67b3c6daf5c553321dcc9e1f692fa264308294f8b642e00f6873d0"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[70].referenceDoc",
+          "strings": 5,
+          "sha256": "7a7d2a549434ab37521cee05e3f41d972c07c3fb202ca2a98276ad7b7e315eac"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[71].referenceDoc",
+          "strings": 5,
+          "sha256": "6e15429b56e05ca5f59d9a3e27b01e0dea8a3eba0cb3d0dab74a77a84af553b4"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[72].referenceDoc",
+          "strings": 5,
+          "sha256": "f034e84049c9fd4acea3b25dbf5bd53419eb52291dca2fb87526dd580649243a"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[73].referenceDoc",
+          "strings": 5,
+          "sha256": "a2ef0394693a9761d7f99922217a1528c0a6e1bbf7cbf239e8cb225753f9071c"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[74].referenceDoc",
+          "strings": 5,
+          "sha256": "62490ed9a630b152f3d97d5ece7b0017e7b8f5049811bcc49464fda989e50403"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[75].referenceDoc",
+          "strings": 5,
+          "sha256": "6ddcbfedf842fc71fbf99229648feaefdb2fc4d90dfe2f6c800bb2e4826329e9"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[76].referenceDoc",
+          "strings": 5,
+          "sha256": "f6a96d0c9bee1e384e86c8c086c0c3afda4ac85b28d77ebffb1223bf52b6607a"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[77].referenceDoc",
+          "strings": 5,
+          "sha256": "766864bf630a0e78daf12e26e9706a29fd146fca143d41c0ce7aca5f3f8ce2fb"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[78].referenceDoc",
+          "strings": 5,
+          "sha256": "42e24ba80e97bd0b8aeeac6c74bad3afb933b8d6c45645145c5ecf27bd0220cd"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[79].referenceDoc",
+          "strings": 5,
+          "sha256": "09d49256ee388a872dfd01630ce6d2f175bc7a2d79b5cf2b4187aee9427c5a37"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[80].referenceDoc",
+          "strings": 5,
+          "sha256": "6bd59a93fa4994788ccc8bc07f710a8e630d34ebc36c7186f4ad57ddbfdbf057"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[81].referenceDoc",
+          "strings": 5,
+          "sha256": "f19b35badb5b84035066e52225cc07964d29ccd040ca0c43b215d32272bb23c8"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[82].referenceDoc",
+          "strings": 5,
+          "sha256": "9db378a2be22a1787c75e9fe2b48d2be66a6bfd0e42826c62ccc5d09cd4f179e"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[83].referenceDoc",
+          "strings": 5,
+          "sha256": "cc3bd62f1c9b80a3d1e691f538479c2020b1a5a38f35823b759b034499c8c6f2"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[84].referenceDoc",
+          "strings": 5,
+          "sha256": "8e75dea03fb058b23af2fa31de07270c69b20f3596847965e940a2fe61af9481"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[85].referenceDoc",
+          "strings": 5,
+          "sha256": "41341eae9795314cccc500d6a166a8b09018b5f9643e0f6332a8486199dc6dcd"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[86].referenceDoc",
+          "strings": 5,
+          "sha256": "b83023863e36683c4886fad0787e9ae67fc5b9f9ce0bd1ebf071479bf4f7e81d"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[87].referenceDoc",
+          "strings": 5,
+          "sha256": "6b234c8431872f0e3a892dbd69530f3054c27d86d3680c12557bad0d8cedc75f"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[88].referenceDoc",
+          "strings": 5,
+          "sha256": "d48a20a9b1862bf459ab256712b7f52590ed26fa38f4c3eff12c10541ef56c39"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[89].referenceDoc",
+          "strings": 5,
+          "sha256": "0e09481db0b1c55e0abdc0534ee6c7c9c6e92801de76aa068bd6a977ea9e2161"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[90].referenceDoc",
+          "strings": 5,
+          "sha256": "b5816648e9f37f152422acc5ae82c387c40aac0e969199e5318e3eab18100af2"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[91].referenceDoc",
+          "strings": 5,
+          "sha256": "e20baf8b0975ea45924cdf21b5f9b99782fb5e78fe877a1a8aaf3515c07b8e80"
+        },
+        {
+          "raiz": "quatroSecoes[0].referencias[92].referenceDoc",
+          "strings": 5,
+          "sha256": "bb87d81b73d626ec0b70fdd146af05942d0ab8bdc09b9d884fa3731d5e990ee9"
+        },
+        {
+          "raiz": "quatroSecoes[1].textoFormatado",
+          "strings": 1,
+          "sha256": "6c2dff950d6951151f986eebf3f346bfd08fcf8ff03d5d082f1f4953ced558a6"
+        },
+        {
+          "raiz": "quatroSecoes[1].sha256TextoUTF8",
+          "strings": 1,
+          "sha256": "c9388da1f749d26606a87fed0ce39881a563c5322fcb4d966f56583e825b383a"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[0].referenceDoc",
+          "strings": 5,
+          "sha256": "cd84521d0376c4d5ed190793d506d875238a40dc3b07d941887fec1e9e5c5e8b"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[1].referenceDoc",
+          "strings": 5,
+          "sha256": "c2512d9af68cb1a9fea20d92b648933aa7ffc381605e56ee7fd1fe9a8e620925"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[2].referenceDoc",
+          "strings": 5,
+          "sha256": "b5f774a0dd3e16d9a6f290577e840c6fb6fb7c3bd3f74210798c9ad27cbd4958"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[3].referenceDoc",
+          "strings": 5,
+          "sha256": "c735e34338f5cf40da3a3f744db26c56f43c20c0263d2eede46bc59e99ab3a04"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[4].referenceDoc",
+          "strings": 5,
+          "sha256": "b572f678f855a313c232fda32f8485caa687e2a9b3c2e6f519e9c261100f426a"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[5].referenceDoc",
+          "strings": 5,
+          "sha256": "234a010c872c6f47904a3c51919155e307267fa29c0891a18eb390e688f35911"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[6].referenceDoc",
+          "strings": 5,
+          "sha256": "1429bfeb25b50d59187a3b76dc6e399ec1cc602ee9601639015727f9df6ef97b"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[7].referenceDoc",
+          "strings": 5,
+          "sha256": "7b8349ea98332bc1712c3cdf8eb764da596610a36d9d8f3fcf187bd1c5353304"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[8].referenceDoc",
+          "strings": 5,
+          "sha256": "794400a399baeeb36d982f06604b4d6210d160f8367cd6fce6de57fd20e9a66b"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[9].referenceDoc",
+          "strings": 5,
+          "sha256": "42a4037d901ef1d074e157a5adc57cf0fc26435f4839cba7461729b2d74e348c"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[10].referenceDoc",
+          "strings": 5,
+          "sha256": "4defde4de89723028fe9091035c0c21a33d2604201a64280341492c602162144"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[11].referenceDoc",
+          "strings": 5,
+          "sha256": "27bb08dcf7d5a1cf3e715d6ed16042f4a502ea7e2444bce27940d40e4984d3e0"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[12].referenceDoc",
+          "strings": 5,
+          "sha256": "660f1dff6d5cedd57c840221bfb0f348e1c78f2a95d6e9eccddb4a9e423f48c0"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[13].referenceDoc",
+          "strings": 5,
+          "sha256": "c485e5fcdc7b9527fa284a3bb1cf04f23ea255f7aacd6fa35db6a769338bdbfa"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[14].referenceDoc",
+          "strings": 5,
+          "sha256": "235d6a59364229bcd6018773bf05aacccf57b1e83a9351fd6fb27b25c2dc98fc"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[15].referenceDoc",
+          "strings": 5,
+          "sha256": "4f9eafec1e38cefe238a5bd270f38864c51b3454f8703736b01fcf5b1835e79a"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[16].referenceDoc",
+          "strings": 5,
+          "sha256": "05eaa1b10f5b19b5111847140d05538734e66b3cf8de416c96c4b3b098fcd27c"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[17].referenceDoc",
+          "strings": 5,
+          "sha256": "6a5c14e7657b7131f0601f4a7da1cb4dcc5ea1084b4803deb7789f8e7ef8da37"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[18].referenceDoc",
+          "strings": 5,
+          "sha256": "ca8a955278deb71493b5a001391aa8f75e82561d819141b571dccf7355da7b0a"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[19].referenceDoc",
+          "strings": 5,
+          "sha256": "d7a866aaf6a1e10d1b4d95e2fb9366de3f941436887a709fedbe47a5c8bf745d"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[20].referenceDoc",
+          "strings": 5,
+          "sha256": "8790d893e9ce98f508a2347bfb0df7bd430307bc3d3c9ea650019bb8bde12745"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[21].referenceDoc",
+          "strings": 5,
+          "sha256": "c4826b5963728a1a7d7db1165b086ad7335bbb3c89501c0cbc5a56747c176a39"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[22].referenceDoc",
+          "strings": 5,
+          "sha256": "96dbed7b95047986702011620722c546684f54eeb47bb5c9829264136f66f20c"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[23].referenceDoc",
+          "strings": 5,
+          "sha256": "cc8568098d50e4770b9b95e5b4ebec5379fad037a3e6f127eafbc85cdc60dcc7"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[24].referenceDoc",
+          "strings": 5,
+          "sha256": "a64a76a3a810fe80e63b087d801286088d46bf8169115ed9d6772d6cbfe0c951"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[25].referenceDoc",
+          "strings": 5,
+          "sha256": "4477618393eedca408e19e215840c39f2afc9ecf553fd1e5a39363585d06c77d"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[26].referenceDoc",
+          "strings": 5,
+          "sha256": "00a3cc532ad68e10ce940535b0f930189ff9f5fff7b59479aacf75e762e2d0f9"
+        },
+        {
+          "raiz": "quatroSecoes[1].referencias[27].referenceDoc",
+          "strings": 5,
+          "sha256": "8067d87f458a6a75f0c6dbbbbbaf2409e35b4396e14332239af020a89b1554d9"
+        },
+        {
+          "raiz": "quatroSecoes[2].textoFormatado",
+          "strings": 1,
+          "sha256": "61daf2c2af0f3333352e202040d9acd7ffcf2ef75ced554f082b30848439d001"
+        },
+        {
+          "raiz": "quatroSecoes[2].sha256TextoUTF8",
+          "strings": 1,
+          "sha256": "90ec6da41f6008009f5c5a87cf7fa332f54a076e507fd56ad746b6fc8adb33cb"
+        },
+        {
+          "raiz": "quatroSecoes[2].referencias[0].referenceDoc",
+          "strings": 5,
+          "sha256": "a4979a9a36014d47b9d63c59b32cfaa393047ecce27adee670c1481ed11f3a26"
+        },
+        {
+          "raiz": "quatroSecoes[2].referencias[1].referenceDoc",
+          "strings": 5,
+          "sha256": "656b5dc73e2b7f04fc4538d316722838d2c909c9b557389caa864108d015de7e"
+        },
+        {
+          "raiz": "quatroSecoes[2].referencias[2].referenceDoc",
+          "strings": 5,
+          "sha256": "b2a0b420aabcc2b0b8f7b5bd5e7a1241cd7529073d54b1748cfa9506d5fdc460"
+        },
+        {
+          "raiz": "quatroSecoes[2].referencias[3].referenceDoc",
+          "strings": 5,
+          "sha256": "36243601c9116bdeae0348254d6cdb7ed40e76dad2c9a61712cf9656eb591666"
+        },
+        {
+          "raiz": "quatroSecoes[2].referencias[4].referenceDoc",
+          "strings": 5,
+          "sha256": "4092b5200043bfe517757df72626e010ad83dd22616ca83ff6b88132e6816f52"
+        },
+        {
+          "raiz": "quatroSecoes[2].referencias[5].referenceDoc",
+          "strings": 5,
+          "sha256": "4c16f96657eec36b8ca4eb9f5168174164dd28029d808244b58ee61c9be4ec98"
+        },
+        {
+          "raiz": "quatroSecoes[3].textoFormatado",
+          "strings": 1,
+          "sha256": "149fcef8287e0e1a7a767bd74edf86068303242415541253e72e17dcf1c088b1"
+        },
+        {
+          "raiz": "quatroSecoes[3].sha256TextoUTF8",
+          "strings": 1,
+          "sha256": "d455a48b136700fb19bcfdd29ce733f8060bea7da5e23cd97a7d1769e8b80ce9"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[0].referenceDoc",
+          "strings": 5,
+          "sha256": "528c2cf567a7df8b165928d263f904f44c67d3b2c372420b6e6f51d1749999bb"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[1].referenceDoc",
+          "strings": 5,
+          "sha256": "55dce72d2edcf5c4357b327ea02721c7f3a5902b4944f8ebe15ee440651d7268"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[2].referenceDoc",
+          "strings": 5,
+          "sha256": "5ff623684724776c83dca685bad80ddde46c145894e98fc6d84703dc242dc2b2"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[3].referenceDoc",
+          "strings": 5,
+          "sha256": "45e88eadb58fc0360601cb3ebf652a2195485a702f06239b3a4208a53413bed8"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[4].referenceDoc",
+          "strings": 5,
+          "sha256": "6102f53cae0dfcb7ad28b0e93201aa0ae930005f6a36d7a2b796f89924ed0cc1"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[5].referenceDoc",
+          "strings": 5,
+          "sha256": "b5b67c22976a934e156169adcd8505405825bc6a46b2848e27601bb48ffa4d29"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[6].referenceDoc",
+          "strings": 5,
+          "sha256": "ad9501675dd40171d46fff14c422e00742b9794f0653b250176506e3927a4ee9"
+        },
+        {
+          "raiz": "quatroSecoes[3].referencias[7].referenceDoc",
+          "strings": 5,
+          "sha256": "1cf2a6ed74424874192dcdf4d242d33dadb118e92f6fc3e578f26780f2801071"
+        },
+        {
+          "raiz": "outrasTresSuperficies[0].textoFormatado",
+          "strings": 1,
+          "sha256": "4d66b8c4cbd6137539c05303676eb457e8bdb6579530a3f0520db98c9ec54da9"
+        },
+        {
+          "raiz": "outrasTresSuperficies[0].sha256TextoUTF8",
+          "strings": 1,
+          "sha256": "c484246ae46cd2dfe6a2d3ae06b39b7a5095b970b50122ad398ba3f50d975ac5"
+        },
+        {
+          "raiz": "outrasTresSuperficies[1].textoFormatado",
+          "strings": 1,
+          "sha256": "0b54f9eac6e18a5013d21aa96c35863b785d8f6ef3728b3d569a8a3976370738"
+        },
+        {
+          "raiz": "outrasTresSuperficies[1].sha256TextoUTF8",
+          "strings": 1,
+          "sha256": "ba9ffb8fdeb2819fe21a468ba8cd13b5bca5f08bc53fe2a2b9d0d13801e0a5f6"
+        },
+        {
+          "raiz": "outrasTresSuperficies[2].textoFormatado",
+          "strings": 1,
+          "sha256": "08338e8e473d36ec3529327de7c4078d14ed98afb2485455207f9e2485e168c0"
+        },
+        {
+          "raiz": "outrasTresSuperficies[2].sha256TextoUTF8",
+          "strings": 1,
+          "sha256": "85026d2298b3bb567337a7d3e5ff9d9b208d51a1db93212fefe40f5f6f9603da"
+        }
+      ]
+    },
+    "C1-recuperacao.json": {
+      "arquivo": "docs/dados/a33-etapa4/C1-recuperacao.json",
+      "sha256Arquivo": "2545c769be4c7d198ce903f3a625065019c3d874545393022ead96ee5e65353e",
+      "sha256Estrutural": "08cea4986ae2912503b9c82eae21b19cbf356049f5e07324a44895ee0c68ae01",
+      "sha256Texto": "0220e203448b1b38877458af06a30513b643ceac4dc226f9fbba2f645f9c42c2",
+      "raizes": 14,
+      "stringsDeTexto": 86,
+      "porItem": [
+        {
+          "raiz": "trechos[0].chunk",
+          "strings": 9,
+          "sha256": "1e8ffdd71f4d6ca0f35b7b06c3ef0bd12e6c601367b2211ba17a57f1c7bf5156"
+        },
+        {
+          "raiz": "trechos[1].chunk",
+          "strings": 9,
+          "sha256": "728814995775ecd3866b9b5229abff8f86e3930fef4f8eb1be0dc461469596ab"
+        },
+        {
+          "raiz": "trechos[2].chunk",
+          "strings": 9,
+          "sha256": "e8c0aed715eb536ff603524b893545ac5b7ddd6e4d308ab7d5989fe1653903ec"
+        },
+        {
+          "raiz": "porConsulta[0].consulta",
+          "strings": 1,
+          "sha256": "697a9d19d58517d894f0f56e08cb1ed4eda308e27963f9313425d73e7766a3a7"
+        },
+        {
+          "raiz": "porConsulta[0].retornoChunks[0]",
+          "strings": 9,
+          "sha256": "691c6b08f12d65d71e5c5a94f4b71de05b0884ed0c3a8f2bfdfaaf663715ac2c"
+        },
+        {
+          "raiz": "porConsulta[1].consulta",
+          "strings": 1,
+          "sha256": "b927f33a7a170824211dab0bbdefed693570aaed8ad98f198b835d15d81e51a0"
+        },
+        {
+          "raiz": "porConsulta[1].retornoChunks[0]",
+          "strings": 9,
+          "sha256": "f5051a92f54047f235dfbb8404abebc6824334fe0899b4e081e89d661ea10ec5"
+        },
+        {
+          "raiz": "porConsulta[2].consulta",
+          "strings": 1,
+          "sha256": "12df15d3c5d471d6c1474463ea1549bd063f75ede35b2c5bfa10cbcc0ea9272a"
+        },
+        {
+          "raiz": "porConsulta[3].consulta",
+          "strings": 1,
+          "sha256": "5b4d35080ff002bca611364e0103d8bc5c61294cf95184c0970ccccbff255710"
+        },
+        {
+          "raiz": "porConsulta[3].retornoChunks[0]",
+          "strings": 9,
+          "sha256": "9d76a9360555e5adfb84bcd9fed7e62acd6668545ce32a18c79c0b255533032e"
+        },
+        {
+          "raiz": "porConsulta[4].consulta",
+          "strings": 1,
+          "sha256": "6a44b0cdb23f2567d8efec024e9684f506fa3ef9480631a28e872893e498ee12"
+        },
+        {
+          "raiz": "finalChunksEsperados[0]",
+          "strings": 9,
+          "sha256": "5b6c266e753d3b083e267110788a5c27f996c1008c7bcb2f48b114d8c3b9649c"
+        },
+        {
+          "raiz": "finalChunksEsperados[1]",
+          "strings": 9,
+          "sha256": "2cf7ebb283f62eeb2a80b779b3275e1b6edf88be15f6b4e962b9fe42f60df764"
+        },
+        {
+          "raiz": "finalChunksEsperados[2]",
+          "strings": 9,
+          "sha256": "e3bb9b4f2a5da2cf739a307c2ae429afddac69f5258a0ed67d30832ba4af9240"
+        }
+      ]
+    }
+  }
+}
