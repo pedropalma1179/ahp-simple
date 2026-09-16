@@ -6852,6 +6852,61 @@ ID correto reprova a cobertura de C1. Nos dois o restauro foi conferido byte a b
 275 antes, diferença de **8** casos na mesma suíte. Linux x86_64, Node v22.22.2,
 npm 10.9.7, ambiente observado. Nenhum teste removido.
 
+**Publicação, CI e integração, estado observado — e o CI reprovou antes de passar.**
+
+⚠ **`25fb2c0` ficou VERMELHO nas duas branches**, execuções **`35109761970`** e
+**`35109812324`**, com **4 testes falhando de 283**. Eram os quatro do controle
+estrutural, e **a causa era minha**: eles liam o estado de referência por
+`git show a84c35b`, e o workflow usa `actions/checkout@v4` **sem `fetch-depth`**,
+isto é, **clone raso de profundidade 1**, onde aquele commit não existe.
+Reproduzido fora do CI: `git clone --depth 1` e `git show a84c35b` sai **128**.
+
+⚠ **A suíte passava aqui porque aqui há histórico.** "Medido depois de executar"
+era verdade e **não bastava**: o que faltou foi medir **no ambiente do CI**, e essa
+hipótese de ambiente ninguém tinha testado. É o mesmo modo de falha que este
+projeto documenta — **saída plausível, da forma esperada, sem sinal de erro** —
+agora no instrumento de verificação e não no modelo.
+
+**Correção, em `46ac1359134fe3a91000c25b9f15c0369e5f63d0`:** o controle passa a
+**reconstruir** o estado anterior a partir do estado corrente, desfazendo **apenas**
+os caminhos enumerados, e a comparar o resultado com os resumos da árvore de
+referência, agora gravados em `resumos-texto.json` — global e por chave de primeiro
+nível. **Nenhum teste chama `git`.** A enumeração passou a guardar os valores
+anteriores e posteriores **completos**, sem truncar vetor, mais `existiaAntes` para
+separar campo acrescentado de campo alterado.
+
+⚠ **A garantia mudou de lugar, e o teste diz isso.** Quem pega alteração fora da
+lista é a comparação da reconstrução com a referência, **não** `naoCobertas`, que
+nesta forma seria **vácuo**: a reconstrução é construída desfazendo justamente esses
+caminhos. `semUso` e `valoresErrados` continuam não vácuos, porque conferem o que a
+lista **afirma** contra o que os dados têm. Foi acrescentada guarda contra controle
+vazio: a reconstrução **tem** de diferir do estado corrente nos três artefatos
+alterados, senão nada foi desfeito e o controle passaria sem medir.
+
+**Medido depois de executar, e desta vez também na condição do CI:** em **clone raso
+de UM commit**, `tsc` **0** e **20 suítes com 283 testes**, saída **0**. Localmente o
+mesmo. O contraexemplo foi repetido contra o controle novo: alteração não enumerada
+reprova **e nomeia a chave**. Nenhum dado, nenhum texto e nenhuma contagem mudaram
+nessa correção.
+
+**CI observado, por SHA completo:** `35114443428`, na branch de trabalho, em
+`46ac1359134fe3a91000c25b9f15c0369e5f63d0`, **`completed/success`**, com
+`Typecheck`, `Build` e `Testes` em `success`. ⚠ **`e1bdc6f` não tem execução
+própria**, porque o CI dispara por push e não por commit, e **não se apresenta o
+dele como medido**. A execução gêmea da branch de
+integração, **`35114607612`**, sobre o **mesmo SHA**, também foi observada
+**`completed/success`**, com os mesmos sete passos em `success`. O CI deste commit
+documental é observação posterior.
+
+**Integração:** `integra/a30-registros` avançou **por fast-forward**, primeiro de
+`c8b7b238` para `25fb2c0` e depois para
+`46ac1359134fe3a91000c25b9f15c0369e5f63d0`, na branch local e na remota, conferido
+antes de cada avanço que `origin/integra/a30-registros` **era ancestral** do topo,
+com código de saída **0** em Bash. **Sem `--force`, sem rebase e sem `amend`**, e
+`git log --merges` sobre o intervalo sai **vazio**: os **seis** commits foram
+preservados, nenhum reescrito. ⚠ **`main` permanece em `33c1fdf`**, lida e não
+tocada.
+
 ⚠ **Nada aqui altera o que o modelo recebe**, e por isso **predição não cabe**.
 **A predição de A.33 segue não testada.** As **161 pendências de publicação** e as
 **19 divergências de A.16** continuam como estavam: **corrigir metadado
