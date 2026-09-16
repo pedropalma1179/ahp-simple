@@ -176,6 +176,127 @@ describe('A.33: registro da conferência de C1', () => {
       .not.toBe(i.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total);
   });
 
+  test('a comparação RECEBIDA declara proveniência por afirmação, e não se atribui a esta execução', () => {
+    const r = conferencia.comparacaoRecebida;
+    expect(r.natureza).toMatch(/REGISTRA UMA COMPARACAO RECEBIDA/);
+    expect(r.natureza).toMatch(/NAO consultou as publicacoes/);
+    expect(r.natureza).toMatch(/TEXTO EXTRAIDO/);
+    // ⚠ Cada afirmação diz quem comparou, que material e em qual sessão.
+    expect(r.proveniencia.length).toBeGreaterThanOrEqual(3);
+    for (const p of r.proveniencia) {
+      expect(Object.keys(p).sort()).toEqual(['afirmacao', 'materialConsultado', 'quemComparou', 'sessao']);
+      expect(p.afirmacao && p.quemComparou && p.materialConsultado && p.sessao).toBeTruthy();
+    }
+    // Os resultados por campo e os dados dos arquivos vêm de OUTRA sessão.
+    const deOutra = r.proveniencia.filter((p: any) => /nao esta/.test(p.sessao));
+    expect(deOutra.length).toBeGreaterThanOrEqual(2);
+    expect(deOutra.some((p: any) => /SHA-256/.test(p.afirmacao))).toBe(true);
+    // ⚠ Nenhum valor de arquivo é apresentado como medido aqui.
+    for (const a of r.arquivosConsultados) {
+      expect(a.origemDestesValores).toMatch(/NAO medido nesta execucao/);
+      expect(a.sha256DoArquivo).toMatch(/^[0-9a-f]{64}$/);
+      expect(a.versao).toBeTruthy();
+      expect(a.identificador).toBeTruthy();
+    }
+    // ⚠ Texto extraído não é a página impressa, e o registro diz isso.
+    expect(r.avisoSobreExtracao).toMatch(/NAO E A PAGINA IMPRESSA/);
+    expect(r.avisoSobreExtracao).toMatch(/exige inspecao visual/);
+  });
+
+  test('página impressa e posição no PDF são campos DISTINTOS, com a diferença registrada', () => {
+    const esperado: Record<string, number[]> = {
+      'Saaty 1977': [237, 4, 233],
+      'Wijnmalen 2007': [899, 8, 891],
+      'Forman e Peniwati 1998': [167, 3, 164],
+    };
+    for (const a of conferencia.comparacaoRecebida.arquivosConsultados) {
+      const [pagina, pdf, dif] = esperado[a.fonte];
+      expect(a.paginaImpressa).toBe(pagina);
+      expect(a.posicaoNoPdf).toBe(pdf);
+      // A diferença é aritmética, e confundir os dois campos apontaria para
+      // outro lugar do arquivo.
+      expect(a.paginaImpressa - a.posicaoNoPdf).toBe(dif);
+      expect(a.diferencaEntreOsDois).toBe(dif);
+    }
+  });
+
+  test('os três resultados recebidos, e o lado da BASE conferido aqui', () => {
+    const porId = Object.fromEntries(
+      conferencia.comparacaoRecebida.porTrecho.map((t: any) => [t.articleId, t]));
+    const unidade = (id: string) => evidencias.porTrecho.find((u: any) => u.articleId === id
+      && JSON.stringify(u.enderecoNaBase) === JSON.stringify(porId[id].enderecoNaBase));
+
+    // Forman: confere nos dois campos, claim sustentada, sobre texto extraído.
+    const f = porId['forman1998_aggregating'];
+    expect(f.resultado.verbatim_quote).toBe('confere');
+    expect(f.resultado['evidence.quote']).toBe('confere');
+    expect(f.resultado.sustentacaoDaClaim).toBe('sustentada');
+    expect(f.alcance).toMatch(/TEXTO EXTRAIDO/);
+    expect(f.conferenciaHistorica).toMatch(/PRESERVADA/);
+    // ⚠ Medido AQUI, do lado da base: a elisão está sinalizada por reticências.
+    expect(unidade('forman1998_aggregating')!.dadosOriginais.verbatim_quote).toContain('...');
+
+    // Wijnmalen: não confere nos dois campos; claim sustentada; unidade pendente.
+    const w = porId['wijnmalen2007_bocr'];
+    expect(w.resultado.verbatim_quote).toMatch(/^nao confere/);
+    expect(w.resultado['evidence.quote']).toMatch(/^nao confere/);
+    expect(w.resultado.sustentacaoDaClaim).toBe('sustentada');
+    expect(w.unidade).toMatch(/NAO CORRESPONDENCIA TEXTUAL/);
+    expect(w.encaminhamento).toMatch(/A\.16/);
+    // ⚠ Medido AQUI: o recorte da base realmente não traz `however`. É o lado
+    // da comparação que está no repositório; o outro lado veio da extração.
+    const textoW = unidade('wijnmalen2007_bocr')!.dadosOriginais.verbatim_quote;
+    expect(/however/i.test(textoW)).toBe(false);
+    // ⚠ E a base NÃO foi corrigida nesta rodada: o achado só se encaminha.
+    expect(textoW).toBe(unidade('wijnmalen2007_bocr')!.dadosOriginais.evidence.quote);
+
+    // Saaty: nada gravado como conclusão; um item único pendente.
+    const s = porId['saaty1977_scaling'];
+    expect(s.resultado.verbatim_quote).toMatch(/nao conferido/);
+    expect(s.resultado['evidence.quote']).toMatch(/nao conferido/);
+    expect(s.resultado.sustentacaoDaClaim).toMatch(/^inconclusiva/);
+    expect(s.unidade).toBe('pendente');
+    expect(s.alcance).toMatch(/NADA aqui se grava como conclusao/);
+    expect(s.oQueFalta).toMatch(/inspecionar visualmente a pagina 237/i);
+    // ⚠ Medido AQUI: o recorte carrega notação LaTeX, e por isso a comparação
+    // literal desse trecho não se resolve por extração.
+    expect(unidade('saaty1977_scaling')!.dadosOriginais.verbatim_quote).toContain('\\lambda_{max} = n');
+  });
+
+  test('as contagens recebidas seguem históricas: 4 e 161, sem total antecipado e sem subtração', () => {
+    const k = conferencia.comparacaoRecebida.contagens;
+    expect(k.conferidas).toBe(estado('conferido').length);
+    expect(k.pendentes).toBe(estado('pendente').length);
+    expect(k.conferidas).toBe(4);
+    expect(k.pendentes).toBe(161);
+    expect(k.denominador).toBe(165);
+    // ⚠ Nenhuma conferência nova é declarada: a leitura foi parcial.
+    expect(k.novasConferenciasDeclaradas).toBe(0);
+    expect(k.porQueNenhumaNovaConferencia).toMatch(/PARCIAL/);
+    expect(k.nota).toMatch(/NAO se convertem em atendimento aos criterios novos/);
+    // ⚠ Nenhuma subtração do tipo "158 pela frente" é AFIRMADA. O número só pode
+    // aparecer no campo que enuncia a proibição, e em nenhum outro lugar.
+    expect(k.semSubtracao).toMatch(/158 pela frente/);
+    const semAProibicao = { ...conferencia, comparacaoRecebida: { ...conferencia.comparacaoRecebida,
+      contagens: { ...k, semSubtracao: undefined } } };
+    expect(JSON.stringify(semAProibicao)).not.toMatch(/158/);
+    // ⚠ E nada de anunciar a conferência de C1 como concluída.
+    expect(conferencia.comparacaoRecebida.oQueNaoSeAnuncia).toMatch(/NAO se anuncia a conclusao integral/);
+    // O indicador de critério atual continua 0 de 3, apesar do recebido.
+    expect(conferencia.tresIndicadores.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total).toBe(0);
+  });
+
+  test('o registro DATADO da rodada sem acesso não foi substituído', () => {
+    // ⚠ Os resultados por campo de `trechos[]` continuam os daquela rodada, e o
+    // bloco novo é observação posterior, com proveniência própria.
+    for (const t of conferencia.trechos) {
+      expect(t.resultadoPorCampo.verbatim_quote.resultado).toBe('nao conferido');
+      expect(t.resultadoPorCampo.verbatim_quote.motivo).toBe('publicacao inacessivel');
+      expect(t.vejaTambem).toMatch(/comparacaoRecebida/);
+      expect(t.vejaTambem).toMatch(/nao foram substituidos/);
+    }
+  });
+
   test('o registro declara o alcance do "confere" e a regra de agregação', () => {
     expect(conferencia.alcanceDoConfere).toMatch(/RECORTE/);
     // A frase de alcance exigida: nenhum resultado certifica afirmação futura.

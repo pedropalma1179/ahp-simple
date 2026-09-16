@@ -135,7 +135,8 @@
           "nota": "Ausencia de avaliacao nao e resultado negativo. Tres das quatro condicoes ficam NAO AVALIADAS, com motivo; semDivergenciaA16 permanece true porque foi medido sobre comparacaoDosCampos.iguais, que nao depende da publicacao."
         },
         "nota": "Permanece pendente. Nada foi movido."
-      }
+      },
+      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos."
     },
     {
       "identidade": {
@@ -231,7 +232,8 @@
           "nota": "Ausencia de avaliacao nao e resultado negativo. Tres das quatro condicoes ficam NAO AVALIADAS, com motivo; semDivergenciaA16 permanece true porque foi medido sobre comparacaoDosCampos.iguais, que nao depende da publicacao."
         },
         "nota": "Permanece pendente. Nada foi movido."
-      }
+      },
+      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos."
     },
     {
       "identidade": {
@@ -331,7 +333,8 @@
           "nota": "Ausencia de avaliacao nao e resultado negativo. Tres das quatro condicoes ficam NAO AVALIADAS, com motivo; semDivergenciaA16 permanece true porque foi medido sobre comparacaoDosCampos.iguais, que nao depende da publicacao."
         },
         "nota": "A unidade PERMANECE conferida pelo registro anterior, que esta rodada preserva e NAO revoga. O resultado desta rodada e sobre a REconferencia, que nao foi possivel."
-      }
+      },
+      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos."
     }
   ],
   "contagens": {
@@ -406,7 +409,7 @@
     "trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual": {
       "total": 0,
       "denominador": 3,
-      "alcance": "Zero de tres ANTES da rodada de fechamento. Criterio atual e o das quatro condicoes, com correspondencia textual e sustentacao avaliadas SEPARADAMENTE contra a publicacao. Nenhum dos tres o atende por demonstracao, inclusive forman1998_aggregating key_claims[2], cuja conferencia historica nao traz veredito separado de sustentacao."
+      "alcance": "Zero de tres. ⚠ A comparacao recebida NAO altera este indicador: ela foi feita sobre TEXTO EXTRAIDO, sem inspecao visual, e o criterio atual exige a evidencia documental prevista. Forman ficou conferido no CONTEUDO sobre extracao, Wijnmalen teve NAO CORRESPONDENCIA textual, e Saaty segue pendente de inspecao visual. Nenhuma nova conferencia foi declarada."
     }
   },
   "rodadaDeFechamento": {
@@ -418,5 +421,153 @@
     "falsoPositivoDescartado": "A busca por arquivos recentes encontrou caminhos com saaty1977 e wijnmalen2007 em /tmp/jest_0, que sao CACHE DE TRANSPILACAO do jest sobre os .ts do proprio repositorio, e NAO publicacoes. Nome de arquivo e hipotese, nao evidencia.",
     "consequencia": "Os tres trechos continuam com os campos de citacao NAO CONFERIDOS e a sustentacao INCONCLUSIVA, pelo motivo da rodada anterior. Nenhum resultado foi inventado, e nenhuma unidade mudou de estado.",
     "comoDestravar": "Executar este mesmo prompt a partir de uma sessao na maquina que tem os PDFs, ou anexar os tres arquivos a uma sessao que os alcance. Sem a publicacao aberta, qualquer resultado de confere seria afirmacao sem lastro."
+  },
+  "comparacaoRecebida": {
+    "data": "2026-09-16",
+    "natureza": "⚠ ESTA EXECUCAO REGISTRA UMA COMPARACAO RECEBIDA. Ela NAO consultou as publicacoes, e NAO apresenta a conferencia como leitura propria. A comparacao das fontes foi feita sobre TEXTO EXTRAIDO dos PDFs, por outra sessao.",
+    "proveniencia": [
+      {
+        "afirmacao": "os resultados por campo das tres fontes",
+        "quemComparou": "sessao de analise",
+        "materialConsultado": "texto EXTRAIDO dos PDFs",
+        "sessao": "sessao de analise, nao esta"
+      },
+      {
+        "afirmacao": "SHA-256, contagem de paginas e posicao da pagina no PDF",
+        "quemComparou": "sessao de analise",
+        "materialConsultado": "os ARQUIVOS PDF recebidos",
+        "sessao": "sessao de analise, nao esta"
+      },
+      {
+        "afirmacao": "o que este commit grava",
+        "quemComparou": "esta execucao",
+        "materialConsultado": "o prompt desta rodada",
+        "sessao": "esta"
+      },
+      {
+        "afirmacao": "o LADO DA BASE de cada comparacao: presenca de however, capitalizacao inicial, reticencias de elisao e notacao do recorte",
+        "quemComparou": "esta execucao",
+        "materialConsultado": "docs/dados/a33-etapa4/evidencias.json, no repositorio",
+        "sessao": "esta"
+      }
+    ],
+    "avisoSobreExtracao": "⚠ TEXTO EXTRAIDO NAO E A PAGINA IMPRESSA. A extracao pode corromper notacao matematica, e foi o que ocorreu no caso do Saaty. Distinguir o que esta IMPRESSO, o que a EXTRACAO corrompeu e o que o RECORTE preparado alterou exige inspecao visual, que NAO foi feita.",
+    "arquivosConsultados": [
+      {
+        "fonte": "Saaty 1977",
+        "referencia": "Journal of Mathematical Psychology 15, 234 a 281. ISSN 0022-2496",
+        "identificador": "ISSN 0022-2496",
+        "versao": "versao publicada, identificada pela referencia do periodico",
+        "paginaImpressa": 237,
+        "posicaoNoPdf": 4,
+        "diferencaEntreOsDois": 233,
+        "sha256DoArquivo": "de5f6a8b0f5f83aefc53dd1fb5107cf90dd07c11cc3e3c55f87b112539cef9e7",
+        "paginas": 48,
+        "origemDestesValores": "sessao de analise, que teve os arquivos. NAO medido nesta execucao."
+      },
+      {
+        "fonte": "Wijnmalen 2007",
+        "referencia": "Mathematical and Computer Modelling 46, 892 a 905",
+        "identificador": "doi 10.1016/j.mcm.2007.03.020",
+        "versao": "versao publicada, identificada pelo doi",
+        "paginaImpressa": 899,
+        "posicaoNoPdf": 8,
+        "diferencaEntreOsDois": 891,
+        "sha256DoArquivo": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
+        "paginas": 14,
+        "origemDestesValores": "sessao de analise, que teve os arquivos. NAO medido nesta execucao."
+      },
+      {
+        "fonte": "Forman e Peniwati 1998",
+        "referencia": "European Journal of Operational Research 108, 165 a 169",
+        "identificador": "PII S0377-2217(97)00244-0",
+        "versao": "versao publicada, identificada pelo PII",
+        "paginaImpressa": 167,
+        "posicaoNoPdf": 3,
+        "diferencaEntreOsDois": 164,
+        "sha256DoArquivo": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
+        "paginas": 5,
+        "origemDestesValores": "sessao de analise, que teve os arquivos. NAO medido nesta execucao."
+      }
+    ],
+    "paginaImpressaNaoEhPosicaoNoPdf": "⚠ Sao campos DISTINTOS, e a diferenca e de 233 no Saaty, 891 no Wijnmalen e 164 no Forman. Confundi-los faria o localizador apontar para outro lugar do arquivo.",
+    "porTrecho": [
+      {
+        "articleId": "forman1998_aggregating",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"forman1998_aggregating\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"2e37783a6af38e02430f51787dcc7a3051e01704614eb139d6c1600532a39439\"]]",
+        "resultado": {
+          "verbatim_quote": "confere",
+          "evidence.quote": "confere",
+          "localizador": "compativel: pagina impressa 167, secao 6",
+          "sustentacaoDaClaim": "sustentada"
+        },
+        "oQueFoiObservado": "A secao 6 contem os dois fragmentos citados, e o intervalo elidido esta sinalizado por reticencias no recorte da base. O texto sustenta a exigencia da media geometrica para AIJ, NO CONTEXTO DE RECIPROCIDADE APRESENTADO.",
+        "medidoNestaExecucao": "O recorte da base contem as reticencias que sinalizam a elisao, na posicao 100 da cadeia. Isto e do lado da BASE, e foi medido aqui.",
+        "alcance": "⚠ Conteudo conferido sobre TEXTO EXTRAIDO, nao sobre a pagina impressa. ⚠ Os elementos de rastreabilidade -- referencia, PII, versao publicada, pagina impressa, posicao no PDF e SHA-256 completo -- estao REGISTRADOS acima, com a origem declarada, e NAO foram medidos nesta execucao.",
+        "pendenciaAtual": "Inspecao visual da pagina 167 nao foi feita. A conferencia do conteudo permanece sobre texto extraido.",
+        "conferenciaHistorica": "PRESERVADA com o seu alcance: o registro anterior, em conferenciaPublicacao de porTrecho[100], descreve a localizacao e a correspondencia dos segmentos, sem veredito separado de sustentacao e sem versao nem resumo criptografico. Esta rodada NAO o revoga.",
+        "unidade": "permanece conferida pelo registro historico; a rodada nao declara conferencia nova"
+      },
+      {
+        "articleId": "wijnmalen2007_bocr",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+        "resultado": {
+          "verbatim_quote": "nao confere: omissao de however",
+          "evidence.quote": "nao confere: omissao de however",
+          "localizador": "compativel com o marcador da pagina 899 e a secao 4",
+          "sustentacaoDaClaim": "sustentada"
+        },
+        "oQueFoiObservado": "Sob o marcador da pagina 899, secao 4 Commensurability, o texto extraido traz \"Synthesis however requires commensurate priorities on a common scale.\" O recorte da base OMITE however, SEM sinalizar a supressao.",
+        "medidoNestaExecucao": "O recorte da base NAO contem a palavra however, e comeca por synthesis em MINUSCULA, nao Synthesis. As duas observacoes sao do lado da BASE e foram medidas aqui. ⚠ A minuscula nao e adjudicada: um recorte pode legitimamente comecar no meio da frase, e separar escolha de recorte de erro de transcricao exige a pagina impressa.",
+        "alcance": "⚠ A diferenca compromete a FIDELIDADE LITERAL e NAO demonstra que a claim esteja errada. O paragrafo explica por que prioridades vindas dos quatro modelos precisam estar numa escala comum. ⚠ Conferido no TEXTO EXTRAIDO fornecido, e vinculado ao PDF pelos dados de arquivosConsultados.",
+        "unidade": "pendente por NAO CORRESPONDENCIA TEXTUAL",
+        "encaminhamento": "O achado segue para A.16. ⚠ A base NAO e corrigida nesta rodada, e o achado se SOMA as 19 divergencias existentes SEM ser reconciliado com elas."
+      },
+      {
+        "articleId": "saaty1977_scaling",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+        "resultado": {
+          "verbatim_quote": "nao conferido, aguardando inspecao visual",
+          "evidence.quote": "nao conferido, aguardando inspecao visual",
+          "localizador": "compativel com o marcador da pagina 237",
+          "sustentacaoDaClaim": "inconclusiva, pelo mesmo motivo"
+        },
+        "oQueFoiObservado": "A passagem aparece sob o marcador da pagina 237, e a EXPRESSAO MATEMATICA esta CORROMPIDA NA EXTRACAO. ⚠ Essa diferenca NAO pode ser atribuida a publicacao nem a base sem inspecao visual.",
+        "medidoNestaExecucao": "O recorte da base carrega a expressao em NOTACAO LaTeX, \\lambda_{max} = n, com uma unica contrabarra, e comeca por A maiuscula. Isto e do lado da BASE. ⚠ Notacao LaTeX na base contra notacao tipografada na pagina significa que a comparacao literal desse trecho NAO se resolve por extracao: o recorte ja e uma transcricao, e so a pagina impressa separa transcricao fiel de divergencia.",
+        "oQueFalta": "UM item so: inspecionar visualmente a pagina 237, verificando A EXPRESSAO MATEMATICA e A CAPITALIZACAO DO INICIO DO TRECHO.",
+        "unidade": "pendente",
+        "alcance": "⚠ NADA aqui se grava como conclusao."
+      }
+    ],
+    "contagens": {
+      "nota": "⚠ AS CONTAGENS NAO MUDAM NESTA RODADA. Elas sao HISTORICO, e NAO se convertem em atendimento aos criterios novos.",
+      "conferidas": 4,
+      "pendentes": 161,
+      "denominador": 165,
+      "observacao": "165 unidades DISTINTAS, sem somar copias nos artefatos.",
+      "novasConferenciasDeclaradas": 0,
+      "porQueNenhumaNovaConferencia": "A leitura foi PARCIAL -- texto extraido, sem inspecao visual -- e o protocolo exige a evidencia documental prevista.",
+      "semSubtracao": "⚠ NAO se escreve subtracao do tipo \"158 pela frente\". Ela nao representa as pendencias: Forman JA estava entre as quatro, e examinar Saaty e Wijnmalen NAO os tornou conferidos.",
+      "nenhumTotalAntecipado": "⚠ Nenhum total e antecipado. O numero sai da conferencia, quando ela se completar."
+    },
+    "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Saaty permanece pendente de inspecao visual, e Wijnmalen tem nao correspondencia textual observada NA EXTRACAO."
   }
 }
