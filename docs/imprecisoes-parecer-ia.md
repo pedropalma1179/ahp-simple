@@ -7586,6 +7586,216 @@ deste commit documental, e o da integração, são observação posterior.
 correspondência observada na extração**, e **as confirmações visuais do texto de
 Wijnmalen e de Forman não foram feitas nesta rodada**.
 
+### A.33: inspeção visual de Wijnmalen p. 899 e Forman p. 167, em 16/09/2026
+
+**Gravação:** `3fc4581`, correção do registro anterior sobre a causa dos testes
+intermitentes, e `781fb4fb303cd67e7eaa2514d40ac776d9e69c18`, inspeção, sobre a base
+`2e7d3cf05ba78753547565287857b1d951b9dca2`. **Branch de sessão declarada:**
+`inspecao/wijnmalen-forman`, com integração em `integra/a30-registros` por
+**fast-forward** ao fim. Resultados em
+`docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json`, e o instrumento em
+`docs/dados/a33-conferencia-c1/instrumentos/inspecionar_paragrafos.py`.
+
+⚠ **A nova conferência tem proveniência própria:** a extração desta rodada está
+vinculada aos SHA-256 recalculados aqui, e a leitura do impresso foi feita olhando
+a renderização desses mesmos arquivos. **A extração antiga fica com o seu limite
+histórico**, e recuperar o vínculo dela não foi pré-requisito. **Saaty não foi
+reaberto.** Sem geração, sem alteração da base, dos textos preparados ou do índice,
+sem reingestão, e nenhum PDF na árvore.
+
+**Porta de entrada.** Os dois arquivos estavam em `C:\AHP-BOCR\preservado\`.
+`git fetch origin` saiu **0**; topo em `2e7d3cf`, branch
+`inspecao/wijnmalen-forman`, árvore limpa, diff vazio, e
+`origin/integra/a30-registros` ancestral do topo, código **0**. **Os dois SHA-256
+recalculados coincidem** com os de `medicao-pdfs.json`, e a conferência seguiu nos
+dois.
+
+#### O procedimento, por tipo de arquivo
+
+**Ferramenta:** PDFium 153.0.7999.0 a 300 dpi, por pypdfium2 5.13.0, e Pillow para
+recortar; a leitura foi feita **olhando as imagens**. **O parágrafo foi recortado
+pelas coordenadas da própria camada de texto**, depois de duas estimativas de
+altura erradas na mão.
+
+| Fonte | Tipo | O que se fez |
+|---|---|---|
+| Wijnmalen | **texto vetorial visível**: 85 operadores no modo 0, nenhuma imagem | ⚠ **nenhuma exclusão de camada**: a renderização desse texto **é** a página |
+| Forman | **digitalização**: 28 tiras de imagem, 661 operadores no modo 3 | separação verificada: **a imagem olhada é a digitalização** |
+
+#### A nova extração, uma terceira coisa
+
+Da camada de texto **destes** arquivos, por pypdf, PDFium e `pdftotext -enc
+UTF-8`, **vinculada aos hashes recalculados**, e distinta do impresso e do recorte.
+
+⚠ **Na primeira execução do instrumento, a verificação de presença deu falso em
+três vias** para frases que estão no impresso. Conferido à mão antes de aceitar,
+eram dois erros do instrumento, e os dois no centro da comparação: **a ligadura
+`ﬁ`**, que pypdf e `pdftotext` entregam como U+FB01 em *benefits*; e **`condi-`
+com espaço antes da quebra**, como o pypdf entrega. Corrigidos, e **o ramo negativo
+também conferido**: o texto dos recortes da base não aparece em nenhuma via. Sem
+`-enc UTF-8`, o `pdftotext` escreve em Latin-1, e as aspas saem como
+`` `individual' ``.
+
+#### Wijnmalen, seção 4 *Commensurability*, terceiro parágrafo
+
+| Ponto | O que traz |
+|---|---|
+| **impresso** | *"**Synthesis however** requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship **between total benefits and total costs and total opportunities and total risks.**"* |
+| **extração** | o mesmo, nas três vias |
+| **recorte** | `synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship` |
+
+| | Transformação | Impresso | Extração | Recorte | Onde surgiu |
+|---|---|---|---|---|---|
+| W1.a | caixa `S` → `s`, **não sinalizada** | não | não | **sim** | **origem não determinada** |
+| W1.b | omissão de *however*, **não sinalizada**, dentro do trecho | não | não | **sim** | **origem não determinada** |
+| W2.a | truncamento **não sinalizado** no meio da frase, que perde entre o que é a relação | não | não | **sim** | **origem não determinada** |
+
+⚠ **Sobre a datação:** a base registra extração em 11/02/2026 e está no arquivo
+desde `7f46e3a`. Isso **afasta como origem a execução da outra sessão**, e **não
+afasta** que este mesmo PDF, ou esta mesma camada de texto, tenham sido usados em
+fevereiro por uma via que introduziu as transformações. **Pendência:** o texto de
+entrada e a via da extração v3.0.
+
+**`verbatim_quote` e `evidence.quote`: não conferem**, pela omissão de *however* e
+pela troca de caixa. Localizador compatível.
+
+**Sustentação: parcialmente sustentada.** O contexto usado foi **o parágrafo
+inteiro**, e, **alcançados por remissão e com localizador**, a Tabela 6, no alto da
+p. 899, e o quarto parágrafo da seção.
+
+- **Sustenta** a exigência geral: *"Synthesis however requires commensurate
+  priorities on a common scale"*; e, no quarto parágrafo, *"BOCR synthesis of
+  priorities is deceiving if it is composed of sets of measures that have not been
+  adjusted relative to each other and are therefore not commensurate."*
+- ⚠ **O próprio parágrafo registra um caso que a claim omite:** *"also in the case
+  where the product of benefit and opportunities would equal the product of costs
+  and risks, would the products of the corresponding normalized priorities be in
+  the same unit and would their quotient produce meaningful BOCR ratio results."*
+  E a Tabela 6, a que o parágrafo remete com *As was shown earlier*, diz que a
+  expressão multiplicativa (4) **sempre dá a ordenação correta das alternativas**,
+  para qualquer esquema de pesos, e a indicação correta de lucratividade **se**
+  aquela igualdade valer.
+- A claim, universal — *must* e *to guarantee valid BOCR outcomes* —, **omite esses
+  casos**. ⚠ **O avaliador não os supriu**, e é essa omissão que faz a sustentação
+  ser parcial. O resultado recebido, sobre extração, dizia *sustentada*, e fica
+  preservado.
+
+**Unidade: pendente**, por não correspondência com o impresso e claim parcialmente
+sustentada. Achado para A.16, **fora das 19**, e **a base não foi corrigida**.
+
+⚠ **Alcance observado na base:** o mesmo texto transformado é também o
+`evidence.quote` de `wijnmalen2007_bocr` `key_claims[3]`, com a mesma página e o
+mesmo localizador. Essa unidade, `porTrecho[89]`, **já é uma das 19**, porque o
+`verbatim_quote` dela é outro. **Registrado como alcance para A.16; ela não foi
+conferida, e a contagem das 19 não muda.**
+
+#### Forman, seção 6, primeiro parágrafo
+
+O parágrafo vai do título da seção até *"provided a_i ≥ 0 and b_i ≥ 0"*, e **termina
+na p. 167**: a p. 168 abre parágrafo novo, recuado.
+
+| Ponto | O que traz |
+|---|---|
+| **impresso** | *"Treating the group as a new **‘individual’** with AIJ requires satisfaction of the reciprocity condi- tion for the judgments."* … *"Thus, for AIJ, the geometric mean **must** be used."*, com *must* em **itálico** |
+| **extração** | o mesmo, nas três vias, com aspas tipográficas e **sem itálico**; a camada OCR marca *must* com a fonte TimesNewRoman,Italic |
+| **recorte** | `Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.` |
+
+**As letras dos dois segmentos coincidem com o impresso**, na ordem, e **a
+supressão entre eles está sinalizada** pelas reticências. O que ela retira é o
+fundamento: Aczel e Saaty (1983) e Aczel e Roberts (1989) mostraram que, com a
+propriedade recíproca, **só a média geométrica satisfaz o princípio de Pareto e a
+condição de homogeneidade**.
+
+| | Transformação | Impresso | Extração | Recorte | Onde surgiu |
+|---|---|---|---|---|---|
+| F1.a | aspas tipográficas → apóstrofos ASCII | não | não | **sim** | **origem não determinada** |
+| F2.a | **ênfase itálica de *must* não reproduzida** | não | **sim**, em texto plano | **sim** | **origem não determinada** |
+| F3.a | hifenização de fim de linha desfeita | não | em duas vias | **sim** | **origem não determinada** |
+
+**`verbatim_quote` e `evidence.quote`: conferem**, com as três transformações
+**declaradas**, nenhuma de letra. ⚠ **Ponto de critério para revisão do autor:** a
+ênfase retirada não foi contada como não correspondência. Se ênfase do autor contar
+como texto, os dois campos passam a *não confere*.
+
+**Sustentação: sustentada.** Contexto: o parágrafo inteiro, e, por remissão, o
+primeiro período da seção 5, que define o princípio de Pareto, sem efeito na
+avaliação. A sustentação vem da **conclusão explícita do autor, para AIJ e sem outra
+restrição de domínio**: *"Thus, for AIJ, the geometric mean must be used"*, com a
+ênfase a que corresponde o *strictly* da claim. ⚠ **As premissas** — AIJ exige
+reciprocidade; com reciprocidade, só a média geométrica satisfaz Pareto e
+homogeneidade — **não estão na claim, e o avaliador não as acrescentou** para
+sustentá-la. Fica registrado que a força do *must*, no argumento do autor, depende
+de aceitar essas duas condições como exigências, como o autor faz.
+
+**Unidade: continua conferida**, agora com as quatro condições observadas na página
+impressa.
+
+#### Contagens e indicador
+
+**A contagem histórica não muda: 4 conferidas e 161 pendentes**, sobre 165.
+Wijnmalen era pendente e continua; Forman já estava entre as quatro.
+
+**O indicador de atendimento ao critério atual passa de 0 para 1 de 3, pela
+medição**: Forman reúne as quatro condições com a página aberta; Saaty e Wijnmalen
+não conferem com o impresso. `conferencia.json` guarda **o histórico do indicador
+por rodada**, e três testes antigos passaram a ler esse histórico, **ajuste
+delimitado** para distinguir o valor de cada rodada do resultado desta. ⚠ **O
+indicador depende do ponto de critério sobre a ênfase.**
+
+⚠ **C1 não se anuncia como liberado.** As três inspeções visuais estão feitas, com
+resultado por trecho: um atende ao critério atual, dois seguem pendentes. Ficam em
+aberto **as origens não determinadas**, que dependem do texto de entrada da
+extração de fevereiro, e **dois pontos de critério** para o autor: a caixa, em
+Saaty, e a ênfase, em Forman.
+
+#### Pendência técnica, em separado
+
+**Dois testes intermitentes**, em `lib/__tests__/rag-diagnostico-regressao.test.ts`:
+*erro com token e URL na MENSAGEM: nenhuma sentinela sobrevive*, e *valor lançado que
+NÃO é Error, com campo sensível: nada é serializado*.
+
+- **Comportamento observado:** nesta máquina, em execuções completas de
+  `jest --runInBand`, os dois ultrapassaram o limite de 5000 ms em parte das
+  execuções; com a suíte isolada, ela passou 16 de 16 em menos de 2 s; no clone raso
+  com LF e no CI, passou.
+- ⚠ **Causa: não estabelecida.** Ultrapassar o tempo limite e passar isoladamente
+  demonstra o comportamento, e **não estabelece sozinho a causa**. O registro da
+  rodada de Saaty dizia outra coisa, e foi corrigido em `3fc4581`.
+- **Nada foi corrigido:** nem configuração, nem testes de transporte, nem os
+  intermitentes. O CRLF, já caracterizado, também não.
+
+#### Verificação medida, depois de executar
+
+| Medição | `tsc` | Suítes | Testes | Passando | Saída |
+|---|---:|---:|---:|---:|---:|
+| esta máquina, depois de `781fb4f` | 0 | 21 | 312 | 309 | 1 |
+| **clone raso de um commit, LF, em `781fb4f`** | **0** | **21** | **312** | **312** | **0** |
+
+Nesta máquina, as três falhas são as registradas: a do CRLF e as duas
+intermitentes. O teste de C1 passou de 22 para **29** casos. **Os sete novos foram
+conferidos por catorze contraexemplos**, cada um reprovando o caso previsto, entre
+eles: hash divergente com a conferência seguindo, extração sem vínculo ao hash,
+exclusão de camada aplicada ao Wijnmalen, estado novo de sustentação, condição
+essencial posta na correspondência, transformação omitida, indicador antecipado,
+Wijnmalen movido para conferido, causa dada como estabelecida para os
+intermitentes, e histórico do indicador reescrito — este último reprova os dois
+testes antigos ajustados. **Restauro por SHA-256 idêntico.**
+
+**Nada foi alterado** em `lib/rag/articles/`, nos textos preparados, nos
+`trechoId`, no índice, nas 19 divergências de A.16, no resultado de Saaty ou em
+`main`. **Nenhum PDF na árvore.** **Nenhuma geração.**
+
+⚠ **Predição não cabe**: a rodada mede arquivos. **A predição de A.33 segue não
+testada.**
+
+**Publicação e CI, estado observado.** `inspecao/wijnmalen-forman` foi publicada
+com `3fc4581` e `781fb4f` num só push, código **0**. A execução **`35141405974`**,
+evento `push`, sobre o SHA completo `781fb4fb303cd67e7eaa2514d40ac776d9e69c18`, foi
+observada **`completed/success`**, com os sete passos em `success`. ⚠ **`3fc4581`
+não tem execução própria**: a API devolve zero para esse SHA. O CI deste commit
+documental, e o da integração, são observação posterior. ⚠ **`main` permanece em
+`33c1fdf`**.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
