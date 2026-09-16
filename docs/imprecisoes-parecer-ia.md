@@ -6342,6 +6342,199 @@ isolada com credencial. **Nenhuma geração real ocorreu.** A.33 continua em
 revisão, com a predição não testada; `main` permanece em `33c1fdf`. Nenhuma
 alteração da base de artigos, configuração ou índice, e nenhuma reingestão.
 
+### A.33: composição revisada por unidade, proposta medida em 16/09/2026
+
+**Protocolo anterior aos números:** `4f2a42a054f917e0cd85fe22f2f0512355b4c233`,
+publicado antes do cálculo, em
+`docs/dados/a33-identidade-revisada/protocolo.md`. **Medição:** `059d3fc`,
+sobre o snapshot `b3fe3d7a0c78b8129e185cbce0099ef606fb844e`. Este registro
+vem depois da verificação. Nenhuma candidata foi adotada nem preenchida como
+`trechoId`.
+
+**Correção de alcance da interpretação anterior:** os seis grupos repetidos
+não demonstravam duplicidade de unidades completas na base. Eram iguais nos
+campos da composição do recorte citado. Claims, limiares e fórmulas diferentes
+podem compartilhar esse recorte. Esta rodada testa identidade de versão da
+unidade; não tenta separar o mesmo recorte acrescentando posição.
+
+**Duas propostas fixadas antes da execução:**
+
+| Hipótese | Objeto versionado | Campos do conteúdo resumido |
+|---|---|---|
+| H-U, composição única | Conteúdo original completo da unidade, ancorado num recorte quando disponível | Todo `dadosOriginais`, retirando apenas `id`, preservado como componente nativo separado |
+| H-T, composição por tipo | Projeção explícita do conteúdo da unidade, ancorada num recorte quando disponível | Claim: `claim`, `verbatim_quote`, `evidence`; limiar: `metric`, `operator`, `value`, `unit`, `context`, `evidence`; fórmula: `latex`, `description`, `variables`, `conditions`, `evidence`; limitation/recommendation: texto integral; benchmark: os nove campos declarados no protocolo |
+
+Nas duas, a ordem externa é prefixo da hipótese, `articleId`, tipo,
+`idNativo`, resumo de versão. **O ID nativo das fórmulas fica literal na chave**,
+não é substituído por um hash. O resumo é do conteúdo restante, SHA-256
+completo, 64 caracteres hexadecimais. Componentes JSON tipados são separados
+por RS, byte 0x1E, que o JSON escapa dentro de strings; UTF-8, sem BOM ou quebra
+final acrescentada. Ausente, nulo, vazio e zero têm representações distintas.
+Objetos têm chaves ordenadas por UTF-16; arrays preservam a ordem de seus valores.
+Essa normalização estrutural evita dependência da ordem das propriedades.
+**Nenhuma normalização de texto** foi aplicada. Tipos inválidos, números não
+finitos, lacunas de array e substitutos UTF-16 isolados são recusados.
+
+**Incluir `claim` torna uma correção de redação uma nova versão.** Incluir
+`verbatim_quote` registra aquele campo, sem declará-lo correto. H-T deixa fora
+`usable_as`, o rótulo `label` da fórmula e `source_article` redundante no
+benchmark; este último é conferido contra `articleId`. Os campos omitidos são
+inventariados por unidade. H-U também muda com alteração de rótulo ou novo campo
+editorial; H-T não versiona os campos que exclui. **Nenhuma das duas é identidade
+estável de claim ou atestado de fidelidade à publicação.** Identificador não
+certifica o conteúdo. Strings e benchmarks sem recorte não recebem um recorte
+por terem candidata.
+
+**Denominador principal:** as mesmas 165 unidades preparadas. As **50 exclusões
+adicionais anteriores** eram **36 fórmulas, dez benchmarks e quatro limiares**.
+As oito restantes eram claims. A composição anterior condicionava cobertura ao
+quote efetivamente fornecido; agora se versiona o conteúdo da unidade. O ganho
+não é atribuído apenas à mudança de hash ou à inclusão do tipo.
+
+| Tipo preparado | Unidades | Cobertura anterior | H-U | H-T | Ganho de ambas |
+|---|---:|---:|---:|---:|---:|
+| Claims | 101 | 93 | 101 | 101 | 8 |
+| Limiares | 18 | 14 | 18 | 18 | 4 |
+| Fórmulas | 36 | 0 | 36 | 36 | 36 |
+| Benchmarks | 10 | 0 | 9 | 9 | 9 |
+| Total | 165 | 107 | **164** | **164** | **57** |
+
+**As hipóteses empatam. Composição por tipo não cobriu mais neste snapshot.**
+Há 165 candidatas distintas em cada hipótese, mas só 164 unidades atendem aos
+mínimos de cobertura declarados. A exclusão é
+`lib/rag/articles/saiyed2023_ceoPowerUET.ts`, `empirical_data`, endereço sem
+índice de vetor. Seu benchmark preparado tem `source_article`, ano e domínio,
+mas os sete campos quantitativos são nulos. O mínimo fixado antes exigia ao
+menos um disponível. **A exclusão é por esse critério de conteúdo mínimo, não
+por colisão nem impossibilidade de calcular uma versão dos metadados.** Não se
+mudou o critério depois do resultado nem se corrigiu a entrada.
+
+**Campos ausentes, nulos e vazios, por tipo:** as tabelas completas de H-U e
+H-T estão em `medicao.json`. No principal, o ID nativo está ausente nas 101
+claims, 18 limiares e dez benchmarks, e presente nas 36 fórmulas. Os quatro
+`locator_id` nulos anteriores permanecem, três em claims e um em limiar;
+`evidence.page` é nulo em quatro claims, um limiar e quatro fórmulas.
+`conditions` é nulo em três fórmulas. Nos benchmarks, são nulos: oito
+`bocr_weights`, dez `concordance_rate`, dez `cr_aggregated`, dez `weight_ratio`,
+três `n_alternatives`, dois `n_criteria_total` e dois `n_respondents`.
+Não houve strings vazias nesses campos. Ausência ou nulidade de localizador
+fica representada; nesta proposta ela não impede versionar o conteúdo existente
+e **não** se converte em localização conferida.
+
+**Universo complementar, separado:** os 36 artigos possuem os cinco vetores,
+inclusive quando vazios. Não se inferiu cobertura de limitations/recommendations
+nas 165 unidades, onde não aparecem. Foram medidos todos os seus registros no
+snapshot, sem adicioná-los aos casos preparados:
+
+| Vetor da base | Unidades | H-U | H-T |
+|---|---:|---:|---:|
+| `key_claims` | 138 | 138 | 138 |
+| `thresholds` | 64 | 64 | 64 |
+| `formulas` | 128 | 128 | 128 |
+| `limitations` | 89 | 89 | 89 |
+| `recommendations` | 110 | 110 | 110 |
+| Total complementar | **529** | **529** | **529** |
+
+**Não somar 529 a 165:** os universos se sobrepõem. Benchmark é projeção de
+`empirical_data`, não um sexto vetor da base. Todos os **128 IDs das fórmulas
+são nativos e não vazios**, sem repetição da chave `(articleId, tipo, id)`;
+o mesmo vale para as 36 fórmulas preparadas. Não há ID nativo nas claims nem
+nos limiares. As ausências, nulidades e campos omitidos do complementar têm
+tabelas próprias no relatório.
+
+**Repetições naturais e indistinguibilidade:** em ambas as hipóteses, no
+principal e no complementar, foram medidos **zero grupos e zero unidades com
+candidata repetida**, **zero grupos de unidades completas indistinguíveis** e
+**zero colisões criptográficas observadas**. São contagens dentro de cada
+universo, não garantia universal. A ausência de repetições naturais exigiu os
+controles negativos e de volatilidade abaixo, em vez de ser tomada como prova
+de validade do esquema.
+
+**Seis controles positivos, todos separados nas duas propostas.** Endereços
+abaixo têm índice inicial zero e continuam servindo apenas à rastreabilidade:
+
+| Grupo da medição anterior | Diferença que permite separar |
+|---|---|
+| `saatyVargas2012`: `key_claims[0]` e `thresholds[0]` | Tipos distintos; claim e verbatim existem só na claim, e o limiar tem seus campos próprios |
+| `wijnmalen2007_bocr`: `key_claims[0]` e `[3]` | `claim` separa as duas; `verbatim_quote` também separa, isoladamente; `evidence` inteiro continua igual |
+| `wijnmalen2007_bocr`: `key_claims[2]` e `formulas[4]` | Tipos distintos; a fórmula traz ID nativo e conteúdo próprio |
+| `wijnmalen2007_bocr`: `key_claims[4]` e `formulas[2]` | Tipos distintos; a fórmula traz ID nativo e conteúdo próprio |
+| `salomon2024_consistency`: `thresholds[1]` e `[2]` | `value` e `context` diferem; claim/verbatim não existem em nenhum dos dois |
+| `liang2022_ahp_undesirable`: `formulas[3]`, `[4]` e `[5]` | IDs nativos, LaTeX, descrição e variáveis diferem; claim/verbatim não existem nas três |
+
+Nenhum grupo tem todos os dados originais iguais. **Claim e verbatim ausentes
+nas duas fórmulas não provam fórmulas indistinguíveis.** A leitura manual
+confirmou as duas afirmações de Wijnmalen, os limiares 0,5 e 0,8 com contextos
+diferentes e os três IDs/LaTeX de Liang. Nenhum valor foi corrigido nessa leitura.
+
+**Controle negativo:** seis pares sintéticos, um por tipo, fora dos denominadores.
+Cada par preserva conteúdo e muda endereço, SHA de rastreabilidade, posição,
+origem, estado de conferência e score. Cada par continua com **uma candidata
+repetida envolvendo duas unidades**, em H-U e H-T. Uma segunda conferência,
+independente em Python, duplicou as 165 unidades e confirmou a mesma invariância
+nas duas propostas. Reordenar as propriedades e os registros preservou as
+165 candidatas em cada hipótese. Nenhum índice posicional entrou na composição.
+
+**Volatilidade investigada:** os nove controles confirmaram os resultados
+esperados antes da execução. Alterar claim, verbatim, valor do limiar, LaTeX,
+texto de limitation/recommendation ou quantidade no benchmark muda ambas.
+Alterar `usable_as` ou `label` muda H-U e não H-T. Alterar o conteúdo da fórmula
+muda o resumo de versão, preservando literalmente seu ID nativo. Isso delimita
+os objetos versionados, mas não prova estabilidade semântica nem recomenda
+adotar uma das propostas só porque separou todas as entradas naturais.
+
+**C1, aceite específico:** a claim fixada de Wijnmalen, `key_claims[0]`, agora
+é discriminada nas duas propostas; as de Saaty e Forman também. **Três chunks
+fixados, três candidatas elegíveis.** Considerando também todo o contexto
+estático de C1, a cobertura é **164/165**, pois o benchmark de Saiyed permanece
+fora. Não se declara cobertura integral do caso nem liberação de geração.
+O instrumento de conferência em produção não foi alterado; `trechoId` continua
+nulo inclusive nesses três chunks preparados.
+
+**Artefatos:** `docs/dados/a33-identidade-revisada/medicao.json` registra os
+campos, contagens, membros dos controles, exclusão e comparação por tipo.
+`rastreabilidade.json` preserva as chaves candidatas, IDs nativos literais,
+resumos e endereços dos dois universos. Os textos preparados do principal são
+referenciados por endereço e resumo no arquivo da medição anterior, fixado no
+snapshot, sem reinterpretá-los. As preimagens são reproduzíveis pelo protocolo
+e pelo instrumento `scripts/measure-a33-identity-v2.cjs`.
+**Endereço não é identidade**, e nenhum deles foi promovido a `trechoId`.
+
+**Erros do instrumento encontrados e corrigidos antes da publicação:** a primeira
+execução tratou o objeto de grupo anterior como vetor e parou em `g.map`, antes
+de emitir os resultados. O teste de inventário depois detectou `_template.ts`
+contado como 37º artigo. A leitura mostrou que é modelo com vetores vazios e
+não integra `ARTICLES`; foi excluído explicitamente, e a lista foi comparada aos
+imports do agregador. O denominador complementar de 529 unidades não mudou.
+Não foram falhas da base nem razões para alterar o critério de cobertura.
+
+**Verificação medida:** execução do instrumento saiu 0; recomposição independente
+em Python das duas candidatas para as 165 e 529 unidades coincidiu com os
+resultados. `npx tsc --noEmit` saiu **0**; `npm test -- --runInBand` saiu **0**,
+com **19 suítes e 261 testes**, contra 18 e 240 antes, diferença de 21 controles
+novos. Linux x64, Node v24.19.0, npm 11.9.0. Nenhum build foi executado nesta
+rodada, e a atualização documental não repete a suíte. Arquivos rastreados:
+**175 para 176 com o protocolo, depois 180 com instrumento, testes e resultados**.
+
+**Histórico e publicação:** `4f2a42a`, `b3fe3d7`, `5935579`, `195e8a8`,
+`745b496`, `344d631`, `482d2d6`, `8fed6bc`, `1444892`, `33c1fdf`,
+`c2d7d89` e `f6d881c` são ancestrais de `059d3fc`, todos com saída **0**.
+Comandos executados em Bash/Linux; não se apresenta `$LASTEXITCODE` de PowerShell
+como medido nesta sessão. O protocolo teve CI `35096962971` observado como
+`completed/success`. O CI `35098506726`, no SHA completo
+`059d3fcdc7f2b13d9ff0e83a2e53db9fa0e4723b`, também foi observado como
+`completed/success`. O CI deste registro documental é observação própria.
+
+**Avaliação sem adoção:** H-T não ganhou cobertura sobre H-U; a escolha depende
+do objeto que o autor deseja versionar, incluindo aceitar ou não sensibilidade
+a rótulos editoriais. Nenhuma foi eleita esquema vigente. Os **165 `trechoId`
+continuam nulos**, as **161 pendências de publicação** e as **19 divergências
+continuam pendentes**, sem escolha de lado em A.16. A conferência das publicações
+é frente separada, pode avançar inclusive pelo agente, começando por C1, e não
+foi executada nesta rodada. Adoção, aplicação e geração dependem dos passos
+posteriores. **A.33 segue em revisão e a predição não foi testada.** Base, índice,
+configuração e `main` em `33c1fdf` permanecem intactos.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
