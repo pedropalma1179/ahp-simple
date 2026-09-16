@@ -7434,11 +7434,11 @@ base, e as quatro constam. ⚠ **As da extração são determinadas para ESTE ar
 que a extração anterior seja a mesma não está demonstrado.
 
 ⚠ **Nas quatro de origem não determinada, a atribuição não foi forçada.** A
-evidência disponível estreita o lugar: **não estão no impresso nem na camada de
-texto deste arquivo, e o recorte as herdou da base**; surgiram, portanto, na
-criação da base ou no texto que a alimentou. ⚠ **A pendência é específica:
-identificar o texto de entrada da extração v3.0 de 11/02/2026**, para separar
-escolha do extrator de transcrição herdada. ⚠ **O recorte não carrega os erros da
+evidência disponível **localiza** as diferenças: **não estão no impresso nem na
+camada de texto deste arquivo, e o recorte as herdou da base**. Isso **não
+demonstra em que ponto do percurso até a base elas surgiram**: pode ter havido
+reutilização de texto ou transformação intermediária. ⚠ **Pendência: reconstituir
+o percurso do texto até a base**, que a base não registra. ⚠ **O recorte não carrega os erros da
 camada OCR**, `h` e `a`, então essa camada **não** é o texto de onde ele foi
 copiado literalmente.
 
@@ -7450,11 +7450,13 @@ copiado literalmente.
 | `evidence.quote` | **não confere** | o mesmo: os dois campos são idênticos |
 | localizador | compatível | p. 237 na posição 4; a seção 2, *Ratio Scales from Reciprocal Pairwise Comparison Matrices*, começa na p. 235, e as pp. 236 e 237 não trazem título até a frase |
 
-⚠ **Nenhuma categoria nova.** ⚠ **O critério aplicado é a correspondência literal,
-e há nele uma decisão que fica registrada para revisão do autor:** a conversão de
-notação, D2.d, **não** foi contada como não correspondência, porque texto plano não
-reproduz subíndice e os símbolos correspondem; a alteração de caixa, D1.b, **foi**,
-porque texto plano reproduz a minúscula e o recorte a trocou.
+⚠ **Nenhuma categoria nova.** O critério aplicado é a correspondência literal. Sobre
+D2.d: **A conversão para LaTeX é uma representação equivalente escolhida, aceita
+porque preserva os símbolos e a relação matemática, com a transformação
+declarada.** A alteração de caixa, D1.b, troca um caractere do trecho citado, e **é
+por ela** que os dois campos não conferem. **Não há decisão pendente sobre este
+resultado.** *(Justificativa corrigida depois, sem mudar o resultado: a anterior
+apoiava D2.d numa impossibilidade do meio e deixava o ponto como pendente.)*
 
 **Sustentação da `claim`: sustentada.** Na p. 237, a matriz recíproca de entradas
 positivas é consistente se e somente se λmax = *n*; na p. 236, consistente é a
@@ -7650,11 +7652,13 @@ também conferido**: o texto dos recortes da base não aparece em nenhuma via. S
 | W1.b | omissão de *however*, **não sinalizada**, dentro do trecho | não | não | **sim** | **origem não determinada** |
 | W2.a | truncamento **não sinalizado** no meio da frase, que perde entre o que é a relação | não | não | **sim** | **origem não determinada** |
 
-⚠ **Sobre a datação:** a base registra extração em 11/02/2026 e está no arquivo
-desde `7f46e3a`. Isso **afasta como origem a execução da outra sessão**, e **não
-afasta** que este mesmo PDF, ou esta mesma camada de texto, tenham sido usados em
-fevereiro por uma via que introduziu as transformações. **Pendência:** o texto de
-entrada e a via da extração v3.0.
+A evidência **localiza** as três na base, e **não demonstra em que ponto do
+percurso até ela surgiram**: pode ter havido reutilização de texto ou transformação
+intermediária. ⚠ **Sobre a datação:** o cabeçalho da base registra 11/02/2026, e o
+trecho está no arquivo desde `7f46e3a`. Isso **afasta como origem a execução da
+outra sessão**, e **não afasta** que este mesmo PDF, ou esta mesma camada de texto,
+tenham sido usados antes, em algum ponto desse percurso. **Pendência:** reconstituir
+o percurso do texto até a base.
 
 **`verbatim_quote` e `evidence.quote`: não conferem**, pela omissão de *however* e
 pela troca de caixa. Localizador compatível.
@@ -7667,18 +7671,34 @@ p. 899, e o quarto parágrafo da seção.
   priorities on a common scale"*; e, no quarto parágrafo, *"BOCR synthesis of
   priorities is deceiving if it is composed of sets of measures that have not been
   adjusted relative to each other and are therefore not commensurate."*
-- ⚠ **O próprio parágrafo registra um caso que a claim omite:** *"also in the case
-  where the product of benefit and opportunities would equal the product of costs
-  and risks, would the products of the corresponding normalized priorities be in
-  the same unit and would their quotient produce meaningful BOCR ratio results."*
-  E a Tabela 6, a que o parágrafo remete com *As was shown earlier*, diz que a
-  expressão multiplicativa (4) **sempre dá a ordenação correta das alternativas**,
-  para qualquer esquema de pesos, e a indicação correta de lucratividade **se**
-  aquela igualdade valer.
-- A claim, universal — *must* e *to guarantee valid BOCR outcomes* —, **omite esses
-  casos**. ⚠ **O avaliador não os supriu**, e é essa omissão que faz a sustentação
-  ser parcial. O resultado recebido, sobre extração, dizia *sustentada*, e fica
-  preservado.
+- ⚠ **A ressalva que fundamenta a classificação:** A claim exige comensurabilidade
+  das prioridades dos fatores **antes de qualquer síntese**, enquanto o artigo
+  admite um **quociente significativo quando os produtos têm unidades
+  compatíveis**, **sem exigir que os quatro totais sejam individualmente iguais**.
+  O texto é o do terceiro parágrafo: *"also in the case where the product of
+  benefit and opportunities would equal the product of costs and risks, would the
+  products of the corresponding normalized priorities be in the same unit and would
+  their quotient produce meaningful BOCR ratio results."*
+- ⚠ **Esse caso NÃO dispensa toda comensurabilidade.** O próprio parágrafo explica
+  que **os produtos ficam na mesma unidade**, e é isso que torna o quociente
+  significativo.
+- ⚠ **A Tabela 6 separa ordenação de indicação de rentabilidade**, e **ordenação
+  correta não equivale a resultado BOCR integralmente válido**. Ela entra como
+  leitura da remissão *As was shown earlier*, e **não** atenua a exigência nem
+  fundamenta a ressalva.
+- ⚠ **Sobre *guarantee*:** a palavra **não significa que nenhum caso particular
+  possa funcionar sem a condição geral**. **O excesso da claim está na formulação
+  indiscriminada da exigência para os fatores**, e não simplesmente na existência
+  de um caso favorável.
+- ⚠ **O avaliador não acrescentou à claim a restrição** que a tornaria
+  integralmente sustentada, e é a ressalva que faz a sustentação ser parcial. O
+  resultado recebido, sobre extração, dizia *sustentada*, e fica preservado.
+- ⚠ **Os dois campos de citação continuam *não confere*, e isso independe da
+  avaliação de sustentação.**
+
+*(Justificativa corrigida depois, sem mudar o resultado: a versão anterior usava a
+Tabela 6 como atenuante e lia o caso dos produtos iguais como dispensa de
+comensurabilidade.)*
 
 **Unidade: pendente**, por não correspondência com o impresso e claim parcialmente
 sustentada. Achado para A.16, **fora das 19**, e **a base não foi corrigida**.
@@ -7687,7 +7707,11 @@ sustentada. Achado para A.16, **fora das 19**, e **a base não foi corrigida**.
 `evidence.quote` de `wijnmalen2007_bocr` `key_claims[3]`, com a mesma página e o
 mesmo localizador. Essa unidade, `porTrecho[89]`, **já é uma das 19**, porque o
 `verbatim_quote` dela é outro. **Registrado como alcance para A.16; ela não foi
-conferida, e a contagem das 19 não muda.**
+conferida, e a contagem das 19 não muda.** ⚠ **Encontrar o mesmo texto em duas
+unidades demonstra repetição da divergência**, e **não** demonstra que a extração
+v3.0 a produziu, nem que ela se propagou a partir de uma unidade: pode ter havido
+reutilização ou outra transformação intermediária. **A origem segue não
+determinada** até existir evidência do percurso.
 
 #### Forman, seção 6, primeiro parágrafo
 
@@ -7709,19 +7733,24 @@ condição de homogeneidade**.
 | | Transformação | Impresso | Extração | Recorte | Onde surgiu |
 |---|---|---|---|---|---|
 | F1.a | aspas tipográficas → apóstrofos ASCII | não | não | **sim** | **origem não determinada** |
-| F2.a | **ênfase itálica de *must* não reproduzida** | não | **sim**, em texto plano | **sim** | **origem não determinada** |
+| F2.a | **ênfase itálica de *must* não reproduzida** | não | **sim**, na saída em texto das três vias | **sim** | **origem não determinada** |
 | F3.a | hifenização de fim de linha desfeita | não | em duas vias | **sim** | **origem não determinada** |
 
 **`verbatim_quote` e `evidence.quote`: conferem**, com as três transformações
-**declaradas**, nenhuma de letra. ⚠ **Ponto de critério para revisão do autor:** a
-ênfase retirada não foi contada como não correspondência. Se ênfase do autor contar
-como texto, os dois campos passam a *não confere*.
+**declaradas**, nenhuma de letra. **A perda do itálico é aceita neste recorte, com a
+transformação declarada**, porque **a palavra *must* permanece, preservando a
+obrigação expressa pelo autor**. ⚠ **É decisão sobre ESTE caso, e não regra geral
+de que ênfase tipográfica nunca carrega significado.** ⚠ **A claim não entra nesta
+justificativa:** paráfrase não compensa perda no trecho citado, e usar a claim para
+atestar a fidelidade da citação inverteria a ordem das duas verificações.
+*(Justificativa corrigida depois, sem mudar o resultado: a versão anterior deixava a
+ênfase como ponto pendente, e a sustentação recorria a um intensificador da claim.)*
 
 **Sustentação: sustentada.** Contexto: o parágrafo inteiro, e, por remissão, o
 primeiro período da seção 5, que define o princípio de Pareto, sem efeito na
 avaliação. A sustentação vem da **conclusão explícita do autor, para AIJ e sem outra
-restrição de domínio**: *"Thus, for AIJ, the geometric mean must be used"*, com a
-ênfase a que corresponde o *strictly* da claim. ⚠ **As premissas** — AIJ exige
+restrição de domínio**: *"Thus, for AIJ, the geometric mean must be used"*.
+⚠ **As premissas** — AIJ exige
 reciprocidade; com reciprocidade, só a média geométrica satisfaz Pareto e
 homogeneidade — **não estão na claim, e o avaliador não as acrescentou** para
 sustentá-la. Fica registrado que a força do *must*, no argumento do autor, depende
@@ -7739,14 +7768,14 @@ Wijnmalen era pendente e continua; Forman já estava entre as quatro.
 medição**: Forman reúne as quatro condições com a página aberta; Saaty e Wijnmalen
 não conferem com o impresso. `conferencia.json` guarda **o histórico do indicador
 por rodada**, e três testes antigos passaram a ler esse histórico, **ajuste
-delimitado** para distinguir o valor de cada rodada do resultado desta. ⚠ **O
-indicador depende do ponto de critério sobre a ênfase.**
+delimitado** para distinguir o valor de cada rodada do resultado desta. A perda
+do itálico em Forman está decidida: aceita neste recorte, com a transformação
+declarada.
 
-⚠ **C1 não se anuncia como liberado.** As três inspeções visuais estão feitas, com
-resultado por trecho: um atende ao critério atual, dois seguem pendentes. Ficam em
-aberto **as origens não determinadas**, que dependem do texto de entrada da
-extração de fevereiro, e **dois pontos de critério** para o autor: a caixa, em
-Saaty, e a ênfase, em Forman.
+⚠ **C1 não se anuncia como liberado: dois dos três trechos não conferem.** As três
+inspeções visuais estão feitas, com resultado por trecho: um atende ao critério
+atual, dois seguem pendentes. **As origens seguem não determinadas** até existir
+evidência do percurso do texto até a base. **Não há decisão de critério pendente.**
 
 #### Pendência técnica, em separado
 
@@ -7795,6 +7824,112 @@ observada **`completed/success`**, com os sete passos em `success`. ⚠ **`3fc45
 não tem execução própria**: a API devolve zero para esse SHA. O CI deste commit
 documental, e o da integração, são observação posterior. ⚠ **`main` permanece em
 `33c1fdf`**.
+
+### A.33: quatro justificativas corrigidas, em 16/09/2026
+
+**Gravação:** `4309f7e662091f050c220c458d042d856e342352`, sobre a base
+`96bd6bb1b78eb6d76bbec574a968258db625048b`. **Branch de sessão:**
+`inspecao/wijnmalen-forman`, com integração em `integra/a30-registros` por
+fast-forward ao fim. **Correção delimitada:** sem nova inspeção de PDF, sem ampliar
+o instrumento, sem geração, sem alterar a base. As seções acima foram corrigidas no
+lugar, cada uma com nota da correção.
+
+⚠ **Nenhum resultado muda**, e isso foi conferido campo a campo entre `96bd6bb` e a
+árvore, sobre os três registros:
+
+| Trecho | Campos | Sustentação | Unidade |
+|---|---|---|---|
+| Wijnmalen | não confere | parcialmente sustentada | pendente |
+| Forman | confere | sustentada | conferida |
+| Saaty | não confere | sustentada | pendente |
+
+O critério atual segue em **1 de 3**, e o histórico em **4 conferidas e 161
+pendentes**. A única diferença em `resultadoDaUnidade` é o texto de uma nota do
+Forman.
+
+**As quatro correções:**
+
+1. **Wijnmalen, o alcance da claim.** A ressalva que fundamenta a classificação passa
+   a ser: *A claim exige comensurabilidade das prioridades dos fatores antes de
+   qualquer síntese, enquanto o artigo admite um quociente significativo quando os
+   produtos têm unidades compatíveis, sem exigir que os quatro totais sejam
+   individualmente iguais.* Dois argumentos do relato anterior foram corrigidos:
+   ⚠ **a Tabela 6 separa ordenação de indicação de rentabilidade**, e ordenação
+   correta não equivale a resultado BOCR integralmente válido; e ⚠ **o caso dos
+   produtos iguais não dispensa toda comensurabilidade**, porque os produtos ficam
+   na mesma unidade. ⚠ ***guarantee* não exclui caso particular:** o excesso está
+   na formulação indiscriminada da exigência para os fatores. Os dois campos seguem
+   *não confere*, independentemente da sustentação.
+2. **Forman, o `confere`.** Sustenta-se porque **a palavra *must* permanece,
+   preservando a obrigação expressa pelo autor**, e a perda do itálico é aceita neste
+   recorte, declarada. ⚠ **O argumento pelo *strictly* da claim saiu:** paráfrase
+   não compensa perda no trecho citado, e usar a claim para atestar a citação
+   inverteria a ordem das verificações. ⚠ **Decisão sobre este caso, e não regra
+   geral** de que ênfase tipográfica nunca carrega significado.
+3. **Saaty, só a justificativa.** A alegação de impossibilidade do meio foi
+   substituída por: *A conversão para LaTeX é uma representação equivalente
+   escolhida, aceita porque preserva os símbolos e a relação matemática, com a
+   transformação declarada.* O *não confere* segue pela caixa, **sem decisão
+   pendente**.
+4. **A repetição não demonstra a origem.** O mesmo texto em `key_claims[3]`
+   demonstra **repetição da divergência**, e **não** que a extração v3.0 a
+   produziu: pode ter havido reutilização ou transformação intermediária.
+   Pendências e evidências **deixaram de nomear a v3.0, ou qualquer extração datada,
+   como etapa**. A pendência passa a ser **reconstituir o percurso do texto até a
+   base**, e a origem segue **não determinada**.
+
+**Contagem por família, antes e depois**, por ocorrência, sobre os três registros,
+os dois documentos, o teste e o resumo fora do repositório
+(`C:\AHP-BOCR\preservado\resultado-wijnmalen-forman.md`, também corrigido):
+
+| Família | Antes | Depois | O que resta |
+|---|---:|---:|---|
+| impossibilidade do meio, no Saaty e na extração | 10 | **1** | padrão de proibição no teste |
+| atribuição à v3.0 ou a fevereiro | 21 | **0** | |
+| *strictly* como argumento | 3 | **0** | |
+| ênfase como ponto pendente | 14 | **2** | proibição no teste; cópia literal da mensagem de `96bd6bb` no resumo |
+| decisão pendente sobre Saaty | 4 | **0** | |
+| ordenação e caso favorável como atenuantes | 14 | **5** | três padrões de proibição no teste; cópia literal da mensagem de `781fb4f` no resumo |
+
+⚠ **Instrumento novo, conferido à mão na primeira execução:** a contagem por grep
+perdia, na família da ordenação, uma frase do relato anterior quebrada entre
+linhas no documento, e dava 1 onde eram 2. O padrão foi encurtado **antes** de
+fixar a linha de base.
+
+⚠ **Mensagens de commit não se alteram.** A de `781fb4f` traz os dois argumentos
+retirados do Wijnmalen; a de `96bd6bb` trata a ênfase como ponto de critério; a de
+`ae580c6` descreve a base como extraída pelo prompt v3.0, que é o que o cabeçalho
+dela diz, e não atribui a ela uma transformação. **Nenhuma mensagem traz a alegação
+de impossibilidade do meio.**
+
+**Teste:** asserções ajustadas em dois casos existentes, sem caso novo, para travar
+as quatro justificativas; **nove contraexemplos**, cada um reprovando o caso
+previsto, entre eles: a ressalva fora da redação prescrita, a ordenação de volta
+como atenuante, o *strictly* de volta, a ênfase de volta como pendente ou como
+regra geral, a alegação do meio de volta no Saaty, e uma pendência atribuindo a
+transformação à v3.0. **Restauro por SHA-256 idêntico.**
+
+| Medição | `tsc` | Suítes | Testes | Passando | Saída |
+|---|---:|---:|---:|---:|---:|
+| esta máquina, com a correção | 0 | 21 | 312 | 309 | 1 |
+| **clone raso de um commit, LF, em `4309f7e`** | **0** | **21** | **312** | **312** | **0** |
+
+Nesta máquina, as três falhas são as registradas: a do CRLF e as duas
+intermitentes, **não corrigidas**.
+
+**Nada foi alterado** em `lib/rag/articles/`, nos textos preparados, nos
+`trechoId`, no índice, nas 19 divergências, no instrumento, na configuração da
+máquina, nos testes de transporte, nos intermitentes ou em `main`. **Nenhuma nova
+inspeção de PDF, nenhum PDF na árvore, nenhuma geração.**
+
+⚠ **Predição não cabe.** **A predição de A.33 segue não testada**, e **C1 não se
+anuncia liberado: dois dos três trechos não conferem.**
+
+**Publicação e CI, estado observado.** `inspecao/wijnmalen-forman` publicada com
+`4309f7e`, código **0**. A execução **`35153121514`**, evento `push`, sobre o SHA
+completo `4309f7e662091f050c220c458d042d856e342352`, foi observada
+**`completed/success`**. O CI deste commit documental, e o da integração, são
+observação posterior. ⚠ **`main` permanece em `33c1fdf`**.
 
 ### Etapa 4: NÃO EXECUTADA
 
