@@ -1,0 +1,353 @@
+{
+  "rodada": "A.33: conferencia dos tres trechos de C1 contra as publicacoes",
+  "data": "2026-09-16",
+  "base": "e0037f693c5d495ccc15a028a639790a2ee67699",
+  "protocolo": "docs/dados/a33-conferencia-c1/protocolo.md",
+  "alcanceDoConfere": "Confere, nos campos de citacao, descreve correspondencia do RECORTE. A sustentacao da claim e registrada SEPARADAMENTE. Nenhum desses resultados certifica uma futura afirmacao do parecer.",
+  "regraDeAgregacao": "Conferida sem pendencia exige as QUATRO condicoes: os dois campos de citacao conferem, a claim e sustentada, sem divergencia aberta de A.16, e sem localizador divergente. Qualquer outro desfecho permanece pendente, com motivo especifico.",
+  "viasDeAcesso": {
+    "declaradas": [
+      "PDF em maos",
+      "repositorio institucional",
+      "base assinada",
+      "sem acesso"
+    ],
+    "resultado": "sem acesso nas duas publicacoes pendentes; reacesso tambem recusado na ja conferida",
+    "pdfEmMaos": "nenhum: git ls-files nao lista .pdf, e find sobre a arvore, /home, /root e /tmp nao achou nenhum",
+    "hostsRecusados": [
+      "doi.org",
+      "www.sciencedirect.com",
+      "www.researchgate.net",
+      "core.ac.uk",
+      "api.semanticscholar.org",
+      "arxiv.org",
+      "www.ijahp.org",
+      "publications.tno.nl",
+      "link.springer.com",
+      "citeseerx.ist.psu.edu",
+      "www.jstor.org",
+      "scholar.google.com",
+      "openalex.org",
+      "api.crossref.org",
+      "scispace.com",
+      "dl.acm.org"
+    ],
+    "recusadosDePropositoPorSeremOutraObra": [
+      "SAATY 1977: THE BUILDING BLOCKS, de Wedley, no IJAHP: comentario SOBRE o artigo de 1977, nao o artigo",
+      "Improved BOCR analysis with the AHP/ANP: outra publicacao de Wijnmalen",
+      "Note on getting meaningful BOCR results with the ANP software: outra publicacao de Wijnmalen, ja recusada na rodada anterior"
+    ],
+    "resumosDeBuscadorNaoUsados": "As buscas devolveram resumos das obras. NAO foram usados como conteudo: resumo de buscador e texto de terceiro, e o criterio desta rodada o exclui.",
+    "alcanceDaBusca": "Dezesseis hosts recusados, catorze por curl e quatro pela ferramenta de leitura com sobreposicao, mais duas buscas por titulo, em setembro de 2026, deste ambiente. Ficaram FORA: bases assinadas por credencial institucional, acervo fisico, pedido ao autor e emprestimo entre bibliotecas. Nao encontrar por esta busca NAO demonstra que nao exista copia acessivel."
+  },
+  "trechos": [
+    {
+      "identidade": {
+        "articleId": "saaty1977_scaling",
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+        "indiceEmPorTrecho": 47
+      },
+      "camposExtraidos": {
+        "articleId": "saaty1977_scaling",
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        "evidence.page": 237,
+        "evidence.locator_type": "paragraph",
+        "evidence.locator_id": "Section 2",
+        "evidence.quote": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+        "verbatim_quote": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+        "claim": "Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix."
+      },
+      "chunkDeC1": {
+        "id": "saaty1977_scaling::claim::0"
+      },
+      "divergenciaA16": {
+        "entreAs19": false,
+        "verbatimIgualAEvidenceQuote": true,
+        "observacao": "Nao esta entre as 19. verbatim_quote e evidence.quote sao iguais na base."
+      },
+      "publicacaoConsultada": {
+        "nestaRodada": "nenhuma",
+        "motivo": "sem acesso",
+        "doiDaBase": null,
+        "citacaoAbnt": "SAATY, Thomas L. A scaling method for priorities in hierarchical structures. Journal of Mathematical Psychology, v. 15, n. 3, p. 234-281, 1977.",
+        "versaoConsultada": null,
+        "enderecoAcessado": null,
+        "sha256DoPdf": null
+      },
+      "localizadorDeclarado": {
+        "paginaImpressa": 237,
+        "tipo": "paragraph",
+        "id": "Section 2",
+        "nota": "Pagina IMPRESSA, declarada na base. Posicao no PDF e outra coisa e nao se confunde com ela."
+      },
+      "localizadorEncontrado": {
+        "paginaImpressa": null,
+        "posicaoNoPdf": null,
+        "localizadorInterno": null,
+        "nota": "Nao observado: publicacao nao acessivel."
+      },
+      "transcricao": {
+        "texto": null,
+        "nota": "Sem transcricao: publicacao nao acessivel. Nenhum campo pode ser dado como conferido sem ela."
+      },
+      "resultadoPorCampo": {
+        "verbatim_quote": {
+          "resultado": "nao conferido",
+          "motivo": "publicacao inacessivel",
+          "detalhe": "Egresso desta sessao recusado por politica de organizacao em todos os hosts candidatos; nenhum PDF local; nenhuma copia em acesso aberto localizada. Ver protocolo.md, secao 4."
+        },
+        "evidence.quote": {
+          "resultado": "nao conferido",
+          "motivo": "publicacao inacessivel",
+          "detalhe": "Egresso desta sessao recusado por politica de organizacao em todos os hosts candidatos; nenhum PDF local; nenhuma copia em acesso aberto localizada. Ver protocolo.md, secao 4."
+        }
+      },
+      "sustentacaoDaClaim": {
+        "resultado": "inconclusiva",
+        "motivo": "publicacao inacessivel",
+        "detalhe": "Sustentacao exige ler o trecho na publicacao. Sem acesso nao ha como avaliar, e resumo de terceiro nao serve."
+      },
+      "resultadoDaUnidade": {
+        "estadoAnterior": "pendente",
+        "estadoPosterior": "pendente",
+        "resultadoDestaRodada": "pendente por campo nao conferido",
+        "motivo": "publicacao inacessivel",
+        "condicoesDaSecao4": {
+          "doisCamposConferem": false,
+          "claimSustentada": false,
+          "semDivergenciaA16": true,
+          "semLocalizadorDivergente": "nao avaliavel sem acesso"
+        },
+        "nota": "Permanece pendente. Nada foi movido."
+      }
+    },
+    {
+      "identidade": {
+        "articleId": "wijnmalen2007_bocr",
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+        "indiceEmPorTrecho": 86
+      },
+      "camposExtraidos": {
+        "articleId": "wijnmalen2007_bocr",
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        "evidence.page": 899,
+        "evidence.locator_type": "paragraph",
+        "evidence.locator_id": "Section 4",
+        "evidence.quote": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+        "verbatim_quote": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+        "claim": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes."
+      },
+      "chunkDeC1": {
+        "id": "wijnmalen2007_bocr::claim::0"
+      },
+      "divergenciaA16": {
+        "entreAs19": false,
+        "verbatimIgualAEvidenceQuote": true,
+        "observacao": "A OBRA tem divergencias em key_claims[2], [3] e [4]; este TRECHO e key_claims[0] e NAO esta entre elas. A marca e por trecho, nao por obra."
+      },
+      "publicacaoConsultada": {
+        "nestaRodada": "nenhuma",
+        "motivo": "sem acesso",
+        "doiDaBase": "10.1016/j.mcm.2007.03.020",
+        "citacaoAbnt": "WIJNMALEN, Diederik J. D. Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP: A critical validation. Mathematical and Computer Modelling, v. 46, n. 7-8, p. 892-905, 2007.",
+        "versaoConsultada": null,
+        "enderecoAcessado": null,
+        "sha256DoPdf": null
+      },
+      "localizadorDeclarado": {
+        "paginaImpressa": 899,
+        "tipo": "paragraph",
+        "id": "Section 4",
+        "nota": "Pagina IMPRESSA, declarada na base. Posicao no PDF e outra coisa e nao se confunde com ela."
+      },
+      "localizadorEncontrado": {
+        "paginaImpressa": null,
+        "posicaoNoPdf": null,
+        "localizadorInterno": null,
+        "nota": "Nao observado: publicacao nao acessivel."
+      },
+      "transcricao": {
+        "texto": null,
+        "nota": "Sem transcricao: publicacao nao acessivel. Nenhum campo pode ser dado como conferido sem ela."
+      },
+      "resultadoPorCampo": {
+        "verbatim_quote": {
+          "resultado": "nao conferido",
+          "motivo": "publicacao inacessivel",
+          "detalhe": "Egresso desta sessao recusado por politica de organizacao em todos os hosts candidatos; nenhum PDF local; nenhuma copia em acesso aberto localizada. Ver protocolo.md, secao 4."
+        },
+        "evidence.quote": {
+          "resultado": "nao conferido",
+          "motivo": "publicacao inacessivel",
+          "detalhe": "Egresso desta sessao recusado por politica de organizacao em todos os hosts candidatos; nenhum PDF local; nenhuma copia em acesso aberto localizada. Ver protocolo.md, secao 4."
+        }
+      },
+      "sustentacaoDaClaim": {
+        "resultado": "inconclusiva",
+        "motivo": "publicacao inacessivel",
+        "detalhe": "Sustentacao exige ler o trecho na publicacao. Sem acesso nao ha como avaliar, e resumo de terceiro nao serve."
+      },
+      "resultadoDaUnidade": {
+        "estadoAnterior": "pendente",
+        "estadoPosterior": "pendente",
+        "resultadoDestaRodada": "pendente por campo nao conferido",
+        "motivo": "publicacao inacessivel",
+        "condicoesDaSecao4": {
+          "doisCamposConferem": false,
+          "claimSustentada": false,
+          "semDivergenciaA16": true,
+          "semLocalizadorDivergente": "nao avaliavel sem acesso"
+        },
+        "nota": "Permanece pendente. Nada foi movido."
+      }
+    },
+    {
+      "identidade": {
+        "articleId": "forman1998_aggregating",
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"forman1998_aggregating\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"2e37783a6af38e02430f51787dcc7a3051e01704614eb139d6c1600532a39439\"]]",
+        "indiceEmPorTrecho": 100
+      },
+      "camposExtraidos": {
+        "articleId": "forman1998_aggregating",
+        "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"forman1998_aggregating\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"2e37783a6af38e02430f51787dcc7a3051e01704614eb139d6c1600532a39439\"]]",
+        "enderecoNaBase": {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        "evidence.page": 167,
+        "evidence.locator_type": "section",
+        "evidence.locator_id": "6",
+        "evidence.quote": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+        "verbatim_quote": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+        "claim": "AIJ strictly requires the use of the geometric mean."
+      },
+      "chunkDeC1": {
+        "id": "forman1998_aggregating::claim::2"
+      },
+      "divergenciaA16": {
+        "entreAs19": false,
+        "verbatimIgualAEvidenceQuote": true,
+        "observacao": "Nao esta entre as 19. verbatim_quote e evidence.quote sao iguais na base."
+      },
+      "publicacaoConsultada": {
+        "nestaRodada": "nenhuma: reacesso recusado pelo proxy de egresso",
+        "registroAnterior": {
+          "titulo": "Aggregating individual judgments and priorities with the Analytic Hierarchy Process",
+          "autores": "FORMAN, Ernest; PENIWATI, Kirti",
+          "ano": 1998,
+          "periodico": "European Journal of Operational Research, v. 108, n. 1, p. 165-169",
+          "doi": null,
+          "versaoConsultada": "NAO registrada pela rodada anterior",
+          "enderecoAcessado": "https://www.researchgate.net/profile/Manuel-Serafin-Plasencia/post/Why_we_used_to_take_Geometric_mean_instead_of_arithmetic_mean_in_Analytic_hierarchy_process/attachment/59d624e879197b807798339e/AS%3A315317371244544%401452188927234/download/Forman%2Band%2BPeniwati%2C%2B1998.%2BAggregating%2BIndividual%2BJudgments%2Band%2BPriorities%2Bwith%2Bthe%2BAHP.pdf",
+          "sha256DoPdf": "NAO registrado pela rodada anterior, e nao recuperavel agora porque o host esta bloqueado"
+        }
+      },
+      "localizadorDeclarado": {
+        "paginaImpressa": 167,
+        "tipo": "section",
+        "id": "6",
+        "nota": "Pagina IMPRESSA, declarada na base. Posicao no PDF e outra coisa e nao se confunde com ela."
+      },
+      "localizadorEncontrado": {
+        "paginaImpressa": null,
+        "posicaoNoPdf": null,
+        "localizadorInterno": null,
+        "nota": "Da rodada anterior: Secao 6; pagina impressa 167; pagina 3 do PDF. NAO reobservado nesta rodada."
+      },
+      "transcricao": {
+        "texto": null,
+        "nota": "A rodada anterior NAO transcreveu o texto encontrado; registrou localizacao e resultado. Esta rodada nao pode supri-la sem acesso."
+      },
+      "resultadoPorCampo": {
+        "verbatim_quote": {
+          "resultado": "nao conferido",
+          "motivo": "publicacao inacessivel",
+          "detalhe": "Reacesso recusado. A rodada anterior registrou correspondencia dos segmentos, sem transcricao; aquele resultado ANTERIOR e preservado e NAO e reafirmado por esta rodada."
+        },
+        "evidence.quote": {
+          "resultado": "nao conferido",
+          "motivo": "publicacao inacessivel",
+          "detalhe": "Idem verbatim_quote. Na base os dois campos sao iguais, entao a rodada anterior os cobriu juntos; separa-los por campo exigiria a publicacao."
+        }
+      },
+      "sustentacaoDaClaim": {
+        "resultado": "inconclusiva",
+        "motivo": "publicacao inacessivel nesta rodada, e o registro anterior nao traz veredito separado de sustentacao",
+        "detalhe": "O registro de forman1998_aggregating key_claims[2] descreve correspondencia de recorte e o contexto AIJ e reciprocidade, sem dizer se a claim fica sustentada, parcialmente sustentada ou nao sustentada. Separar correspondencia de sustentacao e regra desta rodada, POSTERIOR aquele registro."
+      },
+      "resultadoDaUnidade": {
+        "estadoAnterior": "conferido",
+        "estadoPosterior": "conferido",
+        "resultadoDestaRodada": "pendente por campo nao conferido",
+        "motivo": "publicacao inacessivel",
+        "condicoesDaSecao4": {
+          "doisCamposConferem": false,
+          "claimSustentada": false,
+          "semDivergenciaA16": true,
+          "semLocalizadorDivergente": "nao avaliavel sem acesso"
+        },
+        "nota": "A unidade PERMANECE conferida pelo registro anterior, que esta rodada preserva e NAO revoga. O resultado desta rodada e sobre a REconferencia, que nao foi possivel."
+      }
+    }
+  ],
+  "contagens": {
+    "denominador": 165,
+    "observacao": "165 unidades DISTINTAS; as copias nos artefatos nao sao somadas.",
+    "conferidasAntes": 4,
+    "conferidasDepois": 4,
+    "pendentesAntes": 161,
+    "pendentesDepois": 161,
+    "movidas": 0,
+    "asQuatroAnteriores": [
+      {
+        "indice": 19,
+        "articleId": "forman1998_aggregating",
+        "endereco": "key_claims[4]",
+        "estado": "conferido"
+      },
+      {
+        "indice": 43,
+        "articleId": "ossadnik2016_group_aggregation",
+        "endereco": "key_claims[0]",
+        "estado": "conferido"
+      },
+      {
+        "indice": 44,
+        "articleId": "ossadnik2016_group_aggregation",
+        "endereco": "key_claims[2]",
+        "estado": "conferido"
+      },
+      {
+        "indice": 100,
+        "articleId": "forman1998_aggregating",
+        "endereco": "key_claims[2]",
+        "estado": "conferido"
+      }
+    ],
+    "nenhumTotalAntecipado": "O total NAO passou de quatro para sete. Nenhuma unidade mudou de estado nesta rodada, e o numero saiu da conferencia."
+  },
+  "achado": "O registro anterior de forman1998_aggregating key_claims[2] NAO traz veredito separado de sustentacao da claim, porque separar correspondencia de recorte e sustentacao e regra POSTERIOR a ele. A unidade segue conferida; o que falta e a coluna de sustentacao, e supri-la exige a publicacao. Tambem nao registra a versao consultada nem o resumo criptografico do PDF.",
+  "oQueNaoMudou": [
+    "lib/rag/articles/",
+    "os textos preparados e os trechoId",
+    "o indice, sem reingestao",
+    "as 19 divergencias de A.16",
+    "main em 33c1fdf",
+    "as quatro conferencias anteriores",
+    "evidencias.json, contexto-estatico.json, C1-recuperacao.json e casos.json, byte a byte"
+  ]
+}
