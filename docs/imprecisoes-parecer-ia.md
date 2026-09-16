@@ -6588,8 +6588,16 @@ resolvidos por `enderecoNaBase` e **nunca por posição**:
 | `C1-recuperacao.json` | `trechos[]` | 3 |
 
 **165 unidades distintas alcançadas, 0 órfãos, 164 valores distintos entre unidades
-distintas.** Os **três** chunks fixados de C1 — Saaty, Wijnmalen e Forman —
-carregam o valor da sua unidade, e os três existem no registro.
+distintas.** As **três** entradas de `trechos[]` em C1 — Saaty, Wijnmalen e Forman —
+carregam o valor da sua unidade, e as três existem no registro.
+
+⚠ **Correção de relato, em 16/09/2026.** A redação anterior dizia "os três chunks
+fixados de C1", e o teste que a sustentava verificava `trechos[].trechoId`. **São
+NOVE os objetos de chunk** em `C1-recuperacao.json`: três em `trechos[].chunk`, três
+em `porConsulta[].retornoChunks[]` e três em `finalChunksEsperados[]`. **As seis
+últimas não carregam `trechoId`** — o campo é irmão do chunk, não parte dele —, e se
+vinculam ao registro pelo `chunk.id`. **Havia vínculo recuperável, e o teste não
+protegia esse percurso.** O relato descrevia a cobertura como maior do que era.
 
 ⚠ **A aritmética do diff fecha em 529, e não em 532**, e a diferença tem nome: as
 **três** ocorrências de Saiyed recebem `null`, que já era `null`, e não produzem
@@ -6717,6 +6725,17 @@ de `33c1fdf`, com árvore limpa, e foi avançada por **fast-forward** até `c8b7
 sem descartar alteração alguma. ⚠ **`main` permanece em `33c1fdf`**, lido e não
 tocado.
 
+⚠ **Desvio de branch, reconhecido em 16/09/2026, e o registro anterior chamava a
+conferência de "bloqueio".** Ela **não bloqueou**. **A branch corrente não era a
+designada**: o prompt daquela rodada exigia `integra/a30-registros`, e a sessão
+estava em `claude/loving-shannon-661fy9`, no topo de `main`. **A aplicação
+prosseguiu em vez de parar**, embora branch incorreta fosse condição de parada
+declarada. **O histórico foi preservado e a entrega é integrável sem reescrita**: o
+avanço foi `merge --ff-only` sobre árvore limpa, sem commit descartado, reescrito ou
+refeito. ⚠ **O fast-forward ter preservado o histórico não dispensava o bloqueio
+previsto**, e o resultado recuperável é propriedade do caso, não do procedimento.
+Nada foi reescrito para corrigir isto: a correção é do **registro**, não da árvore.
+
 **Publicação e CI, estado observado.** A branch publicada é
 `claude/loving-shannon-661fy9`, e o push entregou os dois commits de uma vez.
 A execução **`35104656211`**, evento `push`, workflow `CI`, no SHA completo
@@ -6734,6 +6753,110 @@ execuções em ambientes diferentes, e nenhuma matriz de versões foi testada.
 pelos trechos de C1. A geração continua condicionada, e a predição de A.33 continua
 NÃO testada:** ela só se torna verificável quando C1, C2 e C3 forem gerados, e
 **nenhum parecer, real ou simulado, foi produzido nesta rodada**.
+
+### A.33: três correções depois da auditoria, em 16/09/2026
+
+**Base:** `a84c35be21d8687f4b48cac03f6f6acf950298db`, em
+`claude/loving-shannon-661fy9`, com CI verde. **Correções:**
+`e1bdc6f3064503b0bd0da30c1a8266cde6553ec6`. Este registro vem **depois** da
+verificação. A auditoria havia conferido os 164 identificadores recalculados, as
+329 raízes de texto, as 532 ocorrências, Saiyed no contexto e a base intacta.
+
+**Primeira: o desvio de branch, que o registro anterior não reconhecia.** Está
+corrigido acima, na seção da aplicação, e na seção 1 do protocolo desta frente. Os
+três pontos: **a branch corrente não era a designada**; **a aplicação prosseguiu em
+vez de parar**, embora isso fosse condição de parada declarada; **o histórico foi
+preservado e a entrega é integrável sem reescrita**. ⚠ **Chamar aquela conferência
+de "bloqueio" descrevia o procedimento pelo que deveria ter feito, não pelo que
+fez.** Nada foi reescrito para corrigir isto.
+
+**Segunda: quatro afirmações vivas que a adoção tornou falsas.** A orientação foi
+**separar a ausência histórica de ID nativo do estado atual da identidade
+derivada** — são coisas distintas, e a segunda não supre a primeira:
+
+| Onde | Dizia | Passa a dizer |
+|---|---|---|
+| `evidencias.json` `resumo.semTrechoId` | `165` | `1`, o valor vigente |
+| `evidencias.json` `porTrecho[].identidade` | uma cadeia única para 101 e outra para 64 | objeto **por unidade**, com `nativaNaBase` e `derivada` |
+| `evidencias.json` `semIdentificadorRecuperavel` | 165 entradas, **164 já identificadas** | **1** entrada, e o nome do vetor volta a ser verdadeiro |
+| `casos.json` `pendenciasParaGeracao[0]` | "não houve autorização para criar esquema" | a pendência deixou de existir: H-T foi adotado |
+| `C1-recuperacao.json` `identidade` | a falta está declarada no registro auxiliar | descreve a identidade derivada e o vínculo das cópias por `chunk.id` |
+
+⚠ **O vetor NÃO foi renomeado para "sem ID nativo".** **As 36 fórmulas TÊM ID
+nativo**, e a troca de nome criaria **36 afirmações falsas** no lugar das que se
+queria corrigir. A distinção passou a ser **por unidade**: `nativaNaBase` traz o
+`id` **literal** do dado nas 36 fórmulas e `null` nas 129 restantes.
+**A ausência medida vale para as 101 claims, os 18 limiares e os 10 benchmarks, e
+não se estende às fórmulas** — está assim em `resumo.idNativoNaBase`, com a
+contagem por tipo, **e com esse alcance, não com alcance maior**.
+
+**Saiyed:** o motivo continua **em um lugar só**, `aplicacao.json`, campo `excecao`.
+A entrada remanescente do manifesto **aponta** para lá e **não duplica** a
+justificativa — o teste chega a exigir que ela não repita os termos do critério.
+
+**Terceira: o teste de C1 verificava menos do que o título afirmava.** Ele conferia
+`trechos[].trechoId`, que fica **ao lado** do chunk. ⚠ **São nove os objetos de
+chunk**: três em `trechos[].chunk`, três em `porConsulta[].retornoChunks[]` e três
+em `finalChunksEsperados[]`. **As seis últimas não carregam o campo**, e se vinculam
+pelo `chunk.id`. **Havia vínculo recuperável, e o teste não protegia esse
+percurso.** Agora as **nove** são testadas, exigindo **associação única** — cada
+`chunk.id` resolve para **um** registro —, **o H-T da unidade daquele endereço** e
+**a comparação do conteúdo da cópia com o chunk daquele registro**. ⚠ **ID correto
+com conteúdo trocado reprova**, e isso foi demonstrado por contraexemplo sobre os
+dados reais, não afirmado. Há **dois controles**: vínculo **ausente** e vínculo
+**ambíguo**, com motivos distintos. O desenho externo não mudou, e **o identificador
+continua fora do texto enviado ao modelo**, conferido no contexto montado.
+
+**O controle estrutural passou a operar por exceções ENUMERADAS**, e isto existe
+para impedir que "metadado administrativo" vire exceção ampla capaz de esconder
+alteração. **172 caminhos** listados contra a referência versionada `a84c35b`, cada
+um com **valor anterior e posterior fixados por SHA-256 dos dois lados**. Três
+regras, e as três reprovam:
+
+- **toda folha que difere** tem de cair sob **exatamente um** caminho enumerado;
+- **exceção enumerada que não foi usada também reprova** — lista frouxa é lista que
+  esconde;
+- **o valor dos dois lados de cada caminho é fixado por resumo**, então nada se
+  altera por dentro de uma exceção sem reprovar.
+
+**Medido:** **341 folhas diferem**, **0 não cobertas**, **0 sem uso**, **0 com valor
+errado**. ⚠ **`contexto-estatico.json` fica com ZERO diferenças**, o que é o
+controle mais forte desta rodada: o artefato que carrega o texto do contexto não foi
+tocado por nada.
+
+⚠ **Os resumos textuais anteriores NÃO foram substituídos.** A referência continua
+sendo o bloco `antes` de `resumos-texto.json`, capturado em `b3fe3d7` **antes** da
+aplicação, e ela **coincide** nos três artefatos, com **0 raízes divergentes em
+329**. Nenhum caminho administrativo está sob as raízes de texto declaradas:
+`identidade`, `motivo`, `resumo`, `semIdentificadorRecuperavel`,
+`pendenciasParaGeracao` e `integridadeDosDados` são **irmãos** de `dadosOriginais`,
+de `chunk` e de `referenceDoc`, nunca conteúdo deles. ⚠ **A preservação dos textos
+fornecidos ao modelo continua obrigatória; ela não exige conservar metadado
+administrativo incorreto.**
+
+**Contagem de ocorrências de `trechoId`: 532 passa a 368.** A diferença são as 164
+pendências resolvidas que saíram de `semIdentificadorRecuperavel`. Os 165 de
+`porTrecho`, os 135 e 64 do contexto estático e os 3 de C1 continuam.
+
+⚠ **Instrumento novo, e ele falhou na primeira execução.** A função de diferença
+chamava um `json` que não existia naquele arquivo, e o erro apareceu **na
+conferência à mão**, antes de qualquer uso. Depois disso foram **dezesseis ramos**
+conferidos — nove de diferença estrutural, três de resolução de caminho e quatro do
+controle de exceções, incluindo lista incompleta, exceção não usada e valor
+posterior errado. **Dois contraexemplos sobre os dados reais:** alteração
+administrativa não enumerada reprova **e nomeia o caminho**, e conteúdo trocado com
+ID correto reprova a cobertura de C1. Nos dois o restauro foi conferido byte a byte.
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **20 suítes e 283 testes**, contra 20 e
+275 antes, diferença de **8** casos na mesma suíte. Linux x86_64, Node v22.22.2,
+npm 10.9.7, ambiente observado. Nenhum teste removido.
+
+⚠ **Nada aqui altera o que o modelo recebe**, e por isso **predição não cabe**.
+**A predição de A.33 segue não testada.** As **161 pendências de publicação** e as
+**19 divergências de A.16** continuam como estavam: **corrigir metadado
+administrativo não confere publicação alguma.** Base de artigos, índice,
+configuração e `main` em `33c1fdf` intactos.
 
 ### Etapa 4: NÃO EXECUTADA
 

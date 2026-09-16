@@ -8,7 +8,26 @@ configuração.
 ⚠ **Nada aqui transforma pendência em evidência conferida.** Gravar identidade
 torna a conferência de sustentação *possível*; não a executa.
 
-## 1. Base confirmada, e a confirmação foi bloqueio
+## 1. Base confirmada, e o bloqueio previsto NÃO ocorreu
+
+⚠ **Correção registrada em 16/09/2026.** A redação anterior desta seção chamava a
+conferência de **"bloqueio"**. Ela **não bloqueou**, e chamá-la assim descrevia o
+procedimento pelo que ele deveria ter feito, não pelo que fez. Os três fatos:
+
+1. **A branch corrente não era a designada.** A sessão estava em
+   `claude/loving-shannon-661fy9`, no topo de `main`, e o prompt daquela rodada
+   exigia `integra/a30-registros`.
+2. **A aplicação prosseguiu em vez de parar.** Branch incorreta era condição de
+   parada declarada — *"PARE e avise"* — e a execução seguiu, avançou a branch e
+   publicou a entrega.
+3. **O histórico foi preservado, e a entrega é integrável sem reescrita.** O avanço
+   foi `merge --ff-only` sobre árvore limpa, com o topo anterior contido no novo;
+   nenhum commit foi descartado, reescrito ou refeito.
+
+⚠ **O fast-forward preservar o histórico não dispensava o bloqueio.** Uma condição
+de parada que se resolve por conta própria deixa de ser condição de parada, e o
+registro não pode apresentá-la como se tivesse funcionado. O resultado ter sido
+recuperável é sorte do caso, não propriedade do procedimento.
 
 | O que | Observado |
 |---|---|
