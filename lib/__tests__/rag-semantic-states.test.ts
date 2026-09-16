@@ -359,11 +359,23 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // ⚠ **A parte que NÃO se moveu é a evidência mais útil aqui**, e por isso os
     // resumos de `d658e50` ficam nomeados no arquivo em vez de apagados: com zero
     // chunks o `formatSemanticChunks` devolve o texto de ausência, sem página para
-    // retirar, então `vazio` e `erro` têm **o mesmo resumo de antes**. Só as duas
-    // condições que formatam chunk mudaram. **Isso demonstra que a retirada da
-    // página alcançou exatamente o bloco que a montava, e nada mais.**
+    // retirar, então `vazio` e `erro` tinham, **até A.16, o mesmo resumo de antes**.
+    // Só as duas condições que formatam chunk mudaram. **Isso demonstrou que a
+    // retirada da página alcançou exatamente o bloco que a montava, e nada mais.**
     const D658E50_MESSAGES_SEM_CHUNKS =
       'a3c60c056c3a9f541c22dcde519c1ead964f48a17a3577444595a4bdfe668459';
+
+    // ⚠ **A.16 MUDA os `messages` de propósito**, nas QUATRO condições: a base de
+    // conhecimento vai nos `messages`, e a correção de três trechos na base a
+    // alcança com ou sem chunks. Os valores anteriores ficam nomeados: com chunks, o
+    // de A.33; sem chunks, o de `d658e50`, que A.33 não tinha movido. **O `system`
+    // não muda**, e isso também é evidência: a correção alcançou só a base.
+    const A33_MESSAGES_COM_CHUNKS =
+      '99f733c470f02b8eae15333bd04e5cca831885e6d56e07e16162582632b5c8d7';
+    const A16_MESSAGES_COM_CHUNKS =
+      '0d8a7ae912c330e485889138c81e24cabe3e29a98d6d6a445652bb0a032be810';
+    const A16_MESSAGES_SEM_CHUNKS =
+      'ac2975710fbf535a55616c163b729df760bb86455ae3f73e589dbb25c03d7d97';
 
     // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
     // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui
@@ -373,16 +385,10 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     const SYSTEM_A33 = '635fda53f7aa334dc0b30f8dab94b4bc6d30cbd3ec8e55dddcc134d001ec778e';
 
     const REFERENCIA: Record<string, { system: string; messages: string }> = {
-      comResultados: {
-        system: SYSTEM_A33,
-        messages: '99f733c470f02b8eae15333bd04e5cca831885e6d56e07e16162582632b5c8d7',
-      },
-      vazio: { system: SYSTEM_A33, messages: D658E50_MESSAGES_SEM_CHUNKS },
-      erro: { system: SYSTEM_A33, messages: D658E50_MESSAGES_SEM_CHUNKS },
-      misto: {
-        system: SYSTEM_A33,
-        messages: '99f733c470f02b8eae15333bd04e5cca831885e6d56e07e16162582632b5c8d7',
-      },
+      comResultados: { system: SYSTEM_A33, messages: A16_MESSAGES_COM_CHUNKS },
+      vazio: { system: SYSTEM_A33, messages: A16_MESSAGES_SEM_CHUNKS },
+      erro: { system: SYSTEM_A33, messages: A16_MESSAGES_SEM_CHUNKS },
+      misto: { system: SYSTEM_A33, messages: A16_MESSAGES_COM_CHUNKS },
     };
 
     const casos: Record<string, Desfecho[]> = {
@@ -404,6 +410,11 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     expect(resumo(r.system)).not.toBe(
       'b7c391360e8c3b51f3fbcb8464f7ed23db80042d25ceda7bb177277988e67ef3'
     );
+    // ⚠ **Nem os `messages` de antes de A.16**: se voltassem, a correção da base
+    // teria sido desfeita sem que nada mais acusasse.
+    expect(resumo(JSON.stringify(r.messages))).not.toBe(D658E50_MESSAGES_SEM_CHUNKS);
+    const c = await executar('true', false, Array(5).fill(cincoChunks));
+    expect(resumo(JSON.stringify(c.messages))).not.toBe(A33_MESSAGES_COM_CHUNKS);
   });
 
   it('execução MISTA: uma categoria só não representa a execução: DEFEITO', async () => {

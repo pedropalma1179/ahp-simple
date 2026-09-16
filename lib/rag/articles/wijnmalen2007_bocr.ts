@@ -204,12 +204,12 @@ const article: ArticleExtraction = {
   key_claims: [
     {
       claim: "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
-      verbatim_quote: "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      verbatim_quote: "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
       evidence: {
         page: 899,
         locator_type: "paragraph",
         locator_id: "Section 4",
-        quote: "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship"
+        quote: "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks."
       },
       usable_as: "recommendation"
     },
@@ -242,7 +242,7 @@ const article: ArticleExtraction = {
         page: 899,
         locator_type: "paragraph",
         locator_id: "Section 4",
-        quote: "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship"
+        quote: "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks."
       },
       usable_as: "definition" as const,
     },

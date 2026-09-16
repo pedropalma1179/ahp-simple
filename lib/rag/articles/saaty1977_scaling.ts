@@ -254,12 +254,12 @@ const article: ArticleExtraction = {
   key_claims: [
     {
       claim: "Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.",
-      verbatim_quote: "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      verbatim_quote: "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
       evidence: {
         page: 237,
         locator_type: "paragraph",
         locator_id: "Section 2",
-        quote: "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n"
+        quote: "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n"
       },
       usable_as: "definition"
     },
