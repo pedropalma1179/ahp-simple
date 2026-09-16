@@ -95,6 +95,61 @@ function semTrechoId(valor) {
   return valor;
 }
 
+/**
+ * Caminhos-folha em que duas árvores diferem, incluindo presença só de um lado.
+ *
+ * ⚠ Percorre até a folha: chave ou índice que existe de um lado só aparece na
+ * lista, e não some porque o pai inteiro mudou.
+ */
+function diferencas(a, b, prefixo, saida) {
+  const json = (v) => JSON.stringify(v === undefined ? null : v);
+  const objeto = (v) => v !== null && typeof v === 'object';
+  if (objeto(a) && objeto(b) && Array.isArray(a) === Array.isArray(b)) {
+    const chaves = [...new Set([...Object.keys(a), ...Object.keys(b)])].sort();
+    for (const k of chaves) {
+      const caminho = Array.isArray(a) ? `${prefixo}[${k}]` : prefixo ? `${prefixo}.${k}` : k;
+      if (!(k in a) || !(k in b)) saida.push(caminho);
+      else diferencas(a[k], b[k], caminho, saida);
+    }
+    return saida;
+  }
+  if (json(a) !== json(b)) saida.push(prefixo);
+  return saida;
+}
+
+/** O valor sob um caminho como `vetor[3].campo`, para fixar antes e depois. */
+function noCaminho(raiz, caminho) {
+  let atual = raiz;
+  for (const passo of caminho.split('.')) {
+    const [nome, ...indices] = passo.split('[');
+    if (nome) atual = atual === undefined || atual === null ? undefined : atual[nome];
+    for (const i of indices) atual = atual === undefined || atual === null ? undefined : atual[Number(i.replace(']', ''))];
+  }
+  return atual;
+}
+
+/**
+ * Confere o controle estrutural contra uma lista EXAUSTIVA de exceções.
+ *
+ * ⚠ Toda diferença tem de cair sob **exatamente um** caminho enumerado, e o
+ * valor de cada caminho enumerado é fixado por resumo dos dois lados. Assim
+ * nenhuma alteração se esconde dentro de uma exceção, e exceção que não foi
+ * usada também reprova: lista frouxa é lista que esconde.
+ */
+function conferirExcecoes(antesJson, depoisJson, enumerados) {
+  const json = (v) => JSON.stringify(v === undefined ? null : v);
+  const sob = (caminho, folha) => folha === caminho || folha.startsWith(caminho + '.') || folha.startsWith(caminho + '[');
+  const folhas = diferencas(semTrechoId(antesJson), semTrechoId(depoisJson), '', []);
+  const naoCobertas = folhas.filter((f) => !enumerados.some((e) => sob(e.caminho, f)));
+  const semUso = enumerados.filter((e) => !folhas.some((f) => sob(e.caminho, f)));
+  const valoresErrados = enumerados.filter((e) => {
+    const a = noCaminho(semTrechoId(antesJson), e.caminho), d = noCaminho(semTrechoId(depoisJson), e.caminho);
+    return sha256(utf8(json(a === undefined ? null : a))) !== e.sha256Antes
+      || sha256(utf8(json(d === undefined ? null : d))) !== e.sha256Depois;
+  });
+  return { folhasQueDiferem: folhas.length, naoCobertas, semUso, valoresErrados };
+}
+
 /** Os três resumos de um artefato, mais a relação por item que localiza diferença. */
 function resumos(arquivo) {
   const rel = DADOS + arquivo;
@@ -200,7 +255,7 @@ function run(modo) {
   return { modo, snapshotMedido: SNAPSHOT_MEDIDO, antes, depois, elegiveis: elegiveis.length, nulos: linhas.length - elegiveis.length, gravadas: gravadas.length, excecao: EXCECAO, casos };
 }
 
-module.exports = { resumos, medirTodos, calcular, aplicar, textos, semTrechoId, chaveEndereco, RAIZES, ARQUIVOS, EXCECAO, PREFIXO_HT, run };
+module.exports = { resumos, medirTodos, calcular, aplicar, textos, semTrechoId, chaveEndereco, diferencas, noCaminho, conferirExcecoes, sha256, utf8, DADOS, RAIZES, ARQUIVOS, EXCECAO, PREFIXO_HT, run };
 
 if (require.main === module) {
   const modo = process.argv[2] === 'aplicar' ? 'aplicar' : 'resumos';

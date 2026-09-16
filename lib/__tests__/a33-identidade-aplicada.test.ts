@@ -9,6 +9,7 @@
 export {};
 const fs = require('node:fs');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 const aplicacao = require('../../scripts/a33-aplicar-trecho-id.cjs');
 const { candidate } = require('../../scripts/measure-a33-identity-v2.cjs');
 const { suppliedTexts } = require('../../scripts/measure-a33-identity.cjs');
@@ -41,6 +42,35 @@ function ocorrencias(): Array<{ artefato: string; caminho: string; alvo: any }> 
     s.enderecos.forEach((e: any, ei: number) => add('contexto-estatico.json', `outrasTresSuperficies[${si}].enderecos[${ei}]`, e)));
   c1.trechos.forEach((t: any, i: number) => add('C1-recuperacao.json', `trechos[${i}]`, t));
   return saida;
+}
+
+/**
+ * TODA cópia de chunk de C1, com seu caminho.
+ *
+ * ⚠ São NOVE objetos, e só três ficam em `trechos[]`, ao lado do `trechoId`. As
+ * outras seis não carregam o campo: o vínculo delas é o `chunk.id`.
+ */
+function copiasDeChunk(): Array<{ caminho: string; chunk: any }> {
+  return [
+    ...c1.trechos.map((t: any, i: number) => ({ caminho: `trechos[${i}].chunk`, chunk: t.chunk })),
+    ...c1.porConsulta.flatMap((q: any, qi: number) =>
+      q.retornoChunks.map((k: any, ki: number) => ({ caminho: `porConsulta[${qi}].retornoChunks[${ki}]`, chunk: k }))),
+    ...c1.finalChunksEsperados.map((k: any, i: number) => ({ caminho: `finalChunksEsperados[${i}]`, chunk: k })),
+  ];
+}
+
+/**
+ * Resolve uma cópia contra o registro de `trechos[]`, pelo `chunk.id`.
+ *
+ * ⚠ Três recusas distintas, e o motivo diz qual é: sem vínculo, vínculo ambíguo
+ * e conteúdo divergente. **ID correto com conteúdo trocado não passa.**
+ */
+function vincular(chunk: any, registro: any[] = c1.trechos): { ok: boolean; motivo?: string; trechoId?: string } {
+  const casam = registro.filter((t: any) => t.chunk.id === chunk.id);
+  if (casam.length === 0) return { ok: false, motivo: 'sem vínculo' };
+  if (casam.length > 1) return { ok: false, motivo: 'vínculo ambíguo' };
+  if (JSON.stringify(chunk) !== JSON.stringify(casam[0].chunk)) return { ok: false, motivo: 'conteúdo divergente' };
+  return { ok: true, trechoId: casam[0].trechoId };
 }
 
 describe('A.33: H-T aplicado como trechoId', () => {
@@ -97,7 +127,10 @@ describe('A.33: H-T aplicado como trechoId', () => {
     evidencias.porTrecho.forEach((u: any) => registro.set(endereco(u.enderecoNaBase), u.trechoId));
     expect(registro.size).toBe(165);
     const todas = ocorrencias();
-    expect(todas).toHaveLength(532);
+    // 165 em porTrecho, 1 no que restou de semIdentificadorRecuperavel, 135+64 no
+    // contexto estático e 3 em C1. Eram 532 antes de as 164 pendências resolvidas
+    // saírem daquele vetor.
+    expect(todas).toHaveLength(368);
     for (const { artefato, caminho, alvo } of todas) {
       const chave = endereco(alvo.enderecoNaBase);
       // Órfão: referência a unidade que o registro não tem.
@@ -109,16 +142,53 @@ describe('A.33: H-T aplicado como trechoId', () => {
     for (const { alvo } of todas) expect(conhecidos.has(alvo.trechoId)).toBe(true);
   });
 
-  test('os três chunks de C1 existem no registro e carregam o valor da sua unidade', () => {
-    expect(c1.trechos).toHaveLength(3);
+  test('as NOVE cópias de chunk de C1 se vinculam por chunk.id, com conteúdo conferido', () => {
+    // ⚠ As cópias NÃO carregam `trechoId`: o campo fica ao lado do chunk, em
+    // `trechos[]`. O vínculo recuperável é o `chunk.id`, e é ele que se testa.
+    // Verificar só `trechos[].trechoId` deixaria seis das nove sem cobertura.
+    const copias = copiasDeChunk();
+    expect(copias).toHaveLength(9);
+    expect(copias.filter((c) => c.caminho.startsWith('trechos'))).toHaveLength(3);
+    expect(copias.filter((c) => c.caminho.startsWith('porConsulta'))).toHaveLength(3);
+    expect(copias.filter((c) => c.caminho.startsWith('finalChunksEsperados'))).toHaveLength(3);
+    expect(copias.every((c) => !('trechoId' in c.chunk))).toBe(true);
+
     const porEndereco = new Map(evidencias.porTrecho.map((u: any) => [endereco(u.enderecoNaBase), u]));
-    for (const t of c1.trechos) {
-      const u: any = porEndereco.get(endereco(t.enderecoNaBase));
-      expect(u).toBeDefined();
-      expect(typeof t.trechoId).toBe('string');
-      expect(t.trechoId).toBe(u.trechoId);
-      expect(t.chunk.metadata.article_id).toBe(u.articleId);
+    for (const { caminho, chunk } of copias) {
+      // Associação ÚNICA: um `chunk.id` resolve para exatamente um registro.
+      const registros = c1.trechos.filter((t: any) => t.chunk.id === chunk.id);
+      expect(`${caminho}: ${registros.length} registro(s)`).toBe(`${caminho}: 1 registro(s)`);
+      const [registro] = registros;
+      // H-T correto, o mesmo da unidade daquele endereço.
+      const unidade: any = porEndereco.get(endereco(registro.enderecoNaBase));
+      expect(unidade).toBeDefined();
+      expect(`${caminho} -> ${registro.trechoId}`).toBe(`${caminho} -> ${unidade.trechoId}`);
+      expect(typeof registro.trechoId).toBe('string');
+      // ⚠ Conteúdo da cópia comparado com o chunk daquele registro. ID correto
+      // com conteúdo trocado também reprova.
+      expect(`${caminho}: ${JSON.stringify(chunk)}`).toBe(`${caminho}: ${JSON.stringify(registro.chunk)}`);
+      expect(chunk.metadata.article_id).toBe(unidade.articleId);
     }
+  });
+
+  test('CONTROLE de vínculo ausente: cópia cujo chunk.id não existe no registro reprova', () => {
+    const orfa = JSON.parse(JSON.stringify(c1.trechos[0].chunk));
+    orfa.id = 'obra-inexistente::claim::0';
+    expect(c1.trechos.filter((t: any) => t.chunk.id === orfa.id)).toHaveLength(0);
+    expect(vincular(orfa)).toEqual({ ok: false, motivo: 'sem vínculo' });
+  });
+
+  test('CONTROLE de vínculo ambíguo: dois registros com o mesmo chunk.id reprovam', () => {
+    const duplicado = JSON.parse(JSON.stringify(c1));
+    duplicado.trechos.push(JSON.parse(JSON.stringify(duplicado.trechos[0])));
+    const alvo = duplicado.trechos[0].chunk;
+    expect(duplicado.trechos.filter((t: any) => t.chunk.id === alvo.id)).toHaveLength(2);
+    expect(vincular(alvo, duplicado.trechos)).toEqual({ ok: false, motivo: 'vínculo ambíguo' });
+    // ⚠ E o conteúdo trocado reprova mesmo com o ID certo e o vínculo único.
+    const trocado = JSON.parse(JSON.stringify(c1.trechos[0].chunk));
+    trocado.metadata.text = c1.trechos[1].chunk.metadata.text;
+    expect(vincular(trocado)).toEqual({ ok: false, motivo: 'conteúdo divergente' });
+    expect(vincular(c1.trechos[0].chunk).ok).toBe(true);
   });
 
   test('unicidade: nenhum trechoId repetido entre unidades DISTINTAS', () => {
@@ -136,10 +206,69 @@ describe('A.33: H-T aplicado como trechoId', () => {
     expect(agora.porItem.map((i: any) => `${i.raiz}:${i.sha256}`)).toEqual(antes.porItem.map((i: any) => `${i.raiz}:${i.sha256}`));
     expect(agora.stringsDeTexto).toBe(antes.stringsDeTexto);
     expect(agora.sha256Texto).toBe(antes.sha256Texto);
-    expect(agora.sha256Estrutural).toBe(antes.sha256Estrutural);
     // O arquivo MUDOU, porque ganhou um campo. Isso é esperado, e é o que separa
     // o resumo do arquivo dos outros dois.
     expect(agora.sha256Arquivo).not.toBe(antes.sha256Arquivo);
+  });
+
+  test.each(['evidencias.json', 'contexto-estatico.json', 'C1-recuperacao.json', 'casos.json'])(
+    'controle estrutural de %s: SÓ as diferenças enumeradas, e todas elas',
+    (arquivo: string) => {
+      const bloco = declarado.alteracoesAdministrativas;
+      const versionado = JSON.parse(
+        execFileSync('git', ['show', `${bloco.referenciaVersionada}:${DADOS}${arquivo}`], { cwd: raiz, maxBuffer: 30 * 1024 * 1024 }).toString('utf8'));
+      const atual = ler(DADOS + arquivo);
+      const enumerados = bloco.caminhos.filter((e: any) => e.arquivo === arquivo);
+      const r = aplicacao.conferirExcecoes(versionado, atual, enumerados);
+      // ⚠ Diferença fora da lista reprova, e a falha NOMEIA o caminho.
+      expect(r.naoCobertas).toEqual([]);
+      // ⚠ Exceção enumerada que não foi usada também reprova: lista frouxa é
+      // lista que esconde, e seria a porta para exceção ampla.
+      expect(r.semUso.map((e: any) => e.caminho)).toEqual([]);
+      // ⚠ Cada caminho enumerado tem os DOIS valores fixados por resumo, então
+      // nada se altera por dentro de uma exceção sem reprovar.
+      expect(r.valoresErrados.map((e: any) => e.caminho)).toEqual([]);
+      // O contexto estático não tem alteração administrativa alguma nesta rodada.
+      if (arquivo === 'contexto-estatico.json') expect(r.folhasQueDiferem).toBe(0);
+    });
+
+  test('a distinção de identidade é POR UNIDADE, e as 36 fórmulas têm ID nativo', () => {
+    const comNativo = evidencias.porTrecho.filter((u: any) => u.identidade.nativaNaBase !== null);
+    expect(comNativo).toHaveLength(36);
+    expect(new Set(comNativo.map((u: any) => u.tipo))).toEqual(new Set(['formula']));
+    for (const u of comNativo) expect(u.identidade.nativaNaBase).toBe(u.dadosOriginais.id);
+    // ⚠ Nenhuma fórmula pode aparecer como "sem ID nativo": seriam 36 afirmações
+    // falsas, e é por isso que o vetor não foi renomeado em bloco.
+    const semNativo = evidencias.porTrecho.filter((u: any) => u.identidade.nativaNaBase === null);
+    expect(semNativo.filter((u: any) => u.tipo === 'formula')).toHaveLength(0);
+    expect(semNativo).toHaveLength(129);
+    expect(evidencias.resumo.idNativoNaBase.presente).toBe(36);
+    expect(evidencias.resumo.idNativoNaBase.ausente).toBe(129);
+    expect(evidencias.resumo.idNativoNaBase.porTipoAusente.formula).toBeUndefined();
+    // Derivada onde foi aplicada, nula na única exceção.
+    expect(evidencias.porTrecho.filter((u: any) => u.identidade.derivada === PREFIXO)).toHaveLength(164);
+    expect(evidencias.porTrecho.filter((u: any) => u.identidade.derivada === null)).toHaveLength(1);
+    for (const u of evidencias.porTrecho) expect(u.identidade.derivada === null).toBe(u.trechoId === null);
+  });
+
+  test('as pendências resolvidas saíram, e o manifesto APONTA para aplicacao.json sem duplicar', () => {
+    expect(evidencias.resumo.semTrechoId).toBe(1);
+    expect(casos.resumoEvidencias.semTrechoId).toBe(1);
+    // Só permanece quem de fato não tem identificador recuperável.
+    expect(evidencias.semIdentificadorRecuperavel).toHaveLength(1);
+    const [restante] = evidencias.semIdentificadorRecuperavel;
+    expect(restante.articleId).toBe('saiyed2023_ceoPowerUET');
+    expect(restante.trechoId).toBeNull();
+    expect(restante.motivo).toContain('a33-identidade-aplicada/aplicacao.json');
+    // ⚠ Aponta, não duplica: a justificativa de conteúdo mínimo fica num lugar só.
+    expect(restante.motivo).not.toMatch(/quantitativ|benchmark/i);
+    const aplicada = ler('docs/dados/a33-identidade-aplicada/aplicacao.json');
+    expect(aplicada.excecao.motivo).toMatch(/quantitativos/);
+    // As afirmações que a adoção tornou falsas acompanham a adoção.
+    expect(casos.pendenciasParaGeracao[0]).not.toMatch(/não houve autorização para criar esquema/);
+    expect(casos.pendenciasParaGeracao[0]).toContain('H-T');
+    expect(c1.identidade).toContain('chunk.id');
+    expect(c1.identidade).not.toMatch(/nem preenche trechoId/);
   });
 
   test('casos.json volta a registrar o resumo vigente dos arquivos alterados', () => {

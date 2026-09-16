@@ -76,7 +76,7 @@
     "claimsComCamposDiferentes": 19
   },
   "pendenciasParaGeracao": [
-    "Resolver a ausência de id nas claims com decisão específica do autor; não houve autorização para criar esquema ou promover índice posicional a identidade.",
+    "Identidade de trecho resolvida: o autor adotou H-T e a aplicacao gravou trechoId em 164 das 165 unidades, em 307304daa12cf11bcc81928371e80b113c652760. Indice posicional NAO foi promovido a identidade. Permanece fora da cobertura o benchmark de saiyed2023_ceoPowerUET, com motivo em docs/dados/a33-identidade-aplicada/aplicacao.json, campo excecao.",
     "Concluir a conferência dos trechos pendentes nomeados em evidencias.json e publicacoes.json, incluindo divergências de campos encaminhadas a A.16.",
     "Preparar a execução isolada com o mesmo payload, conferir a montagem capturada contra estes dados e dispor da credencial do modelo. Nenhuma configuração persistente foi modificada."
   ],
@@ -91,7 +91,7 @@
     },
     "evidencias.json": {
       "algoritmo": "SHA-256",
-      "resumoCompleto": "ea491749e1ce26e491269179f4c329a567f35d5aec3d685db96da54b3ed2f339"
+      "resumoCompleto": "0f199097c4028ae180189ed9470d50a091c11545ae0505c2d8d0d5b91a995f41"
     },
     "publicacoes.json": {
       "algoritmo": "SHA-256",
@@ -99,7 +99,7 @@
     },
     "C1-recuperacao.json": {
       "algoritmo": "SHA-256",
-      "resumoCompleto": "ef71a113ca675ddd9377e1d27429f5eaac3096332e1cd31ffe9311c4a0998b19"
+      "resumoCompleto": "2b4dc423e527b1760b8e00a162348d98c096d98d79c57a355bd6a43c4a46c193"
     }
   },
   "provenienciaHashes": "Resumos calculados nesta preparação sobre os arquivos agora escritos. Não são resumos de prompts da Fase 1 nem saídas de geração.",

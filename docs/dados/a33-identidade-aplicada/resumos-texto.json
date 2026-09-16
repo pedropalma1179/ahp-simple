@@ -3423,5 +3423,2138 @@
       "raizesComparadas": 14,
       "raizesDivergentes": []
     }
+  },
+  "alteracoesAdministrativas": {
+    "rodada": "A.33, tres correcoes, 16/09/2026",
+    "referenciaVersionada": "a84c35be21d8687f4b48cac03f6f6acf950298db",
+    "metodo": "Arvore JSON de cada artefato, com todo trechoId removido, comparada CAMINHO A CAMINHO contra o estado versionado em a84c35b. A lista abaixo e EXAUSTIVA.",
+    "regraDoControle": "Toda folha que difere tem de cair sob exatamente um caminho enumerado; o valor de cada caminho enumerado fica fixado por sha256 dos DOIS lados. Diferenca fora da lista REPROVA. Excecao enumerada que nao foi usada tambem REPROVA, porque lista frouxa e lista que esconde.",
+    "naoSubstituiOResumoTextual": "Os resumos textuais de ANTES, no campo antes deste arquivo, permanecem como referencia e continuam coincidindo. Nenhum caminho administrativo esta sob as raizes de texto declaradas: identidade, motivo, resumo, semIdentificadorRecuperavel, pendenciasParaGeracao e integridadeDosDados sao irmaos de dadosOriginais, de chunk e de referenceDoc, nunca conteudo deles.",
+    "textoPreservado": "A preservacao dos textos fornecidos ao modelo continua obrigatoria e foi conferida. Ela NAO exige conservar metadado administrativo incorreto.",
+    "caminhos": [
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "resumo.semTrechoId",
+        "motivo": "Contagem de unidades sem trechoId: 165 antes da adocao, 1 depois.",
+        "antes": 165,
+        "depois": 1,
+        "sha256Antes": "bc52dd634277c4a34a2d6210994a9a5e2ab6d33bb4a3a8963410e00ca6c15a02",
+        "sha256Depois": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "resumo.idNativoNaBase",
+        "motivo": "Acrescentado: alcance MEDIDO da ausencia de ID nativo, por tipo, sem estende-la as formulas.",
+        "depois": {
+          "alcance": "Medido no snapshot b3fe3d7. A ausencia de ID nativo vale para as claims, os limiares e os benchmarks; NAO se estende as formulas, que tem id proprio no dado. Identidade nativa e identidade derivada sao coisas distintas, e a segunda nao supre a primeira.",
+          "ausente": 129,
+          "porTipoAusente": {
+            "benchmark": 10,
+            "claim": 101,
+            "limiar": 18
+          },
+          "porTipoPresente": {
+            "formula": 36
+          },
+          "presente": 36
+        },
+        "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "sha256Depois": "872e3d90db0dccad38b6882926a3db6893e219cad8e58887c26bbc667881d40a"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "identidadeDerivada",
+        "motivo": "Acrescentado: nomeia o esquema adotado e aponta protocolo, resultado e excecao.",
+        "depois": "H-T, prefixo A33-por-tipo-v2, adotado em 307304daa12cf11bcc81928371e80b113c652760. Protocolo em docs/dados/a33-identidade-aplicada/protocolo.md; resultado e excecao em docs/dados/a33-identidade-aplicada/aplicacao.json. O valor fica em trechoId. NAO promove indice posicional nem ID nativo a identificador, e nao certifica conteudo.",
+        "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "sha256Depois": "1e8af06a39ef121282a9a329de28396bb2b4e8f9f237cb35b6f4b1932001eabf"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "semIdentificadorRecuperavel",
+        "motivo": "As 164 pendencias resolvidas saem do vetor; permanece so quem nao tem identificador recuperavel, com motivo apontando para aplicacao.json.",
+        "antes": {
+          "vetorComEntradas": 165,
+          "primeira": {
+            "articleId": "alizadeh2020_energy",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+              "campo": "key_claims",
+              "indiceBaseZero": 0,
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "insuficiente: claim sem id"
+          },
+          "valorExatoRecuperavelPor": "git show a84c35be21d8687f4b48cac03f6f6acf950298db:docs/dados/a33-etapa4/evidencias.json"
+        },
+        "depois": [
+          {
+            "articleId": "saiyed2023_ceoPowerUET",
+            "enderecoNaBase": {
+              "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+              "campo": "empirical_data",
+              "sha": "344d63121489348a7291725271564f06fe5ef5a5"
+            },
+            "motivo": "Justificativa registrada em docs/dados/a33-identidade-aplicada/aplicacao.json, campo excecao. Nao duplicada aqui."
+          }
+        ],
+        "sha256Antes": "983116e0c59763637ad4cfc00407f178c39606af488dcef7bac4252dd56e8e0f",
+        "sha256Depois": "5c2b50e04772bb8fa65a939a77bbdd19123c993430d63c26a1dc51f692a6b723"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[0].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[1].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[2].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[3].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[4].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[5].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[6].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[7].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[8].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[9].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[10].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[11].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[12].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[13].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[14].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[15].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[16].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[17].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[18].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[19].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[20].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[21].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[22].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[23].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[24].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[25].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[26].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[27].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[28].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[29].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[30].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[31].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[32].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[33].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[34].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[35].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[36].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[37].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[38].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[39].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[40].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[41].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[42].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[43].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[44].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[45].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[46].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[47].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[48].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[49].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[50].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[51].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[52].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[53].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[54].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[55].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[56].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[57].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[58].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[59].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[60].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[61].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[62].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[63].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[64].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[65].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[66].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[67].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[68].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[69].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[70].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[71].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[72].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[73].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[74].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[75].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[76].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[77].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[78].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[79].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[80].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[81].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[82].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[83].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[84].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[85].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[86].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[87].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[88].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[89].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[90].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[91].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[92].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[93].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[94].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[95].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[96].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[97].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[98].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[99].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[100].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "insuficiente: claim sem id",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "e0b158fff8580507b4be61f7930c6811cd81fc837a1429edab1f9b68f9cb16ef",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[101].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[102].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[103].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[104].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[105].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[106].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[107].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[108].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[109].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[110].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[111].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[112].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[113].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[114].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[115].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[116].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[117].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[118].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[119].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "58788010fd5b5fab39d7c4000dee200c2d0dd679b1772dcdfb0e798f7644cb8e"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[120].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_probabilistic_additive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "73455f15858aaef58118eb00ae569896231a73b77199b2c2e5a5e3f47369874d"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[121].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_subtractive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "1ad2b383eaa493ced9ee7431b04e66a97fc9e1434a70a41d6c021096930f7d59"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[122].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative_powers"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "a644d190a61e8af60baec20b6ff0c35116adc4bd39dc6a53e84333bf8338e9c1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[123].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "7c7ce75d89cd0de8014b7c99dfb5efbd3a53b48dead66a9077f4cde70dfc8b64"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[124].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_overall_score_additive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "02b679fc00c3e42146dfd25ac55ba1077c03e3fa7d41e799e5a3bd72bb8405f3"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[125].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_overall_score_subtractive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "cbda1a8ede2e0fb0e9071afc635ef1554e752cbdd9e003ce244c57463bea2d4e"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[126].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "58788010fd5b5fab39d7c4000dee200c2d0dd679b1772dcdfb0e798f7644cb8e"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[127].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_probabilistic_additive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "73455f15858aaef58118eb00ae569896231a73b77199b2c2e5a5e3f47369874d"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[128].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_subtractive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "1ad2b383eaa493ced9ee7431b04e66a97fc9e1434a70a41d6c021096930f7d59"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[129].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative_priority_powers"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "9f0b57b9b0b8f7cedcc8292304ac14374253267c844c34b1be6c508e8664e06c"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[130].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "7c7ce75d89cd0de8014b7c99dfb5efbd3a53b48dead66a9077f4cde70dfc8b64"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[131].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "58788010fd5b5fab39d7c4000dee200c2d0dd679b1772dcdfb0e798f7644cb8e"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[132].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_probabilistic_additive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "73455f15858aaef58118eb00ae569896231a73b77199b2c2e5a5e3f47369874d"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[133].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_subtractive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "1ad2b383eaa493ced9ee7431b04e66a97fc9e1434a70a41d6c021096930f7d59"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[134].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative_powers"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "a644d190a61e8af60baec20b6ff0c35116adc4bd39dc6a53e84333bf8338e9c1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[135].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "7c7ce75d89cd0de8014b7c99dfb5efbd3a53b48dead66a9077f4cde70dfc8b64"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[136].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_subtraction_synthesis"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "fc3ad96fba80b23ac92f661af5c1787d3b214c285af65502848f2b9ae0661a2b"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[137].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative_synthesis"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "0e5bffaf1b163344b9e2f8933f7efabaaa8b624134a9f14db29f2bc9ea0dc2a9"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[138].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_inverse_additive_synthesis"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "b0c3bcbcef07ddef9e8abf1c954a31603734381400ff1b86dfcfa3f0d184a7ca"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[139].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_complement_additive_synthesis"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "a3f4efd66088e6ac5e532bf172ad98409b4440e424a06e7937fd12ee574acf68"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[140].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "7c7ce75d89cd0de8014b7c99dfb5efbd3a53b48dead66a9077f4cde70dfc8b64"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[141].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_subtraction"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "1818ed68333d57e278f61b8bb9422bbb79201f1f404374a2751b435992c0ef50"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[142].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_positive"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "0ab415ea7f06b9eda13f3eb889d13a1e694e3d59f21833179b275363cc04c991"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[143].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_reciprocal"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "ab2127a708d3d8674270287f721d72d93a06ef3867d7dca45c670fa509fd9ac3"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[144].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_residual"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "e27843b7f1a18355e17c825b6efafc6729d0003c132fdbf9bf82dd8e393ea632"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[145].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "7c7ce75d89cd0de8014b7c99dfb5efbd3a53b48dead66a9077f4cde70dfc8b64"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[146].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative_ratio_so"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "31c9731989408b8d89646716bc4cd757a8468136c23e6ce1103b83773a848b43"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[147].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_reciprocals_so"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "24f284f84338734ba41e77b29f068806091a7b0eba25b5e291c2635e4fcc6768"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[148].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_residual"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "e27843b7f1a18355e17c825b6efafc6729d0003c132fdbf9bf82dd8e393ea632"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[149].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_subtractive_negative"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "723420e909dbf288f87caa4c69c0cbcf797b2d729a4e55269d6b53efebb039eb"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[150].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_multiplicative_saaty"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "d58a65a4ce4dd92bcd77d670c46e74a76ef9f7829430b029c50caff7f5a52b46"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[151].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_reciprocals_saaty"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "d954785082e1a1801cb8f4df3257467075c398021ea1aac453964111f527984e"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[152].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_additive_subtraction_saaty"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "6f93d0d25470515ffbc4f934d11d41c38c75c613edd53d48fd90a87989a3217b"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[153].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_revised_additive_quotient"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "9333bbf5ea036d7c48cb9d8f3745a7768d57cc6fd914786ed605bdc9a739a7f9"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[154].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": "bocr_rescaled_additive_subtraction"
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "8c417040e190e7d557765354075cf58f0ea60d8db17c742c3ab737e8b3ec5c1f"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[155].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[156].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[157].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": null,
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "ccb18673e31e73c809ee1357746fd5ee583a2da06af2c9259f8bfd7fbe71c6c9"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[158].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[159].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[160].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[161].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[162].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[163].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "evidencias.json",
+        "caminho": "porTrecho[164].identidade",
+        "motivo": "Distincao POR UNIDADE entre identidade nativa na base e identidade derivada.",
+        "antes": "sem vínculo a id de claim; ID de fórmula, se existente, foi preservado no dado e não promovido a trechoId",
+        "depois": {
+          "derivada": "A33-por-tipo-v2",
+          "nativaNaBase": null
+        },
+        "sha256Antes": "c6e7f3c17ab0f723beac4c6f3a12f90ca59af6559bec2878ce27709f6bbb6101",
+        "sha256Depois": "30f84a198a5dc679ee038642bf0ef00abe68407a6cb824ce4521997aae37e2d1"
+      },
+      {
+        "arquivo": "C1-recuperacao.json",
+        "caminho": "identidade",
+        "motivo": "A declaracao de falta de identidade passa a descrever a identidade derivada aplicada e o vinculo das copias por chunk.id.",
+        "antes": "O id posicional de chunk reproduz a convenção já existente em scripts/ingest-rag.ts. Não é id de claim nem preenche trechoId. A falta está declarada no sidecar.",
+        "depois": "O id posicional de chunk reproduz a convencao ja existente em scripts/ingest-rag.ts, e continua nao sendo id de claim. A identidade de trecho e a derivada H-T, aplicada em 307304daa12cf11bcc81928371e80b113c652760: cada entrada de trechos tem trechoId preenchido, e as copias de chunk se vinculam a essas entradas por chunk.id. O identificador NAO entra no texto enviado ao modelo.",
+        "sha256Antes": "db2b4fc2b3a135db2439802dfbcbac2598a513f24f714764be8b607c13713c87",
+        "sha256Depois": "e042410d1e2f6fd93cc94e281c7936c9fe940e5bae3b7aa8f5178f12de1d49d0"
+      },
+      {
+        "arquivo": "casos.json",
+        "caminho": "pendenciasParaGeracao[0]",
+        "motivo": "A pendencia de esquema de identidade deixou de existir: H-T foi adotado.",
+        "antes": "Resolver a ausência de id nas claims com decisão específica do autor; não houve autorização para criar esquema ou promover índice posicional a identidade.",
+        "depois": "Identidade de trecho resolvida: o autor adotou H-T e a aplicacao gravou trechoId em 164 das 165 unidades, em 307304daa12cf11bcc81928371e80b113c652760. Indice posicional NAO foi promovido a identidade. Permanece fora da cobertura o benchmark de saiyed2023_ceoPowerUET, com motivo em docs/dados/a33-identidade-aplicada/aplicacao.json, campo excecao.",
+        "sha256Antes": "d186c744b1dd4ce18417f63c7ffc61434556f82ffe35e56f284c16bfc6fba93b",
+        "sha256Depois": "06fdb2b10cc2d83997390ad23bf7cf485f6ee4762b694e732e3df5a28f4ba45c"
+      },
+      {
+        "arquivo": "casos.json",
+        "caminho": "integridadeDosDados",
+        "motivo": "Resumo vigente dos tres arquivos alterados nesta rodada.",
+        "antes": {
+          "C1-recuperacao.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "ef71a113ca675ddd9377e1d27429f5eaac3096332e1cd31ffe9311c4a0998b19"
+          },
+          "contexto-estatico.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "643da4272b37b2da521eecb971443d21417e644e5fbb76d4ae7ccc3fe622920f"
+          },
+          "evidencias.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "ea491749e1ce26e491269179f4c329a567f35d5aec3d685db96da54b3ed2f339"
+          },
+          "identidade.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "d9b1e2dc75ff508be6391acbea268ace7b85956fce82cb2eebac1cb04a82868e"
+          },
+          "publicacoes.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "f8fad0312923fd05626e44fcbe2ee97ee6465b51cbac56313c4f45855653668a"
+          }
+        },
+        "depois": {
+          "C1-recuperacao.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "2b4dc423e527b1760b8e00a162348d98c096d98d79c57a355bd6a43c4a46c193"
+          },
+          "contexto-estatico.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "643da4272b37b2da521eecb971443d21417e644e5fbb76d4ae7ccc3fe622920f"
+          },
+          "evidencias.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "0f199097c4028ae180189ed9470d50a091c11545ae0505c2d8d0d5b91a995f41"
+          },
+          "identidade.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "d9b1e2dc75ff508be6391acbea268ace7b85956fce82cb2eebac1cb04a82868e"
+          },
+          "publicacoes.json": {
+            "algoritmo": "SHA-256",
+            "resumoCompleto": "f8fad0312923fd05626e44fcbe2ee97ee6465b51cbac56313c4f45855653668a"
+          }
+        },
+        "sha256Antes": "a9288b0272ac9f98d81c2844345e780a10d84505cf2c1e54d111c43fd7dcdbc0",
+        "sha256Depois": "ec4203c0f091b2d873641bea970bf33a7ee73aa0e6aeca1672dfc317777aae14"
+      }
+    ]
+  },
+  "momentoDosBlocos": {
+    "antes": "Estado em b3fe3d7a0c78b8129e185cbce0099ef606fb844e, ANTES da aplicacao de H-T. E a referencia dos resumos TEXTUAIS, e continua valendo: os resumos de texto tem de coincidir com este bloco em qualquer rodada posterior.",
+    "depois": "Estado em 307304daa12cf11bcc81928371e80b113c652760, logo apos a aplicacao. E registro daquele momento, nao afirmacao sobre o estado corrente.",
+    "comparacao": "Compara antes com depois, nos dois momentos acima. O sha256Estrutural de evidencias.json e de C1-recuperacao.json MUDOU depois disso, pelas correcoes administrativas enumeradas em alteracoesAdministrativas, sobre a referencia a84c35b. O sha256Texto NAO mudou em nenhum dos tres."
   }
 }

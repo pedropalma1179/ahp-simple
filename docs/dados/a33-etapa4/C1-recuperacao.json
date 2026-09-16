@@ -3,7 +3,7 @@
   "origem": "fixação manual anterior à geração; não houve consulta ao índice nem embedding",
   "criterioEscolha": "Uma claim de cada uma das três publicações nomeadas previamente no protocolo: consistência de Saaty, comensurabilidade de Wijnmalen e AIJ de Forman e Peniwati. Não selecionadas depois de resultado do modelo.",
   "score": "Valor 1 sintético igual nos três chunks; serve somente à ordenação determinística da fixture, não mede similaridade.",
-  "identidade": "O id posicional de chunk reproduz a convenção já existente em scripts/ingest-rag.ts. Não é id de claim nem preenche trechoId. A falta está declarada no sidecar.",
+  "identidade": "O id posicional de chunk reproduz a convencao ja existente em scripts/ingest-rag.ts, e continua nao sendo id de claim. A identidade de trecho e a derivada H-T, aplicada em 307304daa12cf11bcc81928371e80b113c652760: cada entrada de trechos tem trechoId preenchido, e as copias de chunk se vinculam a essas entradas por chunk.id. O identificador NAO entra no texto enviado ao modelo.",
   "trechos": [
     {
       "articleId": "saaty1977_scaling",
