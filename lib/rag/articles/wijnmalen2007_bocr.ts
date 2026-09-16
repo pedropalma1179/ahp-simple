@@ -203,7 +203,7 @@ const article: ArticleExtraction = {
   },
   key_claims: [
     {
-      claim: "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+      claim: "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
       verbatim_quote: "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
       evidence: {
         page: 899,

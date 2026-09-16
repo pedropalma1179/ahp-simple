@@ -372,10 +372,12 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // não muda**, e isso também é evidência: a correção alcançou só a base.
     const A33_MESSAGES_COM_CHUNKS =
       '99f733c470f02b8eae15333bd04e5cca831885e6d56e07e16162582632b5c8d7';
+    // Com os trechos corrigidos e a claim ainda antiga, os dois valores foram
+    // `0d8a7ae9…` com chunks e `ac297571…` sem chunks; a claim reescrita os moveu.
     const A16_MESSAGES_COM_CHUNKS =
-      '0d8a7ae912c330e485889138c81e24cabe3e29a98d6d6a445652bb0a032be810';
+      '0353b393c603d6a26f72bc51e156a6ea918d67d1fcbe1a746a21a5dc0d06307f';
     const A16_MESSAGES_SEM_CHUNKS =
-      'ac2975710fbf535a55616c163b729df760bb86455ae3f73e589dbb25c03d7d97';
+      '1093592249913b4abcc832bbc137d4b6d72f62d358edbaafda5d9a3d6c07298f';
 
     // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
     // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui

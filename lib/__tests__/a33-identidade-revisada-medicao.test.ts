@@ -119,7 +119,8 @@ describe('A.33: propostas revisadas, sem adoção', () => {
     // corrente fixados; qualquer outro arquivo continua tendo de bater com a medição.
     const corrigidosEmA16: Record<string, {medido: string; corrente: string}> = {
       'lib/rag/articles/saaty1977_scaling.ts': {medido:'4b44bd347a9fc1836df68d6543a0359771f3be6d6ae854cdf8b0011cd2116242',corrente:'5cd0efe662e4132ac33297074419be7051e0609c56f84077f8b222353698f759'},
-      'lib/rag/articles/wijnmalen2007_bocr.ts': {medido:'d24c49fda401ff092a4d46b0be3035a3c6e84ef8dbf530ab6209c21b18e3b1fd',corrente:'01f26c6afed0c1519ca8b34b1d297c1e580b0acf6809cc1f3a6b70e7c7b46885'},
+      // Wijnmalen passou por 01f26c6a… com os trechos corrigidos, antes da claim reescrita.
+      'lib/rag/articles/wijnmalen2007_bocr.ts': {medido:'d24c49fda401ff092a4d46b0be3035a3c6e84ef8dbf530ab6209c21b18e3b1fd',corrente:'78d63b48b73cd63c10c552d1217aed12e2c711ff364a9bbffd72ba61773e743d'},
     };
     expect(published.complementar.artigos.filter((a: any)=>corrigidosEmA16[a.arquivo])).toHaveLength(2);
     for(const a of published.complementar.artigos){

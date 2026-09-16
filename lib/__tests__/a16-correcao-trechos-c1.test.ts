@@ -13,6 +13,7 @@ export {};
 const fs = require('node:fs');
 const path = require('node:path');
 import { getAllArticles } from '@/lib/rag/index';
+import { getRefsByAuthor } from '@/app/api/ai-reviewer/knowledge';
 
 const raiz = path.resolve(__dirname, '../..');
 const ler = (rel: string) => JSON.parse(fs.readFileSync(path.join(raiz, rel), 'utf8'));
@@ -29,6 +30,10 @@ const TRANSFORMADA_WIJNMALEN =
   'synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship';
 const ANTIGA_SAATY =
   'A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n';
+const CLAIM_ANTIGA_WIJNMALEN =
+  'Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.';
+const CLAIM_NOVA_WIJNMALEN =
+  'BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.';
 
 const claim = (id: string, i: number) => {
   const artigo = getAllArticles().find(a => a.id === id);
@@ -107,6 +112,29 @@ describe('A.16: trechos de C1 corrigidos na base', () => {
     expect(saaty.dadosOriginais.evidence.quote).toBe(ANTIGA_SAATY);
     expect(w0.dadosOriginais.verbatim_quote).toBe(TRANSFORMADA_WIJNMALEN);
     expect(w0.dadosOriginais.evidence.quote).toBe(TRANSFORMADA_WIJNMALEN);
+    expect(w0.dadosOriginais.claim).toBe(CLAIM_ANTIGA_WIJNMALEN);
     expect(w3.dadosOriginais.evidence.quote).toBe(TRANSFORMADA_WIJNMALEN);
+  });
+});
+
+describe('A.16, J1: a claim de Wijnmalen key_claims[0], reescrita por julgamento', () => {
+  test('é a redação aprovada, sem os três pontos que carregavam o excesso', () => {
+    const c = claim('wijnmalen2007_bocr', 0);
+    expect(c.claim).toBe(CLAIM_NOVA_WIJNMALEN);
+    for (const excesso of ['different factors', 'before synthesis', 'guarantee']) {
+      expect(c.claim).not.toContain(excesso);
+    }
+  });
+
+  test('chega INTEIRA ao topic, pelo caminho real até o modelo', () => {
+    // ⚠ `claimToRef` corta `topic` acima de 120 caracteres. A primeira redação
+    // aprovada tinha 153 e chegaria sem "is deceiving"; o corte no código não é
+    // corrigido aqui, e este caso reprova se a claim voltar a passar do limite.
+    const refs = getRefsByAuthor('Wijnmalen').filter(r => r.id === 'wijnmalen2007_bocr_c0');
+    expect(refs).toHaveLength(1);
+    // Contra a claim VIVA, e não contra a constante: assim só o corte reprova aqui.
+    expect(refs[0].topic).toBe(claim('wijnmalen2007_bocr', 0).claim);
+    expect(refs[0].topic).toBe(CLAIM_NOVA_WIJNMALEN);
+    expect(refs[0].rule).toBe(IMPRESSO_WIJNMALEN);
   });
 });
