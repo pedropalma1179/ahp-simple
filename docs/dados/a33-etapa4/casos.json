@@ -72,7 +72,7 @@
     "totalUnidades": 165,
     "conferidas": 4,
     "pendentes": 161,
-    "semTrechoId": 165,
+    "semTrechoId": 1,
     "claimsComCamposDiferentes": 19
   },
   "pendenciasParaGeracao": [
@@ -87,11 +87,11 @@
     },
     "contexto-estatico.json": {
       "algoritmo": "SHA-256",
-      "resumoCompleto": "2a87891fd1f6e34da22cc61dbc6549fddbf32f8cf042b62a564151aad51d0b9a"
+      "resumoCompleto": "643da4272b37b2da521eecb971443d21417e644e5fbb76d4ae7ccc3fe622920f"
     },
     "evidencias.json": {
       "algoritmo": "SHA-256",
-      "resumoCompleto": "b977e41f1ba260b3635eecc70c713bdbc8f2297cde860f1d5d650e715d502947"
+      "resumoCompleto": "ea491749e1ce26e491269179f4c329a567f35d5aec3d685db96da54b3ed2f339"
     },
     "publicacoes.json": {
       "algoritmo": "SHA-256",
@@ -99,7 +99,7 @@
     },
     "C1-recuperacao.json": {
       "algoritmo": "SHA-256",
-      "resumoCompleto": "2545c769be4c7d198ce903f3a625065019c3d874545393022ead96ee5e65353e"
+      "resumoCompleto": "ef71a113ca675ddd9377e1d27429f5eaac3096332e1cd31ffe9311c4a0998b19"
     }
   },
   "provenienciaHashes": "Resumos calculados nesta preparação sobre os arquivos agora escritos. Não são resumos de prompts da Fase 1 nem saídas de geração.",

@@ -1,0 +1,115 @@
+{
+  "rodada": "A.33, passo 3: H-T aplicado como trechoId",
+  "aplicadoEm": "2026-09-16",
+  "esquemaAdotado": "H-T, composicao por tipo, prefixo A33-por-tipo-v2",
+  "decisaoDoAutor": "Adotar H-T. Identifica a versao do conteudo usado na conferencia e preserva a identidade quando muda apenas a classificacao ou o rotulo.",
+  "protocoloDestaRodada": "docs/dados/a33-identidade-aplicada/protocolo.md",
+  "snapshotMedido": "b3fe3d7a0c78b8129e185cbce0099ef606fb844e",
+  "medicaoAprovada": "059d3fcdc7f2b13d9ff0e83a2e53db9fa0e4723b",
+  "cobertura": {
+    "denominador": 165,
+    "comTrechoId": 164,
+    "nulos": 1,
+    "camposGravados": 532,
+    "valoresDistintos": 164
+  },
+  "excecao": {
+    "articleId": "saiyed2023_ceoPowerUET",
+    "endereco": {
+      "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+      "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+      "campo": "empirical_data"
+    },
+    "indiceEmPorTrecho": 157,
+    "trechoId": null,
+    "ocorrencias": [
+      "evidencias.json porTrecho[157]",
+      "evidencias.json semIdentificadorRecuperavel[157]",
+      "contexto-estatico.json outrasTresSuperficies[2].enderecos[2]"
+    ],
+    "motivo": "Insuficiencia para o CRITERIO de benchmark fixado no protocolo antes da medicao: o minimo exigia ao menos um dos sete campos quantitativos disponivel, e os sete sao nulos. NAO e defeito da base, nao e colisao e nao e impossibilidade de calcular uma versao dos metadados. O dado nao foi corrigido e o criterio nao foi mudado depois do resultado.",
+    "camposQuantitativosNulos": [
+      "n_respondents",
+      "n_alternatives",
+      "n_criteria_total",
+      "bocr_weights",
+      "concordance_rate",
+      "cr_aggregated",
+      "weight_ratio"
+    ],
+    "permaneceNoContexto": "Sim. Continua em contexto-estatico.json, outrasTresSuperficies[2] -- Benchmarks Empíricos de Estudos Publicados -- nos casos C1, C2, C3. Retira-lo mudaria o contexto que os tres casos comparam."
+  },
+  "propagacao": {
+    "evidencias.json porTrecho[]": 165,
+    "evidencias.json semIdentificadorRecuperavel[]": 165,
+    "contexto-estatico.json quatroSecoes[].referencias[]": 135,
+    "contexto-estatico.json outrasTresSuperficies[].enderecos[]": 64,
+    "C1-recuperacao.json trechos[]": 3,
+    "orfaos": 0,
+    "regra": "Chave de propagacao e enderecoNaBase, nao posicao. Identidade que muda de artefato para artefato nao e identidade."
+  },
+  "chunksDeC1": [
+    {
+      "articleId": "saaty1977_scaling",
+      "chunkId": "saaty1977_scaling::claim::0",
+      "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+      "existeNoRegistro": true
+    },
+    {
+      "articleId": "wijnmalen2007_bocr",
+      "chunkId": "wijnmalen2007_bocr::claim::0",
+      "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+      "existeNoRegistro": true
+    },
+    {
+      "articleId": "forman1998_aggregating",
+      "chunkId": "forman1998_aggregating::claim::2",
+      "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"forman1998_aggregating\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"2e37783a6af38e02430f51787dcc7a3051e01704614eb139d6c1600532a39439\"]]",
+      "existeNoRegistro": true
+    }
+  ],
+  "recalculoIndependente": {
+    "metodo": "Implementacao propria em Python 3.11.15, a partir dos dados do snapshot por git show, usando exclusivamente as regras da secao 3 do protocolo desta rodada.",
+    "naoReutiliza": [
+      "a funcao de aplicacao",
+      "measure-a33-identity-v2.cjs",
+      "a preimagem armazenada em rastreabilidade.json"
+    ],
+    "exemplo": {
+      "indice": 86,
+      "articleId": "wijnmalen2007_bocr",
+      "endereco": "key_claims[0]",
+      "observacao": "a claim de Wijnmalen fixada em C1"
+    },
+    "componentesConferidos": [
+      "A33-por-tipo-v2",
+      "[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]",
+      "[\"tipo\",[\"texto\",\"key_claims\"]]",
+      "[\"idNativo\",[\"ausente\"]]",
+      "[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]"
+    ],
+    "valorCompletoCoincide": true,
+    "alemDoExemplo": {
+      "comparadas": 164,
+      "coincidentes": 164,
+      "divergentes": 0,
+      "porTipo": {
+        "claim": 101,
+        "limiar": 18,
+        "formula": 36,
+        "benchmark": 9
+      }
+    }
+  },
+  "hu": "H-U permanece em docs/dados/a33-identidade-revisada/rastreabilidade.json, campo principal[].U, como artefato de auditoria. Nao virou identificador e nenhum segundo identificador concorrente foi criado.",
+  "ressalvasDeAlcance": [
+    "O controle negativo demonstra independencia dos campos de rastreabilidade variados naquele ensaio, e NAO estabilidade geral. A sensibilidade a redacao e deliberada: corrigir a redacao de uma claim muda sua versao.",
+    "Os campos quantitativos nulos de Saiyed demonstram insuficiencia para o criterio de benchmark, e NAO provam defeito na base."
+  ],
+  "oQueIssoNaoE": "A atribuicao de identidade NAO transforma as 161 pendencias em evidencias conferidas. Tambem nao resolve as 19 divergencias de A.16, nao escolhe entre verbatim_quote e evidence.quote, e nao libera a etapa 4.",
+  "pendenciasPreservadas": {
+    "publicacoesPendentes": 161,
+    "conferidas": 4,
+    "divergenciasA16": 19
+  }
+}

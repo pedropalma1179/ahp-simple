@@ -120,7 +120,12 @@ describe('A.33: propostas revisadas, sem adoção', () => {
   });
   test('medição não preenche IDs, não resolve A.16 e não altera os objetos', () => {
     const before=JSON.stringify(units);measure(units);expect(JSON.stringify(units)).toBe(before);
-    expect(units.every((u: any)=>u.trechoId===null)).toBe(true);
+    // ⚠ **A adoção veio depois, em A.33 passo 3**, e é do autor, não da medição.
+    // O que se guarda aqui é que a MEDIÇÃO não lê nem escreve `trechoId`: as
+    // candidatas continuam idênticas às publicadas com o campo já preenchido, o
+    // que as duas primeiras asserções deste bloco demonstram sobre `published`.
+    expect(units.filter((u: any)=>typeof u.trechoId==='string')).toHaveLength(164);
+    for(const u of units){const semId=JSON.parse(JSON.stringify(u));semId.trechoId=null;expect(key(semId)).toBe(key(u));}
     expect(published.esquemaAdotado).toBe(false);
     expect(published.pendencias).toEqual({trechoIdNulo:165,publicacoesPendentes:161,claimsComCamposDivergentes:19});
   });

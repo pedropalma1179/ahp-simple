@@ -119,7 +119,13 @@ it('rastreia as 165 unidades congeladas, conservando cada origem e a falta de id
   expect(out.assessment.total.discriminaveisComoVersaoDoQuote).toBe(107);
   expect(out.metrics.total.indistinguiveisPelaComposicao.grupos).toBe(6);
   expect(out.metrics.total.indistinguiveisPelaComposicao.unidades).toBe(13);
-  expect(ev.porTrecho.every((u: any) => u.trechoId === null)).toBe(true);
+  // ⚠ **`trechoId` deixou de ser nulo em A.33 passo 3**, por decisão do autor de
+  // adotar H-T. O que esta suíte guardava era que a MEDIÇÃO não preenche IDs, e
+  // isso continua: o instrumento não lê `trechoId`, e os agregados acima — 107,
+  // seis grupos, treze unidades — permanecem os mesmos com o campo preenchido.
+  // A cobertura da aplicação está em `a33-identidade-aplicada.test.ts`.
+  expect(ev.porTrecho.filter((u: any) => typeof u.trechoId === 'string')).toHaveLength(164);
+  expect(ev.porTrecho.filter((u: any) => u.trechoId === null)).toHaveLength(1);
   expect(JSON.stringify(ev)).toBe(before);
 });
 
