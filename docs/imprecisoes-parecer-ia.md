@@ -6913,6 +6913,142 @@ tocada.
 administrativo não confere publicação alguma.** Base de artigos, índice,
 configuração e `main` em `33c1fdf` intactos.
 
+### A.33: conferência dos três trechos de C1, em 16/09/2026
+
+**Protocolo:** `docs/dados/a33-conferencia-c1/protocolo.md`. **Conferência:**
+`37ae5c32d341a74d582738ff6d45a5508110c1fa`, sobre a base
+`e0037f693c5d495ccc15a028a639790a2ee67699`. Este registro vem **depois** da
+verificação. Os resultados por trecho estão em
+`docs/dados/a33-conferencia-c1/conferencia.json`.
+
+⚠ **O resultado desta rodada é "sem acesso", e nenhuma unidade mudou de estado.**
+**4 → 4 conferidas** e **161 → 161 pendentes**, sobre **165 unidades distintas**,
+sem somar as cópias nos artefatos. **O total não passou de quatro para sete**, e o
+número saiu da conferência.
+
+**Associação, e ela é única nos três.** Conferida por **`articleId`, `trechoId` e
+`enderecoNaBase`**, deu **exatamente uma** unidade por trecho, com os três campos
+iguais: `saaty1977_scaling` `key_claims[0]` no índice **47**,
+`wijnmalen2007_bocr` `key_claims[0]` no **86**, e `forman1998_aggregating`
+`key_claims[2]` no **100**. Os **nove campos** de cada um estão registrados.
+
+**Nenhum dos três está entre as 19 divergências de A.16**, e o caso mede por que a
+marca é **por trecho e não por obra**: ⚠ **`wijnmalen2007_bocr` TEM divergências**,
+em `key_claims[2]`, `[3]` e `[4]`, **e o trecho de C1 é `key_claims[0]`**, que não
+está entre elas. Tratar a obra inteira como divergente teria bloqueado uma unidade
+que não é divergente. Nos três, `verbatim_quote` e `evidence.quote` são **iguais na
+base**.
+
+**As quatro vias foram declaradas na ordem e todas se esgotaram.**
+
+**PDF em mãos: nenhum.** Medido: `git ls-files` não lista `.pdf`, e `find` sobre a
+árvore, `/home`, `/root` e `/tmp` não achou nenhum PDF de publicação.
+
+**Repositório institucional e base assinada: recusados.** O egresso desta sessão
+passa por proxy com política de organização, e **dezesseis hosts foram recusados** —
+entre eles `www.sciencedirect.com`, `doi.org`, `www.researchgate.net`, `core.ac.uk`,
+`arxiv.org`, `www.jstor.org`, `link.springer.com`, `api.crossref.org`,
+`citeseerx.ist.psu.edu` e `dl.acm.org`. A recusa de `www.researchgate.net` ficou
+registrada pelo proxy como `connect_rejected`, *"gateway answered 403 to CONNECT
+(policy denial)"*. ⚠ **O README do proxy manda reportar negação de política em vez
+de repetir**, e foi o que se fez.
+
+⚠ **Dois quase-acertos foram recusados de propósito, e é a armadilha desta rodada:**
+*"SAATY 1977: THE BUILDING BLOCKS"*, de Wedley, no IJAHP, é **comentário sobre** o
+artigo de 1977 e **não** o artigo; e *"Improved BOCR analysis with the AHP/ANP"* e
+*"Note on getting meaningful BOCR results with the ANP software"* são **outras
+publicações** de Wijnmalen. A rodada anterior já havia recusado a última pelo mesmo
+motivo. ⚠ **Os resumos devolvidos pelo buscador não foram usados como conteúdo:**
+resumo de buscador é texto de terceiro, e o critério exclui conferir por resumo, por
+citação de terceiros ou por memória.
+
+**Resultado, e ele é por campo, separado da sustentação:**
+
+| Trecho | `verbatim_quote` | `evidence.quote` | sustentação da `claim` | unidade |
+|---|---|---|---|---|
+| `saaty1977_scaling` `key_claims[0]` | não conferido, publicação inacessível | não conferido, publicação inacessível | inconclusiva | **pendente → pendente** |
+| `wijnmalen2007_bocr` `key_claims[0]` | não conferido, publicação inacessível | não conferido, publicação inacessível | inconclusiva | **pendente → pendente** |
+| `forman1998_aggregating` `key_claims[2]` | não conferido, reacesso recusado | não conferido, reacesso recusado | inconclusiva | **conferido → conferido** |
+
+**Regra de agregação, escrita antes do resultado:** conferida sem pendência exige as
+**quatro** condições — os dois campos de citação conferem, a `claim` é sustentada,
+sem divergência aberta de A.16, e sem localizador divergente. Nenhum dos três reúne
+as quatro, e a condição que falta é a primeira.
+
+⚠ **Busca sem resultado é "não conferido", nunca "não confere".** A primeira diz que
+não se olhou o suficiente; a segunda afirmaria que o texto da base está errado, e
+**nada aqui autoriza essa afirmação**.
+
+⚠ **Alcance da busca, que é o limite do que se pode concluir:** dezesseis hosts e
+duas buscas por título, em setembro de 2026, deste ambiente. **Ficaram fora** bases
+assinadas por credencial institucional, acervo físico, pedido ao autor e empréstimo
+entre bibliotecas. **Não encontrar por esta busca não demonstra que não exista cópia
+acessível.**
+
+⚠ **O localizador declarado e o encontrado ficam em campos distintos, e página
+impressa não se confunde com posição no PDF.** Os três declarados na base:
+Saaty, página **237**, `paragraph` `Section 2`; Wijnmalen, página **899**,
+`paragraph` `Section 4`; Forman, página **167**, `section` `6`. **Nenhum localizador
+encontrado foi observado nesta rodada**, porque nenhuma publicação foi aberta.
+**A página está preservada na base:** A.33 a retirou do parecer, **não da base nem
+da auditoria**, e este registro não a reinsere nas citações.
+
+**Achado, e ele é sobre a conferência que já existia.** ⚠ **O registro anterior de
+`forman1998_aggregating` `key_claims[2]` não traz veredito separado de sustentação
+da `claim`.** Ele descreve correspondência de recorte e o contexto AIJ e
+reciprocidade, e **não diz** se a claim *"AIJ strictly requires the use of the
+geometric mean"* fica sustentada, parcialmente sustentada ou não sustentada. A razão
+é de cronologia: **separar correspondência de recorte de sustentação é regra desta
+rodada, posterior àquele registro.** Também não registra a **versão consultada** nem
+o **resumo criptográfico do PDF**. ⚠ **A unidade segue conferida, e esta rodada
+preserva esse resultado sem revogá-lo**: o que falta é a coluna de sustentação, e
+supri-la exige a publicação, hoje inacessível pelo endereço registrado.
+
+⚠ **A frase de alcance:** "confere", nos campos de citação, descreve
+**correspondência do recorte**. A sustentação da `claim` é registrada
+**separadamente**. **Nenhum desses resultados certifica uma futura afirmação do
+parecer.**
+
+**Nada foi alterado.** `evidencias.json`, `contexto-estatico.json`,
+`C1-recuperacao.json`, `casos.json`, `publicacoes.json` e `identidade.json` seguem
+**byte a byte**, `lib/rag/articles/` está inalterada no diff, o índice não foi
+tocado, não houve reingestão, as **19 divergências de A.16** seguem abertas, as
+**quatro conferências anteriores** estão preservadas, e **não houve geração de C1,
+C2 ou C3, real ou simulada**.
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **21 suítes e 290 testes**, contra 20 e
+283 antes, diferença de **7** casos de uma suíte nova. ⚠ **E também na condição do
+CI**, em **clone raso de um commit**: `tsc` **0** e os mesmos **21 suítes e 290
+testes**. O teste novo lê **só arquivos versionados** — sem rede, sem publicação e
+sem histórico do git —, e foi conferido por **três contraexemplos**: "confere" sem
+transcrição reprova, total antecipado reprova, e campo extraído divergente da
+unidade reprova. O restauro foi conferido por resumo idêntico.
+
+⚠ **Predição não cabe**, e a razão é de alcance: a rodada confere textos contra
+publicações e **não altera o contexto entregue ao modelo**. **A predição de A.33
+segue não testada**, e **conferir evidência não a testa**: ela só se torna
+verificável quando C1, C2 e C3 forem gerados, o que **não é esta rodada**.
+
+**Publicação e CI, estado observado.** A conferência foi publicada em
+`claude/loving-shannon-661fy9` e `integra/a30-registros` avançou por
+**fast-forward** até `37ae5c32d341a74d582738ff6d45a5508110c1fa`, conferido antes
+que `origin/integra/a30-registros` era **ancestral** do topo, código de saída **0**
+em Bash. **Sem `--force`, sem rebase e sem `amend`**, e `git log --merges` sobre o
+intervalo sai **vazio**. A execução **`35117934621`**, na branch de trabalho, no SHA
+completo `37ae5c32d341a74d582738ff6d45a5508110c1fa`, foi observada
+**`completed/success`**, com `Typecheck`, `Build` e `Testes` em `success`.
+A execução gêmea da branch de integração,
+**`35117937482`**, sobre o mesmo SHA, também foi observada **`completed/success`**,
+com os mesmos sete passos em `success`. O CI deste commit documental é observação
+posterior. ⚠ **`main` permanece em `33c1fdf`**, lida e não tocada.
+
+**O que esta rodada deixa como próximo passo, e é decisão do autor:** as duas
+publicações pendentes precisam de uma via que este ambiente não tem — credencial
+institucional, cópia fornecida pelo autor, ou acesso a partir de máquina sem a
+política de egresso. **Sem isso, os trechos de C1 continuam pendentes por campo não
+conferido**, e a etapa 4 segue condicionada.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
