@@ -6723,8 +6723,12 @@ A execução **`35104656211`**, evento `push`, workflow `CI`, no SHA completo
 `307304daa12cf11bcc81928371e80b113c652760`, foi observada
 **`completed/success`** pela API. ⚠ **`fe095c4` não tem execução própria**,
 porque o CI dispara por push e não por commit; o verde registra o SHA do topo, e
-**não se apresenta o de `fe095c4` como medido**. O CI deste registro documental é
-observação posterior.
+**não se apresenta o de `fe095c4` como medido**. O deste registro documental é a
+execução **`35105079284`**, no SHA completo
+`d448ebc4eacee032b560c17fa7893f2eafb5bace`, observada **`completed/success`** depois
+do push, com os passos `Typecheck`, `Build` e `Testes` todos em `success`.
+⚠ **O runner usa Node 24.x**, e não o Node v22.22.2 desta sessão: são duas
+execuções em ambientes diferentes, e nenhuma matriz de versões foi testada.
 
 **A.33 avança para a conferência das evidências contra as publicações, começando
 pelos trechos de C1. A geração continua condicionada, e a predição de A.33 continua
