@@ -7528,14 +7528,22 @@ Node v24.12.0, npm 11.18.0: `tsc` **0**; `jest --runInBand` saiu **1**. Na prime
 execução, **3 falhas em 2 suítes**, de **299** testes, sem os nomes guardados; na
 segunda, **1 falha**, com **298** passando.
 
-⚠ **As falhas são ambientais, e a causa foi medida:**
+⚠ **As falhas não têm o mesmo estatuto:**
 
-- **CRLF.** O `~/.gitconfig` desta máquina tem `core.autocrlf=true`; `git ls-files
-  --eol` mostra `i/lf w/crlf` nos dados da etapa 4, e o teste *casos.json volta a
-  registrar o resumo vigente* compara o SHA-256 dos bytes da árvore com o do blob.
-- **Tempo.** Duas de `rag-diagnostico-regressao` estouram o limite de 5000 ms em
-  parte das execuções completas; **isolada, a suíte passa 16 de 16 em menos de 2
-  s**.
+- **CRLF: ambiental, com causa medida.** O `~/.gitconfig` desta máquina tem
+  `core.autocrlf=true`; `git ls-files --eol` mostra `i/lf w/crlf` nos dados da
+  etapa 4, e o teste *casos.json volta a registrar o resumo vigente* compara o
+  SHA-256 dos bytes da árvore com o do blob.
+- **Tempo: comportamento observado, SEM causa estabelecida.** Duas de
+  `rag-diagnostico-regressao` estouram o limite de 5000 ms em parte das execuções
+  completas; **isolada, a suíte passa 16 de 16 em menos de 2 s**. ⚠ Ultrapassar o
+  tempo limite e passar isoladamente demonstra o comportamento, e **não estabelece
+  sozinho a causa**.
+
+⚠ **Corrigido depois, na rodada de Wijnmalen e Forman:** este bloco dizia que as
+três falhas eram ambientais e que a causa fora medida. Para as duas de tempo, isso
+afirmava mais do que se mediu. As mensagens de `a00fb5e` e `ae580c6` usam a mesma
+palavra, *ambientais*, e ficam como estão.
 
 | Medição | `tsc` | Suítes | Testes | Passando | Saída |
 |---|---:|---:|---:|---:|---:|
