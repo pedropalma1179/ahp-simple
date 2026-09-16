@@ -19,6 +19,7 @@ const DADOS = 'docs/dados/a33-etapa4/';
 const evidencias = ler(DADOS + 'evidencias.json');
 const c1 = ler(DADOS + 'C1-recuperacao.json');
 const conferencia = ler('docs/dados/a33-conferencia-c1/conferencia.json');
+const medicao = ler('docs/dados/a33-conferencia-c1/medicao-pdfs.json');
 
 const endereco = (a: any) => JSON.stringify([a.sha, a.arquivo, a.campo, a.indiceBaseZero ?? null]);
 const estado = (s: string) => evidencias.porTrecho.filter((u: any) => u.conferenciaPublicacao.estado === s);
@@ -191,10 +192,13 @@ describe('A.33: registro da conferência de C1', () => {
     const deOutra = r.proveniencia.filter((p: any) => /nao esta/.test(p.sessao));
     expect(deOutra.length).toBeGreaterThanOrEqual(2);
     expect(deOutra.some((p: any) => /SHA-256/.test(p.afirmacao))).toBe(true);
-    // ⚠ Nenhum valor de arquivo é apresentado como medido nem como verificado.
+    // ⚠ Os valores recebidos ficam preservados COMO RECEBIDOS. O que foi medido
+    // depois, na sessão de execução, deixa de ser recebido, e só isso.
     for (const a of r.arquivosConsultados) {
-      expect(a.origemDestesValores).toMatch(/NAO medidos nesta execucao e NAO verificados/);
-      expect(a.estadoDeVerificacao).toBe('recebido e AINDA NAO VERIFICADO');
+      expect(a.origemDestesValores).toMatch(/Recebidos pelo texto do prompt/);
+      expect(a.origemDestesValores).toMatch(/MEDIDOS na sessao de execucao/);
+      expect(a.estadoDeVerificacao).toMatch(/^SHA-256, paginas e posicao MEDIDOS na sessao de execucao/);
+      expect(a.estadoDeVerificacao).toMatch(/vinculo com a extracao anterior e versao do arquivo AINDA NAO VERIFICADOS/);
       expect(a.localizadorDaOrigem).toMatch(/NAO HA localizador verificavel/);
       // ⚠ Só o FORMATO do resumo é verificado. Correspondência com o PDF, não.
       expect(a.sha256DoArquivo).toMatch(/^[0-9a-f]{64}$/);
@@ -215,7 +219,10 @@ describe('A.33: registro da conferência de C1', () => {
 
   test('a rastreabilidade dos PDFs NÃO é apresentada como demonstrada', () => {
     const n = conferencia.comparacaoRecebida.rastreabilidadeNaoDemonstrada;
-    expect(n.estado).toBe('recebido e AINDA NAO VERIFICADO');
+    // ⚠ Parcialmente verificado depois; o estado anterior fica registrado.
+    expect(n.estado).toMatch(/^PARCIALMENTE VERIFICADO/);
+    expect(n.estado).toMatch(/vinculo com a extracao anterior e versao AINDA NAO VERIFICADOS/);
+    expect(n.estadoAte99bc69f).toBe('recebido e AINDA NAO VERIFICADO');
     expect(n.localizadorDaOrigem).toMatch(/NAO HA localizador verificavel/);
     // ⚠ Os quatro itens que o registro declara NÃO demonstrados.
     expect(n.oQueNAOestaDemonstrado).toHaveLength(4);
@@ -393,5 +400,168 @@ describe('A.33: registro da conferência de C1', () => {
     for (const t of conferencia.trechos) {
       expect(t.resultadoPorCampo.verbatim_quote.motivo).toBe('publicacao inacessivel');
     }
+  });
+});
+
+/**
+ * ⚠ A medição dos PDFs roda FORA da suíte, porque eles ficam fora do repositório.
+ * Estes casos travam a COERÊNCIA do registro da medição com os dados versionados,
+ * e o que ele se permite concluir. Não refazem a medição.
+ */
+describe('A.33: medição dos PDFs na sessão de execução', () => {
+  const recebidos: Record<string, any> = Object.fromEntries(
+    conferencia.comparacaoRecebida.arquivosConsultados.map((a: any) => [a.fonte, a]));
+  const saaty = medicao.inspecaoVisualSaaty237;
+
+  test('recálculo e coincidência do SHA-256 são fatos SEPARADOS, e a coincidência não prova o vínculo', () => {
+    expect(medicao.arquivos.map((m: any) => m.fonte).sort()).toEqual(Object.keys(recebidos).sort());
+    for (const m of medicao.arquivos) {
+      const r = recebidos[m.fonte];
+      // Caminho, nome e tamanho de cada arquivo, e o arquivo fica FORA da árvore.
+      expect(m.nome).toMatch(/\.pdf$/);
+      expect(m.caminho.endsWith(m.nome)).toBe(true);
+      expect(m.caminho.startsWith('C:\\AHP-BOCR\\preservado\\')).toBe(true);
+      expect(m.tamanhoBytes).toBeGreaterThan(0);
+      const h = m.sha256;
+      expect(h.recalculadoNestaSessao).toMatch(/^[0-9a-f]{64}$/);
+      // ⚠ O valor recebido comparado é o que está no registro, e não um copiado à mão.
+      expect(h.valorRecebidoRegistrado).toBe(r.sha256DoArquivo);
+      expect(h.coincide).toBe(h.recalculadoNestaSessao === h.valorRecebidoRegistrado);
+      expect(h.oQueORecalculoVerifica).toMatch(/EFETIVAMENTE ACESSADO nesta execucao/);
+      expect(h.oQueACoincidenciaConfirma).toMatch(/IGUALDADE/);
+      expect(h.oQueACoincidenciaConfirma).toMatch(/nada alem disso/);
+      expect(h.oQueACoincidenciaNaoDemonstra).toMatch(/extracao anterior/);
+      expect(h.oQueACoincidenciaNaoDemonstra).toMatch(/exige evidencia propria ou nova extracao documentada/);
+      expect(m.paginas.valorRecebido).toBe(r.paginas);
+      expect(m.paginas.coincide).toBe(m.paginas.medido === m.paginas.valorRecebido);
+    }
+  });
+
+  test('a posição de cada página impressa foi VERIFICADA no arquivo, e não assumida', () => {
+    for (const m of medicao.arquivos) {
+      const p = m.posicaoDaPaginaImpressa;
+      const r = recebidos[m.fonte];
+      expect(p.paginaImpressa).toBe(r.paginaImpressa);
+      expect(p.valorRecebido).toBe(r.posicaoNoPdf);
+      expect(p.coincide).toBe(p.posicaoMedida === p.valorRecebido);
+      expect(p.procedimento).toMatch(/leitura, na imagem, do numero impresso/);
+      // As vizinhas trazem a página anterior e a seguinte.
+      const marca = (pos: number) => p.marcadoresObservados[String(pos)];
+      expect(marca(p.posicaoMedida)).toBe(String(p.paginaImpressa));
+      expect(marca(p.posicaoMedida - 1)).toBe(String(p.paginaImpressa - 1));
+      expect(marca(p.posicaoMedida + 1)).toBe(String(p.paginaImpressa + 1));
+      expect(p.alcance).toMatch(/NESTE arquivo/);
+      expect(p.alcance).toMatch(/NAO demonstra que a extracao anterior tenha vindo dele/);
+    }
+  });
+
+  test('Saaty p. 237: impresso, extração e recorte confrontados, sem atribuição forçada', () => {
+    expect(saaty.ferramenta).toMatch(/PDFium/);
+    expect(saaty.procedimento.length).toBeGreaterThanOrEqual(3);
+    // O observado no impresso: a expressão, e a caixa do início.
+    expect(saaty.impresso.expressaoMatematica).toMatch(/lambda/);
+    expect(saaty.impresso.capitalizacaoDoInicio).toMatch(/MINUSCULA/);
+    expect(saaty.impresso.fraseComoImpressa).toMatch(/^It turns out that a reciprocal matrix A /);
+    // ⚠ O recorte do registro é o dos dados versionados, e a base NÃO foi corrigida.
+    const u = evidencias.porTrecho[saaty.trecho.indiceEmPorTrecho];
+    expect(u.articleId).toBe(saaty.trecho.articleId);
+    expect(u.enderecoNaBase).toEqual(saaty.trecho.enderecoNaBase);
+    expect(u.dadosOriginais.verbatim_quote).toBe(saaty.recorte.texto);
+    expect(u.dadosOriginais.evidence.quote).toBe(saaty.recorte.texto);
+    expect(saaty.recorte.texto.startsWith('A reciprocal')).toBe(true);
+    // A extração é a camada DESTE arquivo, e não se confunde com a da outra sessão.
+    expect(saaty.extracao.resultado).toContain('if and only if h max = a (Theorem 1 below)');
+    expect(saaty.extracao.alcance).toMatch(/compatibilidade nao e identidade/);
+    const origens: string[] = [];
+    for (const d of saaty.diferencas) {
+      // Cada diferença é confrontada com os TRÊS pontos.
+      expect(Object.keys(d.confronto).sort()).toEqual(['extracao', 'impresso', 'recorte']);
+      expect(d.transformacoes.length).toBeGreaterThanOrEqual(1);
+      let onde: string[];
+      if (typeof d.ondeSurgiu === 'string') {
+        onde = [d.ondeSurgiu];
+      } else {
+        // Origem por transformação: uma para cada, nenhuma a mais ou a menos.
+        expect(Object.keys(d.ondeSurgiu).sort()).toEqual(d.transformacoes.map((t: any) => t.id).sort());
+        onde = Object.values(d.ondeSurgiu);
+      }
+      for (const o of onde) {
+        origens.push(o);
+        // ⚠ Sem origem determinável: evidência e pendência, e nenhuma atribuição forçada.
+        if (o === 'origem nao determinada') {
+          expect(d.evidenciaDisponivel).toBeTruthy();
+          expect(d.pendencia).toBeTruthy();
+        }
+      }
+    }
+    expect(origens).toContain('origem nao determinada');
+    // ⚠ A expressão tem mais de uma transformação, e todas constam.
+    const expressao = saaty.diferencas.find((d: any) => d.onde === 'expressao matematica');
+    expect(expressao.transformacoes.map((t: any) => t.id)).toEqual(['D2.a', 'D2.b', 'D2.c', 'D2.d']);
+    const inicio = saaty.diferencas.find((d: any) => d.onde === 'inicio do trecho');
+    expect(inicio.transformacoes.some((t: any) => /caixa/.test(t.natureza))).toBe(true);
+  });
+
+  test('Saaty p. 237: vocabulário vigente, unidade pendente, e as contagens não mudam', () => {
+    const vocabulario = ['confere', 'confere com localizador divergente', 'nao confere', 'nao conferido, com motivo'];
+    expect(saaty.classificacao.vocabulario).toEqual(vocabulario);
+    for (const campo of ['verbatim_quote', 'evidence.quote']) {
+      // ⚠ Nenhuma categoria nova; a natureza da diferença vai no motivo.
+      expect(vocabulario).toContain(saaty.classificacao[campo].resultado);
+      expect(saaty.classificacao[campo].motivo).toMatch(/caixa|D1\.b/);
+    }
+    expect(saaty.classificacao.nenhumaCategoriaNova).toBe(true);
+    expect(['sustentada', 'parcialmente sustentada', 'nao sustentada', 'inconclusiva'])
+      .toContain(saaty.sustentacaoDaClaim.resultado);
+    const u = evidencias.porTrecho[saaty.trecho.indiceEmPorTrecho];
+    expect(saaty.sustentacaoDaClaim.claim).toBe(u.dadosOriginais.claim);
+    // A regra de agregação, aplicada às condições observadas.
+    const c = saaty.resultadoDaUnidade.condicoesDaSecao4;
+    const r = saaty.classificacao;
+    expect(c.doisCamposConferem).toBe(r.verbatim_quote.resultado === 'confere' && r['evidence.quote'].resultado === 'confere');
+    expect(c.claimSustentada).toBe(saaty.sustentacaoDaClaim.resultado === 'sustentada');
+    expect(c.semLocalizadorDivergente).toBe(r.localizador.resultado === 'compativel');
+    const todas = c.doisCamposConferem && c.claimSustentada && c.semDivergenciaA16 && c.semLocalizadorDivergente;
+    expect(saaty.resultadoDaUnidade.estadoPosterior).toBe(todas ? 'conferido' : 'pendente');
+    // ⚠ Os dados versionados não mudaram de estado, e as contagens são as de antes.
+    expect(u.conferenciaPublicacao.estado).toBe(saaty.resultadoDaUnidade.estadoAnterior);
+    expect(medicao.contagens.conferidas).toBe(estado('conferido').length);
+    expect(medicao.contagens.pendentes).toBe(estado('pendente').length);
+    expect(medicao.contagens.movidas).toBe(0);
+    // ⚠ Fora das 19, pela redação vigente, e as 19 seguem 19.
+    expect(saaty.resultadoDaUnidade.encaminhamento)
+      .toContain('A contagem histórica das 19 divergências entre campos permanece inalterada.');
+    expect(saaty.resultadoDaUnidade.porQueNaoSeSomaAs19).toMatch(/CRITERIOS DIFERENTES/);
+    expect(evidencias.porTrecho.filter((x: any) => x.comparacaoDosCampos?.iguais === false)).toHaveLength(19);
+    expect(medicao.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total)
+      .toBe(conferencia.tresIndicadores.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total);
+  });
+
+  test('só o medido deixa de ser recebido, e a conclusão integral de C1 não se anuncia', () => {
+    const r = conferencia.comparacaoRecebida;
+    for (const a of r.arquivosConsultados) {
+      const m = medicao.arquivos.find((x: any) => x.fonte === a.fonte);
+      expect(a.medicaoPosterior.registro).toBe('docs/dados/a33-conferencia-c1/medicao-pdfs.json');
+      expect(a.medicaoPosterior.sha256Coincide).toBe(m.sha256.coincide);
+      expect(a.medicaoPosterior.paginasCoincidem).toBe(m.paginas.coincide);
+      expect(a.medicaoPosterior.posicaoCoincide).toBe(m.posicaoDaPaginaImpressa.coincide);
+      expect(a.medicaoPosterior.alcance).toMatch(/NAO demonstra que a extracao anterior/);
+    }
+    const n = r.rastreabilidadeNaoDemonstrada;
+    expect(n.verificadoNaSessaoDeExecucao).toHaveLength(3);
+    // ⚠ O vínculo com a extração anterior continua NÃO demonstrado.
+    expect(n.oQueNAOestaDemonstrado.join(' | ')).toMatch(/vinculo entre extracao e PDF NAO esta estabelecido/);
+    expect(medicao.estadoDeVerificacaoPorArquivo.continuaComoEstava.join(' | '))
+      .toMatch(/vinculo entre a extracao da outra sessao/);
+    // ⚠ Wijnmalen e Forman não ganharam confirmação visual do TEXTO.
+    for (const f of ['Wijnmalen 2007', 'Forman e Peniwati 1998']) {
+      expect(medicao.arquivos.find((x: any) => x.fonte === f).textoNaoInspecionado).toMatch(/NAO foi inspecionado/);
+    }
+    expect(r.oQueNaoSeAnuncia).toMatch(/Wijnmalen tem nao correspondencia textual observada NA EXTRACAO/);
+    expect(medicao.oQueNaoSeAnuncia).toMatch(/NAO se anuncia a conclusao integral/);
+    // O bloco recebido de Saaty fica preservado, com ponteiro para a inspeção.
+    const s = r.porTrecho.find((t: any) => t.articleId === 'saaty1977_scaling');
+    expect(s.alcance).toMatch(/NADA aqui se grava como conclusao/);
+    expect(s.inspecaoPosterior).toMatch(/medicao-pdfs\.json/);
   });
 });

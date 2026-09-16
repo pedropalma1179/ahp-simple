@@ -1,0 +1,422 @@
+{
+  "rodada": "A.33: medicao dos tres PDFs de C1 na sessao de execucao, e inspecao visual de Saaty p. 237",
+  "data": "2026-09-16",
+  "base": "99bc69f78a258a4d2782f1fd01d93d4bd3da84ef",
+  "branchDeSessao": "inspecao/saaty-237",
+  "natureza": "MEDICAO FEITA NESTA SESSAO, na maquina Windows que tem os arquivos. O que esta aqui foi medido aqui e deixa de ser valor recebido. Sem geracao, sem alteracao da base de artigos, sem reingestao, e nenhum PDF na arvore: os arquivos ficam em C:\\AHP-BOCR\\preservado, fora do repositorio.",
+  "ambiente": {
+    "sistema": "Windows 11 Enterprise 10.0.26100",
+    "shell": "Git Bash; codigos de saida por $?",
+    "python": "3.14.0",
+    "pypdf": "6.14.2",
+    "pypdfium2": "5.13.0",
+    "pdfium": "153.0.7999.0",
+    "pillow": "12.1.0",
+    "pdftotext": "pdftotext version 4.00, Glyph & Cog, do Git for Windows",
+    "certutil": "certutil -hashfile, do Windows",
+    "dependencias": "pypdfium2 foi instalado por pip numa pasta temporaria da sessao, fora do repositorio e fora do Python global. Nenhuma dependencia entrou no projeto."
+  },
+  "instrumento": {
+    "arquivo": "docs/dados/a33-conferencia-c1/instrumentos/medir_pdfs.py",
+    "comando": "python docs/dados/a33-conferencia-c1/instrumentos/medir_pdfs.py C:/AHP-BOCR/preservado <pasta temporaria fora do repositorio>",
+    "codigoDeSaida": 0,
+    "oQueFaz": "Mede tamanho, SHA-256, numero de paginas, rotulos de pagina e titulo dos metadados; conta os operadores de texto por modo de renderizacao; renderiza faixas de cabecalho e rodape da pagina alvo e das duas vizinhas; renderiza a p. 237 do Saaty a 300 dpi e recorta a frase; e le a camada de texto em torno da frase por quatro vias.",
+    "oQueNaoFaz": "NAO le as imagens. O marcador impresso e a frase foram lidos OLHANDO as imagens geradas, e a leitura esta registrada abaixo como observacao. O instrumento NAO roda na suite de testes, porque depende dos PDFs, que ficam fora do repositorio.",
+    "conferenciaDaPrimeiraExecucao": "Caso mais visivel conferido a mao antes de aceitar a saida: as imagens da frase, do inicio ampliado e da pagina a 300 dpi geradas pelo instrumento tem SHA-256 IDENTICO ao das imagens inspecionadas antes dele, com os mesmos parametros; e os tres cabecalhos alvo gerados por ele foram olhados e trazem 237, 899 e 167.",
+    "imagensGeradas": "Ficam fora do repositorio. O SHA-256 de cada uma esta abaixo: com o PDF de mesmo SHA-256 e as mesmas versoes, a renderizacao se reproduz e se compara."
+  },
+  "portaDeEntrada": {
+    "buscaDosArquivos": "listagem de C:\\AHP-BOCR\\ e de C:\\AHP-BOCR\\preservado\\; os tres arquivos estavam em C:\\AHP-BOCR\\preservado\\",
+    "arquivosLocalizados": 3,
+    "repositorio": {
+      "sha": "99bc69f78a258a4d2782f1fd01d93d4bd3da84ef",
+      "branch": "inspecao/saaty-237",
+      "gitFetch": 0,
+      "gitStatusShort": "vazio",
+      "gitDiffHead": "vazio, 0 bytes",
+      "origin/integra/a30-registros": "99bc69f78a258a4d2782f1fd01d93d4bd3da84ef",
+      "ancestralidade": {
+        "comando": "git merge-base --is-ancestor origin/integra/a30-registros HEAD",
+        "codigoDeSaida": 0
+      },
+      "main": "33c1fdf6500242832994a17aa15b0a686704c029",
+      "pdfsRastreados": "git ls-files '*.pdf' devolve 0"
+    }
+  },
+  "arquivos": [
+    {
+      "fonte": "Saaty 1977",
+      "caminho": "C:\\AHP-BOCR\\preservado\\AHP_Scalling_Method_Saaty_1977.pdf",
+      "nome": "AHP_Scalling_Method_Saaty_1977.pdf",
+      "tamanhoBytes": 2687181,
+      "sha256": {
+        "recalculadoNestaSessao": "de5f6a8b0f5f83aefc53dd1fb5107cf90dd07c11cc3e3c55f87b112539cef9e7",
+        "procedimento": "sha256sum do Git Bash, certutil -hashfile SHA256 do Windows e hashlib no instrumento: tres calculos, o mesmo valor",
+        "valorRecebidoRegistrado": "de5f6a8b0f5f83aefc53dd1fb5107cf90dd07c11cc3e3c55f87b112539cef9e7",
+        "coincide": true,
+        "oQueORecalculoVerifica": "o arquivo EFETIVAMENTE ACESSADO nesta execucao, no caminho acima",
+        "oQueACoincidenciaConfirma": "a IGUALDADE entre o valor recalculado e o recebido, e nada alem disso",
+        "oQueACoincidenciaNaoDemonstra": "que a extracao anterior, feita por outra sessao, tenha vindo deste arquivo. Esse vinculo exige evidencia propria ou nova extracao documentada."
+      },
+      "paginas": {
+        "medido": 48,
+        "procedimento": "contagem por pypdf e por PDFium, iguais",
+        "valorRecebido": 48,
+        "coincide": true
+      },
+      "posicaoDaPaginaImpressa": {
+        "paginaImpressa": 237,
+        "posicaoMedida": 4,
+        "valorRecebido": 4,
+        "coincide": true,
+        "procedimento": "renderizacao das posicoes 3, 4 e 5 com PDFium, escala 1,5, e leitura, na imagem, do numero impresso no canto do cabecalho; a posicao 4 foi tambem renderizada a 300 dpi",
+        "marcadoresObservados": {
+          "3": "236",
+          "4": "237",
+          "5": "238"
+        },
+        "aImagemEADigitalizacao": "O arquivo e digitalizado: cada pagina e um mosaico de tiras de imagem de 1 bit, CCITT, sob uma camada de texto OCR. Nas posicoes 1 a 5, TODOS os operadores que mostram texto estao no modo de renderizacao 3, invisivel, contados um a um: 507, 457, 546, 504 e 326. A imagem olhada e, portanto, a digitalizacao, e nao a camada OCR.",
+        "rotulosDePaginaDoArquivo": "sequenciais a partir de 1, sem a numeracao impressa; nao foram usados",
+        "alcance": "Verifica a posicao NESTE arquivo. NAO demonstra que a extracao anterior tenha vindo dele."
+      },
+      "metadados": {
+        "titulo": "PII: 0022-2496(77)90033-5",
+        "produtor": "Acrobat 4.0 Import Plug-in for Windows",
+        "alcance": "Metadado do arquivo, nao texto impresso, e NAO verificado contra fonte do editor. Por isso NAO ocupa o identificador de artigo no registro: adota-lo e decisao fora desta rodada."
+      },
+      "impressoNaPrimeiraPagina": "posicao 1: cabecalho JOURNAL OF MATHEMATICAL PSYCHOLOGY 15, 234-281 (1977); rodape com o numero 234, Copyright 1977 by Academic Press, e ISSN 0022-2496, que identifica o PERIODICO",
+      "imagens": {
+        "topo_pos3": "1a4177194b72f675e28956e262e56c6c4bc47f82241d382030a8b5fad72410b7",
+        "topo_pos4": "fd252674636aadd098d5b462a461fb7e3c4713ead23ec9a7d650cb812cd047fb",
+        "topo_pos5": "2915f945b0b0e27fa3827e365d00a3a41e53169953f639a6a626036567e02615",
+        "pagina_alvo_300dpi": "04181435734396164bb3642fd7e8d97a468bf1a2709c852f6385f20b60c8409f",
+        "frase_300dpi": "f5265f414ab28e6f2cca1c6c1ab1a681b117e33201c912463d6e4f5bc76339fb",
+        "frase_inicio_zoom2x": "f35775930de19f01cbbcd7dfb492f311052f9b12f88cf5e88a5d875ac44a32a4",
+        "pagina_pos1": "1c51f29b563c8ba4a4b09c52261a4694ebbc063df1bc937db45f0e6a9086f56a",
+        "pagina_pos2": "6584642b8409dbe8f646ced963c6ab14ad8c4af27b066d2f9f921ad213618ed1",
+        "pagina_pos3": "302007b11137d1b163a17c95d994abd198dd57431929f77fbb225cb8da2e50af"
+      }
+    },
+    {
+      "fonte": "Wijnmalen 2007",
+      "caminho": "C:\\AHP-BOCR\\preservado\\Analysis_of_benefits_opportunities_costs_and_risks_BOCR_with_the_AHP_ANP.pdf",
+      "nome": "Analysis_of_benefits_opportunities_costs_and_risks_BOCR_with_the_AHP_ANP.pdf",
+      "tamanhoBytes": 386555,
+      "sha256": {
+        "recalculadoNestaSessao": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
+        "procedimento": "sha256sum do Git Bash, certutil -hashfile SHA256 do Windows e hashlib no instrumento: tres calculos, o mesmo valor",
+        "valorRecebidoRegistrado": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
+        "coincide": true,
+        "oQueORecalculoVerifica": "o arquivo EFETIVAMENTE ACESSADO nesta execucao, no caminho acima",
+        "oQueACoincidenciaConfirma": "a IGUALDADE entre o valor recalculado e o recebido, e nada alem disso",
+        "oQueACoincidenciaNaoDemonstra": "que a extracao anterior, feita por outra sessao, tenha vindo deste arquivo. Esse vinculo exige evidencia propria ou nova extracao documentada."
+      },
+      "paginas": {
+        "medido": 14,
+        "procedimento": "contagem por pypdf e por PDFium, iguais",
+        "valorRecebido": 14,
+        "coincide": true
+      },
+      "posicaoDaPaginaImpressa": {
+        "paginaImpressa": 899,
+        "posicaoMedida": 8,
+        "valorRecebido": 8,
+        "coincide": true,
+        "procedimento": "renderizacao das posicoes 7, 8 e 9 com PDFium, escala 1,5, e leitura, na imagem, do numero impresso no cabecalho",
+        "marcadoresObservados": {
+          "7": "898",
+          "8": "899",
+          "9": "900"
+        },
+        "aImagemEADigitalizacao": "Nao se aplica: o arquivo e composto em pdfeTeX, com texto vetorial visivel, modo 0. A imagem e a composicao do proprio arquivo.",
+        "rotulosDePaginaDoArquivo": "898, 899 e 900 nas mesmas posicoes. Concordam, e sao metadado: a leitura que decide e a do cabecalho renderizado.",
+        "alcance": "Verifica a posicao NESTE arquivo. NAO demonstra que a extracao anterior tenha vindo dele."
+      },
+      "metadados": {
+        "titulo": "doi:10.1016/j.mcm.2007.03.020",
+        "produtor": "pdfeTeX-1.304",
+        "alcance": "Metadado do arquivo, nao texto impresso. Coincide com o DOI registrado para o artigo."
+      },
+      "imagens": {
+        "topo_pos7": "8a66253bfbe6e6698187450e5b1a95cf7bfb5d64ee212bc8edbe3bd25203ddc2",
+        "topo_pos8": "320afd9efceea990dd5610c4009298e2a2fb9dabba33c40971fcd23ef8aaed52",
+        "topo_pos9": "fe3f21461f6d02e71693d4fc5ae884c5a52b9196b311fdcc6dce18ad36067e18"
+      },
+      "textoNaoInspecionado": "So as faixas de cabecalho e rodape foram renderizadas. O TEXTO da secao 4 NAO foi inspecionado visualmente nesta rodada."
+    },
+    {
+      "fonte": "Forman e Peniwati 1998",
+      "caminho": "C:\\AHP-BOCR\\preservado\\Aggregating_individual_judgments_and_priorities_with_the_AHP.pdf",
+      "nome": "Aggregating_individual_judgments_and_priorities_with_the_AHP.pdf",
+      "tamanhoBytes": 479080,
+      "sha256": {
+        "recalculadoNestaSessao": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
+        "procedimento": "sha256sum do Git Bash, certutil -hashfile SHA256 do Windows e hashlib no instrumento: tres calculos, o mesmo valor",
+        "valorRecebidoRegistrado": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
+        "coincide": true,
+        "oQueORecalculoVerifica": "o arquivo EFETIVAMENTE ACESSADO nesta execucao, no caminho acima",
+        "oQueACoincidenciaConfirma": "a IGUALDADE entre o valor recalculado e o recebido, e nada alem disso",
+        "oQueACoincidenciaNaoDemonstra": "que a extracao anterior, feita por outra sessao, tenha vindo deste arquivo. Esse vinculo exige evidencia propria ou nova extracao documentada."
+      },
+      "paginas": {
+        "medido": 5,
+        "procedimento": "contagem por pypdf e por PDFium, iguais",
+        "valorRecebido": 5,
+        "coincide": true
+      },
+      "posicaoDaPaginaImpressa": {
+        "paginaImpressa": 167,
+        "posicaoMedida": 3,
+        "valorRecebido": 3,
+        "coincide": true,
+        "procedimento": "renderizacao das posicoes 2, 3 e 4 com PDFium, escala 1,5, e leitura, na imagem, do numero impresso no cabecalho",
+        "marcadoresObservados": {
+          "2": "166",
+          "3": "167",
+          "4": "168"
+        },
+        "aImagemEADigitalizacao": "O arquivo e digitalizado, com camada OCR. Nas posicoes 2, 3 e 4, TODOS os operadores que mostram texto estao no modo 3, invisivel: 703, 661 e 660. A imagem olhada e a digitalizacao.",
+        "rotulosDePaginaDoArquivo": "sequenciais a partir de 1, sem a numeracao impressa; nao foram usados",
+        "alcance": "Verifica a posicao NESTE arquivo. NAO demonstra que a extracao anterior tenha vindo dele."
+      },
+      "metadados": {
+        "titulo": "PII: S0377-2217(97)00244-0",
+        "produtor": "Acrobat 3.0 Import Plug-in",
+        "alcance": "Metadado do arquivo, nao texto impresso. Coincide com o PII registrado para o artigo."
+      },
+      "imagens": {
+        "topo_pos2": "aeab3187a2082ddbea2000ca194fe0133cdb47ae48adc312aa99b2fb005be950",
+        "topo_pos3": "d74b28e0de3a7c6b3a2ccbd78200becd4fdd53ed60f1e9ca320d7de2c80bf653",
+        "topo_pos4": "33eaf95ea656320fa00c8a9675454d80bd5507e1a20b260c3207b03ec059995e"
+      },
+      "textoNaoInspecionado": "So as faixas de cabecalho e rodape foram renderizadas. O TEXTO da secao 6 NAO foi inspecionado visualmente nesta rodada."
+    }
+  ],
+  "inspecaoVisualSaaty237": {
+    "trecho": {
+      "articleId": "saaty1977_scaling",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "indiceEmPorTrecho": 47
+    },
+    "ferramenta": "PDFium 153.0.7999.0, por pypdfium2 5.13.0, para renderizar; Pillow 12.1.0 para recortar e ampliar; leitura OLHANDO as imagens PNG",
+    "procedimento": [
+      "1. confirmar que a imagem renderizada e so a digitalizacao: todos os 504 operadores de texto da posicao 4 estao no modo 3, invisivel",
+      "2. renderizar a posicao 4 inteira em escala 1,5 e localizar a frase: terceiro paragrafo",
+      "3. renderizar a posicao 4 em escala 300/72, que e a resolucao nativa das tiras, cerca de 300 dpi, e recortar a faixa de 140 a 178 pontos a partir do topo",
+      "4. ampliar duas vezes o inicio das linhas, de 20 a 200 pontos na horizontal, para ler a caixa da primeira letra e a expressao",
+      "5. renderizar as posicoes 1, 2 e 3 para situar a frase na secao e ler o contexto da claim",
+      "6. comparar o que se viu com a camada de texto do arquivo e com o recorte preparado, que esta no repositorio"
+    ],
+    "impresso": {
+      "localizacao": "pagina impressa 237, posicao 4 do arquivo, terceiro paragrafo, primeira e segunda linhas",
+      "fraseComoImpressa": "It turns out that a reciprocal matrix A with positive entries is consistent if and only if λmax = n (Theorem 1 below).",
+      "convencaoDaTranscricao": "λmax transcreve lambda com o subindice max. No impresso, A e n estao em italico.",
+      "expressaoMatematica": "lambda grego minusculo, em italico, com o subindice max em tipo REDONDO e corpo menor, seguido do sinal de igual e de n em italico",
+      "capitalizacaoDoInicio": "a em MINUSCULA. A frase impressa abre com It turns out that, e o trecho da base comeca no meio dela.",
+      "fimDaFrase": "depois de n, a frase continua com (Theorem 1 below) e ponto final"
+    },
+    "extracao": {
+      "qual": "NOVA extracao, documentada nesta sessao, da camada de texto OCR DESTE arquivo, posicao 4",
+      "vias": "operadores de texto crus lidos por pypdf; extract_text do pypdf; get_text_range do PDFium; pdftotext -layout",
+      "resultado": "It turns out that a reciprocal matrix A with positive entries is consistent if and only if h max = a (Theorem 1 below).",
+      "operadoresCrus": [
+        "It",
+        "turns",
+        "out",
+        "that",
+        "a",
+        "reciprocal",
+        "matrix",
+        "A",
+        "with",
+        "positive",
+        "entries",
+        "is",
+        "consistent",
+        "if",
+        "and",
+        "only",
+        "if",
+        "h",
+        "max",
+        "=",
+        "a",
+        "(Theorem",
+        "1"
+      ],
+      "concordanciaEntreAsVias": "As quatro vias trazem as mesmas palavras; o pdftotext apenas cola palavras vizinhas, como consistentif e hmax=.",
+      "alcance": "⚠ A extracao da OUTRA sessao NAO esta disponivel aqui. Esta e a camada de texto deste arquivo, e que a extracao anterior tenha sido essa mesma continua NAO demonstrado. A descricao recebida, expressao corrompida na extracao, e COMPATIVEL com o observado aqui, e compatibilidade nao e identidade."
+    },
+    "recorte": {
+      "texto": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "ondeFoiLido": "docs/dados/a33-etapa4/evidencias.json, porTrecho[47].dadosOriginais, campos verbatim_quote e evidence.quote",
+      "igualABase": "IDENTICO, byte a byte, aos dois campos de lib/rag/articles/saaty1977_scaling.ts, key_claims[0], e os dois campos sao identicos entre si. A cadeia tem 90 caracteres e uma unica contrabarra.",
+      "consequencia": "O recorte preparado NAO introduziu diferenca propria: o que difere do impresso ja esta na base.",
+      "sobreABase": "O cabecalho do arquivo da base registra Extracted on 2026-02-11 e Extraction prompt version v3.0, e NAO registra o texto de entrada. O trecho esta no arquivo desde 7f46e3a, de 2026-04-16, o commit mais antigo do arquivo no historico. A base e, portanto, ANTERIOR a extracao da outra sessao, que nao pode ter sido a sua fonte."
+    },
+    "semDiferenca": "De reciprocal ate o segundo if, as palavras do recorte coincidem letra a letra com o impresso. O italico de A se perde, como em qualquer texto plano.",
+    "diferencas": [
+      {
+        "id": "D1",
+        "onde": "inicio do trecho",
+        "transformacoes": [
+          {
+            "id": "D1.a",
+            "natureza": "supressao NAO sinalizada do inicio da frase, It turns out that",
+            "cadeia": "base, herdada pelo recorte"
+          },
+          {
+            "id": "D1.b",
+            "natureza": "alteracao de caixa NAO sinalizada na primeira letra: a minuscula no impresso, A maiuscula no recorte",
+            "cadeia": "base, herdada pelo recorte"
+          }
+        ],
+        "confronto": {
+          "impresso": "It turns out that a reciprocal: a diferenca NAO esta no impresso",
+          "extracao": "It turns out that a reciprocal: a camada de texto deste arquivo NAO tem a diferenca",
+          "recorte": "A reciprocal: TEM a diferenca, identica a da base"
+        },
+        "ondeSurgiu": "origem nao determinada",
+        "evidenciaDisponivel": "A diferenca nao esta no impresso nem na camada de texto deste arquivo, e o recorte a reproduz da base. Ela surgiu, portanto, na criacao da base ou no texto que a alimentou, e nao na preparacao do recorte.",
+        "pendencia": "identificar o texto de entrada da extracao v3.0 de 2026-02-11, que a base nao registra, para separar escolha do extrator de transcricao herdada"
+      },
+      {
+        "id": "D2",
+        "onde": "expressao matematica",
+        "transformacoes": [
+          {
+            "id": "D2.a",
+            "natureza": "troca de simbolo: lambda lido como h",
+            "cadeia": "extracao"
+          },
+          {
+            "id": "D2.b",
+            "natureza": "troca de simbolo: n lido como a",
+            "cadeia": "extracao"
+          },
+          {
+            "id": "D2.c",
+            "natureza": "subindice achatado: max vira palavra separada na linha",
+            "cadeia": "extracao"
+          },
+          {
+            "id": "D2.d",
+            "natureza": "conversao de notacao: a expressao tipografada vira a marcacao LaTeX \\lambda_{max} = n. Lambda, subindice max, sinal de igual e n correspondem aos simbolos impressos. O italico se perde, e o subindice impresso em tipo redondo, composto a partir de _{max}, sairia em italico: diferenca de tipografia, nao de simbolo.",
+            "cadeia": "base, herdada pelo recorte"
+          }
+        ],
+        "confronto": {
+          "impresso": "lambda com subindice max, igual, n",
+          "extracao": "h max = a: DUAS trocas de simbolo e um achatamento",
+          "recorte": "\\lambda_{max} = n: conversao de notacao, SEM troca de simbolo"
+        },
+        "ondeSurgiu": {
+          "D2.a": "na camada de texto OCR deste arquivo, onde as quatro vias de extracao a leem. Determinado para ESTE arquivo; que a extracao anterior seja a mesma nao esta demonstrado.",
+          "D2.b": "na camada de texto OCR deste arquivo, onde as quatro vias de extracao a leem. Determinado para ESTE arquivo; que a extracao anterior seja a mesma nao esta demonstrado.",
+          "D2.c": "na camada de texto OCR deste arquivo, onde as quatro vias de extracao a leem. Determinado para ESTE arquivo; que a extracao anterior seja a mesma nao esta demonstrado.",
+          "D2.d": "origem nao determinada"
+        },
+        "evidenciaDisponivel": "Para D2.d: a notacao LaTeX nao esta no impresso nem na camada de texto deste arquivo, que traz h e a; a base a traz desde 2026-04-16, e o recorte a herdou. O recorte NAO carrega os erros da camada de texto, entao essa camada nao e o texto de onde ele foi copiado literalmente.",
+        "pendencia": "Para D2.d, a mesma de D1: o texto de entrada da extracao v3.0 de 2026-02-11."
+      },
+      {
+        "id": "D3",
+        "onde": "fim do trecho",
+        "transformacoes": [
+          {
+            "id": "D3.a",
+            "natureza": "truncamento NAO sinalizado: o recorte termina em n, e o impresso continua com (Theorem 1 below) e ponto final",
+            "cadeia": "base, herdada pelo recorte"
+          }
+        ],
+        "confronto": {
+          "impresso": "... = n (Theorem 1 below).",
+          "extracao": "... = a (Theorem 1 below).",
+          "recorte": "... = n, e o recorte acaba ai"
+        },
+        "ondeSurgiu": "origem nao determinada",
+        "evidenciaDisponivel": "A remissao esta no impresso e na camada de texto deste arquivo, e falta na base e no recorte.",
+        "pendencia": "a mesma de D1",
+        "alcance": "A remissao omitida nao carrega proposicao. Fica registrada, e NAO e a razao da classificacao."
+      }
+    ],
+    "classificacao": {
+      "vocabulario": [
+        "confere",
+        "confere com localizador divergente",
+        "nao confere",
+        "nao conferido, com motivo"
+      ],
+      "verbatim_quote": {
+        "resultado": "nao confere",
+        "motivo": "Alteracao de caixa NAO sinalizada na primeira letra, D1.b: o impresso traz a minuscula, precedida de It turns out that, e o recorte traz A maiuscula, o que apresenta como inicio de frase o que no impresso e continuacao dela. Nenhuma palavra, simbolo ou proposicao foi trocada: de reciprocal ao segundo if o texto coincide, e a expressao esta em notacao LaTeX com os mesmos simbolos do impresso, D2.d."
+      },
+      "evidence.quote": {
+        "resultado": "nao confere",
+        "motivo": "O mesmo de verbatim_quote: os dois campos sao identicos, e a diferenca com o impresso e a mesma, D1.b."
+      },
+      "localizador": {
+        "resultado": "compativel",
+        "pagina": "237 impressa, na posicao 4 do arquivo",
+        "localizadorInterno": "Section 2: a secao 2, Ratio Scales from Reciprocal Pairwise Comparison Matrices, comeca na p. 235, e as pp. 236 e 237 nao trazem titulo de secao ate a frase",
+        "tipo": "paragraph: terceiro paragrafo da p. 237"
+      },
+      "criterioAplicado": "Correspondencia LITERAL do recorte com o impresso, a vigente. ⚠ A conversao de notacao para texto plano, D2.d, NAO foi contada como nao correspondencia, porque o texto plano nao reproduz subindice e os simbolos correspondem. A alteracao de caixa, D1.b, FOI, porque o texto plano reproduz a minuscula e o recorte a trocou. Tratar as duas de modo diferente e decisao de criterio, e fica registrada para revisao do autor.",
+      "nenhumaCategoriaNova": true
+    },
+    "sustentacaoDaClaim": {
+      "claim": "Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.",
+      "resultado": "sustentada",
+      "fundamento": "Na p. 237, a matriz reciproca A de entradas positivas e consistente se e somente se lambda max = n. Na p. 236, posicao 3, consistente e a propriedade cardinal a_ij a_jk = a_ik; o problema perturbado passa a A'w' = lambda max w', e o periodo seguinte invoca Perron-Frobenius para o autovalor real positivo de maior modulo, o que faz de lambda max o autovalor principal. O resumo, na p. 234, diz o mesmo da condicao: lambda max = n e necessaria e suficiente para a consistencia. Na p. 235, posicao 2, a matriz compara n objetos, e e portanto de ordem n.",
+      "alcance": "⚠ Sustentada NO DOMINIO que o trecho declara, o de matriz reciproca de entradas positivas. A claim omite essa restricao, que no AHP e a da matriz de comparacoes. A sustentacao NAO certifica uma futura afirmacao do parecer."
+    },
+    "resultadoDaUnidade": {
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "motivo": "pendente por NAO CORRESPONDENCIA TEXTUAL com a pagina impressa",
+      "condicoesDaSecao4": {
+        "doisCamposConferem": false,
+        "claimSustentada": true,
+        "semDivergenciaA16": true,
+        "semLocalizadorDivergente": true,
+        "nota": "Aqui false e OBSERVACAO: a pagina impressa foi aberta, e os dois campos diferem dela em D1.b. A ausencia de avaliacao da rodada sem acesso continua registrada em conferencia.json, trechos[0], e nao foi substituida."
+      },
+      "encaminhamento": "Achado adicional encaminhado à A.16, de não correspondência com a página impressa da publicação. A contagem histórica das 19 divergências entre campos permanece inalterada. ⚠ A base NAO e corrigida nesta rodada.",
+      "porQueNaoSeSomaAs19": "⚠ Sao CRITERIOS DIFERENTES. As 19 registram divergencia ENTRE CAMPOS DA BASE, verbatim_quote contra evidence.quote. Neste trecho os dois campos COINCIDEM entre si, e diferem da PAGINA IMPRESSA. Somar os dois numeros misturaria medidas de coisas distintas."
+    }
+  },
+  "estadoDeVerificacaoPorArquivo": {
+    "medidoNestaSessao": [
+      "caminho, nome e tamanho dos tres arquivos",
+      "SHA-256 dos tres, recalculado e coincidente com o recebido",
+      "numero de paginas dos tres, coincidente com o recebido",
+      "posicao das paginas impressas 237, 899 e 167, coincidente com a recebida",
+      "texto de Saaty p. 237, inspecionado visualmente"
+    ],
+    "continuaComoEstava": [
+      "o vinculo entre a extracao da outra sessao e estes arquivos: a extracao anterior nao esta disponivel, e a coincidencia de SHA-256 nao o demonstra",
+      "a versao do arquivo consultado: nenhuma medicao desta rodada a determina",
+      "o texto de Wijnmalen p. 899: nao correspondencia de however observada NA EXTRACAO, sem confirmacao visual",
+      "o texto de Forman p. 167: confere sobre a extracao, sem confirmacao visual"
+    ]
+  },
+  "contagens": {
+    "conferidas": 4,
+    "pendentes": 161,
+    "denominador": 165,
+    "movidas": 0,
+    "nota": "A medicao NAO muda as contagens. Saaty era pendente e continua pendente, agora por nao correspondencia com o impresso. Nenhum total antecipado."
+  },
+  "trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual": {
+    "total": 0,
+    "denominador": 3,
+    "alcance": "Continua zero de tres. Saaty nao confere com a pagina impressa; Wijnmalen tem nao correspondencia na extracao, sem confirmacao visual; Forman confere sobre a extracao, sem confirmacao visual."
+  },
+  "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Wijnmalen segue com nao correspondencia observada NA EXTRACAO, e as confirmacoes visuais de Wijnmalen e Forman NAO foram feitas nesta rodada.",
+  "predicao": "Nao cabe: a rodada mede arquivos e grava o resultado, sem alterar o contexto entregue ao modelo. ⚠ A predicao de A.33 segue nao testada."
+}

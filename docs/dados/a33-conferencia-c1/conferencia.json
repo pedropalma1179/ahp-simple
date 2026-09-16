@@ -136,7 +136,7 @@
         },
         "nota": "Permanece pendente. Nada foi movido."
       },
-      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos."
+      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos. A medicao dos arquivos e a inspecao visual de Saaty p. 237, tambem posteriores, estao em medicao-pdfs.json."
     },
     {
       "identidade": {
@@ -233,7 +233,7 @@
         },
         "nota": "Permanece pendente. Nada foi movido."
       },
-      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos."
+      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos. A medicao dos arquivos e a inspecao visual de Saaty p. 237, tambem posteriores, estao em medicao-pdfs.json."
     },
     {
       "identidade": {
@@ -334,7 +334,7 @@
         },
         "nota": "A unidade PERMANECE conferida pelo registro anterior, que esta rodada preserva e NAO revoga. O resultado desta rodada e sobre a REconferencia, que nao foi possivel."
       },
-      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos."
+      "vejaTambem": "comparacaoRecebida.porTrecho traz observacao POSTERIOR, de outra sessao, sobre texto extraido, com proveniencia propria. Os resultados deste bloco sao o registro DATADO da rodada sem acesso, e nao foram substituidos. A medicao dos arquivos e a inspecao visual de Saaty p. 237, tambem posteriores, estao em medicao-pdfs.json."
     }
   ],
   "contagens": {
@@ -409,7 +409,7 @@
     "trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual": {
       "total": 0,
       "denominador": 3,
-      "alcance": "Zero de tres. ⚠ A comparacao recebida NAO altera este indicador: ela foi feita sobre TEXTO EXTRAIDO, sem inspecao visual, e o criterio atual exige a evidencia documental prevista. Forman ficou conferido no CONTEUDO sobre extracao, Wijnmalen teve NAO CORRESPONDENCIA textual, e Saaty segue pendente de inspecao visual. Nenhuma nova conferencia foi declarada."
+      "alcance": "Zero de tres. ⚠ A comparacao recebida NAO altera este indicador: ela foi feita sobre TEXTO EXTRAIDO, sem inspecao visual, e o criterio atual exige a evidencia documental prevista. Forman ficou conferido no CONTEUDO sobre extracao, Wijnmalen teve NAO CORRESPONDENCIA textual, e Saaty, inspecionado visualmente depois, NAO confere com a pagina impressa, em medicao-pdfs.json. Nenhuma nova conferencia foi declarada."
     }
   },
   "rodadaDeFechamento": {
@@ -424,7 +424,7 @@
   },
   "comparacaoRecebida": {
     "data": "2026-09-16",
-    "natureza": "⚠ ESTA EXECUCAO REGISTRA UMA COMPARACAO RECEBIDA. Ela NAO consultou as publicacoes, e NAO apresenta a conferencia como leitura propria. A comparacao das fontes foi feita sobre TEXTO EXTRAIDO dos PDFs, por outra sessao. ⚠ A RASTREABILIDADE DOS PDFs NAO ESTA DEMONSTRADA: os valores de arquivo estao recebidos e ainda nao verificados, e o vinculo entre a extracao e o PDF nao esta estabelecido. Ver rastreabilidadeNaoDemonstrada.",
+    "natureza": "⚠ ESTA EXECUCAO REGISTRA UMA COMPARACAO RECEBIDA. Ela NAO consultou as publicacoes, e NAO apresenta a conferencia como leitura propria. A comparacao das fontes foi feita sobre TEXTO EXTRAIDO dos PDFs, por outra sessao. ⚠ A RASTREABILIDADE DOS PDFs NAO ESTA DEMONSTRADA POR INTEIRO: SHA-256, contagem de paginas e posicao da pagina foram MEDIDOS depois, na sessao de execucao, e coincidem com os recebidos; o vinculo entre a extracao da outra sessao e o PDF continua NAO estabelecido. Ver rastreabilidadeNaoDemonstrada e medicao-pdfs.json.",
     "proveniencia": [
       {
         "afirmacao": "os resultados por campo das tres fontes",
@@ -449,9 +449,15 @@
         "quemComparou": "esta execucao",
         "materialConsultado": "docs/dados/a33-etapa4/evidencias.json, no repositorio",
         "sessao": "esta"
+      },
+      {
+        "afirmacao": "a medicao POSTERIOR de SHA-256, contagem de paginas e posicao da pagina, e a inspecao visual de Saaty p. 237",
+        "quemComparou": "a sessao de execucao de 16/09/2026, na maquina Windows que tem os arquivos",
+        "materialConsultado": "os tres arquivos PDF em C:\\AHP-BOCR\\preservado, identificados por caminho, tamanho e SHA-256",
+        "sessao": "a de medicao, registrada em medicao-pdfs.json"
       }
     ],
-    "avisoSobreExtracao": "⚠ TEXTO EXTRAIDO NAO E A PAGINA IMPRESSA. A extracao pode corromper notacao matematica, e foi o que ocorreu no caso do Saaty. Distinguir o que esta IMPRESSO, o que a EXTRACAO corrompeu e o que o RECORTE preparado alterou exige inspecao visual, que NAO foi feita.",
+    "avisoSobreExtracao": "⚠ TEXTO EXTRAIDO NAO E A PAGINA IMPRESSA. A extracao pode corromper notacao matematica, e foi o que ocorreu no caso do Saaty. Distinguir o que esta IMPRESSO, o que a EXTRACAO corrompeu e o que o RECORTE preparado alterou exige inspecao visual. ⚠ Feita depois para Saaty p. 237, em medicao-pdfs.json; NAO feita para o texto de Wijnmalen p. 899 nem para o de Forman p. 167.",
     "arquivosConsultados": [
       {
         "fonte": "Saaty 1977",
@@ -461,14 +467,21 @@
         "diferencaEntreOsDois": 233,
         "sha256DoArquivo": "de5f6a8b0f5f83aefc53dd1fb5107cf90dd07c11cc3e3c55f87b112539cef9e7",
         "paginas": 48,
-        "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
+        "medicaoPosterior": {
+          "registro": "docs/dados/a33-conferencia-c1/medicao-pdfs.json",
+          "sha256Coincide": true,
+          "paginasCoincidem": true,
+          "posicaoCoincide": true,
+          "alcance": "A coincidencia confirma a igualdade dos valores. NAO demonstra que a extracao anterior tenha vindo deste arquivo."
+        },
+        "origemDestesValores": "Recebidos pelo texto do prompt da rodada de 835cd55, da sessao que declara ter tido os arquivos, e aqui PRESERVADOS como recebidos. ⚠ SHA-256, paginas e posicao da pagina foram depois MEDIDOS na sessao de execucao, e coincidem: ver medicaoPosterior.",
         "identificadorDoArtigo": "identificador de artigo nao registrado",
         "identificadorDoPeriodico": "ISSN 0022-2496",
         "sobreOIdentificadorDoArtigo": "Nenhum identificador de artigo esta registrado aqui, e o ISSN NAO ocupa esse lugar: ele identifica o periodico. Isto descreve o que o registro contem, e nao e afirmacao sobre o artigo.",
         "versaoDoArquivoConsultado": null,
         "porQueVersaoENula": "DOI e PII identificam o ARTIGO, e o ISSN identifica o PERIODICO. Nenhum deles identifica o ARQUIVO nem demonstra qual versao dele foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
-        "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
-        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
+        "estadoDeVerificacao": "SHA-256, paginas e posicao MEDIDOS na sessao de execucao em 16/09/2026, e coincidentes; vinculo com a extracao anterior e versao do arquivo AINDA NAO VERIFICADOS",
+        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE. ⚠ Os valores MEDIDOS depois tem localizador proprio: medicao-pdfs.json, com arquivo, procedimento e resultado."
       },
       {
         "fonte": "Wijnmalen 2007",
@@ -478,13 +491,20 @@
         "diferencaEntreOsDois": 891,
         "sha256DoArquivo": "6ac4672162f43fee29d7c301fbd791c5f983781995bccf6f35a51e553fb6a6fd",
         "paginas": 14,
-        "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
+        "medicaoPosterior": {
+          "registro": "docs/dados/a33-conferencia-c1/medicao-pdfs.json",
+          "sha256Coincide": true,
+          "paginasCoincidem": true,
+          "posicaoCoincide": true,
+          "alcance": "A coincidencia confirma a igualdade dos valores. NAO demonstra que a extracao anterior tenha vindo deste arquivo."
+        },
+        "origemDestesValores": "Recebidos pelo texto do prompt da rodada de 835cd55, da sessao que declara ter tido os arquivos, e aqui PRESERVADOS como recebidos. ⚠ SHA-256, paginas e posicao da pagina foram depois MEDIDOS na sessao de execucao, e coincidem: ver medicaoPosterior.",
         "identificadorDoArtigo": "doi 10.1016/j.mcm.2007.03.020",
         "identificadorDoPeriodico": "nao registrado",
         "versaoDoArquivoConsultado": null,
         "porQueVersaoENula": "DOI e PII identificam o ARTIGO, e o ISSN identifica o PERIODICO. Nenhum deles identifica o ARQUIVO nem demonstra qual versao dele foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
-        "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
-        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
+        "estadoDeVerificacao": "SHA-256, paginas e posicao MEDIDOS na sessao de execucao em 16/09/2026, e coincidentes; vinculo com a extracao anterior e versao do arquivo AINDA NAO VERIFICADOS",
+        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE. ⚠ Os valores MEDIDOS depois tem localizador proprio: medicao-pdfs.json, com arquivo, procedimento e resultado."
       },
       {
         "fonte": "Forman e Peniwati 1998",
@@ -494,16 +514,23 @@
         "diferencaEntreOsDois": 164,
         "sha256DoArquivo": "959d7038915fe450710ff0780401b9debbc2fb65428fd285c17af484873cbdf9",
         "paginas": 5,
-        "origemDestesValores": "Recebidos da sessao que declara ter tido os arquivos. NAO medidos nesta execucao e NAO verificados por ela.",
+        "medicaoPosterior": {
+          "registro": "docs/dados/a33-conferencia-c1/medicao-pdfs.json",
+          "sha256Coincide": true,
+          "paginasCoincidem": true,
+          "posicaoCoincide": true,
+          "alcance": "A coincidencia confirma a igualdade dos valores. NAO demonstra que a extracao anterior tenha vindo deste arquivo."
+        },
+        "origemDestesValores": "Recebidos pelo texto do prompt da rodada de 835cd55, da sessao que declara ter tido os arquivos, e aqui PRESERVADOS como recebidos. ⚠ SHA-256, paginas e posicao da pagina foram depois MEDIDOS na sessao de execucao, e coincidem: ver medicaoPosterior.",
         "identificadorDoArtigo": "PII S0377-2217(97)00244-0",
         "identificadorDoPeriodico": "nao registrado",
         "versaoDoArquivoConsultado": null,
         "porQueVersaoENula": "DOI e PII identificam o ARTIGO, e o ISSN identifica o PERIODICO. Nenhum deles identifica o ARQUIVO nem demonstra qual versao dele foi consultada. Nenhuma evidencia recebida distingue, por exemplo, a versao do editor de uma reimpressao ou de uma copia redigitalizada.",
-        "estadoDeVerificacao": "recebido e AINDA NAO VERIFICADO",
-        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE."
+        "estadoDeVerificacao": "SHA-256, paginas e posicao MEDIDOS na sessao de execucao em 16/09/2026, e coincidentes; vinculo com a extracao anterior e versao do arquivo AINDA NAO VERIFICADOS",
+        "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE. ⚠ Os valores MEDIDOS depois tem localizador proprio: medicao-pdfs.json, com arquivo, procedimento e resultado."
       }
     ],
-    "paginaImpressaNaoEhPosicaoNoPdf": "⚠ Sao campos DISTINTOS, e confundi-los faria o localizador apontar para outro lugar do arquivo. As diferencas declaradas sao 233 no Saaty, 891 no Wijnmalen e 164 no Forman. ⚠ A conferencia dessas diferencas e ARITMETICA sobre os numeros declarados: ela NAO demonstra que a pagina impressa ocupe aquela posicao no arquivo, o que exigiria abrir o PDF.",
+    "paginaImpressaNaoEhPosicaoNoPdf": "⚠ Sao campos DISTINTOS, e confundi-los faria o localizador apontar para outro lugar do arquivo. As diferencas declaradas sao 233 no Saaty, 891 no Wijnmalen e 164 no Forman. ⚠ A conferencia dessas diferencas e ARITMETICA sobre os numeros declarados: ela NAO demonstra que a pagina impressa ocupe aquela posicao no arquivo, o que exigiria abrir o PDF. ⚠ Aberto depois, na sessao de execucao: as tres posicoes foram VERIFICADAS nos arquivos, pelo marcador impresso, em medicao-pdfs.json. Isso verifica a posicao NESSES arquivos, e nao demonstra que a extracao anterior tenha vindo deles.",
     "porTrecho": [
       {
         "articleId": "forman1998_aggregating",
@@ -525,7 +552,8 @@
         "alcance": "⚠ Conteudo conferido sobre TEXTO EXTRAIDO, nao sobre a pagina impressa. ⚠ Os elementos de rastreabilidade -- referencia, PII, versao publicada, pagina impressa, posicao no PDF e SHA-256 completo -- estao REGISTRADOS acima, com a origem declarada, e NAO foram medidos nesta execucao.",
         "pendenciaAtual": "Inspecao visual da pagina 167 nao foi feita. A conferencia do conteudo permanece sobre texto extraido.",
         "conferenciaHistorica": "PRESERVADA com o seu alcance: o registro anterior, em conferenciaPublicacao de porTrecho[100], descreve a localizacao e a correspondencia dos segmentos, sem veredito separado de sustentacao e sem versao nem resumo criptografico. Esta rodada NAO o revoga.",
-        "unidade": "permanece conferida pelo registro historico; a rodada nao declara conferencia nova"
+        "unidade": "permanece conferida pelo registro historico; a rodada nao declara conferencia nova",
+        "medicaoPosterior": "Posicao da p. 167 verificada depois no arquivo, em medicao-pdfs.json. O TEXTO da secao 6 NAO foi inspecionado visualmente: a inspecao visual da pagina 167 continua por fazer."
       },
       {
         "articleId": "wijnmalen2007_bocr",
@@ -547,7 +575,8 @@
         "alcance": "⚠ A diferenca compromete a FIDELIDADE LITERAL e NAO demonstra que a claim esteja errada. O paragrafo explica por que prioridades vindas dos quatro modelos precisam estar numa escala comum. ⚠ Conferido no TEXTO EXTRAIDO fornecido. ⚠ O vinculo entre essa extracao e o PDF identificado NAO esta demonstrado: ver rastreabilidadeNaoDemonstrada.",
         "unidade": "pendente por NAO CORRESPONDENCIA TEXTUAL",
         "encaminhamento": "Achado adicional encaminhado à A.16, de não correspondência com o texto extraído da publicação. A contagem histórica das 19 divergências entre campos permanece inalterada. ⚠ A base NAO e corrigida nesta rodada.",
-        "porQueNaoSeSomaAs19": "⚠ Sao CRITERIOS DIFERENTES, e por isso o achado nao entra naquela contagem. As 19 registram divergencia ENTRE CAMPOS DA BASE, verbatim_quote contra evidence.quote. Neste trecho os dois campos COINCIDEM entre si, e diferem do TEXTO EXTRAIDO da publicacao. Somar os dois numeros misturaria medidas de coisas distintas."
+        "porQueNaoSeSomaAs19": "⚠ Sao CRITERIOS DIFERENTES, e por isso o achado nao entra naquela contagem. As 19 registram divergencia ENTRE CAMPOS DA BASE, verbatim_quote contra evidence.quote. Neste trecho os dois campos COINCIDEM entre si, e diferem do TEXTO EXTRAIDO da publicacao. Somar os dois numeros misturaria medidas de coisas distintas.",
+        "medicaoPosterior": "Posicao da p. 899 verificada depois no arquivo, em medicao-pdfs.json. O TEXTO da secao 4 NAO foi inspecionado visualmente: a nao correspondencia de however continua observada NA EXTRACAO."
       },
       {
         "articleId": "saaty1977_scaling",
@@ -568,7 +597,8 @@
         "medidoNestaExecucao": "O recorte da base carrega a expressao em NOTACAO LaTeX, \\lambda_{max} = n, com uma unica contrabarra, e comeca por A maiuscula. Isto e do lado da BASE. ⚠ Notacao LaTeX na base contra notacao tipografada na pagina significa que a comparacao literal desse trecho NAO se resolve por extracao: o recorte ja e uma transcricao, e so a pagina impressa separa transcricao fiel de divergencia.",
         "oQueFalta": "UM item so: inspecionar visualmente a pagina 237, verificando A EXPRESSAO MATEMATICA e A CAPITALIZACAO DO INICIO DO TRECHO.",
         "unidade": "pendente",
-        "alcance": "⚠ NADA aqui se grava como conclusao."
+        "alcance": "⚠ NADA aqui se grava como conclusao.",
+        "inspecaoPosterior": "A inspecao visual pedida em oQueFalta foi feita depois, na sessao de execucao, e esta em medicao-pdfs.json, bloco inspecaoVisualSaaty237: os dois campos NAO conferem com a pagina impressa, por alteracao de caixa na primeira letra, e a claim e sustentada. Este bloco e o registro RECEBIDO, e nao foi substituido."
       }
     ],
     "contagens": {
@@ -582,19 +612,33 @@
       "semSubtracao": "⚠ NAO se escreve subtracao do tipo \"158 pela frente\". Ela nao representa as pendencias: Forman JA estava entre as quatro, e examinar Saaty e Wijnmalen NAO os tornou conferidos.",
       "nenhumTotalAntecipado": "⚠ Nenhum total e antecipado. O numero sai da conferencia, quando ela se completar."
     },
-    "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Saaty permanece pendente de inspecao visual, e Wijnmalen tem nao correspondencia textual observada NA EXTRACAO.",
+    "oQueNaoSeAnuncia": "⚠ NAO se anuncia a conclusao integral da conferencia de C1. Saaty foi inspecionado visualmente depois e permanece pendente, por nao correspondencia com a pagina impressa; Wijnmalen tem nao correspondencia textual observada NA EXTRACAO, sem confirmacao visual.",
     "rastreabilidadeNaoDemonstrada": {
-      "estado": "recebido e AINDA NAO VERIFICADO",
-      "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE.",
+      "estado": "PARCIALMENTE VERIFICADO: SHA-256, paginas e posicao medidos na sessao de execucao; vinculo com a extracao anterior e versao AINDA NAO VERIFICADOS",
+      "estadoAte99bc69f": "recebido e AINDA NAO VERIFICADO",
+      "verificadoNaSessaoDeExecucao": [
+        "o SHA-256 dos tres arquivos acessados, recalculado, e a sua IGUALDADE com os valores recebidos",
+        "a contagem de paginas dos tres, igual a recebida",
+        "a posicao das paginas impressas 237, 899 e 167 NOS ARQUIVOS acessados, pelo marcador impresso, igual a recebida"
+      ],
+      "localizadorDaOrigem": "NAO HA localizador verificavel da evidencia original. Os valores entraram no repositorio pelo TEXTO DO PROMPT da rodada registrada em 835cd55, e esta execucao nao tem como identificar a mensagem, o artefato ou a sessao que os produziu. Vincular os valores a evidencia original continua PENDENTE. ⚠ Os valores MEDIDOS depois tem localizador proprio: medicao-pdfs.json, com arquivo, procedimento e resultado.",
       "oQueNAOestaDemonstrado": [
-        "que cada SHA-256 corresponde ao arquivo que a outra sessao efetivamente leu",
-        "que a pagina impressa declarada ocupa a posicao declarada NAQUELE arquivo",
+        "que cada SHA-256 corresponde ao arquivo que a outra sessao efetivamente leu. ⚠ A coincidencia com o SHA-256 recalculado confirma a igualdade dos valores, e nao isto.",
+        "que a pagina impressa declarada ocupa a posicao declarada no arquivo que a outra sessao leu. ⚠ Verificado depois NO ARQUIVO acessado na sessao de execucao, que tem o SHA-256 declarado; estender a verificacao ao arquivo da outra sessao depende do item anterior.",
         "que o texto extraido usado na comparacao veio daqueles arquivos: o vinculo entre extracao e PDF NAO esta estabelecido",
         "qual VERSAO de arquivo foi consultada, porque DOI e PII identificam o artigo, o ISSN identifica o periodico, e nenhum deles identifica o arquivo"
       ],
-      "sobreAAritmetica": "⚠ Conferir que 899 menos 8 da 891 valida a SUBTRACAO, e NAO demonstra que a pagina impressa 899 ocupe a oitava posicao naquele arquivo. A aritmetica e sobre os numeros declarados, nao sobre o PDF.",
-      "oQueOsTestesVerificam": "Os testes verificam o FORMATO de 64 caracteres hexadecimais, a declaracao de origem e o estado de nao verificacao. ⚠ Eles NAO verificam correspondencia com os PDFs, e nao ha instrumento aqui que o faca.",
-      "comoSeResolve": "Vincular os valores a evidencia original -- mensagem, artefato ou arquivo identificavel -- ou reconferir com os arquivos ao alcance. Ate la o estado correto e recebido e nao verificado."
+      "sobreAAritmetica": "⚠ Conferir que 899 menos 8 da 891 valida a SUBTRACAO, e NAO demonstra que a pagina impressa 899 ocupe a oitava posicao naquele arquivo. A aritmetica e sobre os numeros declarados, nao sobre o PDF. ⚠ A posicao foi depois VERIFICADA no arquivo, pelo marcador impresso: ver medicao-pdfs.json.",
+      "oQueOsTestesVerificam": "Os testes verificam o FORMATO de 64 caracteres hexadecimais, a declaracao de origem, o estado de verificacao e a coerencia entre o recebido e o medido. ⚠ Eles NAO verificam correspondencia com os PDFs, que ficam fora do repositorio: essa correspondencia foi medida pelo instrumento docs/dados/a33-conferencia-c1/instrumentos/medir_pdfs.py, fora da suite, e o resultado esta em medicao-pdfs.json.",
+      "comoSeResolve": "Vincular os valores a evidencia original -- mensagem, artefato ou arquivo identificavel -- ou reconferir com os arquivos ao alcance. Ate la o estado correto e recebido e nao verificado. ⚠ Reconferido depois com os arquivos ao alcance: o que foi medido esta em medicao-pdfs.json. O vinculo com a extracao anterior continua pendente, e so se resolve pela evidencia original ou por nova extracao documentada, como a da camada de texto de Saaty p. 237."
     }
+  },
+  "medicaoNaSessaoDeExecucao": {
+    "data": "2026-09-16",
+    "registro": "docs/dados/a33-conferencia-c1/medicao-pdfs.json",
+    "instrumento": "docs/dados/a33-conferencia-c1/instrumentos/medir_pdfs.py",
+    "natureza": "MEDICAO feita na sessao de execucao, na maquina que tem os arquivos, POSTERIOR aos blocos acima, que ficam preservados com as suas datas.",
+    "resumo": "Os tres SHA-256, as tres contagens de paginas e as tres posicoes de pagina impressa foram medidos e coincidem com os recebidos. Saaty p. 237 foi inspecionado visualmente: os dois campos NAO conferem com a pagina impressa, por alteracao de caixa nao sinalizada na primeira letra; a expressao esta em notacao LaTeX com os mesmos simbolos do impresso; a extracao da camada de texto deste arquivo troca lambda por h e n por a; a claim e sustentada; a unidade continua pendente. As contagens nao mudam.",
+    "oQueNaoFoiFeito": "Inspecao visual do TEXTO de Wijnmalen p. 899 e de Forman p. 167. O vinculo entre a extracao da outra sessao e estes arquivos continua nao estabelecido."
   }
 }
