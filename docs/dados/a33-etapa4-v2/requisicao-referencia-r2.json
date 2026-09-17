@@ -1,0 +1,694 @@
+{
+  "versao": "r2",
+  "arquivo": "docs/calculations-13jul2026.json",
+  "sha256Bytes": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
+  "papel": "Requisição de referência dos casos C1, C2 e C3, montada do documento calculations do projeto das 24 saídas publicadas. Demonstra a montagem na condição declarada; NÃO reconstrói a requisição original do projeto.",
+  "transformacao": {
+    "modulo": "scripts/a33-payload-referencia.cjs, montarRequisicaoR2",
+    "espelho": "app/decisor/resultados/[projectId]/page.tsx, runAiReview, bloco \"Preparar payload\"",
+    "premissa": "O projeto existe, como a tela exige. O nome vem de metadata.projectName. As fontes que o arquivo não traz são INDISPONÍVEIS, e não vazias, e recebem o fallback da tela, preservado. A lista de exclusões é a do arquivo, e está vazia.",
+    "foraDaTransformacao": "normalizeRequest, dentro do handler, age sobre a requisição como em produção.",
+    "alcanceDasAncoras": "As âncoras em app/decisor/resultados/[projectId]/page.tsx e app/api/calculate/route.ts verificam a presença dos fragmentos escolhidos, com a contagem medida. NÃO demonstram equivalência completa entre a tela e este espelho."
+  },
+  "estados": {
+    "disponivel": "está no arquivo, e se usa",
+    "derivado": "se calcula do que está no arquivo, com a regra declarada",
+    "indisponivel": "não se sabe o valor: o arquivo não traz",
+    "comprovadamente-vazio": "a fonte foi consultada e está vazia, com a evidência"
+  },
+  "notaSobreOsEstados": "Os estados descrevem a disponibilidade da INFORMAÇÃO, e não o valor enviado. Valor enviado por fallback em campo indisponível NÃO é informação medida.",
+  "inventario": [
+    {
+      "campo": "projectName",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: metadata.projectName, gravado por app/api/calculate/route.ts a partir de project.name no cálculo de 2026-07-13T19:39:31.334Z",
+      "tratamento": "transformacao",
+      "valorEnviado": {
+        "presente": true,
+        "valor": "Seleção de tecnologia I4.0 para gerenciamento de estufas de cura em linha de pintura automotiva"
+      },
+      "valorEnviadoEhInformacaoMedida": true,
+      "transformacao": "metadata.projectName -> projectName: mapeamento de campo, com o texto copiado sem alteração. A tela lê project.name, outra fonte; o arquivo guarda o valor que ela tinha no cálculo."
+    },
+    {
+      "campo": "projectDescription",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: documento do projeto no Firestore, lido pela tela como project; o arquivo não traz descrição",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": ""
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa project.description || ''"
+    },
+    {
+      "campo": "alternatives",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: os objetos de alternativa do documento do projeto no Firestore, lido pela tela como project; o arquivo só traz metadata.alternativesCount e code e name em finalScores",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": []
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa project.alternatives || []",
+      "nota": "A rota só copia o campo em normalizeRequest e não o lê depois; medido por busca em app/api/ai-reviewer e lib/ai-reviewer."
+    },
+    {
+      "campo": "bocrWeights",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: bocrWeights",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": [
+          0.37227664688843276,
+          0.1517028115083517,
+          0.19743689619605773,
+          0.27858364540715785
+        ]
+      },
+      "valorEnviadoEhInformacaoMedida": true
+    },
+    {
+      "campo": "personalWeights",
+      "estado": "derivado",
+      "origemEvidencia": "docs/calculations-13jul2026.json: bocrWeights",
+      "tratamento": "transformacao",
+      "valorEnviado": {
+        "presente": true,
+        "valor": {
+          "Benefits": 0.37227664688843276,
+          "Opportunities": 0.1517028115083517,
+          "Costs": 0.19743689619605773,
+          "Risks": 0.27858364540715785
+        }
+      },
+      "valorEnviadoEhInformacaoMedida": true,
+      "regra": "bocrWeights[0..3], nomeados Benefits, Opportunities, Costs e Risks, como a tela faz"
+    },
+    {
+      "campo": "rescalingWeights",
+      "estado": "derivado",
+      "origemEvidencia": "docs/calculations-13jul2026.json: rescalingWeights",
+      "tratamento": "transformacao",
+      "valorEnviado": {
+        "presente": true,
+        "valor": {
+          "Benefits": 0.4393485097699483,
+          "Opportunities": 0.15928593164301194,
+          "Costs": 0.18678487810779634,
+          "Risks": 0.21458068047924336
+        }
+      },
+      "valorEnviadoEhInformacaoMedida": true,
+      "regra": "rescalingWeights.sb, so, sc e sr, nomeados Benefits, Opportunities, Costs e Risks, como a tela faz"
+    },
+    {
+      "campo": "bocrConsistency",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: bocrConsistency",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": {
+          "lambda": 4.0286357292716755,
+          "cr": 0.010605825656176095,
+          "ci": 0.009545243090558486
+        }
+      },
+      "valorEnviadoEhInformacaoMedida": true
+    },
+    {
+      "campo": "subWeights",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: subWeights",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": {
+          "R": [
+            0.28948224816169404,
+            0.28759196591429464,
+            0.20831240279227511,
+            0.12756123173295206,
+            0.0870521513987841
+          ],
+          "B": [
+            0.2230309346157203,
+            0.30376318220529713,
+            0.22680891529751468,
+            0.09567953117010987,
+            0.1507174367113581
+          ],
+          "C": [
+            0.15729826366326755,
+            0.15429751201290362,
+            0.4166214411518402,
+            0.16632397121390627,
+            0.10545881195808239
+          ],
+          "O": [
+            0.23272430891057677,
+            0.16469859743091045,
+            0.23165350184144864,
+            0.14288205941604817,
+            0.22804153240101604
+          ]
+        }
+      },
+      "valorEnviadoEhInformacaoMedida": true
+    },
+    {
+      "campo": "subConsistency",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: subConsistency",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": {
+          "B": {
+            "lambda": 5.049372029992582,
+            "cr": 0.011020542409058419
+          },
+          "C": {
+            "cr": 0.025999844475419514,
+            "lambda": 5.116479303249879
+          },
+          "O": {
+            "lambda": 5.041382214064323,
+            "cr": 0.009237101353643567
+          },
+          "R": {
+            "lambda": 5.062605337097253,
+            "cr": 0.013974405602065356
+          }
+        }
+      },
+      "valorEnviadoEhInformacaoMedida": true
+    },
+    {
+      "campo": "finalScores",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: finalScores",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": [
+          {
+            "scoreQuotientSums": 1.7870026375381323,
+            "scoreMultSimpleNorm": 0.654387535794214,
+            "scoreMultiplicative": 1.0599042060299357,
+            "scoreMultSimple": 1.347188990096175,
+            "scoreSubtractiveNorm": 1,
+            "R_reciprocal": 0.5195598400698995,
+            "scoreAdditiveResidual": 0.5490013429569514,
+            "rankMultSimple": 1,
+            "scoreSubtractive": 0.06412946722825451,
+            "rankMultiplicative": 1,
+            "scoreQuotientSumsNorm": 0.5956373750497279,
+            "name": "Controle em tempo real dos queimadores utilizando IA",
+            "rankQuotientSums": 1,
+            "scoreAdditiveResidualNorm": 0.5490013429569514,
+            "B": 0.6001072863244953,
+            "isNegative": false,
+            "rankAdditiveResidual": 1,
+            "code": "A1",
+            "rankSubtractive": 1,
+            "C_reciprocal": 0.50966380681522,
+            "R": 0.48044015993010053,
+            "C": 0.4903361931847799,
+            "scoreMultiplicativeNorm": 0.5493582535911754,
+            "O": 0.5288504508134184
+          },
+          {
+            "scoreAdditiveResidualNorm": 0.45099865704304876,
+            "C_reciprocal": 0.49033619318477983,
+            "rankQuotientSums": 2,
+            "O": 0.47114954918658164,
+            "rankAdditiveResidual": 2,
+            "code": "A2",
+            "scoreQuotientSums": 1.213149321342791,
+            "scoreSubtractive": 0.026936951676485296,
+            "R": 0.5195598400698994,
+            "scoreAdditiveResidual": 0.45099865704304876,
+            "C": 0.5096638068152202,
+            "scoreQuotientSumsNorm": 0.40436262495027214,
+            "rankSubtractive": 2,
+            "rankMultSimple": 2,
+            "rankMultiplicative": 2,
+            "B": 0.39989271367550483,
+            "scoreSubtractiveNorm": 0,
+            "scoreMultiplicative": 0.8694455381512108,
+            "scoreMultSimpleNorm": 0.34561246420578595,
+            "isNegative": false,
+            "scoreMultSimple": 0.7115131037038313,
+            "R_reciprocal": 0.48044015993010064,
+            "scoreMultiplicativeNorm": 0.45064174640882454,
+            "name": "Gêmeo digital CFD para simulação termodinâmica das estufas"
+          }
+        ]
+      },
+      "valorEnviadoEhInformacaoMedida": true
+    },
+    {
+      "campo": "responseCount",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: responseCount",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 12
+      },
+      "valorEnviadoEhInformacaoMedida": true
+    },
+    {
+      "campo": "sensitivityInflections",
+      "estado": "disponivel",
+      "origemEvidencia": "docs/calculations-13jul2026.json: sensitivityInflections",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": {
+          "O": null,
+          "C": null,
+          "B": null,
+          "R": null
+        }
+      },
+      "valorEnviadoEhInformacaoMedida": true
+    },
+    {
+      "campo": "qualityAnalysis.respondents",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": []
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "sem análise de qualidade e sem respostas, a tela envia []",
+      "nota": "Os CRs individuais dos 12 existem fora do arquivo, em docs/referencia-cr-individuais.md; usá-los é decisão de A.12."
+    },
+    {
+      "campo": "qualityAnalysis.statistics.byStatus[\"CONFIÁVEL\"]",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 12
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.valid || calculation.responseCount",
+      "pendencia": "A.12: o valor enviado declara os respondentes confiáveis sem medição"
+    },
+    {
+      "campo": "qualityAnalysis.statistics.byStatus.SUSPEITO",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.warning || 0"
+    },
+    {
+      "campo": "qualityAnalysis.statistics.byStatus[\"CRÍTICO\"]",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.critical || 0"
+    },
+    {
+      "campo": "qualityAnalysis.statistics.total",
+      "estado": "derivado",
+      "origemEvidencia": "docs/calculations-13jul2026.json: responseCount",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 12
+      },
+      "valorEnviadoEhInformacaoMedida": true,
+      "fallback": "a tela usa individualStats.total || calculation.responseCount",
+      "regra": "o número de respondentes do cálculo; metadata.excludedRespondentIds é vazio"
+    },
+    {
+      "campo": "qualityAnalysis.statistics.avgCR",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.avgCR || 0"
+    },
+    {
+      "campo": "qualityAnalysis.summary.total",
+      "estado": "derivado",
+      "origemEvidencia": "docs/calculations-13jul2026.json: responseCount",
+      "tratamento": "leitura",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 12
+      },
+      "valorEnviadoEhInformacaoMedida": true,
+      "regra": "a tela lê calculation.responseCount"
+    },
+    {
+      "campo": "qualityAnalysis.summary.ok",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 12
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.valid || calculation.responseCount",
+      "pendencia": "A.12: o valor enviado declara os respondentes confiáveis sem medição"
+    },
+    {
+      "campo": "qualityAnalysis.summary.suspicious",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.warning || 0"
+    },
+    {
+      "campo": "qualityAnalysis.summary.critical",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.critical || 0"
+    },
+    {
+      "campo": "overallStats.total",
+      "estado": "derivado",
+      "origemEvidencia": "docs/calculations-13jul2026.json: responseCount",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 12
+      },
+      "valorEnviadoEhInformacaoMedida": true,
+      "fallback": "a tela usa individualStats.total || calculation.responseCount",
+      "regra": "o número de respondentes do cálculo"
+    },
+    {
+      "campo": "overallStats.valid",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.valid || 0"
+    },
+    {
+      "campo": "overallStats.warning",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.warning || 0"
+    },
+    {
+      "campo": "overallStats.critical",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": 0
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela usa individualStats.critical || 0"
+    },
+    {
+      "campo": "individualStats",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: análise de qualidade, /api/response-quality sobre as respostas, e as respostas do projeto no Firestore; o arquivo não traz classificação individual",
+      "tratamento": "omissao",
+      "valorEnviado": {
+        "presente": false
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "omissao": "total 0: a tela envia undefined, e o campo some no JSON"
+    },
+    {
+      "campo": "demographicsSummary",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: campos demográficos das respostas do projeto; o arquivo não traz demografia",
+      "tratamento": "fallback",
+      "valorEnviado": {
+        "presente": true,
+        "valor": {
+          "total": 0,
+          "hasData": false
+        }
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "fallback": "a tela envia { total: 0, hasData: false } sem demografia",
+      "nota": "NÃO é vazio demonstrado: a dissertação caracteriza o painel na Tabela 3."
+    },
+    {
+      "campo": "sensitiveGroups",
+      "estado": "indisponivel",
+      "origemEvidencia": "indisponível: projectData.sensitiveGroups, configurado pelo pesquisador no documento do projeto",
+      "tratamento": "omissao",
+      "valorEnviado": {
+        "presente": false
+      },
+      "valorEnviadoEhInformacaoMedida": false,
+      "omissao": "sem configuração, a tela envia undefined, e o campo some no JSON"
+    },
+    {
+      "campo": "exclusionInfo",
+      "estado": "comprovadamente-vazio",
+      "origemEvidencia": "docs/calculations-13jul2026.json: metadata.excludedRespondentIds = []. É a fonte que a tela usa: app/decisor/resultados/[projectId]/page.tsx inicializa excludedIds com calcData.metadata.excludedRespondentIds, e app/api/calculate/route.ts grava ali a lista de excluídos do cálculo.",
+      "tratamento": "omissao",
+      "valorEnviado": {
+        "presente": false
+      },
+      "valorEnviadoEhInformacaoMedida": true,
+      "omissao": "lista vazia: a tela envia undefined, e o campo some no JSON",
+      "evidenciaDoVazio": {
+        "campo": "metadata.excludedRespondentIds",
+        "valor": []
+      }
+    }
+  ],
+  "constantesDaMontagem": [
+    {
+      "campo": "qualityAnalysis.statistics.byStatus.REVISAR",
+      "valor": 0,
+      "origemNoCodigo": "app/decisor/resultados/[projectId]/page.tsx: 'REVISAR': 0, fixo nos dois ramos",
+      "naoEhObservacaoDoProjeto": true
+    }
+  ],
+  "pendenciaA12": "Efeito do fallback de qualidade, PRESERVADO e não corrigido: sem avaliação individual, a tela envia byStatus CONFIÁVEL e summary.ok iguais a responseCount, isto é, 12 respondentes confiáveis sem medição. Chega ao modelo, na seção de qualidade e na pontuação automática 100/100 que calculateGrade tira desses números, e pode chegar à tela: a nota e o veredicto automáticos voltam na resposta e substituem os do parecer quando ele não traz nota, e são exibidos no estado aprovado. A Tabela 4 contradiz a classificação. Terreno de A.12, em rodada própria, com predição registrada antes.",
+  "requisicaoSerializada": {
+    "sha256": "6541ecd41f8286f999662da0a342d664784fe2668158bba372490fa855232c85",
+    "bytes": 3279,
+    "comumAosCasos": [
+      "C1",
+      "C2",
+      "C3"
+    ],
+    "diferencasEntreCasos": "USE_RAG_SEMANTIC e recuperação, declaradas por caso em casos.json; a requisição é a mesma nos três."
+  },
+  "requisicao": {
+    "projectName": "Seleção de tecnologia I4.0 para gerenciamento de estufas de cura em linha de pintura automotiva",
+    "projectDescription": "",
+    "alternatives": [],
+    "bocrWeights": [
+      0.37227664688843276,
+      0.1517028115083517,
+      0.19743689619605773,
+      0.27858364540715785
+    ],
+    "personalWeights": {
+      "Benefits": 0.37227664688843276,
+      "Opportunities": 0.1517028115083517,
+      "Costs": 0.19743689619605773,
+      "Risks": 0.27858364540715785
+    },
+    "rescalingWeights": {
+      "Benefits": 0.4393485097699483,
+      "Opportunities": 0.15928593164301194,
+      "Costs": 0.18678487810779634,
+      "Risks": 0.21458068047924336
+    },
+    "bocrConsistency": {
+      "lambda": 4.0286357292716755,
+      "cr": 0.010605825656176095,
+      "ci": 0.009545243090558486
+    },
+    "subWeights": {
+      "R": [
+        0.28948224816169404,
+        0.28759196591429464,
+        0.20831240279227511,
+        0.12756123173295206,
+        0.0870521513987841
+      ],
+      "B": [
+        0.2230309346157203,
+        0.30376318220529713,
+        0.22680891529751468,
+        0.09567953117010987,
+        0.1507174367113581
+      ],
+      "C": [
+        0.15729826366326755,
+        0.15429751201290362,
+        0.4166214411518402,
+        0.16632397121390627,
+        0.10545881195808239
+      ],
+      "O": [
+        0.23272430891057677,
+        0.16469859743091045,
+        0.23165350184144864,
+        0.14288205941604817,
+        0.22804153240101604
+      ]
+    },
+    "subConsistency": {
+      "B": {
+        "lambda": 5.049372029992582,
+        "cr": 0.011020542409058419
+      },
+      "C": {
+        "cr": 0.025999844475419514,
+        "lambda": 5.116479303249879
+      },
+      "O": {
+        "lambda": 5.041382214064323,
+        "cr": 0.009237101353643567
+      },
+      "R": {
+        "lambda": 5.062605337097253,
+        "cr": 0.013974405602065356
+      }
+    },
+    "finalScores": [
+      {
+        "scoreQuotientSums": 1.7870026375381323,
+        "scoreMultSimpleNorm": 0.654387535794214,
+        "scoreMultiplicative": 1.0599042060299357,
+        "scoreMultSimple": 1.347188990096175,
+        "scoreSubtractiveNorm": 1,
+        "R_reciprocal": 0.5195598400698995,
+        "scoreAdditiveResidual": 0.5490013429569514,
+        "rankMultSimple": 1,
+        "scoreSubtractive": 0.06412946722825451,
+        "rankMultiplicative": 1,
+        "scoreQuotientSumsNorm": 0.5956373750497279,
+        "name": "Controle em tempo real dos queimadores utilizando IA",
+        "rankQuotientSums": 1,
+        "scoreAdditiveResidualNorm": 0.5490013429569514,
+        "B": 0.6001072863244953,
+        "isNegative": false,
+        "rankAdditiveResidual": 1,
+        "code": "A1",
+        "rankSubtractive": 1,
+        "C_reciprocal": 0.50966380681522,
+        "R": 0.48044015993010053,
+        "C": 0.4903361931847799,
+        "scoreMultiplicativeNorm": 0.5493582535911754,
+        "O": 0.5288504508134184
+      },
+      {
+        "scoreAdditiveResidualNorm": 0.45099865704304876,
+        "C_reciprocal": 0.49033619318477983,
+        "rankQuotientSums": 2,
+        "O": 0.47114954918658164,
+        "rankAdditiveResidual": 2,
+        "code": "A2",
+        "scoreQuotientSums": 1.213149321342791,
+        "scoreSubtractive": 0.026936951676485296,
+        "R": 0.5195598400698994,
+        "scoreAdditiveResidual": 0.45099865704304876,
+        "C": 0.5096638068152202,
+        "scoreQuotientSumsNorm": 0.40436262495027214,
+        "rankSubtractive": 2,
+        "rankMultSimple": 2,
+        "rankMultiplicative": 2,
+        "B": 0.39989271367550483,
+        "scoreSubtractiveNorm": 0,
+        "scoreMultiplicative": 0.8694455381512108,
+        "scoreMultSimpleNorm": 0.34561246420578595,
+        "isNegative": false,
+        "scoreMultSimple": 0.7115131037038313,
+        "R_reciprocal": 0.48044015993010064,
+        "scoreMultiplicativeNorm": 0.45064174640882454,
+        "name": "Gêmeo digital CFD para simulação termodinâmica das estufas"
+      }
+    ],
+    "responseCount": 12,
+    "sensitivityInflections": {
+      "O": null,
+      "C": null,
+      "B": null,
+      "R": null
+    },
+    "qualityAnalysis": {
+      "respondents": [],
+      "statistics": {
+        "byStatus": {
+          "CONFIÁVEL": 12,
+          "REVISAR": 0,
+          "SUSPEITO": 0,
+          "CRÍTICO": 0
+        },
+        "total": 12,
+        "avgCR": 0
+      },
+      "summary": {
+        "total": 12,
+        "ok": 12,
+        "suspicious": 0,
+        "critical": 0
+      }
+    },
+    "overallStats": {
+      "total": 12,
+      "valid": 0,
+      "warning": 0,
+      "critical": 0
+    },
+    "demographicsSummary": {
+      "total": 0,
+      "hasData": false
+    }
+  }
+}

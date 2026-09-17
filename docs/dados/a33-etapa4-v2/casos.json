@@ -10,7 +10,18 @@
     "sha": "344d63121489348a7291725271564f06fe5ef5a5",
     "sha256Bytes": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
     "mesmoNosTresCasos": true,
-    "alcance": "Projeto de referência fixado pelo protocolo. Não é apresentado como captura de uma requisição HTTP de geração."
+    "alcance": "Projeto de referência fixado pelo protocolo. Não é apresentado como captura de uma requisição HTTP de geração.",
+    "requisicaoSerializada": {
+      "versao": "r2",
+      "arquivo": "requisicao-referencia-r2.json",
+      "sha256": "6541ecd41f8286f999662da0a342d664784fe2668158bba372490fa855232c85",
+      "comumAosCasos": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "diferencasEntreCasos": "USE_RAG_SEMANTIC e recuperação, declaradas por caso em casos; a requisição é a mesma nos três."
+    }
   },
   "modelo": {
     "id": "claude-opus-4-6",
@@ -80,7 +91,8 @@
     "Concluir a conferência dos trechos pendentes nomeados em evidencias.json e publicacoes.json, incluindo divergências de campos encaminhadas a A.16.",
     "Preparar a execução isolada com o mesmo payload, conferir a montagem capturada contra estes dados e dispor da credencial do modelo. Nenhuma configuração persistente foi modificada.",
     "Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada.",
-    "Versão 2: Wijnmalen key_claims[3] segue PARCIALMENTE PENDENTE, com verbatim_quote e claim abertos em A.16; o evidence.quote corrigido não os certifica. As conclusões de Saaty key_claims[0] e Wijnmalen key_claims[0] estão encadeadas em manifesto-transicao.json."
+    "Versão 2: Wijnmalen key_claims[3] segue PARCIALMENTE PENDENTE, com verbatim_quote e claim abertos em A.16; o evidence.quote corrigido não os certifica. As conclusões de Saaty key_claims[0] e Wijnmalen key_claims[0] estão encadeadas em manifesto-transicao.json.",
+    "A.12, antes de gerar: a requisição de referência preserva o fallback de qualidade da tela, que declara os 12 respondentes confiáveis sem medição e leva a pontuação automática a 100/100. Ver requisicao-referencia-r2.json, pendenciaA12. Correção em rodada própria, com predição registrada antes."
   ],
   "integridadeDosDados": {
     "identidade.json": {

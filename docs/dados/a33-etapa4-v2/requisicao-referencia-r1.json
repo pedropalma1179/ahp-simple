@@ -1,0 +1,351 @@
+{
+  "versao": "r1",
+  "identificacao": {
+    "gravadaEm": "82057ec44064dbba3b3ad754e09526b48cf0f65a",
+    "ondeEstava": "manifesto-transicao.json, campo payloadDeReferencia, de 82057ec a a709cc3, com o mesmo conteúdo nos quatro commits",
+    "substituidaPor": "requisicao-referencia-r2.json",
+    "porQue": "A premissa da r1 dizia que os campos do projeto não estavam no arquivo, e metadata.projectName está. E a r1 não separava a disponibilidade da informação do valor enviado.",
+    "preservacao": "A declaração abaixo é a gravada, conferida contra o commit; a requisição é reproduzida pela função congelada, e o resumo dela coincide com o gravado."
+  },
+  "declaracao": {
+    "arquivo": "docs/calculations-13jul2026.json",
+    "sha256Bytes": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
+    "papel": "Payload de referência dos casos C1, C2 e C3: o documento calculations do projeto das 24 saídas publicadas. Não é captura de requisição HTTP.",
+    "transformacao": {
+      "modulo": "scripts/a33-payload-referencia.cjs, montarRequisicao",
+      "espelho": "app/decisor/resultados/[projectId]/page.tsx, runAiReview, bloco \"Preparar payload\"",
+      "premissa": "O projeto existe, como a tela exige para enviar, mas os campos dele não estão no arquivo; não há análise de qualidade, respostas, demografia, grupos sensíveis nem exclusões. Cada ausência recebe o valor que a própria tela usa quando a fonte está vazia.",
+      "foraDaTransformacao": "normalizeRequest, dentro do handler, age sobre a requisição como em produção.",
+      "conferenciaDoEspelho": "âncoras de texto em app/decisor/resultados/[projectId]/page.tsx, conferidas por teste"
+    },
+    "origens": [
+      {
+        "campo": "projectName",
+        "origem": "ausente-no-arquivo",
+        "regra": "project.name ausente: a tela usa 'Projeto sem nome'"
+      },
+      {
+        "campo": "projectDescription",
+        "origem": "ausente-no-arquivo",
+        "regra": "project.description ausente: a tela usa ''"
+      },
+      {
+        "campo": "alternatives",
+        "origem": "ausente-no-arquivo",
+        "regra": "project.alternatives ausente: a tela usa []"
+      },
+      {
+        "campo": "bocrWeights",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: bocrWeights"
+      },
+      {
+        "campo": "personalWeights",
+        "origem": "derivado",
+        "regra": "bocrWeights[0..3] do arquivo, nomeados Benefits, Opportunities, Costs e Risks"
+      },
+      {
+        "campo": "rescalingWeights",
+        "origem": "derivado",
+        "regra": "rescalingWeights.sb, so, sc e sr do arquivo, nomeados Benefits, Opportunities, Costs e Risks"
+      },
+      {
+        "campo": "bocrConsistency",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: bocrConsistency"
+      },
+      {
+        "campo": "subWeights",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: subWeights"
+      },
+      {
+        "campo": "subConsistency",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: subConsistency"
+      },
+      {
+        "campo": "finalScores",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: finalScores"
+      },
+      {
+        "campo": "responseCount",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: responseCount"
+      },
+      {
+        "campo": "sensitivityInflections",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: sensitivityInflections"
+      },
+      {
+        "campo": "qualityAnalysis.respondents",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem análise de qualidade e sem respostas: a tela envia []"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus[\"CONFIÁVEL\"]",
+        "origem": "derivado",
+        "regra": "⚠ individualStats.valid é 0 sem fontes, e a tela usa responseCount do arquivo: declara os respondentes como confiáveis SEM medição individual. Terreno de A.12; não resolvido aqui."
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus.REVISAR",
+        "origem": "constante-da-tela",
+        "regra": "a tela fixa 'REVISAR': 0"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus.SUSPEITO",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.warning é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus[\"CRÍTICO\"]",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.critical é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.total",
+        "origem": "derivado",
+        "regra": "individualStats.total é 0 sem fontes, e a tela usa responseCount do arquivo"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.avgCR",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.avgCR é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.summary.total",
+        "origem": "derivado",
+        "regra": "responseCount do arquivo"
+      },
+      {
+        "campo": "qualityAnalysis.summary.ok",
+        "origem": "derivado",
+        "regra": "individualStats.valid é 0 sem fontes, e a tela usa responseCount do arquivo"
+      },
+      {
+        "campo": "qualityAnalysis.summary.suspicious",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.warning é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.summary.critical",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.critical é 0 sem fontes"
+      },
+      {
+        "campo": "overallStats.total",
+        "origem": "derivado",
+        "regra": "individualStats.total é 0 sem fontes, e a tela usa responseCount do arquivo"
+      },
+      {
+        "campo": "overallStats.valid",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.valid é 0 sem fontes"
+      },
+      {
+        "campo": "overallStats.warning",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.warning é 0 sem fontes"
+      },
+      {
+        "campo": "overallStats.critical",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.critical é 0 sem fontes"
+      },
+      {
+        "campo": "individualStats",
+        "origem": "ausente-no-arquivo",
+        "regra": "total 0 sem fontes: a tela envia undefined, e o campo some no JSON"
+      },
+      {
+        "campo": "demographicsSummary",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem demografia: a tela envia { total: 0, hasData: false }"
+      },
+      {
+        "campo": "sensitiveGroups",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem grupos sensíveis: a tela envia undefined, e o campo some no JSON"
+      },
+      {
+        "campo": "exclusionInfo",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem exclusões: a tela envia undefined, e o campo some no JSON"
+      }
+    ],
+    "sha256Requisicao": "d9a8c034e8259dc46bc222691a6172c352546550bf2d713f209705639ee9c035",
+    "pendencia": "Antes de gerar: decidir se a requisição de referência deve declarar os 12 respondentes como confiáveis, como a tela faz sem análise de qualidade, ou trazer a qualidade medida. Terreno de A.12; não resolvido aqui."
+  },
+  "requisicaoSerializada": {
+    "sha256": "d9a8c034e8259dc46bc222691a6172c352546550bf2d713f209705639ee9c035",
+    "bytes": 3198
+  },
+  "requisicao": {
+    "projectName": "Projeto sem nome",
+    "projectDescription": "",
+    "alternatives": [],
+    "bocrWeights": [
+      0.37227664688843276,
+      0.1517028115083517,
+      0.19743689619605773,
+      0.27858364540715785
+    ],
+    "personalWeights": {
+      "Benefits": 0.37227664688843276,
+      "Opportunities": 0.1517028115083517,
+      "Costs": 0.19743689619605773,
+      "Risks": 0.27858364540715785
+    },
+    "rescalingWeights": {
+      "Benefits": 0.4393485097699483,
+      "Opportunities": 0.15928593164301194,
+      "Costs": 0.18678487810779634,
+      "Risks": 0.21458068047924336
+    },
+    "bocrConsistency": {
+      "lambda": 4.0286357292716755,
+      "cr": 0.010605825656176095,
+      "ci": 0.009545243090558486
+    },
+    "subWeights": {
+      "R": [
+        0.28948224816169404,
+        0.28759196591429464,
+        0.20831240279227511,
+        0.12756123173295206,
+        0.0870521513987841
+      ],
+      "B": [
+        0.2230309346157203,
+        0.30376318220529713,
+        0.22680891529751468,
+        0.09567953117010987,
+        0.1507174367113581
+      ],
+      "C": [
+        0.15729826366326755,
+        0.15429751201290362,
+        0.4166214411518402,
+        0.16632397121390627,
+        0.10545881195808239
+      ],
+      "O": [
+        0.23272430891057677,
+        0.16469859743091045,
+        0.23165350184144864,
+        0.14288205941604817,
+        0.22804153240101604
+      ]
+    },
+    "subConsistency": {
+      "B": {
+        "lambda": 5.049372029992582,
+        "cr": 0.011020542409058419
+      },
+      "C": {
+        "cr": 0.025999844475419514,
+        "lambda": 5.116479303249879
+      },
+      "O": {
+        "lambda": 5.041382214064323,
+        "cr": 0.009237101353643567
+      },
+      "R": {
+        "lambda": 5.062605337097253,
+        "cr": 0.013974405602065356
+      }
+    },
+    "finalScores": [
+      {
+        "scoreQuotientSums": 1.7870026375381323,
+        "scoreMultSimpleNorm": 0.654387535794214,
+        "scoreMultiplicative": 1.0599042060299357,
+        "scoreMultSimple": 1.347188990096175,
+        "scoreSubtractiveNorm": 1,
+        "R_reciprocal": 0.5195598400698995,
+        "scoreAdditiveResidual": 0.5490013429569514,
+        "rankMultSimple": 1,
+        "scoreSubtractive": 0.06412946722825451,
+        "rankMultiplicative": 1,
+        "scoreQuotientSumsNorm": 0.5956373750497279,
+        "name": "Controle em tempo real dos queimadores utilizando IA",
+        "rankQuotientSums": 1,
+        "scoreAdditiveResidualNorm": 0.5490013429569514,
+        "B": 0.6001072863244953,
+        "isNegative": false,
+        "rankAdditiveResidual": 1,
+        "code": "A1",
+        "rankSubtractive": 1,
+        "C_reciprocal": 0.50966380681522,
+        "R": 0.48044015993010053,
+        "C": 0.4903361931847799,
+        "scoreMultiplicativeNorm": 0.5493582535911754,
+        "O": 0.5288504508134184
+      },
+      {
+        "scoreAdditiveResidualNorm": 0.45099865704304876,
+        "C_reciprocal": 0.49033619318477983,
+        "rankQuotientSums": 2,
+        "O": 0.47114954918658164,
+        "rankAdditiveResidual": 2,
+        "code": "A2",
+        "scoreQuotientSums": 1.213149321342791,
+        "scoreSubtractive": 0.026936951676485296,
+        "R": 0.5195598400698994,
+        "scoreAdditiveResidual": 0.45099865704304876,
+        "C": 0.5096638068152202,
+        "scoreQuotientSumsNorm": 0.40436262495027214,
+        "rankSubtractive": 2,
+        "rankMultSimple": 2,
+        "rankMultiplicative": 2,
+        "B": 0.39989271367550483,
+        "scoreSubtractiveNorm": 0,
+        "scoreMultiplicative": 0.8694455381512108,
+        "scoreMultSimpleNorm": 0.34561246420578595,
+        "isNegative": false,
+        "scoreMultSimple": 0.7115131037038313,
+        "R_reciprocal": 0.48044015993010064,
+        "scoreMultiplicativeNorm": 0.45064174640882454,
+        "name": "Gêmeo digital CFD para simulação termodinâmica das estufas"
+      }
+    ],
+    "responseCount": 12,
+    "sensitivityInflections": {
+      "O": null,
+      "C": null,
+      "B": null,
+      "R": null
+    },
+    "qualityAnalysis": {
+      "respondents": [],
+      "statistics": {
+        "byStatus": {
+          "CONFIÁVEL": 12,
+          "REVISAR": 0,
+          "SUSPEITO": 0,
+          "CRÍTICO": 0
+        },
+        "total": 12,
+        "avgCR": 0
+      },
+      "summary": {
+        "total": 12,
+        "ok": 12,
+        "suspicious": 0,
+        "critical": 0
+      }
+    },
+    "overallStats": {
+      "total": 12,
+      "valid": 0,
+      "warning": 0,
+      "critical": 0
+    },
+    "demographicsSummary": {
+      "total": 0,
+      "hasData": false
+    }
+  }
+}

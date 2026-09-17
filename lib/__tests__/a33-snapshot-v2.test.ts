@@ -123,9 +123,9 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
     }
   });
 
-  test('são 69, e a contagem por categoria é a do desenho', () => {
+  test('são 71, e a contagem por categoria é a do desenho', () => {
     const porCategoria = excecoes.reduce((o: any, e: any) => ({ ...o, [e.categoria]: (o[e.categoria] || 0) + 1 }), {});
-    expect(excecoes).toHaveLength(69);
+    expect(excecoes).toHaveLength(71);
     expect(porCategoria).toEqual({
       'substituicao-aprovada': 6,
       'copia-referenceDoc': 7,
@@ -135,10 +135,11 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
       'identidade-recalculada': 10,
       'endereco-administrativo': 10,
       'resumo-derivado': 5,
-      'metadado-da-versao': 4,
+      'metadado-da-versao': 5,
       'declaracao-administrativa-corrigida': 1,
       'transicao-por-encadeamento': 8,
       'contagem-recalculada': 4,
+      'requisicao-de-referencia-declarada': 1,
     });
   });
 
@@ -179,6 +180,10 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
         expect(conferidas).toContain(e.unidade);
         expect(e.caminho.startsWith(`porTrecho[${e.unidade}].conferenciaPublicacao`)).toBe(true);
       }
+      if (e.categoria === 'requisicao-de-referencia-declarada') {
+        expect([e.arquivo, e.caminho, e.existiaAntes]).toEqual(['casos.json', 'payloadReferencia.requisicaoSerializada', false]);
+        expect(d).toEqual(dois['casos.json'].payloadReferencia.requisicaoSerializada);
+      }
       if (e.categoria === 'contagem-recalculada') {
         const estado = e.caminho.endsWith('.conferidas') ? 'conferido' : 'pendente';
         expect(d).toBe(ev2.porTrecho.filter((u: any) => u.conferenciaPublicacao.estado === estado).length);
@@ -205,7 +210,7 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
     for (const [f, r] of Object.entries<any>(casos.integridadeDosDados)) expect(r.resumoCompleto).toBe(sha(ler(V2 + f)));
     expect([um['casos.json'].versaoPreparacao, casos.versaoPreparacao]).toEqual([1, 2]);
     expect(casos.pendenciasParaGeracao.slice(0, 3)).toEqual(um['casos.json'].pendenciasParaGeracao);
-    expect(casos.pendenciasParaGeracao.slice(3)).toEqual([v2.PENDENCIA_P1, v2.PENDENCIA_CONCLUSOES]);
+    expect(casos.pendenciasParaGeracao.slice(3)).toEqual([v2.PENDENCIA_P1, v2.PENDENCIA_CONCLUSOES, v2.PENDENCIA_QUALIDADE]);
     expect(v2.PENDENCIA_P1).toContain('delimitar P1');
     expect(v2.PENDENCIA_P1).toContain('inclusive a C1');
   });
@@ -403,15 +408,15 @@ function restaurarEnv(nome: string, anterior: string | undefined) {
 }
 
 /**
- * A requisição dos casos C1, C2 e C3, montada do payload de referência.
+ * A requisição dos casos C1, C2 e C3, montada do payload de referência: a r2.
  *
- * ⚠ **Não é projeto sintético.** Vem de `docs/calculations-13jul2026.json` pela
- * transformação declarada em `scripts/a33-payload-referencia.cjs`, que espelha a
- * tela e diz, campo a campo, o que é lido, derivado ou ausente.
+ * ⚠ **Não é projeto sintético** e **não reconstrói a requisição original do
+ * projeto**: demonstra a montagem na condição declarada em
+ * `scripts/a33-payload-referencia.cjs`, com o inventário por campo.
  */
 const referencia = require('../../scripts/a33-payload-referencia.cjs');
 const CALCULO = JSON.parse(referencia.lerArquivo().toString('utf8'));
-const REQUISICAO = referencia.montarRequisicao(CALCULO).requisicao;
+const REQUISICAO = referencia.montarRequisicaoR2(CALCULO).requisicao;
 
 /**
  * Captura os argumentos da montagem e interrompe.
@@ -466,7 +471,7 @@ async function montar(flag: string | undefined, porConsulta: Array<{ consulta: s
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { POST } = require('@/app/api/ai-reviewer/route');
-    const res = await POST({ json: async () => clone(REQUISICAO) } as any);
+    const res = await POST({ json: async () => JSON.parse(referencia.serializarRequisicao(REQUISICAO)) } as any);
     const corpo = await res.json();
     return { ...cap, status: res.status, corpo, fetches: bloqueio.mock.calls.length };
   } finally {
@@ -486,9 +491,13 @@ function folhas(v: any, segs: any[] = [], saida: any[][] = []): any[][] {
   return saida;
 }
 
-describe('A.33 v2: o payload de referência, e a transformação até a requisição', () => {
-  const origens: any[] = referencia.montarRequisicao(CALCULO).origens;
-  const cobre = (rotulo: string) => origens.filter((o) => rotulo === o.campo || rotulo.startsWith(o.campo + '.') || rotulo.startsWith(o.campo + '['));
+describe('A.33 v2: a requisição de referência r2, e o seu inventário', () => {
+  const r2 = lerJson(V2 + 'requisicao-referencia-r2.json');
+  const { inventario, constantes } = referencia.montarRequisicaoR2(CALCULO);
+  const segsDe = (rotulo: string) => rotulo.match(/[^.[\]"]+/g)!.map((x: string) => (/^\d+$/.test(x) ? Number(x) : x));
+  const registrosDe = (rotulo: string) => [...inventario, ...constantes].filter((o: any) => rotulo === o.campo
+    || rotulo.startsWith(o.campo + '.') || rotulo.startsWith(o.campo + '['));
+  const porCampo = (campo: string) => inventario.find((i: any) => i.campo === campo);
 
   test('o arquivo é o fixado nos casos, pelo resumo dos bytes', () => {
     const resumo = sha(referencia.lerArquivo().toString('utf8'));
@@ -496,35 +505,132 @@ describe('A.33 v2: o payload de referência, e a transformação até a requisi�
       expect(casos.payloadReferencia.arquivo).toBe(referencia.ARQUIVO);
       expect(casos.payloadReferencia.sha256Bytes).toBe(resumo);
     }
+    expect(r2.sha256Bytes).toBe(resumo);
   });
 
-  test('cada folha da requisição tem UMA origem declarada, e cada origem alcança a requisição ou declara o campo omitido', () => {
-    for (const segs of folhas(REQUISICAO)) expect([v2.rotulo(segs), cobre(v2.rotulo(segs)).length]).toEqual([v2.rotulo(segs), 1]);
-    const omitidos = origens.filter((o) => v2.valorEm(REQUISICAO, o.campo.match(/[^.[\]"]+/g)) === undefined).map((o) => o.campo);
-    expect(omitidos).toEqual(['individualStats', 'sensitiveGroups', 'exclusionInfo']);
-    for (const o of origens) expect(['lido', 'derivado', 'ausente-no-arquivo', 'constante-da-tela']).toContain(o.origem);
+  test('o artefato r2 é o que o módulo produz, e a requisição serializada é comum aos três casos', () => {
+    expect(r2).toEqual(referencia.declaracaoR2());
+    expect(r2.requisicao).toEqual(REQUISICAO);
+    expect(r2.requisicaoSerializada.sha256).toBe(sha(referencia.serializarRequisicao(REQUISICAO)));
+    expect(r2.requisicaoSerializada.comumAosCasos).toEqual(['C1', 'C2', 'C3']);
+    expect(dois['casos.json'].payloadReferencia.requisicaoSerializada).toMatchObject({
+      versao: 'r2', arquivo: 'requisicao-referencia-r2.json', sha256: r2.requisicaoSerializada.sha256, comumAosCasos: ['C1', 'C2', 'C3'],
+    });
+    expect(manifesto.payloadDeReferencia.vigente).toMatchObject({ versao: 'r2', sha256RequisicaoSerializada: r2.requisicaoSerializada.sha256 });
+    // As diferenças entre os casos seguem declaradas por caso, e não na requisição.
+    const porCaso = (casos: any) => casos.casos.map((c: any) => [c.caso, c.USE_RAG_SEMANTIC, c.recuperacao]);
+    expect(porCaso(dois['casos.json'])).toEqual(porCaso(um['casos.json']));
   });
 
-  test('o que é LIDO é o valor do arquivo; o que é DERIVADO segue a regra declarada', () => {
-    for (const o of origens.filter((x) => x.origem === 'lido')) expect(REQUISICAO[o.campo]).toEqual(CALCULO[o.campo]);
+  test('metadata.projectName vira projectName, com origem e transformação declaradas', () => {
+    expect(CALCULO.metadata.projectName).toBe(REQUISICAO.projectName);
+    expect(REQUISICAO.projectName).not.toBe('Projeto sem nome');
+    const e = porCampo('projectName');
+    expect(e).toMatchObject({
+      estado: 'disponivel',
+      tratamento: 'transformacao',
+      valorEnviado: { presente: true, valor: CALCULO.metadata.projectName },
+      valorEnviadoEhInformacaoMedida: true,
+    });
+    expect(e.origemEvidencia).toContain('metadata.projectName');
+    expect(e.origemEvidencia).toContain(referencia.CALCULO);
+    expect(e.transformacao).toContain('metadata.projectName -> projectName');
+    expect(e.transformacao).toContain('A tela lê project.name, outra fonte');
+  });
+
+  test('cada folha, e cada campo omitido, tem UM registro com as quatro coisas; a constante fica à parte', () => {
+    for (const segs of folhas(REQUISICAO)) expect([v2.rotulo(segs), registrosDe(v2.rotulo(segs)).length]).toEqual([v2.rotulo(segs), 1]);
+    for (const i of inventario) {
+      expect(referencia.ESTADOS).toContain(i.estado);
+      expect(referencia.TRATAMENTOS).toContain(i.tratamento);
+      expect(typeof i.origemEvidencia).toBe('string');
+      const valor = v2.valorEm(REQUISICAO, segsDe(i.campo));
+      expect([i.campo, i.valorEnviado.presente]).toEqual([i.campo, valor !== undefined]);
+      if (i.valorEnviado.presente) expect(i.valorEnviado.valor).toEqual(valor);
+    }
+    expect(inventario.filter((i: any) => !i.valorEnviado.presente).map((i: any) => [i.campo, i.tratamento])).toEqual([
+      ['individualStats', 'omissao'], ['sensitiveGroups', 'omissao'], ['exclusionInfo', 'omissao'],
+    ]);
+    const contagem = inventario.reduce((o: any, i: any) => ({ ...o, [i.estado]: (o[i.estado] || 0) + 1 }), {});
+    expect(contagem).toEqual({ 'disponivel': 8, 'derivado': 5, 'indisponivel': 16, 'comprovadamente-vazio': 1 });
+    expect(constantes).toEqual([{
+      campo: 'qualityAnalysis.statistics.byStatus.REVISAR',
+      valor: 0,
+      origemNoCodigo: expect.stringContaining(referencia.TELA),
+      naoEhObservacaoDoProjeto: true,
+    }]);
+    expect(inventario.map((i: any) => i.campo)).not.toContain('qualityAnalysis.statistics.byStatus.REVISAR');
+    expect(r2.constantesDaMontagem).toEqual(constantes);
+  });
+
+  test('indisponível é distinto de comprovadamente vazio, e o vazio traz a evidência', () => {
+    const vazios = inventario.filter((i: any) => i.estado === 'comprovadamente-vazio');
+    expect(vazios.map((i: any) => i.campo)).toEqual(['exclusionInfo']);
+    expect(CALCULO.metadata.excludedRespondentIds).toEqual([]);
+    expect(vazios[0].evidenciaDoVazio).toEqual({ campo: 'metadata.excludedRespondentIds', valor: [] });
+    expect(vazios[0].origemEvidencia).toContain('calcData.metadata.excludedRespondentIds');
+    for (const i of inventario.filter((x: any) => x.estado === 'indisponivel')) {
+      expect(i.origemEvidencia).toMatch(/^indisponível: /);
+      expect(i).not.toHaveProperty('evidenciaDoVazio');
+    }
+    const demografia = porCampo('demographicsSummary');
+    expect([demografia.estado, demografia.tratamento]).toEqual(['indisponivel', 'fallback']);
+    expect(demografia.nota).toContain('NÃO é vazio demonstrado');
+  });
+
+  test('valor enviado por fallback em campo indisponível NÃO é informação medida; o fallback de qualidade fica preservado', () => {
+    for (const i of inventario) expect([i.campo, i.valorEnviadoEhInformacaoMedida]).toEqual([i.campo, i.estado !== 'indisponivel']);
+    for (const campo of ['qualityAnalysis.statistics.byStatus["CONFIÁVEL"]', 'qualityAnalysis.summary.ok']) {
+      expect(porCampo(campo)).toMatchObject({
+        estado: 'indisponivel', tratamento: 'fallback', valorEnviadoEhInformacaoMedida: false,
+        valorEnviado: { presente: true, valor: CALCULO.responseCount },
+      });
+      expect(porCampo(campo).pendencia).toContain('A.12');
+    }
+    expect(r2.pendenciaA12).toContain('A.12');
+    expect(r2.pendenciaA12).toContain('PRESERVADO e não corrigido');
+    expect(dois['casos.json'].pendenciasParaGeracao).toContain(v2.PENDENCIA_QUALIDADE);
+  });
+
+  test('o que é disponível ou derivado confere com o arquivo, pela regra declarada', () => {
+    for (const i of inventario.filter((x: any) => x.estado === 'disponivel' && x.tratamento === 'leitura')) {
+      expect(REQUISICAO[i.campo]).toEqual(CALCULO[i.campo]);
+    }
     const [b, o, c, r] = CALCULO.bocrWeights;
     expect(REQUISICAO.personalWeights).toEqual({ Benefits: b, Opportunities: o, Costs: c, Risks: r });
     const s = CALCULO.rescalingWeights;
     expect(REQUISICAO.rescalingWeights).toEqual({ Benefits: s.sb, Opportunities: s.so, Costs: s.sc, Risks: s.sr });
-    expect(REQUISICAO.qualityAnalysis.statistics.byStatus['CONFIÁVEL']).toBe(CALCULO.responseCount);
-    const aviso = origens.find((x) => x.campo === 'qualityAnalysis.statistics.byStatus["CONFIÁVEL"]');
-    expect(aviso.regra).toContain('SEM medição individual');
+    for (const campo of ['qualityAnalysis.statistics.total', 'qualityAnalysis.summary.total', 'overallStats.total']) {
+      expect([campo, porCampo(campo).estado, porCampo(campo).valorEnviado.valor]).toEqual([campo, 'derivado', CALCULO.responseCount]);
+    }
   });
 
-  test('o espelho da tela segue válido, pelas âncoras de texto', () => {
-    const tela = fs.readFileSync(path.join(__dirname, '../..', referencia.TELA), 'utf8');
+  test('as âncoras seguem valendo, e o alcance delas está escrito', () => {
+    const ler = (rel: string) => fs.readFileSync(path.join(__dirname, '../..', rel), 'utf8');
+    const tela = ler(referencia.TELA), calculo = ler(referencia.CALCULO);
     for (const [ancora, n] of referencia.ANCORAS_DA_TELA) expect([ancora, contar(tela, ancora)]).toEqual([ancora, n]);
+    for (const [ancora, n] of referencia.ANCORAS_DO_CALCULO) expect([ancora, contar(calculo, ancora)]).toEqual([ancora, n]);
+    expect(r2.transformacao.alcanceDasAncoras).toContain('presença dos fragmentos escolhidos');
+    expect(r2.transformacao.alcanceDasAncoras).toContain('NÃO demonstram equivalência completa');
   });
 
-  test('o manifesto declara a mesma transformação, com o resumo do arquivo e da requisição', () => {
-    expect(manifesto.payloadDeReferencia).toEqual(referencia.declaracao());
-    expect(manifesto.payloadDeReferencia.sha256Requisicao).toBe(sha(JSON.stringify(REQUISICAO)));
-    expect(manifesto.payloadDeReferencia.pendencia).toContain('A.12');
+  test('a r1 fica preservada em artefato identificado, e a função congelada a reproduz', () => {
+    const r1 = lerJson(V2 + 'requisicao-referencia-r1.json');
+    const R1_GRAVADA_EM = '82057ec44064dbba3b3ad754e09526b48cf0f65a';
+    expect(r1.versao).toBe('r1');
+    expect(r1.identificacao).toMatchObject({ gravadaEm: R1_GRAVADA_EM, substituidaPor: 'requisicao-referencia-r2.json' });
+    expect(r1.declaracao).toEqual(referencia.declaracaoR1());
+    const requisicaoR1 = referencia.montarRequisicao(CALCULO).requisicao;
+    expect(r1.requisicao).toEqual(requisicaoR1);
+    expect(r1.declaracao.sha256Requisicao).toBe('d9a8c034e8259dc46bc222691a6172c352546550bf2d713f209705639ee9c035');
+    expect(sha(referencia.serializarRequisicao(requisicaoR1))).toBe(r1.declaracao.sha256Requisicao);
+    expect(r1.requisicaoSerializada.sha256).toBe(r1.declaracao.sha256Requisicao);
+    expect(manifesto.payloadDeReferencia.anteriores).toEqual([{
+      versao: 'r1', arquivo: V2 + 'requisicao-referencia-r1.json',
+      sha256RequisicaoSerializada: r1.declaracao.sha256Requisicao, gravadaEm: R1_GRAVADA_EM,
+    }]);
+    // A r1 e a r2 diferem SÓ no nome do projeto.
+    expect(v2.diferencasSeg(requisicaoR1, REQUISICAO).map((s: any[]) => v2.rotulo(s))).toEqual(['projectName']);
   });
 });
 
@@ -574,7 +680,12 @@ describe('A.33 v2: a montagem real corresponde à nova preparação, sem chamada
     const pct = (x: number) => (x * 100).toFixed(1) + '%';
     const [b, o, c, r] = CALCULO.bocrWeights;
     expect(contar(m, `(B=${pct(b)}, O=${pct(o)}, C=${pct(c)}, R=${pct(r)})`)).toBe(1);
-    expect(m).toContain('**Título do Projeto:** Projeto sem nome');
+    expect(contar(m, `**Título do Projeto:** ${CALCULO.metadata.projectName}`)).toBe(1);
+    expect(m).not.toContain('Projeto sem nome');
+    // ⚠ O fallback de qualidade da tela está PRESERVADO, e isto registra o efeito
+    // dele, pendência de A.12; não o torna adequado ao ensaio.
+    expect(m).toContain(`Respostas CONFIÁVEIS (CR ≤ 0.10): ${CALCULO.responseCount} (100.0%)`);
+    expect(m).toContain('Pontuação automática: 100/100');
     for (const f of CALCULO.finalScores) expect(contar(m, `${f.code} — ${f.name}: Score = ${f.scoreSubtractive.toFixed(6)}`)).toBe(1);
     for (const sintetico of ['Projeto de ensaio', 'Alternativa 1', 'B=37.0%']) expect(m).not.toContain(sintetico);
   });

@@ -25,6 +25,8 @@ const DATA = '2026-09-17';
 const BASE_SNAPSHOT = '344d63121489348a7291725271564f06fe5ef5a5';
 const COMMIT_A16_TEXTUAL = '8b057d9db2c70e701a757f5ad83336903c3b8000';
 const COMMIT_A16_CLAIM = 'b567d99bec6881faa381651353120e1faaf7366a';
+/** Onde a r1 da requisição de referência foi gravada. */
+const COMMIT_REQUISICAO_R1 = '82057ec44064dbba3b3ad754e09526b48cf0f65a';
 /**
  * A base corrigida é FIXA: é o SHA de onde a v2 leu o conteúdo, aprovado na
  * auditoria. Tomar o `HEAD` de cada execução mudaria o endereço a cada commit.
@@ -68,6 +70,9 @@ const PENDENCIA_CONCLUSOES =
  */
 const VERIFICACAO_V2 =
   'Versão 2. Código de produção: nenhum arquivo de app/, components/ ou lib/ fora de lib/__tests__ foi alterado pela preparação da v2, de 8f94341 a 82057ec; a base lib/rag/articles foi alterada antes, em A.16, por 8b057d9 e b567d99, e é a origem declarada das correções. Instrumentos criados: scripts/a33-snapshot-v2.cjs e scripts/a33-payload-referencia.cjs. Teste criado: lib/__tests__/a33-snapshot-v2.test.ts. Verificado em c87e337: tsc 0; suíte com 23 suítes e 361 testes, 358 passando na máquina Windows, com as três falhas já registradas, e 361 de 361 em clone raso com LF; CI 35231221204 com typecheck, build e testes em sucesso. Verificado em 82057ec: tsc 0; o teste da v2 com 48 de 48; CI 35240750874 com typecheck, build e testes em sucesso. Build local não executado nesta preparação. Esta descrição não cobre alterações posteriores a 82057ec.';
+
+const PENDENCIA_QUALIDADE =
+  'A.12, antes de gerar: a requisição de referência preserva o fallback de qualidade da tela, que declara os 12 respondentes confiáveis sem medição e leva a pontuação automática a 100/100. Ver requisicao-referencia-r2.json, pendenciaA12. Correção em rodada própria, com predição registrada antes.';
 
 const git = (args) => execFileSync('git', args, { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
 const blob = (sha, rel) => git(['show', `${sha}:${rel}`]);
@@ -269,6 +274,7 @@ function classificar(arquivo, caminho) {
       [/^integridadeDosDados\["[^"]+"\]\.resumoCompleto$/, 'resumo-derivado'],
       [/^verificacaoCodigo$/, 'declaracao-administrativa-corrigida'],
       [/^resumoEvidencias\.(conferidas|pendentes)$/, 'contagem-recalculada'],
+      [/^payloadReferencia\.requisicaoSerializada$/, 'requisicao-de-referencia-declarada'],
     ],
   };
   const regra = (regras[arquivo] || []).find(([re]) => re.test(caminho));
@@ -474,7 +480,37 @@ function propagar() {
   casos2.versaoPreparacao = 2;
   casos2.dataUTC = DATA;
   casos2.verificacaoCodigo = VERIFICACAO_V2;
-  casos2.pendenciasParaGeracao = [...casos1.pendenciasParaGeracao, PENDENCIA_P1, PENDENCIA_CONCLUSOES];
+  casos2.pendenciasParaGeracao = [...casos1.pendenciasParaGeracao, PENDENCIA_P1, PENDENCIA_CONCLUSOES, PENDENCIA_QUALIDADE];
+
+  // Requisição de referência: r2 vigente, r1 preservada.
+  const referencia = require('./a33-payload-referencia.cjs');
+  const gravadaR1 = JSON.parse(git(['show', COMMIT_REQUISICAO_R1 + ':' + V2 + 'manifesto-transicao.json']).toString('utf8')).payloadDeReferencia;
+  const declaracaoR1 = referencia.declaracaoR1();
+  if (json(declaracaoR1) !== json(gravadaR1)) throw Error('A r1 congelada não reproduz a declaração gravada em ' + COMMIT_REQUISICAO_R1);
+  const requisicaoR1 = referencia.montarRequisicao(JSON.parse(referencia.lerArquivo().toString('utf8'))).requisicao;
+  const serializadaR1 = referencia.serializarRequisicao(requisicaoR1);
+  if (sha256(utf8(serializadaR1)) !== declaracaoR1.sha256Requisicao) throw Error('Requisição r1 não reproduz o resumo gravado');
+  const artefatoR1 = {
+    versao: 'r1',
+    identificacao: {
+      gravadaEm: COMMIT_REQUISICAO_R1,
+      ondeEstava: 'manifesto-transicao.json, campo payloadDeReferencia, de 82057ec a a709cc3, com o mesmo conteúdo nos quatro commits',
+      substituidaPor: 'requisicao-referencia-r2.json',
+      porQue: 'A premissa da r1 dizia que os campos do projeto não estavam no arquivo, e metadata.projectName está. E a r1 não separava a disponibilidade da informação do valor enviado.',
+      preservacao: 'A declaração abaixo é a gravada, conferida contra o commit; a requisição é reproduzida pela função congelada, e o resumo dela coincide com o gravado.',
+    },
+    declaracao: declaracaoR1,
+    requisicaoSerializada: { sha256: declaracaoR1.sha256Requisicao, bytes: Buffer.byteLength(serializadaR1, 'utf8') },
+    requisicao: requisicaoR1,
+  };
+  const declaracaoR2 = referencia.declaracaoR2();
+  casos2.payloadReferencia.requisicaoSerializada = {
+    versao: 'r2',
+    arquivo: 'requisicao-referencia-r2.json',
+    sha256: declaracaoR2.requisicaoSerializada.sha256,
+    comumAosCasos: declaracaoR2.requisicaoSerializada.comumAosCasos,
+    diferencasEntreCasos: 'USE_RAG_SEMANTIC e recuperação, declaradas por caso em casos; a requisição é a mesma nos três.',
+  };
   const escritos = {
     'evidencias.json': serializar(ev2),
     'contexto-estatico.json': serializar(ce2),
@@ -660,7 +696,22 @@ function propagar() {
       nota: 'Resultado da verificação sobre 165 unidades distintas, sem somar cópias. Só mudam de estado as unidades cujo encadeamento se liga e satisfaz as quatro condições; propagação correta, sozinha, não é conferência bibliográfica. Os números da v1 seguem históricos.',
     },
     indicadorC1,
-    payloadDeReferencia: require('./a33-payload-referencia.cjs').declaracao(),
+    payloadDeReferencia: {
+      vigente: {
+        versao: 'r2',
+        arquivo: V2 + 'requisicao-referencia-r2.json',
+        sha256RequisicaoSerializada: declaracaoR2.requisicaoSerializada.sha256,
+        comumAosCasos: declaracaoR2.requisicaoSerializada.comumAosCasos,
+        diferencasEntreCasos: declaracaoR2.requisicaoSerializada.diferencasEntreCasos,
+      },
+      anteriores: [{
+        versao: 'r1',
+        arquivo: V2 + 'requisicao-referencia-r1.json',
+        sha256RequisicaoSerializada: declaracaoR1.sha256Requisicao,
+        gravadaEm: COMMIT_REQUISICAO_R1,
+      }],
+      pendenciaA12: referencia.PENDENCIA_A12,
+    },
     pendencias: [PENDENCIA_P1, PENDENCIA_CONCLUSOES],
     limites: [
       'Aprovação estrutural, resumo correto e identidade recalculada não mudam estado de conferência; a mudança vem do encadeamento registrado.',
@@ -673,6 +724,8 @@ function propagar() {
   fs.mkdirSync(path.join(ROOT, V2), { recursive: true });
   for (const [f, conteudo] of Object.entries(escritos)) fs.writeFileSync(path.join(ROOT, V2, f), conteudo);
   fs.writeFileSync(path.join(ROOT, V2, 'manifesto-transicao.json'), serializar(manifesto));
+  fs.writeFileSync(path.join(ROOT, V2, 'requisicao-referencia-r1.json'), serializar(artefatoR1));
+  fs.writeFileSync(path.join(ROOT, V2, 'requisicao-referencia-r2.json'), serializar(declaracaoR2));
   return {
     baseCorrigida: BASE_CORRIGIDA,
     afetadas,
@@ -906,7 +959,7 @@ function calcularIndicadorC1(c12, ev2, novoPorEndereco, encadeamento) {
 
 module.exports = {
   V1, V2, BASE_SNAPSHOT, APROVADAS, CAMPOS_HT_KEY_CLAIMS, ARQUIVOS, COPIADOS_SEM_ALTERACAO,
-  PENDENCIA_P1, PENDENCIA_CONCLUSOES, VERIFICACAO_V2, BASE_CORRIGIDA, valorNaBase, benchmarkDe, derivar, conferirContraAprovadas,
+  PENDENCIA_P1, PENDENCIA_CONCLUSOES, PENDENCIA_QUALIDADE, VERIFICACAO_V2, BASE_CORRIGIDA, valorNaBase, benchmarkDe, derivar, conferirContraAprovadas,
   topicDe, ruleDe, formatarSecao, textoDoChunk, verbatimDoChunk, resumosDe, classificar,
   aplicarSubstituicoes, lerArquivo, lerJson, rotulo, valorEm, diferencasSeg,
 };
