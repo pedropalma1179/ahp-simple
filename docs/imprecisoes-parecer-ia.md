@@ -8784,6 +8784,14 @@ voltam na resposta e **substituem os do parecer quando ele não traz nota**, e s
 exibidos no estado aprovado. ⚠ **Reproduzir a tela revelou o defeito, e não torna a
 declaração adequada ao ensaio.** A pendência está no artefato r2 e em `casos.json`.
 
+⚠ **SUPERADO em `cc0bd27`, e a superação é DELIMITADA.** O que deixou de valer é a
+descrição do **caminho de produção**: a tela não fabrica mais a distribuição, e a
+montagem sobre a **mesma** requisição r2 não produz mais *"12 (100.0%)"* nem
+*"100/100"*. ⚠ **A requisição r2 permanece preservada como está**, porque é registro
+do estado de então, e **os artefatos v1 e v2 conservam os seus resultados
+históricos**. O que mudou é o que a montagem faz com ela, e isso está medido na
+seção de A.12 abaixo.
+
 #### A montagem dos três casos
 
 Por **captura e interrupção**, com os clientes simulados e o `fetch` bloqueado, **zero
@@ -8933,6 +8941,142 @@ distinguir avaliação disponível de valor produzido por fallback**, e **a pres
 ⚠ **Depois desta correção auditada**, a requisição afetada será **novamente
 identificada** e **P1 conferida contra a entrada destinada à geração**. **Nada disso
 nesta rodada.** **A predição de A.33 segue não testada.**
+
+### A.12: a correção aplicada, e as três superfícies medidas, em 17/09/2026
+
+**Commits, e nesta ordem:** a predição em `fcf5167b9e55c67b3b22782df4d0dc4979bc5043`,
+que **não toca código**, e o código com os testes em
+`cc0bd274d43b324df8262365b781c0b3027ec185`. ⚠ **A predição antecede a alteração
+definitiva versionada**, e não toda edição: a captura de superfícies feita antes é
+leitura. **CI observado por commit, pela API:** execução `35263214674` na predição e
+execução `35266139828` no código, ambas `completed/success`, evento `push`, branch
+`correcao/a12-qualidade-ausente`.
+
+**Alcance do diff de `cc0bd27`:** 9 arquivos, 688 inserções e 86 remoções.
+
+#### O veredito da predição: CONFIRMADA, e o caso negativo não ocorreu
+
+A predição dizia que a ausência deixaria de produzir percentuais, nota ou veredicto,
+**e que os casos efetivamente avaliados conservariam os seus resultados**. As duas
+metades foram medidas, com o cliente do modelo simulado e **sem geração real**,
+executando o handler nos dois commits e comparando as capturas.
+
+| Caso | ANTES, em `fcf5167` | DEPOIS, em `cc0bd27` |
+|---|---|---|
+| **A**, sem nenhuma fonte de qualidade | `nota` **F**, `veredicto` **REJEITAR**, `automaticGrade` **45**, `gradeSource` `automatic` | **suspensa**: `nota` e `veredicto` `null`, `gradeSource` `suspensa` |
+| **B**, `byStatus` fabricado pela tela antiga | `nota` **A**, `veredicto` **ACEITO**, `automaticGrade` **100** | **suspensa**, idem |
+| **C**, sem qualidade e texto com `ACEITO` | `gradeSource` **`ai`**: a extração **restabelecia** **A / ACEITO** | **suspensa**: a extração **não** restabelece |
+| **D**, avaliação válida com confiáveis | **A / ACEITO**, `automaticGrade` 100 | **idêntico**, contexto e resposta |
+| **E**, avaliação válida com **zero** confiáveis | **F / REJEITAR**, `automaticGrade` 45 | **idêntico**, contexto e resposta |
+| **F**, avaliada, com `ACEITO` no texto | **A / ACEITO**, `gradeSource` `ai` | **idêntico**, contexto e resposta |
+
+⚠ **Os três controles — D, E e F — saíram IDÊNTICOS nos dois commits**, comparando o
+contexto montado e a resposta da API inteiros, e não só a nota. **É o que sustenta a
+segunda metade da predição.**
+
+⚠ **O achado que a comparação A × E entrega:** antes da correção, a **ausência** de
+avaliação (caso A) produzia **exatamente os mesmos** `F / REJEITAR` e **45** que uma
+avaliação real com **zero** respondentes confiáveis (caso E). **Ausência e reprovação
+medida eram indistinguíveis na saída.** E a **mesma** ausência produzia **A / ACEITO**
+quando a tela fabricava a distribuição (caso B). **O resultado dependia de por qual
+caminho a ausência chegava, não do que havia sido medido.**
+
+#### A primeira superfície: o que o modelo recebia, e o que recebe
+
+Linhas de qualidade **retiradas** na ausência, medidas no contexto montado:
+
+| Linha, ANTES | Caso | DEPOIS |
+|---|---|---|
+| `Respostas CONFIÁVEIS (CR ≤ 0.10): 12 (100.0%)`, mais REVISAR, SUSPEITAS e CRÍTICAS | B | **saem**, e entra `AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL`, com o motivo |
+| `**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10` | A, C | `**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.` |
+| `**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10` | B | idem |
+| `- Válidas (CR ≤ 0.10): 0 (0%)`, **quatro vezes**, uma por dimensão | A, B, C | `Não disponíveis: a qualidade individual não foi avaliada.` |
+| `- Pontuação automática: 45/100` ou `100/100` | A, B, C | `Pontuação automática: não calculada — {motivo}` |
+
+⚠ **Depois da correção, nenhum percentual de qualidade sobra no contexto quando a
+avaliação está ausente.** Os percentuais que **permanecem** são de outra natureza, e
+permanecem de propósito: o CR global agregado (**1.06%**), os pesos BOCR e os
+percentuais **dentro das citações da literatura**.
+
+#### A segunda e a terceira: a resposta da API e a tela
+
+A resposta ganhou `notaSuspensa` — `{ suspensa, rotulo, motivo, avaliacaoDeQualidade }`
+—, `metadata.gradeSource` passa a `suspensa`, e `automaticGrade` vai a `null`. Na
+apresentação, o bloco de suspensão mostra **"Nota não calculada: qualidade individual
+não avaliada"** com o motivo, e os selos de nota e veredicto ficam condicionados a
+**não** haver suspensão. ⚠ **Os cálculos AHP-BOCR seguem visíveis**, e a ausência não
+virou aprovação nem reprovação.
+
+⚠ **A.27 permanece distinta, e isso foi medido, não suposto:** nos seis casos, o
+`validation.estado` continuou `aprovado`, e o objeto de validação da requisição sem
+avaliação saiu **igual** ao da requisição avaliada.
+
+#### A correção começou na origem
+
+`app/decisor/resultados/[projectId]/page.tsx` classifica **antes** de montar, por
+`classificarAvaliacaoDaTela`, e **não envia distribuição que não mediu**: `qualityAnalysis`
+só leva estatísticas quando há avaliação, e `overallStats` e `individualStats` ficam
+`undefined` quando não há. O contrato novo, em `lib/ai-reviewer/avaliacao-qualidade.ts`,
+tem três estados — `disponivel`, `ausente`, `incompleta` — e ⚠ **a presença de
+`byStatus` deixou de ser critério**: o critério é **CR por respondente**. A declaração
+do cliente vale e **é conferida**: declarar disponível sem CR por respondente vira
+`incompleta`.
+
+⚠ **A dupla penalização saiu.** O ramo que descontava **15** por falta de dados passou
+a suspender, e a taxa zero deixou de ser calculada sobre ausência.
+
+#### Dez contraexemplos, e os dois que a suíte deixou passar
+
+Cada contraexemplo desfaz **uma** parte da correção no código, roda a suíte de A.12 e
+restaura os bytes originais, com o restauro conferido por `sha256`. **Os dez reprovam.**
+⚠ **Dois só passaram a reprovar depois de endurecer o teste, e os dois estão aqui
+porque o achado é o método, não o resultado:**
+
+1. **A âncora da apresentação era substring.** Prefixar a condição com `false &&`
+   desligava o bloco de suspensão **sem derrubar teste nenhum**, porque a âncora não
+   incluía a chave de abertura. Agora inclui, e o contraexemplo reprova.
+2. **O ramo de "declarada disponível, sem dados" não é alcançável pelo contrato.**
+   Trocá-lo pela penalização antiga não derrubou nada. ⚠ **A razão foi medida, e não é
+   fraqueza da suíte:** `disponivel` só sai da classificação com CR para **todos** os
+   respondentes, e aí `calculateGrade` já parou numa prioridade anterior. O ramo fica
+   como defesa, e o teste passou a **medir** a inalcançabilidade em vez de supô-la.
+
+#### Um erro de instrumento, na primeira execução do comparador
+
+⚠ **O primeiro filtro das capturas era sensível à caixa e curto demais**, e perdeu
+justamente as linhas mais visíveis do caso: `**Taxa de Validade Geral:** 0.0%` e as
+**quatro** linhas `- Válidas (CR ≤ 0.10): 0 (0%)`. **O agregado parecia completo.** O
+filtro foi refeito sem depender de caixa e com uma varredura própria de **toda linha
+com percentual**, e só então a tabela acima foi escrita. É o quarto instrumento desta
+série a errar no centro, e não na borda.
+
+#### Verificação
+
+| Verificação | Árvore de trabalho | Clone raso com LF, condições do CI |
+|---|---|---|
+| `npx tsc --noEmit` | saída **0** | saída **0** |
+| `npm run build` | saída **0** | saída **0** |
+| suíte inteira | **24 suítes, 396 testes**, nenhuma falha | **24 suítes, 396 testes**, nenhuma falha |
+
+**Ambiente do clone, observado:** Windows, Node **v24.12.0**, npm **11.18.0**.
+`lib/__tests__/a12-qualidade-ausente.test.ts` traz **15** testes.
+
+⚠ **Uma falha apareceu na suíte e NÃO era da correção:** cinco arquivos de
+`docs/dados/a33-etapa4/` estavam com **CRLF no disco** enquanto o `HEAD` os tem com LF,
+e o teste de integridade confere `sha256` dos **bytes do disco**. Restaurados com
+`git show HEAD:caminho > caminho`, os cinco voltaram a bater, e `git diff` confirmou
+**nenhuma** diferença de conteúdo. ⚠ **É armadilha do ambiente, recorrente**, e volta
+toda vez que o git reescreve esses arquivos.
+
+#### O que esta rodada NÃO fez
+
+**Sem geração real**: o cliente do modelo é simulado e devolve textos controlados,
+inclusive um com `ACEITO` na decisão editorial. **Sem reingestão.** **`main` permanece
+em `33c1fdf`**, fora do escopo. ⚠ **A.12 NÃO está fechada:** a remoção do score
+composto e da distribuição categórica do payload, que é o restante do escopo da
+tarefa, continua aberta. ⚠ **Continuam abertas:** a delimitação de **P1** antes da
+geração, **A.16** em Wijnmalen `key_claims[3]`, e a **predição de A.33**, que segue
+não testada.
 
 ### Etapa 4: NÃO EXECUTADA
 
