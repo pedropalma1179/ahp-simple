@@ -1,0 +1,1781 @@
+{
+  "dataConsultaUTC": "2026-09-15",
+  "baseSha": "344d63121489348a7291725271564f06fe5ef5a5",
+  "limite": "Pendentes são nomeados por endereço na base, não considerados conferidos por omissão. Falha de acesso descreve esta consulta e não indisponibilidade universal. Páginas aqui são localizadores de auditoria, não instruções de saída do parecer.",
+  "publicacoes": [
+    {
+      "articleId": "alizadeh2020_energy",
+      "citacaoDaBase": {
+        "abnt": "ALIZADEH, R. et al. Improving renewable energy policy planning and decision-making through a hybrid MCDM method. Energy Policy, v. 137, p. 111174, 2020.",
+        "bibtex": "@article{alizadeh2020improving,\n  title={Improving renewable energy policy planning and decision-making through a hybrid MCDM method},\n  author={Alizadeh, Reza and Soltanisehat, Leili and Lund, Peter D and Zamanisabzi, Hamed},\n  journal={Energy Policy},\n  volume={137},\n  pages={111174},\n  year={2020},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/j.enpol.2019.111174",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.enpol.2019.111174",
+      "notesDaBase": [
+        "The authors explicitly adopted a relaxed CR threshold (≤ 0.15) for strategic pairwise comparisons to accommodate 'complex political and economic situations' typical in national-level energy decisions.",
+        "Table 5 contains a typographical error in the subtractive formula ('bBi + oOi + cCi - rR$'), which has been corrected to the standard '- rRi'. There are also minor OCR issues in the priority powers formula which were transcribed into correct standard LaTeX representation.",
+        "Overall specific numeric values for normalized b, o, c, r were not distinctly stated in a single table, but noted textually as 'fall between 0.2 and 0.3' on page 8.",
+        "[Sanitized] cr_values (original): < 0.05 mostly, with a max accepted threshold of 0.15 for the overall project due to political complexity",
+        "[Sanitized] aggregation (original): Geometric average"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://aaltodoc.aalto.fi/bitstreams/f1868106-03a1-4861-9d7f-f242ae85251f/download",
+          "resultado": "Erro de obtenção na ferramenta de leitura, sem status informado; publicação não conferida."
+        }
+      ],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "aullhyde2006_experiment",
+      "citacaoDaBase": {
+        "abnt": "AULL-HYDE, R.; ERDOGAN, S.; DUKE, J. M. An experiment on the consistency of aggregated comparison matrices in AHP. European Journal of Operational Research, v. 171, n. 1, p. 290-295, 2006.",
+        "bibtex": "@article{aullhyde2006experiment,\n  author = {Aull-Hyde, Rhonda and Erdogan, Sevgi and Duke, Joshua M.},\n  title = {An experiment on the consistency of aggregated comparison matrices in AHP},\n  journal = {European Journal of Operational Research},\n  year = {2006},\n  volume = {171},\n  issue = {1},\n  pages = {290--295},\n  publisher = {Elsevier B.V.},\n  doi = {10.1016/j.ejor.2004.06.037}\n}"
+      },
+      "doiDaBase": "10.1016/j.ejor.2004.06.037",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.ejor.2004.06.037",
+      "notesDaBase": [
+        "The 3x3 matrices are described as the 'most unstable' regarding aggregate consistency convergence.",
+        "Reference to Duke and Aull-Hyde (2002) provided the empirical motivation: 129 respondents showed consistent aggregate results despite individual inconsistency.",
+        "[Sanitized] sensitivity (original): Sensitivity to the number of alternatives; fewer alternatives require larger groups for consistency.",
+        "[Sanitized] aggregation (original): AIJ (Aggregation of Individual Judgments) using GMM"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "citacaoDaBase": {
+        "abnt": "AYAN, Büşra; ABACIOĞLU, Seda; BASILIO, Marcio Pereira. A Comprehensive Review of the Novel Weighting Methods for Multi-Criteria Decision-Making. Information, v. 14, n. 5, p. 285, 2023.",
+        "bibtex": "@article{ayan2023comprehensive,\n  title={A Comprehensive Review of the Novel Weighting Methods for Multi-Criteria Decision-Making},\n  author={Ayan, B{\\\"u}{\\c{s}}ra and Abacıo{\\u{g}}lu, Seda and Basilio, Marcio Pereira},\n  journal={Information},\n  volume={14},\n  number={5},\n  pages={285},\n  year={2023},\n  publisher={MDPI}\n}"
+      },
+      "doiDaBase": "10.3390/info14050285",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.3390/info14050285",
+      "notesDaBase": [
+        "Modern (2023) systematic review establishing the state-of-the-art in MCDM weighting. Provides the theoretical foundation for arguing that weight distributions are method- and panel-dependent, not absolute.",
+        "The bounded rationality argument (Simon) explicitly links MCDM weighting to cognitive limitations of decision-makers, grounding the professional bias discussion in foundational decision theory.",
+        "Highly relevant for auditing AHP-BOCR distributions: provides authoritative basis for stating that subjective methods inherently carry bias from panel composition, which is not a defect but a characteristic that must be transparently reported."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://www.mdpi.com/2078-2489/14/5/285",
+          "resultado": "429 na ferramenta de leitura; publicação não conferida."
+        }
+      ],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "bozoki2010_ipc",
+      "citacaoDaBase": {
+        "abnt": "BOZÓKI, Sándor; FÜLÖP, János; RÓNYAI, Lajos. On optimal completion of incomplete pairwise comparison matrices. Mathematical and Computer Modelling, v. 52, n. 1-2, p. 318-333, 2010.",
+        "bibtex": "@article{bozoki2010optimal,\n  title={On optimal completion of incomplete pairwise comparison matrices},\n  author={Bozóki, Sándor and Fülöp, János and Rónyai, Lajos},\n  journal={Mathematical and Computer Modelling},\n  volume={52},\n  number={1-2},\n  pages={318--333},\n  year={2010},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/j.mcm.2010.02.047",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.mcm.2010.02.047",
+      "notesDaBase": [
+        "ID 'bozoki2010_ipc' refers to the canonical journal version: Bozóki, Fülöp, Rónyai (2010) Math. Comput. Modelling 52(1-2), 318-333. The PDF in the project knowledge is the IEEE 2009 conference version (Proceedings of 2009 IEEE IEEM, 'Incomplete Pairwise Comparison Matrices in Multi-Attribute Decision Making'), which is a shorter presentation of the same theorems.",
+        "Page numbers in evidence (2256-2257) refer to the IEEE 2009 conference proceedings. Equivalent content appears in pages 318-333 of the MCM 2010 paper.",
+        "Reference [1] in the IEEE 2009 paper is the Working Paper 2009-1 by the same authors, which became the published MCM 2010 paper.",
+        "The paper cites Aupetit & Genest (1993), Crawford & Williams (1985), de Jong (1984), Harker (1987), Kingman (1961), Kwiesielewicz (1996, 2003), Luenberger & Ye (2008), Perron (1907), Saaty (1980), Shiraishi et al. (1998, 2002), van Uden (2002). Of these, only harker1987_incomplete is in the RAG.",
+        "Theorem 1 establishes existence and uniqueness for the eigenvector method generalization. Theorem 3 establishes the same for LLSM. Theorem 2 describes the structure of solutions when the graph is disconnected.",
+        "The convergence problem (5) was first studied by Shiraishi, Obata & Daigo (1998); Bozóki et al. provide the rigorous uniqueness proof and connectivity condition.",
+        "DOI 10.1016/j.mcm.2010.02.047 verified for the MCM 2010 canonical version."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "demirtas2008_integrated",
+      "citacaoDaBase": {
+        "abnt": "DEMIRTAS, E. A.; ÜSTÜN, Ö. An integrated multiobjective decision making process for supplier selection and order allocation. Omega, v. 36, n. 1, p. 76-90, 2008.",
+        "bibtex": "@article{demirtas2008integrated,\n  author = {Demirtas, Ezgi Aktar and Üstün, Özden},\n  title = {An integrated multiobjective decision making process for supplier selection and order allocation},\n  journal = {Omega},\n  volume = {36},\n  issue = {1},\n  pages = {76--90},\n  year = {2008},\n  publisher = {Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/j.omega.2005.11.003",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.omega.2005.11.003",
+      "notesDaBase": [
+        "The article counts 14 criteria but Figure 1 only explicitly lists 13 nodes under B, O, C, R subnets. Text states 'Unit cost' is part of the Cost subnet, establishing C=3, and making the total 14.",
+        "AIJ (Aggregation of Individual Judgments) is implied as the authors mention 'comparison results are combined by geometric mean' for both purchasing department and supplier firm personnel.",
+        "[Sanitized] sensitivity (original): Tested additive vs negative additive formulations, finding rank changes when negative additive formulation is applied.",
+        "[Sanitized] aggregation (original): geometric mean"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "dodevska2023when",
+      "citacaoDaBase": {
+        "abnt": "DODEVSKA, Z.; RADOVANOVIĆ, S.; PETROVIĆ, A.; DELIBAŠIĆ, B. When Fairness Meets Consistency in AHP Pairwise Comparisons. Mathematics, v. 11, n. 3, p. 604, 2023.",
+        "bibtex": "@article{dodevska2023when,\n  title={When Fairness Meets Consistency in AHP Pairwise Comparisons},\n  author={Dodevska, Zorica and Radovanovi{\\'c}, Sandro and Petrovi{\\'c}, Andrija and Deliba{\\v{s}}i{\\'c}, Boris},\n  journal={Mathematics},\n  volume={11},\n  number={3},\n  pages={604},\n  year={2023},\n  publisher={MDPI}\n}"
+      },
+      "doiDaBase": "10.3390/math11030604",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.3390/math11030604",
+      "notesDaBase": [
+        "The paper uses a synthetic dataset generating 2800 optimization runs varying matrix sizes from 4 to 10 to test the algorithm, so empirical human sample data (n_respondents) is essentially 'null'.",
+        "It rigorously bridges Fairness/Disparate Impact (DI) thresholds from ML directly into the mechanics of AHP pairwise comparisons."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://www.mdpi.com/2227-7390/11/3/604",
+          "resultado": "429 na ferramenta de leitura; publicação não conferida."
+        }
+      ],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/dodevska2023when.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/dodevska2023when.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/dodevska2023when.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/dodevska2023when.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        }
+      ]
+    },
+    {
+      "articleId": "escobar2004_note",
+      "citacaoDaBase": {
+        "abnt": "ESCOBAR, M. T.; AGUARÓN, J.; MORENO-JIMÉNEZ, J. M. A note on AHP group consistency for the row geometric mean priorization procedure. European Journal of Operational Research, v. 153, n. 2, p. 318-322, 2004.",
+        "bibtex": "@article{escobar2004_note,\n  author = {Escobar, M. T. and Aguarón, J. and Moreno-Jiménez, J. M.},\n  title = {A note on AHP group consistency for the row geometric mean priorization procedure},\n  journal = {European Journal of Operational Research},\n  year = {2004},\n  volume = {153},\n  number = {2},\n  pages = {318-322},\n  publisher = {Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/S0377-2217(03)00154-1",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/S0377-2217(03)00154-1",
+      "notesDaBase": [
+        "The paper uses the Schwarz inequality to prove Theorem 1.",
+        "[Sanitized] aggregation (original): WGMM"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/escobar2004_note.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/escobar2004_note.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "forman1998_aggregating",
+      "citacaoDaBase": {
+        "abnt": "FORMAN, Ernest; PENIWATI, Kirti. Aggregating individual judgments and priorities with the Analytic Hierarchy Process. European Journal of Operational Research, v. 108, n. 1, p. 165-169, 1998.",
+        "bibtex": "@article{forman1998aggregating,\n  title={Aggregating individual judgments and priorities with the Analytic Hierarchy Process},\n  author={Forman, Ernest and Peniwati, Kirti},\n  journal={European Journal of Operational Research},\n  volume={108},\n  number={1},\n  pages={165--169},\n  year={1998},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": null,
+      "enderecoSugeridoNaoEhProvaDeAcesso": null,
+      "notesDaBase": [
+        "The OCR of the original PDF contained a corrupted mathematical formula for the weighted (un-normalized) geometric mean of priorities (AIP) on page 168. To adhere to the zero hallucination rule, the corrupted LaTeX was omitted from the formulas array.",
+        "The text addresses group decision-making (AIJ vs AIP) exclusively. It does not contain BOCR, IPC, fairness, or sensitivity analysis topics."
+      ],
+      "notesLidasAntesDaConferencia": true,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://www.sciencedirect.com/science/article/pii/S0377221797002440",
+          "resultado": "403 na ferramenta de leitura"
+        },
+        {
+          "url": "https://www.researchgate.net/profile/Manuel-Serafin-Plasencia/post/Why_we_used_to_take_Geometric_mean_instead_of_arithmetic_mean_in_Analytic_hierarchy_process/attachment/59d624e879197b807798339e/AS%3A315317371244544%401452188927234/download/Forman%2Band%2BPeniwati%2C%2B1998.%2BAggregating%2BIndividual%2BJudgments%2Band%2BPriorities%2Bwith%2Bthe%2BAHP.pdf",
+          "resultado": "Texto da publicação acessado em PDF. Autores, título, periódico, volume 108, ano 1998 e páginas 165-169 conferidos. Comparação dos trechos preparados em seções 6, páginas 167 e 168."
+        }
+      ],
+      "publicacaoIntegralConsultada": true,
+      "trechosConferidos": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ],
+      "trechosPendentes": []
+    },
+    {
+      "articleId": "goepel2018_ahpos",
+      "citacaoDaBase": {
+        "abnt": "GOEPEL, K. D. Implementation of an online software tool for the Analytic Hierarchy Process (AHP-OS). International Journal of the Analytic Hierarchy Process, v. 10, n. 3, p. 469-487, 2018.",
+        "bibtex": "@article{goepel2018implementation,\n  title={Implementation of an online software tool for the Analytic Hierarchy Process (AHP-OS)},\n  author={Goepel, Klaus D.},\n  journal={International Journal of the Analytic Hierarchy Process},\n  volume={10},\n  number={3},\n  pages={469--487},\n  year={2018},\n  publisher={Creative Decisions Foundation},\n  doi={10.13033/ijahp.v10i3.590}\n}"
+      },
+      "doiDaBase": "10.13033/ijahp.v10i3.590",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.13033/ijahp.v10i3.590",
+      "notesDaBase": [
+        "This paper is the canonical reference for the BPMSG AHP Online System (AHP-OS), publicly available at https://bpmsg.com/academic/ahp.php for non-commercial use.",
+        "Software validation methodology described here is the foundation for the ahpanplib (Creative Decisions Foundation) cross-validation approach used in many subsequent AHP implementations.",
+        "The author Klaus D. Goepel maintains the BPMSG (Business Performance Management Singapore) initiative and is affiliated with email drklaus@bpmsg.com.",
+        "The Alonso-Lamata (2006) CR formula adopted here (Eq. 5) is critical: it allows CR calculation for n > 10 where Saaty's original RI table runs out.",
+        "Eq. 41 (w_AHP = x/(x+n-1)) is the canonical analytical test case for validating any AHP software implementation. For Pedro's dissertation: comparing implementation weights with Goepel's test case provides analytical validation, complementing the AHP-OS/ahpanplib black box validation.",
+        "Consensus indicator categories (Table 2: ≤50% very low ... ≥85% very high) provide a standardized scale for reporting group consensus quality in AHP studies.",
+        "DOI 10.13033/ijahp.v10i3.590 verified via IJAHP. ISSN 1936-6744."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 6
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 7
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 8
+        }
+      ]
+    },
+    {
+      "articleId": "ishizaka2011review",
+      "citacaoDaBase": {
+        "abnt": "ISHIZAKA, A.; LABIB, A. Review of the main developments in the analytic hierarchy process. Expert Systems with Applications, v. 38, n. 11, p. 14336-14345, 2011.",
+        "bibtex": "@article{ishizaka2011review,\n  title={Review of the main developments in the analytic hierarchy process},\n  author={Ishizaka, Alessio and Labib, Ashraf},\n  journal={Expert Systems with Applications},\n  volume={38},\n  issue={11},\n  pages={14336--14345},\n  year={2011},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/j.eswa.2011.04.143",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.eswa.2011.04.143",
+      "notesDaBase": [
+        "The paper is a review article summarizing the methodological developments of AHP up to 2011, thus lacking original primary empirical data or specific BOCR hierarchies of its own.",
+        "Equation 14 (multiplicative aggregation) was missing its mathematical formula in the original OCR text.",
+        "Equation 17 contains an OCR artifact where delta (δ) was read as a sigma (σ) and sum (∑) symbol in the original text representation, but the context clearly discusses perturbation.",
+        "Values inside Table 1 OCR were concatenated for the even-numbered items (2, 4, 6, 8) with the subsequent definition words, which were manually aligned during extraction."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        }
+      ]
+    },
+    {
+      "articleId": "kabak2014_prioritization",
+      "citacaoDaBase": {
+        "abnt": "KABAK, M.; DAĞDEVİREN, M. Prioritization of renewable energy sources for Turkey by using a hybrid MCDM methodology. Energy Conversion and Management, v. 79, p. 25-33, 2014.",
+        "bibtex": "@article{kabak2014prioritization,\n  author = {Kabak, Mehmet and Dağdeviren, Metin},\n  title = {Prioritization of renewable energy sources for Turkey by using a hybrid MCDM methodology},\n  journal = {Energy Conversion and Management},\n  volume = {79},\n  pages = {25--33},\n  year = {2014},\n  publisher = {Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/j.enconman.2013.11.036",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.enconman.2013.11.036",
+      "notesDaBase": [
+        "Aggregation method is indicated as AIJ (Aggregation of Individual Judgments) since the authors clearly state: 'pairwise comparisons... are performed by the expert team and the comparison results are combined by geometric mean' (page 27).",
+        "In Formula 1 and Formula 4, the original text contains 'Narmalized' due to OCR/typographical errors in the published version. It has been corrected to 'Normalized' in the LaTeX transcription for exact mathematical integrity.",
+        "Equation 5 states 'P_i = BO / CR', transcribed exactly as requested despite normally expecting subscripts for B, O, C, and R as seen in equations 1-4.",
+        "[Sanitized] cr_values (original): IR values reported for specific matrices: 8.2% (strategic criteria), 7.4% (alternatives depending on R2).",
+        "[Sanitized] aggregation (original): geometric mean"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "lee2009_wind",
+      "citacaoDaBase": {
+        "abnt": "LEE, A. H. I.; CHEN, H. H.; KANG, H.-Y. Multi-criteria decision making on strategic selection of wind farms. Renewable Energy, v. 34, n. 1, p. 120-126, 2009.",
+        "bibtex": "@article{lee2009multi,\n  title={Multi-criteria decision making on strategic selection of wind farms},\n  author={Lee, Amy HI and Chen, Hsing Hung and Kang, He-Yau},\n  journal={Renewable Energy},\n  volume={34},\n  number={1},\n  pages={120--126},\n  year={2009},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/j.renene.2008.04.013",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.renene.2008.04.013",
+      "notesDaBase": [
+        "The article calculates criteria counts dynamically. 12 main BOCR criteria were used, supported by 26 sub-criteria (since Risks did not have sub-criteria). Overall lowest level metrics evaluated was 29.",
+        "The Multiplicative Priority Powers formula contained OCR errors in the original PDF ('P₁=BO [(1/Ci) Normalized] [(1/Ri) Normalized'). This was converted to the equivalent standard LaTeX representation representing what the text implies.",
+        "CR values are mentioned in passing ('examine the consistency property') but no actual CR thresholds or empirical results for the case study are given.",
+        "[Sanitized] concordance (original): 100% sequence agreement across all 5 synthesis methods in this specific case.",
+        "[Sanitized] aggregation (original): AIJ (Geometric average method)"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2009_wind.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 4
+        }
+      ]
+    },
+    {
+      "articleId": "lee2024_project",
+      "citacaoDaBase": {
+        "abnt": "LEE, H. Y. et al. Multi-Criteria Decision-Making Tools for Project Selection by International Conglomerates. Process Integration and Optimization for Sustainability, v. 8, p. 375-393, 2024.",
+        "bibtex": "@article{lee2024multicriteria,\n  title={Multi-Criteria Decision-Making Tools for Project Selection by International Conglomerates},\n  author={Lee, Ho Yan and Heng, Yi Peng and Selvanathan, Kashwin and Chandrahasan, Prasanth and Chemmangattuvalappil, Nishanth G.},\n  journal={Process Integration and Optimization for Sustainability},\n  volume={8},\n  pages={375--393},\n  year={2024},\n  publisher={Springer}\n}"
+      },
+      "doiDaBase": "10.1007/s41660-023-00376-1",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1007/s41660-023-00376-1",
+      "notesDaBase": [
+        "The article does not strictly use a BOCR framework, focusing instead on CAPEX, OPEX, ESG, and Ease of Business as the primary decision criteria. Therefore, BOCR weights are logged as null.",
+        "The number of respondents (decision makers) is not quantified; the methodology relied on consensus through group brainstorming sessions.",
+        "[Sanitized] cr_values (original): Strategy pairwise: 5%; CAPEX: 5%; OPEX: 5%; ESG: 4%; Ease of business: 1%",
+        "[Sanitized] rankings_by_method (original): Project 4 > Project 1 > Project 3 > Project 2 > Project 5 > Project 6",
+        "[Sanitized] aggregation (original): Consensus through brainstorming sessions for each pair"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2024_project.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2024_project.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/lee2024_project.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "liang2022_ahp_undesirable",
+      "citacaoDaBase": {
+        "abnt": "LIANG, Jie; YANG, Jianhui. Application of the AHP method on the optimization with undesirable priorities. Engineering with Computers, v. 38, n. Suppl 3, p. S2137-S2153, 2022.",
+        "bibtex": "@article{liang2022application,\n  title={Application of the AHP method on the optimization with undesirable priorities},\n  author={Liang, Jie and Yang, Jianhui},\n  journal={Engineering with Computers},\n  volume={38},\n  number={3},\n  pages={S2137--S2153},\n  year={2022},\n  publisher={Springer}\n}"
+      },
+      "doiDaBase": "10.1007/s00366-021-01359-x",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1007/s00366-021-01359-x",
+      "notesDaBase": [
+        "The paper evaluates four adaptations of the AHP to handle negative criteria: Quotient (Positive/Negative AHP), Reciprocal (1/a_ij), Complement (1-a_ij), and Difference (Positive AHP - Negative AHP).",
+        "Positive criteria were classified functionally similarly to Benefits, and negative criteria as Costs.",
+        "Table 5 OCR had misalignments in the source text. Ranks were carefully reconstructed based on the discussion section (Section 7), ensuring A2 is consistently first and A6 is worst."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "mu2016_bocr",
+      "citacaoDaBase": {
+        "abnt": "MU, E. Using AHP BOCR analysis for experiential business education and prioritisation of international opportunities. International Journal of Business and Systems Research, v. 10, n. 2/3/4, p. 364-393, 2016.",
+        "bibtex": "@article{mu2016bocr,\n  title={Using AHP BOCR analysis for experiential business education and prioritisation of international opportunities},\n  author={Mu, Enrique},\n  journal={International Journal of Business and Systems Research},\n  volume={10},\n  number={2/3/4},\n  pages={364--393},\n  year={2016},\n  publisher={Inderscience Enterprises Ltd.}\n}"
+      },
+      "doiDaBase": null,
+      "enderecoSugeridoNaoEhProvaDeAcesso": null,
+      "notesDaBase": [
+        "O artigo descreve detalhadamente 4 fórmulas de síntese BOCR (Multiplicativa simples, Aditiva com subtração, Razão de somas e Aditiva ponderada).",
+        "A técnica de integração de grupos usada é a multiplicação das prioridades das alternativas (equivalente à média geométrica das prioridades finais).",
+        "A análise de sensibilidade é realizada variando os pesos b, o, c, r no modelo aditivo (p. 382).",
+        "[Sanitized] cr_values (original): ≤ 0.1 (enforced by teams)",
+        "[Sanitized] sensitivity (original): Results are robust; Entebbe remains best unless Costs weight > 0.5.",
+        "[Sanitized] rankings_by_method (original): Entebbe School > End Human Trafficking > Bright Kids > Children's Rights",
+        "[Sanitized] aggregation (original): AIJ-like (multiplication of priorities)"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "citacaoDaBase": {
+        "abnt": "NEELY JR., Brett H.; LOVELACE, Jeffrey B.; COWEN, Amanda P.; HILLER, Nathan J. Metacritiques of Upper Echelons Theory: Verdicts and Recommendations for Future Research. Journal of Management, v. 46, n. 6, p. 1029-1062, 2020.",
+        "bibtex": "@article{neely2020metacritiques,\n  title={Metacritiques of upper echelons theory: Verdicts and recommendations for future research},\n  author={Neely Jr, Brett H and Lovelace, Jeffrey B and Cowen, Amanda P and Hiller, Nathan J},\n  journal={Journal of Management},\n  volume={46},\n  number={6},\n  pages={1029--1062},\n  year={2020},\n  publisher={SAGE Publications}\n}"
+      },
+      "doiDaBase": "10.1177/0149206320908640",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1177/0149206320908640",
+      "notesDaBase": [
+        "Modern (2020) meta-review of Upper Echelons Theory covering 36 years of research. Resolves the datation problem of Hambrick & Mason (1984) by showing which aspects of UET remain valid and which require updating.",
+        "Directly cited in Saiyed et al. (2023) as foundation for CEO power / cognitive bias interaction.",
+        "Provides the strongest modern basis for the argument that panel composition predicts strategic weight preferences — directly applicable to auditing BOCR weight distributions in industrial decision contexts."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "ossadnik2016_group_aggregation",
+      "citacaoDaBase": {
+        "abnt": "OSSADNIK, W.; SCHINKE, S.; KASPAR, R. H. Group Aggregation Techniques for Analytic Hierarchy Process and Analytic Network Process: A Comparative Analysis. Group Decision and Negotiation, v. 25, n. 2, p. 421-457, 2016.",
+        "bibtex": "@article{ossadnik2016group,\n  title={Group Aggregation Techniques for Analytic Hierarchy Process and Analytic Network Process: A Comparative Analysis},\n  author={Ossadnik, Wolfgang and Schinke, Stefanie and Kaspar, Ralf H},\n  journal={Group Decision and Negotiation},\n  volume={25},\n  pages={421--457},\n  year={2016},\n  publisher={Springer}\n}"
+      },
+      "doiDaBase": "10.1007/s10726-015-9448-4",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1007/s10726-015-9448-4",
+      "notesDaBase": [
+        "The article heavily focuses on the axioms of Arrow and Aczél/Saaty applied to AHP group decisions.",
+        "BOCR, sensitivity methods (MC vs OAT), and disparate impact are out of scope for this specific paper.",
+        "[Sanitized] cr_values (original): Individual CRs: DM1=0.0889, DM2=0.0786, DM3=0.0563. Aggregated CRs: AIJ(WAMM)=0.7778, AIJ(WGMM)=0.0005.",
+        "[Sanitized] sensitivity (original): Tested via 4 distinct test scenarios altering rank order, preference ratio constancy, and value distances.",
+        "[Sanitized] rankings_by_method (original): AIP/Group AHP yielded A1 > A2 > A4 > A3; AIJ/LFA yielded A2 > A1 > A4 > A3.",
+        "[Sanitized] aggregation (original): AIJ (WAMM/WGMM), AIP (WAMM/WGMM), LFA, Group AHP"
+      ],
+      "notesLidasAntesDaConferencia": true,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://link.springer.com/article/10.1007/s10726-015-9448-4",
+          "resultado": "Texto integral HTML do editor acessado. Autores, título, volume 25, ano da edição 2016 e páginas 421-457 conferidos. Publicação online em 2015, não confundida com ano da edição. Trechos preparados localizados na seção 4.3.2.2."
+        }
+      ],
+      "publicacaoIntegralConsultada": true,
+      "trechosConferidos": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "petrillo2023state",
+      "citacaoDaBase": {
+        "abnt": "PETRILLO, A.; SALOMON, V. A. P.; TRAMARICO, C. L. State-of-the-Art Review on the Analytic Hierarchy Process with Benefits, Opportunities, Costs, and Risks. Journal of Risk and Financial Management, v. 16, n. 8, p. 372, 2023.",
+        "bibtex": "@article{petrillo2023state,\n  title={State-of-the-Art Review on the Analytic Hierarchy Process with Benefits, Opportunities, Costs, and Risks},\n  author={Petrillo, Antonella and Salomon, Valerio Antonio Pamplona and Tramarico, Claudemir Leif},\n  journal={Journal of Risk and Financial Management},\n  volume={16},\n  number={8},\n  pages={372},\n  year={2023},\n  publisher={MDPI}\n}"
+      },
+      "doiDaBase": "10.3390/jrfm16080372",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.3390/jrfm16080372",
+      "notesDaBase": [
+        "This is a state-of-the-art literature review focused strictly on mapping the BOCR paradigm within MCDM/AHP literature.",
+        "The paper does not contain a primary empirical dataset; therefore empirical parameters (CR values, empirical sample sizes) are absent.",
+        "Section 2 effectively synthesizes the 4 distinct mathematical ways to calculate overall BOCR priorities (additive vs multiplicative frameworks, dealing with negative priorities)."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://www.mdpi.com/1911-8074/16/8/372",
+          "resultado": "429 na ferramenta de leitura; publicação não conferida."
+        }
+      ],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/petrillo2023state.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 3
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1977_scaling",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L. A scaling method for priorities in hierarchical structures. Journal of Mathematical Psychology, v. 15, n. 3, p. 234-281, 1977.",
+        "bibtex": "@article{saaty1977scaling,\n  title={A scaling method for priorities in hierarchical structures},\n  author={Saaty, Thomas L},\n  journal={Journal of Mathematical Psychology},\n  volume={15},\n  number={3},\n  pages={234--281},\n  year={1977},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": null,
+      "enderecoSugeridoNaoEhProvaDeAcesso": null,
+      "notesDaBase": [
+        "This is the foundational paper for the Analytic Hierarchy Process (AHP), introducing the eigenvalue method, the 1-9 scale, and the Consistency Index (μ).",
+        "It contains the very first articulation of the CR ≤ 0.10 rule (page 248).",
+        "It establishes the original Random Index (RI) table (Table 2) based on an early simulation of 50 matrices.",
+        "Contains multiple small case examples (distance between cities, light intensity, wealth of nations, weight estimation, school selection, vacation sites) to validate the scale against known metrics."
+      ],
+      "notesLidasAntesDaConferencia": true,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://www.sciencedirect.com/science/article/pii/0022249677900335",
+          "resultado": "403 na ferramenta de leitura; texto integral não acessado. Buscas por título e PDF não forneceram cópia utilizável nesta consulta."
+        }
+      ],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1986_axiomatic",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L. Axiomatic foundation of the analytic hierarchy process. Management Science, v. 32, n. 7, p. 841-855, 1986.",
+        "bibtex": "@article{saaty1986axiomatic,\n  title={Axiomatic foundation of the analytic hierarchy process},\n  author={Saaty, Thomas L},\n  journal={Management Science},\n  volume={32},\n  number={7},\n  pages={841--855},\n  year={1986},\n  publisher={INFORMS}\n}"
+      },
+      "doiDaBase": "10.1287/mnsc.32.7.841",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1287/mnsc.32.7.841",
+      "notesDaBase": [
+        "Foundational paper presenting the four AHP axioms in formal mathematical terms. Citation NOT to be confused with R.W. Saaty (1987) 'The AHP: What it is and how it is used' (Math Modelling 9, 161-176), which is an expository paper that cites this 1986 paper as the source of the axioms.",
+        "Paper does not contain BOCR framework — BOCR was introduced later (Saaty 1996 ANP book; Saaty & Ozdemir 2003).",
+        "Cites Saaty (1980) book 'The Analytic Hierarchy Process' (McGraw-Hill) as primary reference for prior theorems (e.g., Theorem 7.13 referenced in Theorem 14 corollary). Saaty (1980) book is not in the RAG as a separate article.",
+        "Theorems 1, 14 and 15 are mathematical proofs, not empirical results.",
+        "DOI 10.1287/mnsc.32.7.841 verified via INFORMS Management Science archive."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1987_whatitis",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Rozann W. The analytic hierarchy process—what it is and how it is used. Mathematical Modelling, v. 9, n. 3-5, p. 161-176, 1987.",
+        "bibtex": "@article{saaty1987whatitis,\n  title={The analytic hierarchy process—what it is and how it is used},\n  author={Saaty, Rozann W},\n  journal={Mathematical Modelling},\n  volume={9},\n  number={3-5},\n  pages={161--176},\n  year={1987},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/0270-0255(87)90473-8",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/0270-0255(87)90473-8",
+      "notesDaBase": [
+        "Artigo tutorial escrito por Rozann W. Saaty, altamente citado como introdução ao AHP.",
+        "A tabela de Random Index possui uma variante de cálculo inicial na qual a amostra foi de 500, divergindo levemente dos valores clássicos conhecidos (ex: 0.58 para matrizes de ordem 3).",
+        "[Sanitized] cr_values (original): 0.02 (para a matriz principal de critérios)"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "saaty1990_howtomake",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L. How to make a decision: The Analytic Hierarchy Process. European Journal of Operational Research, v. 48, n. 1, p. 9-26, 1990.",
+        "bibtex": "@article{saaty1990how,\n  title={How to make a decision: The Analytic Hierarchy Process},\n  author={Saaty, Thomas L},\n  journal={European Journal of Operational Research},\n  volume={48},\n  number={1},\n  pages={9--26},\n  year={1990},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/0377-2217(90)90057-I",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/0377-2217(90)90057-I",
+      "notesDaBase": [
+        "Este artigo fornece uma defesa robusta da medição relativa versus medição absoluta, elucidando o raciocínio epistemológico por trás do AHP.",
+        "Aborda brevemente a síntese de Benefícios e Custos (B/C), apontando os perigos de utilizar diferenças simples (B-C) e sugerindo o uso de divisões (B/C) ou ROI para preservar a escalabilidade proporcional.",
+        "[Sanitized] cr_values (original): Ranges from 0.000 to 0.213 across different sub-matrices "
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saaty2003_eigenvector",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L. Decision-making with the AHP: Why is the principal eigenvector necessary. European Journal of Operational Research, v. 145, n. 1, p. 85-91, 2003.",
+        "bibtex": "@article{saaty2003decision,\n  title={Decision-making with the AHP: Why is the principal eigenvector necessary},\n  author={Saaty, Thomas L},\n  journal={European Journal of Operational Research},\n  volume={145},\n  number={1},\n  pages={85--91},\n  year={2003},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": null,
+      "enderecoSugeridoNaoEhProvaDeAcesso": null,
+      "notesDaBase": [
+        "Este artigo é uma defesa matemática fundamental de por que o autovetor principal (Perron vector) é a única solução válida para extrair prioridades no AHP quando há quase-consistência (near consistency).",
+        "O documento também descreve os algoritmos subjacentes usados em softwares como Expert Choice e Superdecisions para sugerir correções de julgamento aos usuários, baseados na derivada do autovalor principal.",
+        "Para ajudar na compreensão visual da otimização de matrizes, pode ser útil consultar um  que ilustre a convergência interativa demonstrada nas Tabelas 1 a 5.",
+        "[Sanitized] cr_values (original): Improved from 0.17 to 0.083 through perturbation analysis"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saaty2015_trustworthy",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L.; ERGU, Daji. When is a Decision-Making Method Trustworthy? Criteria for Evaluating Multi-Criteria Decision-Making Methods. International Journal of Information Technology & Decision Making, v. 14, n. 6, p. 1171-1187, 2015.",
+        "bibtex": "@article{saaty2015when,\n  title={When is a Decision-Making Method Trustworthy? Criteria for Evaluating Multi-Criteria Decision-Making Methods},\n  author={Saaty, Thomas L and Ergu, Daji},\n  journal={International Journal of Information Technology \\& Decision Making},\n  volume={14},\n  number={6},\n  pages={1171--1187},\n  year={2015},\n  publisher={World Scientific}\n}"
+      },
+      "doiDaBase": "10.1142/S021962201550025X",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1142/S021962201550025X",
+      "notesDaBase": [
+        "Este artigo não propõe limiares matemáticos ou fórmulas de cálculo novas; seu escopo é puramente metodológico, focando em definir 16 critérios qualitativos e quantitativos para auditar e classificar métodos MCDM.",
+        "O artigo discute BOCR conceitualmente como o critério número 3 ('Comprehensive structure consisting of merit substructures'), defendendo que um método avaliado recebe classificação 'high' se considerar todos os méritos BOCR.",
+        " seria útil visualmente em um relatório final para exibir de forma clara como AHP, ANP, TOPSIS, etc., se alinham contra os 16 critérios discutidos na Tabela 1."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 1
+        }
+      ]
+    },
+    {
+      "articleId": "saatyOzdemir2003_negative",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L.; OZDEMIR, Mujgan. Negative priorities in the analytic hierarchy process. Mathematical and Computer Modelling, v. 37, n. 9-10, p. 1063-1075, 2003.",
+        "bibtex": "@article{saaty2003negative,\n  title={Negative priorities in the analytic hierarchy process},\n  author={Saaty, Thomas L and Ozdemir, Mujgan},\n  journal={Mathematical and Computer Modelling},\n  volume={37},\n  number={9-10},\n  pages={1063--1075},\n  year={2003},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/S0895-7177(03)00118-3",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/S0895-7177(03)00118-3",
+      "notesDaBase": [
+        "This paper introduces the BOCR synthesis with negative priorities, formalizing what was previously presented in Saaty (1996) ANP book.",
+        "Cites Saaty (1996) 'Decision Making with Dependence and Feedback' (RWS Publications, Pittsburgh) and Saaty (2000) 'Fundamentals of Decision Making and Priority Theory'. Neither is in the RAG as a separate article.",
+        "Wijnmalen (2007) builds critically on this paper, proposing rescaling weights (s) for commensurability across BOCR sub-hierarchies.",
+        "The Additive Residual formula (b·B + o·O + c·(1-C) + r·(1-R)) shown in Table 5 is the canonical reference for that method, NOT Saaty (2005) ANP book.",
+        "The Subtractive formula (b·B + o·O − c·C − r·R) shown in Table 5 is the simple form. The full version with rescaling weights v and s is in Wijnmalen (2007) Eq. 17.",
+        "DOI 10.1016/S0895-7177(03)00118-3 verified via Elsevier."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 3
+        }
+      ]
+    },
+    {
+      "articleId": "saatyVargas1984_rankpreservation",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L.; VARGAS, Luis G. Inconsistency and rank preservation. Journal of Mathematical Psychology, v. 28, n. 2, p. 205-214, 1984.",
+        "bibtex": "@article{saaty1984inconsistency,\n  title={Inconsistency and rank preservation},\n  author={Saaty, Thomas L and Vargas, Luis G},\n  journal={Journal of Mathematical Psychology},\n  volume={28},\n  number={2},\n  pages={205--214},\n  year={1984},\n  publisher={Academic Press}\n}"
+      },
+      "doiDaBase": "10.1016/0022-2496(84)90027-0",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/0022-2496(84)90027-0",
+      "notesDaBase": [
+        "Foundational paper establishing rank preservation theorems for AHP. Often cited alongside Saaty & Vargas (1984b) 'Comparison of eigenvalue, logarithmic least squares and least squares methods in estimating ratios' (Mathematical Modelling 5, 309-324) — same authors, same year, complementary topic.",
+        "Theorem 1 (row dominance) is the foundational sufficient condition for rank preservation. Theorems 4-6 extend the result to ordinal transitivity and asymptotic eigenvector dominance.",
+        "Cites Saaty (1980) book 'The Analytic Hierarchy Process' (McGraw-Hill) and Saaty (1982) 'Decision Making for Leaders' as primary references — neither is in the RAG as a separate article.",
+        "References Cogger & Yu (1983), Jensen (1983), McMeekin (1979) for LSM; de Graan (1980), Fichtner (1983), Williams & Crawford (1980) for LLSM. None of these are in the RAG.",
+        "The companion paper Saaty & Vargas (1984c) on Math Modelling 5 provides numerical comparisons; this paper provides the theoretical foundations for rank preservation conditions.",
+        "DOI 10.1016/0022-2496(84)90027-0 verified via Elsevier."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "saatyVargas2012",
+      "citacaoDaBase": {
+        "abnt": "SAATY, Thomas L.; VARGAS, Luis G. Models, Methods, Concepts & Applications of the Analytic Hierarchy Process. 2. ed. New York: Springer, 2012. (International Series in Operations Research & Management Science, v. 175). ISBN 978-1-4614-3596-9.",
+        "bibtex": "@book{saatyVargas2012,\n  title={Models, Methods, Concepts \\& Applications of the Analytic Hierarchy Process},\n  author={Saaty, Thomas L. and Vargas, Luis G.},\n  year={2012},\n  edition={2},\n  series={International Series in Operations Research \\& Management Science},\n  volume={175},\n  publisher={Springer},\n  address={New York},\n  isbn={978-1-4614-3596-9},\n  doi={10.1007/978-1-4614-3597-6}\n}"
+      },
+      "doiDaBase": "10.1007/978-1-4614-3597-6",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1007/978-1-4614-3597-6",
+      "notesDaBase": [
+        "This book is Saaty & Vargas (2012), NOT Saaty (1980). The PDF title page reads: 'Models, Methods, Concepts & Applications of the Analytic Hierarchy Process, Second Edition, Springer 2012'.",
+        "Often cited in literature as a proxy for Saaty (1980) since it contains the same canonical RI table and CR threshold, but in updated form.",
+        "Chapters 1-2 contain the theoretical foundation (scale, eigenvector, consistency, group decision). Chapters 3-24 are application case studies.",
+        "The geometric mean theorems (Aczel & Saaty; Aczel & Alsina) are the definitive source for justifying AIJ aggregation in group AHP.",
+        "The RI table (Table 1.2) shows n=1..10 only. The value '1.7' appearing after 1.49 in raw text extraction is the next section number (Section 1.7), NOT an RI value for n=11.",
+        "Page numbers in this extraction refer to the book's internal page numbering, not PDF page numbers. PDF page ≈ book page + 13.",
+        "cites references use estimated IDs; actual article IDs in RAG may differ."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 5
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 6
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 7
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        }
+      ]
+    },
+    {
+      "articleId": "saiyed2023_ceoPowerUET",
+      "citacaoDaBase": {
+        "abnt": "SAIYED, Abrar Ali; TATOGLU, Ekrem; ALI, Shamim; DUTTA, Dev K. Entrepreneurial orientation, CEO power and firm performance: An upper echelons theory perspective. Management Decision, v. 61, n. 6, p. 1773-1797, 2023.",
+        "bibtex": "@article{saiyed2023entrepreneurial,\n  title={Entrepreneurial orientation, CEO power and firm performance: An upper echelons theory perspective},\n  author={Saiyed, Abrar Ali and Tatoglu, Ekrem and Ali, Shamim and Dutta, Dev K},\n  journal={Management Decision},\n  volume={61},\n  number={6},\n  pages={1773--1797},\n  year={2023},\n  publisher={Emerald Publishing Limited}\n}"
+      },
+      "doiDaBase": "10.1108/MD-05-2022-0641",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1108/MD-05-2022-0641",
+      "notesDaBase": [
+        "Recent (2023) empirical evidence extending Upper Echelons Theory to emerging market contexts. Directly validates the argument that panel composition and power distribution affect strategic weight choices.",
+        "The 'double-edged sword' concept is particularly useful for MCDM auditing: it provides a framework to evaluate whether a panel's dominant voice is producing beneficial or counter-productive weight distributions.",
+        "Relevant for Brazilian industrial contexts (emerging market) — directly applicable to the AHP-BOCR analysis of Industry 4.0 automotive investments."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "salomon2016_absolute",
+      "citacaoDaBase": {
+        "abnt": "SALOMON, V. A. P. Absolute measurement and ideal synthesis on AHP. International Journal of the Analytic Hierarchy Process, v. 8, n. 3, p. 538-545, 2016.",
+        "bibtex": "@article{salomon2016absolute,\n  title={Absolute measurement and ideal synthesis on AHP},\n  author={Salomon, Valerio A. P.},\n  journal={International Journal of the Analytic Hierarchy Process},\n  volume={8},\n  number={3},\n  pages={538--545},\n  year={2016},\n  doi={10.13033/ijahp.v8i3.452}\n}"
+      },
+      "doiDaBase": "10.13033/ijahp.v8i3.452",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.13033/ijahp.v8i3.452",
+      "notesDaBase": [
+        "O artigo foca na síntese ideal para evitar Rank Reversal (RR).",
+        "Apresenta um caso numérico parcial de BOCR (Benefits, Opportunities, Risks) omitindo Costs.",
+        "O autor utiliza o termo 'Ratings' como sinônimo de absolute measurement.",
+        "[Sanitized] cr_values (original): consistent (all matrices in the example are stated as consistent)",
+        "[Sanitized] rankings_by_method (original): X > Y > Z (both methods in initial state)"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        }
+      ]
+    },
+    {
+      "articleId": "salomon2024_consistency",
+      "citacaoDaBase": {
+        "abnt": "SALOMON, V. A. P.; GOMES, L. F. A. M. Consistency Improvement in the Analytic Hierarchy Process. Mathematics, v. 12, n. 6, p. 828, 2024.",
+        "bibtex": "@article{salomon2024consistency,\n  title={Consistency Improvement in the Analytic Hierarchy Process},\n  author={Salomon, Valerio Antonio Pamplona and Gomes, Luiz Flavio Autran Monteiro},\n  journal={Mathematics},\n  volume={12},\n  number={6},\n  pages={828},\n  year={2024},\n  publisher={MDPI}\n}"
+      },
+      "doiDaBase": "10.3390/math12060828",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.3390/math12060828",
+      "notesDaBase": [
+        "The article explicitly mentions BOCR in the reference list (Petrillo et al. 2023) but does not provide BOCR specific weights or equations.",
+        "The formula for expected value (Eq. 7) uses a summation over n-2, which is a specific procedural characteristic of their improvement method.",
+        "[Sanitized] rankings_by_method (original): Supplier 2 > Supplier 4 > Supplier 3 > Supplier 1"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://www.mdpi.com/2227-7390/12/6/828",
+          "resultado": "429 na ferramenta de leitura; publicação não conferida."
+        }
+      ],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "schmidt2015_review",
+      "citacaoDaBase": {
+        "abnt": "SCHMIDT, K. et al. Applying the Analytic Hierarchy Process in healthcare research: A systematic literature review and evaluation of reporting. BMC Medical Informatics and Decision Making, v. 15, n. 112, 2015.",
+        "bibtex": "@article{schmidt2015review,\n  author = {Schmidt, Katharina and Aumann, Ines and Hollander, Ines and Damm, Kathrin and von der Schulenburg, J-Matthias Graf},\n  title = {Applying the Analytic Hierarchy Process in healthcare research: A systematic literature review and evaluation of reporting},\n  journal = {BMC Medical Informatics and Decision Making},\n  year = {2015},\n  volume = {15},\n  number = {112},\n  doi = {10.1186/s12911-015-0234-7},\n  publisher = {BioMed Central}\n}"
+      },
+      "doiDaBase": "10.1186/s12911-015-0234-7",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1186/s12911-015-0234-7",
+      "notesDaBase": [
+        "O artigo fornece uma média do estado da arte: a maioria das hierarquias tem entre 1 e 5 critérios no segundo nível, aumentando nos níveis inferiores.",
+        "[Sanitized] sensitivity (original): Reported in only 14 out of 69 studies (approx. 20%).",
+        "[Sanitized] aggregation (original): 29 studies described weight calculations; geometric mean and median common."
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "schmidt2016_priorities",
+      "citacaoDaBase": {
+        "abnt": "SCHMIDT, K. et al. Measuring patients' priorities using the Analytic Hierarchy Process in comparison with Best-Worst-Scaling and rating cards: methodological aspects and ranking tasks. Health Economics Review, v. 6, n. 50, 2016.",
+        "bibtex": "@article{schmidt2016priorities,\n  author = {Schmidt, Katharina and Babac, Ana and Pauer, Frédéric and Damm, Kathrin and von der Schulenburg, J-Matthias},\n  title = {Measuring patients' priorities using the Analytic Hierarchy Process in comparison with Best-Worst-Scaling and rating cards: methodological aspects and ranking tasks},\n  journal = {Health Economics Review},\n  year = {2016},\n  volume = {6},\n  number = {50},\n  doi = {10.1186/s13561-016-0130-6},\n  publisher = {Springer Open}\n}"
+      },
+      "doiDaBase": "10.1186/s13561-016-0130-6",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1186/s13561-016-0130-6",
+      "notesDaBase": [
+        "O estudo destaca que a escolha entre AIJ e AIP depende se o grupo é visto como uma unidade única ou indivíduos independentes.",
+        "Rank reversal is discussed both as a sensitivity issue (close weights) and as the traditional AHP phenomenon (adding/deleting alternatives).",
+        "[Sanitized] sensitivity (original): Bootstrap 95% CI used; medical issues rank 1 was robust (CI: 0.34-0.49).",
+        "[Sanitized] concordance (original): Significant moderate to strong correlation (Kendall's tau 0.543 to 0.668)",
+        "[Sanitized] aggregation (original): AIJ and AIP compared"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "tavana2023_revolution",
+      "citacaoDaBase": {
+        "abnt": "TAVANA, Madjid; SOLTANIFAR, Mehdi; SANTOS-ARTEAGA, Francisco J. Analytical hierarchy process: revolution and evolution. Annals of Operations Research, v. 326, p. 879-907, 2023.",
+        "bibtex": "@article{tavana2023analytical,\n  title={Analytical hierarchy process: revolution and evolution},\n  author={Tavana, Madjid and Soltanifar, Mehdi and Santos-Arteaga, Francisco J},\n  journal={Annals of Operations Research},\n  volume={326},\n  pages={879--907},\n  year={2023},\n  publisher={Springer}\n}"
+      },
+      "doiDaBase": "10.1007/s10479-021-04432-2",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1007/s10479-021-04432-2",
+      "notesDaBase": [
+        "The article evaluates 5 new hybrid methods combining AHP with preferential voting, SWARA, and BWM.",
+        "BOCR (Benefits, Opportunities, Costs, Risks) modeling is not present in this text; metrics for it return null.",
+        "[Sanitized] aggregation (original): geometric mean"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+          "campo": "empirical_data"
+        }
+      ]
+    },
+    {
+      "articleId": "wijnmalen2007_bocr",
+      "citacaoDaBase": {
+        "abnt": "WIJNMALEN, Diederik J. D. Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP: A critical validation. Mathematical and Computer Modelling, v. 46, n. 7-8, p. 892-905, 2007.",
+        "bibtex": "@article{wijnmalen2007analysis,\n  title={Analysis of benefits, opportunities, costs, and risks (BOCR) with the AHP-ANP: A critical validation},\n  author={Wijnmalen, Diederik JD},\n  journal={Mathematical and Computer Modelling},\n  volume={46},\n  number={7-8},\n  pages={892--905},\n  year={2007},\n  publisher={Elsevier}\n}"
+      },
+      "doiDaBase": "10.1016/j.mcm.2007.03.020",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/j.mcm.2007.03.020",
+      "notesDaBase": [
+        "This is a fundamental methodological paper highlighting the risks of blind aggregation in BOCR models.",
+        "The author demonstrates through numerical counter-examples that without magnitude-based 'rescaling', traditional AHP BOCR synthesis can lead to recommending unprofitable alternatives."
+      ],
+      "notesLidasAntesDaConferencia": true,
+      "tentativasDeAcesso": [
+        {
+          "url": "https://www.sciencedirect.com/science/article/pii/S0895717707000994",
+          "resultado": "403 na ferramenta de leitura; texto integral não acessado. Buscas por título e PDF não forneceram cópia utilizável nesta consulta."
+        },
+        {
+          "url": "https://publications.tno.nl/publication/100605/Y4dP3I/wijnmalen-2007-getting.pdf",
+          "resultado": "Resultado de busca com outro título, Note on getting meaningful BOCR results with the ANP software. Não usado como substituto da publicação pedida."
+        }
+      ],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 4
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 2
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 3
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+          "campo": "formulas",
+          "indiceBaseZero": 4
+        }
+      ]
+    },
+    {
+      "articleId": "xu2000_consistency",
+      "citacaoDaBase": {
+        "abnt": "XU, Z. On consistency of the weighted geometric mean complex judgement matrix in AHP. European Journal of Operational Research, v. 126, n. 3, p. 683-687, 2000.",
+        "bibtex": "@article{xu2000consistency,\n  author = {Xu, Z.},\n  title = {On consistency of the weighted geometric mean complex judgement matrix in AHP},\n  journal = {European Journal of Operational Research},\n  year = {2000},\n  volume = {126},\n  issue = {3},\n  pages = {683--687},\n  publisher = {Elsevier Science B.V.},\n  doi = {10.1016/S0377-2217(99)00082-X}\n}"
+      },
+      "doiDaBase": "10.1016/S0377-2217(99)00082-X",
+      "enderecoSugeridoNaoEhProvaDeAcesso": "https://doi.org/10.1016/S0377-2217(99)00082-X",
+      "notesDaBase": [
+        "The paper provides a formal proof using the properties of the Hadamard product and the strict convexity of the exponential function (Lemma 3.1).",
+        "Numerical example shows that even with unequal weights (0.1, 0.2, 0.3, 0.4), the resulting CR (0.043) remains well below the 0.1 threshold.",
+        "[Sanitized] aggregation (original): WGMM (Weighted Geometric Mean Method)"
+      ],
+      "notesLidasAntesDaConferencia": false,
+      "tentativasDeAcesso": [],
+      "publicacaoIntegralConsultada": false,
+      "trechosConferidos": [],
+      "trechosPendentes": [
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 0
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+          "campo": "key_claims",
+          "indiceBaseZero": 1
+        },
+        {
+          "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+          "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+          "campo": "thresholds",
+          "indiceBaseZero": 0
+        }
+      ]
+    }
+  ]
+}

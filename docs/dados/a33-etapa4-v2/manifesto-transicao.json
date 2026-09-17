@@ -1,0 +1,3450 @@
+{
+  "versao": 2,
+  "rodada": "A.33, nova versão do snapshot da etapa 4",
+  "data": "2026-09-17",
+  "natureza": "Rodada de dados. Propaga somente as alterações da base aprovadas em A.16, recalcula H-T onde muda campo da composição e verifica todas as cópias. Sem geração, sem reingestão, sem chamada externa de inferência, embedding ou recuperação.",
+  "snapshotAnterior": {
+    "caminho": "docs/dados/a33-etapa4/",
+    "preservado": "Integralmente inalterado, no mesmo caminho. Os resultados históricos dele valem para o conteúdo dele.",
+    "baseSha": "344d63121489348a7291725271564f06fe5ef5a5",
+    "resumosDeAntes": "docs/dados/a33-etapa4-v2/resumos-antes.json",
+    "sha256ResumosDeAntes": "6743cfaec2e8cdae2773178c8a08c526e38a9bebc5e394d72272b994dec62842"
+  },
+  "baseCorrigida": {
+    "sha": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+    "commitsDaCorrecao": [
+      "8b057d9db2c70e701a757f5ad83336903c3b8000",
+      "b567d99bec6881faa381651353120e1faaf7366a"
+    ],
+    "libRagIdenticaA": "b567d99bec6881faa381651353120e1faaf7366a",
+    "nota": "As correções vieram de 8b057d9 e b567d99, auditadas e integradas; lib/rag no SHA lido é idêntica à de b567d99."
+  },
+  "alcanceDaPropagacao": {
+    "alterados": [
+      "evidencias.json",
+      "contexto-estatico.json",
+      "C1-recuperacao.json",
+      "casos.json"
+    ],
+    "copiadosSemAlteracao": [
+      "identidade.json",
+      "publicacoes.json"
+    ],
+    "notaSobreCopias": "identidade.json e publicacoes.json são medições históricas vinculadas a 344d63121489348a7291725271564f06fe5ef5a5: localizam unidades por endereço naquele SHA e não contêm os textos corrigidos. Seguem byte a byte iguais; o vínculo das três unidades afetadas está em identidadePorUnidade.",
+    "lugaresDoTexto": [
+      "contexto estático: referenceDoc e textoFormatado das quatro seções",
+      "cópias dos chunks de C1: trechos e as cópias vinculadas por chunk.id"
+    ],
+    "registro": "evidencias.json é o registro auxiliar das 165 unidades: recebe as substituições em dadosOriginais, que é de onde H-T se calcula."
+  },
+  "aprovadas": [
+    {
+      "id": "A16-E1-verbatim_quote",
+      "articleId": "saaty1977_scaling",
+      "indiceBaseZero": 0,
+      "campo": "verbatim_quote",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "commit": "8b057d9db2c70e701a757f5ad83336903c3b8000"
+    },
+    {
+      "id": "A16-E1-evidence.quote",
+      "articleId": "saaty1977_scaling",
+      "indiceBaseZero": 0,
+      "campo": "evidence.quote",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "commit": "8b057d9db2c70e701a757f5ad83336903c3b8000"
+    },
+    {
+      "id": "A16-E2-verbatim_quote",
+      "articleId": "wijnmalen2007_bocr",
+      "indiceBaseZero": 0,
+      "campo": "verbatim_quote",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "commit": "8b057d9db2c70e701a757f5ad83336903c3b8000"
+    },
+    {
+      "id": "A16-E2-evidence.quote",
+      "articleId": "wijnmalen2007_bocr",
+      "indiceBaseZero": 0,
+      "campo": "evidence.quote",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "commit": "8b057d9db2c70e701a757f5ad83336903c3b8000"
+    },
+    {
+      "id": "A16-E3-evidence.quote",
+      "articleId": "wijnmalen2007_bocr",
+      "indiceBaseZero": 3,
+      "campo": "evidence.quote",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "commit": "8b057d9db2c70e701a757f5ad83336903c3b8000"
+    },
+    {
+      "id": "A16-J1-claim",
+      "articleId": "wijnmalen2007_bocr",
+      "indiceBaseZero": 0,
+      "campo": "claim",
+      "antes": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+      "depois": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+      "commit": "b567d99bec6881faa381651353120e1faaf7366a"
+    }
+  ],
+  "derivacao": {
+    "metodo": "Para cada uma das 165 unidades da v1, o valor na base pelo arquivo, campo e índice do endereço, comparado campo a campo com dadosOriginais.",
+    "controleContraBaseDoSnapshot": {
+      "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+      "diferencas": 0
+    },
+    "contraBaseCorrigida": {
+      "sha": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "diferencas": [
+        {
+          "indice": 47,
+          "articleId": "saaty1977_scaling",
+          "indiceBaseZero": 0,
+          "campo": "evidence.quote",
+          "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "aprovada": "A16-E1-evidence.quote"
+        },
+        {
+          "indice": 47,
+          "articleId": "saaty1977_scaling",
+          "indiceBaseZero": 0,
+          "campo": "verbatim_quote",
+          "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "aprovada": "A16-E1-verbatim_quote"
+        },
+        {
+          "indice": 86,
+          "articleId": "wijnmalen2007_bocr",
+          "indiceBaseZero": 0,
+          "campo": "claim",
+          "antes": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+          "depois": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+          "aprovada": "A16-J1-claim"
+        },
+        {
+          "indice": 86,
+          "articleId": "wijnmalen2007_bocr",
+          "indiceBaseZero": 0,
+          "campo": "evidence.quote",
+          "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "aprovada": "A16-E2-evidence.quote"
+        },
+        {
+          "indice": 86,
+          "articleId": "wijnmalen2007_bocr",
+          "indiceBaseZero": 0,
+          "campo": "verbatim_quote",
+          "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "aprovada": "A16-E2-verbatim_quote"
+        },
+        {
+          "indice": 89,
+          "articleId": "wijnmalen2007_bocr",
+          "indiceBaseZero": 3,
+          "campo": "evidence.quote",
+          "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "aprovada": "A16-E3-evidence.quote"
+        }
+      ]
+    },
+    "unidadesAfetadas": [
+      47,
+      86,
+      89
+    ],
+    "unidadesNaoAfetadas": 162
+  },
+  "identidadePorUnidade": [
+    {
+      "indice": 47,
+      "articleId": "saaty1977_scaling",
+      "enderecoAnterior": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "enderecoNovo": {
+        "sha": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "camposAlterados": [
+        {
+          "campo": "evidence.quote",
+          "aprovada": "A16-E1-evidence.quote",
+          "participaDaComposicaoHT": true
+        },
+        {
+          "campo": "verbatim_quote",
+          "aprovada": "A16-E1-verbatim_quote",
+          "participaDaComposicaoHT": true
+        }
+      ],
+      "alteracaoAdministrativa": [
+        {
+          "campo": "enderecoNaBase.sha",
+          "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+          "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+          "participaDaComposicaoHT": false
+        }
+      ],
+      "decisao": "recalcular",
+      "motivo": "Mudou campo que participa da composição H-T: evidence, verbatim_quote. A mudança de endereço, sozinha, manteria o identificador, e isso foi conferido.",
+      "trechoIdAnterior": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+      "trechoIdNovo": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613\"]]",
+      "versaoSha256Anterior": "4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3",
+      "versaoSha256Nova": "fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613"
+    },
+    {
+      "indice": 86,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoAnterior": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "enderecoNovo": {
+        "sha": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "camposAlterados": [
+        {
+          "campo": "claim",
+          "aprovada": "A16-J1-claim",
+          "participaDaComposicaoHT": true
+        },
+        {
+          "campo": "evidence.quote",
+          "aprovada": "A16-E2-evidence.quote",
+          "participaDaComposicaoHT": true
+        },
+        {
+          "campo": "verbatim_quote",
+          "aprovada": "A16-E2-verbatim_quote",
+          "participaDaComposicaoHT": true
+        }
+      ],
+      "alteracaoAdministrativa": [
+        {
+          "campo": "enderecoNaBase.sha",
+          "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+          "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+          "participaDaComposicaoHT": false
+        }
+      ],
+      "decisao": "recalcular",
+      "motivo": "Mudou campo que participa da composição H-T: claim, evidence, verbatim_quote. A mudança de endereço, sozinha, manteria o identificador, e isso foi conferido.",
+      "trechoIdAnterior": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+      "trechoIdNovo": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6\"]]",
+      "versaoSha256Anterior": "33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c",
+      "versaoSha256Nova": "f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6"
+    },
+    {
+      "indice": 89,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoAnterior": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "enderecoNovo": {
+        "sha": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "camposAlterados": [
+        {
+          "campo": "evidence.quote",
+          "aprovada": "A16-E3-evidence.quote",
+          "participaDaComposicaoHT": true
+        }
+      ],
+      "alteracaoAdministrativa": [
+        {
+          "campo": "enderecoNaBase.sha",
+          "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+          "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+          "participaDaComposicaoHT": false
+        }
+      ],
+      "decisao": "recalcular",
+      "motivo": "Mudou campo que participa da composição H-T: evidence. A mudança de endereço, sozinha, manteria o identificador, e isso foi conferido.",
+      "trechoIdAnterior": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e0b1538fd2a0db2dea719d91e1def03389624ad4fbd42cc841a6253d60eb5e8\"]]",
+      "trechoIdNovo": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"81ee1b23ff88051e9d58d24544e22c30a21dbbad9192df623ec958c23e7666da\"]]",
+      "versaoSha256Anterior": "4e0b1538fd2a0db2dea719d91e1def03389624ad4fbd42cc841a6253d60eb5e8",
+      "versaoSha256Nova": "81ee1b23ff88051e9d58d24544e22c30a21dbbad9192df623ec958c23e7666da"
+    }
+  ],
+  "composicaoHT": "Aplicada sem alteração: prefixo A33-por-tipo-v2; para key_claims, os campos claim, verbatim_quote e evidence. Endereço, usable_as e posição não participam.",
+  "excecoesEnumeradas": [
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].dadosOriginais.evidence.quote",
+      "categoria": "substituicao-aprovada",
+      "existiaAntes": true,
+      "sha256Antes": "b60442e36d49a4deed0b46b38c610aaa03d0360825df6002546fceed3d8f9d23",
+      "sha256Depois": "8b6a55b57bea1fce2c0e8359a9a237c64c9dd620056a127ae5015d7c023db5d2",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "unidade": 47,
+      "aprovada": "A16-E1-evidence.quote"
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].dadosOriginais.verbatim_quote",
+      "categoria": "substituicao-aprovada",
+      "existiaAntes": true,
+      "sha256Antes": "b60442e36d49a4deed0b46b38c610aaa03d0360825df6002546fceed3d8f9d23",
+      "sha256Depois": "8b6a55b57bea1fce2c0e8359a9a237c64c9dd620056a127ae5015d7c023db5d2",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "unidade": 47,
+      "aprovada": "A16-E1-verbatim_quote"
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 47
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "882150f3b86694bd1907f87e6b2df4d05ac71ced574531101276b00e6ac0ae14",
+      "sha256Depois": "428c45ce9174697241bb8fff2f27fb5ef3768a6b9b2e8477f724ed4f84c02309",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613\"]]",
+      "unidade": 47
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].dadosOriginais.claim",
+      "categoria": "substituicao-aprovada",
+      "existiaAntes": true,
+      "sha256Antes": "6f91aa32cc11fe6fa343a00158277d3e9b037c5ecccef7c1224b6f4351361d78",
+      "sha256Depois": "eae35880d44a1bab64ea1bb03b8c89cd5783258bcec01b96928494ac32b7c677",
+      "antes": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+      "depois": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+      "unidade": 86,
+      "aprovada": "A16-J1-claim"
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].dadosOriginais.evidence.quote",
+      "categoria": "substituicao-aprovada",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 86,
+      "aprovada": "A16-E2-evidence.quote"
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].dadosOriginais.verbatim_quote",
+      "categoria": "substituicao-aprovada",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 86,
+      "aprovada": "A16-E2-verbatim_quote"
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 86
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "a4999e9a380c363ae63a774014284b967da67a70aa41f2f32724f51b0e7f59fb",
+      "sha256Depois": "aa380c38e77e5697d033583beb4be651eba7bcda7f26d6470dfe0097f6be00a6",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6\"]]",
+      "unidade": 86
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[89].dadosOriginais.evidence.quote",
+      "categoria": "substituicao-aprovada",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 89,
+      "aprovada": "A16-E3-evidence.quote"
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[89].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 89
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[89].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "07e1eefaa80aa0b47f0f4e9457f8c58ad36820722dbab1d66ce6a8aa242ccd11",
+      "sha256Depois": "16addb20010a882cc1967eb1b7d6078e2e607f6129bd9056549d3e0591fdd7e5",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e0b1538fd2a0db2dea719d91e1def03389624ad4fbd42cc841a6253d60eb5e8\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"81ee1b23ff88051e9d58d24544e22c30a21dbbad9192df623ec958c23e7666da\"]]",
+      "unidade": 89
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[47].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 47
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[47].referenceDoc.rule",
+      "categoria": "copia-referenceDoc",
+      "existiaAntes": true,
+      "sha256Antes": "b60442e36d49a4deed0b46b38c610aaa03d0360825df6002546fceed3d8f9d23",
+      "sha256Depois": "8b6a55b57bea1fce2c0e8359a9a237c64c9dd620056a127ae5015d7c023db5d2",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "unidade": 47,
+      "aprovada": "A16-E1-evidence.quote",
+      "molde": "claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[47].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "882150f3b86694bd1907f87e6b2df4d05ac71ced574531101276b00e6ac0ae14",
+      "sha256Depois": "428c45ce9174697241bb8fff2f27fb5ef3768a6b9b2e8477f724ed4f84c02309",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613\"]]",
+      "unidade": 47
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[86].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 86
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[86].referenceDoc.rule",
+      "categoria": "copia-referenceDoc",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 86,
+      "aprovada": "A16-E2-evidence.quote",
+      "molde": "claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[86].referenceDoc.topic",
+      "categoria": "copia-referenceDoc",
+      "existiaAntes": true,
+      "sha256Antes": "6f91aa32cc11fe6fa343a00158277d3e9b037c5ecccef7c1224b6f4351361d78",
+      "sha256Depois": "eae35880d44a1bab64ea1bb03b8c89cd5783258bcec01b96928494ac32b7c677",
+      "antes": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+      "depois": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+      "unidade": 86,
+      "aprovada": "A16-J1-claim",
+      "molde": "claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[86].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "a4999e9a380c363ae63a774014284b967da67a70aa41f2f32724f51b0e7f59fb",
+      "sha256Depois": "aa380c38e77e5697d033583beb4be651eba7bcda7f26d6470dfe0097f6be00a6",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6\"]]",
+      "unidade": 86
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[89].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 89
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[89].referenceDoc.rule",
+      "categoria": "copia-referenceDoc",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 89,
+      "aprovada": "A16-E3-evidence.quote",
+      "molde": "claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].referencias[89].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "07e1eefaa80aa0b47f0f4e9457f8c58ad36820722dbab1d66ce6a8aa242ccd11",
+      "sha256Depois": "16addb20010a882cc1967eb1b7d6078e2e607f6129bd9056549d3e0591fdd7e5",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e0b1538fd2a0db2dea719d91e1def03389624ad4fbd42cc841a6253d60eb5e8\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"81ee1b23ff88051e9d58d24544e22c30a21dbbad9192df623ec958c23e7666da\"]]",
+      "unidade": 89
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].sha256TextoUTF8",
+      "categoria": "resumo-derivado",
+      "existiaAntes": true,
+      "sha256Antes": "97baeac7f51ffb7d914a1e4f30e5762a2fe196dca46d478f1f4dd5a2fab58668",
+      "sha256Depois": "55c0bdad1245fc003fb915cf6fbcbb651c20b05e95956a6a9482b9474094f1b8",
+      "antes": "e1e78d21bd6ee99e2bd3ec2c9d03749cbf1bafe4b110b0714f5ec57afb75c65f",
+      "depois": "81fcfb97949ed960a45159ecb519170e96824831ab08cd867ac5bc259fc7bec2"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[0].textoFormatado",
+      "categoria": "texto-formatado-recomposto",
+      "existiaAntes": true,
+      "sha256Antes": "4d07d39801fb25de83fffb65596e44fd8ad371c16b46e934f2382f8487fd8b12",
+      "sha256Depois": "971ec7927775ad3e0764685992045450f6f5c48f96e72b2a608574c6cf469ff2",
+      "substituicoes": [
+        {
+          "de": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "para": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "ocorrencias": 1,
+          "aprovadas": [
+            "A16-E1-evidence.quote"
+          ]
+        },
+        {
+          "de": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+          "para": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+          "ocorrencias": 1,
+          "aprovadas": [
+            "A16-J1-claim"
+          ]
+        },
+        {
+          "de": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "para": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "ocorrencias": 2,
+          "aprovadas": [
+            "A16-E2-evidence.quote",
+            "A16-E3-evidence.quote"
+          ]
+        }
+      ],
+      "comprimentoAntes": 29487,
+      "comprimentoDepois": 29679,
+      "molde": "as quatro seções de app/api/ai-reviewer/route.ts"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].referencias[23].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 86
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].referencias[23].referenceDoc.rule",
+      "categoria": "copia-referenceDoc",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 86,
+      "aprovada": "A16-E2-evidence.quote",
+      "molde": "claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].referencias[23].referenceDoc.topic",
+      "categoria": "copia-referenceDoc",
+      "existiaAntes": true,
+      "sha256Antes": "6f91aa32cc11fe6fa343a00158277d3e9b037c5ecccef7c1224b6f4351361d78",
+      "sha256Depois": "eae35880d44a1bab64ea1bb03b8c89cd5783258bcec01b96928494ac32b7c677",
+      "antes": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+      "depois": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+      "unidade": 86,
+      "aprovada": "A16-J1-claim",
+      "molde": "claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].referencias[23].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "a4999e9a380c363ae63a774014284b967da67a70aa41f2f32724f51b0e7f59fb",
+      "sha256Depois": "aa380c38e77e5697d033583beb4be651eba7bcda7f26d6470dfe0097f6be00a6",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6\"]]",
+      "unidade": 86
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].referencias[26].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 89
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].referencias[26].referenceDoc.rule",
+      "categoria": "copia-referenceDoc",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 89,
+      "aprovada": "A16-E3-evidence.quote",
+      "molde": "claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].referencias[26].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "07e1eefaa80aa0b47f0f4e9457f8c58ad36820722dbab1d66ce6a8aa242ccd11",
+      "sha256Depois": "16addb20010a882cc1967eb1b7d6078e2e607f6129bd9056549d3e0591fdd7e5",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e0b1538fd2a0db2dea719d91e1def03389624ad4fbd42cc841a6253d60eb5e8\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"81ee1b23ff88051e9d58d24544e22c30a21dbbad9192df623ec958c23e7666da\"]]",
+      "unidade": 89
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].sha256TextoUTF8",
+      "categoria": "resumo-derivado",
+      "existiaAntes": true,
+      "sha256Antes": "240ab743b26c1d339c09920262d851475fb32df9eeed0595e194acf9a1e0551c",
+      "sha256Depois": "56f1f277ca5b693fa0b0bf4d4d075dd7817ca5bce99c069a5c957af01c3ddf18",
+      "antes": "d9d7d8d248235ef6d2e97cb407f3e4579cedcebdd8ea28b3c31634029d1b09b2",
+      "depois": "39cb3609b8c6dcac60854be2fececc8b8aaf203ccfb132a474447b5cc05ff739"
+    },
+    {
+      "arquivo": "contexto-estatico.json",
+      "caminho": "quatroSecoes[1].textoFormatado",
+      "categoria": "texto-formatado-recomposto",
+      "existiaAntes": true,
+      "sha256Antes": "efb9a009688b1854fb014082e0c1593694d1340538bd6a40bc8de2d0af068bd8",
+      "sha256Depois": "2c091e00781698cd5b00c347d6076df2f69dde760ebecd1e98232494bf0bcd52",
+      "substituicoes": [
+        {
+          "de": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+          "para": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+          "ocorrencias": 1,
+          "aprovadas": [
+            "A16-J1-claim"
+          ]
+        },
+        {
+          "de": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "para": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "ocorrencias": 2,
+          "aprovadas": [
+            "A16-E2-evidence.quote",
+            "A16-E3-evidence.quote"
+          ]
+        }
+      ],
+      "comprimentoAntes": 8625,
+      "comprimentoDepois": 8817,
+      "molde": "as quatro seções de app/api/ai-reviewer/route.ts"
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "finalChunksEsperados[0].metadata.text",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "beb2763c6da519b1383bacc9fff64f7fc3ab7690c4be921b97da81c08e76590d",
+      "sha256Depois": "b8db04868c9c89c5b86ea2f322c3f7cc7a659c618e61967b445d38487419eb66",
+      "antes": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+      "depois": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+      "chunkId": "saaty1977_scaling::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "substituicoes": [
+        {
+          "de": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "para": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "ocorrencias": 1
+        }
+      ],
+      "aprovadas": [
+        "A16-E1-evidence.quote"
+      ]
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "finalChunksEsperados[0].metadata.verbatim_quote",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "b60442e36d49a4deed0b46b38c610aaa03d0360825df6002546fceed3d8f9d23",
+      "sha256Depois": "8b6a55b57bea1fce2c0e8359a9a237c64c9dd620056a127ae5015d7c023db5d2",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "chunkId": "saaty1977_scaling::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "aprovada": "A16-E1-evidence.quote"
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "finalChunksEsperados[1].metadata.text",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "a97161aca89781062d2600f405e085a488f42515dc1c9540096920b2fe75f119",
+      "sha256Depois": "c729f5cb240cf3c4e1ac71926ba5a59a8038a76cd3bab99b48369b3fef549ff0",
+      "antes": "Claim: Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.\nVerbatim: synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship\nContext: Multiple Criteria Analysis (methodological)",
+      "depois": "Claim: BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.\nVerbatim: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.\nContext: Multiple Criteria Analysis (methodological)",
+      "chunkId": "wijnmalen2007_bocr::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "substituicoes": [
+        {
+          "de": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+          "para": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+          "ocorrencias": 1
+        },
+        {
+          "de": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "para": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "ocorrencias": 1
+        }
+      ],
+      "aprovadas": [
+        "A16-J1-claim",
+        "A16-E2-evidence.quote"
+      ]
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "finalChunksEsperados[1].metadata.verbatim_quote",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "chunkId": "wijnmalen2007_bocr::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "aprovada": "A16-E2-evidence.quote"
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "porConsulta[0].retornoChunks[0].metadata.text",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "beb2763c6da519b1383bacc9fff64f7fc3ab7690c4be921b97da81c08e76590d",
+      "sha256Depois": "b8db04868c9c89c5b86ea2f322c3f7cc7a659c618e61967b445d38487419eb66",
+      "antes": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+      "depois": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+      "chunkId": "saaty1977_scaling::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "substituicoes": [
+        {
+          "de": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "para": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "ocorrencias": 1
+        }
+      ],
+      "aprovadas": [
+        "A16-E1-evidence.quote"
+      ]
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "porConsulta[0].retornoChunks[0].metadata.verbatim_quote",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "b60442e36d49a4deed0b46b38c610aaa03d0360825df6002546fceed3d8f9d23",
+      "sha256Depois": "8b6a55b57bea1fce2c0e8359a9a237c64c9dd620056a127ae5015d7c023db5d2",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "chunkId": "saaty1977_scaling::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "aprovada": "A16-E1-evidence.quote"
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "porConsulta[1].retornoChunks[0].metadata.text",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "a97161aca89781062d2600f405e085a488f42515dc1c9540096920b2fe75f119",
+      "sha256Depois": "c729f5cb240cf3c4e1ac71926ba5a59a8038a76cd3bab99b48369b3fef549ff0",
+      "antes": "Claim: Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.\nVerbatim: synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship\nContext: Multiple Criteria Analysis (methodological)",
+      "depois": "Claim: BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.\nVerbatim: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.\nContext: Multiple Criteria Analysis (methodological)",
+      "chunkId": "wijnmalen2007_bocr::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "substituicoes": [
+        {
+          "de": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+          "para": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+          "ocorrencias": 1
+        },
+        {
+          "de": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "para": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "ocorrencias": 1
+        }
+      ],
+      "aprovadas": [
+        "A16-J1-claim",
+        "A16-E2-evidence.quote"
+      ]
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "porConsulta[1].retornoChunks[0].metadata.verbatim_quote",
+      "categoria": "copia-chunk-por-id",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "chunkId": "wijnmalen2007_bocr::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "aprovada": "A16-E2-evidence.quote"
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[0].chunk.metadata.text",
+      "categoria": "copia-chunk",
+      "existiaAntes": true,
+      "sha256Antes": "beb2763c6da519b1383bacc9fff64f7fc3ab7690c4be921b97da81c08e76590d",
+      "sha256Depois": "b8db04868c9c89c5b86ea2f322c3f7cc7a659c618e61967b445d38487419eb66",
+      "antes": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+      "depois": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+      "unidade": 47,
+      "chunkId": "saaty1977_scaling::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "substituicoes": [
+        {
+          "de": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "para": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "ocorrencias": 1
+        }
+      ],
+      "aprovadas": [
+        "A16-E1-evidence.quote"
+      ]
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[0].chunk.metadata.verbatim_quote",
+      "categoria": "copia-chunk",
+      "existiaAntes": true,
+      "sha256Antes": "b60442e36d49a4deed0b46b38c610aaa03d0360825df6002546fceed3d8f9d23",
+      "sha256Depois": "8b6a55b57bea1fce2c0e8359a9a237c64c9dd620056a127ae5015d7c023db5d2",
+      "antes": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "depois": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+      "unidade": 47,
+      "chunkId": "saaty1977_scaling::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "aprovada": "A16-E1-evidence.quote"
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[0].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 47
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[0].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "882150f3b86694bd1907f87e6b2df4d05ac71ced574531101276b00e6ac0ae14",
+      "sha256Depois": "428c45ce9174697241bb8fff2f27fb5ef3768a6b9b2e8477f724ed4f84c02309",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613\"]]",
+      "unidade": 47
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[1].chunk.metadata.text",
+      "categoria": "copia-chunk",
+      "existiaAntes": true,
+      "sha256Antes": "a97161aca89781062d2600f405e085a488f42515dc1c9540096920b2fe75f119",
+      "sha256Depois": "c729f5cb240cf3c4e1ac71926ba5a59a8038a76cd3bab99b48369b3fef549ff0",
+      "antes": "Claim: Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.\nVerbatim: synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship\nContext: Multiple Criteria Analysis (methodological)",
+      "depois": "Claim: BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.\nVerbatim: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.\nContext: Multiple Criteria Analysis (methodological)",
+      "unidade": 86,
+      "chunkId": "wijnmalen2007_bocr::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "substituicoes": [
+        {
+          "de": "Priorities on different factors must be commensurate before synthesis to guarantee valid BOCR outcomes.",
+          "para": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.",
+          "ocorrencias": 1
+        },
+        {
+          "de": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "para": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "ocorrencias": 1
+        }
+      ],
+      "aprovadas": [
+        "A16-J1-claim",
+        "A16-E2-evidence.quote"
+      ]
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[1].chunk.metadata.verbatim_quote",
+      "categoria": "copia-chunk",
+      "existiaAntes": true,
+      "sha256Antes": "a6c024727190e90262e2f30b58b23fba5c768db1680f81b102afad97d2e72976",
+      "sha256Depois": "a909c6e9bb03816adc5a3ac838c5552d3de63ca817d2ab48d30eb8338e9515a9",
+      "antes": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+      "depois": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+      "unidade": 86,
+      "chunkId": "wijnmalen2007_bocr::claim::0",
+      "molde": "buildClaimChunks, scripts/ingest-rag.ts",
+      "aprovada": "A16-E2-evidence.quote"
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[1].enderecoNaBase.sha",
+      "categoria": "endereco-administrativo",
+      "existiaAntes": true,
+      "sha256Antes": "8b5608b01c4cb4319b829add0fd73d9f873e1559e7544d162936194dac2bc626",
+      "sha256Depois": "79a6ab9298f7fc40610e49e5f1b891c5614e5a89087e781dbf591fb0bc42f6bb",
+      "antes": "344d63121489348a7291725271564f06fe5ef5a5",
+      "depois": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+      "unidade": 86
+    },
+    {
+      "arquivo": "C1-recuperacao.json",
+      "caminho": "trechos[1].trechoId",
+      "categoria": "identidade-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "a4999e9a380c363ae63a774014284b967da67a70aa41f2f32724f51b0e7f59fb",
+      "sha256Depois": "aa380c38e77e5697d033583beb4be651eba7bcda7f26d6470dfe0097f6be00a6",
+      "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+      "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6\"]]",
+      "unidade": 86
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "dataUTC",
+      "categoria": "metadado-da-versao",
+      "existiaAntes": true,
+      "sha256Antes": "918ad75fe37202c6d8e306f4019d5fea852e72fb75aae73cff50f3d1cd6e2e3a",
+      "sha256Depois": "7adde3ab68e3a013b2bce70eff168ce294597f55f98f2d972253f283065bcf06",
+      "antes": "2026-09-15",
+      "depois": "2026-09-17"
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "integridadeDosDados[\"C1-recuperacao.json\"].resumoCompleto",
+      "categoria": "resumo-derivado",
+      "existiaAntes": true,
+      "sha256Antes": "6c5539d47bbe68e7b5f9b0d6ae306ef1b9a5c6b8f476695078cbf32575d303f2",
+      "sha256Depois": "1e9c863e9d7c0544a216625ddc347fd17146924ff49ecf5dbaa2732f1e734f43",
+      "antes": "2b4dc423e527b1760b8e00a162348d98c096d98d79c57a355bd6a43c4a46c193",
+      "depois": "461b6fa286f879edd0839bc5042a2e830a0ae48fa97d33bf79999060d46a496e"
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "integridadeDosDados[\"contexto-estatico.json\"].resumoCompleto",
+      "categoria": "resumo-derivado",
+      "existiaAntes": true,
+      "sha256Antes": "6a96f03194b6174cba5ccba4854ad0957ea9441c93cda88aaa155fb97618800a",
+      "sha256Depois": "adfb44d7bfe42af6e58ad62c03b4e23442e68623b0d81c746d1e36d106069e38",
+      "antes": "643da4272b37b2da521eecb971443d21417e644e5fbb76d4ae7ccc3fe622920f",
+      "depois": "98d05fb707ecade7153aa731b49ee0fcd8343c978695f2f937a28f410419f01a"
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "integridadeDosDados[\"evidencias.json\"].resumoCompleto",
+      "categoria": "resumo-derivado",
+      "existiaAntes": true,
+      "sha256Antes": "4c37159359b0e532f09eb73afaf973d75fa027c572f2896ff80b2968b10525be",
+      "sha256Depois": "93ba1dacc562e54172fd201c34e311891f7849ea7bc7e8ed735eb6adae3d5a6e",
+      "antes": "0f199097c4028ae180189ed9470d50a091c11545ae0505c2d8d0d5b91a995f41",
+      "depois": "efbd326929ef1d6020a70cd768a1888d271d8a1de65e00e6ad02ab7ff3470faf"
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "pendenciasParaGeracao[3]",
+      "categoria": "metadado-da-versao",
+      "existiaAntes": false,
+      "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "sha256Depois": "bcc68b97f7d974d5b76034ed6875d01d8f0f0705a7e79329ff94c6ddc77254cc",
+      "antes": null,
+      "depois": "Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada."
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "pendenciasParaGeracao[4]",
+      "categoria": "metadado-da-versao",
+      "existiaAntes": false,
+      "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "sha256Depois": "eff69be8a24c17ebcf3a666072cc33d4ace4c5c9de2d7912e5d2431500e18ed7",
+      "antes": null,
+      "depois": "Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json."
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "versaoPreparacao",
+      "categoria": "metadado-da-versao",
+      "existiaAntes": true,
+      "sha256Antes": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+      "sha256Depois": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+      "antes": 1,
+      "depois": 2
+    }
+  ],
+  "transicoes": [
+    {
+      "indice": 0,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 1,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 2,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 3,
+      "articleId": "aullhyde2006_experiment",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 4,
+      "articleId": "aullhyde2006_experiment",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/aullhyde2006_experiment.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 5,
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 6,
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 7,
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 8,
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 9,
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 10,
+      "articleId": "ayan2023_weightingMethodsMCDM",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 11,
+      "articleId": "bozoki2010_ipc",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 12,
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 13,
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 14,
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 15,
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 16,
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 17,
+      "articleId": "escobar2004_note",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/escobar2004_note.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 18,
+      "articleId": "escobar2004_note",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/escobar2004_note.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 19,
+      "articleId": "forman1998_aggregating",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "conferido",
+      "estadoPosterior": "conferido",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 20,
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 21,
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 22,
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 6
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 23,
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 7
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 24,
+      "articleId": "goepel2018_ahpos",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/goepel2018_ahpos.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 8
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 25,
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 26,
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 27,
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 28,
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 29,
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 30,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 31,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 32,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 33,
+      "articleId": "lee2024_project",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2024_project.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 34,
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 35,
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 36,
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 37,
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 38,
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 39,
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 40,
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 41,
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 42,
+      "articleId": "neely2020_upperEchelonsMetacritiques",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 43,
+      "articleId": "ossadnik2016_group_aggregation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "conferido",
+      "estadoPosterior": "conferido",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 44,
+      "articleId": "ossadnik2016_group_aggregation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "conferido",
+      "estadoPosterior": "conferido",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 45,
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 46,
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 47,
+      "articleId": "saaty1977_scaling",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": true,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": {
+        "conteudoDaV2": "Igual ao da base corrigida, aprovado em A.16 (A16-E1-verbatim_quote e A16-E1-evidence.quote).",
+        "conclusoesRegistradas": "docs/dados/a33-conferencia-c1/medicao-pdfs.json, inspecaoVisualSaaty237: campos \"nao confere\" por D1.b, sobre o recorte da v1; claim \"sustentada\"; localizador compatível.",
+        "aplicabilidadeAV2": "A conclusão de correspondência textual descreve o recorte da v1, que difere do da v2; para o recorte da v2 não há conclusão registrada. A de sustentação se aplica, porque a claim não mudou.",
+        "pendencias": "Conservadas. Falta a conclusão de correspondência textual da versão nova."
+      }
+    },
+    {
+      "indice": 48,
+      "articleId": "saaty1977_scaling",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 49,
+      "articleId": "saaty1986_axiomatic",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 50,
+      "articleId": "saaty1987_whatitis",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 51,
+      "articleId": "saaty1987_whatitis",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 52,
+      "articleId": "saaty1987_whatitis",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1987_whatitis.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 53,
+      "articleId": "saaty1990_howtomake",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 54,
+      "articleId": "saaty1990_howtomake",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1990_howtomake.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 55,
+      "articleId": "saaty2003_eigenvector",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 56,
+      "articleId": "saaty2003_eigenvector",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2003_eigenvector.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 57,
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 58,
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 59,
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 60,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 61,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 62,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 63,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 64,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 65,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 66,
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 67,
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 68,
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 69,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 70,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 71,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 72,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 73,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 74,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 75,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 6
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 76,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 7
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 77,
+      "articleId": "saiyed2023_ceoPowerUET",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 78,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 79,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 80,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 81,
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 82,
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 83,
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 84,
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 85,
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 86,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": true,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": {
+        "conteudoDaV2": "Igual ao da base corrigida, aprovado em A.16 (A16-E2-verbatim_quote, A16-E2-evidence.quote e A16-J1-claim).",
+        "conclusoesRegistradas": "docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]: campos \"nao confere\" por W1.a, W1.b e W2.a, sobre o recorte da v1; claim anterior \"parcialmente sustentada\"; localizador compatível.",
+        "aplicabilidadeAV2": "As duas conclusões descrevem a v1: o recorte e a claim mudaram. Para o conteúdo da v2 não há conclusão registrada de correspondência textual nem de sustentação.",
+        "pendencias": "Conservadas. Faltam as duas conclusões sobre a versão nova."
+      }
+    },
+    {
+      "indice": 87,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 88,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 89,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 3
+      },
+      "afetada": true,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": {
+        "conteudoDaV2": "Igual ao da base corrigida, aprovado em A.16 (A16-E3-evidence.quote).",
+        "conclusoesRegistradas": "Nenhuma conferência da unidade. inspecao-wijnmalen-forman.json registra o texto antigo desta unidade só como alcance observado.",
+        "aplicabilidadeAV2": "Continua PARCIALMENTE PENDENTE: o evidence.quote corrigido não certifica a claim nem o verbatim_quote, que seguem abertos em A.16, e os dois campos continuam diferentes.",
+        "pendencias": "Conservadas: divergência de A.16 e conferência contra a publicação."
+      }
+    },
+    {
+      "indice": 90,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 91,
+      "articleId": "xu2000_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 92,
+      "articleId": "xu2000_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 93,
+      "articleId": "salomon2016_absolute",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 94,
+      "articleId": "salomon2016_absolute",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2016_absolute.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 95,
+      "articleId": "saaty1986_axiomatic",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty1986_axiomatic.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 5
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 96,
+      "articleId": "saatyVargas1984_rankpreservation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas1984_rankpreservation.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 97,
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 98,
+      "articleId": "bozoki2010_ipc",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 99,
+      "articleId": "bozoki2010_ipc",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/bozoki2010_ipc.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 100,
+      "articleId": "forman1998_aggregating",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "conferido",
+      "estadoPosterior": "conferido",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 101,
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 102,
+      "articleId": "dodevska2023when",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/dodevska2023when.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 103,
+      "articleId": "ishizaka2011review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ishizaka2011review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 104,
+      "articleId": "lee2024_project",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2024_project.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 105,
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 106,
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 107,
+      "articleId": "saaty2015_trustworthy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saaty2015_trustworthy.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 108,
+      "articleId": "saatyVargas2012",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyVargas2012.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 109,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 110,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 111,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 112,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 113,
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 114,
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 115,
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 116,
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 117,
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 118,
+      "articleId": "xu2000_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/xu2000_consistency.ts",
+        "campo": "thresholds",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 119,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 120,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 121,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 122,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 123,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 124,
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 125,
+      "articleId": "demirtas2008_integrated",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/demirtas2008_integrated.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 126,
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 127,
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 128,
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 129,
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 130,
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 131,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 132,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 133,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 134,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 135,
+      "articleId": "lee2009_wind",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2009_wind.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 136,
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 137,
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 138,
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 139,
+      "articleId": "liang2022_ahp_undesirable",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/liang2022_ahp_undesirable.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 5
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 140,
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 141,
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 142,
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 143,
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 144,
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 145,
+      "articleId": "petrillo2023state",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/petrillo2023state.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 146,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 147,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 148,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 149,
+      "articleId": "saatyOzdemir2003_negative",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saatyOzdemir2003_negative.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 150,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 0
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 151,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 1
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 152,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 2
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 153,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 3
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 154,
+      "articleId": "wijnmalen2007_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "formulas",
+        "indiceBaseZero": 4
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 155,
+      "articleId": "lee2024_project",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/lee2024_project.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 156,
+      "articleId": "salomon2024_consistency",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/salomon2024_consistency.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 157,
+      "articleId": "saiyed2023_ceoPowerUET",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/saiyed2023_ceoPowerUET.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 158,
+      "articleId": "tavana2023_revolution",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/tavana2023_revolution.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 159,
+      "articleId": "alizadeh2020_energy",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/alizadeh2020_energy.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 160,
+      "articleId": "mu2016_bocr",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/mu2016_bocr.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 161,
+      "articleId": "ossadnik2016_group_aggregation",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/ossadnik2016_group_aggregation.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 162,
+      "articleId": "schmidt2016_priorities",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2016_priorities.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 163,
+      "articleId": "schmidt2015_review",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/schmidt2015_review.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    },
+    {
+      "indice": 164,
+      "articleId": "kabak2014_prioritization",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/kabak2014_prioritization.ts",
+        "campo": "empirical_data"
+      },
+      "afetada": false,
+      "estadoAnterior": "pendente",
+      "estadoPosterior": "pendente",
+      "evidencia": "Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados."
+    }
+  ],
+  "contagens": {
+    "denominador": 165,
+    "conferidasAntes": 4,
+    "conferidasDepois": 4,
+    "pendentesAntes": 161,
+    "pendentesDepois": 161,
+    "movidas": 0,
+    "nota": "Resultado da verificação sobre 165 unidades distintas, sem somar cópias. Propagação correta não é conferência bibliográfica."
+  },
+  "indicadorC1": {
+    "criterio": "Atendimento demonstrado só quando o conteúdo da v2 é o inspecionado e o registro traz as quatro condições da seção 5 do protocolo de C1.",
+    "historicoV1": {
+      "total": 1,
+      "denominador": 3,
+      "fonte": "inspecao-wijnmalen-forman.json"
+    },
+    "total": 1,
+    "denominador": 3,
+    "quais": [
+      "forman1998_aggregating key_claims[2]"
+    ],
+    "porTrecho": [
+      {
+        "articleId": "saaty1977_scaling",
+        "indiceBaseZero": 0,
+        "registro": "medicao-pdfs.json, inspecaoVisualSaaty237",
+        "conclusaoDeCorrespondenciaAplicaAV2": false,
+        "conclusaoDeSustentacaoAplicaAV2": true,
+        "atendimentoDemonstrado": false,
+        "motivo": "o recorte da v2 não é o inspecionado, e não há conclusão de correspondência para ele"
+      },
+      {
+        "articleId": "wijnmalen2007_bocr",
+        "indiceBaseZero": 0,
+        "registro": "inspecao-wijnmalen-forman.json, trechos[0]",
+        "conclusaoDeCorrespondenciaAplicaAV2": false,
+        "conclusaoDeSustentacaoAplicaAV2": false,
+        "atendimentoDemonstrado": false,
+        "motivo": "o recorte da v2 não é o inspecionado, e não há conclusão de correspondência para ele; a claim da v2 não é a avaliada, e não há conclusão de sustentação para ela"
+      },
+      {
+        "articleId": "forman1998_aggregating",
+        "indiceBaseZero": 2,
+        "registro": "inspecao-wijnmalen-forman.json, trechos[1]",
+        "conclusaoDeCorrespondenciaAplicaAV2": true,
+        "conclusaoDeSustentacaoAplicaAV2": true,
+        "atendimentoDemonstrado": true,
+        "motivo": "Conteúdo da v2 idêntico ao inspecionado, e as quatro condições registradas."
+      }
+    ]
+  },
+  "pendencias": [
+    "Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada.",
+    "Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json."
+  ],
+  "limites": [
+    "Aprovação estrutural, resumo correto e identidade recalculada não mudam estado de conferência.",
+    "Identificador não certifica conteúdo.",
+    "Nenhum identificador entra no texto fornecido ao modelo, nem foi acrescentado a chunk.",
+    "A predição de A.33 segue não testada; esta rodada não introduz hipótese nova sobre a saída."
+  ]
+}

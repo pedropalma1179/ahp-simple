@@ -1,0 +1,109 @@
+{
+  "versaoPreparacao": 2,
+  "baseSha": "344d63121489348a7291725271564f06fe5ef5a5",
+  "dataUTC": "2026-09-17",
+  "estado": "dados fixados com pendências explícitas; geração não executada",
+  "predicao": "não testada",
+  "mainDevePermanecer": "33c1fdf6500242832994a17aa15b0a686704c029",
+  "payloadReferencia": {
+    "arquivo": "docs/calculations-13jul2026.json",
+    "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+    "sha256Bytes": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
+    "mesmoNosTresCasos": true,
+    "alcance": "Projeto de referência fixado pelo protocolo. Não é apresentado como captura de uma requisição HTTP de geração."
+  },
+  "modelo": {
+    "id": "claude-opus-4-6",
+    "max_tokens": 16000,
+    "thinking": {
+      "type": "enabled",
+      "budget_tokens": 5000
+    },
+    "temperature": {
+      "enviada": false,
+      "valor": null,
+      "observacao": "A chamada messages.create em route.ts não envia temperature. Preservar a mesma ausência nos três casos; nenhum valor padrão do serviço foi medido ou presumido."
+    }
+  },
+  "contextoComum": "contexto-estatico.json",
+  "casos": [
+    {
+      "caso": "C1",
+      "USE_RAG_SEMANTIC": "true",
+      "recuperacao": "simulada com evidências fixadas",
+      "dados": "C1-recuperacao.json",
+      "geracoesPlanejadas": 1,
+      "geracoesExecutadas": 0,
+      "shaDaExecucao": null,
+      "saida": null
+    },
+    {
+      "caso": "C2",
+      "USE_RAG_SEMANTIC": null,
+      "semanticaDaFlag": "variável ausente, não cadeia vazia nem false textual",
+      "recuperacao": "desligada",
+      "retornosPorConsulta": null,
+      "geracoesPlanejadas": 1,
+      "geracoesExecutadas": 0,
+      "shaDaExecucao": null,
+      "saida": null
+    },
+    {
+      "caso": "C3",
+      "USE_RAG_SEMANTIC": "true",
+      "recuperacao": "simulada vazia, sem chamar índice ou Voyage",
+      "retornosPorConsulta": [
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "geracoesPlanejadas": 1,
+      "geracoesExecutadas": 0,
+      "shaDaExecucao": null,
+      "saida": null
+    }
+  ],
+  "execucaoFutura": "Definir a flag apenas no processo isolado antes de importar route.ts; restaurar ambiente. Registrar SHA real junto de cada saída e capturar system/messages completos. Preservar as quatro seções e as outras três superfícies estáticas nos três casos. Nenhuma execução futura é autorizada por este arquivo.",
+  "resumoEvidencias": {
+    "claimsPreparadasDistintas": 101,
+    "unidadesAdicionais": 64,
+    "totalUnidades": 165,
+    "conferidas": 4,
+    "pendentes": 161,
+    "semTrechoId": 1,
+    "claimsComCamposDiferentes": 19
+  },
+  "pendenciasParaGeracao": [
+    "Identidade de trecho resolvida: o autor adotou H-T e a aplicacao gravou trechoId em 164 das 165 unidades, em 307304daa12cf11bcc81928371e80b113c652760. Indice posicional NAO foi promovido a identidade. Permanece fora da cobertura o benchmark de saiyed2023_ceoPowerUET, com motivo em docs/dados/a33-identidade-aplicada/aplicacao.json, campo excecao.",
+    "Concluir a conferência dos trechos pendentes nomeados em evidencias.json e publicacoes.json, incluindo divergências de campos encaminhadas a A.16.",
+    "Preparar a execução isolada com o mesmo payload, conferir a montagem capturada contra estes dados e dispor da credencial do modelo. Nenhuma configuração persistente foi modificada.",
+    "Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada.",
+    "Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json."
+  ],
+  "integridadeDosDados": {
+    "identidade.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "d9b1e2dc75ff508be6391acbea268ace7b85956fce82cb2eebac1cb04a82868e"
+    },
+    "contexto-estatico.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "98d05fb707ecade7153aa731b49ee0fcd8343c978695f2f937a28f410419f01a"
+    },
+    "evidencias.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "efbd326929ef1d6020a70cd768a1888d271d8a1de65e00e6ad02ab7ff3470faf"
+    },
+    "publicacoes.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "f8fad0312923fd05626e44fcbe2ee97ee6465b51cbac56313c4f45855653668a"
+    },
+    "C1-recuperacao.json": {
+      "algoritmo": "SHA-256",
+      "resumoCompleto": "461b6fa286f879edd0839bc5042a2e830a0ae48fa97d33bf79999060d46a496e"
+    }
+  },
+  "provenienciaHashes": "Resumos calculados nesta preparação sobre os arquivos agora escritos. Não são resumos de prompts da Fase 1 nem saídas de geração.",
+  "verificacaoCodigo": "Nenhum código de produção ou teste alterado; suíte e build não executados nesta rodada, conforme o aceite de dados/documentação."
+}

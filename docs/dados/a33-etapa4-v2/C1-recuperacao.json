@@ -1,0 +1,225 @@
+{
+  "baseSha": "344d63121489348a7291725271564f06fe5ef5a5",
+  "origem": "fixação manual anterior à geração; não houve consulta ao índice nem embedding",
+  "criterioEscolha": "Uma claim de cada uma das três publicações nomeadas previamente no protocolo: consistência de Saaty, comensurabilidade de Wijnmalen e AIJ de Forman e Peniwati. Não selecionadas depois de resultado do modelo.",
+  "score": "Valor 1 sintético igual nos três chunks; serve somente à ordenação determinística da fixture, não mede similaridade.",
+  "identidade": "O id posicional de chunk reproduz a convencao ja existente em scripts/ingest-rag.ts, e continua nao sendo id de claim. A identidade de trecho e a derivada H-T, aplicada em 307304daa12cf11bcc81928371e80b113c652760: cada entrada de trechos tem trechoId preenchido, e as copias de chunk se vinculam a essas entradas por chunk.id. O identificador NAO entra no texto enviado ao modelo.",
+  "trechos": [
+    {
+      "articleId": "saaty1977_scaling",
+      "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613\"]]",
+      "enderecoNaBase": {
+        "sha": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+        "arquivo": "lib/rag/articles/saaty1977_scaling.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "chunk": {
+        "id": "saaty1977_scaling::claim::0",
+        "score": 1,
+        "metadata": {
+          "article_id": "saaty1977_scaling",
+          "article_year": 1977,
+          "article_type": "foundational",
+          "chunk_type": "claim",
+          "chunk_index": 0,
+          "text": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+          "verbatim_quote": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "page": 237,
+          "locator_type": "paragraph",
+          "locator_id": "Section 2",
+          "usable_as": "definition"
+        }
+      }
+    },
+    {
+      "articleId": "wijnmalen2007_bocr",
+      "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6\"]]",
+      "enderecoNaBase": {
+        "sha": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+        "arquivo": "lib/rag/articles/wijnmalen2007_bocr.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 0
+      },
+      "chunk": {
+        "id": "wijnmalen2007_bocr::claim::0",
+        "score": 1,
+        "metadata": {
+          "article_id": "wijnmalen2007_bocr",
+          "article_year": 2007,
+          "article_type": "methodological",
+          "chunk_type": "claim",
+          "chunk_index": 0,
+          "text": "Claim: BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.\nVerbatim: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.\nContext: Multiple Criteria Analysis (methodological)",
+          "verbatim_quote": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "page": 899,
+          "locator_type": "paragraph",
+          "locator_id": "Section 4",
+          "usable_as": "recommendation"
+        }
+      }
+    },
+    {
+      "articleId": "forman1998_aggregating",
+      "trechoId": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"forman1998_aggregating\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"2e37783a6af38e02430f51787dcc7a3051e01704614eb139d6c1600532a39439\"]]",
+      "enderecoNaBase": {
+        "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+        "arquivo": "lib/rag/articles/forman1998_aggregating.ts",
+        "campo": "key_claims",
+        "indiceBaseZero": 2
+      },
+      "chunk": {
+        "id": "forman1998_aggregating::claim::2",
+        "score": 1,
+        "metadata": {
+          "article_id": "forman1998_aggregating",
+          "article_year": 1998,
+          "article_type": "methodological",
+          "chunk_type": "claim",
+          "chunk_index": 2,
+          "text": "Claim: AIJ strictly requires the use of the geometric mean.\nVerbatim: Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.\nContext: Group Decision Making (methodological)",
+          "verbatim_quote": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+          "page": 167,
+          "locator_type": "section",
+          "locator_id": "6",
+          "usable_as": "recommendation"
+        }
+      }
+    }
+  ],
+  "porConsulta": [
+    {
+      "indice": 0,
+      "consulta": "consistência julgamentos AHP CR Saaty",
+      "retornoChunks": [
+        {
+          "id": "saaty1977_scaling::claim::0",
+          "score": 1,
+          "metadata": {
+            "article_id": "saaty1977_scaling",
+            "article_year": 1977,
+            "article_type": "foundational",
+            "chunk_type": "claim",
+            "chunk_index": 0,
+            "text": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+            "verbatim_quote": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+            "page": 237,
+            "locator_type": "paragraph",
+            "locator_id": "Section 2",
+            "usable_as": "definition"
+          }
+        }
+      ]
+    },
+    {
+      "indice": 1,
+      "consulta": "BOCR síntese fórmula subtrativa Wijnmalen comensurabilidade",
+      "retornoChunks": [
+        {
+          "id": "wijnmalen2007_bocr::claim::0",
+          "score": 1,
+          "metadata": {
+            "article_id": "wijnmalen2007_bocr",
+            "article_year": 2007,
+            "article_type": "methodological",
+            "chunk_type": "claim",
+            "chunk_index": 0,
+            "text": "Claim: BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.\nVerbatim: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.\nContext: Multiple Criteria Analysis (methodological)",
+            "verbatim_quote": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+            "page": 899,
+            "locator_type": "paragraph",
+            "locator_id": "Section 4",
+            "usable_as": "recommendation"
+          }
+        }
+      ]
+    },
+    {
+      "indice": 2,
+      "consulta": "análise sensibilidade ranking AHP estabilidade",
+      "retornoChunks": []
+    },
+    {
+      "indice": 3,
+      "consulta": "agregação média geométrica AIJ Forman Saaty grupo",
+      "retornoChunks": [
+        {
+          "id": "forman1998_aggregating::claim::2",
+          "score": 1,
+          "metadata": {
+            "article_id": "forman1998_aggregating",
+            "article_year": 1998,
+            "article_type": "methodological",
+            "chunk_type": "claim",
+            "chunk_index": 2,
+            "text": "Claim: AIJ strictly requires the use of the geometric mean.\nVerbatim: Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.\nContext: Group Decision Making (methodological)",
+            "verbatim_quote": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+            "page": 167,
+            "locator_type": "section",
+            "locator_id": "6",
+            "usable_as": "recommendation"
+          }
+        }
+      ]
+    },
+    {
+      "indice": 4,
+      "consulta": "viés cognitivo painel decisão MCDM",
+      "retornoChunks": []
+    }
+  ],
+  "finalChunksEsperados": [
+    {
+      "id": "saaty1977_scaling::claim::0",
+      "score": 1,
+      "metadata": {
+        "article_id": "saaty1977_scaling",
+        "article_year": 1977,
+        "article_type": "foundational",
+        "chunk_type": "claim",
+        "chunk_index": 0,
+        "text": "Claim: Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.\nVerbatim: a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n\nContext: Mathematical Psychology / Decision Theory (foundational)",
+        "verbatim_quote": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+        "page": 237,
+        "locator_type": "paragraph",
+        "locator_id": "Section 2",
+        "usable_as": "definition"
+      }
+    },
+    {
+      "id": "wijnmalen2007_bocr::claim::0",
+      "score": 1,
+      "metadata": {
+        "article_id": "wijnmalen2007_bocr",
+        "article_year": 2007,
+        "article_type": "methodological",
+        "chunk_type": "claim",
+        "chunk_index": 0,
+        "text": "Claim: BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.\nVerbatim: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.\nContext: Multiple Criteria Analysis (methodological)",
+        "verbatim_quote": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "page": 899,
+        "locator_type": "paragraph",
+        "locator_id": "Section 4",
+        "usable_as": "recommendation"
+      }
+    },
+    {
+      "id": "forman1998_aggregating::claim::2",
+      "score": 1,
+      "metadata": {
+        "article_id": "forman1998_aggregating",
+        "article_year": 1998,
+        "article_type": "methodological",
+        "chunk_type": "claim",
+        "chunk_index": 2,
+        "text": "Claim: AIJ strictly requires the use of the geometric mean.\nVerbatim: Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.\nContext: Group Decision Making (methodological)",
+        "verbatim_quote": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+        "page": 167,
+        "locator_type": "section",
+        "locator_id": "6",
+        "usable_as": "recommendation"
+      }
+    }
+  ],
+  "limite": "Fixação de dados, não execução do handler. Na rodada de geração, simular a recuperação antes de chamar serviços externos, preservar esta ordem e capturar o contexto real. Não fabricar tentativas HTTP de serviços que não foram chamados."
+}
