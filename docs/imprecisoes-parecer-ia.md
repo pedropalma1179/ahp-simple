@@ -8323,6 +8323,224 @@ afetadas e verificar todas as cópias.
 branch de sessão, depois do SHA integrado, e **não** faz parte da integração desta
 rodada.
 
+### A.33: nova versão do snapshot da etapa 4, em 17/09/2026
+
+**Gravação:** `c87e33702a7b5bd153bfd7eef5c02cad0877806c`, dados e teste, na branch
+de sessão `snapshot/a33-etapa4-v2`, sobre `8f9434140ea00247e07c31dbff4cc84e5d45425f`.
+**Rodada de dados:** sem geração, sem reingestão, sem chamada externa de
+inferência, embedding ou recuperação. `main` permanece em `33c1fdf`.
+
+#### Porta de entrada, e a incorporação de `8f94341`
+
+| Passo | Observado | Saída |
+|---|---|---:|
+| `git fetch origin` | sem erro | 0 |
+| topo e branch | `8f94341`, `correcao/a16-trechos-c1`; `git status --short` e `git diff HEAD` vazios | — |
+| `git ls-remote` | `integra/a30-registros` em `4cb14f5`, a branch de sessão anterior em `8f94341`, `main` em `33c1fdf` | 0 |
+| `4cb14f5` ancestral de `8f94341` | verdadeiro | 0 |
+| `origin/integra/a30-registros` e a local, ancestrais de `8f94341` | verdadeiro | 0 e 0 |
+| merges no intervalo | zero | — |
+| reconfirmação local, imediatamente antes | verdadeiro | 0 |
+| fast-forward local, `4cb14f5..8f94341`, sem checkout | aceito | 0 |
+| reconfirmação remota, imediatamente antes | verdadeiro | 0 |
+| fast-forward remoto, `4cb14f5..8f94341` | aceito | 0 |
+
+**Sem commit de narração da incorporação.** CI de `8f94341` em
+`integra/a30-registros`: `35228400392`, `completed/success`.
+
+#### Preservação, e o que a v2 declara
+
+`docs/dados/a33-etapa4/` está **integralmente inalterado**, no mesmo caminho. A
+preparação nova está em `docs/dados/a33-etapa4-v2/`, e
+`manifesto-transicao.json` **aponta para a v1**, com a base dela, `344d631`, e
+**declara a base corrigida**: `8f94341`, com `lib/rag` idêntica à de `b567d99`, e
+os dois commits da correção, `8b057d9` e `b567d99`.
+
+**Os resumos de antes foram capturados antes de qualquer escrita da v2**, sobre os
+blobs da v1, e gravados em `resumos-antes.json`, com o SHA de partida; o modo de
+propagação recusa começar sem eles, ou com a v1 diferente deles. ⚠ **Instrumento
+novo, conferido na primeira execução:** os cinco `sha256Arquivo` coincidem com os
+que `casos.json` já registrava em `integridadeDosDados`, e o `sha256Texto` e as
+contagens **692, 1140 e 86** coincidem com o protocolo de H-T. Os resumos
+estruturais de `evidencias` e de `C1` diferem dos daquele protocolo, **como
+esperado**: `e1bdc6f` mudou metadados depois.
+
+#### As unidades afetadas, derivadas e não presumidas
+
+As **165** unidades da v1 foram comparadas com a base por arquivo, campo e índice
+do endereço.
+
+| Base | Diferenças |
+|---|---|
+| `344d631`, a da v1 | **zero**: o controle de que o instrumento reproduz a própria base |
+| `8f94341`, a corrigida | **exatamente as seis alterações aprovadas**, e nenhuma outra |
+
+| Unidade | `articleId` | `enderecoNaBase` | Campos |
+|---:|---|---|---|
+| 47 | `saaty1977_scaling` | `saaty1977_scaling.ts`, `key_claims`, 0 | `verbatim_quote`, `evidence.quote` |
+| 86 | `wijnmalen2007_bocr` | `wijnmalen2007_bocr.ts`, `key_claims`, 0 | `claim`, `verbatim_quote`, `evidence.quote` |
+| 89 | `wijnmalen2007_bocr` | `wijnmalen2007_bocr.ts`, `key_claims`, 3 | `evidence.quote` |
+
+**Qualquer diferença fora da lista aprovada interrompe a propagação.**
+
+#### A propagação, e o que ela demonstra
+
+**Onde o texto muda:** o **registro** `evidencias.json`, de onde H-T se calcula; o
+**contexto estático**, em `referenceDoc` e no `textoFormatado` das duas seções que
+contêm as três unidades; e os **chunks de C1**, nas duas entradas de `trechos` e nas
+quatro cópias vinculadas por `chunk.id`. Os três moldes — `claimToRef`, as quatro
+seções de `route.ts` e `buildClaimChunks` — foram **conferidos antes por
+reproduzirem a v1 byte a byte**. `identidade.json` e `publicacoes.json` são
+medições históricas presas a `344d631` e seguem **byte a byte iguais**.
+
+**56 exceções enumeradas**, cada uma com valor, ou resumo, anterior e posterior, e
+ligada a uma alteração aprovada ou a uma consequência nomeada dela:
+
+| Categoria | Quantas |
+|---|---:|
+| substituição aprovada, no registro | 6 |
+| cópia em `referenceDoc` | 7 |
+| texto formatado recomposto | 2 |
+| cópia de chunk, em `trechos` e por `chunk.id` | 4 + 8 |
+| identidade recalculada | 10 |
+| endereço administrativo | 10 |
+| resumo derivado | 5 |
+| metadado da versão, em `casos.json` | 4 |
+
+⚠ **Os resumos detectam; o diff delimitado demonstra.** O texto recomposto de cada
+seção é **exatamente** o da v1 com as substituições aprovadas aplicadas, com o
+número de ocorrências conferido, e o mesmo vale para o texto dos chunks. **Das 329
+raízes de texto, 311 seguem idênticas pelo resumo por raiz**, e as **18** que mudam
+são as nomeadas no teste.
+
+⚠ **Decisão desta rodada, para a auditoria:** o `sha` do endereço das **três**
+unidades afetadas passou a `8f94341`, em todas as cópias, porque o endereço antigo
+localizava um conteúdo que a v2 não tem mais. **Arquivo, campo e índice não
+mudaram**, as 162 unidades não afetadas conservam `344d631`, e o `baseSha` de topo
+dos artefatos também.
+
+⚠ **Instrumento, primeira execução da propagação: interrompido, e o erro era
+dele.** A chave `C1-recuperacao.json`, em `integridadeDosDados`, contém ponto, e o
+caminho escrito só com pontos ficava ambíguo — o acessor herdado também quebraria
+nela. **Corrigido antes de aceitar**: caminho por segmentos, e chave com ponto
+entre colchetes.
+
+⚠ **A mensagem de `c87e337` diz "316" raízes idênticas, e o medido é 311**, de 329.
+Escrevi o número sem medir; ele não foi usado como critério, e **a mensagem de
+commit não se altera**.
+
+#### Identidade
+
+**H-T recalculado nas três unidades, porque mudou campo que participa da
+composição**; a composição não mudou.
+
+| Unidade | `versaoSha256` antes | depois | Motivo |
+|---:|---|---|---|
+| 47 | `4e972749…` | `fc9053b2…` | `verbatim_quote` e `evidence` |
+| 86 | `33bbc89b…` | `f18071ea…` | `claim`, `verbatim_quote` e `evidence` |
+| 89 | `4e0b1538…` | `81ee1b23…` | `evidence` |
+
+**A mudança administrativa não move a identidade**, e isso foi conferido: o
+endereço sozinho, ou `usable_as` sozinho, reproduz o identificador anterior. **As
+162 não afetadas mantêm o seu `trechoId`**, e o benchmark de Saiyed segue nulo. O
+vínculo por unidade, anterior e novo, está em `identidadePorUnidade`. **Recalculado
+de forma independente em Python**, só pelas regras do protocolo, em cinco unidades:
+as três afetadas e duas de controle.
+
+#### Todas as ocorrências
+
+**368** ocorrências com `trechoId` resolvem por endereço para **165** unidades, com
+o `trechoId` da unidade e **sem órfão**. As **seis** cópias sem `trechoId` resolvem
+por `chunk.id`, com **associação única** e o **mesmo conteúdo** da entrada. **164
+valores distintos**, nenhum repetido entre unidades. **Nenhum identificador entrou
+no texto fornecido ao modelo**, e nenhum foi acrescentado a chunk ou a
+`referenceDoc`: as chaves são as da v1.
+
+#### A montagem, comparada com a nova preparação
+
+Handler real, com o cliente do LLM simulado **só para capturar os argumentos e
+interromper**, e a recuperação simulada, que associa consulta e retorno pelo
+texto da consulta. **O `fetch` global ficou bloqueado, com zero chamadas**, e
+**nenhum parecer foi produzido**, nem de ensaio: os três casos terminam com a
+interrupção declarada.
+
+| Verificação | C1 | C2 | C3 |
+|---|---|---|---|
+| embed e consulta simulados | 5 e 5 | **0 e 0** | 5 e 5 |
+| sete seções estáticas da v2 na montagem | uma vez cada | uma vez cada | uma vez cada |
+| as duas seções da v1 que mudaram | ausentes | ausentes | ausentes |
+| formas antigas e identificadores | zero | zero | zero |
+| chunks | os três da v2, na ordem da preparação | nenhum | nenhum |
+
+C2 e C3 montam **o mesmo** texto, e o `system` é o mesmo nos três.
+
+#### Estados e contagens, como resultado
+
+**Nenhuma transição.** As **165** unidades distintas conservam o estado, **4
+conferidas e 161 pendentes**, sem somar cópias, e os resultados históricos da v1
+ficam com ela.
+
+- **Saaty `key_claims[0]`:** conteúdo da v2 igual ao aprovado. A conclusão
+  registrada de correspondência, *não confere*, descreve o recorte da v1; **para o
+  recorte da v2 não há conclusão**. A de sustentação se aplica, porque a claim não
+  mudou. **Pendências conservadas.**
+- **Wijnmalen `key_claims[0]`:** as duas conclusões registradas descrevem a v1;
+  **para o recorte e a claim novos não há nenhuma**. **Pendências conservadas.**
+- **Wijnmalen `key_claims[3]`: PARCIALMENTE PENDENTE.** O `evidence.quote`
+  corrigido **não certifica a claim nem o `verbatim_quote`**, que seguem abertos em
+  A.16, e os dois campos continuam diferentes.
+
+**Indicador de C1 na v2, calculado dos registros: 1 de 3, Forman**, que é o único
+com o conteúdo da v2 igual ao inspecionado e as quatro condições registradas. **Não
+é o 3 de 3**, e o manifesto cita, por trecho, o registro e o motivo.
+
+#### Teste, e os contraexemplos
+
+`lib/__tests__/a33-snapshot-v2.test.ts`, **40 casos**, e o instrumento em
+`scripts/a33-snapshot-v2.cjs`. **Doze contraexemplos**, cada um reprovando o caso
+previsto, com restauro por SHA-256 idêntico: diferença fora da lista; `trechoId`
+não recalculado; identificador acrescentado a chunk; identificador inserido no
+texto ao modelo; v1 alterada; transição sem conclusão nova; seção não propagada;
+indicador antecipado em 3 de 3; cópia de chunk dessincronizada; endereço
+administrativo em unidade não afetada; Wijnmalen `[3]` sem a ressalva; e a claim
+antiga reintroduzida numa referência.
+
+#### Verificação medida, depois de executar
+
+| Medição | `tsc` | Suítes | Testes | Passando | Saída |
+|---|---:|---:|---:|---:|---:|
+| esta máquina, `c87e337` | 0 | 23 | 361 | 358 | 1 |
+| **clone raso de um commit, LF, `c87e337`** | **0** | **23** | **361** | **361** | **0** |
+
+Nesta máquina, as três falhas são as registradas: a do CRLF e as duas
+intermitentes. **CI:** `35231221204`, `snapshot/a33-etapa4-v2`, evento `push`,
+sobre o SHA completo `c87e337…`, `completed/success`, com os sete passos em
+`success`.
+
+#### Predição
+
+⚠ **Ausência de geração não é ausência de alteração da entrada planejada.** Esta
+rodada **atualiza a preparação dos contextos futuros** e aplica correções já
+aprovadas. **Não executa nem testa as predições**, e a propagação mecânica e o
+recálculo de identidade **não introduzem hipótese nova** sobre a saída.
+
+⚠ **Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade à v2,
+inclusive a C1**, que a formulação registrada em `3db365c` excluía. A formulação
+histórica se preserva: **paráfrase fiel sem *however* não é falha de
+transcrição**, e **a proibição de citação direta de A.33 é critério separado**.
+**A predição de A.33 segue não testada.** A pendência também está em
+`casos.json` da v2.
+
+#### O que não foi alterado
+
+`lib/rag/articles/`; o snapshot anterior e os seus resultados; a composição H-T;
+o índice, sem reingestão; as 19 divergências de A.16; a configuração da máquina,
+os testes de transporte e os intermitentes; `main`. **Nenhuma chamada externa de
+inferência, embedding ou recuperação.**
+
+**Pendências:** delimitar P1; conclusões sobre o conteúdo novo de Saaty e
+Wijnmalen `key_claims[0]`; e A.16 em Wijnmalen `key_claims[3]`.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
