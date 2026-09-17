@@ -8585,6 +8585,12 @@ declara **31 origens**, campo a campo:
 | **ausente** no arquivo, com o valor que a tela usa | título *Projeto sem nome*, descrição vazia, alternativas e respondentes vazios, demografia sem dados, os zeros de qualidade; e `individualStats`, `sensitiveGroups` e `exclusionInfo`, que somem no JSON |
 | **constante** da tela | `REVISAR: 0` |
 
+⚠ **SUPERADO em `76b93e8`, e a afirmação estava ERRADA para o nome:** o nome do
+projeto **está** no arquivo, em `metadata.projectName`, gravado pela rota de cálculo
+a partir de `project.name`. Esta r1 também não separava a disponibilidade da
+informação do valor enviado, e chamava de *ausente* o que é **indisponível**. Ver a
+seção seguinte; a r1 fica preservada como registro.
+
 **Premissa declarada:** o projeto existe, como a tela exige para enviar, mas os
 campos dele não estão no arquivo. **A normalização interna da rota fica fora**: é do
 handler. **O espelho é conferido por 23 âncoras de texto da tela**, com a contagem
@@ -8710,6 +8716,145 @@ embedding ou recuperação.**
 **Pendências antes de gerar:** delimitar P1 e conferir a sua aplicabilidade à v2;
 decidir a qualidade declarada na requisição de referência, que é A.12; e A.16 em
 Wijnmalen `key_claims[3]`.
+
+### A.33: os dados da requisição de referência, r2, em 17/09/2026
+
+**Gravação:** `76b93e8050758a532275c55fa532ccdeb162938f`, instrumento, dados e
+teste, na branch de sessão `snapshot/a33-etapa4-v2`, sobre `a709cc3`. **Rodada de
+instrumento e dados:** sem geração, sem reingestão, sem chamada externa.
+⚠ **O fallback de qualidade NÃO foi corrigido**: é rodada própria, sob A.12, com
+predição registrada antes.
+
+**Porta de entrada:** `git fetch` saída 0; topo `a709cc3` na branch de sessão, em
+`integra/a30-registros` e no remoto; árvore limpa e diff vazio; ancestralidade nos
+dois sentidos com o topo, e de `origin/integra`, todas com saída 0.
+
+⚠ **O que a requisição de referência é, e o que não é.** Ela usa os cálculos reais
+e trata como **indisponíveis** as fontes que o arquivo não traz. **Demonstra a
+montagem nessa condição declarada, e NÃO reconstrói a requisição original do
+projeto.**
+
+#### O nome do projeto
+
+**`metadata.projectName` → `projectName`**, mapeamento de campo com o texto copiado
+sem alteração: *"Seleção de tecnologia I4.0 para gerenciamento de estufas de cura
+em linha de pintura automotiva"*. ⚠ **O nome está no arquivo.** A tela lê
+`project.name`, outra fonte; `app/api/calculate/route.ts` grava em
+`metadata.projectName` o `project.name` do momento do cálculo, e é por isso que o
+aproveitamento pede mapeamento explícito.
+
+#### O inventário, por campo
+
+Cada campo traz **quatro coisas**: o **estado da informação**, a **origem e
+evidência**, o **tratamento na montagem** e o **valor efetivamente enviado**,
+inclusive a ausência do campo. ⚠ **Os estados descrevem a disponibilidade da
+informação, e não o valor enviado.**
+
+| Estado | Quantos | Campos |
+|---|---:|---|
+| **disponível** | 8 | `projectName`, por mapeamento; `bocrWeights`, `bocrConsistency`, `subWeights`, `subConsistency`, `finalScores`, `responseCount` e `sensitivityInflections`, por leitura |
+| **derivado** | 5 | `personalWeights` e `rescalingWeights`, por transformação; os três totais de respondentes, de `responseCount` |
+| **indisponível** | 16 | descrição, alternativas, respondentes, a classificação de qualidade, `avgCR`, `individualStats`, demografia e grupos sensíveis |
+| **comprovadamente vazio** | 1 | `exclusionInfo` |
+
+⚠ **Indisponível e comprovadamente vazio são coisas diferentes.** O único vazio
+afirmado tem a evidência: **`metadata.excludedRespondentIds` é `[]`**, e é
+**exatamente a fonte que a tela usa**, porque ela inicializa `excludedIds` com
+`calcData.metadata.excludedRespondentIds`. ⚠ **A demografia é INDISPONÍVEL, e não
+vazia:** a dissertação caracteriza o painel na Tabela 3.
+
+⚠ **Nos 16 indisponíveis, o valor enviado NÃO é informação medida.** Dois deles
+enviam classificação favorável: `CONFIÁVEL` e `summary.ok` saem iguais a
+`responseCount`, isto é, **12**.
+
+⚠ **Constante da montagem, em separado:** `REVISAR: 0`, com origem no código da
+tela, fixo nos dois ramos, e **não é observação sobre o projeto**.
+
+**Omitidos na requisição**, com o tratamento declarado: `individualStats` e
+`sensitiveGroups`, indisponíveis, e `exclusionInfo`, comprovadamente vazio.
+
+#### A produção, preservada, e a pendência de A.12
+
+**O fallback de qualidade ficou como a tela o faz.** O efeito dele, **medido na
+montagem**, é pendência de A.12: sem avaliação individual, chegam **12
+respondentes confiáveis** e **pontuação automática 100/100**. Isso chega **ao
+modelo**, na seção de qualidade e na referência automática, e **pode chegar à
+tela**: a nota e o veredicto automáticos, que `calculateGrade` tira desses números,
+voltam na resposta e **substituem os do parecer quando ele não traz nota**, e são
+exibidos no estado aprovado. ⚠ **Reproduzir a tela revelou o defeito, e não torna a
+declaração adequada ao ensaio.** A pendência está no artefato r2 e em `casos.json`.
+
+#### A montagem dos três casos
+
+Por **captura e interrupção**, com os clientes simulados e o `fetch` bloqueado, **zero
+chamadas**, **sem parecer**: em C1, C2 e C3, o título real, **nenhum** *Projeto sem
+nome*, os pesos e o ranking do arquivo, e **o fallback presente**, como registro do
+defeito. Conferido à mão na montagem de C2.
+
+⚠ **Alcance das âncoras:** **26** na tela e **2** na rota de cálculo, com a contagem
+medida. **Verificam a presença dos fragmentos escolhidos**, e **NÃO demonstram
+equivalência completa entre a tela e o espelho**: mudança fora deles passa sem ser
+vista. O alcance está escrito no artefato.
+
+#### Preservação e versões
+
+| Versão | Artefato | Resumo da requisição serializada |
+|---|---|---|
+| **r1**, gravada em `82057ec` | `requisicao-referencia-r1.json` | `d9a8c034…` |
+| **r2**, vigente | `requisicao-referencia-r2.json` | **`6541ecd4…`** |
+
+- **A r1 sai do manifesto para artefato identificado**, com a declaração **idêntica à
+  gravada nos quatro commits** em que esteve lá; a função dela fica **congelada** e a
+  reproduz, com o mesmo resumo.
+- **A r2 tem versão própria**, e o resumo da requisição serializada é **comum a C1, C2
+  e C3**; `USE_RAG_SEMANTIC` e a recuperação **seguem declaradas por caso**, em
+  `casos.json`, que agora aponta para a r2.
+- **r1 e r2 diferem só em `projectName`.**
+- ⚠ **O snapshot de evidências não foi duplicado nem alterado**: registro, contexto e
+  chunks da v2 estão iguais aos de `a709cc3`.
+
+#### Teste e contraexemplos
+
+O teste da v2 passou de **56 para 60** casos: os **cinco** da r1 foram substituídos por
+**nove**, que cobrem a r2, a r1 preservada e as âncoras. **71 exceções enumeradas**,
+com a declaração da requisição e a pendência nova. **Doze contraexemplos**, cada um
+reprovando o caso previsto, com restauro por SHA-256 idêntico: indisponível tratado
+como vazio; valor de fallback apresentado como medido; a constante forçada para o
+arquivo; o nome de volta ao fallback; a evidência do vazio retirada; o fallback
+corrigido de passagem; a função da r1 alterada; o artefato da r1 adulterado; o resumo
+em `casos.json` adulterado; a fonte do nome mudada na rota de cálculo; a fonte das
+exclusões mudada na tela; e o alcance das âncoras apagado.
+
+#### Verificação medida, depois de executar
+
+| Medição | `tsc` | Suítes | Testes | Passando | Saída |
+|---|---:|---:|---:|---:|---:|
+| esta máquina, `76b93e8` | 0 | 23 | 381 | 380 | 1 |
+| **clone raso de um commit, LF, `76b93e8`** | **0** | **23** | **381** | **381** | **0** |
+
+Nesta máquina, a única falha é a do CRLF; as duas intermitentes passaram nesta
+execução. **CI:** `35249774131`, `completed/success`, com os sete passos em
+`success`.
+
+#### Predição
+
+⚠ **A dispensa NÃO se apoia em "não toca produção": esta rodada muda a entrada
+preparada para o ensaio.** A justificativa é outra: **a rodada prepara o instrumento
+e não testa comportamento do modelo**; nenhuma geração ocorre, e nenhuma hipótese
+sobre a saída é posta à prova. ⚠ **P1 e a predição aplicável deverão ser conferidas
+contra esta requisição antes da geração**, e não aqui. **A predição de A.33 segue não
+testada.**
+
+#### O que não foi alterado
+
+O fallback de qualidade e todo caminho de produção; a v1 e os registros
+anteriores; `lib/rag/articles/`, o índice, sem reingestão; a composição H-T e os
+`trechoId`; as 19 divergências de A.16 e Wijnmalen `[3]`, que segue pendente; a
+configuração da máquina, os testes de transporte e os intermitentes; `main`.
+**Nenhuma geração, nenhuma chamada externa.**
+
+**Pendências antes de gerar:** conferir P1 e a predição contra a r2; a correção do
+fallback de qualidade, em A.12; e A.16 em Wijnmalen `key_claims[3]`.
 
 ### Etapa 4: NÃO EXECUTADA
 
