@@ -6,8 +6,8 @@
     "claimsPreparadasDistintas": 101,
     "unidadesAdicionais": 64,
     "totalUnidades": 165,
-    "conferidas": 4,
-    "pendentes": 161,
+    "conferidas": 6,
+    "pendentes": 159,
     "semTrechoId": 1,
     "claimsComCamposDiferentes": 19,
     "idNativoNaBase": {
@@ -2659,12 +2659,19 @@
         "reconciliacao": "não realizada"
       },
       "conferenciaPublicacao": {
-        "estado": "pendente",
-        "metodo": null,
-        "observacao": null,
-        "motivosPendencia": [
-          "Este trecho não foi conferido contra a publicação. As tentativas de acesso estão em publicacoes.json."
-        ]
+        "estado": "conferido",
+        "metodo": "Encadeamento registrado: inspeção bibliográfica, correção aprovada em A.16 e propagação para esta versão. Sem nova leitura da publicação.",
+        "observacao": {
+          "encadeamento": "manifesto-transicao.json, encadeamento[0]",
+          "inspecao": "docs/dados/a33-conferencia-c1/medicao-pdfs.json, inspecaoVisualSaaty237",
+          "correcaoAprovada": [
+            "A16-E1-evidence.quote",
+            "A16-E1-verbatim_quote"
+          ],
+          "localizacao": "pagina impressa 237, posicao 4 do arquivo, terceiro paragrafo, primeira e segunda linhas",
+          "resultado": "Os dois campos conferem com a frase impressa registrada, com as transformações declaradas; claim sustentada; sem divergência de A.16; localizador compatível."
+        },
+        "motivosPendencia": []
       },
       "sustentacaoDeParecerGerado": "não avaliada: não há parecer gerado"
     },
@@ -4765,12 +4772,20 @@
         "reconciliacao": "não realizada"
       },
       "conferenciaPublicacao": {
-        "estado": "pendente",
-        "metodo": null,
-        "observacao": null,
-        "motivosPendencia": [
-          "Este trecho não foi conferido contra a publicação. As tentativas de acesso estão em publicacoes.json."
-        ]
+        "estado": "conferido",
+        "metodo": "Encadeamento registrado: inspeção bibliográfica, correção aprovada em A.16 e propagação para esta versão. Sem nova leitura da publicação.",
+        "observacao": {
+          "encadeamento": "manifesto-transicao.json, encadeamento[1]",
+          "inspecao": "docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]",
+          "correcaoAprovada": [
+            "A16-J1-claim",
+            "A16-E2-evidence.quote",
+            "A16-E2-verbatim_quote"
+          ],
+          "localizacao": "p. 899, posicao 8, secao 4 Commensurability, terceiro paragrafo, linhas 4 a 6",
+          "resultado": "Os dois campos conferem com a frase impressa registrada, com as transformações declaradas; claim sustentada; sem divergência de A.16; localizador compatível."
+        },
+        "motivosPendencia": []
       },
       "sustentacaoDeParecerGerado": "não avaliada: não há parecer gerado"
     },

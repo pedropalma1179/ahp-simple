@@ -123,9 +123,9 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
     }
   });
 
-  test('são 57, e a contagem por categoria é a do desenho', () => {
+  test('são 69, e a contagem por categoria é a do desenho', () => {
     const porCategoria = excecoes.reduce((o: any, e: any) => ({ ...o, [e.categoria]: (o[e.categoria] || 0) + 1 }), {});
-    expect(excecoes).toHaveLength(57);
+    expect(excecoes).toHaveLength(69);
     expect(porCategoria).toEqual({
       'substituicao-aprovada': 6,
       'copia-referenceDoc': 7,
@@ -137,6 +137,8 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
       'resumo-derivado': 5,
       'metadado-da-versao': 4,
       'declaracao-administrativa-corrigida': 1,
+      'transicao-por-encadeamento': 8,
+      'contagem-recalculada': 4,
     });
   });
 
@@ -172,6 +174,16 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
         expect([a, d]).toEqual([ap.antes, ap.depois]);
       }
       if (e.categoria === 'endereco-administrativo') expect([a, d]).toEqual([v2.BASE_SNAPSHOT, BASE_CORRIGIDA]);
+      if (e.categoria === 'transicao-por-encadeamento') {
+        const conferidas = manifesto.encadeamento.filter((x: any) => x.resultado === 'conferido').map((x: any) => x.indice);
+        expect(conferidas).toContain(e.unidade);
+        expect(e.caminho.startsWith(`porTrecho[${e.unidade}].conferenciaPublicacao`)).toBe(true);
+      }
+      if (e.categoria === 'contagem-recalculada') {
+        const estado = e.caminho.endsWith('.conferidas') ? 'conferido' : 'pendente';
+        expect(d).toBe(ev2.porTrecho.filter((u: any) => u.conferenciaPublicacao.estado === estado).length);
+        expect(a).toBe(ev1.porTrecho.filter((u: any) => u.conferenciaPublicacao.estado === estado).length);
+      }
       if (e.categoria === 'declaracao-administrativa-corrigida') {
         expect([e.arquivo, e.caminho]).toEqual(['casos.json', 'verificacaoCodigo']);
         expect([a, d]).toEqual([um['casos.json'].verificacaoCodigo, v2.VERIFICACAO_V2]);
@@ -583,51 +595,156 @@ describe('A.33 v2: a montagem real corresponde à nova preparação, sem chamada
   });
 });
 
-describe('A.33 v2: estados e contagens resultam da verificação', () => {
-  test('nenhuma unidade muda de estado sem conclusão nova', () => {
-    ev2.porTrecho.forEach((u: any, i: number) => expect(u.conferenciaPublicacao).toEqual(ev1.porTrecho[i].conferenciaPublicacao));
-    expect(manifesto.transicoes).toHaveLength(165);
-    manifesto.transicoes.forEach((t: any, i: number) => {
-      expect(t.indice).toBe(i);
-      expect(t.estadoPosterior).toBe(t.estadoAnterior);
-      expect(t.afetada).toBe(manifesto.derivacao.unidadesAfetadas.includes(i));
-    });
-    expect(manifesto.contagens).toMatchObject({ denominador: 165, conferidasAntes: 4, conferidasDepois: 4, pendentesAntes: 161, pendentesDepois: 161, movidas: 0 });
-    expect(dois['casos.json'].resumoEvidencias).toEqual(um['casos.json'].resumoEvidencias);
-  });
+describe('A.33 v2: o encadeamento por novo trechoId', () => {
+  const encadeamento: any[] = manifesto.encadeamento;
+  const insp = lerJson('docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json');
+  const med = lerJson('docs/dados/a33-conferencia-c1/medicao-pdfs.json');
+  const registro: Record<string, any> = { saaty1977_scaling: med.inspecaoVisualSaaty237, wijnmalen2007_bocr: insp.trechos[0] };
+  const comoImpresso = (t: string) => t.replace('\\lambda_{max}', 'λmax');
 
-  test('cada unidade afetada cita a evidência, e Wijnmalen [3] segue PARCIALMENTE PENDENTE', () => {
-    for (const i of manifesto.derivacao.unidadesAfetadas) {
-      const ev = manifesto.transicoes[i].evidencia;
-      expect(Object.keys(ev)).toEqual(['conteudoDaV2', 'conclusoesRegistradas', 'aplicabilidadeAV2', 'pendencias']);
-      expect(ev.pendencias).toMatch(/^Conservadas/);
+  test('há um encadeamento para cada novo trechoId, e só para eles', () => {
+    expect(encadeamento.map((e) => e.indice)).toEqual(manifesto.derivacao.unidadesAfetadas);
+    for (const e of encadeamento) {
+      expect(e.trechoIdNovo).toBe(ev2.porTrecho[e.indice].trechoId);
+      expect(e.trechoIdAnterior).toBe(ev1.porTrecho[e.indice].trechoId);
+      expect(e.trechoIdNovo).not.toBe(e.trechoIdAnterior);
+      expect(Object.keys(e.elos)).toEqual(['inspecao', 'correcaoAprovada', 'correspondenciaComAV2']);
     }
-    const w3 = manifesto.transicoes[89];
-    expect([w3.articleId, w3.enderecoNaBase.indiceBaseZero, w3.estadoPosterior]).toEqual(['wijnmalen2007_bocr', 3, 'pendente']);
-    expect(w3.evidencia.aplicabilidadeAV2).toContain('PARCIALMENTE PENDENTE');
-    expect(w3.evidencia.aplicabilidadeAV2).toContain('não certifica a claim nem o verbatim_quote');
-    expect(ev2.porTrecho[89].comparacaoDosCampos.iguais).toBe(false);
   });
 
-  test('o indicador de C1 sai dos registros: conteúdo inspecionado E as quatro condições', () => {
-    const insp = lerJson('docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json');
-    const med = lerJson('docs/dados/a33-conferencia-c1/medicao-pdfs.json');
-    const registro: Record<string, any> = { saaty1977_scaling: med.inspecaoVisualSaaty237, wijnmalen2007_bocr: insp.trechos[0], forman1998_aggregating: insp.trechos[1] };
-    const porEndereco = new Map<string, any>(ev2.porTrecho.map((u: any) => [chaveEndereco(u.enderecoNaBase), u]));
-    const calculado = dois['C1-recuperacao.json'].trechos.map((t: any) => {
-      const d = porEndereco.get(chaveEndereco(t.enderecoNaBase)).dadosOriginais, r = registro[t.articleId];
-      const corresp = d.verbatim_quote === r.recorte.texto && d.evidence.quote === r.recorte.texto;
-      const sust = d.claim === r.sustentacaoDaClaim.claim;
-      const cond = Object.entries(r.resultadoDaUnidade.condicoesDaSecao4).filter(([k]) => k !== 'nota').every(([, v]) => v === true);
-      return [t.articleId, corresp, sust, corresp && sust && cond];
-    });
-    expect(calculado).toEqual([
-      ['saaty1977_scaling', false, true, false],
-      ['wijnmalen2007_bocr', false, false, false],
-      ['forman1998_aggregating', true, true, true],
-    ]);
-    const ind = manifesto.indicadorC1;
-    expect([ind.total, ind.denominador, ind.quais]).toEqual([1, 3, ['forman1998_aggregating key_claims[2]']]);
-    expect(ind.porTrecho.map((x: any) => [x.articleId, x.conclusaoDeCorrespondenciaAplicaAV2, x.conclusaoDeSustentacaoAplicaAV2, x.atendimentoDemonstrado])).toEqual(calculado);
+  test('elo 1: a inspeção citada examinou o texto ANTES da correção desta unidade', () => {
+    for (const e of encadeamento) {
+      const r = registro[e.articleId];
+      expect(e.elos.inspecao.recorteExaminado).toBe(r.recorte.texto);
+      expect(r.recorte.texto).toBe(ev1.porTrecho[e.indice].dadosOriginais.evidence.quote);
+      expect(e.elos.inspecao.fraseImpressa).toBe(r.impresso.fraseComoImpressa);
+      expect(e.elos.inspecao.commits.length).toBeGreaterThan(0);
+    }
+    // A unidade [3] foi alcançada pela inspeção de [0]: mesmo texto, página e localizador.
+    const w3 = encadeamento.find((e) => e.indice === 89);
+    expect(insp.trechos[0].alcanceObservadoNaBase.oQue).toContain('key_claims[3]');
+    expect(w3.elos.inspecao.vinculo).toContain('alcance');
+  });
+
+  test('elo 2: a correção aprovada remove as diferenças que a inspeção registrou', () => {
+    for (const e of encadeamento) {
+      const r = registro[e.articleId];
+      const eq = comoImpresso(ev2.porTrecho[e.indice].dadosOriginais.evidence.quote);
+      const impresso = r.impresso.fraseComoImpressa;
+      if (e.articleId === 'saaty1977_scaling') {
+        expect([/^[a-z]/.test(eq), impresso.includes(eq)]).toEqual([true, true]);
+        expect(e.elos.correcaoAprovada.removeAsDiferencas).toEqual(['D1.b']);
+        expect(r.classificacao.verbatim_quote.motivo).toContain('D1.b');
+      } else {
+        expect(eq).toBe(impresso);
+        expect(e.elos.correcaoAprovada.removeAsDiferencas).toEqual(['W1.a', 'W1.b', 'W2.a']);
+      }
+      for (const id of e.elos.correcaoAprovada.aprovadas) expect(aprovadaPorId.has(id)).toBe(true);
+      expect(e.elos.correcaoAprovada.auditoria.commit).toBe('8f9434140ea00247e07c31dbff4cc84e5d45425f');
+    }
+  });
+
+  test('elo 3: o conteúdo da v2 é o da correção aprovada, com exceção enumerada', () => {
+    const excecoes: any[] = manifesto.excecoesEnumeradas;
+    for (const e of encadeamento) {
+      const u = ev1.porTrecho[e.indice];
+      const daUnidade = v2.APROVADAS
+        .filter((a: any) => a.articleId === u.articleId && a.indiceBaseZero === u.enderecoNaBase.indiceBaseZero)
+        .map((a: any) => a.id);
+      expect([...e.elos.correcaoAprovada.aprovadas].sort()).toEqual(daUnidade.sort());
+      expect(e.elos.correspondenciaComAV2.commit).toBe('c87e33702a7b5bd153bfd7eef5c02cad0877806c');
+      for (const id of e.elos.correcaoAprovada.aprovadas) {
+        const ap: any = aprovadaPorId.get(id);
+        const segs = ap.campo.split('.');
+        expect(v2.valorEm(ev2.porTrecho[e.indice].dadosOriginais, segs)).toBe(ap.depois);
+        const caminho = `porTrecho[${e.indice}].dadosOriginais.${ap.campo}`;
+        expect(e.elos.correspondenciaComAV2.excecoes).toContain(`evidencias.json ${caminho}`);
+        expect(excecoes.filter((x) => x.arquivo === 'evidencias.json' && x.caminho === caminho && x.aprovada === id)).toHaveLength(1);
+      }
+    }
+  });
+
+  test('as quatro condições decorrem dos elos, e Wijnmalen [3] segue PARCIALMENTE PENDENTE', () => {
+    const porIndice = Object.fromEntries(encadeamento.map((e) => [e.indice, e]));
+    expect(porIndice[47].condicoes).toEqual({ doisCamposConferem: true, claimSustentada: true, semDivergenciaA16: true, semLocalizadorDivergente: true });
+    expect(porIndice[47].fundamentoDaClaim).toContain('claim inalterada');
+    expect(med.inspecaoVisualSaaty237.sustentacaoDaClaim.claim).toBe(ev2.porTrecho[47].dadosOriginais.claim);
+    expect(porIndice[86].condicoes).toEqual({ doisCamposConferem: true, claimSustentada: true, semDivergenciaA16: true, semLocalizadorDivergente: true });
+    expect(porIndice[86].fundamentoDaClaim).toContain('A16-J1-claim');
+    expect(insp.trechos[0].sustentacaoDaClaim.oQueSustenta).toContain('BOCR synthesis of priorities is deceiving');
+    expect(porIndice[89].condicoes).toEqual({ doisCamposConferem: false, claimSustentada: null, semDivergenciaA16: false, semLocalizadorDivergente: true });
+    expect([porIndice[47].resultado, porIndice[86].resultado, porIndice[89].resultado]).toEqual(['conferido', 'conferido', 'pendente']);
+    expect(porIndice[89].ressalva).toContain('PARCIALMENTE PENDENTE');
+    expect(porIndice[89].ressalva).toContain('não certifica a claim nem o verbatim_quote');
+    expect(porIndice[47].transformacoesQuePermanecem.map((t: string) => t.slice(0, 4))).toEqual(['D1.a', 'D2.d', 'D3.a']);
   });
 });
+
+describe('A.33 v2: estados e indicadores, recalculados a partir do encadeamento', () => {
+  test('só mudam de estado as unidades com encadeamento que se liga; o resto conserva o seu', () => {
+    const movidas = manifesto.encadeamento.filter((e: any) => e.resultado === 'conferido').map((e: any) => e.indice);
+    expect(movidas).toEqual([47, 86]);
+    ev2.porTrecho.forEach((u: any, i: number) => {
+      if (movidas.includes(i)) {
+        expect([ev1.porTrecho[i].conferenciaPublicacao.estado, u.conferenciaPublicacao.estado]).toEqual(['pendente', 'conferido']);
+        expect(u.conferenciaPublicacao.motivosPendencia).toEqual([]);
+        expect(u.conferenciaPublicacao.observacao.encadeamento).toMatch(/^manifesto-transicao\.json, encadeamento\[\d\]$/);
+      } else {
+        expect(u.conferenciaPublicacao).toEqual(ev1.porTrecho[i].conferenciaPublicacao);
+      }
+    });
+    manifesto.transicoes.forEach((t: any, i: number) => {
+      expect([t.indice, t.estadoAnterior, t.estadoPosterior]).toEqual([i, ev1.porTrecho[i].conferenciaPublicacao.estado, ev2.porTrecho[i].conferenciaPublicacao.estado]);
+    });
+  });
+
+  test('as contagens da v2 resultam dos estados, e as da v1 seguem históricas', () => {
+    const contar = (ev: any, estado: string) => ev.porTrecho.filter((u: any) => u.conferenciaPublicacao.estado === estado).length;
+    expect([contar(ev1, 'conferido'), contar(ev1, 'pendente')]).toEqual([4, 161]);
+    expect([contar(ev2, 'conferido'), contar(ev2, 'pendente')]).toEqual([6, 159]);
+    expect(manifesto.contagens).toMatchObject({ denominador: 165, conferidasAntes: 4, conferidasDepois: 6, pendentesAntes: 161, pendentesDepois: 159, movidas: 2 });
+    expect([ev2.resumo.conferidas, ev2.resumo.pendentes]).toEqual([6, 159]);
+    expect([ev1.resumo.conferidas, ev1.resumo.pendentes]).toEqual([4, 161]);
+    const { conferidas, pendentes, ...resto } = dois['casos.json'].resumoEvidencias;
+    expect([conferidas, pendentes]).toEqual([6, 159]);
+    const { conferidas: c1, pendentes: p1, ...resto1 } = um['casos.json'].resumoEvidencias;
+    expect([c1, p1]).toEqual([4, 161]);
+    expect(resto).toEqual(resto1);
+  });
+
+  test('o indicador de C1 sai do encadeamento, e o histórico da v1 fica como está', () => {
+    const porEndereco = new Map<string, number>(ev2.porTrecho.map((u: any, i: number) => [chaveEndereco(u.enderecoNaBase), i]));
+    const forman = lerJson('docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json').trechos[1];
+    const calculado = dois['C1-recuperacao.json'].trechos.map((t: any) => {
+      const i = porEndereco.get(chaveEndereco(t.enderecoNaBase)) as number;
+      const e = manifesto.encadeamento.find((x: any) => x.indice === i);
+      if (e) return [t.articleId, 'encadeamento', e.resultado === 'conferido'];
+      const d = ev2.porTrecho[i].dadosOriginais;
+      const mesmo = d.evidence.quote === forman.recorte.texto && d.verbatim_quote === forman.recorte.texto && d.claim === forman.sustentacaoDaClaim.claim;
+      const cond = Object.entries(forman.resultadoDaUnidade.condicoesDaSecao4).filter(([k]) => k !== 'nota').every(([, v]) => v === true);
+      return [t.articleId, 'inspecao-sobre-o-mesmo-conteudo', mesmo && cond];
+    });
+    expect(calculado).toEqual([
+      ['saaty1977_scaling', 'encadeamento', true],
+      ['wijnmalen2007_bocr', 'encadeamento', true],
+      ['forman1998_aggregating', 'inspecao-sobre-o-mesmo-conteudo', true],
+    ]);
+    const ind = manifesto.indicadorC1;
+    expect(ind.porTrecho.map((x: any) => [x.articleId, x.fonteDaConclusao, x.atendimentoDemonstrado])).toEqual(calculado);
+    expect([ind.total, ind.denominador]).toEqual([calculado.filter((x: any) => x[2]).length, 3]);
+    expect(ind.historicoV1).toMatchObject({ total: 1, denominador: 3 });
+    expect(indicadorHistoricoV1()).toBe(1);
+  });
+
+  test('a pendência de conclusões na v2 descreve o encadeamento, e Wijnmalen [3] como PARCIALMENTE PENDENTE', () => {
+    expect(v2.PENDENCIA_CONCLUSOES).toContain('PARCIALMENTE PENDENTE');
+    expect(v2.PENDENCIA_CONCLUSOES).toContain('encadeadas em manifesto-transicao.json');
+    expect(manifesto.transicoes[89].evidencia.aplicabilidadeAV2).toContain('não certifica a claim nem o verbatim_quote');
+    expect(manifesto.transicoes[47].evidencia.resultado).toBe('conferido');
+  });
+});
+
+/** O indicador histórico, lido do registro da v1, que esta rodada não reescreve. */
+function indicadorHistoricoV1(): number {
+  return lerJson('docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json').trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total;
+}

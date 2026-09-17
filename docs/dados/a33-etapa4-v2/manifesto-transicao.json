@@ -316,6 +316,58 @@
   "excecoesEnumeradas": [
     {
       "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].conferenciaPublicacao.estado",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "d848058cee4e6960ec0bc84520c7c4d77c751fb636b56366bb82111fbd45c815",
+      "sha256Depois": "3f27b3b578429383bf23ca387c0e5b506e3aeb422f62363b1f57143a38eec8d7",
+      "antes": "pendente",
+      "depois": "conferido",
+      "unidade": 47
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].conferenciaPublicacao.metodo",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "sha256Depois": "80874c2b342daf95a8b7a6d1199e862dce8d7596b49f58a8875753453edc728f",
+      "antes": null,
+      "depois": "Encadeamento registrado: inspeção bibliográfica, correção aprovada em A.16 e propagação para esta versão. Sem nova leitura da publicação.",
+      "unidade": 47
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].conferenciaPublicacao.motivosPendencia[0]",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "f412f37f6172d71c858884eb8d489cab804177d0886da5eb5d66303fffb31555",
+      "sha256Depois": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "antes": "Este trecho não foi conferido contra a publicação. As tentativas de acesso estão em publicacoes.json.",
+      "unidade": 47
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[47].conferenciaPublicacao.observacao",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "sha256Depois": "1412cfb3c9a7ef8d40a640857459503a18a047aa995cdef05e7810c46ae1d9a0",
+      "antes": null,
+      "depois": {
+        "encadeamento": "manifesto-transicao.json, encadeamento[0]",
+        "inspecao": "docs/dados/a33-conferencia-c1/medicao-pdfs.json, inspecaoVisualSaaty237",
+        "correcaoAprovada": [
+          "A16-E1-evidence.quote",
+          "A16-E1-verbatim_quote"
+        ],
+        "localizacao": "pagina impressa 237, posicao 4 do arquivo, terceiro paragrafo, primeira e segunda linhas",
+        "resultado": "Os dois campos conferem com a frase impressa registrada, com as transformações declaradas; claim sustentada; sem divergência de A.16; localizador compatível."
+      },
+      "unidade": 47
+    },
+    {
+      "arquivo": "evidencias.json",
       "caminho": "porTrecho[47].dadosOriginais.evidence.quote",
       "categoria": "substituicao-aprovada",
       "existiaAntes": true,
@@ -359,6 +411,59 @@
       "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
       "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613\"]]",
       "unidade": 47
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].conferenciaPublicacao.estado",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "d848058cee4e6960ec0bc84520c7c4d77c751fb636b56366bb82111fbd45c815",
+      "sha256Depois": "3f27b3b578429383bf23ca387c0e5b506e3aeb422f62363b1f57143a38eec8d7",
+      "antes": "pendente",
+      "depois": "conferido",
+      "unidade": 86
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].conferenciaPublicacao.metodo",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "sha256Depois": "80874c2b342daf95a8b7a6d1199e862dce8d7596b49f58a8875753453edc728f",
+      "antes": null,
+      "depois": "Encadeamento registrado: inspeção bibliográfica, correção aprovada em A.16 e propagação para esta versão. Sem nova leitura da publicação.",
+      "unidade": 86
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].conferenciaPublicacao.motivosPendencia[0]",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "f412f37f6172d71c858884eb8d489cab804177d0886da5eb5d66303fffb31555",
+      "sha256Depois": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "antes": "Este trecho não foi conferido contra a publicação. As tentativas de acesso estão em publicacoes.json.",
+      "unidade": 86
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "porTrecho[86].conferenciaPublicacao.observacao",
+      "categoria": "transicao-por-encadeamento",
+      "existiaAntes": true,
+      "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "sha256Depois": "fe644bffbe3cc18764c6cdacc2df56d3c3dd34eef44b4d1f3b9c6b1109a1de90",
+      "antes": null,
+      "depois": {
+        "encadeamento": "manifesto-transicao.json, encadeamento[1]",
+        "inspecao": "docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]",
+        "correcaoAprovada": [
+          "A16-J1-claim",
+          "A16-E2-evidence.quote",
+          "A16-E2-verbatim_quote"
+        ],
+        "localizacao": "p. 899, posicao 8, secao 4 Commensurability, terceiro paragrafo, linhas 4 a 6",
+        "resultado": "Os dois campos conferem com a frase impressa registrada, com as transformações declaradas; claim sustentada; sem divergência de A.16; localizador compatível."
+      },
+      "unidade": 86
     },
     {
       "arquivo": "evidencias.json",
@@ -451,6 +556,26 @@
       "antes": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e0b1538fd2a0db2dea719d91e1def03389624ad4fbd42cc841a6253d60eb5e8\"]]",
       "depois": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"81ee1b23ff88051e9d58d24544e22c30a21dbbad9192df623ec958c23e7666da\"]]",
       "unidade": 89
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "resumo.conferidas",
+      "categoria": "contagem-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+      "sha256Depois": "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",
+      "antes": 4,
+      "depois": 6
+    },
+    {
+      "arquivo": "evidencias.json",
+      "caminho": "resumo.pendentes",
+      "categoria": "contagem-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "bb668ca95563216088b98a62557fa1e26802563f3919ac78ae30533bb9ed422c",
+      "sha256Depois": "ff2ccb6ba423d356bd549ed4bfb76e96976a0dcde05a09996a1cdb9f83422ec4",
+      "antes": 161,
+      "depois": 159
     },
     {
       "arquivo": "contexto-estatico.json",
@@ -1053,9 +1178,9 @@
       "categoria": "resumo-derivado",
       "existiaAntes": true,
       "sha256Antes": "4c37159359b0e532f09eb73afaf973d75fa027c572f2896ff80b2968b10525be",
-      "sha256Depois": "93ba1dacc562e54172fd201c34e311891f7849ea7bc7e8ed735eb6adae3d5a6e",
+      "sha256Depois": "a011e8940972cdf3f2536c31509eee4aef4d31cbfea4b4d012c2b1957aa0fd31",
       "antes": "0f199097c4028ae180189ed9470d50a091c11545ae0505c2d8d0d5b91a995f41",
-      "depois": "efbd326929ef1d6020a70cd768a1888d271d8a1de65e00e6ad02ab7ff3470faf"
+      "depois": "4a319ffc6753f66f55c4e372e81d3fab1f7bf9800e8e362c8ca5e39cc6ed7166"
     },
     {
       "arquivo": "casos.json",
@@ -1073,9 +1198,29 @@
       "categoria": "metadado-da-versao",
       "existiaAntes": false,
       "sha256Antes": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
-      "sha256Depois": "eff69be8a24c17ebcf3a666072cc33d4ace4c5c9de2d7912e5d2431500e18ed7",
+      "sha256Depois": "e5381939383079ee8f4859907b8499f4e33e1950fa58ab5634e5de3f58f0b266",
       "antes": null,
-      "depois": "Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json."
+      "depois": "Versão 2: Wijnmalen key_claims[3] segue PARCIALMENTE PENDENTE, com verbatim_quote e claim abertos em A.16; o evidence.quote corrigido não os certifica. As conclusões de Saaty key_claims[0] e Wijnmalen key_claims[0] estão encadeadas em manifesto-transicao.json."
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "resumoEvidencias.conferidas",
+      "categoria": "contagem-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a",
+      "sha256Depois": "e7f6c011776e8db7cd330b54174fd76f7d0216b612387a5ffcfb81e6f0919683",
+      "antes": 4,
+      "depois": 6
+    },
+    {
+      "arquivo": "casos.json",
+      "caminho": "resumoEvidencias.pendentes",
+      "categoria": "contagem-recalculada",
+      "existiaAntes": true,
+      "sha256Antes": "bb668ca95563216088b98a62557fa1e26802563f3919ac78ae30533bb9ed422c",
+      "sha256Depois": "ff2ccb6ba423d356bd549ed4bfb76e96976a0dcde05a09996a1cdb9f83422ec4",
+      "antes": 161,
+      "depois": 159
     },
     {
       "arquivo": "casos.json",
@@ -1096,6 +1241,216 @@
       "sha256Depois": "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
       "antes": 1,
       "depois": 2
+    }
+  ],
+  "auditoriaA16": {
+    "registro": "docs/imprecisoes-parecer-ia.md, seção \"Integração, e o que segue pendente, em 17/09/2026\"",
+    "commit": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+    "teor": "Auditoria de A.16 aprovada pelo autor e registrada naquele commit. Aceitas nela, conforme o autor declarou em 17/09/2026: a correspondência das correções de Saaty e de Wijnmalen, e a sustentação da claim nova de Wijnmalen."
+  },
+  "encadeamento": [
+    {
+      "indice": 47,
+      "articleId": "saaty1977_scaling",
+      "trechoIdNovo": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"fc9053b2d85891f7e2c3913cb38d8fd62c3e5c12433d7a1e7df2beae27093613\"]]",
+      "trechoIdAnterior": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"saaty1977_scaling\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e97274935aea3c9f465eefc8b7be0204c0e758695757bf4075de00f973ad7a3\"]]",
+      "elos": {
+        "inspecao": {
+          "registro": "docs/dados/a33-conferencia-c1/medicao-pdfs.json, inspecaoVisualSaaty237",
+          "commits": [
+            "ae580c641a821800480c719e32cda45f183d2769",
+            "4309f7e662091f050c220c458d042d856e342352"
+          ],
+          "vinculo": "a inspeção examinou esta unidade, pelo endereço",
+          "localizacao": "pagina impressa 237, posicao 4 do arquivo, terceiro paragrafo, primeira e segunda linhas",
+          "fraseImpressa": "It turns out that a reciprocal matrix A with positive entries is consistent if and only if λmax = n (Theorem 1 below).",
+          "recorteExaminado": "A reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+          "classificacaoRegistrada": "nao confere",
+          "diferencasRegistradas": [
+            "D1.a",
+            "D1.b",
+            "D2.a",
+            "D2.b",
+            "D2.c",
+            "D2.d",
+            "D3.a"
+          ]
+        },
+        "correcaoAprovada": {
+          "aprovadas": [
+            "A16-E1-evidence.quote",
+            "A16-E1-verbatim_quote"
+          ],
+          "commits": [
+            "8b057d9db2c70e701a757f5ad83336903c3b8000"
+          ],
+          "removeAsDiferencas": [
+            "D1.b"
+          ],
+          "auditoria": {
+            "registro": "docs/imprecisoes-parecer-ia.md, seção \"Integração, e o que segue pendente, em 17/09/2026\"",
+            "commit": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+            "teor": "Auditoria de A.16 aprovada pelo autor e registrada naquele commit. Aceitas nela, conforme o autor declarou em 17/09/2026: a correspondência das correções de Saaty e de Wijnmalen, e a sustentação da claim nova de Wijnmalen."
+          },
+          "verificacaoVersionada": "lib/__tests__/a16-correcao-trechos-c1.test.ts confere os campos corrigidos contra a frase impressa registrada"
+        },
+        "correspondenciaComAV2": {
+          "commit": "c87e33702a7b5bd153bfd7eef5c02cad0877806c",
+          "excecoes": [
+            "evidencias.json porTrecho[47].dadosOriginais.evidence.quote",
+            "evidencias.json porTrecho[47].dadosOriginais.verbatim_quote"
+          ],
+          "conteudoIgualAoAprovado": true
+        }
+      },
+      "transformacoesQuePermanecem": [
+        "D1.a: supressao NAO sinalizada do inicio da frase, It turns out that",
+        "D2.d: conversao de notacao: a expressao tipografada vira a marcacao LaTeX \\lambda_{max} = n. Lambda, subindice max, sinal de igual e n correspondem aos simbolos impressos. O italico se perde, e o subindice impresso em tipo redondo, composto a partir de _{max}, sairia em italico: diferenca de tipografia, nao de simbolo.",
+        "D3.a: truncamento NAO sinalizado: o recorte termina em n, e o impresso continua com (Theorem 1 below) e ponto final"
+      ],
+      "fundamentoDaClaim": "claim inalterada; resultado registrado na inspeção: sustentada",
+      "condicoes": {
+        "doisCamposConferem": true,
+        "claimSustentada": true,
+        "semDivergenciaA16": true,
+        "semLocalizadorDivergente": true
+      },
+      "estadoAnterior": "pendente",
+      "resultado": "conferido",
+      "ressalva": null
+    },
+    {
+      "indice": 86,
+      "articleId": "wijnmalen2007_bocr",
+      "trechoIdNovo": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"f18071eabe84022dd27ef7a246f04627e1207fd52171cac0a2d683e8c052ddf6\"]]",
+      "trechoIdAnterior": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"33bbc89bcd9af0e83c2656ed616cee8068a1a1d69ae00a48e66c6d31b9be2c2c\"]]",
+      "elos": {
+        "inspecao": {
+          "registro": "docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]",
+          "commits": [
+            "781fb4fb303cd67e7eaa2514d40ac776d9e69c18",
+            "4309f7e662091f050c220c458d042d856e342352"
+          ],
+          "vinculo": "a inspeção examinou esta unidade, pelo endereço",
+          "localizacao": "p. 899, posicao 8, secao 4 Commensurability, terceiro paragrafo, linhas 4 a 6",
+          "fraseImpressa": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "recorteExaminado": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "classificacaoRegistrada": "nao confere",
+          "diferencasRegistradas": [
+            "W1.a",
+            "W1.b",
+            "W2.a"
+          ]
+        },
+        "correcaoAprovada": {
+          "aprovadas": [
+            "A16-J1-claim",
+            "A16-E2-evidence.quote",
+            "A16-E2-verbatim_quote"
+          ],
+          "commits": [
+            "b567d99bec6881faa381651353120e1faaf7366a",
+            "8b057d9db2c70e701a757f5ad83336903c3b8000"
+          ],
+          "removeAsDiferencas": [
+            "W1.a",
+            "W1.b",
+            "W2.a"
+          ],
+          "auditoria": {
+            "registro": "docs/imprecisoes-parecer-ia.md, seção \"Integração, e o que segue pendente, em 17/09/2026\"",
+            "commit": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+            "teor": "Auditoria de A.16 aprovada pelo autor e registrada naquele commit. Aceitas nela, conforme o autor declarou em 17/09/2026: a correspondência das correções de Saaty e de Wijnmalen, e a sustentação da claim nova de Wijnmalen."
+          },
+          "verificacaoVersionada": "lib/__tests__/a16-correcao-trechos-c1.test.ts confere os campos corrigidos contra a frase impressa registrada"
+        },
+        "correspondenciaComAV2": {
+          "commit": "c87e33702a7b5bd153bfd7eef5c02cad0877806c",
+          "excecoes": [
+            "evidencias.json porTrecho[86].dadosOriginais.claim",
+            "evidencias.json porTrecho[86].dadosOriginais.evidence.quote",
+            "evidencias.json porTrecho[86].dadosOriginais.verbatim_quote"
+          ],
+          "conteudoIgualAoAprovado": true
+        }
+      },
+      "transformacoesQuePermanecem": [
+        "ligadura fi de benefits transcrita como f e i, normalização declarada em 3db365c"
+      ],
+      "fundamentoDaClaim": "claim nova, aprovada em A.16 (A16-J1-claim), com a sustentação aceita na auditoria; apoio nos dois períodos que a inspeção registra em sustentacaoDaClaim.oQueSustenta",
+      "condicoes": {
+        "doisCamposConferem": true,
+        "claimSustentada": true,
+        "semDivergenciaA16": true,
+        "semLocalizadorDivergente": true
+      },
+      "estadoAnterior": "pendente",
+      "resultado": "conferido",
+      "ressalva": null
+    },
+    {
+      "indice": 89,
+      "articleId": "wijnmalen2007_bocr",
+      "trechoIdNovo": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"81ee1b23ff88051e9d58d24544e22c30a21dbbad9192df623ec958c23e7666da\"]]",
+      "trechoIdAnterior": "A33-por-tipo-v2\u001e[\"articleId\",[\"texto\",\"wijnmalen2007_bocr\"]]\u001e[\"tipo\",[\"texto\",\"key_claims\"]]\u001e[\"idNativo\",[\"ausente\"]]\u001e[\"versaoSha256\",[\"texto\",\"4e0b1538fd2a0db2dea719d91e1def03389624ad4fbd42cc841a6253d60eb5e8\"]]",
+      "elos": {
+        "inspecao": {
+          "registro": "docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]",
+          "commits": [
+            "781fb4fb303cd67e7eaa2514d40ac776d9e69c18",
+            "4309f7e662091f050c220c458d042d856e342352"
+          ],
+          "vinculo": "a inspeção examinou key_claims[0] e registrou esta unidade como alcance, pelo mesmo texto, página e localizador",
+          "localizacao": "p. 899, posicao 8, secao 4 Commensurability, terceiro paragrafo, linhas 4 a 6",
+          "fraseImpressa": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+          "recorteExaminado": "synthesis requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship",
+          "classificacaoRegistrada": "nao confere",
+          "diferencasRegistradas": [
+            "W1.a",
+            "W1.b",
+            "W2.a"
+          ]
+        },
+        "correcaoAprovada": {
+          "aprovadas": [
+            "A16-E3-evidence.quote"
+          ],
+          "commits": [
+            "8b057d9db2c70e701a757f5ad83336903c3b8000"
+          ],
+          "removeAsDiferencas": [
+            "W1.a",
+            "W1.b",
+            "W2.a"
+          ],
+          "auditoria": {
+            "registro": "docs/imprecisoes-parecer-ia.md, seção \"Integração, e o que segue pendente, em 17/09/2026\"",
+            "commit": "8f9434140ea00247e07c31dbff4cc84e5d45425f",
+            "teor": "Auditoria de A.16 aprovada pelo autor e registrada naquele commit. Aceitas nela, conforme o autor declarou em 17/09/2026: a correspondência das correções de Saaty e de Wijnmalen, e a sustentação da claim nova de Wijnmalen."
+          },
+          "verificacaoVersionada": "lib/__tests__/a16-correcao-trechos-c1.test.ts confere os campos corrigidos contra a frase impressa registrada"
+        },
+        "correspondenciaComAV2": {
+          "commit": "c87e33702a7b5bd153bfd7eef5c02cad0877806c",
+          "excecoes": [
+            "evidencias.json porTrecho[89].dadosOriginais.evidence.quote"
+          ],
+          "conteudoIgualAoAprovado": true
+        }
+      },
+      "transformacoesQuePermanecem": [
+        "ligadura fi de benefits transcrita como f e i, normalização declarada em 3db365c"
+      ],
+      "fundamentoDaClaim": "claim não avaliada: a inspeção alcançou esta unidade só pelo texto do evidence.quote",
+      "condicoes": {
+        "doisCamposConferem": false,
+        "claimSustentada": null,
+        "semDivergenciaA16": false,
+        "semLocalizadorDivergente": true
+      },
+      "estadoAnterior": "pendente",
+      "resultado": "pendente",
+      "ressalva": "PARCIALMENTE PENDENTE: o evidence.quote corrigido não certifica a claim nem o verbatim_quote, que seguem abertos em A.16, e os dois campos continuam diferentes."
     }
   ],
   "transicoes": [
@@ -1768,12 +2123,11 @@
       },
       "afetada": true,
       "estadoAnterior": "pendente",
-      "estadoPosterior": "pendente",
+      "estadoPosterior": "conferido",
       "evidencia": {
-        "conteudoDaV2": "Igual ao da base corrigida, aprovado em A.16 (A16-E1-verbatim_quote e A16-E1-evidence.quote).",
-        "conclusoesRegistradas": "docs/dados/a33-conferencia-c1/medicao-pdfs.json, inspecaoVisualSaaty237: campos \"nao confere\" por D1.b, sobre o recorte da v1; claim \"sustentada\"; localizador compatível.",
-        "aplicabilidadeAV2": "A conclusão de correspondência textual descreve o recorte da v1, que difere do da v2; para o recorte da v2 não há conclusão registrada. A de sustentação se aplica, porque a claim não mudou.",
-        "pendencias": "Conservadas. Falta a conclusão de correspondência textual da versão nova."
+        "encadeamento": "encadeamento[0]",
+        "resultado": "conferido",
+        "aplicabilidadeAV2": "Os três elos se ligam para o novo trechoId, e as quatro condições decorrem deles. A conclusão da v1 descreve o conteúdo da v1 e segue histórica."
       }
     },
     {
@@ -2319,12 +2673,11 @@
       },
       "afetada": true,
       "estadoAnterior": "pendente",
-      "estadoPosterior": "pendente",
+      "estadoPosterior": "conferido",
       "evidencia": {
-        "conteudoDaV2": "Igual ao da base corrigida, aprovado em A.16 (A16-E2-verbatim_quote, A16-E2-evidence.quote e A16-J1-claim).",
-        "conclusoesRegistradas": "docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]: campos \"nao confere\" por W1.a, W1.b e W2.a, sobre o recorte da v1; claim anterior \"parcialmente sustentada\"; localizador compatível.",
-        "aplicabilidadeAV2": "As duas conclusões descrevem a v1: o recorte e a claim mudaram. Para o conteúdo da v2 não há conclusão registrada de correspondência textual nem de sustentação.",
-        "pendencias": "Conservadas. Faltam as duas conclusões sobre a versão nova."
+        "encadeamento": "encadeamento[1]",
+        "resultado": "conferido",
+        "aplicabilidadeAV2": "Os três elos se ligam para o novo trechoId, e as quatro condições decorrem deles. A conclusão da v1 descreve o conteúdo da v1 e segue histórica."
       }
     },
     {
@@ -2368,10 +2721,9 @@
       "estadoAnterior": "pendente",
       "estadoPosterior": "pendente",
       "evidencia": {
-        "conteudoDaV2": "Igual ao da base corrigida, aprovado em A.16 (A16-E3-evidence.quote).",
-        "conclusoesRegistradas": "Nenhuma conferência da unidade. inspecao-wijnmalen-forman.json registra o texto antigo desta unidade só como alcance observado.",
-        "aplicabilidadeAV2": "Continua PARCIALMENTE PENDENTE: o evidence.quote corrigido não certifica a claim nem o verbatim_quote, que seguem abertos em A.16, e os dois campos continuam diferentes.",
-        "pendencias": "Conservadas: divergência de A.16 e conferência contra a publicação."
+        "encadeamento": "encadeamento[2]",
+        "resultado": "pendente",
+        "aplicabilidadeAV2": "PARCIALMENTE PENDENTE: o evidence.quote corrigido não certifica a claim nem o verbatim_quote, que seguem abertos em A.16, e os dois campos continuam diferentes."
       }
     },
     {
@@ -3418,49 +3770,49 @@
   "contagens": {
     "denominador": 165,
     "conferidasAntes": 4,
-    "conferidasDepois": 4,
+    "conferidasDepois": 6,
     "pendentesAntes": 161,
-    "pendentesDepois": 161,
-    "movidas": 0,
-    "nota": "Resultado da verificação sobre 165 unidades distintas, sem somar cópias. Propagação correta não é conferência bibliográfica."
+    "pendentesDepois": 159,
+    "movidas": 2,
+    "nota": "Resultado da verificação sobre 165 unidades distintas, sem somar cópias. Só mudam de estado as unidades cujo encadeamento se liga e satisfaz as quatro condições; propagação correta, sozinha, não é conferência bibliográfica. Os números da v1 seguem históricos."
   },
   "indicadorC1": {
-    "criterio": "Atendimento demonstrado só quando o conteúdo da v2 é o inspecionado e o registro traz as quatro condições da seção 5 do protocolo de C1.",
+    "criterio": "Atendimento demonstrado pelo encadeamento registrado para o novo trechoId, ou, sem ele, pela inspeção feita sobre o mesmo conteúdo, com as quatro condições da seção 5 do protocolo de C1.",
     "historicoV1": {
       "total": 1,
       "denominador": 3,
-      "fonte": "inspecao-wijnmalen-forman.json"
+      "fonte": "inspecao-wijnmalen-forman.json",
+      "nota": "Resultado histórico da v1, não reescrito."
     },
-    "total": 1,
+    "total": 3,
     "denominador": 3,
     "quais": [
+      "saaty1977_scaling key_claims[0]",
+      "wijnmalen2007_bocr key_claims[0]",
       "forman1998_aggregating key_claims[2]"
     ],
     "porTrecho": [
       {
         "articleId": "saaty1977_scaling",
         "indiceBaseZero": 0,
-        "registro": "medicao-pdfs.json, inspecaoVisualSaaty237",
-        "conclusaoDeCorrespondenciaAplicaAV2": false,
-        "conclusaoDeSustentacaoAplicaAV2": true,
-        "atendimentoDemonstrado": false,
-        "motivo": "o recorte da v2 não é o inspecionado, e não há conclusão de correspondência para ele"
+        "fonteDaConclusao": "encadeamento",
+        "registro": "manifesto-transicao.json, encadeamento[0]",
+        "atendimentoDemonstrado": true,
+        "motivo": "Os três elos se ligam, e as quatro condições decorrem deles."
       },
       {
         "articleId": "wijnmalen2007_bocr",
         "indiceBaseZero": 0,
-        "registro": "inspecao-wijnmalen-forman.json, trechos[0]",
-        "conclusaoDeCorrespondenciaAplicaAV2": false,
-        "conclusaoDeSustentacaoAplicaAV2": false,
-        "atendimentoDemonstrado": false,
-        "motivo": "o recorte da v2 não é o inspecionado, e não há conclusão de correspondência para ele; a claim da v2 não é a avaliada, e não há conclusão de sustentação para ela"
+        "fonteDaConclusao": "encadeamento",
+        "registro": "manifesto-transicao.json, encadeamento[1]",
+        "atendimentoDemonstrado": true,
+        "motivo": "Os três elos se ligam, e as quatro condições decorrem deles."
       },
       {
         "articleId": "forman1998_aggregating",
         "indiceBaseZero": 2,
+        "fonteDaConclusao": "inspecao-sobre-o-mesmo-conteudo",
         "registro": "inspecao-wijnmalen-forman.json, trechos[1]",
-        "conclusaoDeCorrespondenciaAplicaAV2": true,
-        "conclusaoDeSustentacaoAplicaAV2": true,
         "atendimentoDemonstrado": true,
         "motivo": "Conteúdo da v2 idêntico ao inspecionado, e as quatro condições registradas."
       }
@@ -3639,10 +3991,10 @@
   },
   "pendencias": [
     "Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada.",
-    "Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json."
+    "Versão 2: Wijnmalen key_claims[3] segue PARCIALMENTE PENDENTE, com verbatim_quote e claim abertos em A.16; o evidence.quote corrigido não os certifica. As conclusões de Saaty key_claims[0] e Wijnmalen key_claims[0] estão encadeadas em manifesto-transicao.json."
   ],
   "limites": [
-    "Aprovação estrutural, resumo correto e identidade recalculada não mudam estado de conferência.",
+    "Aprovação estrutural, resumo correto e identidade recalculada não mudam estado de conferência; a mudança vem do encadeamento registrado.",
     "Identificador não certifica conteúdo.",
     "Nenhum identificador entra no texto fornecido ao modelo, nem foi acrescentado a chunk.",
     "A predição de A.33 segue não testada; esta rodada não introduz hipótese nova sobre a saída."

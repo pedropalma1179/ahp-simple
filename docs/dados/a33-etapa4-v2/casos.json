@@ -70,8 +70,8 @@
     "claimsPreparadasDistintas": 101,
     "unidadesAdicionais": 64,
     "totalUnidades": 165,
-    "conferidas": 4,
-    "pendentes": 161,
+    "conferidas": 6,
+    "pendentes": 159,
     "semTrechoId": 1,
     "claimsComCamposDiferentes": 19
   },
@@ -80,7 +80,7 @@
     "Concluir a conferência dos trechos pendentes nomeados em evidencias.json e publicacoes.json, incluindo divergências de campos encaminhadas a A.16.",
     "Preparar a execução isolada com o mesmo payload, conferir a montagem capturada contra estes dados e dispor da credencial do modelo. Nenhuma configuração persistente foi modificada.",
     "Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada.",
-    "Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json."
+    "Versão 2: Wijnmalen key_claims[3] segue PARCIALMENTE PENDENTE, com verbatim_quote e claim abertos em A.16; o evidence.quote corrigido não os certifica. As conclusões de Saaty key_claims[0] e Wijnmalen key_claims[0] estão encadeadas em manifesto-transicao.json."
   ],
   "integridadeDosDados": {
     "identidade.json": {
@@ -93,7 +93,7 @@
     },
     "evidencias.json": {
       "algoritmo": "SHA-256",
-      "resumoCompleto": "efbd326929ef1d6020a70cd768a1888d271d8a1de65e00e6ad02ab7ff3470faf"
+      "resumoCompleto": "4a319ffc6753f66f55c4e372e81d3fab1f7bf9800e8e362c8ca5e39cc6ed7166"
     },
     "publicacoes.json": {
       "algoritmo": "SHA-256",

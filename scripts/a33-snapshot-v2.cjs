@@ -59,7 +59,7 @@ const APROVADAS = [
 const PENDENCIA_P1 =
   'Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada.';
 const PENDENCIA_CONCLUSOES =
-  'Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json.';
+  'Versão 2: Wijnmalen key_claims[3] segue PARCIALMENTE PENDENTE, com verbatim_quote e claim abertos em A.16; o evidence.quote corrigido não os certifica. As conclusões de Saaty key_claims[0] e Wijnmalen key_claims[0] estão encadeadas em manifesto-transicao.json.';
 
 /**
  * `verificacaoCodigo` da v2, com o alcance EFETIVAMENTE verificado. A v1 diz que
@@ -246,6 +246,8 @@ function classificar(arquivo, caminho) {
       [/^porTrecho\[\d+\]\.dadosOriginais\./, 'substituicao-aprovada'],
       [/^porTrecho\[\d+\]\.trechoId$/, 'identidade-recalculada'],
       [/^porTrecho\[\d+\]\.enderecoNaBase\.sha$/, 'endereco-administrativo'],
+      [/^porTrecho\[\d+\]\.conferenciaPublicacao(\.|\[|$)/, 'transicao-por-encadeamento'],
+      [/^resumo\.(conferidas|pendentes)$/, 'contagem-recalculada'],
     ],
     'contexto-estatico.json': [
       [/^quatroSecoes\[\d+\]\.referencias\[\d+\]\.referenceDoc\.(topic|rule)$/, 'copia-referenceDoc'],
@@ -266,6 +268,7 @@ function classificar(arquivo, caminho) {
       [/^pendenciasParaGeracao\[\d+\]$/, 'metadado-da-versao'],
       [/^integridadeDosDados\["[^"]+"\]\.resumoCompleto$/, 'resumo-derivado'],
       [/^verificacaoCodigo$/, 'declaracao-administrativa-corrigida'],
+      [/^resumoEvidencias\.(conferidas|pendentes)$/, 'contagem-recalculada'],
     ],
   };
   const regra = (regras[arquivo] || []).find(([re]) => re.test(caminho));
@@ -445,6 +448,27 @@ function propagar() {
   c12.porConsulta.forEach((c, ci) => { c.retornoChunks = c.retornoChunks.map((k, ki) => substituirCopia(k, `porConsulta[${ci}].retornoChunks[${ki}]`)); });
   c12.finalChunksEsperados = c12.finalChunksEsperados.map((k, ki) => substituirCopia(k, `finalChunksEsperados[${ki}]`));
 
+  // Encadeamento por novo trechoId, e as transições que dele resultam.
+  const encadeamento = encadear(ev1, ev2, afetadas, mudancas);
+  encadeamento.forEach((e, k) => {
+    if (e.resultado !== 'conferido') return;
+    ev2.porTrecho[e.indice].conferenciaPublicacao = {
+      estado: 'conferido',
+      metodo: 'Encadeamento registrado: inspeção bibliográfica, correção aprovada em A.16 e propagação para esta versão. Sem nova leitura da publicação.',
+      observacao: {
+        encadeamento: `manifesto-transicao.json, encadeamento[${k}]`,
+        inspecao: e.elos.inspecao.registro,
+        correcaoAprovada: e.elos.correcaoAprovada.aprovadas,
+        localizacao: e.elos.inspecao.localizacao,
+        resultado: 'Os dois campos conferem com a frase impressa registrada, com as transformações declaradas; claim sustentada; sem divergência de A.16; localizador compatível.',
+      },
+      motivosPendencia: [],
+    };
+  });
+  const contar = (estado) => ev2.porTrecho.filter((u) => u.conferenciaPublicacao.estado === estado).length;
+  ev2.resumo.conferidas = contar('conferido');
+  ev2.resumo.pendentes = contar('pendente');
+
   // Casos.
   const casos1 = v1['casos.json'], casos2 = clone(casos1);
   casos2.versaoPreparacao = 2;
@@ -467,7 +491,11 @@ function propagar() {
     semTrechoId: ev2.porTrecho.filter((u) => u.trechoId === null).length,
     claimsComCamposDiferentes: ev2.porTrecho.filter((u) => u.comparacaoDosCampos?.iguais === false).length,
   };
-  if (json(resumoCalculado) !== json(casos1.resumoEvidencias)) throw Error('Resumo de evidências mudaria: ' + json(resumoCalculado));
+  if (json({ ...resumoCalculado, conferidas: null, pendentes: null }) !== json({ ...casos1.resumoEvidencias, conferidas: null, pendentes: null })) {
+    throw Error('Resumo de evidências mudaria além das contagens de estado: ' + json(resumoCalculado));
+  }
+  casos2.resumoEvidencias.conferidas = resumoCalculado.conferidas;
+  casos2.resumoEvidencias.pendentes = resumoCalculado.pendentes;
   escritos['casos.json'] = serializar(casos2);
 
   // Controle: o molde de escrita reproduz os bytes da v1.
@@ -548,12 +576,33 @@ function propagar() {
       afetada,
       estadoAnterior: u.conferenciaPublicacao.estado,
       estadoPosterior: u2.conferenciaPublicacao.estado,
-      evidencia: afetada ? EVIDENCIA_AFETADAS[u.articleId + '#' + u.enderecoNaBase.indiceBaseZero]
+      evidencia: afetada
+        ? (() => {
+          const k = encadeamento.findIndex((e) => e.indice === i);
+          const e = encadeamento[k];
+          return {
+            encadeamento: `encadeamento[${k}]`,
+            resultado: e.resultado,
+            aplicabilidadeAV2: e.resultado === 'conferido'
+              ? 'Os três elos se ligam para o novo trechoId, e as quatro condições decorrem deles. A conclusão da v1 descreve o conteúdo da v1 e segue histórica.'
+              : e.ressalva,
+          };
+        })()
         : 'Conteúdo idêntico ao da v1, conferido pela derivação e pelo resumo por item; nenhuma conclusão nova. Estado e pendências preservados.',
     };
   });
-  if (transicoes.some((t) => t.estadoAnterior !== t.estadoPosterior)) throw Error('Transição de estado sem conclusão nova');
-  const indicadorC1 = calcularIndicadorC1(c12, ev2, novoPorEndereco);
+  for (const t of transicoes) {
+    if (t.estadoAnterior === t.estadoPosterior) continue;
+    const e = encadeamento.find((x) => x.indice === t.indice);
+    if (!e || e.resultado !== t.estadoPosterior) throw Error('Transição de estado sem encadeamento na unidade ' + t.indice);
+  }
+  for (const e of encadeamento) {
+    for (const c of e.elos.correspondenciaComAV2.excecoes) {
+      const [arquivo, caminho] = c.split(' ');
+      if (!excecoes.some((x) => x.arquivo === arquivo && x.caminho === caminho && x.categoria === 'substituicao-aprovada')) throw Error('Elo sem exceção: ' + c);
+    }
+  }
+  const indicadorC1 = calcularIndicadorC1(c12, ev2, novoPorEndereco, encadeamento);
 
   const manifesto = {
     versao: 2,
@@ -598,6 +647,8 @@ function propagar() {
     identidadePorUnidade: identidades,
     composicaoHT: 'Aplicada sem alteração: prefixo A33-por-tipo-v2; para key_claims, os campos claim, verbatim_quote e evidence. Endereço, usable_as e posição não participam.',
     excecoesEnumeradas: excecoes,
+    auditoriaA16: AUDITORIA_A16,
+    encadeamento,
     transicoes,
     contagens: {
       denominador: ev2.porTrecho.length,
@@ -606,13 +657,13 @@ function propagar() {
       pendentesAntes: ev1.porTrecho.filter((u) => u.conferenciaPublicacao.estado === 'pendente').length,
       pendentesDepois: resumoCalculado.pendentes,
       movidas: transicoes.filter((t) => t.estadoAnterior !== t.estadoPosterior).length,
-      nota: 'Resultado da verificação sobre 165 unidades distintas, sem somar cópias. Propagação correta não é conferência bibliográfica.',
+      nota: 'Resultado da verificação sobre 165 unidades distintas, sem somar cópias. Só mudam de estado as unidades cujo encadeamento se liga e satisfaz as quatro condições; propagação correta, sozinha, não é conferência bibliográfica. Os números da v1 seguem históricos.',
     },
     indicadorC1,
     payloadDeReferencia: require('./a33-payload-referencia.cjs').declaracao(),
     pendencias: [PENDENCIA_P1, PENDENCIA_CONCLUSOES],
     limites: [
-      'Aprovação estrutural, resumo correto e identidade recalculada não mudam estado de conferência.',
+      'Aprovação estrutural, resumo correto e identidade recalculada não mudam estado de conferência; a mudança vem do encadeamento registrado.',
       'Identificador não certifica conteúdo.',
       'Nenhum identificador entra no texto fornecido ao modelo, nem foi acrescentado a chunk.',
       'A predição de A.33 segue não testada; esta rodada não introduz hipótese nova sobre a saída.',
@@ -638,36 +689,166 @@ function carregarArtigo(base, u) {
   return a;
 }
 
-/**
- * Evidência citada por unidade afetada. ⚠ Nenhuma autoriza transição: as
- * conclusões registradas descrevem o conteúdo da v1.
- */
-const EVIDENCIA_AFETADAS = {
-  'saaty1977_scaling#0': {
-    conteudoDaV2: 'Igual ao da base corrigida, aprovado em A.16 (A16-E1-verbatim_quote e A16-E1-evidence.quote).',
-    conclusoesRegistradas: 'docs/dados/a33-conferencia-c1/medicao-pdfs.json, inspecaoVisualSaaty237: campos "nao confere" por D1.b, sobre o recorte da v1; claim "sustentada"; localizador compatível.',
-    aplicabilidadeAV2: 'A conclusão de correspondência textual descreve o recorte da v1, que difere do da v2; para o recorte da v2 não há conclusão registrada. A de sustentação se aplica, porque a claim não mudou.',
-    pendencias: 'Conservadas. Falta a conclusão de correspondência textual da versão nova.',
+// ============================================================
+// Encadeamento das conclusões, por novo trechoId
+// ============================================================
+//
+// ⚠ NÃO reabre a inspeção bibliográfica. Cita os registros e confere, pelos
+// dados, que os três elos se ligam: o recorte que a inspeção examinou é o texto
+// ANTES da correção; a correção aprovada remove as diferenças que a inspeção
+// registrou; e o conteúdo da v2 é o da correção aprovada.
+
+const COMMIT_PROPAGACAO = 'c87e33702a7b5bd153bfd7eef5c02cad0877806c';
+
+const AUDITORIA_A16 = {
+  registro: 'docs/imprecisoes-parecer-ia.md, seção "Integração, e o que segue pendente, em 17/09/2026"',
+  commit: '8f9434140ea00247e07c31dbff4cc84e5d45425f',
+  teor: 'Auditoria de A.16 aprovada pelo autor e registrada naquele commit. Aceitas nela, conforme o autor declarou em 17/09/2026: a correspondência das correções de Saaty e de Wijnmalen, e a sustentação da claim nova de Wijnmalen.',
+};
+
+const INSPECOES = {
+  saaty1977_scaling: {
+    registro: 'docs/dados/a33-conferencia-c1/medicao-pdfs.json, inspecaoVisualSaaty237',
+    commits: ['ae580c641a821800480c719e32cda45f183d2769', '4309f7e662091f050c220c458d042d856e342352'],
+    ler: () => lerJson('docs/dados/a33-conferencia-c1/medicao-pdfs.json').inspecaoVisualSaaty237,
+    endereco: (r) => r.trecho.enderecoNaBase,
   },
-  'wijnmalen2007_bocr#0': {
-    conteudoDaV2: 'Igual ao da base corrigida, aprovado em A.16 (A16-E2-verbatim_quote, A16-E2-evidence.quote e A16-J1-claim).',
-    conclusoesRegistradas: 'docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]: campos "nao confere" por W1.a, W1.b e W2.a, sobre o recorte da v1; claim anterior "parcialmente sustentada"; localizador compatível.',
-    aplicabilidadeAV2: 'As duas conclusões descrevem a v1: o recorte e a claim mudaram. Para o conteúdo da v2 não há conclusão registrada de correspondência textual nem de sustentação.',
-    pendencias: 'Conservadas. Faltam as duas conclusões sobre a versão nova.',
-  },
-  'wijnmalen2007_bocr#3': {
-    conteudoDaV2: 'Igual ao da base corrigida, aprovado em A.16 (A16-E3-evidence.quote).',
-    conclusoesRegistradas: 'Nenhuma conferência da unidade. inspecao-wijnmalen-forman.json registra o texto antigo desta unidade só como alcance observado.',
-    aplicabilidadeAV2: 'Continua PARCIALMENTE PENDENTE: o evidence.quote corrigido não certifica a claim nem o verbatim_quote, que seguem abertos em A.16, e os dois campos continuam diferentes.',
-    pendencias: 'Conservadas: divergência de A.16 e conferência contra a publicação.',
+  wijnmalen2007_bocr: {
+    registro: 'docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json, trechos[0]',
+    commits: ['781fb4fb303cd67e7eaa2514d40ac776d9e69c18', '4309f7e662091f050c220c458d042d856e342352'],
+    ler: () => lerJson('docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json').trechos[0],
+    endereco: (r) => r.identidade.enderecoNaBase,
   },
 };
 
+/** Diferenças registradas na inspeção que cada correção remove, por unidade. */
+const REMOVIDAS_PELA_CORRECAO = {
+  'saaty1977_scaling#0': ['D1.b'],
+  'wijnmalen2007_bocr#0': ['W1.a', 'W1.b', 'W2.a'],
+  'wijnmalen2007_bocr#3': ['W1.a', 'W1.b', 'W2.a'],
+};
+const LIGADURA = 'ligadura fi de benefits transcrita como f e i, normalização declarada em 3db365c';
+const DECLARADAS_EM_A16 = {
+  'wijnmalen2007_bocr#0': [LIGADURA],
+  'wijnmalen2007_bocr#3': [LIGADURA],
+};
+
+/** Com a notação LaTeX lida como o impresso a compõe. */
+const comoImpresso = (t) => t.replace('\\lambda_{max}', 'λmax');
+
+function encadear(ev1, ev2, afetadas, mudancas) {
+  const porEndereco = new Map(ev1.porTrecho.map((u, i) => [chaveEndereco(u.enderecoNaBase), i]));
+  return afetadas.map((i) => {
+    const u1 = ev1.porTrecho[i], u2 = ev2.porTrecho[i];
+    const chave = u1.articleId + '#' + u1.enderecoNaBase.indiceBaseZero;
+    const insp = INSPECOES[u1.articleId];
+    if (!insp) throw Error('Unidade afetada sem inspeção registrada: ' + chave);
+    const r = insp.ler();
+    const impresso = r.impresso.fraseComoImpressa;
+    const daUnidade = mudancas.filter((m) => m.indice === i);
+    const d1 = u1.dadosOriginais, d2 = u2.dadosOriginais;
+
+    // Elo 1: a inspeção examinou o texto ANTES da correção desta unidade.
+    const inspecionado = ev1.porTrecho[porEndereco.get(chaveEndereco(insp.endereco(r)))];
+    const inspecionouEstaUnidade = inspecionado === u1;
+    const alcancePorMesmoTexto = !inspecionouEstaUnidade
+      && (r.alcanceObservadoNaBase?.oQue || '').includes(`key_claims[${u1.enderecoNaBase.indiceBaseZero}]`)
+      && inspecionado.enderecoNaBase.arquivo === u1.enderecoNaBase.arquivo
+      && inspecionado.dadosOriginais.evidence.page === d1.evidence.page
+      && inspecionado.dadosOriginais.evidence.locator_id === d1.evidence.locator_id;
+    const recorteEraOAntes = r.recorte.texto === d1.evidence.quote;
+    if (!recorteEraOAntes || !(inspecionouEstaUnidade || alcancePorMesmoTexto)) throw Error('Elo de inspeção não se liga em ' + chave);
+    const removidas = REMOVIDAS_PELA_CORRECAO[chave];
+    const registradas = r.diferencas.flatMap((d) => d.transformacoes);
+    if (!removidas.every((id) => registradas.some((t) => t.id === id))) throw Error('Diferença removida não registrada em ' + chave);
+    const permanecem = registradas
+      .filter((t) => (t.cadeia === undefined || t.cadeia.startsWith('base')) && !removidas.includes(t.id))
+      .map((t) => `${t.id}: ${t.natureza}`);
+
+    // Elo 2: a correção aprovada remove as diferenças registradas.
+    const eq = comoImpresso(d2.evidence.quote);
+    const correcaoRemove = u1.articleId === 'saaty1977_scaling'
+      ? /^[a-z]/.test(eq) && impresso.includes(eq) && !impresso.startsWith(eq) && !impresso.endsWith(eq)
+      : eq === impresso;
+    if (!correcaoRemove) throw Error('A correção não remove as diferenças registradas em ' + chave);
+
+    // Elo 3: o conteúdo da v2 é o da correção aprovada.
+    const naV2 = daUnidade.every((m) => json(valorEm(d2, m.segs)) === json(m.depois));
+    if (!naV2) throw Error('A v2 não traz a correção aprovada em ' + chave);
+
+    // Condições da seção 5 do protocolo de C1, a partir dos elos.
+    const corrigidos = new Set(daUnidade.map((m) => m.campo));
+    const doisCamposConferem = corrigidos.has('verbatim_quote') && corrigidos.has('evidence.quote')
+      && d2.verbatim_quote === d2.evidence.quote;
+    let claimSustentada;
+    let fundamentoDaClaim;
+    if (d2.claim === r.sustentacaoDaClaim.claim) {
+      claimSustentada = r.sustentacaoDaClaim.resultado === 'sustentada';
+      fundamentoDaClaim = `claim inalterada; resultado registrado na inspeção: ${r.sustentacaoDaClaim.resultado}`;
+    } else if (corrigidos.has('claim')) {
+      const apoio = r.sustentacaoDaClaim.oQueSustenta;
+      claimSustentada = apoio.includes('Synthesis however requires commensurate priorities on a common scale')
+        && apoio.includes('BOCR synthesis of priorities is deceiving');
+      fundamentoDaClaim = 'claim nova, aprovada em A.16 (A16-J1-claim), com a sustentação aceita na auditoria; apoio nos dois períodos que a inspeção registra em sustentacaoDaClaim.oQueSustenta';
+    } else {
+      claimSustentada = null;
+      fundamentoDaClaim = 'claim não avaliada: a inspeção alcançou esta unidade só pelo texto do evidence.quote';
+    }
+    const condicoes = {
+      doisCamposConferem,
+      claimSustentada,
+      semDivergenciaA16: u2.comparacaoDosCampos.iguais === true,
+      semLocalizadorDivergente: r.classificacao.localizador.resultado === 'compativel'
+        && d2.evidence.page === d1.evidence.page && d2.evidence.locator_id === d1.evidence.locator_id,
+    };
+    const conferido = Object.values(condicoes).every((v) => v === true);
+    return {
+      indice: i,
+      articleId: u1.articleId,
+      trechoIdNovo: u2.trechoId,
+      trechoIdAnterior: u1.trechoId,
+      elos: {
+        inspecao: {
+          registro: insp.registro,
+          commits: insp.commits,
+          vinculo: inspecionouEstaUnidade
+            ? 'a inspeção examinou esta unidade, pelo endereço'
+            : 'a inspeção examinou key_claims[0] e registrou esta unidade como alcance, pelo mesmo texto, página e localizador',
+          localizacao: r.impresso.localizacao,
+          fraseImpressa: impresso,
+          recorteExaminado: r.recorte.texto,
+          classificacaoRegistrada: r.classificacao.verbatim_quote.resultado,
+          diferencasRegistradas: registradas.map((t) => t.id),
+        },
+        correcaoAprovada: {
+          aprovadas: daUnidade.map((m) => m.aprovada),
+          commits: [...new Set(daUnidade.map((m) => APROVADAS.find((a) => a.id === m.aprovada).commit))],
+          removeAsDiferencas: removidas,
+          auditoria: AUDITORIA_A16,
+          verificacaoVersionada: 'lib/__tests__/a16-correcao-trechos-c1.test.ts confere os campos corrigidos contra a frase impressa registrada',
+        },
+        correspondenciaComAV2: {
+          commit: COMMIT_PROPAGACAO,
+          excecoes: daUnidade.map((m) => `evidencias.json porTrecho[${i}].dadosOriginais.${m.campo}`),
+          conteudoIgualAoAprovado: naV2,
+        },
+      },
+      transformacoesQuePermanecem: [...permanecem, ...(DECLARADAS_EM_A16[chave] || [])],
+      fundamentoDaClaim,
+      condicoes,
+      estadoAnterior: u1.conferenciaPublicacao.estado,
+      resultado: conferido ? 'conferido' : 'pendente',
+      ressalva: conferido ? null
+        : 'PARCIALMENTE PENDENTE: o evidence.quote corrigido não certifica a claim nem o verbatim_quote, que seguem abertos em A.16, e os dois campos continuam diferentes.',
+    };
+  });
+}
+
 /**
- * Indicador de C1 na v2: uma conclusão registrada só vale se o conteúdo da v2
- * for o conteúdo inspecionado, no recorte e na claim.
+ * Indicador de C1 na v2. A conclusão vem do encadeamento, quando há um para o
+ * novo trechoId; sem ele, só vale a inspeção feita sobre o MESMO conteúdo.
  */
-function calcularIndicadorC1(c12, ev2, novoPorEndereco) {
+function calcularIndicadorC1(c12, ev2, novoPorEndereco, encadeamento) {
   const insp = lerJson('docs/dados/a33-conferencia-c1/inspecao-wijnmalen-forman.json');
   const med = lerJson('docs/dados/a33-conferencia-c1/medicao-pdfs.json');
   const registros = {
@@ -676,33 +857,46 @@ function calcularIndicadorC1(c12, ev2, novoPorEndereco) {
     forman1998_aggregating: { fonte: 'inspecao-wijnmalen-forman.json, trechos[1]', r: insp.trechos[1] },
   };
   const porTrecho = c12.trechos.map((t) => {
-    const u = ev2.porTrecho[novoPorEndereco.get(chaveEndereco(t.enderecoNaBase))];
+    const indice = novoPorEndereco.get(chaveEndereco(t.enderecoNaBase));
+    const u = ev2.porTrecho[indice];
+    const k = encadeamento.findIndex((e) => e.indice === indice);
+    if (k >= 0) {
+      const elo = encadeamento[k];
+      if (elo.trechoIdNovo !== u.trechoId || t.trechoId !== u.trechoId) throw Error('Encadeamento de outro trechoId em C1');
+      return {
+        articleId: t.articleId,
+        indiceBaseZero: t.enderecoNaBase.indiceBaseZero,
+        fonteDaConclusao: 'encadeamento',
+        registro: `manifesto-transicao.json, encadeamento[${k}]`,
+        atendimentoDemonstrado: elo.resultado === 'conferido',
+        motivo: elo.resultado === 'conferido' ? 'Os três elos se ligam, e as quatro condições decorrem deles.' : elo.ressalva,
+      };
+    }
     const { fonte, r } = registros[t.articleId];
     const d = u.dadosOriginais;
-    const recorteInspecionado = r.recorte.texto;
-    const correspondenciaAplica = d.verbatim_quote === recorteInspecionado && d.evidence.quote === recorteInspecionado;
-    const sustentacaoAplica = d.claim === r.sustentacaoDaClaim.claim;
-    const condicoes = r.resultadoDaUnidade.condicoesDaSecao4;
-    const atende = correspondenciaAplica && sustentacaoAplica
-      && condicoes.doisCamposConferem === true && condicoes.claimSustentada === true
-      && condicoes.semDivergenciaA16 === true && condicoes.semLocalizadorDivergente === true;
+    const mesmoConteudo = d.verbatim_quote === r.recorte.texto && d.evidence.quote === r.recorte.texto
+      && d.claim === r.sustentacaoDaClaim.claim;
+    const c = r.resultadoDaUnidade.condicoesDaSecao4;
+    const atende = mesmoConteudo && c.doisCamposConferem === true && c.claimSustentada === true
+      && c.semDivergenciaA16 === true && c.semLocalizadorDivergente === true;
     return {
       articleId: t.articleId,
       indiceBaseZero: t.enderecoNaBase.indiceBaseZero,
+      fonteDaConclusao: 'inspecao-sobre-o-mesmo-conteudo',
       registro: fonte,
-      conclusaoDeCorrespondenciaAplicaAV2: correspondenciaAplica,
-      conclusaoDeSustentacaoAplicaAV2: sustentacaoAplica,
       atendimentoDemonstrado: atende,
       motivo: atende ? 'Conteúdo da v2 idêntico ao inspecionado, e as quatro condições registradas.'
-        : [
-          !correspondenciaAplica && 'o recorte da v2 não é o inspecionado, e não há conclusão de correspondência para ele',
-          !sustentacaoAplica && 'a claim da v2 não é a avaliada, e não há conclusão de sustentação para ela',
-        ].filter(Boolean).join('; ') || 'o registro não traz as quatro condições',
+        : 'Sem encadeamento, e o conteúdo da v2 não é o inspecionado ou o registro não traz as quatro condições.',
     };
   });
   return {
-    criterio: 'Atendimento demonstrado só quando o conteúdo da v2 é o inspecionado e o registro traz as quatro condições da seção 5 do protocolo de C1.',
-    historicoV1: { total: insp.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total, denominador: 3, fonte: 'inspecao-wijnmalen-forman.json' },
+    criterio: 'Atendimento demonstrado pelo encadeamento registrado para o novo trechoId, ou, sem ele, pela inspeção feita sobre o mesmo conteúdo, com as quatro condições da seção 5 do protocolo de C1.',
+    historicoV1: {
+      total: insp.trechosDeC1ComAtendimentoDemonstradoAoCriterioAtual.total,
+      denominador: 3,
+      fonte: 'inspecao-wijnmalen-forman.json',
+      nota: 'Resultado histórico da v1, não reescrito.',
+    },
     total: porTrecho.filter((x) => x.atendimentoDemonstrado).length,
     denominador: porTrecho.length,
     quais: porTrecho.filter((x) => x.atendimentoDemonstrado).map((x) => `${x.articleId} key_claims[${x.indiceBaseZero}]`),
