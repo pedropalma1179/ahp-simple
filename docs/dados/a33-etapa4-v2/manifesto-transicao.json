@@ -3437,6 +3437,177 @@
       }
     ]
   },
+  "payloadDeReferencia": {
+    "arquivo": "docs/calculations-13jul2026.json",
+    "sha256Bytes": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
+    "papel": "Payload de referência dos casos C1, C2 e C3: o documento calculations do projeto das 24 saídas publicadas. Não é captura de requisição HTTP.",
+    "transformacao": {
+      "modulo": "scripts/a33-payload-referencia.cjs, montarRequisicao",
+      "espelho": "app/decisor/resultados/[projectId]/page.tsx, runAiReview, bloco \"Preparar payload\"",
+      "premissa": "O projeto existe, como a tela exige para enviar, mas os campos dele não estão no arquivo; não há análise de qualidade, respostas, demografia, grupos sensíveis nem exclusões. Cada ausência recebe o valor que a própria tela usa quando a fonte está vazia.",
+      "foraDaTransformacao": "normalizeRequest, dentro do handler, age sobre a requisição como em produção.",
+      "conferenciaDoEspelho": "âncoras de texto em app/decisor/resultados/[projectId]/page.tsx, conferidas por teste"
+    },
+    "origens": [
+      {
+        "campo": "projectName",
+        "origem": "ausente-no-arquivo",
+        "regra": "project.name ausente: a tela usa 'Projeto sem nome'"
+      },
+      {
+        "campo": "projectDescription",
+        "origem": "ausente-no-arquivo",
+        "regra": "project.description ausente: a tela usa ''"
+      },
+      {
+        "campo": "alternatives",
+        "origem": "ausente-no-arquivo",
+        "regra": "project.alternatives ausente: a tela usa []"
+      },
+      {
+        "campo": "bocrWeights",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: bocrWeights"
+      },
+      {
+        "campo": "personalWeights",
+        "origem": "derivado",
+        "regra": "bocrWeights[0..3] do arquivo, nomeados Benefits, Opportunities, Costs e Risks"
+      },
+      {
+        "campo": "rescalingWeights",
+        "origem": "derivado",
+        "regra": "rescalingWeights.sb, so, sc e sr do arquivo, nomeados Benefits, Opportunities, Costs e Risks"
+      },
+      {
+        "campo": "bocrConsistency",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: bocrConsistency"
+      },
+      {
+        "campo": "subWeights",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: subWeights"
+      },
+      {
+        "campo": "subConsistency",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: subConsistency"
+      },
+      {
+        "campo": "finalScores",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: finalScores"
+      },
+      {
+        "campo": "responseCount",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: responseCount"
+      },
+      {
+        "campo": "sensitivityInflections",
+        "origem": "lido",
+        "de": "docs/calculations-13jul2026.json: sensitivityInflections"
+      },
+      {
+        "campo": "qualityAnalysis.respondents",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem análise de qualidade e sem respostas: a tela envia []"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus[\"CONFIÁVEL\"]",
+        "origem": "derivado",
+        "regra": "⚠ individualStats.valid é 0 sem fontes, e a tela usa responseCount do arquivo: declara os respondentes como confiáveis SEM medição individual. Terreno de A.12; não resolvido aqui."
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus.REVISAR",
+        "origem": "constante-da-tela",
+        "regra": "a tela fixa 'REVISAR': 0"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus.SUSPEITO",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.warning é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.byStatus[\"CRÍTICO\"]",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.critical é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.total",
+        "origem": "derivado",
+        "regra": "individualStats.total é 0 sem fontes, e a tela usa responseCount do arquivo"
+      },
+      {
+        "campo": "qualityAnalysis.statistics.avgCR",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.avgCR é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.summary.total",
+        "origem": "derivado",
+        "regra": "responseCount do arquivo"
+      },
+      {
+        "campo": "qualityAnalysis.summary.ok",
+        "origem": "derivado",
+        "regra": "individualStats.valid é 0 sem fontes, e a tela usa responseCount do arquivo"
+      },
+      {
+        "campo": "qualityAnalysis.summary.suspicious",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.warning é 0 sem fontes"
+      },
+      {
+        "campo": "qualityAnalysis.summary.critical",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.critical é 0 sem fontes"
+      },
+      {
+        "campo": "overallStats.total",
+        "origem": "derivado",
+        "regra": "individualStats.total é 0 sem fontes, e a tela usa responseCount do arquivo"
+      },
+      {
+        "campo": "overallStats.valid",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.valid é 0 sem fontes"
+      },
+      {
+        "campo": "overallStats.warning",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.warning é 0 sem fontes"
+      },
+      {
+        "campo": "overallStats.critical",
+        "origem": "ausente-no-arquivo",
+        "regra": "individualStats.critical é 0 sem fontes"
+      },
+      {
+        "campo": "individualStats",
+        "origem": "ausente-no-arquivo",
+        "regra": "total 0 sem fontes: a tela envia undefined, e o campo some no JSON"
+      },
+      {
+        "campo": "demographicsSummary",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem demografia: a tela envia { total: 0, hasData: false }"
+      },
+      {
+        "campo": "sensitiveGroups",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem grupos sensíveis: a tela envia undefined, e o campo some no JSON"
+      },
+      {
+        "campo": "exclusionInfo",
+        "origem": "ausente-no-arquivo",
+        "regra": "sem exclusões: a tela envia undefined, e o campo some no JSON"
+      }
+    ],
+    "sha256Requisicao": "d9a8c034e8259dc46bc222691a6172c352546550bf2d713f209705639ee9c035",
+    "pendencia": "Antes de gerar: decidir se a requisição de referência deve declarar os 12 respondentes como confiáveis, como a tela faz sem análise de qualidade, ou trazer a qualidade medida. Terreno de A.12; não resolvido aqui."
+  },
   "pendencias": [
     "Antes de qualquer geração: delimitar P1 e conferir a sua aplicabilidade a esta versão, inclusive a C1, que a formulação registrada em 3db365c excluía. Paráfrase fiel sem however não é falha de transcrição, e a proibição de citação direta de A.33 é critério separado. A predição de A.33 segue não testada.",
     "Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json."

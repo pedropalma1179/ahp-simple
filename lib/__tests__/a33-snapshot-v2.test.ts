@@ -350,18 +350,16 @@ function restaurarEnv(nome: string, anterior: string | undefined) {
   else process.env[nome] = anterior;
 }
 
-function payload() {
-  const balde = { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.03 };
-  return {
-    projectName: 'Projeto de ensaio A.33 v2',
-    alternatives: [{ code: 'A1', name: 'Alternativa 1' }, { code: 'A2', name: 'Alternativa 2' }],
-    finalScores: [{ code: 'A1', name: 'Alternativa 1', score: 0.62 }, { code: 'A2', name: 'Alternativa 2', score: 0.38 }],
-    individualStats: { Benefits: balde, Opportunities: balde, Costs: balde, Risks: balde },
-    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
-    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
-    overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
-  };
-}
+/**
+ * A requisição dos casos C1, C2 e C3, montada do payload de referência.
+ *
+ * ⚠ **Não é projeto sintético.** Vem de `docs/calculations-13jul2026.json` pela
+ * transformação declarada em `scripts/a33-payload-referencia.cjs`, que espelha a
+ * tela e diz, campo a campo, o que é lido, derivado ou ausente.
+ */
+const referencia = require('../../scripts/a33-payload-referencia.cjs');
+const CALCULO = JSON.parse(referencia.lerArquivo().toString('utf8'));
+const REQUISICAO = referencia.montarRequisicao(CALCULO).requisicao;
 
 /**
  * Captura os argumentos da montagem e interrompe.
@@ -416,7 +414,7 @@ async function montar(flag: string | undefined, porConsulta: Array<{ consulta: s
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { POST } = require('@/app/api/ai-reviewer/route');
-    const res = await POST({ json: async () => payload() } as any);
+    const res = await POST({ json: async () => clone(REQUISICAO) } as any);
     const corpo = await res.json();
     return { ...cap, status: res.status, corpo, fetches: bloqueio.mock.calls.length };
   } finally {
@@ -426,6 +424,57 @@ async function montar(flag: string | undefined, porConsulta: Array<{ consulta: s
 }
 
 const contar = (texto: string, parte: string) => texto.split(parte).length - 1;
+
+/** Folhas de uma árvore, com vetor ou objeto vazio contando como folha. */
+function folhas(v: any, segs: any[] = [], saida: any[][] = []): any[][] {
+  const vazio = (x: any) => (Array.isArray(x) ? x.length === 0 : Object.keys(x).length === 0);
+  if (v !== null && typeof v === 'object' && !vazio(v)) {
+    for (const k of Object.keys(v)) folhas(v[k], [...segs, Array.isArray(v) ? Number(k) : k], saida);
+  } else saida.push(segs);
+  return saida;
+}
+
+describe('A.33 v2: o payload de referência, e a transformação até a requisição', () => {
+  const origens: any[] = referencia.montarRequisicao(CALCULO).origens;
+  const cobre = (rotulo: string) => origens.filter((o) => rotulo === o.campo || rotulo.startsWith(o.campo + '.') || rotulo.startsWith(o.campo + '['));
+
+  test('o arquivo é o fixado nos casos, pelo resumo dos bytes', () => {
+    const resumo = sha(referencia.lerArquivo().toString('utf8'));
+    for (const casos of [um['casos.json'], dois['casos.json']]) {
+      expect(casos.payloadReferencia.arquivo).toBe(referencia.ARQUIVO);
+      expect(casos.payloadReferencia.sha256Bytes).toBe(resumo);
+    }
+  });
+
+  test('cada folha da requisição tem UMA origem declarada, e cada origem alcança a requisição ou declara o campo omitido', () => {
+    for (const segs of folhas(REQUISICAO)) expect([v2.rotulo(segs), cobre(v2.rotulo(segs)).length]).toEqual([v2.rotulo(segs), 1]);
+    const omitidos = origens.filter((o) => v2.valorEm(REQUISICAO, o.campo.match(/[^.[\]"]+/g)) === undefined).map((o) => o.campo);
+    expect(omitidos).toEqual(['individualStats', 'sensitiveGroups', 'exclusionInfo']);
+    for (const o of origens) expect(['lido', 'derivado', 'ausente-no-arquivo', 'constante-da-tela']).toContain(o.origem);
+  });
+
+  test('o que é LIDO é o valor do arquivo; o que é DERIVADO segue a regra declarada', () => {
+    for (const o of origens.filter((x) => x.origem === 'lido')) expect(REQUISICAO[o.campo]).toEqual(CALCULO[o.campo]);
+    const [b, o, c, r] = CALCULO.bocrWeights;
+    expect(REQUISICAO.personalWeights).toEqual({ Benefits: b, Opportunities: o, Costs: c, Risks: r });
+    const s = CALCULO.rescalingWeights;
+    expect(REQUISICAO.rescalingWeights).toEqual({ Benefits: s.sb, Opportunities: s.so, Costs: s.sc, Risks: s.sr });
+    expect(REQUISICAO.qualityAnalysis.statistics.byStatus['CONFIÁVEL']).toBe(CALCULO.responseCount);
+    const aviso = origens.find((x) => x.campo === 'qualityAnalysis.statistics.byStatus["CONFIÁVEL"]');
+    expect(aviso.regra).toContain('SEM medição individual');
+  });
+
+  test('o espelho da tela segue válido, pelas âncoras de texto', () => {
+    const tela = fs.readFileSync(path.join(__dirname, '../..', referencia.TELA), 'utf8');
+    for (const [ancora, n] of referencia.ANCORAS_DA_TELA) expect([ancora, contar(tela, ancora)]).toEqual([ancora, n]);
+  });
+
+  test('o manifesto declara a mesma transformação, com o resumo do arquivo e da requisição', () => {
+    expect(manifesto.payloadDeReferencia).toEqual(referencia.declaracao());
+    expect(manifesto.payloadDeReferencia.sha256Requisicao).toBe(sha(JSON.stringify(REQUISICAO)));
+    expect(manifesto.payloadDeReferencia.pendencia).toContain('A.12');
+  });
+});
 
 describe('A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa', () => {
   const ce1 = um['contexto-estatico.json'], ce2 = dois['contexto-estatico.json'], c12 = dois['C1-recuperacao.json'];
@@ -466,6 +515,16 @@ describe('A.33 v2: a montagem real corresponde à nova preparação, sem chamada
     const tudo = capturas[nome].system + '\n' + capturas[nome].messages;
     for (const antigo of [W_ANTES, SAATY_ANTES, WC_ANTES]) expect(contar(tudo, antigo)).toBe(0);
     for (const proibido of [RS, 'A33-por-tipo-v2', 'trechoId']) expect(tudo).not.toContain(proibido);
+  });
+
+  test.each(['C1', 'C2', 'C3'])('%s: a montagem usa o payload de referência, e nenhum dado sintético', (nome: string) => {
+    const m = capturas[nome].messages;
+    const pct = (x: number) => (x * 100).toFixed(1) + '%';
+    const [b, o, c, r] = CALCULO.bocrWeights;
+    expect(contar(m, `(B=${pct(b)}, O=${pct(o)}, C=${pct(c)}, R=${pct(r)})`)).toBe(1);
+    expect(m).toContain('**Título do Projeto:** Projeto sem nome');
+    for (const f of CALCULO.finalScores) expect(contar(m, `${f.code} — ${f.name}: Score = ${f.scoreSubtractive.toFixed(6)}`)).toBe(1);
+    for (const sintetico of ['Projeto de ensaio', 'Alternativa 1', 'B=37.0%']) expect(m).not.toContain(sintetico);
   });
 
   test('C1: os três chunks fixados da v2 chegam formatados, na ordem da preparação', () => {

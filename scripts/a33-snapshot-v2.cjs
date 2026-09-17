@@ -25,6 +25,11 @@ const DATA = '2026-09-17';
 const BASE_SNAPSHOT = '344d63121489348a7291725271564f06fe5ef5a5';
 const COMMIT_A16_TEXTUAL = '8b057d9db2c70e701a757f5ad83336903c3b8000';
 const COMMIT_A16_CLAIM = 'b567d99bec6881faa381651353120e1faaf7366a';
+/**
+ * A base corrigida é FIXA: é o SHA de onde a v2 leu o conteúdo, aprovado na
+ * auditoria. Tomar o `HEAD` de cada execução mudaria o endereço a cada commit.
+ */
+const BASE_CORRIGIDA = '8f9434140ea00247e07c31dbff4cc84e5d45425f';
 const ARQUIVOS = ['casos.json', 'contexto-estatico.json', 'evidencias.json', 'C1-recuperacao.json', 'identidade.json', 'publicacoes.json'];
 const COPIADOS_SEM_ALTERACAO = ['identidade.json', 'publicacoes.json'];
 
@@ -310,8 +315,9 @@ function propagar() {
   }
   const head = git(['rev-parse', 'HEAD']).toString('utf8').trim();
   if (git(['status', '--porcelain', '--', 'lib/rag']).toString('utf8').trim() !== '') throw Error('lib/rag com alteração na árvore');
-  try { git(['diff', '--quiet', COMMIT_A16_CLAIM, head, '--', 'lib/rag']); } catch { throw Error('lib/rag difere do último commit de A.16'); }
-  const BASE_CORRIGIDA = head;
+  for (const outro of [COMMIT_A16_CLAIM, head]) {
+    try { git(['diff', '--quiet', BASE_CORRIGIDA, outro, '--', 'lib/rag']); } catch { throw Error('lib/rag difere da base corrigida em ' + outro); }
+  }
 
   const v1 = Object.fromEntries(ARQUIVOS.map((f) => [f, lerJson(V1 + f)]));
   const ev1 = v1['evidencias.json'];
@@ -586,6 +592,7 @@ function propagar() {
       nota: 'Resultado da verificação sobre 165 unidades distintas, sem somar cópias. Propagação correta não é conferência bibliográfica.',
     },
     indicadorC1,
+    payloadDeReferencia: require('./a33-payload-referencia.cjs').declaracao(),
     pendencias: [PENDENCIA_P1, PENDENCIA_CONCLUSOES],
     limites: [
       'Aprovação estrutural, resumo correto e identidade recalculada não mudam estado de conferência.',
