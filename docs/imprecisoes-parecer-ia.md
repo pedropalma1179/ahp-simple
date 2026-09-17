@@ -8856,6 +8856,84 @@ configuração da máquina, os testes de transporte e os intermitentes; `main`.
 **Pendências antes de gerar:** conferir P1 e a predição contra a r2; a correção do
 fallback de qualidade, em A.12; e A.16 em Wijnmalen `key_claims[3]`.
 
+### A.12: ausência de avaliação de qualidade — predição registrada ANTES, em 17/09/2026
+
+**Base:** `6716830`, branch `correcao/a12-qualidade-ausente`, árvore limpa.
+⚠ **Registrada ANTES da primeira alteração de código**, em commit que **não toca
+código**. ⚠ **Ela antecede a alteração definitiva versionada**, e não toda edição: a
+captura das superfícies abaixo é leitura, feita antes, e não altera nada.
+
+⚠ **A rodada altera caminho de produção e o que o modelo recebe**, e por isso a
+predição cabe e é requisito. ⚠ **A saída do modelo NÃO é observada**: não há geração
+real, e o que se testa é a montagem, a resposta da API e a apresentação, com cliente
+simulado.
+
+#### A predição
+
+> **Ausência de avaliação deixa de produzir percentuais de qualidade, nota ou
+> veredicto de mérito, enquanto os casos efetivamente avaliados conservam os seus
+> resultados.**
+
+⚠ **Caso negativo, nomeado:** depois da correção, um caso **sem avaliação** ainda
+produzir percentual de qualidade, nota, letra ou veredicto de mérito — **inclusive
+por extração do texto do modelo**, que é o caso do `ACEITO` —, **ou** um caso
+**avaliado** mudar de resultado.
+
+**Controles, que a correção não deve mover:** o caso com avaliação válida e
+**confiáveis** conserva nota, veredicto e pontuação; o caso com avaliação válida e
+**zero confiáveis** continua tratado como dado observado, com a regra existente; e a
+**validação do parecer, de A.27, permanece distinta** da avaliação de qualidade dos
+dados.
+
+#### Os dois caminhos, e eles não se manifestam na mesma requisição
+
+| Caminho | Como aparece |
+|---|---|
+| **A**, o da r2 | a tela **fabrica** `byStatus` com `CONFIÁVEL: 12`, e o backend recebe isso **como avaliação existente** |
+| **B**, sem fonte alguma | `calculateGrade` desconta **15** por falta de dados e, com `totalRespondents` em zero, a taxa cai a **0** e a faixa abaixo de 30% desconta **mais 40** |
+
+⚠ **No caminho B a ausência é penalizada duas vezes**, e a segunda trata ausência
+como **zero por cento medido**. ⚠ **Ausência não autoriza resultado favorável nem
+desfavorável.**
+
+#### As três superfícies, capturadas ANTES, em separado
+
+Medidas com o cliente do modelo simulado, **sem geração real**, sobre a requisição
+r2 (caminho A) e sobre ela sem nenhuma fonte de qualidade (caminho B), com duas
+respostas controladas: uma **sem veredicto** no texto e outra **com `ACEITO`**.
+
+| Superfície | Caminho A | Caminho B |
+|---|---|---|
+| **contexto ao modelo** | *"Total: 12 especialistas"*, *"Respostas CONFIÁVEIS (CR ≤ 0.10): 12 (100.0%)"*, **Taxa de Validade Geral: 100.0%**, **Pontuação automática: 100/100**, sugestão `ACEITO` | resumo diz *"Análise de CR individual não disponível"*, **e mesmo assim** *"Taxa de Validade Geral: 0.0%"*, **Pontuação automática: 45/100**, sugestão `REJEITAR` |
+| **resposta da API** | `nota` **A**, `veredicto` **ACEITO**, `automaticGrade` 100; com o texto sem veredicto, `gradeSource` `automatic` | `nota` **F**, `veredicto` **REJEITAR**, `automaticGrade` 45; **com `ACEITO` no texto**, `gradeSource` `ai` e a resposta passa a **A / ACEITO** |
+| **apresentação ao gestor** | estado `aprovado`, **nota e veredicto exibidos**, sem motivo | estado `aprovado`, **nota e veredicto exibidos**, sem motivo |
+
+⚠ **O caminho B confirma o item 8 do aceite:** a nota extraída do texto **restabelece**
+hoje um resultado que a ausência de dados deveria suspender.
+
+#### A decisão do autor, que esta rodada implementa
+
+Faltando avaliação de qualidade, **suspender a nota global e o veredicto de mérito**,
+exibindo *"Nota não calculada: qualidade individual não avaliada"*, **com o motivo**.
+⚠ **Os cálculos AHP-BOCR disponíveis permanecem visíveis**, e **a ausência não vira
+aprovação nem reprovação.**
+
+| Situação | Comportamento |
+|---|---|
+| avaliação **ausente** | sem nota global, sem letra, sem veredicto de mérito; motivo explícito |
+| avaliação válida com **zero confiáveis** | zero é **observado**: vale a regra existente |
+| avaliação válida com confiáveis | comportamento existente **preservado** |
+| avaliação **incompleta ou inconsistente** | não se assume avaliação completa: insuficiência explícita e **classificação global suspensa** |
+
+⚠ **A correção começa na origem:** enquanto a tela fabricar `CONFIÁVEL: 12`, o
+backend continuará recebendo avaliação aparentemente existente. **O contrato passa a
+distinguir avaliação disponível de valor produzido por fallback**, e **a presença de
+`byStatus` deixa de ser o critério.**
+
+⚠ **Depois desta correção auditada**, a requisição afetada será **novamente
+identificada** e **P1 conferida contra a entrada destinada à geração**. **Nada disso
+nesta rodada.** **A predição de A.33 segue não testada.**
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
