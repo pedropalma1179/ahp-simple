@@ -8218,28 +8218,56 @@ valor medido e o corrente, e **os resultados da medição continuam iguais**.
   texto impresso nos dois campos, e a claim de Wijnmalen `key_claims[0]` passa a ser
   a redação sustentada. **As três unidades do snapshot, 47, 86 e 89, NÃO mudam**, e
   as conferências registradas de C1 descrevem essas unidades: **4 conferidas e 161
-  pendentes**, e o critério atual em **1 de 3**, **inalterados**. Mover Saaty e
-  Wijnmalen para conferidos exige a versão nova do snapshot e a conferência dela,
-  que é etapa própria.
-- ⚠ **Achado sobre a partição das treze, do `CLAUDE.md`:** ela classifica o
-  Wijnmalen entre os casos em que **o `evidence.quote` é o fiel**. Em
-  `key_claims[3]` ele **não era**: era a forma transformada, agora corrigida.
-  **O `CLAUDE.md` não foi alterado**; a partição é sobre qual campo diverge do
-  outro, e esta rodada mostrou que o campo escolhido ainda precisa de conferência
-  contra o impresso, que é o segundo resíduo que A.16 já nomeia.
+  pendentes**, e o critério atual em **1 de 3**, **inalterados**.
+  ⚠ **Criar o snapshot novo NÃO torna esses trechos conferidos.** A ordem é:
+  **auditar** as correções da base; **depois** propagar os conteúdos aprovados,
+  **recalcular** as identidades afetadas e **verificar** as cópias. **O snapshot
+  anterior conserva os seus resultados históricos.** *(Corrigido depois: a versão
+  anterior dizia que mover os dois trechos para conferidos exigia a versão nova do
+  snapshot e a conferência dela, sem essa ordem e sem a preservação do histórico.)*
+- ⚠ **A partição das treze, no `CLAUDE.md`, está INCORRETA neste ponto:** ela põe o
+  Wijnmalen entre os casos em que **o `evidence.quote` é o fiel**, e em
+  `key_claims[3]` ele **não era**: era a forma transformada, agora corrigida na
+  base. **A afirmação merece correção delimitada posterior**, que esta rodada não
+  fez, porque pode orientar novas escolhas erradas entre os campos. ⚠ **Até essa
+  correção, ela NÃO serve de evidência de qual campo é fiel.** *(Corrigido depois:
+  a versão anterior tratava a partição como descrição de qual campo diverge do
+  outro, o que atenuava o erro.)*
 - **Em A.16 continuam abertos:** o `verbatim_quote` e a claim de Wijnmalen
   `key_claims[3]`, e as demais divergências. **26 entre 138** na base viva, a mesma
   lista.
 - **Achado registrado e NÃO corrigido:** `claimToRef` corta `topic` acima de 120
   caracteres, sem outro sinal além das reticências.
 - **Predição:** registrada e **não testada**; a de A.33 também segue não testada.
-- ⚠ **Credenciais, observado nesta máquina:** o `.env.local`, ignorado pelo git,
-  **define** as quatro variáveis da etapa 4; **os valores não foram lidos**. A seção
-  seguinte mediu a ausência num **contêiner**, e segue verdadeira para aquele
-  ambiente. **Aqui, a etapa 4 não depende de credencial, e sim do snapshot novo e da
-  decisão de gerar.**
-- **Não foi feito:** reingestão, geração, publicação da branch, integração, e
-  alteração em `docs/dados/`, `app/`, `scripts/` ou `main`.
+- ⚠ **As quatro credenciais NÃO são requisito da etapa 4.** Pelo desenho aprovado,
+  **C1 e C3 usam recuperação simulada** e **C2 tem a recuperação desligada**; a
+  geração exige **acesso ao modelo real**, e **Voyage e Upstash não devem ser
+  chamados nesse ensaio**. Nesta máquina, o `.env.local`, ignorado pelo git, define
+  variáveis com esses quatro nomes, sem valores lidos, e ⚠ **a presença das
+  variáveis não demonstra que a autenticação funcionará.** A seção seguinte registra
+  a ausência das quatro num contêiner: é medição daquele ambiente, **não lista de
+  requisitos**. *(Corrigido depois: a versão anterior chamava as quatro de variáveis
+  da etapa 4 e dizia que, aqui, a etapa não dependia de credencial.)*
+- **Não foi feito, até `ac9ede9`:** reingestão, geração, publicação da branch,
+  integração, e alteração em `docs/dados/`, `app/`, `scripts/` ou `main`. A
+  publicação veio depois, e está abaixo.
+
+#### Publicação e CI, por commit
+
+A branch foi publicada **um commit por push**, sem `--force`, rebase ou `amend`,
+cada push esperando a execução do anterior terminar, para que **cada commit tenha
+execução própria**. Evento `push`, job `verificar`, os sete passos em `success`:
+
+| Commit | Execução | Estado |
+|---|---|---|
+| `3db365c776a8d6bc7142d9cb98dfc3890aa62c27` | `35215387396` | completed/success |
+| `8b057d9db2c70e701a757f5ad83336903c3b8000` | `35215571833` | completed/success |
+| `b567d99bec6881faa381651353120e1faaf7366a` | `35215786626` | completed/success |
+| `ac9ede9ace35b2854549dbdbd0b7f97b3bb07569` | `35215997892` | completed/success |
+
+⚠ **Sem integração:** `integra/a30-registros` segue em `23a3463`, local e remota, e
+a integração, por fast-forward, fica para depois da auditoria. `main` em `33c1fdf`.
+O CI deste commit de correção documental é observação posterior.
 
 ### Etapa 4: NÃO EXECUTADA
 
