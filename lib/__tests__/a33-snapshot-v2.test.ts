@@ -123,9 +123,9 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
     }
   });
 
-  test('são 56, e a contagem por categoria é a do desenho', () => {
+  test('são 57, e a contagem por categoria é a do desenho', () => {
     const porCategoria = excecoes.reduce((o: any, e: any) => ({ ...o, [e.categoria]: (o[e.categoria] || 0) + 1 }), {});
-    expect(excecoes).toHaveLength(56);
+    expect(excecoes).toHaveLength(57);
     expect(porCategoria).toEqual({
       'substituicao-aprovada': 6,
       'copia-referenceDoc': 7,
@@ -136,6 +136,7 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
       'endereco-administrativo': 10,
       'resumo-derivado': 5,
       'metadado-da-versao': 4,
+      'declaracao-administrativa-corrigida': 1,
     });
   });
 
@@ -171,6 +172,10 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
         expect([a, d]).toEqual([ap.antes, ap.depois]);
       }
       if (e.categoria === 'endereco-administrativo') expect([a, d]).toEqual([v2.BASE_SNAPSHOT, BASE_CORRIGIDA]);
+      if (e.categoria === 'declaracao-administrativa-corrigida') {
+        expect([e.arquivo, e.caminho]).toEqual(['casos.json', 'verificacaoCodigo']);
+        expect([a, d]).toEqual([um['casos.json'].verificacaoCodigo, v2.VERIFICACAO_V2]);
+      }
       if (e.categoria === 'identidade-recalculada') {
         expect(a).toBe(ev1.porTrecho[e.unidade].trechoId);
         expect(d).toBe(ev2.porTrecho[e.unidade].trechoId);
@@ -224,6 +229,41 @@ describe('A.33 v2: controle estrutural por exceções enumeradas', () => {
       'evidencias.json porTrecho[86].dadosOriginais',
       'evidencias.json porTrecho[89].dadosOriginais',
     ]);
+  });
+});
+
+describe('A.33 v2: a declaração administrativa e a regra do endereço', () => {
+  test('verificacaoCodigo foi corrigido SÓ na v2, com o alcance verificado, e a v1 segue com o texto da rodada dela', () => {
+    expect(um['casos.json'].verificacaoCodigo).toBe(
+      'Nenhum código de produção ou teste alterado; suíte e build não executados nesta rodada, conforme o aceite de dados/documentação.'
+    );
+    const texto: string = dois['casos.json'].verificacaoCodigo;
+    expect(texto).toBe(v2.VERIFICACAO_V2);
+    for (const trecho of ['scripts/a33-snapshot-v2.cjs', 'scripts/a33-payload-referencia.cjs', 'lib/__tests__/a33-snapshot-v2.test.ts',
+      'Verificado em c87e337', 'Verificado em 82057ec', 'Build local não executado', 'não cobre alterações posteriores a 82057ec']) {
+      expect(texto).toContain(trecho);
+    }
+    expect(texto).not.toContain('PENDENTE_CI');
+    expect(texto).not.toMatch(/nenhum teste|suíte e build não executados/i);
+  });
+
+  test('o sha do endereço registra a base de onde o conteúdo foi lido, e varia por unidade', () => {
+    const regra = manifesto.regraDoEndereco;
+    const afetadas: number[] = manifesto.derivacao.unidadesAfetadas;
+    expect(regra.nasCorrigidas).toMatchObject({ sha: v2.BASE_CORRIGIDA, unidades: afetadas });
+    expect(regra.nasDemais).toMatchObject({ sha: v2.BASE_SNAPSHOT, unidades: 162 });
+    expect(BASE_CORRIGIDA).toBe(v2.BASE_CORRIGIDA);
+    const esperado = (i: number) => (afetadas.includes(i) ? v2.BASE_CORRIGIDA : v2.BASE_SNAPSHOT);
+    ev2.porTrecho.forEach((u: any, i: number) => expect([i, u.enderecoNaBase.sha]).toEqual([i, esperado(i)]));
+    const porChave = new Map<string, number>(ev1.porTrecho.map((u: any, i: number) => [chaveEndereco({ ...u.enderecoNaBase, sha: 'x' }), i]));
+    const ce2 = dois['contexto-estatico.json'], c12 = dois['C1-recuperacao.json'];
+    const ocorrencias = [
+      ...ce2.quatroSecoes.flatMap((s: any) => s.referencias),
+      ...ce2.outrasTresSuperficies.flatMap((s: any) => s.enderecos),
+      ...c12.trechos,
+    ];
+    for (const o of ocorrencias) expect(o.enderecoNaBase.sha).toBe(esperado(porChave.get(chaveEndereco({ ...o.enderecoNaBase, sha: 'x' })) as number));
+    for (const f of ['evidencias.json', 'contexto-estatico.json', 'C1-recuperacao.json', 'casos.json']) expect(dois[f].baseSha).toBe(v2.BASE_SNAPSHOT);
   });
 });
 

@@ -61,6 +61,14 @@ const PENDENCIA_P1 =
 const PENDENCIA_CONCLUSOES =
   'Versão 2: Saaty key_claims[0] e Wijnmalen key_claims[0] têm conteúdo novo sem conclusão registrada de correspondência textual, e Wijnmalen key_claims[0] também sem conclusão de sustentação da claim nova; Wijnmalen key_claims[3] segue com verbatim_quote e claim abertos em A.16. Ver manifesto-transicao.json.';
 
+/**
+ * `verificacaoCodigo` da v2, com o alcance EFETIVAMENTE verificado. A v1 diz que
+ * nenhum teste foi alterado e que a suíte não rodou, o que vale para a rodada dela e
+ * não para esta série, que criou instrumento e testes.
+ */
+const VERIFICACAO_V2 =
+  'Versão 2. Código de produção: nenhum arquivo de app/, components/ ou lib/ fora de lib/__tests__ foi alterado pela preparação da v2, de 8f94341 a 82057ec; a base lib/rag/articles foi alterada antes, em A.16, por 8b057d9 e b567d99, e é a origem declarada das correções. Instrumentos criados: scripts/a33-snapshot-v2.cjs e scripts/a33-payload-referencia.cjs. Teste criado: lib/__tests__/a33-snapshot-v2.test.ts. Verificado em c87e337: tsc 0; suíte com 23 suítes e 361 testes, 358 passando na máquina Windows, com as três falhas já registradas, e 361 de 361 em clone raso com LF; CI 35231221204 com typecheck, build e testes em sucesso. Verificado em 82057ec: tsc 0; o teste da v2 com 48 de 48; CI 35240750874 com typecheck, build e testes em sucesso. Build local não executado nesta preparação. Esta descrição não cobre alterações posteriores a 82057ec.';
+
 const git = (args) => execFileSync('git', args, { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
 const blob = (sha, rel) => git(['show', `${sha}:${rel}`]);
 const clone = (v) => JSON.parse(JSON.stringify(v));
@@ -257,6 +265,7 @@ function classificar(arquivo, caminho) {
       [/^(versaoPreparacao|dataUTC)$/, 'metadado-da-versao'],
       [/^pendenciasParaGeracao\[\d+\]$/, 'metadado-da-versao'],
       [/^integridadeDosDados\["[^"]+"\]\.resumoCompleto$/, 'resumo-derivado'],
+      [/^verificacaoCodigo$/, 'declaracao-administrativa-corrigida'],
     ],
   };
   const regra = (regras[arquivo] || []).find(([re]) => re.test(caminho));
@@ -440,6 +449,7 @@ function propagar() {
   const casos1 = v1['casos.json'], casos2 = clone(casos1);
   casos2.versaoPreparacao = 2;
   casos2.dataUTC = DATA;
+  casos2.verificacaoCodigo = VERIFICACAO_V2;
   casos2.pendenciasParaGeracao = [...casos1.pendenciasParaGeracao, PENDENCIA_P1, PENDENCIA_CONCLUSOES];
   const escritos = {
     'evidencias.json': serializar(ev2),
@@ -562,6 +572,13 @@ function propagar() {
       commitsDaCorrecao: [COMMIT_A16_TEXTUAL, COMMIT_A16_CLAIM],
       libRagIdenticaA: COMMIT_A16_CLAIM,
       nota: 'As correções vieram de 8b057d9 e b567d99, auditadas e integradas; lib/rag no SHA lido é idêntica à de b567d99.',
+    },
+    regraDoEndereco: {
+      regra: 'O sha de enderecoNaBase registra o estado da base de onde AQUELE conteúdo foi lido. Por isso varia por unidade.',
+      nasCorrigidas: { sha: BASE_CORRIGIDA, unidades: afetadas, porque: 'É este SHA que localiza o conteúdo corrigido; voltar a ' + BASE_SNAPSHOT + ' apontaria para o texto anterior.' },
+      nasDemais: { sha: BASE_SNAPSHOT, unidades: ev1.porTrecho.length - afetadas.length, porque: 'O conteúdo delas é o mesmo nos dois SHAs, e o endereço lido na v1 continua verdadeiro.' },
+      baseShaDeTopo: 'Os campos baseSha de topo dos artefatos seguem em ' + BASE_SNAPSHOT + ', a base da preparação de origem; a origem de cada conteúdo está no endereço da unidade.',
+      origemDaV2: 'A v2 é a v1 com as seis alterações aprovadas de A.16 lidas de ' + BASE_CORRIGIDA + ', mais as consequências enumeradas em excecoesEnumeradas.',
     },
     alcanceDaPropagacao: {
       alterados: ['evidencias.json', 'contexto-estatico.json', 'C1-recuperacao.json', 'casos.json'],
@@ -695,7 +712,7 @@ function calcularIndicadorC1(c12, ev2, novoPorEndereco) {
 
 module.exports = {
   V1, V2, BASE_SNAPSHOT, APROVADAS, CAMPOS_HT_KEY_CLAIMS, ARQUIVOS, COPIADOS_SEM_ALTERACAO,
-  PENDENCIA_P1, PENDENCIA_CONCLUSOES, valorNaBase, benchmarkDe, derivar, conferirContraAprovadas,
+  PENDENCIA_P1, PENDENCIA_CONCLUSOES, VERIFICACAO_V2, BASE_CORRIGIDA, valorNaBase, benchmarkDe, derivar, conferirContraAprovadas,
   topicDe, ruleDe, formatarSecao, textoDoChunk, verbatimDoChunk, resumosDe, classificar,
   aplicarSubstituicoes, lerArquivo, lerJson, rotulo, valorEm, diferencasSeg,
 };

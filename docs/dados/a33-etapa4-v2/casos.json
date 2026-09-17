@@ -105,5 +105,5 @@
     }
   },
   "provenienciaHashes": "Resumos calculados nesta preparação sobre os arquivos agora escritos. Não são resumos de prompts da Fase 1 nem saídas de geração.",
-  "verificacaoCodigo": "Nenhum código de produção ou teste alterado; suíte e build não executados nesta rodada, conforme o aceite de dados/documentação."
+  "verificacaoCodigo": "Versão 2. Código de produção: nenhum arquivo de app/, components/ ou lib/ fora de lib/__tests__ foi alterado pela preparação da v2, de 8f94341 a 82057ec; a base lib/rag/articles foi alterada antes, em A.16, por 8b057d9 e b567d99, e é a origem declarada das correções. Instrumentos criados: scripts/a33-snapshot-v2.cjs e scripts/a33-payload-referencia.cjs. Teste criado: lib/__tests__/a33-snapshot-v2.test.ts. Verificado em c87e337: tsc 0; suíte com 23 suítes e 361 testes, 358 passando na máquina Windows, com as três falhas já registradas, e 361 de 361 em clone raso com LF; CI 35231221204 com typecheck, build e testes em sucesso. Verificado em 82057ec: tsc 0; o teste da v2 com 48 de 48; CI 35240750874 com typecheck, build e testes em sucesso. Build local não executado nesta preparação. Esta descrição não cobre alterações posteriores a 82057ec."
 }
