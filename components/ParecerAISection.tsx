@@ -9,8 +9,14 @@ import { decideReviewPresentation } from '@/lib/ai-reviewer/review-validation-co
 
 interface ParecerAISectionProps {
   aiReview: {
-    nota?: string;
-    veredicto?: string;
+    nota?: string | null;
+    veredicto?: string | null;
+    /**
+     * A.12: sem avaliação de qualidade, a classificação global fica suspensa, e a
+     * tela mostra o motivo no lugar da nota. ⚠ Os cálculos AHP-BOCR seguem
+     * visíveis nas demais seções da página.
+     */
+    notaSuspensa?: { suspensa: boolean; rotulo: string; motivo: string } | null;
     review?: string;
     validation?: unknown;
     metadata?: {
@@ -203,8 +209,20 @@ export default function ParecerAISection({
             </div>
           )}
 
+          {/* A.12: classificação suspensa por falta de avaliação de qualidade. */}
+          {aiReview.notaSuspensa?.suspensa && (
+            <div className="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4" role="status">
+              <h4 className="font-semibold text-slate-900">📊 {aiReview.notaSuspensa.rotulo}</h4>
+              <p className="mt-1 text-sm text-slate-700">{aiReview.notaSuspensa.motivo}</p>
+              <p className="mt-2 text-xs text-slate-600">
+                A ausência de avaliação não é aprovação nem reprovação. Os cálculos AHP-BOCR
+                disponíveis seguem visíveis nas demais seções.
+              </p>
+            </div>
+          )}
+
           {/* Nota e veredicto só pertencem à apresentação aprovada. */}
-          {presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (
+          {!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (
             <div className="flex gap-3 mb-6 flex-wrap">
               {aiReview.nota && (() => {
                 const s = getNotaStyle(aiReview.nota!);

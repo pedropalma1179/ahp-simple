@@ -379,6 +379,14 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     const A16_MESSAGES_SEM_CHUNKS =
       '1093592249913b4abcc832bbc137d4b6d72f62d358edbaafda5d9a3d6c07298f';
 
+    // ⚠ **A.12 MUDA os `messages` de propósito**, e este ensaio não traz avaliação
+    // individual de qualidade: o contexto passa a declarar a avaliação ausente, sem
+    // percentuais e sem pontuação automática. Os valores de A.16 ficam nomeados
+    // acima. **O `system` segue o mesmo**, e isso também é evidência: a correção
+    // alcançou o bloco de qualidade, e nada mais.
+    const A12_MESSAGES_COM_CHUNKS = '29f55aa73a2c31588e74756fbedd5deebc8ad7b89b5ea99bdef1496a3e63be2f';
+    const A12_MESSAGES_SEM_CHUNKS = '339f5f3fca46dbcf84585b5e9a4289d834dde79dd75280d653260ce77780ebed';
+
     // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
     // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui
     // foi medido num estado INTERMEDIÁRIO, antes de a página sair também do exemplo
@@ -387,10 +395,10 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     const SYSTEM_A33 = '635fda53f7aa334dc0b30f8dab94b4bc6d30cbd3ec8e55dddcc134d001ec778e';
 
     const REFERENCIA: Record<string, { system: string; messages: string }> = {
-      comResultados: { system: SYSTEM_A33, messages: A16_MESSAGES_COM_CHUNKS },
-      vazio: { system: SYSTEM_A33, messages: A16_MESSAGES_SEM_CHUNKS },
-      erro: { system: SYSTEM_A33, messages: A16_MESSAGES_SEM_CHUNKS },
-      misto: { system: SYSTEM_A33, messages: A16_MESSAGES_COM_CHUNKS },
+      comResultados: { system: SYSTEM_A33, messages: A12_MESSAGES_COM_CHUNKS },
+      vazio: { system: SYSTEM_A33, messages: A12_MESSAGES_SEM_CHUNKS },
+      erro: { system: SYSTEM_A33, messages: A12_MESSAGES_SEM_CHUNKS },
+      misto: { system: SYSTEM_A33, messages: A12_MESSAGES_COM_CHUNKS },
     };
 
     const casos: Record<string, Desfecho[]> = {
@@ -415,8 +423,10 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // ⚠ **Nem os `messages` de antes de A.16**: se voltassem, a correção da base
     // teria sido desfeita sem que nada mais acusasse.
     expect(resumo(JSON.stringify(r.messages))).not.toBe(D658E50_MESSAGES_SEM_CHUNKS);
+    expect(resumo(JSON.stringify(r.messages))).not.toBe(A16_MESSAGES_SEM_CHUNKS);
     const c = await executar('true', false, Array(5).fill(cincoChunks));
     expect(resumo(JSON.stringify(c.messages))).not.toBe(A33_MESSAGES_COM_CHUNKS);
+    expect(resumo(JSON.stringify(c.messages))).not.toBe(A16_MESSAGES_COM_CHUNKS);
   });
 
   it('execução MISTA: uma categoria só não representa a execução: DEFEITO', async () => {

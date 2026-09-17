@@ -610,6 +610,9 @@ describe('A.33 v2: a requisição de referência r2, e o seu inventário', () =>
     const tela = ler(referencia.TELA), calculo = ler(referencia.CALCULO);
     for (const [ancora, n] of referencia.ANCORAS_DA_TELA) expect([ancora, contar(tela, ancora)]).toEqual([ancora, n]);
     for (const [ancora, n] of referencia.ANCORAS_DO_CALCULO) expect([ancora, contar(calculo, ancora)]).toEqual([ancora, n]);
+    // ⚠ A.12 retirou os fallbacks que fabricavam distribuição: conferidos pela
+    // AUSÊNCIA. A r2 espelha a tela ANTERIOR à correção, e segue preservada.
+    for (const ancora of referencia.ANCORAS_RETIRADAS_POR_A12) expect([ancora, contar(tela, ancora)]).toEqual([ancora, 0]);
     expect(r2.transformacao.alcanceDasAncoras).toContain('presença dos fragmentos escolhidos');
     expect(r2.transformacao.alcanceDasAncoras).toContain('NÃO demonstram equivalência completa');
   });
@@ -682,10 +685,13 @@ describe('A.33 v2: a montagem real corresponde à nova preparação, sem chamada
     expect(contar(m, `(B=${pct(b)}, O=${pct(o)}, C=${pct(c)}, R=${pct(r)})`)).toBe(1);
     expect(contar(m, `**Título do Projeto:** ${CALCULO.metadata.projectName}`)).toBe(1);
     expect(m).not.toContain('Projeto sem nome');
-    // ⚠ O fallback de qualidade da tela está PRESERVADO, e isto registra o efeito
-    // dele, pendência de A.12; não o torna adequado ao ensaio.
-    expect(m).toContain(`Respostas CONFIÁVEIS (CR ≤ 0.10): ${CALCULO.responseCount} (100.0%)`);
-    expect(m).toContain('Pontuação automática: 100/100');
+    // ⚠ SUPERADO pela correção de A.12: o byStatus fabricado que a r2 carrega NÃO
+    // vale mais como avaliação. A requisição r2 segue preservada; o que mudou é a
+    // montagem, e é isto que se mede agora.
+    expect(m).not.toContain(`Respostas CONFIÁVEIS (CR ≤ 0.10): ${CALCULO.responseCount} (100.0%)`);
+    expect(m).not.toContain('Pontuação automática: 100/100');
+    expect(m).toContain('AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
+    expect(m).toContain('Pontuação automática: não calculada');
     for (const f of CALCULO.finalScores) expect(contar(m, `${f.code} — ${f.name}: Score = ${f.scoreSubtractive.toFixed(6)}`)).toBe(1);
     for (const sintetico of ['Projeto de ensaio', 'Alternativa 1', 'B=37.0%']) expect(m).not.toContain(sintetico);
   });

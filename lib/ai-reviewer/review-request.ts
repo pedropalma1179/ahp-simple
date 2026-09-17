@@ -15,6 +15,8 @@
  * enganosa.
  */
 
+import type { AvaliacaoQualidade } from './avaliacao-qualidade';
+
 // ============================================================
 // TIPOS DA REQUISIÇÃO
 // ============================================================
@@ -35,6 +37,12 @@ export interface RespondentData {
 }
 
 export interface ReviewRequest {
+  /**
+   * A.12: estado da avaliação de qualidade dos DADOS, distinto de valor produzido
+   * por fallback. ⚠ Só `disponivel` autoriza classificação global. Requisição sem
+   * o campo é classificada pela rota, e `byStatus` sozinho não é avaliação.
+   */
+  avaliacaoDeQualidade?: AvaliacaoQualidade;
   projectName: string;
   projectDescription?: string;
   sensitivityInflections?: Record<string, number | null>;

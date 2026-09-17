@@ -10,6 +10,13 @@ import { getKnowledgeStats, getCriticalRefs, getRefsByTopic, getRAGThresholds, g
 import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-detection';
 import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
 import { getValidFinalScores, type ReviewRequest } from '@/lib/ai-reviewer/review-request';
+import {
+  classificarAvaliacaoRecebida,
+  qualidadeDisponivel,
+  motivoDaSuspensao,
+  ROTULO_NOTA_SUSPENSA,
+  type AvaliacaoQualidade,
+} from '@/lib/ai-reviewer/avaliacao-qualidade';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
 import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-contract';
 import { getRAGSemanticDiagnosticado } from '@/lib/rag/semantic-retrieve';
@@ -311,9 +318,27 @@ const MODEL_CONFIG = {
 // SISTEMA DE CLASSIFICAÇÃO AUTOMÁTICA
 // ============================================================
 
-function calculateGrade(data: ReviewRequest): { nota: string; veredicto: string; score: number } {
+/**
+ * A.12: a classificação global só existe quando há avaliação de qualidade.
+ *
+ * ⚠ **Ausência não é resultado.** Sem avaliação, não há nota, letra, veredicto de
+ * mérito nem penalização: a classificação fica SUSPENSA, com o motivo. Com
+ * avaliação, o comportamento existente é preservado, inclusive o de zero
+ * confiáveis observados, que é dado e não ausência.
+ */
+type Classificacao =
+  | { suspensa: false; nota: string; veredicto: string; score: number; motivo: null }
+  | { suspensa: true; nota: null; veredicto: null; score: null; motivo: string };
+
+function calculateGrade(data: ReviewRequest): Classificacao {
   const stats = data.individualStats;
   const weights = data.bocrWeights;
+
+  if (!qualidadeDisponivel(data.avaliacaoDeQualidade)) {
+    const motivo = motivoDaSuspensao(data.avaliacaoDeQualidade);
+    console.log(`${LOG_PREFIX} Classificação SUSPENSA: ${motivo}`);
+    return { suspensa: true, nota: null, veredicto: null, score: null, motivo };
+  }
 
   let score = 100;
 
@@ -366,11 +391,13 @@ function calculateGrade(data: ReviewRequest): { nota: string; veredicto: string;
     criticalCount = data.qualityAnalysis.summary.critical || 0;
     console.log(`${LOG_PREFIX} Usando qualityAnalysis.summary: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌`);
   }
-  // FALLBACK: Sem dados de qualidade
+  // ⚠ A.12: avaliação declarada disponível SEM dados de qualidade é inconsistência,
+  // e não motivo de penalização. A dupla contagem — 15 aqui e 40 pela taxa zero —
+  // saiu: ausência não produz resultado desfavorável.
   else {
-    console.log(`${LOG_PREFIX} ⚠️ Sem dados de qualidade individual disponíveis`);
-    // Penalizar por falta de dados (não podemos assumir qualidade)
-    score -= 15;
+    const motivo = 'Avaliação declarada disponível, mas a requisição não traz distribuição de qualidade.';
+    console.log(`${LOG_PREFIX} Classificação SUSPENSA: ${motivo}`);
+    return { suspensa: true, nota: null, veredicto: null, score: null, motivo };
   }
 
   // Calcular taxa de validade
@@ -461,7 +488,7 @@ function calculateGrade(data: ReviewRequest): { nota: string; veredicto: string;
 
   console.log(`${LOG_PREFIX} Resultado: ${nota} (${score}/100) - ${veredicto}`);
 
-  return { nota, veredicto, score };
+  return { suspensa: false, nota, veredicto, score, motivo: null };
 }
 
 // ============================================================
@@ -512,6 +539,9 @@ function extractGradeFromReview(reviewText: string): { nota: string; veredicto: 
 // ============================================================
 
 function normalizeRequest(rawData: any): ReviewRequest {
+  // A.12: o estado da avaliação vem do contrato, e é conferido; `byStatus` sozinho
+  // não é avaliação.
+  const avaliacaoDeQualidade: AvaliacaoQualidade = classificarAvaliacaoRecebida(rawData);
   // Detectar se individualStats está no formato agregado (sem dimensões)
   let individualStats = rawData.individualStats || rawData.criteriaStats;
 
@@ -580,6 +610,7 @@ function normalizeRequest(rawData: any): ReviewRequest {
   }
 
   return {
+    avaliacaoDeQualidade,
     projectName: rawData.projectName || rawData.name || 'Projeto sem nome',
     projectDescription: rawData.projectDescription || rawData.description,
     individualStats,
@@ -607,7 +638,7 @@ function normalizeRequest(rawData: any): ReviewRequest {
 
 async function generateReview(
   data: ReviewRequest,
-  classification: any,
+  classification: Classificacao,
   biasAnalysis?: BiasAnalysisResult
 ): Promise<{ review: string; semanticStats: SemanticStats }> {
   console.log('[AI-REVIEWER] sensitivityInflections recebido:', JSON.stringify(data.sensitivityInflections));
@@ -644,12 +675,16 @@ async function generateReview(
     );
   }
 
+  // A.12: sem avaliação disponível, NENHUM percentual de qualidade é montado, nem
+  // a partir de `byStatus`, que a tela antiga fabricava.
+  const avaliada = qualidadeDisponivel(data.avaliacaoDeQualidade);
+
   // Análise de respondentes individuais
   let respondentAnalysis = '';
   let respondentSummary = '';
 
   // PRIORIDADE 1: Usar statistics.byStatus (formato correto da API response-quality)
-  if (data.qualityAnalysis?.statistics?.byStatus) {
+  if (avaliada && data.qualityAnalysis?.statistics?.byStatus) {
     const byStatus = data.qualityAnalysis.statistics.byStatus;
     const total = data.qualityAnalysis.statistics.total ||
       Object.values(byStatus).reduce((a: number, b: any) => a + (b || 0), 0);
@@ -702,7 +737,7 @@ async function generateReview(
     }
   }
   // PRIORIDADE 2: Usar respondents array
-  else if (data.qualityAnalysis?.respondents && data.qualityAnalysis.respondents.length > 0) {
+  else if (avaliada && data.qualityAnalysis?.respondents && data.qualityAnalysis.respondents.length > 0) {
     const respondents = data.qualityAnalysis.respondents;
     const total = respondents.length;
 
@@ -721,7 +756,7 @@ async function generateReview(
 `;
   }
   // PRIORIDADE 3: Usar overallStats
-  else if (data.overallStats && data.overallStats.total > 0) {
+  else if (avaliada && data.overallStats && data.overallStats.total > 0) {
     const stats = data.overallStats;
     respondentSummary = `
 **Distribuição de Qualidade dos Respondentes:**
@@ -731,12 +766,14 @@ async function generateReview(
 - Respostas críticas: ${stats.critical} (${((stats.critical / stats.total) * 100).toFixed(1)}%)
 `;
   }
-  // FALLBACK: Sem dados de qualidade
+  // A.12: sem avaliação, nenhum percentual de qualidade é apresentado.
   else {
     respondentSummary = `
 **Qualidade dos Dados:**
-⚠️ Análise de CR individual não disponível.
-O CR global agregado (via média geométrica) foi validado, mas os CRs individuais dos respondentes não foram analisados.
+⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — ${motivoDaSuspensao(data.avaliacaoDeQualidade)}
+O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.
+Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA}.
+⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.
 Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
 `;
   }
@@ -746,7 +783,7 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
   let totalResponses = 0;
   let validResponses = 0;
 
-  if (data.qualityAnalysis?.statistics?.byStatus) {
+  if (avaliada && data.qualityAnalysis?.statistics?.byStatus) {
     const byStatus = data.qualityAnalysis.statistics.byStatus;
     const confiavel = byStatus['CONFIÁVEL'] || byStatus['CONFIAVEL'] || 0;
     const revisar = byStatus['REVISAR'] || 0;
@@ -755,13 +792,13 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
 
     totalResponses = confiavel + revisar + suspeito + critico;
     validResponses = confiavel; // Apenas CR ≤ 0.10
-  } else if (data.qualityAnalysis?.summary && data.qualityAnalysis.summary.total > 0) {
+  } else if (avaliada && data.qualityAnalysis?.summary && data.qualityAnalysis.summary.total > 0) {
     totalResponses = data.qualityAnalysis.summary.total;
     validResponses = data.qualityAnalysis.summary.ok || 0;
-  } else if (data.overallStats && data.overallStats.total > 0) {
+  } else if (avaliada && data.overallStats && data.overallStats.total > 0) {
     totalResponses = data.overallStats.total;
     validResponses = data.overallStats.valid || 0;
-  } else {
+  } else if (avaliada) {
     totalResponses = data.individualStats.Benefits.total +
       data.individualStats.Opportunities.total +
       data.individualStats.Costs.total +
@@ -776,6 +813,11 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
   console.log(`[AI-REVIEWER] Prompt: ${validResponses}/${totalResponses} respostas válidas`);
 
   const overallValidPercent = totalResponses > 0 ? (validResponses / totalResponses) * 100 : 0;
+  // A.12: sem avaliação, a taxa não é calculada; zero aqui seria ausência
+  // apresentada como medida.
+  const taxaDeValidadeGeral = avaliada
+    ? `**Taxa de Validade Geral:** ${overallValidPercent.toFixed(1)}% das respostas com CR ≤ 0.10`
+    : '**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.';
 
   // Contexto de exclusão de respondentes
   let exclusionContext = '';
@@ -954,8 +996,9 @@ ${validScores.map((fs, idx) => `${idx + 1}º ${fs.code || 'N/A'} — ${fs.name |
 ${data.projectDescription ? `\n**Descrição:** ${data.projectDescription}\n` : ''}
 
 **Referência Automatizada (apenas contexto — NÃO use como sua decisão):**
-- Pontuação automática: ${classification.score}/100
-- Sugestão automática: ${classification.veredicto}
+${classification.suspensa
+      ? `- Pontuação automática: não calculada — ${classification.motivo}\n- Sugestão automática: não calculada; a classificação global está suspensa`
+      : `- Pontuação automática: ${classification.score}/100\n- Sugestão automática: ${classification.veredicto}`}
 - IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.
 
 ---
@@ -999,13 +1042,13 @@ ${finalScoresSection}
 
 ${respondentSummary}
 
-**Taxa de Validade Geral:** ${overallValidPercent.toFixed(1)}% das respostas com CR ≤ 0.10
+${taxaDeValidadeGeral}
 
 ${respondentAnalysis}
 
 ## Estatísticas por Dimensão BOCR
 
-${(() => {
+${!avaliada ? '⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.' : (() => {
       const bStats = data.individualStats?.Benefits || { total: 0, valid: 0, warning: 0, critical: 0 };
       const oStats = data.individualStats?.Opportunities || { total: 0, valid: 0, warning: 0, critical: 0 };
       const cStats = data.individualStats?.Costs || { total: 0, valid: 0, warning: 0, critical: 0 };
@@ -1348,6 +1391,7 @@ export async function POST(request: NextRequest) {
     console.log(`${LOG_PREFIX} Payload recebido`);
 
     const data = normalizeRequest(rawData);
+    console.log(`${LOG_PREFIX} Avaliação de qualidade: ${data.avaliacaoDeQualidade?.estado} (${data.avaliacaoDeQualidade?.fonte})`);
     console.log(`${LOG_PREFIX} Dados normalizados - bocrWeights:`, JSON.stringify(data.bocrWeights));
 
     // DEBUG: Verificar dados recebidos
@@ -1437,16 +1481,21 @@ export async function POST(request: NextRequest) {
     }
 
     // FONTE ÚNICA: Extrair nota do texto da IA (fallback: calculateGrade)
-    const aiGrade = extractGradeFromReview(review);
-    const finalNota = aiGrade?.nota ?? classification.nota;
-    const finalVeredicto = aiGrade?.veredicto ?? classification.veredicto;
+    // ⚠ A.12: com a classificação SUSPENSA, a extração NÃO restabelece nota nem
+    // veredicto. O texto do modelo não supre avaliação de qualidade ausente.
+    const aiGrade = classification.suspensa ? null : extractGradeFromReview(review);
+    const finalNota = classification.suspensa ? null : (aiGrade?.nota ?? classification.nota);
+    const finalVeredicto = classification.suspensa ? null : (aiGrade?.veredicto ?? classification.veredicto);
+    if (classification.suspensa) {
+      console.log(`${LOG_PREFIX} Nota suspensa: ${classification.motivo}`);
+    }
 
-    if (aiGrade) {
+    if (aiGrade && !classification.suspensa) {
       console.log(`${LOG_PREFIX} ✅ Nota IA (autoritativa): ${aiGrade.nota} - ${aiGrade.veredicto}`);
       if (aiGrade.nota !== classification.nota) {
         console.log(`${LOG_PREFIX} 📊 Divergência: IA=${aiGrade.nota}/${aiGrade.veredicto} vs Auto=${classification.nota}/${classification.veredicto} (${classification.score}/100)`);
       }
-    } else {
+    } else if (!classification.suspensa) {
       console.log(`${LOG_PREFIX} ⚠️ Fallback para nota automática: ${classification.nota} (${classification.score}/100)`);
     }
 
@@ -1454,6 +1503,10 @@ export async function POST(request: NextRequest) {
       success: true,
       nota: finalNota,
       veredicto: finalVeredicto,
+      // A.12: a ausência de avaliação suspende a classificação, e diz por quê.
+      notaSuspensa: classification.suspensa
+        ? { suspensa: true, rotulo: ROTULO_NOTA_SUSPENSA, motivo: classification.motivo, avaliacaoDeQualidade: data.avaliacaoDeQualidade }
+        : null,
       review,
       biasAnalysis: biasAnalysis || null,
       // `success` informa que a geração terminou. A autorização para apresentar
@@ -1463,12 +1516,13 @@ export async function POST(request: NextRequest) {
         version: API_VERSION,
         model: MODEL_CONFIG.id,
         timestamp: new Date().toISOString(),
-        gradeSource: aiGrade ? 'ai' : 'automatic',
-        automaticGrade: {
+        gradeSource: classification.suspensa ? 'suspensa' : (aiGrade ? 'ai' : 'automatic'),
+        automaticGrade: classification.suspensa ? null : {
           nota: classification.nota,
           veredicto: classification.veredicto,
           score: classification.score,
         },
+        avaliacaoDeQualidade: data.avaliacaoDeQualidade,
         knowledgeBase: {
           refsUsed: getKnowledgeStats().totalRefs,
           criticalRefs: getCriticalRefs().length,

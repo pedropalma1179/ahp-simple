@@ -55,15 +55,7 @@ const ANCORAS_DA_TELA = [
   ['finalScores: calculation.finalScores || []', 1],
   ['responseCount: calculation.responseCount || activeProjectResponses.length || 0', 1],
   ['sensitivityInflections: calculation.sensitivityInflections || {}', 1],
-  ["'CONFIÁVEL': individualStats.valid || calculation.responseCount || 0", 1],
-  ["'REVISAR': 0", 2],
-  // Duas: `summary.total` no ramo COM análise de qualidade e `statistics.total` no
-  // ramo SEM ela, que é o espelhado.
-  ['total: individualStats.total || calculation.responseCount || 0,', 2],
-  ['total: calculation.responseCount || activeProjectResponses.length || 0,', 1],
-  ['ok: individualStats.valid || calculation.responseCount || 0', 1],
-  ['total: individualStats.total || calculation.responseCount || activeProjectResponses.length || 0', 1],
-  ['individualStats: individualStats.total > 0 ? individualStats : undefined', 1],
+  ["'REVISAR': 0", 1],
   ['} : { total: 0, hasData: false };', 1],
   ['exclusionInfo: excludedIds.length > 0 ? {', 1],
   ['body: JSON.stringify(finalPayload)', 1],
@@ -71,6 +63,23 @@ const ANCORAS_DA_TELA = [
   ['setExcludedIds(calcData.metadata.excludedRespondentIds);', 1],
   ['setSensitiveGroups(projectData.sensitiveGroups);', 1],
   ['sensitiveGroups: sensitiveGroups || undefined', 1],
+];
+
+/**
+ * ⚠ **Âncoras que a correção de A.12 RETIROU da tela**, conferidas agora pela
+ * AUSÊNCIA. Elas eram os fallbacks que fabricavam distribuição de qualidade a
+ * partir de `responseCount`. **A r2 espelha a tela ANTERIOR a essa correção**, e
+ * por isso a requisição dela mantém `byStatus` fabricado: é registro do estado de
+ * então, e não do que a tela envia hoje. A versão seguinte da requisição é rodada
+ * própria.
+ */
+const ANCORAS_RETIRADAS_POR_A12 = [
+  "'CONFIÁVEL': individualStats.valid || calculation.responseCount || 0",
+  'total: individualStats.total || calculation.responseCount || 0,',
+  'total: calculation.responseCount || activeProjectResponses.length || 0,',
+  'ok: individualStats.valid || calculation.responseCount || 0',
+  'total: individualStats.total || calculation.responseCount || activeProjectResponses.length || 0',
+  'individualStats: individualStats.total > 0 ? individualStats : undefined',
 ];
 
 /** r2: de onde a rota de cálculo tira os dois metadados que a requisição usa. */
@@ -370,6 +379,6 @@ function declaracaoR2() {
 }
 
 module.exports = {
-  ARQUIVO, TELA, CALCULO, ANCORAS_DA_TELA, ANCORAS_DO_CALCULO, ESTADOS, TRATAMENTOS, PENDENCIA_A12,
+  ARQUIVO, TELA, CALCULO, ANCORAS_DA_TELA, ANCORAS_DO_CALCULO, ANCORAS_RETIRADAS_POR_A12, ESTADOS, TRATAMENTOS, PENDENCIA_A12,
   montarRequisicao, declaracaoR1, montarRequisicaoR2, declaracaoR2, serializarRequisicao, lerArquivo,
 };

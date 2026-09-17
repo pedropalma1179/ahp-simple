@@ -40,6 +40,7 @@ import {
 // Componente híbrido para Revisão IA (resolve problema de alucinação numérica)
 // Valores numéricos do SISTEMA + análise qualitativa da IA
 import ParecerAISection from '@/components/ParecerAISection';
+import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
 import ExternalValidation from '@/components/ExternalValidation';
 import BiasAnalysisCard from '@/components/BiasAnalysisCard';
 
@@ -1170,8 +1171,22 @@ export default function ResultadosPage() {
         console.log(`📊 [AI-REVIEW] Bias: ${biasRespondents.length} respondentes de projectResponses (fallback)`);
       }
 
+      // ============================================================
+      // A.12: a tela NÃO fabrica distribuição de qualidade.
+      // ⚠ Sem avaliação individual, o payload declara `ausente` e NÃO envia
+      // byStatus, summary, overallStats nem individualStats. Quem decide o que
+      // fazer com isso é a rota, que suspende a classificação global.
+      // ============================================================
+      const avaliacaoDeQualidade = classificarAvaliacaoDaTela({
+        respondentesAvaliados: activeRespondents,
+        respostasAtivas: activeProjectResponses,
+      });
+      const qualidadeAvaliada = avaliacaoDeQualidade.estado === 'disponivel';
+      console.log('📤 [AI-REVIEW] Avaliação de qualidade:', avaliacaoDeQualidade.estado, avaliacaoDeQualidade.fonte);
+
       // Preparar payload
       const payload = {
+        avaliacaoDeQualidade,
         projectName: project.name || 'Projeto sem nome',
         projectDescription: project.description || '',
         alternatives: project.alternatives || [],
@@ -1204,53 +1219,38 @@ export default function ResultadosPage() {
         finalScores: calculation.finalScores || [],
         responseCount: calculation.responseCount || activeProjectResponses.length || 0,
         sensitivityInflections: calculation.sensitivityInflections || {},
-        // CORREÇÃO v6.5: Enviar qualityAnalysis COMPLETO (com statistics.byStatus)
-        qualityAnalysis: currentQualityAnalysis ? {
+        // ⚠ A.12: a distribuição só vai quando foi MEDIDA. Sem avaliação, segue só
+        // a lista de respondentes que houver, sem estatísticas fabricadas.
+        qualityAnalysis: qualidadeAvaliada ? {
           respondents: biasRespondents,
           statistics: {
             byStatus: {
-              'CONFIÁVEL': individualStats.valid || 0,
+              'CONFIÁVEL': individualStats.valid,
               'REVISAR': 0,
-              'SUSPEITO': individualStats.warning || 0,
-              'CRÍTICO': individualStats.critical || 0
+              'SUSPEITO': individualStats.warning,
+              'CRÍTICO': individualStats.critical
             },
-            total: individualStats.total || 0,
-            avgCR: individualStats.avgCR || 0
+            total: individualStats.total,
+            avgCR: individualStats.avgCR
           },
-          overall: currentQualityAnalysis.overall || {},
+          overall: currentQualityAnalysis?.overall || {},
           summary: {
-            total: individualStats.total || calculation.responseCount || 0,
-            ok: individualStats.valid || 0,
-            suspicious: individualStats.warning || 0,
-            critical: individualStats.critical || 0
+            total: individualStats.total,
+            ok: individualStats.valid,
+            suspicious: individualStats.warning,
+            critical: individualStats.critical
           }
         } : {
-          respondents: biasRespondents,
-          statistics: {
-            byStatus: {
-              'CONFIÁVEL': individualStats.valid || calculation.responseCount || 0,
-              'REVISAR': 0,
-              'SUSPEITO': individualStats.warning || 0,
-              'CRÍTICO': individualStats.critical || 0
-            },
-            total: individualStats.total || calculation.responseCount || 0,
-            avgCR: individualStats.avgCR || 0
-          },
-          summary: {
-            total: calculation.responseCount || activeProjectResponses.length || 0,
-            ok: individualStats.valid || calculation.responseCount || 0,
-            suspicious: individualStats.warning || 0,
-            critical: individualStats.critical || 0
-          }
+          respondents: biasRespondents
         },
-        // overallStats para compatibilidade
-        overallStats: {
-          total: individualStats.total || calculation.responseCount || activeProjectResponses.length || 0,
-          valid: individualStats.valid || 0,
-          warning: individualStats.warning || 0,
-          critical: individualStats.critical || 0
-        },
-        individualStats: individualStats.total > 0 ? individualStats : undefined
+        // overallStats para compatibilidade, e só com avaliação medida.
+        overallStats: qualidadeAvaliada ? {
+          total: individualStats.total,
+          valid: individualStats.valid,
+          warning: individualStats.warning,
+          critical: individualStats.critical
+        } : undefined,
+        individualStats: qualidadeAvaliada && individualStats.total > 0 ? individualStats : undefined
       };
 
       // Adicionar dados demográficos ao payload
@@ -1306,6 +1306,7 @@ export default function ResultadosPage() {
         setAiReview({
           nota: data.nota,
           veredicto: data.veredicto,
+          notaSuspensa: data.notaSuspensa ?? null,
           review: data.review,
           validation: data.validation,
           metadata: data.metadata
