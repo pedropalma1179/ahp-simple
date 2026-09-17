@@ -8474,7 +8474,16 @@ interrupção declarada.
 
 C2 e C3 montam **o mesmo** texto, e o `system` é o mesmo nos três.
 
+⚠ **SUPERADO em `82057ec`:** esta montagem usava um **projeto sintético**, e por
+isso verificava a inserção das seções e dos chunks, **não** a montagem de C1, C2 e C3
+sobre o payload de referência. Ver a seção seguinte.
+
 #### Estados e contagens, como resultado
+
+⚠ **SUPERADO em `14d2ba5`, para a v2:** o que segue descreve `c87e337`. Com o
+encadeamento registrado por novo `trechoId`, Saaty e Wijnmalen `key_claims[0]`
+passaram a conferidos na v2, e o indicador de C1 na v2, a 3 de 3. Ver a seção
+seguinte. **Os números da v1 não mudam.**
 
 **Nenhuma transição.** As **165** unidades distintas conservam o estado, **4
 conferidas e 161 pendentes**, sem somar cópias, e os resultados históricos da v1
@@ -8540,6 +8549,167 @@ inferência, embedding ou recuperação.**
 
 **Pendências:** delimitar P1; conclusões sobre o conteúdo novo de Saaty e
 Wijnmalen `key_claims[0]`; e A.16 em Wijnmalen `key_claims[3]`.
+
+### A.33: três ajustes na v2, em 17/09/2026
+
+**Gravação, na branch de sessão `snapshot/a33-etapa4-v2`, sobre `33750bf`:**
+
+| Commit | Ajuste | Natureza |
+|---|---|---|
+| `82057ec44064dbba3b3ad754e09526b48cf0f65a` | 1, montagem com o payload de referência | instrumento e teste |
+| `2087b73456b8f83d4b0994ffb1f8efce2519ff23` | 2, `verificacaoCodigo` e regra do endereço | correção administrativa |
+| `14d2ba5959c5d4640c69b2833ab04d9eac8ea804` | 3, encadeamento e indicadores | vínculo de conclusões já aceitas |
+
+**Porta de entrada:** `git fetch` saída 0; topo `33750bf` em
+`snapshot/a33-etapa4-v2`, `integra/a30-registros` e no remoto; árvore limpa e diff
+vazio; `33750bf` ancestral e descendente do topo, e `origin/integra` ancestral,
+todos com saída 0. **A propagação e os endereços chegaram aprovados.**
+
+#### Ajuste 1: a montagem com o payload de referência
+
+⚠ **O ensaio de `c87e337` usava projeto sintético.** Passou a usar
+`docs/calculations-13jul2026.json`, o payload dos casos, com o resumo
+`00d1d8a1…` que `casos.json` registra.
+
+⚠ **O arquivo NÃO é a requisição.** É o documento `calculations`; quem monta a
+requisição é a tela, `app/decisor/resultados/[projectId]/page.tsx`, `runAiReview`,
+bloco *Preparar payload*, que também lê o projeto, as respostas, a análise de
+qualidade, a demografia e as exclusões — **nenhum deles está no arquivo.**
+`scripts/a33-payload-referencia.cjs` espelha esse bloco com essas fontes ausentes, e
+declara **31 origens**, campo a campo:
+
+| Origem | Campos |
+|---|---|
+| **lido** do arquivo | `bocrWeights`, `bocrConsistency`, `subWeights`, `subConsistency`, `finalScores`, `responseCount`, `sensitivityInflections` |
+| **derivado** do arquivo | `personalWeights` e `rescalingWeights`, renomeando os pesos; e, de `responseCount`, `CONFIÁVEL`, `statistics.total`, `summary.total`, `summary.ok` e `overallStats.total` |
+| **ausente** no arquivo, com o valor que a tela usa | título *Projeto sem nome*, descrição vazia, alternativas e respondentes vazios, demografia sem dados, os zeros de qualidade; e `individualStats`, `sensitiveGroups` e `exclusionInfo`, que somem no JSON |
+| **constante** da tela | `REVISAR: 0` |
+
+**Premissa declarada:** o projeto existe, como a tela exige para enviar, mas os
+campos dele não estão no arquivo. **A normalização interna da rota fica fora**: é do
+handler. **O espelho é conferido por 23 âncoras de texto da tela**, com a contagem
+medida; ⚠ na primeira execução uma delas, que ocorre duas vezes, estava prevista
+como uma.
+
+⚠ **ACHADO, e NÃO resolvido aqui:** sem análise de qualidade, a tela manda
+`responseCount` como `CONFIÁVEL`. **Na montagem de referência isso vira
+*"Respostas CONFIÁVEIS (CR ≤ 0.10): 12 (100.0%)"* e *pontuação automática
+100/100***, sem medição individual, o que a Tabela 4 contradiz. **É terreno de
+A.12**, e fica como **pendência antes de gerar**, no manifesto.
+
+**A montagem usa o payload**, nos três casos: pesos *B=37.2%, O=15.2%, C=19.7%,
+R=27.9%*, ranking *A1 … 0.064129* e *A2 … 0.026937*, os mesmos da execução 7,
+título *Projeto sem nome*, e **nenhum dado sintético**. **Captura seguida de
+interrupção, `fetch` com zero chamadas, sem parecer.** Conferido à mão, lendo a
+montagem de C2.
+
+**O gerador passou a fixar a base corrigida em `8f94341`**, em vez de tomar o
+`HEAD`, que mudaria o endereço a cada commit; reexecutado sem outra mudança,
+**reproduziu a v2 publicada byte a byte**.
+
+#### Ajuste 2: o campo administrativo, e a regra do endereço
+
+`verificacaoCodigo` dizia que **nenhum teste fora alterado e que a suíte não
+rodara**. **Corrigido só na v2**, com o alcance medido: nenhum arquivo de `app/`,
+`components/` ou `lib/` fora de `lib/__tests__` alterado de `8f94341` a `82057ec`,
+por `git diff`; a base alterada antes, em A.16; os instrumentos e o teste criados; a
+verificação de `c87e337` e a de `82057ec`, com os CIs; build local não executado; e
+**que o texto não cobre alterações posteriores a `82057ec`**. **A v1 ficou com o
+texto da rodada dela.**
+
+**O manifesto declara a regra:** o `sha` de `enderecoNaBase` registra o estado da
+base de onde **aquele** conteúdo foi lido, e por isso varia por unidade — `8f94341`
+nas três corrigidas, `344d631` nas 162 demais —, e os `baseSha` de topo seguem em
+`344d631`. O teste confere a regra em todas as ocorrências.
+
+#### Ajuste 3: as conclusões vinculadas à v2
+
+⚠ **A inspeção bibliográfica NÃO foi reaberta.** A correspondência das correções
+de Saaty e de Wijnmalen, e a sustentação da claim nova de Wijnmalen, foram
+**aceitas na auditoria de A.16**, registrada em `8f94341`, **conforme o autor
+declarou nesta rodada**.
+
+**Encadeamento por novo `trechoId`**, com os três elos **conferidos pelos dados**:
+
+| Elo | O que se cita | O que se confere |
+|---|---|---|
+| inspeção | `medicao-pdfs.json`, `ae580c6`; `inspecao-wijnmalen-forman.json`, `781fb4f`; justificativas em `4309f7e` | o recorte examinado é o texto **antes** da correção |
+| correção aprovada | as alterações de A.16, em `8b057d9` e `b567d99`, e a auditoria | a correção **remove** as diferenças registradas: D1.b no Saaty; W1.a, W1.b e W2.a no Wijnmalen |
+| correspondência com a v2 | a propagação, em `c87e337` | o conteúdo da v2 é o aprovado, com exceção enumerada |
+
+| Unidade | Condições | Resultado |
+|---|---|---|
+| 47, Saaty `[0]` | as quatro; permanecem declaradas **D1.a, D2.d e D3.a** | **conferido** |
+| 86, Wijnmalen `[0]` | as quatro; a claim nova pela aceitação na auditoria, com apoio nos dois períodos que a inspeção registra | **conferido** |
+| 89, Wijnmalen `[3]` | alcançada pela inspeção de `[0]`, pelo mesmo texto; campos diferentes, claim não avaliada, divergência de A.16 aberta | **PARCIALMENTE PENDENTE** |
+
+⚠ **Wijnmalen `[3]`: o `evidence.quote` corrigido não certifica a claim nem o
+`verbatim_quote`**, que seguem abertos em A.16.
+
+**Recalculado a partir do encadeamento**, e o gerador **interrompe** qualquer
+transição sem ele:
+
+| Indicador | v1, histórico | v2 |
+|---|---:|---:|
+| conferidas | 4 | **6** |
+| pendentes | 161 | **159** |
+| C1 com atendimento demonstrado | 1 de 3 | **3 de 3** |
+
+Na v2, Saaty e Wijnmalen atendem **pelo encadeamento** e Forman **pela inspeção do
+mesmo conteúdo**. **Os resultados da v1 não foram reescritos.**
+
+#### Exceções, teste e contraexemplos
+
+**69 exceções enumeradas**: as 57 anteriores, mais 8 de transição por encadeamento
+e 4 de contagem recalculada. **O teste da v2 passou de 40 para 56 casos**: 8 do
+ajuste 1, 2 do ajuste 2, e, no ajuste 3, os 3 de estados substituídos por 5 de
+encadeamento e 4 de estados e indicadores. **Treze contraexemplos**, cada um
+reprovando o caso previsto, com restauro por SHA-256 idêntico: a tela alterada; uma
+origem retirada da declaração; o arquivo de referência alterado; o texto da v1 no
+campo da v2; o campo da v1 alterado; o endereço de volta a `344d631`; `[3]`
+conferido; elo incompleto; histórico reescrito; contagens não recalculadas; o
+recorte da inspeção alterado; transição sem encadeamento; e o resultado de `[3]`
+trocado. ⚠ **Ao preparar o contraexemplo do elo incompleto, notei uma brecha**, e
+a fechei antes de rodar: o elo 3 conferia cada alteração listada, e não que a lista
+fosse completa para a unidade.
+
+#### Verificação medida, depois de executar
+
+| Medição | `tsc` | Suítes | Testes | Passando | Saída |
+|---|---:|---:|---:|---:|---:|
+| esta máquina, `14d2ba5` | 0 | 23 | 377 | 374 | 1 |
+| **clone raso de um commit, LF, `14d2ba5`** | **0** | **23** | **377** | **377** | **0** |
+
+Nesta máquina, as três falhas são as registradas: a do CRLF e as duas
+intermitentes.
+
+| Commit | CI | Estado |
+|---|---|---|
+| `82057ec` | `35240750874` | completed/success |
+| `2087b73` | `35241226780` | completed/success |
+| `14d2ba5` | `35242620186` | completed/success |
+
+#### Predição
+
+**Não cabe.** A rodada confere montagem, corrige um campo administrativo e vincula
+conclusões já aceitas. ⚠ **P1 continua requisito anterior à geração**, e não se
+resolve aqui: **paráfrase fiel sem *however* não é falha de transcrição**, **a
+proibição de citação direta de A.33 é critério separado**, e **falta conferir a
+aplicabilidade de P1 à v2, inclusive a C1**. **A predição de A.33 segue não
+testada.**
+
+#### O que não foi alterado
+
+A v1 e os seus resultados; `lib/rag/articles/`; o índice, sem reingestão; a
+composição H-T e os `trechoId` já recalculados; os endereços das 162 não afetadas;
+as 19 divergências de A.16; os registros de conferência; o payload de referência;
+a rota e a tela; a configuração da máquina, os testes de transporte e os
+intermitentes; `main`. **Nenhuma geração, nenhuma chamada externa de inferência,
+embedding ou recuperação.**
+
+**Pendências antes de gerar:** delimitar P1 e conferir a sua aplicabilidade à v2;
+decidir a qualidade declarada na requisição de referência, que é A.12; e A.16 em
+Wijnmalen `key_claims[3]`.
 
 ### Etapa 4: NÃO EXECUTADA
 
