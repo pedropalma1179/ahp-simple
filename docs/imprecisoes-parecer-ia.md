@@ -8142,7 +8142,7 @@ individuais**, o controle já declarado de A.33.
 
 | Commit | Natureza | O que entra |
 |---|---|---|
-| `3db365c` | registro | a predição acima, **antes** de qualquer edição da base |
+| `3db365c` | registro | a predição acima, **antes da alteração definitiva versionada**; a edição experimental, medida e revertida, veio antes dela *(corrigido depois: dizia "antes de qualquer edição da base")* |
 | `8b057d9` | **mecânica** | E1, E2 e E3; teste novo; os dois controles por resumo |
 | `b567d99` | **julgamento** | J1; dois casos no teste novo; os dois controles de novo |
 
@@ -8268,6 +8268,60 @@ execução própria**. Evento `push`, job `verificar`, os sete passos em `succes
 ⚠ **Sem integração:** `integra/a30-registros` segue em `23a3463`, local e remota, e
 a integração, por fast-forward, fica para depois da auditoria. `main` em `33c1fdf`.
 O CI deste commit de correção documental é observação posterior.
+
+#### Integração, e o que segue pendente, em 17/09/2026
+
+**Auditoria aprovada pelo autor.** `correcao/a16-trechos-c1` integrada em
+`integra/a30-registros` **até `4cb14f532b8812185d416ed92d4eb6bbb2c76e60`**, por
+fast-forward, local e remoto, sem `--force`, rebase ou `amend`.
+
+| Passo | Observado | Saída |
+|---|---|---:|
+| `git fetch origin` | sem erro | 0 |
+| `git ls-remote` | `integra/a30-registros` em `23a3463`, `correcao/a16-trechos-c1` em `4cb14f5`, `main` em `33c1fdf` | 0 |
+| `origin/integra/a30-registros` ancestral do alvo | verdadeiro | 0 |
+| `integra/a30-registros` local ancestral do alvo | verdadeiro | 0 |
+| alvo contido em `origin/correcao/a16-trechos-c1` | verdadeiro | 0 |
+| merges entre `23a3463` e o alvo | zero | — |
+| fast-forward local, `23a3463..4cb14f5`, sem trocar de branch | aceito | 0 |
+| ancestralidade remota, reconfirmada **imediatamente antes** do push | verdadeiro | 0 |
+| fast-forward remoto, `23a3463..4cb14f5` | aceito | 0 |
+
+⚠ **O fast-forward local foi um push para o próprio repositório**, que recusa
+atualização que não seja fast-forward, e **não um checkout**: trocar de branch
+reescreveria a árvore com CRLF, sob `core.autocrlf=true`.
+
+**SHA resultante:** `4cb14f532b8812185d416ed92d4eb6bbb2c76e60`, em
+`integra/a30-registros` local e remota. **CI observado:** `35217659825`, evento
+`push`, `integra/a30-registros`, `completed/success`, os sete passos em `success`.
+Na branch de sessão, o mesmo SHA tem `35216391802`, `completed/success`. **`main`
+permanece em `33c1fdf`**, fora do escopo.
+
+⚠ **Precisão sobre a ordem.** A predição de `3db365c` **antecedeu a alteração
+definitiva versionada**, `8b057d9` e `b567d99`. **Ela NÃO antecedeu toda edição:**
+a edição experimental foi aplicada na árvore, medida e revertida **antes** dela, como
+a própria predição declara. A mensagem de `3db365c` diz *antes da primeira
+alteracao da base*, e mensagens de commit não se alteram; o alcance correto é o
+desta nota. **A saída do modelo continua não observada.**
+
+⚠ **PENDÊNCIA antes de qualquer geração: delimitar P1.** Omitir *however* numa
+paráfrase **NÃO constitui, por si só, erro.** O critério tem de distinguir a
+**reprodução apresentada como citação literal** da **reformulação fiel**, e P1, como
+está escrita, não faz essa distinção. **Não resolvido aqui**, e a seção da predição
+fica como foi registrada. A pendência **não bloqueia** a correção da base, que foi
+integrada.
+
+⚠ **Wijnmalen `key_claims[3]` segue PARCIALMENTE PENDENTE.** Corrigir o
+`evidence.quote` **não encerrou a unidade**: o `verbatim_quote` e a claim seguem
+abertos em A.16.
+
+**Próxima tarefa, NÃO iniciada:** preparar a **nova versão do snapshot** —
+preservar o anterior, propagar as correções aprovadas, recalcular as identidades
+afetadas e verificar todas as cópias.
+
+**Não houve** geração, reingestão nem avanço de `main`. **Este registro** fica na
+branch de sessão, depois do SHA integrado, e **não** faz parte da integração desta
+rodada.
 
 ### Etapa 4: NÃO EXECUTADA
 
