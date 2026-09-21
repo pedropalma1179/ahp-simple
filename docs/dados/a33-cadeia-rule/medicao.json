@@ -1,0 +1,4125 @@
+{
+  "rodada": "A.33 medicao da cadeia de fallback de rule",
+  "natureza": "MEDICAO. Nenhum caminho de producao alterado. Nenhuma geracao de parecer, real ou simulada.",
+  "identificacao": {
+    "commitMedido": "ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d",
+    "codigo": {
+      "app/api/ai-reviewer/knowledge.ts": "7d76ce6e92103edf8d6d5106cb5a592e6328800f4c5045bc046b1eb51fed3d34",
+      "app/api/ai-reviewer/route.ts": "d3da9b905ef0b159f28aaa6ab3587c03a3f71cb26c0835d5d4cbd43c7d0e3137"
+    },
+    "dados": {
+      "docs/dados/a33-etapa4-v2/casos.json": "49b6c5ad94ef461c8973511b765e35b58f3de2958d76ca16642c7c0c6217afc7",
+      "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json": "2bff46649ad7f8c06914841a82224b12871eb2bc40f7c92380f0a18bb77a3e70",
+      "docs/dados/a33-etapa4-v2/C1-recuperacao.json": "461b6fa286f879edd0839bc5042a2e830a0ae48fa97d33bf79999060d46a496e",
+      "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d"
+    },
+    "serializacaoDeclarada": {
+      "regra": "JSON.stringify(requisicao), compacto, UTF-8",
+      "sha256": "6541ecd41f8286f999662da0a342d664784fe2668158bba372490fa855232c85",
+      "bytes": 3279,
+      "declaradoNoArtefato": "6541ecd41f8286f999662da0a342d664784fe2668158bba372490fa855232c85",
+      "coincide": true
+    },
+    "versoes": {
+      "preparacao": "v2",
+      "requisicao": "r2"
+    },
+    "comando": "npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts",
+    "ambiente": {
+      "plataforma": "linux",
+      "arch": "x64",
+      "node": "v22.22.2"
+    }
+  },
+  "inventario": {
+    "artigos": 36,
+    "unidades": 138,
+    "fonte": "getAllArticles() de @/lib/rag/index, e article.key_claims",
+    "alcancadasPeloCodigoReal": 138,
+    "execucaoNaoAlcancada": []
+  },
+  "estados": {
+    "definicao": "com conteudo = ao menos um caractere que nao seja espaco em branco",
+    "evidenceObj": {
+      "objeto": 138
+    },
+    "evidence.quote": {
+      "com conteudo": 138
+    },
+    "verbatim_quote": {
+      "com conteudo": 138
+    },
+    "claim": {
+      "com conteudo": 138
+    },
+    "anomalias": [],
+    "excecoesDoCodigoReal": [],
+    "objEvidenceAusenteOuNaoObjeto": [],
+    "soEspacosRegistradosAParte": []
+  },
+  "selecao": {
+    "metodo": "precedencia sobre os valores de entrada, confrontada com doc.rule do codigo real; vinculo por id emitido pelo proprio codigo",
+    "porFornecedor": {
+      "evidence.quote": 138
+    },
+    "divergentes": [],
+    "textoIndistinguivelDeCampoPosterior": [
+      "alizadeh2020_energy_c0",
+      "alizadeh2020_energy_c1",
+      "alizadeh2020_energy_c2",
+      "aullhyde2006_experiment_c0",
+      "aullhyde2006_experiment_c1",
+      "ayan2023_weightingMethodsMCDM_c0",
+      "ayan2023_weightingMethodsMCDM_c1",
+      "ayan2023_weightingMethodsMCDM_c3",
+      "ayan2023_weightingMethodsMCDM_c4",
+      "bozoki2010_ipc_c2",
+      "bozoki2010_ipc_c5",
+      "demirtas2008_integrated_c0",
+      "demirtas2008_integrated_c1",
+      "demirtas2008_integrated_c2",
+      "dodevska2023when_c0",
+      "forman1998_aggregating_c0",
+      "forman1998_aggregating_c1",
+      "forman1998_aggregating_c2",
+      "forman1998_aggregating_c3",
+      "forman1998_aggregating_c4",
+      "goepel2018_ahpos_c0",
+      "goepel2018_ahpos_c1",
+      "goepel2018_ahpos_c2",
+      "goepel2018_ahpos_c3",
+      "goepel2018_ahpos_c4",
+      "goepel2018_ahpos_c5",
+      "goepel2018_ahpos_c6",
+      "goepel2018_ahpos_c7",
+      "goepel2018_ahpos_c8",
+      "harker1987_incomplete_c0",
+      "harker1987_incomplete_c1",
+      "harker1987_incomplete_c2",
+      "ishizaka2011review_c0",
+      "ishizaka2011review_c1",
+      "ishizaka2011review_c2",
+      "ishizaka2011review_c3",
+      "kabak2014_prioritization_c0",
+      "kabak2014_prioritization_c1",
+      "kabak2014_prioritization_c2",
+      "lee2009_wind_c1",
+      "lee2009_wind_c2",
+      "lee2009_wind_c3",
+      "lee2024_project_c0",
+      "lee2024_project_c1",
+      "liang2022_ahp_undesirable_c0",
+      "liang2022_ahp_undesirable_c1",
+      "mu2016_bocr_c0",
+      "mu2016_bocr_c1",
+      "mu2016_bocr_c2",
+      "neely2020_upperEchelonsMetacritiques_c0",
+      "neely2020_upperEchelonsMetacritiques_c1",
+      "neely2020_upperEchelonsMetacritiques_c2",
+      "neely2020_upperEchelonsMetacritiques_c3",
+      "ossadnik2016_group_aggregation_c0",
+      "ossadnik2016_group_aggregation_c1",
+      "ossadnik2016_group_aggregation_c2",
+      "ossadnik2016_group_aggregation_c3",
+      "ossadnik2016_group_aggregation_c4",
+      "petrillo2023state_c0",
+      "petrillo2023state_c1",
+      "saaty1977_scaling_c0",
+      "saaty1977_scaling_c1",
+      "saaty1986_axiomatic_c1",
+      "saaty1986_axiomatic_c2",
+      "saaty1986_axiomatic_c3",
+      "saaty1986_axiomatic_c5",
+      "saaty1987_whatitis_c0",
+      "saaty1987_whatitis_c1",
+      "saaty1987_whatitis_c2",
+      "saaty1990_howtomake_c0",
+      "saaty1990_howtomake_c1",
+      "saaty2003_eigenvector_c0",
+      "saaty2003_eigenvector_c1",
+      "saaty2015_trustworthy_c0",
+      "saaty2015_trustworthy_c1",
+      "saaty2015_trustworthy_c2",
+      "saatyOzdemir2003_negative_c0",
+      "saatyOzdemir2003_negative_c1",
+      "saatyOzdemir2003_negative_c3",
+      "saatyOzdemir2003_negative_c4",
+      "saatyOzdemir2003_negative_c5",
+      "saatyVargas1984_rankpreservation_c0",
+      "saatyVargas1984_rankpreservation_c1",
+      "saatyVargas1984_rankpreservation_c2",
+      "saatyVargas1984_rankpreservation_c3",
+      "saatyVargas1984_rankpreservation_c4",
+      "saatyVargas2012_c0",
+      "saatyVargas2012_c1",
+      "saatyVargas2012_c2",
+      "saatyVargas2012_c3",
+      "saatyVargas2012_c4",
+      "saatyVargas2012_c5",
+      "saatyVargas2012_c6",
+      "saatyVargas2012_c7",
+      "saiyed2023_ceoPowerUET_c0",
+      "saiyed2023_ceoPowerUET_c1",
+      "saiyed2023_ceoPowerUET_c2",
+      "saiyed2023_ceoPowerUET_c4",
+      "saiyed2023_ceoPowerUET_c5",
+      "salomon2016_absolute_c0",
+      "salomon2016_absolute_c1",
+      "salomon2024_consistency_c0",
+      "schmidt2015_review_c1",
+      "schmidt2016_priorities_c0",
+      "schmidt2016_priorities_c1",
+      "schmidt2016_priorities_c2",
+      "tavana2023_revolution_c0",
+      "tavana2023_revolution_c1",
+      "tavana2023_revolution_c2",
+      "wijnmalen2007_bocr_c0",
+      "wijnmalen2007_bocr_c1",
+      "xu2000_consistency_c1"
+    ],
+    "fallbackEfetivamenteUtilizado": [],
+    "semConteudoUtilizavel": []
+  },
+  "fatiasCriticas": {
+    "criterio": "unidades em que rule vem de claim, ou de string so com espacos",
+    "deClaim": [],
+    "deSoEspacos": []
+  },
+  "montagem": {
+    "rotuloNoTemplate": "Fundamento: ${ref.rule}",
+    "sitiosNoTemplate": 4,
+    "secoes": [
+      {
+        "chave": "consistencia",
+        "titulo": "## Referências sobre Consistência e Validação de Dados",
+        "trazContexto": true
+      },
+      {
+        "chave": "bocr",
+        "titulo": "## Referências sobre Metodologia BOCR",
+        "trazContexto": true
+      },
+      {
+        "chave": "sensibilidade",
+        "titulo": "## Referências sobre Análise de Sensibilidade e Robustez",
+        "trazContexto": true
+      },
+      {
+        "chave": "criticas",
+        "titulo": "## Referências Críticas Adicionais (Alta Prioridade)",
+        "trazContexto": false
+      }
+    ],
+    "unidadesPorSecao": {
+      "consistencia": 93,
+      "bocr": 28,
+      "sensibilidade": 6,
+      "criticas": 8
+    },
+    "unidadesDistintasNasQuatroSecoes": 100,
+    "controleNegativo": {
+      "unidadeUsada": "saaty1986_axiomatic_c5",
+      "blocoIntactoPresente": true,
+      "blocoComRuleAdulteradoPresente": false,
+      "blocoDeUnidadeForaDaSecaoPresente": false
+    },
+    "ocorrenciasSomadas": 135,
+    "casos": {
+      "C1": {
+        "flag": "true",
+        "chamouModelo": true,
+        "interrompidoAntesDeConteudo": true,
+        "consultasAoIndice": 5,
+        "superficie": "messages",
+        "bytesSystem": 37200,
+        "bytesMessages": 72772,
+        "presencaPorSecao": {
+          "consistencia": {
+            "esperados": 93,
+            "presentes": 93,
+            "ausentes": []
+          },
+          "bocr": {
+            "esperados": 28,
+            "presentes": 28,
+            "ausentes": []
+          },
+          "sensibilidade": {
+            "esperados": 6,
+            "presentes": 6,
+            "ausentes": []
+          },
+          "criticas": {
+            "esperados": 8,
+            "presentes": 8,
+            "ausentes": []
+          }
+        },
+        "ocorrenciasDeFundamento": 135
+      },
+      "C2": {
+        "flag": null,
+        "chamouModelo": true,
+        "interrompidoAntesDeConteudo": true,
+        "consultasAoIndice": 0,
+        "superficie": "messages",
+        "bytesSystem": 37200,
+        "bytesMessages": 71206,
+        "presencaPorSecao": {
+          "consistencia": {
+            "esperados": 93,
+            "presentes": 93,
+            "ausentes": []
+          },
+          "bocr": {
+            "esperados": 28,
+            "presentes": 28,
+            "ausentes": []
+          },
+          "sensibilidade": {
+            "esperados": 6,
+            "presentes": 6,
+            "ausentes": []
+          },
+          "criticas": {
+            "esperados": 8,
+            "presentes": 8,
+            "ausentes": []
+          }
+        },
+        "ocorrenciasDeFundamento": 135
+      },
+      "C3": {
+        "flag": "true",
+        "chamouModelo": true,
+        "interrompidoAntesDeConteudo": true,
+        "consultasAoIndice": 5,
+        "superficie": "messages",
+        "bytesSystem": 37200,
+        "bytesMessages": 71206,
+        "presencaPorSecao": {
+          "consistencia": {
+            "esperados": 93,
+            "presentes": 93,
+            "ausentes": []
+          },
+          "bocr": {
+            "esperados": 28,
+            "presentes": 28,
+            "ausentes": []
+          },
+          "sensibilidade": {
+            "esperados": 6,
+            "presentes": 6,
+            "ausentes": []
+          },
+          "criticas": {
+            "esperados": 8,
+            "presentes": 8,
+            "ausentes": []
+          }
+        },
+        "ocorrenciasDeFundamento": 135
+      }
+    }
+  },
+  "camadas": [
+    {
+      "id": "alizadeh2020_energy_c0",
+      "endereco": "lib/rag/articles/alizadeh2020_energy.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "alizadeh2020_energy_c1",
+      "endereco": "lib/rag/articles/alizadeh2020_energy.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "alizadeh2020_energy_c2",
+      "endereco": "lib/rag/articles/alizadeh2020_energy.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "aullhyde2006_experiment_c0",
+      "endereco": "lib/rag/articles/aullhyde2006_experiment.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "aullhyde2006_experiment_c1",
+      "endereco": "lib/rag/articles/aullhyde2006_experiment.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ayan2023_weightingMethodsMCDM_c0",
+      "endereco": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ayan2023_weightingMethodsMCDM_c1",
+      "endereco": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ayan2023_weightingMethodsMCDM_c2",
+      "endereco": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ayan2023_weightingMethodsMCDM_c3",
+      "endereco": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ayan2023_weightingMethodsMCDM_c4",
+      "endereco": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ayan2023_weightingMethodsMCDM_c5",
+      "endereco": "lib/rag/articles/ayan2023_weightingMethodsMCDM.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "bozoki2010_ipc_c0",
+      "endereco": "lib/rag/articles/bozoki2010_ipc.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "bozoki2010_ipc_c1",
+      "endereco": "lib/rag/articles/bozoki2010_ipc.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "bozoki2010_ipc_c2",
+      "endereco": "lib/rag/articles/bozoki2010_ipc.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "criticas"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "bozoki2010_ipc_c3",
+      "endereco": "lib/rag/articles/bozoki2010_ipc.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "bozoki2010_ipc_c4",
+      "endereco": "lib/rag/articles/bozoki2010_ipc.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "bozoki2010_ipc_c5",
+      "endereco": "lib/rag/articles/bozoki2010_ipc.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "demirtas2008_integrated_c0",
+      "endereco": "lib/rag/articles/demirtas2008_integrated.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "demirtas2008_integrated_c1",
+      "endereco": "lib/rag/articles/demirtas2008_integrated.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "demirtas2008_integrated_c2",
+      "endereco": "lib/rag/articles/demirtas2008_integrated.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "dodevska2023when_c0",
+      "endereco": "lib/rag/articles/dodevska2023when.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "dodevska2023when_c1",
+      "endereco": "lib/rag/articles/dodevska2023when.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "dodevska2023when_c2",
+      "endereco": "lib/rag/articles/dodevska2023when.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "escobar2004_note_c0",
+      "endereco": "lib/rag/articles/escobar2004_note.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "escobar2004_note_c1",
+      "endereco": "lib/rag/articles/escobar2004_note.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "forman1998_aggregating_c0",
+      "endereco": "lib/rag/articles/forman1998_aggregating.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "forman1998_aggregating_c1",
+      "endereco": "lib/rag/articles/forman1998_aggregating.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "forman1998_aggregating_c2",
+      "endereco": "lib/rag/articles/forman1998_aggregating.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "forman1998_aggregating_c3",
+      "endereco": "lib/rag/articles/forman1998_aggregating.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "forman1998_aggregating_c4",
+      "endereco": "lib/rag/articles/forman1998_aggregating.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c0",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c1",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c2",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c3",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c4",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c5",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c6",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[6]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c7",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[7]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "goepel2018_ahpos_c8",
+      "endereco": "lib/rag/articles/goepel2018_ahpos.ts :: key_claims[8]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "harker1987_incomplete_c0",
+      "endereco": "lib/rag/articles/harker1987_incomplete.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "harker1987_incomplete_c1",
+      "endereco": "lib/rag/articles/harker1987_incomplete.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "harker1987_incomplete_c2",
+      "endereco": "lib/rag/articles/harker1987_incomplete.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "ishizaka2011review_c0",
+      "endereco": "lib/rag/articles/ishizaka2011review.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ishizaka2011review_c1",
+      "endereco": "lib/rag/articles/ishizaka2011review.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ishizaka2011review_c2",
+      "endereco": "lib/rag/articles/ishizaka2011review.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ishizaka2011review_c3",
+      "endereco": "lib/rag/articles/ishizaka2011review.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "kabak2014_prioritization_c0",
+      "endereco": "lib/rag/articles/kabak2014_prioritization.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "kabak2014_prioritization_c1",
+      "endereco": "lib/rag/articles/kabak2014_prioritization.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "kabak2014_prioritization_c2",
+      "endereco": "lib/rag/articles/kabak2014_prioritization.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "lee2009_wind_c0",
+      "endereco": "lib/rag/articles/lee2009_wind.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "lee2009_wind_c1",
+      "endereco": "lib/rag/articles/lee2009_wind.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "lee2009_wind_c2",
+      "endereco": "lib/rag/articles/lee2009_wind.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "lee2009_wind_c3",
+      "endereco": "lib/rag/articles/lee2009_wind.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "lee2024_project_c0",
+      "endereco": "lib/rag/articles/lee2024_project.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "lee2024_project_c1",
+      "endereco": "lib/rag/articles/lee2024_project.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "liang2022_ahp_undesirable_c0",
+      "endereco": "lib/rag/articles/liang2022_ahp_undesirable.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "liang2022_ahp_undesirable_c1",
+      "endereco": "lib/rag/articles/liang2022_ahp_undesirable.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "mu2016_bocr_c0",
+      "endereco": "lib/rag/articles/mu2016_bocr.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "mu2016_bocr_c1",
+      "endereco": "lib/rag/articles/mu2016_bocr.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "mu2016_bocr_c2",
+      "endereco": "lib/rag/articles/mu2016_bocr.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "neely2020_upperEchelonsMetacritiques_c0",
+      "endereco": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "neely2020_upperEchelonsMetacritiques_c1",
+      "endereco": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "neely2020_upperEchelonsMetacritiques_c2",
+      "endereco": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "neely2020_upperEchelonsMetacritiques_c3",
+      "endereco": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "neely2020_upperEchelonsMetacritiques_c4",
+      "endereco": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "neely2020_upperEchelonsMetacritiques_c5",
+      "endereco": "lib/rag/articles/neely2020_upperEchelonsMetacritiques.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ossadnik2016_group_aggregation_c0",
+      "endereco": "lib/rag/articles/ossadnik2016_group_aggregation.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ossadnik2016_group_aggregation_c1",
+      "endereco": "lib/rag/articles/ossadnik2016_group_aggregation.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "ossadnik2016_group_aggregation_c2",
+      "endereco": "lib/rag/articles/ossadnik2016_group_aggregation.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "ossadnik2016_group_aggregation_c3",
+      "endereco": "lib/rag/articles/ossadnik2016_group_aggregation.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "ossadnik2016_group_aggregation_c4",
+      "endereco": "lib/rag/articles/ossadnik2016_group_aggregation.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "petrillo2023state_c0",
+      "endereco": "lib/rag/articles/petrillo2023state.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "petrillo2023state_c1",
+      "endereco": "lib/rag/articles/petrillo2023state.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1977_scaling_c0",
+      "endereco": "lib/rag/articles/saaty1977_scaling.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1977_scaling_c1",
+      "endereco": "lib/rag/articles/saaty1977_scaling.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1986_axiomatic_c0",
+      "endereco": "lib/rag/articles/saaty1986_axiomatic.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saaty1986_axiomatic_c1",
+      "endereco": "lib/rag/articles/saaty1986_axiomatic.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saaty1986_axiomatic_c2",
+      "endereco": "lib/rag/articles/saaty1986_axiomatic.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saaty1986_axiomatic_c3",
+      "endereco": "lib/rag/articles/saaty1986_axiomatic.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1986_axiomatic_c4",
+      "endereco": "lib/rag/articles/saaty1986_axiomatic.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saaty1986_axiomatic_c5",
+      "endereco": "lib/rag/articles/saaty1986_axiomatic.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "sensibilidade"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1987_whatitis_c0",
+      "endereco": "lib/rag/articles/saaty1987_whatitis.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "sensibilidade"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1987_whatitis_c1",
+      "endereco": "lib/rag/articles/saaty1987_whatitis.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1987_whatitis_c2",
+      "endereco": "lib/rag/articles/saaty1987_whatitis.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1990_howtomake_c0",
+      "endereco": "lib/rag/articles/saaty1990_howtomake.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "sensibilidade"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty1990_howtomake_c1",
+      "endereco": "lib/rag/articles/saaty1990_howtomake.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty2003_eigenvector_c0",
+      "endereco": "lib/rag/articles/saaty2003_eigenvector.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty2003_eigenvector_c1",
+      "endereco": "lib/rag/articles/saaty2003_eigenvector.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty2015_trustworthy_c0",
+      "endereco": "lib/rag/articles/saaty2015_trustworthy.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty2015_trustworthy_c1",
+      "endereco": "lib/rag/articles/saaty2015_trustworthy.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saaty2015_trustworthy_c2",
+      "endereco": "lib/rag/articles/saaty2015_trustworthy.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyOzdemir2003_negative_c0",
+      "endereco": "lib/rag/articles/saatyOzdemir2003_negative.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyOzdemir2003_negative_c1",
+      "endereco": "lib/rag/articles/saatyOzdemir2003_negative.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyOzdemir2003_negative_c2",
+      "endereco": "lib/rag/articles/saatyOzdemir2003_negative.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyOzdemir2003_negative_c3",
+      "endereco": "lib/rag/articles/saatyOzdemir2003_negative.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyOzdemir2003_negative_c4",
+      "endereco": "lib/rag/articles/saatyOzdemir2003_negative.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyOzdemir2003_negative_c5",
+      "endereco": "lib/rag/articles/saatyOzdemir2003_negative.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas1984_rankpreservation_c0",
+      "endereco": "lib/rag/articles/saatyVargas1984_rankpreservation.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas1984_rankpreservation_c1",
+      "endereco": "lib/rag/articles/saatyVargas1984_rankpreservation.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saatyVargas1984_rankpreservation_c2",
+      "endereco": "lib/rag/articles/saatyVargas1984_rankpreservation.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "sensibilidade"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas1984_rankpreservation_c3",
+      "endereco": "lib/rag/articles/saatyVargas1984_rankpreservation.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas1984_rankpreservation_c4",
+      "endereco": "lib/rag/articles/saatyVargas1984_rankpreservation.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas1984_rankpreservation_c5",
+      "endereco": "lib/rag/articles/saatyVargas1984_rankpreservation.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saatyVargas2012_c0",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas2012_c1",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas2012_c2",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas2012_c3",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas2012_c4",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas2012_c5",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas2012_c6",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[6]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saatyVargas2012_c7",
+      "endereco": "lib/rag/articles/saatyVargas2012.ts :: key_claims[7]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saiyed2023_ceoPowerUET_c0",
+      "endereco": "lib/rag/articles/saiyed2023_ceoPowerUET.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saiyed2023_ceoPowerUET_c1",
+      "endereco": "lib/rag/articles/saiyed2023_ceoPowerUET.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "saiyed2023_ceoPowerUET_c2",
+      "endereco": "lib/rag/articles/saiyed2023_ceoPowerUET.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saiyed2023_ceoPowerUET_c3",
+      "endereco": "lib/rag/articles/saiyed2023_ceoPowerUET.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saiyed2023_ceoPowerUET_c4",
+      "endereco": "lib/rag/articles/saiyed2023_ceoPowerUET.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "saiyed2023_ceoPowerUET_c5",
+      "endereco": "lib/rag/articles/saiyed2023_ceoPowerUET.ts :: key_claims[5]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "salomon2016_absolute_c0",
+      "endereco": "lib/rag/articles/salomon2016_absolute.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "salomon2016_absolute_c1",
+      "endereco": "lib/rag/articles/salomon2016_absolute.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "bocr",
+          "sensibilidade"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "salomon2016_absolute_c2",
+      "endereco": "lib/rag/articles/salomon2016_absolute.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "salomon2024_consistency_c0",
+      "endereco": "lib/rag/articles/salomon2024_consistency.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "salomon2024_consistency_c1",
+      "endereco": "lib/rag/articles/salomon2024_consistency.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "salomon2024_consistency_c2",
+      "endereco": "lib/rag/articles/salomon2024_consistency.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "schmidt2015_review_c0",
+      "endereco": "lib/rag/articles/schmidt2015_review.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "schmidt2015_review_c1",
+      "endereco": "lib/rag/articles/schmidt2015_review.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "sensibilidade"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "schmidt2016_priorities_c0",
+      "endereco": "lib/rag/articles/schmidt2016_priorities.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "schmidt2016_priorities_c1",
+      "endereco": "lib/rag/articles/schmidt2016_priorities.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "schmidt2016_priorities_c2",
+      "endereco": "lib/rag/articles/schmidt2016_priorities.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "SELECAO EFETIVA e EXPOSICAO NAO OBSERVADA em C1, C2 e C3",
+        "secoes": [],
+        "casos": [],
+        "confirmadoNosTres": false
+      }
+    },
+    {
+      "id": "tavana2023_revolution_c0",
+      "endereco": "lib/rag/articles/tavana2023_revolution.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "tavana2023_revolution_c1",
+      "endereco": "lib/rag/articles/tavana2023_revolution.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "tavana2023_revolution_c2",
+      "endereco": "lib/rag/articles/tavana2023_revolution.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "wijnmalen2007_bocr_c0",
+      "endereco": "lib/rag/articles/wijnmalen2007_bocr.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "wijnmalen2007_bocr_c1",
+      "endereco": "lib/rag/articles/wijnmalen2007_bocr.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "wijnmalen2007_bocr_c2",
+      "endereco": "lib/rag/articles/wijnmalen2007_bocr.ts :: key_claims[2]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "wijnmalen2007_bocr_c3",
+      "endereco": "lib/rag/articles/wijnmalen2007_bocr.ts :: key_claims[3]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "wijnmalen2007_bocr_c4",
+      "endereco": "lib/rag/articles/wijnmalen2007_bocr.ts :: key_claims[4]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia",
+          "bocr"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "xu2000_consistency_c0",
+      "endereco": "lib/rag/articles/xu2000_consistency.ts :: key_claims[0]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide",
+        "textoIndistinguivelDeCampoPosterior": false
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    },
+    {
+      "id": "xu2000_consistency_c1",
+      "endereco": "lib/rag/articles/xu2000_consistency.ts :: key_claims[1]",
+      "ocorrenciaNaBase": {
+        "evidenceObj": "objeto",
+        "evidence.quote": "com conteudo",
+        "verbatim_quote": "com conteudo",
+        "claim": "com conteudo"
+      },
+      "selecao": {
+        "fornecedor": "evidence.quote",
+        "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
+        "textoIndistinguivelDeCampoPosterior": true
+      },
+      "presencaNoContexto": {
+        "estado": "presente",
+        "secoes": [
+          "consistencia"
+        ],
+        "casos": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "confirmadoNosTres": true
+      }
+    }
+  ],
+  "contagens": {
+    "artigos": {
+      "valor": 36,
+      "denominador": 36,
+      "nota": "conjunto efetivamente lido"
+    },
+    "unidades": {
+      "valor": 138,
+      "denominador": 138,
+      "nota": "key_claims dos 36 artigos"
+    },
+    "selecaoConcluida": {
+      "valor": 138,
+      "denominador": 138,
+      "exclusivaCom": [
+        "excecao",
+        "execucaoNaoAlcancada"
+      ]
+    },
+    "excecao": {
+      "valor": 0,
+      "denominador": 138,
+      "exclusivaCom": [
+        "selecaoConcluida",
+        "execucaoNaoAlcancada"
+      ]
+    },
+    "execucaoNaoAlcancada": {
+      "valor": 0,
+      "denominador": 138,
+      "exclusivaCom": [
+        "selecaoConcluida",
+        "excecao"
+      ]
+    },
+    "porFornecedor": {
+      "valores": {
+        "evidence.quote": 138
+      },
+      "denominador": 138,
+      "nota": "mutuamente exclusivas; fecham no total"
+    },
+    "comConteudoUtilizavel": {
+      "valor": 138,
+      "denominador": 138
+    },
+    "semConteudoUtilizavel": {
+      "valor": 0,
+      "denominador": 138
+    },
+    "associacoesAmbiguas": {
+      "valor": 0,
+      "denominador": 138,
+      "nota": "divergencia entre a previsao por precedencia e a saida do codigo real"
+    },
+    "textoIndistinguivelDeCampoPosterior": {
+      "valor": 112,
+      "denominador": 138,
+      "nota": "NAO e ambiguidade de resultado: a precedencia decide; e o motivo de nao deduzir origem por igualdade textual"
+    },
+    "unidadesDistintasExpostas": {
+      "valor": 100,
+      "denominador": 138,
+      "exclusivaCom": [
+        "unidadesDistintasNaoExpostas"
+      ]
+    },
+    "unidadesDistintasNaoExpostas": {
+      "valor": 38,
+      "denominador": 138,
+      "exclusivaCom": [
+        "unidadesDistintasExpostas"
+      ],
+      "ids": [
+        "bozoki2010_ipc_c3",
+        "bozoki2010_ipc_c4",
+        "bozoki2010_ipc_c5",
+        "demirtas2008_integrated_c1",
+        "forman1998_aggregating_c0",
+        "forman1998_aggregating_c1",
+        "forman1998_aggregating_c2",
+        "forman1998_aggregating_c3",
+        "goepel2018_ahpos_c0",
+        "goepel2018_ahpos_c1",
+        "goepel2018_ahpos_c3",
+        "goepel2018_ahpos_c5",
+        "harker1987_incomplete_c0",
+        "harker1987_incomplete_c1",
+        "harker1987_incomplete_c2",
+        "kabak2014_prioritization_c0",
+        "kabak2014_prioritization_c1",
+        "lee2009_wind_c3",
+        "lee2024_project_c1",
+        "neely2020_upperEchelonsMetacritiques_c0",
+        "neely2020_upperEchelonsMetacritiques_c3",
+        "ossadnik2016_group_aggregation_c1",
+        "ossadnik2016_group_aggregation_c3",
+        "ossadnik2016_group_aggregation_c4",
+        "saaty1986_axiomatic_c0",
+        "saaty1986_axiomatic_c1",
+        "saaty1986_axiomatic_c2",
+        "saaty1986_axiomatic_c4",
+        "saatyVargas1984_rankpreservation_c1",
+        "saatyVargas1984_rankpreservation_c5",
+        "saiyed2023_ceoPowerUET_c0",
+        "saiyed2023_ceoPowerUET_c2",
+        "saiyed2023_ceoPowerUET_c3",
+        "saiyed2023_ceoPowerUET_c4",
+        "saiyed2023_ceoPowerUET_c5",
+        "salomon2016_absolute_c0",
+        "schmidt2015_review_c0",
+        "schmidt2016_priorities_c2"
+      ]
+    },
+    "ocorrenciasNoContexto": {
+      "valor": 135,
+      "denominador": "nao ha; ocorrencias NAO se somam a unidades distintas",
+      "porSecao": {
+        "consistencia": 93,
+        "bocr": 28,
+        "sensibilidade": 6,
+        "criticas": 8
+      }
+    },
+    "porCaso": {
+      "C1": {
+        "ocorrencias": 135,
+        "denominador": "ocorrencias de Fundamento: no contexto capturado"
+      },
+      "C2": {
+        "ocorrencias": 135,
+        "denominador": "ocorrencias de Fundamento: no contexto capturado"
+      },
+      "C3": {
+        "ocorrencias": 135,
+        "denominador": "ocorrencias de Fundamento: no contexto capturado"
+      }
+    }
+  },
+  "textoDeRuleCompartilhadoEntreUnidades": [
+    [
+      "wijnmalen2007_bocr_c0",
+      "wijnmalen2007_bocr_c3"
+    ]
+  ],
+  "tripeDuplicado": [],
+  "controlesSinteticos": {
+    "alcance": "verificam o INSTRUMENTO; NAO entram nas contagens da base",
+    "casos": [
+      {
+        "nome": "fornecedor evidence.quote",
+        "esperadoRule": "E",
+        "esperadoFornecedor": "evidence.quote",
+        "esperadoExcecao": false,
+        "obtido": "E",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "fornecedor verbatim_quote, eq vazio",
+        "esperadoRule": "V",
+        "esperadoFornecedor": "verbatim_quote",
+        "esperadoExcecao": false,
+        "obtido": "V",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "fornecedor claim, eq e vq vazios",
+        "esperadoRule": "C",
+        "esperadoFornecedor": "claim",
+        "esperadoExcecao": false,
+        "obtido": "C",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "so espacos em eq E SELECIONADO",
+        "esperadoRule": "   ",
+        "esperadoFornecedor": "evidence.quote",
+        "esperadoExcecao": false,
+        "obtido": "   ",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "sem conteudo utilizavel devolve claim vazio",
+        "esperadoRule": "",
+        "esperadoFornecedor": null,
+        "esperadoExcecao": false,
+        "obtido": "",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "campos com textos IGUAIS, precedencia decide",
+        "esperadoRule": "T",
+        "esperadoFornecedor": "evidence.quote",
+        "esperadoExcecao": false,
+        "obtido": "T",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "eq null cai para vq",
+        "esperadoRule": "V",
+        "esperadoFornecedor": "verbatim_quote",
+        "esperadoExcecao": false,
+        "obtido": "V",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "chave quote ausente cai para vq",
+        "esperadoRule": "V",
+        "esperadoFornecedor": "verbatim_quote",
+        "esperadoExcecao": false,
+        "obtido": "V",
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "tipo inesperado em eq e SELECIONADO",
+        "esperadoRule": 42,
+        "esperadoFornecedor": "evidence.quote",
+        "esperadoExcecao": false,
+        "obtido": 42,
+        "excecao": null,
+        "passou": true
+      },
+      {
+        "nome": "objeto evidence AUSENTE levanta excecao",
+        "esperadoFornecedor": null,
+        "esperadoExcecao": true,
+        "excecao": "Cannot read properties of undefined (reading 'quote')",
+        "passou": true
+      },
+      {
+        "nome": "evidence undefined levanta excecao",
+        "esperadoFornecedor": null,
+        "esperadoExcecao": true,
+        "excecao": "Cannot read properties of undefined (reading 'quote')",
+        "passou": true
+      }
+    ],
+    "textoCompartilhadoEntreUnidadesDistintas": {
+      "esperado": "duas unidades distintas, mesmo rule, ids distintos",
+      "ids": [
+        "controle_sintetico_c0",
+        "controle_sintetico_c1"
+      ],
+      "rules": [
+        "MESMO TEXTO",
+        "MESMO TEXTO"
+      ],
+      "passou": true
+    }
+  },
+  "oQueIstoNaoDemonstra": [
+    "NAO demonstra recepcao pelo modelo: a captura e da chamada montada",
+    "NAO demonstra influencia sobre uma resposta: nenhum parecer foi produzido",
+    "NAO julga fidelidade de verbatim_quote, que exige conferencia bibliografica",
+    "NAO reconcilia com a particao historica de treze divergencias, que e registro datado"
+  ]
+}
