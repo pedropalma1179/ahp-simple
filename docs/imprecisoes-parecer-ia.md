@@ -9078,6 +9078,186 @@ tarefa, continua aberta. ⚠ **Continuam abertas:** a delimitação de **P1** an
 geração, **A.16** em Wijnmalen `key_claims[3]`, e a **predição de A.33**, que segue
 não testada.
 
+### A.33: a cadeia de fallback de `rule`, medida em 21/09/2026
+
+**Gravação:** `cced8dfdd129cf7319c6e8a193c3f26b473d7a27`, sobre a base
+`ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d`. **Branch de trabalho:**
+`claude/loving-shannon-661fy9`. Instrumento em
+`lib/__tests__/a33-cadeia-rule.test.ts`, artefato em
+`docs/dados/a33-cadeia-rule/medicao.json`.
+
+⚠ **Rodada de MEDIÇÃO.** Nenhum caminho de produção alterado, nenhuma reingestão,
+nenhuma chamada externa de inferência, embedding ou recuperação. ⚠ **Nenhuma
+geração de parecer, real ou simulada:** o cliente do modelo é um duplo que
+**captura a chamada e interrompe**, lançando um sentinela, antes de devolver
+conteúdo. ⚠ **A captura demonstra MONTAGEM, e não recepção pelo modelo nem
+influência sobre uma resposta.**
+
+**O alvo.** Em `app/api/ai-reviewer/knowledge.ts`, linha 101:
+
+```
+rule: claim.evidence.quote || claim.verbatim_quote || claim.claim,
+```
+
+e os templates de `route.ts` renderizam o campo como `Fundamento: ${ref.rule}`, em
+**quatro sítios**. ⚠ **O risco estava demonstrado por LEITURA** — `rule` admite
+textos de naturezas diferentes sob o mesmo rótulo — **e o alcance não estava
+demonstrado**. É o que esta rodada mede.
+
+**Três situações, que o registro não confunde:**
+
+| Situação | O que demonstra | Medido |
+|---|---|---|
+| possibilidade no código | que a expressão admite o caminho | sim, pelos controles sintéticos |
+| fallback **efetivamente utilizado** | que registros concretos o acionam | **zero unidades** |
+| presença na entrada capturada | que o conteúdo aparece na chamada montada | 100 unidades distintas |
+
+**Identificação, antes dos resultados.** `knowledge.ts` `7d76ce6e…`, `route.ts`
+`d3da9b90…`, `casos.json` `49b6c5ad…`, `requisicao-referencia-r2.json`
+`2bff4664…`, `C1-recuperacao.json` `461b6fa2…`, `calculations-13jul2026.json`
+`00d1d8a1…`. **Serialização declarada e CONFERIDA nesta execução:**
+`JSON.stringify(requisicao)`, compacto, UTF-8, sai
+`6541ecd41f8286f999662da0a342d664784fe2668158bba372490fa855232c85` com **3279
+bytes**, igual ao declarado no artefato. Versões **v2** e **r2**. Comando
+`npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts`, Linux x64, Node
+v22.22.2.
+
+**O conjunto EFETIVAMENTE LIDO pela montagem:** `getAllArticles()` e
+`article.key_claims`, **36 artigos e 138 unidades**, cada uma identificada por
+`articleId` e endereço, e **as 138 alcançadas pelo código real**.
+
+**Os cinco estados, por campo, sobre 138:**
+
+| Campo | com conteúdo | ausente | `null` | string vazia | só espaços | anomalia |
+|---|---:|---:|---:|---:|---:|---:|
+| `evidence.quote` | **138** | 0 | 0 | 0 | 0 | 0 |
+| `verbatim_quote` | **138** | 0 | 0 | 0 | 0 | 0 |
+| `claim` | **138** | 0 | 0 | 0 | 0 | 0 |
+
+**"Com conteúdo" é definido por ao menos um caractere que não seja espaço em
+branco**, e a classificação **não modifica o valor utilizado**. ⚠ **O objeto
+`evidence` existe e é objeto nas 138**, o que é distinto de ausência de
+`evidence.quote`, e **por isso o código real não levantou exceção em nenhuma**.
+
+⚠ **Este 138 não se reconcilia aqui com o 123 da leitura de 12/09/2026**, que
+contava claims com os dois campos. **São leituras de datas diferentes, e esta
+rodada não adjudica a diferença**: o `CLAUDE.md` trata aquela partição como
+registro histórico, e a reconciliação permanece em A.16.
+
+**A seleção pelo CÓDIGO REAL.** Executada por `claimToRef` na montagem de
+`KNOWLEDGE_BASE` e lida por `getRefsByContext('')`, que devolve as **138 com ids
+distintos**. ⚠ **O fornecedor é determinado pela PRECEDÊNCIA sobre os valores de
+entrada e confrontado com `doc.rule`; o vínculo unidade a documento é o `id`
+emitido pelo próprio código**, `${article.id}_c${index}`, **e não igualdade
+textual**.
+
+**Resultado: as 138 vêm de `evidence.quote`.** ⚠ **O fallback NÃO é acionado por
+nenhum registro da base viva.** Zero divergências entre precedência e saída real,
+**zero associações ambíguas**, zero sem conteúdo utilizável. ⚠ **As fatias
+críticas saem VAZIAS:** nenhuma unidade com `rule` vindo de `claim`, nenhuma de
+string só com espaços.
+
+⚠ **Em 112 das 138 o texto de `evidence.quote` é indistinguível de um campo
+posterior**, e só a precedência decide. **Isso NÃO é ambiguidade de resultado**: é
+a medida de por que não se deduz a origem por igualdade textual. **As outras 26
+distinguem.**
+
+**O alcance na montagem, C1, C2 e C3.** Os três **chamaram o modelo** e os três
+foram **interrompidos antes de conteúdo**. C1 e C3 fazem **5** consultas ao índice
+duplo, **C2 faz 0**. O contexto vai em `messages`.
+
+| Seção do template | Unidades | Presentes em C1, C2 e C3 | Ausentes |
+|---|---:|---:|---:|
+| Consistência e Validação de Dados | 93 | 93 | 0 |
+| Metodologia BOCR | 28 | 28 | 0 |
+| Sensibilidade e Robustez | 6 | 6 | 0 |
+| Críticas Adicionais (`slice(0, 8)`) | 8 | 8 | 0 |
+
+⚠ **São 135 OCORRÊNCIAS sobre 100 unidades DISTINTAS, e os dois números não se
+somam:** as seções se sobrepõem, e os denominadores são diferentes. **As outras 38
+unidades ficam com SELEÇÃO EFETIVA e EXPOSIÇÃO NÃO OBSERVADA em C1, C2 e C3**, que
+⚠ **não se rebaixa a mera possibilidade**: a seleção foi executada.
+
+**O tripé que vincula ao contexto não tem duplicata**, e **um único texto de `rule`
+se repete entre duas unidades**, `wijnmalen2007_bocr_c0` e `_c3`. ⚠ **Coincidência
+de texto isolada não vincularia essas duas; o tripé vincula.**
+
+⚠ **NENHUM juízo de fidelidade sobre `verbatim_quote` foi registrado.** A origem e a
+fidelidade dele exigem conferência, que não é desta rodada.
+
+**Conferido à mão, no caso que DISCRIMINA.** Em `wijnmalen2007_bocr`
+`key_claims[3]` o `evidence.quote` **difere** do `verbatim_quote`, e `doc.rule` sai
+**igual ao `evidence.quote`** e diferente dos outros dois. ⚠ **Nos 112 a igualdade
+textual não discriminaria; aqui discrimina**, e é por isso que a conferência à mão
+usou esta unidade e não uma das 112. ⚠ **É registro de qual campo o código escolhe,
+e não afirmação sobre a fidelidade dele:** a inspeção dessa unidade está registrada
+à parte e segue em A.16.
+
+**Controles sintéticos, ONZE, com entrada e esperado FIXADOS ANTES** e confrontados
+com o `claimToRef` real, alcançado por substituição de `getAllArticles`: os três
+fornecedores; `evidence.quote` **só com espaços SELECIONADO**; sem conteúdo
+utilizável **devolvendo o último operando**; campos com textos iguais decididos por
+precedência; `evidence.quote` `null`; chave `quote` ausente; **tipo inesperado
+selecionado**; e **objeto `evidence` ausente** e **`evidence` `undefined`**
+levantando `Cannot read properties of undefined (reading 'quote')`. Mais duas
+unidades distintas com o mesmo texto. ⚠ **Eles verificam o INSTRUMENTO e ficam FORA
+das contagens da base.**
+
+**Cinco contraexemplos, com restauro conferido por `sha256` idêntico:** alterar o
+total gravado **reprova**; gravar um fallback que não ocorreu **reprova**; gravar
+presença em seção que não a tem **reprova**; registrar juízo de fidelidade
+**reprova**; e o cliente simulado devolver conteúdo em vez de interromper
+**reprova**. Mais um **controle NEGATIVO dentro do teste**: o mesmo predicado
+reprova um bloco com `rule` adulterado e um bloco posto na seção errada.
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **25 suítes e 418 testes**, contra 24 e
+396 antes, diferença de **22** casos novos e **nenhum removido**. ⚠ **E também nas
+condições do CI**, em **clone raso de um commit** com `npm ci`: `tsc` **0** e os
+mesmos **25 suítes e 418 testes**, Linux x86_64, Node v22.22.2, npm 10.9.7. **Sem
+divergência entre a árvore de trabalho e o clone.** O workflow é
+`.github/workflows/ci.yml`, conferido no SHA `ebfc9dd`, job `verificar`, checkout
+`actions/checkout@v4` **sem `fetch-depth`**.
+
+**O referencial de engenharia, e o que dele é RECEBIDO.** Chip Huyen, *Designing
+Machine Learning Systems*, consultado **pela sessão de análise**. ⚠ **A cópia NÃO
+está acessível nesta sessão de execução**, medido por busca em todo o sistema de
+arquivos pelo nome e por `git grep` do SHA-256 declarado, ambas sem resultado, com
+`/mnt/attach` e `/mnt/user-data/working` vazios. ⚠ **Portanto as referências, o
+SHA-256 `9bdb604a…`, a natureza de exportação textual, os localizadores por linha e
+a edição declarada são informações RECEBIDAS da sessão de análise, NÃO verificadas
+aqui.** ⚠ **O livro fundamenta o método e não demonstra o comportamento do
+repositório.** ⚠ **Nenhuma ferramenta citada por ele foi adotada.**
+
+| Princípio | Localizador recebido | A que verificação concreta se liga |
+|---|---|---|
+| **RE1** linhagem dos dados | cap. 4, *Training Data* > *Labeling* > *Hand Labels* > *Data lineage*, linhas 3375 a 3388 | fornecedor de `rule` e endereço por unidade, na tabela de camadas |
+| **RE2** recriar o experimento | cap. 6, *Model Development and Training* > *Experiment Tracking and Versioning*, linhas 5486 a 5501 | SHA do commit, versões v2 e r2, e a comparação do inventário gravado com o medido agora |
+| **RE3** código e dados versionados juntos | mesma seção, *Versioning*, linhas 5543 a 5565 | SHA-256 de `knowledge.ts`, `route.ts` e dos quatro artefatos, e o critério de diferença declarado antes |
+| **RE4** registro por amostra | mesma seção, *Experiment tracking*, linhas 5511 a 5514 | entrada, saída e presença por unidade, nas 138 |
+| **RE5** reprodutibilidade não garantida | mesma seção, linhas 5569 a 5572 | ambiente registrado nas duas execuções, e a comparação com o clone raso |
+| **RE6** avaliação por fatias | cap. 6, *Model Offline Evaluation* > *Evaluation Methods* > *Slice-based evaluation*, linhas 6093 a 6147 e 6314 a 6319 | contagens por fornecedor, por estado, por seção e por caso, cada uma com o seu denominador |
+
+⚠ **As adaptações são desta equipe, e não afirmações do autor.** RE1 trata rótulos
+de treino e anotadores; RE6 trata desempenho de modelo, e **aqui se contam
+unidades**. **O paradoxo de Simpson entra só como alerta** de que o total esconde a
+distribuição, **e não como resultado a esperar**. **Os controles sintéticos são
+desenho desta equipe**; RE4 sustenta o registro por unidade, **não** o desenho
+deles.
+
+**O que esta rodada NÃO demonstra**, e está escrito no artefato: **não** demonstra
+recepção pelo modelo; **não** demonstra influência sobre uma resposta; **não** julga
+fidelidade de `verbatim_quote`; **não** reconcilia a partição histórica de treze.
+
+**Nada foi alterado** em `lib/rag/articles/`, em `app/`, nos artefatos da etapa 4,
+nos textos preparados, nos `trechoId`, no índice, nas 19 divergências de A.16 ou em
+`main`.
+
+⚠ **Predição não cabe:** a rodada mede e **não altera produção nem o contexto
+entregue ao modelo**. ⚠ **Se a correção posterior alterar o conteúdo de `rule` ou a
+sua identificação no contexto, ela exigirá predição registrada ANTES.** **A predição
+de A.33 segue não testada**, e **P1** continua requisito anterior à geração.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
