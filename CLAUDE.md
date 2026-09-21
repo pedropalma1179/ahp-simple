@@ -113,6 +113,12 @@ encontrar, o que o tornou convincente.
 **Um resultado que confirma a expectativa merece a mesma conferência que um que a
 contradiz, e provavelmente mais.**
 
+**Ausência de medição não autoriza resultado favorável nem desfavorável.** Registre
+"não avaliado" ou "desconhecido", distinguindo-os de zero, falso e vazio observados.
+
+⚠ **A regra orienta contrato e comportamento, e não é prova de que A.12 esteja
+integralmente corrigida.**
+
 ---
 
 ## 4. Antes de alterar arquivos
@@ -195,6 +201,24 @@ Se o build falhar com `ENOTFOUND fonts.googleapis.com`, é DNS: repita. Se falha
 com erro de **certificado** ao baixar Google Fonts, não resolve repetindo:
 registre e confirme pelo deploy da Vercel.
 
+**Teste que dependa de condição externa aos arquivos versionados deve declarar a
+dependência e ser executado nas condições relevantes do CI, com ambiente e
+resultado registrados. Afirmações sobre a configuração do CI devem indicar o
+workflow e o SHA consultados.**
+
+⚠ **Configuração DATADA do CI, conferida em 21/09/2026.** No workflow
+`.github/workflows/ci.yml`, no SHA `f3ddf94692d089d48212a28c63628a7f70c83865`, o
+job `verificar` faz o checkout com `actions/checkout@v4` **sem declarar
+`fetch-depth`**: `git grep fetch-depth -- .github/` sai **1**, sem nenhuma
+ocorrência. **O efeito observado foi clone raso**, e ele reprovou testes que liam
+o estado de referência por `git show`; as execuções e o commit estão nomeados em
+`docs/imprecisoes-parecer-ia.md`.
+
+⚠ **Isso é a configuração de um SHA, e não característica permanente do CI.** Um
+passo de checkout com `fetch-depth` muda o que existe no runner. **A afirmação
+vale para o SHA conferido e precisa ser reconferida no SHA em questão**, lendo o
+workflow ali.
+
 ---
 
 ## 6. O censo do motor
@@ -233,27 +257,39 @@ O que se aprendeu medindo:
 2. **Antes de conferir localizadores contra um PDF, leia o campo `notes`** e
    confirme que o PDF é a edição de onde as claims saíram. Não fazer isso custou
    horas de leitura do artigo errado.
-3. **Nenhum dos dois campos de citação é confiável por si.** Em **treze das 123**
-   claims que têm `verbatim_quote` e `evidence.quote`, os dois divergem, **e a
-   divergência tem duas direções**: em **oito** o `verbatim_quote` é anotação ou
-   reescrita, e o `evidence.quote` é o fiel (Dodevska **×2**, Xu, Lee, Wijnmalen
-   ×3, Saaty e Ozdemir); em **cinco** (Bozóki ×3, Schmidt, Salomon) é o
-   `evidence.quote` que está **truncado**, e o `verbatim_quote` traz a frase
-   completa. **A partição fecha em 8 + 5 = 13.** **O que o sistema envia ao modelo
-   é `evidence.quote`, desde `bf959b6`** — decisão correta nos oito e custosa nos
-   cinco, onde entrega texto mais curto, nunca infiel. **A tarefa A.16 decide qual
-   campo fica.** Ao citar em qualquer texto, confira os dois.
+3. **Registro histórico: a partição de treze, na leitura de 12/09/2026.**
+   ⚠ **É registro datado de uma leitura, e não guia de escolha entre os campos.**
 
-   ⚠ **Previsto depois de A.16: zero divergências.** A décima terceira foi
-   identificada em 12/09/2026, lendo o arquivo: é a segunda claim divergente do
-   `dodevska2023when.ts`, e **é a única do grupo em que a elisão apaga uma
-   proposição, não notação.** Nas outras a frase diz o mesmo, só menos verificável.
+   **A medição daquela leitura.** Em **treze das 123** claims que têm
+   `verbatim_quote` e `evidence.quote`, os dois divergiam. O conjunto foi
+   decomposto por **dois critérios distintos**:
 
-   ⚠ **As treze têm DUAS decomposições, e elas não coincidem:** por **direção**
-   fecha 8 + 5; por **detectabilidade**, 12 identificáveis por leitura + 1 que
-   parece citação legítima. **São partições de critérios diferentes sobre o mesmo
-   conjunto, e nenhum número está errado.** Quem tentar reconciliá-las vai concluir
-   que um está.
+   - **Critério da direção**, isto é, qual dos campos foi lido como fiel: em
+     **oito** o `verbatim_quote` foi lido como anotação ou reescrita e o
+     `evidence.quote` como o fiel (Dodevska **×2**, Xu, Lee, Wijnmalen ×3, Saaty
+     e Ozdemir); em **cinco** (Bozóki ×3, Schmidt, Salomon) o `evidence.quote` foi
+     lido como truncado e o `verbatim_quote` como a frase completa. Fecha em
+     **8 + 5 = 13**.
+   - **Critério da detectabilidade:** **12** identificáveis por leitura mais **1**
+     que parece citação legítima. Fecha em **12 + 1 = 13**.
+
+   ⚠ **São partições de critérios diferentes sobre o mesmo conjunto, e nenhum
+   número está errado.** Quem tentar reconciliá-las vai concluir que um está.
+
+   **Conclusões daquela leitura, e a validade atual delas NÃO está demonstrada.**
+   Ficam aqui como histórico, nunca como orientação: que o sistema enviava
+   `evidence.quote` ao modelo desde `bf959b6`, decisão correta nos oito e custosa
+   nos cinco, onde entrega texto mais curto e nunca infiel; e que a décima
+   terceira, identificada em 12/09/2026 no `dodevska2023when.ts`, seria a única do
+   grupo em que a elisão apaga uma proposição e não notação. **Predição registrada
+   na mesma leitura: depois de A.16, zero divergências.**
+
+   **O que orienta hoje.** A partição histórica de treze divergências não certifica
+   a fidelidade de nenhum dos campos à publicação. A inspeção posterior de
+   Wijnmalen `key_claims[3]` contrariou a atribuição de fidelidade ao
+   `evidence.quote`. **Não use essa partição, nem as conclusões dela derivadas,
+   para escolher o campo correto.** Consulte os registros de conferência e de
+   correção por unidade. **A reconciliação do conjunto permanece em A.16.**
 4. **`description` e `conditions` são texto do indexador**, não do artigo. O
    contexto recuperado não os distingue do `quote`, e o modelo já citou um
    `conditions` como verbatim. É a tarefa A.15.
