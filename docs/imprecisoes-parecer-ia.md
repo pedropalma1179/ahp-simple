@@ -9398,6 +9398,476 @@ artefatos da etapa 4, nos `trechoId`, no índice, nas divergências de A.16, em
 produção nem o contexto entregue ao modelo**. **A predição de A.33 segue não
 testada.**
 
+### A.33: o contrato revisado, e `conjuntos` preservado no registro, em 22/09/2026
+
+**Gravação:** `dd17e6f9847442bb78d9262a1a80047d7ed8e1f2`, instrumento, artefato e
+testes, e este registro no commit seguinte. **Base:**
+`5a58180466633ec4e31fdfcb66cce416562ec3d2`. **Branch:**
+`claude/loving-shannon-661fy9`. **Comandos desta execução:**
+`A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts`,
+`npx tsc --noEmit` e `npm test -- --runInBand`, mais o clone raso com `npm ci`.
+**Ambiente desta execução:** Linux x86_64, **Node v22.22.2**, npm 10.9.7.
+⚠ **Este ambiente fica AQUI e não entra no artefato.**
+
+⚠ **O desvio de escopo ocorrido em `5a58180` continua registrado e não se apaga.**
+O prompt anterior proibia campo adicional e exigia reprodução pela retirada de dois
+campos; eu alterei um campo existente e acrescentei duas chaves de topo, **e
+deveria ter apresentado o conflito antes de mudar o contrato**. O autor revisou o
+contrato depois, e é o revisado que esta rodada aplica.
+
+**O contrato revisado, decidido pelo autor:**
+
+| Alteração | Decisão |
+|---|---|
+| `camadas[].entrada` e `camadas[].saidaReal` | **mantidas** |
+| renomeação para `estados.excecoesDaCopiaLocalDaExpressao` | **aprovada**, corrige a atribuição falsa |
+| `estados.excecaoDoCodigoReal` | **aprovada**, sustentada pela execução do módulo real |
+| `contagens.excecao.nota` | **aprovada**, com a contagem vinculada à observação real |
+| `conjuntos` | **retirada do JSON**, preservada integralmente aqui |
+| `preservacaoDoArtefatoAnterior` | **retirada do JSON**; referência e controle no teste |
+
+## A falha de `5a58180`, registrada
+
+⚠ **Um verde posterior não a apaga.** Execução **`35752614773`**, job `verificar`,
+id `106830342881`, `completed/**failure**`, sobre
+`5a58180466633ec4e31fdfcb66cce416562ec3d2`. Checkout, Node 24.x, instalação,
+`Typecheck` e `Build` saíram `success`; o passo **7, `Testes`**, saiu **`failure`**.
+Suíte no CI: **1 falhou e 433 passaram, de 434**, em **1 suíte reprovada de 25**.
+
+O teste que falhou é
+`complemento: removidos SO entrada e saidaReal, e desfeitas as correcoes de
+procedencia, o JSON reproduz 7405839`, em `lib/__tests__/a33-cadeia-rule.test.ts`.
+
+| | Resumo |
+|---|---|
+| esperado | `a6c3b03f24ebd544aaf35c69a21cd7f41b7c871adfc843a0e2ffcc0f7fa21a8d` |
+| recebido | `03933008191f240c428a6a44848a5c57119314feaaf2897511e5746d620c8616` |
+
+**Causa demonstrada, e não conjecturada:** reconstruí o JSON com script próprio e
+variei **um único campo**. Com `identificacao.ambiente.node = "v24.20.0"` o resumo
+sai exatamente o recebido; com `"v22.22.2"`, o esperado. **O artefato gravava o
+ambiente da execução**, e a referência fora fixada sob Node 22. As duas cadeias têm
+oito caracteres, e por isso a asserção de bytes passou e só a de resumo reprovou.
+
+⚠ **É o modo de falha que este projeto já registrou.** O clone raso reproduzia a
+**profundidade do checkout** e **não a versão do Node**, e eu escrevi isso na
+tabela do registro anterior sem agir sobre a consequência.
+
+## O que a correção fez
+
+**Metadados históricos saem do ambiente.** `identificacao.commitMedido`, `comando`,
+`versoes` e `ambiente` passam a vir de `METADADOS_HISTORICOS`, constantes do teste,
+e **nunca** de `process.version`, `process.platform` ou `process.arch`.
+
+⚠ **Isto não simula, não sobrescreve e não mascara o runtime atual.** `v22.22.2` é
+o valor **histórico** da medição de `ebfc9dd`, sustentado pela referência canônica
+de `7405839`; o processo que roda o teste continua reportando a sua própria versão,
+e um teste próprio observa `process.version` e confirma que nada o altera. **O
+bloco de identificação continua na comparação.**
+
+**Controle contra adulteração com referência EXTERNA ao artefato.** O teste compara
+o gravado com as constantes, e **não o artefato consigo mesmo**. Contraexemplo
+obrigatório conferido: alterar `identificacao.ambiente.node` no artefato
+**reprova**; alterar `commitMedido` **reprova**.
+
+**A contagem de exceção passa a derivar da observação do código real.**
+`observarCodigoReal` importa o módulo e mede: o import concluiu, sem erro, e o
+módulo devolveu **138 documentos para 138 unidades**, logo **zero** exceção do
+código real. `contagens.excecao.valor` vem daí, e a nota descreve essa procedência
+**usando o mesmo número**. ⚠ **A contagem da cópia local não é usada como
+evidência, e a nota não a invoca.**
+
+⚠ **Achado do contraexemplo, e é o segundo desta natureza.** O primeiro teste do
+vínculo **não discriminava**: nesta base a observação real e a cópia local valem
+zero as duas, então trocar a fonte não reprovava. A montagem virou função pura e
+entrou um controle com **observação sintética de sete exceções**, em que as duas
+fontes divergem. Agora trocar a fonte **reprova**.
+
+**O que a referência e o controle do teste verificam, e por quê.**
+`ORIGINAL_7405839` guarda o **SHA-256 da serialização canônica** do artefato
+publicado em `7405839`, `a6c3b03f…`, com **87057 bytes** e a regra
+`JSON.stringify(valor)`, compacto, UTF-8. `EXCECOES_APROVADAS` enumera as **quatro**
+exceções do contrato revisado. `reconstruir7405839` desfaz **somente** essas
+quatro, remontando as chaves na ordem original, e o resumo do resultado tem de
+bater com a referência. ⚠ **Vivem no teste, e não no JSON**, porque
+`preservacaoDoArtefatoAnterior` foi retirada do artefato. ⚠ **A referência NÃO foi
+trocada para acomodar a falha.**
+
+⚠ **Node 24 não existe nesta máquina** — só `/opt/node20`, `/opt/node21` e
+`/opt/node22`, medidos. **Não há execução local em Node 24 a declarar**, e a
+demonstração de que o ambiente histórico continua `v22.22.2` sob Node 24 é **a
+execução do CI sobre o novo topo**, relatada à parte.
+
+## `conjuntos`, reprodução histórica literal de `5a58180`
+
+⚠ **O bloco abaixo é REPRODUÇÃO HISTÓRICA LITERAL** do que `5a58180` publicou em
+`docs/dados/a33-cadeia-rule/medicao.json`, chave `conjuntos`. ⚠ **A igualdade de
+resumo demonstra preservação do conteúdo, e NÃO ratificação das conclusões dele.**
+As correções de interpretação vêm **depois** dele, e não dentro.
+
+| | Valor |
+|---|---|
+| resumo do bloco extraído de `5a58180` | `8e7d3330c41a2506cb5c308e0e08196b8c7c4354a1125cbee18f83da9e187c74` |
+| resumo do bloco reproduzido aqui | `8e7d3330c41a2506cb5c308e0e08196b8c7c4354a1125cbee18f83da9e187c74` |
+| regra de serialização | `JSON.stringify(bloco)`, compacto, sem indentação, UTF-8 |
+| bytes canônicos | 8240 |
+
+```json
+{
+  "distinguiveis": {
+    "criterio": "evidence.quote diferente de verbatim_quote E diferente de claim, por igualdade estrita, SEM trim, que e a comparacao usada no instrumento",
+    "sha": {
+      "arquivos": 37,
+      "sha256": "19210d04b7ba8a3d3646cd6da87a666f1c1c39086a40dcc0285ac757a8fe429c",
+      "regra": "nomes .ts em ordem lexicografica, nome + 0x1E + bytes + 0x1E, concatenados"
+    },
+    "base": "lib/rag/articles, no checkout desta execucao",
+    "total": 26,
+    "chaves": [
+      "ayan2023_weightingMethodsMCDM#2",
+      "ayan2023_weightingMethodsMCDM#5",
+      "bozoki2010_ipc#0",
+      "bozoki2010_ipc#1",
+      "bozoki2010_ipc#3",
+      "bozoki2010_ipc#4",
+      "dodevska2023when#1",
+      "dodevska2023when#2",
+      "escobar2004_note#0",
+      "escobar2004_note#1",
+      "lee2009_wind#0",
+      "neely2020_upperEchelonsMetacritiques#4",
+      "neely2020_upperEchelonsMetacritiques#5",
+      "saaty1986_axiomatic#0",
+      "saaty1986_axiomatic#4",
+      "saatyOzdemir2003_negative#2",
+      "saatyVargas1984_rankpreservation#5",
+      "saiyed2023_ceoPowerUET#3",
+      "salomon2016_absolute#2",
+      "salomon2024_consistency#1",
+      "salomon2024_consistency#2",
+      "schmidt2015_review#0",
+      "wijnmalen2007_bocr#2",
+      "wijnmalen2007_bocr#3",
+      "wijnmalen2007_bocr#4",
+      "xu2000_consistency#0"
+    ]
+  },
+  "a16Localizada": {
+    "estado": "LOCALIZADA",
+    "artefato": "docs/dados/a33-etapa4-v2/evidencias.json",
+    "criterio": [
+      "Igualdade exata após trim; não é juízo de sentido."
+    ],
+    "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+    "unidadesComComparacaoNoArtefato": 101,
+    "divergentesNoArtefato": 19,
+    "divergentesEmKeyClaims": 19,
+    "chaves": [
+      "ayan2023_weightingMethodsMCDM#2",
+      "ayan2023_weightingMethodsMCDM#5",
+      "bozoki2010_ipc#0",
+      "bozoki2010_ipc#1",
+      "dodevska2023when#1",
+      "dodevska2023when#2",
+      "escobar2004_note#0",
+      "escobar2004_note#1",
+      "lee2009_wind#0",
+      "neely2020_upperEchelonsMetacritiques#4",
+      "neely2020_upperEchelonsMetacritiques#5",
+      "saatyOzdemir2003_negative#2",
+      "salomon2016_absolute#2",
+      "salomon2024_consistency#1",
+      "salomon2024_consistency#2",
+      "wijnmalen2007_bocr#2",
+      "wijnmalen2007_bocr#3",
+      "wijnmalen2007_bocr#4",
+      "xu2000_consistency#0"
+    ]
+  },
+  "conjuntoDe26": {
+    "estado": "NAO DETERMINADO: lista nao localizada",
+    "ondeOTotalAparece": "docs/imprecisoes-parecer-ia.md, no texto narrativo, como \"26 entre 138\"",
+    "oQueFoiProcurado": "arrays de exatamente 26 itens em docs/dados/**/*.json, e ocorrencias de 26 ligadas a divergencia; nenhuma lista POR UNIDADE encontrada",
+    "consequencia": "os resultados da comparacao com esse conjunto ficam NAO DETERMINADOS, e NAO sao zero nem identidade",
+    "naoSeImpoeTotal": "o total de 26 NAO foi imposto a lista localizada, que tem o seu proprio total"
+  },
+  "recalculadoPeloCriterioDeA16": {
+    "estado": "TERCEIRO CONJUNTO, recalculado nesta base; NAO e a lista de A.16",
+    "criterio": "verbatim_quote diferente de evidence.quote apos trim, que e o criterio registrado em evidencias.json, aplicado a base ATUAL",
+    "sha": {
+      "arquivos": 37,
+      "sha256": "19210d04b7ba8a3d3646cd6da87a666f1c1c39086a40dcc0285ac757a8fe429c",
+      "regra": "nomes .ts em ordem lexicografica, nome + 0x1E + bytes + 0x1E, concatenados"
+    },
+    "total": 26,
+    "chaves": [
+      "ayan2023_weightingMethodsMCDM#2",
+      "ayan2023_weightingMethodsMCDM#5",
+      "bozoki2010_ipc#0",
+      "bozoki2010_ipc#1",
+      "bozoki2010_ipc#3",
+      "bozoki2010_ipc#4",
+      "dodevska2023when#1",
+      "dodevska2023when#2",
+      "escobar2004_note#0",
+      "escobar2004_note#1",
+      "lee2009_wind#0",
+      "neely2020_upperEchelonsMetacritiques#4",
+      "neely2020_upperEchelonsMetacritiques#5",
+      "saaty1986_axiomatic#0",
+      "saaty1986_axiomatic#4",
+      "saatyOzdemir2003_negative#2",
+      "saatyVargas1984_rankpreservation#5",
+      "saiyed2023_ceoPowerUET#3",
+      "salomon2016_absolute#2",
+      "salomon2024_consistency#1",
+      "salomon2024_consistency#2",
+      "schmidt2015_review#0",
+      "wijnmalen2007_bocr#2",
+      "wijnmalen2007_bocr#3",
+      "wijnmalen2007_bocr#4",
+      "xu2000_consistency#0"
+    ]
+  },
+  "origemDasDiferencas": {
+    "porCriterio": {
+      "efeito": "NENHUM",
+      "comoSeMediu": "o terceiro conjunto aplica o criterio de A.16, com trim, a base atual, e sai IDENTICO ao dos distinguiveis; logo o criterio nao separa nenhuma unidade nesta base"
+    },
+    "porBase": {
+      "efeito": "NENHUM",
+      "comoSeMediu": "os dois conjuntos foram recalculados em arvore auxiliar no commit 3db365c, que e o pai de 8b057d9, ANTES das duas correcoes de A.16; sairam 26 e 26, com as MESMAS chaves do conjunto atual",
+      "commitsConferidos": [
+        "8b057d9db2c70e701a757f5ad83336903c3b8000",
+        "b567d99bec6881faa381651353120e1faaf7366a"
+      ],
+      "unidadesQueEssesCommitsTocaram": [
+        "saaty1977_scaling#0",
+        "wijnmalen2007_bocr#0",
+        "wijnmalen2007_bocr#3"
+      ],
+      "porQueNaoMudouPertenca": "em saaty1977_scaling#0 e wijnmalen2007_bocr#0 os dois campos foram alterados JUNTOS e seguiram iguais entre si, e em wijnmalen2007_bocr#3 o evidence.quote mudou mas continuou diferente do verbatim_quote; medido, e nao deduzido",
+      "provenienciaDestaMedicao": "arvore auxiliar desta execucao complementar, removida ao fim; o registro narrativo traz o comando"
+    },
+    "porEscopoDoArtefato": {
+      "efeito": "EXPLICA AS SETE",
+      "comoSeMediu": "evidencias.json traz 101 unidades de key_claims entre as 165 de porTrecho, e as 138 da base viva nao estao todas ali; as sete de somenteA estao AUSENTES de porTrecho",
+      "keyClaimsNaBaseViva": 138,
+      "keyClaimsCobertasPeloArtefato": 101,
+      "keyClaimsForaDoArtefato": 37
+    },
+    "conclusao": "A diferenca de sete e inteiramente de ESCOPO. Dentro do escopo comum as 101 unidades cobertas, os dois conjuntos coincidem. ⚠ Nenhuma diferenca ficou sem origem determinada, e nenhuma foi atribuida as correcoes de A.16."
+  },
+  "comparacoes": {
+    "distinguiveisVsA16Localizada": {
+      "tamanhoA": 26,
+      "tamanhoB": 19,
+      "intersecao": [
+        "ayan2023_weightingMethodsMCDM#2",
+        "ayan2023_weightingMethodsMCDM#5",
+        "bozoki2010_ipc#0",
+        "bozoki2010_ipc#1",
+        "dodevska2023when#1",
+        "dodevska2023when#2",
+        "escobar2004_note#0",
+        "escobar2004_note#1",
+        "lee2009_wind#0",
+        "neely2020_upperEchelonsMetacritiques#4",
+        "neely2020_upperEchelonsMetacritiques#5",
+        "saatyOzdemir2003_negative#2",
+        "salomon2016_absolute#2",
+        "salomon2024_consistency#1",
+        "salomon2024_consistency#2",
+        "wijnmalen2007_bocr#2",
+        "wijnmalen2007_bocr#3",
+        "wijnmalen2007_bocr#4",
+        "xu2000_consistency#0"
+      ],
+      "somenteA": [
+        "bozoki2010_ipc#3",
+        "bozoki2010_ipc#4",
+        "saaty1986_axiomatic#0",
+        "saaty1986_axiomatic#4",
+        "saatyVargas1984_rankpreservation#5",
+        "saiyed2023_ceoPowerUET#3",
+        "schmidt2015_review#0"
+      ],
+      "somenteB": [],
+      "identicos": false
+    },
+    "distinguiveisNoEscopoComumVsA16Localizada": {
+      "tamanhoA": 19,
+      "tamanhoB": 19,
+      "intersecao": [
+        "ayan2023_weightingMethodsMCDM#2",
+        "ayan2023_weightingMethodsMCDM#5",
+        "bozoki2010_ipc#0",
+        "bozoki2010_ipc#1",
+        "dodevska2023when#1",
+        "dodevska2023when#2",
+        "escobar2004_note#0",
+        "escobar2004_note#1",
+        "lee2009_wind#0",
+        "neely2020_upperEchelonsMetacritiques#4",
+        "neely2020_upperEchelonsMetacritiques#5",
+        "saatyOzdemir2003_negative#2",
+        "salomon2016_absolute#2",
+        "salomon2024_consistency#1",
+        "salomon2024_consistency#2",
+        "wijnmalen2007_bocr#2",
+        "wijnmalen2007_bocr#3",
+        "wijnmalen2007_bocr#4",
+        "xu2000_consistency#0"
+      ],
+      "somenteA": [],
+      "somenteB": [],
+      "identicos": true
+    },
+    "distinguiveisVsRecalculado": {
+      "tamanhoA": 26,
+      "tamanhoB": 26,
+      "intersecao": [
+        "ayan2023_weightingMethodsMCDM#2",
+        "ayan2023_weightingMethodsMCDM#5",
+        "bozoki2010_ipc#0",
+        "bozoki2010_ipc#1",
+        "bozoki2010_ipc#3",
+        "bozoki2010_ipc#4",
+        "dodevska2023when#1",
+        "dodevska2023when#2",
+        "escobar2004_note#0",
+        "escobar2004_note#1",
+        "lee2009_wind#0",
+        "neely2020_upperEchelonsMetacritiques#4",
+        "neely2020_upperEchelonsMetacritiques#5",
+        "saaty1986_axiomatic#0",
+        "saaty1986_axiomatic#4",
+        "saatyOzdemir2003_negative#2",
+        "saatyVargas1984_rankpreservation#5",
+        "saiyed2023_ceoPowerUET#3",
+        "salomon2016_absolute#2",
+        "salomon2024_consistency#1",
+        "salomon2024_consistency#2",
+        "schmidt2015_review#0",
+        "wijnmalen2007_bocr#2",
+        "wijnmalen2007_bocr#3",
+        "wijnmalen2007_bocr#4",
+        "xu2000_consistency#0"
+      ],
+      "somenteA": [],
+      "somenteB": [],
+      "identicos": true
+    },
+    "a16LocalizadaVsRecalculado": {
+      "tamanhoA": 19,
+      "tamanhoB": 26,
+      "intersecao": [
+        "ayan2023_weightingMethodsMCDM#2",
+        "ayan2023_weightingMethodsMCDM#5",
+        "bozoki2010_ipc#0",
+        "bozoki2010_ipc#1",
+        "dodevska2023when#1",
+        "dodevska2023when#2",
+        "escobar2004_note#0",
+        "escobar2004_note#1",
+        "lee2009_wind#0",
+        "neely2020_upperEchelonsMetacritiques#4",
+        "neely2020_upperEchelonsMetacritiques#5",
+        "saatyOzdemir2003_negative#2",
+        "salomon2016_absolute#2",
+        "salomon2024_consistency#1",
+        "salomon2024_consistency#2",
+        "wijnmalen2007_bocr#2",
+        "wijnmalen2007_bocr#3",
+        "wijnmalen2007_bocr#4",
+        "xu2000_consistency#0"
+      ],
+      "somenteA": [],
+      "somenteB": [
+        "bozoki2010_ipc#3",
+        "bozoki2010_ipc#4",
+        "saaty1986_axiomatic#0",
+        "saaty1986_axiomatic#4",
+        "saatyVargas1984_rankpreservation#5",
+        "saiyed2023_ceoPowerUET#3",
+        "schmidt2015_review#0"
+      ],
+      "identicos": false
+    },
+    "distinguiveisVsConjuntoDe26": "NAO DETERMINADO: lista nao localizada"
+  }
+}
+```
+
+### Correções de interpretação, FORA do bloco reproduzido
+
+⚠ **Não alteram o bloco acima**, que é histórico. Indicam onde a leitura dele
+precisa de ressalva.
+
+**Campo afetado: `conjuntos.a16Localizada.sha`.** O bloco registra
+`344d63121489348a7291725271564f06fe5ef5a5` como o SHA da lista. ⚠ **Descrevê-lo
+como "o SHA em que a lista foi medida" é leitura apressada**, e no relato anterior
+eu ainda a agravei chamando o valor da v2 de defasado. **O contrato do campo está
+declarado**, em `docs/dados/a33-etapa4-v2/manifesto-transicao.json`,
+`regraDoEndereco.baseShaDeTopo`: *"Os campos baseSha de topo dos artefatos seguem
+em 344d6312…, a base da preparação de origem; a origem de cada conteúdo está no
+endereço da unidade."* Medido: em `evidencias.json`, **162 unidades** têm
+`enderecoNaBase.sha` igual a `344d6312…` e **três** têm `8f94341…`, e são
+exatamente os índices **47, 86 e 89**, as unidades corrigidas por A.16. **Os dois
+valores não representam a mesma coisa, e o par é coerente.**
+
+**Campos afetados: `conjuntos.a16Localizada.criterio` e
+`conjuntos.origemDasDiferencas.porCriterio`.** O bloco trata o critério como
+registrado no artefato, e está certo; o que faltava dizer é a procedência do
+cálculo. ⚠ **A formulação correta é: instrumento produtor NÃO LOCALIZADO no alcance
+consultado.** Procurou-se em `scripts/`, em `lib/` e nos artefatos de
+`docs/dados/`; o texto do critério aparece **apenas como dado**, por unidade, e
+`scripts/a33-snapshot-v2.cjs:371` **verifica** que o valor não mudaria, sem
+computá-lo. ⚠ **Isso é distinto da reprodução de 101 de 101**, medida nesta rodada,
+que demonstra **consistência com as cópias preparadas** e **não** a procedência do
+cálculo histórico.
+
+**Campo afetado: `conjuntos.a16Localizada`, papel do SHA.** ⚠ **A data da medição
+histórica continua DESCONHECIDA:** `evidencias.json` não tem campo de data, e a
+data do commit que introduziu a lista, `b1111fb`, não a demonstra.
+
+### As duas pendências, registradas e não corrigidas
+
+⚠ **Nada da v2 foi alterado nesta rodada.**
+
+1. **`baseSha` da v2, os dois valores e as fontes.**
+   `docs/dados/a33-etapa4-v2/evidencias.json` declara
+   `344d63121489348a7291725271564f06fe5ef5a5`, e
+   `docs/dados/a33-etapa4-v2/manifesto-transicao.json` declara
+   `8f9434140ea00247e07c31dbff4cc84e5d45425f` em `baseCorrigida.sha` e em
+   `auditoriaA16.commit`. ⚠ **Lido o contrato, eles NÃO representam a mesma coisa:**
+   o primeiro identifica **a base da preparação de origem**, o segundo **a base
+   corrigida**, cujas correções vieram de `8b057d9` e `b567d99`, e o endereço por
+   unidade carrega o SHA de onde aquele conteúdo foi lido. **Fica registrado como
+   pendência de leitura, não como defeito**, e a v2 não foi tocada.
+
+2. **A.16, a lista de 19.** ⚠ **Instrumento produtor não localizado no alcance
+   consultado**, que foi `scripts/`, `lib/` e `docs/dados/`. **Separada disso**, e
+   medida nesta rodada: a condição declarada,
+   `trim(verbatim_quote) === trim(evidence.quote)` sobre `dadosOriginais`, reproduz
+   `iguais` em **101 de 101**, com zero discordâncias. ⚠ **Isso demonstra
+   consistência com as cópias, e não a procedência do cálculo histórico.**
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **25 suítes e 433 testes**, contra 25 e
+434 antes. ⚠ **A diferença de um não é aritmética de exclusão:** saíram **seis**
+testes que liam `M.conjuntos`, retirado do artefato por decisão do autor, e
+entraram **cinco** do contrato revisado — o vínculo da contagem, a nota com o mesmo
+número, o controle de adulteração com referência externa, a independência do
+runtime e o discriminante da fonte. O mesmo total em **clone raso de um commit**
+com `npm ci`, Node v22.22.2.
+
+**Nada alterado** em `lib/rag/articles/`, em `app/`, no `CLAUDE.md`, no âncora, em
+`docs/dados/a33-etapa4/`, em `docs/dados/a33-etapa4-v2/` nem no `baseSha` da v2.
+
+⚠ **Predição não cabe:** a rodada corrige instrumento, artefato e teste, **sem
+alterar produção nem o contexto entregue ao modelo**.
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
