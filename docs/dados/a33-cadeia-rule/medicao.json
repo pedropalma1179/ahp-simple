@@ -53,7 +53,11 @@
       "com conteudo": 138
     },
     "anomalias": [],
-    "excecoesDoCodigoReal": [],
+    "excecoesDaCopiaLocalDaExpressao": [],
+    "excecaoDoCodigoReal": {
+      "observado": "NENHUMA",
+      "comoSeSabe": "claimToRef roda na montagem de KNOWLEDGE_BASE, na importacao do modulo; uma excecao ali impediria o import, e o modulo importou e devolveu as 138"
+    },
     "objEvidenceAusenteOuNaoObjeto": [],
     "soEspacosRegistradosAParte": []
   },
@@ -333,6 +337,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The additive formula is the best for long-term results",
+        "verbatimQuote": "The additive formula is the best for long-term results",
+        "claim": "For long-term evaluation, the additive BOCR formula is recommended."
+      },
+      "saidaReal": {
+        "rule": "The additive formula is the best for long-term results",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -360,6 +373,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "multiplicative formula is equivalent to the marginal cost/benefit and the best for short-term results",
+        "verbatimQuote": "multiplicative formula is equivalent to the marginal cost/benefit and the best for short-term results",
+        "claim": "For short-term evaluation, the multiplicative BOCR formula provides the best marginal cost/benefit equivalent."
+      },
+      "saidaReal": {
+        "rule": "multiplicative formula is equivalent to the marginal cost/benefit and the best for short-term results",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -389,6 +411,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Because of the complex political and economic situations... we accept here a 15% inconsistency",
+        "verbatimQuote": "Because of the complex political and economic situations... we accept here a 15% inconsistency",
+        "claim": "In highly complex political/economic environments, relaxing the inconsistency threshold to 15% may be justifiable."
+      },
+      "saidaReal": {
+        "rule": "Because of the complex political and economic situations... we accept here a 15% inconsistency",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -416,6 +447,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices",
+        "verbatimQuote": "given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices",
+        "claim": "GMM aggregation guarantees aggregate consistency with a sufficiently large group regardless of individual consistency."
+      },
+      "saidaReal": {
+        "rule": "given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -445,6 +485,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "as the number of comparisons increase, the number of group members needed to generate a 100% acceptable inconsistency measure decreases.",
+        "verbatimQuote": "as the number of comparisons increase, the number of group members needed to generate a 100% acceptable inconsistency measure decreases.",
+        "claim": "Higher matrix dimensions reach aggregate consistency with fewer group members."
+      },
+      "saidaReal": {
+        "rule": "as the number of comparisons increase, the number of group members needed to generate a 100% acceptable inconsistency measure decreases.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -472,6 +521,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "any MCDM problem requires the choice of the weighting methods because it directly influences the accuracy and reliability of the decision outcomes",
+        "verbatimQuote": "any MCDM problem requires the choice of the weighting methods because it directly influences the accuracy and reliability of the decision outcomes",
+        "claim": "In MCDM, the choice of weighting method directly influences the accuracy and reliability of decision outcomes. Decision-makers must consider multiple elements including the nature of the decision problem, the type of data, the measurement scale, the weighting of the criteria, and the interactions between the criteria. Different weighting methods generate different criterion weights, leading to different rankings that impact the entire order, not just the best alternative."
+      },
+      "saidaReal": {
+        "rule": "any MCDM problem requires the choice of the weighting methods because it directly influences the accuracy and reliability of the decision outcomes",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -501,6 +559,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The distinct characteristics of each weighting method generate varying weights attributed to the criteria, leading to different rankings that impact the entire order, not just the best alternative",
+        "verbatimQuote": "The distinct characteristics of each weighting method generate varying weights attributed to the criteria, leading to different rankings that impact the entire order, not just the best alternative",
+        "claim": "The distinct characteristics of each weighting method generate varying weights attributed to the criteria, leading to different rankings that impact the entire order of alternatives, not just the best alternative. This implies that weight distribution is not an absolute truth but a function of the specific method and panel used to elicit it."
+      },
+      "saidaReal": {
+        "rule": "The distinct characteristics of each weighting method generate varying weights attributed to the criteria, leading to different rankings that impact the entire order, not just the best alternative",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -527,6 +594,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Weighting methods can be classified into three categories: subjective, objective, and combinative (integrated). Subjective methods require DMs to take responsibility for assigning weights to the criteria. In contrast, objective methods do not involve DMs in determining the relative importance of the criteria but instead use mathematical algorithms. The combinative approach involves a blend of both subjective and objective methods",
+        "verbatimQuote": "Weighting methods can be classified into three categories: subjective, objective, and combinative (integrated). Subjective methods require DMs to take responsibility for assigning weights to the criteria",
+        "claim": "Weighting methods in MCDM are classified into three categories: subjective, objective, and combinative (integrated). Subjective methods (such as AHP, BWM, SWARA) require decision-makers to take responsibility for assigning weights based on their expertise and preferences — thus making them inherently susceptible to cognitive and professional biases. Objective methods use mathematical algorithms without DM input. Combinative approaches blend both."
+      },
+      "saidaReal": {
+        "rule": "Weighting methods can be classified into three categories: subjective, objective, and combinative (integrated). Subjective methods require DMs to take responsibility for assigning weights to the criteria. In contrast, objective methods do not involve DMs in determining the relative importance of the criteria but instead use mathematical algorithms. The combinative approach involves a blend of both subjective and objective methods",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -556,6 +632,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "According to the theory of bounded rationality, the rationality of a researcher is limited by the available knowledge, the cognitive limitations of the individual mind, and the availability of decision-making (DM) time",
+        "verbatimQuote": "According to the theory of bounded rationality, the rationality of a researcher is limited by the available knowledge, the cognitive limitations of the individual mind, and the availability of decision-making (DM) time",
+        "claim": "Decision-making is fundamentally constrained by bounded rationality: the rationality of decision-makers is limited by the available knowledge, the cognitive limitations of the individual mind, and the availability of decision-making time. This applies directly to weight elicitation in MCDM, where experts cannot fully integrate all relevant information and rely on cognitive shortcuts that introduce systematic bias into the weight distribution."
+      },
+      "saidaReal": {
+        "rule": "According to the theory of bounded rationality, the rationality of a researcher is limited by the available knowledge, the cognitive limitations of the individual mind, and the availability of decision-making (DM) time",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -582,6 +667,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "to ensure trust in the decision outcomes, it is recommended to choose multiple methods in determining the weights",
+        "verbatimQuote": "to ensure trust in the decision outcomes, it is recommended to choose multiple methods in determining the weights",
+        "claim": "To ensure trust in the decision outcomes, it is recommended to use multiple weighting methods and compare results. A balanced approach combining subjective and objective methods has emerged as a trend, integrating decision-maker preferences with mathematical algorithms. No single method is universally superior; the appropriate method depends on the specific problem context."
+      },
+      "saidaReal": {
+        "rule": "to ensure trust in the decision outcomes, it is recommended to choose multiple methods in determining the weights",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -610,6 +704,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "it is important to note that the ultimate decision is still made by the managers, not the methods themselves. A balanced approach that combines subjective and objective methods has emerged as a trend in the development of new methods, as it allows for the integration of manager preferences with mathematical algorithms",
+        "verbatimQuote": "it is important to note that the ultimate decision is still made by the managers, not the methods themselves",
+        "claim": "Multi-criteria decision methods are tools that support decision-making by organizing complex information and enabling managers to make more rational decisions. However, the ultimate decision is still made by the managers, not the methods themselves. Methods cannot eliminate bias — they can only structure it. Therefore, analysis of panel composition and decision context remains essential even when rigorous MCDM methods are applied."
+      },
+      "saidaReal": {
+        "rule": "it is important to note that the ultimate decision is still made by the managers, not the methods themselves. A balanced approach that combines subjective and objective methods has emerged as a trend in the development of new methods, as it allows for the integration of manager preferences with mathematical algorithms",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -636,6 +739,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "The optimal solution of the problem (5) is unique if and only if the graph is connected",
+        "verbatimQuote": "The optimal solution of the problem (5) is unique if and only if the graph corresponding to the incomplete pairwise comparison matrix is connected",
+        "claim": "The optimal solution of the eigenvalue minimization problem for IPC is unique if and only if the graph associated with the matrix is connected."
+      },
+      "saidaReal": {
+        "rule": "The optimal solution of the problem (5) is unique if and only if the graph is connected",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -664,6 +776,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The optimal solution of the incomplete LLSM problem (6) is unique if and only if graph is connected",
+        "verbatimQuote": "The optimal solution of the incomplete LLSM problem (6) is unique if and only if graph corresponding to the incomplete pairwise comparison matrix is connected",
+        "claim": "The optimal solution of the incomplete LLSM problem is unique if and only if the graph G associated with the matrix is connected."
+      },
+      "saidaReal": {
+        "rule": "The optimal solution of the incomplete LLSM problem (6) is unique if and only if graph is connected",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -690,6 +811,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "two criteria, not compared yet, can be in indirect relation, through further criteria and direct relations",
+        "verbatimQuote": "two criteria, not compared yet, can be in indirect relation, through further criteria and direct relations",
+        "claim": "Connectivity of the graph corresponds to the existence of a comparison chain (direct or indirect) between any two alternatives."
+      },
+      "saidaReal": {
+        "rule": "two criteria, not compared yet, can be in indirect relation, through further criteria and direct relations",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -719,6 +849,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the non-convex function becomes a convex function by using the exponential scaling",
+        "verbatimQuote": "The non-convex function x → λmax(D(x)) is plotted in Fig. 2. However, by using the exponential scaling",
+        "claim": "The eigenvalue function lambda_max(A(x)) is non-convex in x, but becomes convex under exponential parameterization x = exp(t)."
+      },
+      "saidaReal": {
+        "rule": "the non-convex function becomes a convex function by using the exponential scaling",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -739,6 +878,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "the optimal solutions constitute an (s-1)-dimensional affine set, where s is the number of connected components",
+        "verbatimQuote": "the optimal solutions constitute an (s-1)-dimensional affine set, where s is the number of the connected components",
+        "claim": "When the graph is not connected, the optimal solutions form an (s-1)-dimensional affine set, where s is the number of connected components."
+      },
+      "saidaReal": {
+        "rule": "the optimal solutions constitute an (s-1)-dimensional affine set, where s is the number of connected components",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -761,6 +909,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "In the case of a complete pairwise comparison matrix, the solution of (6) results in the well-known geometrical mean",
+        "verbatimQuote": "In the case of a complete pairwise comparison matrix, the solution of (6) results in the well-known geometrical mean",
+        "claim": "For complete pairwise comparison matrices, the LLSM solution coincides with the geometric mean of rows."
+      },
+      "saidaReal": {
+        "rule": "In the case of a complete pairwise comparison matrix, the solution of (6) results in the well-known geometrical mean",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -781,6 +938,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "AHP is not sufficient to catch the effects of the same level criteria on themselves and the effects of the alternatives on the criteria.",
+        "verbatimQuote": "AHP is not sufficient to catch the effects of the same level criteria on themselves and the effects of the alternatives on the criteria.",
+        "claim": "ANP is required over AHP to capture same-level criteria feedback and alternative-to-criteria impacts."
+      },
+      "saidaReal": {
+        "rule": "AHP is not sufficient to catch the effects of the same level criteria on themselves and the effects of the alternatives on the criteria.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -809,6 +975,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Feedback can better capture the complex effects of interplay in human society [32].",
+        "verbatimQuote": "Feedback can better capture the complex effects of interplay in human society [32].",
+        "claim": "Feedback networks better capture complex human decision-making interactions than simple hierarchies."
+      },
+      "saidaReal": {
+        "rule": "Feedback can better capture the complex effects of interplay in human society [32].",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -829,6 +1004,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "But, when the negative additive formulation (Eq. (3)) is used, the rank of the suppliers changes.",
+        "verbatimQuote": "But, when the negative additive formulation (Eq. (3)) is used, the rank of the suppliers changes.",
+        "claim": "Subtractive BOCR formulations can alter alternative rankings compared to additive formulas."
+      },
+      "saidaReal": {
+        "rule": "But, when the negative additive formulation (Eq. (3)) is used, the rank of the suppliers changes.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -858,6 +1042,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The space of admissible solutions (simultaneously consistent and fair matrix we are looking for) is not empty.",
+        "verbatimQuote": "The space of admissible solutions (simultaneously consistent and fair matrix we are looking for) is not empty.",
+        "claim": "Fair and consistent matrices are mathematically possible without being empty sets."
+      },
+      "saidaReal": {
+        "rule": "The space of admissible solutions (simultaneously consistent and fair matrix we are looking for) is not empty.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -884,6 +1077,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "DI before optimization (DI_{bef}) is the ratio of average AHP rank comparison scores before optimization (overline{R}_{bef}) between privileged and discriminated groups.",
+        "verbatimQuote": "DI before optimization... is the ratio of average AHP rank comparison scores... between privileged and discriminated groups.",
+        "claim": "Disparate Impact (DI) is calculated using average rank scores of AHP alternatives."
+      },
+      "saidaReal": {
+        "rule": "DI before optimization (DI_{bef}) is the ratio of average AHP rank comparison scores before optimization (overline{R}_{bef}) between privileged and discriminated groups.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -912,6 +1114,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "When the starting point is high inconsistency, independent of the DI value, the average value of the goal function is more elevated, i.e., the conclusion is that it is more challenging to correct the consistency issue.",
+        "verbatimQuote": "When the starting point is high inconsistency... it is more challenging to correct the consistency issue.",
+        "claim": "Initial high inconsistency makes achieving simultaneous fairness and consistency significantly harder."
+      },
+      "saidaReal": {
+        "rule": "When the starting point is high inconsistency, independent of the DI value, the average value of the goal function is more elevated, i.e., the conclusion is that it is more challenging to correct the consistency issue.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -938,6 +1149,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "the paper proves that the inconsistency of the group is smaller than the largest individual inconsistency.",
+        "verbatimQuote": "the inconsistency of the group is smaller than the largest individual inconsistency.",
+        "claim": "Group inconsistency is bounded by individual inconsistency."
+      },
+      "saidaReal": {
+        "rule": "the paper proves that the inconsistency of the group is smaller than the largest individual inconsistency.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -966,6 +1186,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "it is simpler and more efficient to work with the AIP approach (only o(mn) operations) than with the AIJ approach",
+        "verbatimQuote": "it is simpler and more efficient to work with the AIP approach (only o(mn) operations) than with the AIJ approach (o(mn^2) operations).",
+        "claim": "AIP is more efficient than AIJ for RGMM consistency checks."
+      },
+      "saidaReal": {
+        "rule": "it is simpler and more efficient to work with the AIP approach (only o(mn) operations) than with the AIJ approach",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -993,6 +1222,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the group becomes a new 'individual' and behaves like one. There is a synergistic aggregation of individual judgments.",
+        "verbatimQuote": "the group becomes a new 'individual' and behaves like one. There is a synergistic aggregation of individual judgments.",
+        "claim": "AIJ requires treating the group as a single synergistic unit."
+      },
+      "saidaReal": {
+        "rule": "the group becomes a new 'individual' and behaves like one. There is a synergistic aggregation of individual judgments.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1013,6 +1251,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Because we are not concerned with individual priorities... individual priorities are irrelevant or non-existent. Thus, the Pareto principle... is irrelevant.",
+        "verbatimQuote": "Because we are not concerned with individual priorities... individual priorities are irrelevant or non-existent. Thus, the Pareto principle... is irrelevant.",
+        "claim": "The Pareto principle does not apply when using AIJ."
+      },
+      "saidaReal": {
+        "rule": "Because we are not concerned with individual priorities... individual priorities are irrelevant or non-existent. Thus, the Pareto principle... is irrelevant.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1035,6 +1282,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+        "verbatimQuote": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+        "claim": "AIJ strictly requires the use of the geometric mean."
+      },
+      "saidaReal": {
+        "rule": "Treating the group as a new 'individual' with AIJ requires satisfaction of the reciprocity condition... Thus, for AIJ, the geometric mean must be used.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1056,6 +1312,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "When individuals are each acting in his or her own right, with different value systems, we are concerned about each individual's resulting alternative priorities.",
+        "verbatimQuote": "When individuals are each acting in his or her own right, with different value systems, we are concerned about each individual's resulting alternative priorities.",
+        "claim": "AIP is used when individuals maintain separate value systems."
+      },
+      "saidaReal": {
+        "rule": "When individuals are each acting in his or her own right, with different value systems, we are concerned about each individual's resulting alternative priorities.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1076,6 +1341,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "While either an arithmetic or geometric mean can be used for AIP, the geometric mean is more consistent with the meaning of both judgments and priorities",
+        "verbatimQuote": "While either an arithmetic or geometric mean can be used for AIP, the geometric mean is more consistent with the meaning of both judgments and priorities",
+        "claim": "While both means work for AIP, geometric mean fits AHP's ratio scale better."
+      },
+      "saidaReal": {
+        "rule": "While either an arithmetic or geometric mean can be used for AIP, the geometric mean is more consistent with the meaning of both judgments and priorities",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1104,6 +1378,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "a web-based AHP online system (AHP-OS) was developed and is available in its full functionality to any user for non-commercial purposes",
+        "verbatimQuote": "a web-based AHP online system (AHP-OS) was developed and is available in its full functionality to any user for non-commercial purposes",
+        "claim": "AHP-OS is a free, web-based AHP online system intended for educational and research purposes, with documented and validated methods and algorithms."
+      },
+      "saidaReal": {
+        "rule": "a web-based AHP online system (AHP-OS) was developed and is available in its full functionality to any user for non-commercial purposes",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1125,6 +1408,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "we use the weighted geometric mean aggregation of individual judgments (WGM-AIJ) as it is the only method that meets several required axiomatic conditions such as the reciprocal property",
+        "verbatimQuote": "we use the weighted geometric mean aggregation of individual judgments (WGM-AIJ) as it is the only method that meets several required axiomatic conditions such as the reciprocal property",
+        "claim": "AHP-OS uses Weighted Geometric Mean Aggregation of Individual Judgments (WGM-AIJ) for group decision making because it is the only method satisfying required axiomatic conditions such as the reciprocal property."
+      },
+      "saidaReal": {
+        "rule": "we use the weighted geometric mean aggregation of individual judgments (WGM-AIJ) as it is the only method that meets several required axiomatic conditions such as the reciprocal property",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1145,6 +1437,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "we use the linear fit proposed by Alonso and Lamata (2006) to calculate the consistency ratio CR... It can be used for matrices larger than 10 x 10",
+        "verbatimQuote": "we use the linear fit proposed by Alonso and Lamata (2006) to calculate the consistency ratio CR... It can be used for matrices larger than 10 x 10",
+        "claim": "AHP-OS calculates the Consistency Ratio using Alonso & Lamata (2006) linear fit instead of Saaty's RI table, enabling validation for matrices larger than 10x10."
+      },
+      "saidaReal": {
+        "rule": "we use the linear fit proposed by Alonso and Lamata (2006) to calculate the consistency ratio CR... It can be used for matrices larger than 10 x 10",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1173,6 +1474,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "We compared program results with manually calculated results and results published in the literature.",
+        "verbatimQuote": "We compared program results with manually calculated results and results published in the literature.",
+        "claim": "Software validation in AHP-OS uses black box testing: comparison of program results with manually calculated results and results published in the literature."
+      },
+      "saidaReal": {
+        "rule": "We compared program results with manually calculated results and results published in the literature.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1193,6 +1503,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "if all criteria are equal (x = 1), it follows that wAHP = 1/n, and for four criteria, with one criterion nine times more important than all others, it follows wAHP = 9/12 or 75%",
+        "verbatimQuote": "if all criteria are equal (x = 1), it follows that wAHP = 1/n, and for four criteria, with one criterion nine times more important than all others, it follows wAHP = 9/12 or 75%",
+        "claim": "A known analytical test case for AHP validation: when one criterion is judged x-times more important than n-1 others, the resulting weight must be w_AHP = x / (x + n - 1)."
+      },
+      "saidaReal": {
+        "rule": "if all criteria are equal (x = 1), it follows that wAHP = 1/n, and for four criteria, with one criterion nine times more important than all others, it follows wAHP = 9/12 or 75%",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1221,6 +1540,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "weight uncertainties due to rounding of the judgment to integers can exceed 10% and could affect the results of a decision",
+        "verbatimQuote": "weight uncertainties due to rounding of the judgment to integers can exceed 10% and could affect the results of a decision",
+        "claim": "Weight uncertainties due to rounding of judgments to integers can exceed 10% and must be estimated via Monte Carlo simulation with NVAR randomized variations."
+      },
+      "saidaReal": {
+        "rule": "weight uncertainties due to rounding of the judgment to integers can exceed 10% and could affect the results of a decision",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1241,6 +1569,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "if we have two opposite judgments for two criteria (x and 1/x), an aggregation will result in equal weights for both criteria. In fact, there is no consensus, and equal weights may result in a deadlocked situation",
+        "verbatimQuote": "if we have two opposite judgments for two criteria (x and 1/x), an aggregation will result in equal weights for both criteria. In fact, there is no consensus, and equal weights may result in a deadlocked situation",
+        "claim": "When two opposite judgments are aggregated by WGM-AIJ (x and 1/x), the result is equal weights, which may not represent true consensus; thus the consensus indicator must be evaluated separately."
+      },
+      "saidaReal": {
+        "rule": "if we have two opposite judgments for two criteria (x and 1/x), an aggregation will result in equal weights for both criteria. In fact, there is no consensus, and equal weights may result in a deadlocked situation",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1269,6 +1606,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "more than 7000 users have registered for the software, and on average, there are at least 500 active users over a three-month period",
+        "verbatimQuote": "more than 7000 users have registered for the software, and on average, there are at least 500 active users over a three-month period",
+        "claim": "AHP-OS reached over 7,000 registered users by 2018 with at least 500 active users per 3-month period across applications in healthcare, climate, risk assessment, supplier selection, IT, marketing, environment, transport, project management, manufacturing and quality assurance."
+      },
+      "saidaReal": {
+        "rule": "more than 7000 users have registered for the software, and on average, there are at least 500 active users over a three-month period",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1295,6 +1641,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "If the consistency ratio CR exceeds 10%, the software calculates the top-3 inconsistent judgments",
+        "verbatimQuote": "If the consistency ratio CR exceeds 10%, the software calculates the top-3 inconsistent judgments",
+        "claim": "When the CR exceeds 10%, AHP-OS identifies and highlights the top-3 most inconsistent judgments via an inconsistency matrix, following the approach of Saaty (2003)."
+      },
+      "saidaReal": {
+        "rule": "If the consistency ratio CR exceeds 10%, the software calculates the top-3 inconsistent judgments",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1323,6 +1678,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The AHP does not force an individual or a group to be perfectly consistent when making pairwise comparisons, but incorporates the inconsistencies",
+        "verbatimQuote": "The AHP does not force an individual or a group to be perfectly consistent when making pairwise comparisons, but incorporates the inconsistencies",
+        "claim": "The Eigenvector Method (EM) handles inconsistencies well."
+      },
+      "saidaReal": {
+        "rule": "The AHP does not force an individual or a group to be perfectly consistent when making pairwise comparisons, but incorporates the inconsistencies",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1343,6 +1707,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "the EM is the only method which fully captures the rank ordering inherent in the data",
+        "verbatimQuote": "the EM is the only method which fully captures the rank ordering inherent in the data",
+        "claim": "EM captures inherent rank ordering in inconsistent matrices."
+      },
+      "saidaReal": {
+        "rule": "the EM is the only method which fully captures the rank ordering inherent in the data",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1365,6 +1738,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the geometric mean of the path intensities must be used to synthesize this information to yield a_{ij}",
+        "verbatimQuote": "the geometric mean of the path intensities must be used to synthesize this information to yield a_{ij}",
+        "claim": "Geometric mean must synthesize path intensities for incomplete matrices."
+      },
+      "saidaReal": {
+        "rule": "the geometric mean of the path intensities must be used to synthesize this information to yield a_{ij}",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1385,6 +1767,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "The minimal number of comparisons required is n-1... The other comparisons are redundant... They can be calculated by the transitivity rule",
+        "verbatimQuote": "The minimal number of comparisons required is n-1... The other comparisons are redundant... They can be calculated by the transitivity rule",
+        "claim": "Missing comparisons computation via extended transitivity"
+      },
+      "saidaReal": {
+        "rule": "The minimal number of comparisons required is n-1... The other comparisons are redundant... They can be calculated by the transitivity rule",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1413,6 +1804,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "geometric mean of rows and columns provide the same ranking (which is not necessarily the case with the eigenvalue method).",
+        "verbatimQuote": "geometric mean of rows and columns provide the same ranking (which is not necessarily the case with the eigenvalue method).",
+        "claim": "Geometric mean equivalence for rows and columns avoids asymmetry"
+      },
+      "saidaReal": {
+        "rule": "geometric mean of rows and columns provide the same ranking (which is not necessarily the case with the eigenvalue method).",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1439,6 +1839,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "one can randomly delete as much as 50% of the comparisons without significantly reducing the results",
+        "verbatimQuote": "one can randomly delete as much as 50% of the comparisons without significantly reducing the results",
+        "claim": "Up to 50% comparisons can be deleted without major loss"
+      },
+      "saidaReal": {
+        "rule": "one can randomly delete as much as 50% of the comparisons without significantly reducing the results",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1467,6 +1876,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "additive aggregation is the only way to retrieve exact weights of known objects.",
+        "verbatimQuote": "additive aggregation is the only way to retrieve exact weights of known objects.",
+        "claim": "Additive mode enables exact weight retrieval"
+      },
+      "saidaReal": {
+        "rule": "additive aggregation is the only way to retrieve exact weights of known objects.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1494,6 +1912,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "ANP can transform qualitative values into numerical values for comparative analysis",
+        "verbatimQuote": "ANP can transform qualitative values into numerical values for comparative analysis",
+        "claim": "ANP transforms qualitative evaluations into quantitative numerical metrics, facilitating comparative analysis."
+      },
+      "saidaReal": {
+        "rule": "ANP can transform qualitative values into numerical values for comparative analysis",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1515,6 +1942,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Multiple decision makers are often preferred rather than a single decision maker, to avoid bias and minimize partiality in the decision process.",
+        "verbatimQuote": "Multiple decision makers are often preferred rather than a single decision maker, to avoid bias and minimize partiality in the decision process.",
+        "claim": "Multiple decision makers are preferable to avoid bias and maintain impartiality in the decision process."
+      },
+      "saidaReal": {
+        "rule": "Multiple decision makers are often preferred rather than a single decision maker, to avoid bias and minimize partiality in the decision process.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1535,6 +1971,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "ANP allows the simultaneous evaluation of qualitative and quantitative criteria in the decision making process.",
+        "verbatimQuote": "ANP allows the simultaneous evaluation of qualitative and quantitative criteria in the decision making process.",
+        "claim": "ANP enables the combined evaluation of both qualitative and quantitative criteria during decision-making."
+      },
+      "saidaReal": {
+        "rule": "ANP allows the simultaneous evaluation of qualitative and quantitative criteria in the decision making process.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1562,6 +2007,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "considering the benefits (B), opportunities (O), costs (C) and risks (R) of an alternative... is a more comprehensive way",
+        "verbatimQuote": "considering the benefits... opportunities... costs... and risks... is a more comprehensive way to deal with a much more complicated problem.",
+        "claim": "Using BOCR with AHP comprehensively handles complex decisions with both positive and negative criteria."
+      },
+      "saidaReal": {
+        "rule": "considering the benefits (B), opportunities (O), costs (C) and risks (R) of an alternative... is a more comprehensive way",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1591,6 +2045,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "no pairwise comparison of the importance of these sub-criteria is necessary since the values... can simply be summed up into a single value.",
+        "verbatimQuote": "no pairwise comparison of the importance of these sub-criteria is necessary since the values... can simply be summed up into a single value.",
+        "claim": "Sub-criteria for costs can simply be monetary sums rather than pairwise compared."
+      },
+      "saidaReal": {
+        "rule": "no pairwise comparison of the importance of these sub-criteria is necessary since the values... can simply be summed up into a single value.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1618,6 +2081,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "there is no need for sub-criteria under the risks merit because criteria themselves can clearly express the risks",
+        "verbatimQuote": "there is no need for sub-criteria under the risks merit because criteria themselves can clearly express the risks",
+        "claim": "Risks may not require sub-criteria if the criteria level is sufficiently descriptive."
+      },
+      "saidaReal": {
+        "rule": "there is no need for sub-criteria under the risks merit because criteria themselves can clearly express the risks",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1647,6 +2119,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Geometric average method is applied to generalize the opinions among the members.",
+        "verbatimQuote": "Geometric average method is applied to generalize the opinions among the members.",
+        "claim": "Geometric average should be used to combine the judgments of multiple experts."
+      },
+      "saidaReal": {
+        "rule": "Geometric average method is applied to generalize the opinions among the members.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1667,6 +2148,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Capital cost contributes the most to this decision because the projects considered in this case are highly capital intensive.",
+        "verbatimQuote": "Capital cost contributes the most to this decision because the projects considered in this case are highly capital intensive.",
+        "claim": "Capital cost is the most critical criterion for selecting highly capital-intensive projects in the energy sector."
+      },
+      "saidaReal": {
+        "rule": "Capital cost contributes the most to this decision because the projects considered in this case are highly capital intensive.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1695,6 +2185,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the AHP can be considered to be robust as the methods and techniques used to conduct pair-wise comparisons are able to produce consistent, reliable ratings",
+        "verbatimQuote": "the AHP can be considered to be robust as the methods and techniques used to conduct pair-wise comparisons are able to produce consistent, reliable ratings",
+        "claim": "AHP provides consistent and robust ratings for multifaceted decision-making in project management."
+      },
+      "saidaReal": {
+        "rule": "the AHP can be considered to be robust as the methods and techniques used to conduct pair-wise comparisons are able to produce consistent, reliable ratings",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1715,6 +2214,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "The biggest drawback of this method is that it does not produce good results if some of the criteria are undesirable.",
+        "verbatimQuote": "The biggest drawback of this method is that it does not produce good results if some of the criteria are undesirable.",
+        "claim": "The main drawback of traditional AHP is its inability to effectively handle undesirable or negative criteria."
+      },
+      "saidaReal": {
+        "rule": "The biggest drawback of this method is that it does not produce good results if some of the criteria are undesirable.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1742,6 +2250,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Without normalization, meaningless solutions are obtained.",
+        "verbatimQuote": "Without normalization, meaningless solutions are obtained.",
+        "claim": "BOCR models require proper normalization of criteria values across alternatives to produce valid results."
+      },
+      "saidaReal": {
+        "rule": "Without normalization, meaningless solutions are obtained.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1771,6 +2288,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "multiplicative formula may always give the correct ordering for alternatives, it may not always provide a correct indication of profitability",
+        "verbatimQuote": "multiplicative formula may always give the correct ordering for alternatives, it may not always provide a correct indication of profitability",
+        "claim": "The multiplicative BOCR ratio may not always identify correct profitability."
+      },
+      "saidaReal": {
+        "rule": "multiplicative formula may always give the correct ordering for alternatives, it may not always provide a correct indication of profitability",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1798,6 +2324,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Can we reasonably be sure this benefit will occur?'; If the answer is 'Yes' it is a benefit, if the answer is 'No' it is an opportunity.",
+        "verbatimQuote": "Can we reasonably be sure this benefit will occur?'; If the answer is 'Yes' it is a benefit, if the answer is 'No' it is an opportunity.",
+        "claim": "BOCR distinguishes benefits/costs from opportunities/risks by certainty."
+      },
+      "saidaReal": {
+        "rule": "Can we reasonably be sure this benefit will occur?'; If the answer is 'Yes' it is a benefit, if the answer is 'No' it is an opportunity.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1827,6 +2362,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "consider both tangible and intangible factors for the assessment process; this is also one of the strengths of the AHP",
+        "verbatimQuote": "consider both tangible and intangible factors for the assessment process; this is also one of the strengths of the AHP",
+        "claim": "AHP handles both tangible and intangible factors."
+      },
+      "saidaReal": {
+        "rule": "consider both tangible and intangible factors for the assessment process; this is also one of the strengths of the AHP",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1854,6 +2398,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "previous reviews advocated for investigation of the influence of executive characteristics and experiences on specific aspects of executives' cognitive processes, including what information executives look for (i.e., limited field of vision), attend to (i.e., selective perception), and deem important (i.e., interpretation)",
+        "verbatimQuote": "previous reviews advocated for investigation of the influence of executive characteristics and experiences on specific aspects of executives' cognitive processes, including what information executives look for (i.e., limited field of vision), attend to (i.e., selective perception), and deem important (i.e., interpretation)",
+        "claim": "Executive cognition is a key mediating mechanism in Upper Echelons Theory: executive characteristics influence firm outcomes through what information executives look for (limited field of vision), what they attend to (selective perception), and what they deem important (interpretation). Research on this 'cognitive black box' remains limited, requiring integration with sensemaking and leadership literatures."
+      },
+      "saidaReal": {
+        "rule": "previous reviews advocated for investigation of the influence of executive characteristics and experiences on specific aspects of executives' cognitive processes, including what information executives look for (i.e., limited field of vision), attend to (i.e., selective perception), and deem important (i.e., interpretation)",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1874,6 +2427,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Our review of the recent UET literature revealed a great deal of progress in understanding how UET results vary depending on a variety of individual, group, organizational, and environmental conditions",
+        "verbatimQuote": "Our review of the recent UET literature revealed a great deal of progress in understanding how UET results vary depending on a variety of individual, group, organizational, and environmental conditions",
+        "claim": "Contextual conditions (environmental continuity vs. change, crisis, industry dynamism, national setting) significantly moderate how executive characteristics translate into strategic decisions. UET research of the past decade has repeatedly demonstrated that results vary depending on individual, group, organizational, and environmental conditions — findings cannot be interpreted without accounting for these contingency factors."
+      },
+      "saidaReal": {
+        "rule": "Our review of the recent UET literature revealed a great deal of progress in understanding how UET results vary depending on a variety of individual, group, organizational, and environmental conditions",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1902,6 +2464,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "CEOs have a significant effect on firm outcomes, that the effect appears to be increasing over time, and that the size of the effect is highly dependent upon the level of discretion within an industry",
+        "verbatimQuote": "CEOs have a significant effect on firm outcomes, that the effect appears to be increasing over time, and that the size of the effect is highly dependent upon the level of discretion within an industry",
+        "claim": "Managerial discretion is a key moderating variable in Upper Echelons Theory: the magnitude of CEO/executive effects on firm outcomes is highly dependent on the level of discretion within the industry. In low-discretion industries (e.g., heavy manufacturing), executive idiosyncrasies matter less; in high-discretion industries (e.g., technology), they matter much more. This has direct implications for weight dominance interpretation in MCDM."
+      },
+      "saidaReal": {
+        "rule": "CEOs have a significant effect on firm outcomes, that the effect appears to be increasing over time, and that the size of the effect is highly dependent upon the level of discretion within an industry",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1929,6 +2500,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the reliance on demographic proxies has declined as researchers have begun to use other unobtrusive measures of executive traits",
+        "verbatimQuote": "the reliance on demographic proxies has declined as researchers have begun to use other unobtrusive measures of executive traits",
+        "claim": "Demographic proxies (age, tenure, functional background) have been widely used in UET research as indirect indicators of underlying psychological and cognitive characteristics, but have been heavily criticized as unreliable. Recent UET research has shifted toward direct measurement approaches (surveys, psychometric assessments) and more rigorously validated unobtrusive measures. Any inference from demographic profile to cognitive bias must be conceptually justified."
+      },
+      "saidaReal": {
+        "rule": "the reliance on demographic proxies has declined as researchers have begun to use other unobtrusive measures of executive traits",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -1949,6 +2529,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Considerable evidence suggests that executives today have even greater impact on firm actions and performance than they did in the past",
+        "verbatimQuote": "considerable evidence suggests that executives today have even greater impact on firm actions and performance than they did in the past",
+        "claim": "Executive impact on firm actions and performance has increased over time — executives today have even greater influence than in prior decades. This increased impact, combined with rapid environmental change (technological, political, economic, social), means that the cognitive and behavioral tendencies of senior leaders are increasingly consequential for organizational outcomes. This is especially relevant in volatile markets and dynamic industries."
+      },
+      "saidaReal": {
+        "rule": "Considerable evidence suggests that executives today have even greater impact on firm actions and performance than they did in the past",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -1976,6 +2565,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "UET scholars must provide evidence for the appropriateness of whatever measure they use, defend their approach to the aggregation of variables at the group level, understand that every measure has limitations, and acknowledge that multiple methods for measuring underlying constructs (both within and across studies) engender greater confidence in research findings",
+        "verbatimQuote": "scholars must provide evidence for the appropriateness of whatever measure they use, defend their approach to the aggregation of variables at the group level, understand that every measure has limitations, and acknowledge that multiple methods for measuring underlying constructs (both within and across studies) engender greater confidence in research findings",
+        "claim": "In MCDM panel-based weight elicitation, the dominant weight given to a BOCR merit dimension may reflect the cognitive field of vision and selective perception of the panel composition (functional background, tenure, hierarchical level), rather than an objective strategic priority. Modern UET research recommends triangulating weight distributions against panel demographic profile and industry discretion level before concluding that the weight distribution reflects unbiased strategic preference."
+      },
+      "saidaReal": {
+        "rule": "UET scholars must provide evidence for the appropriateness of whatever measure they use, defend their approach to the aggregation of variables at the group level, understand that every measure has limitations, and acknowledge that multiple methods for measuring underlying constructs (both within and across studies) engender greater confidence in research findings",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2005,6 +2603,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the arithmetic form of AIJ (AIJ (WAMM)) generates inconsistent collective pairwise comparison matrices, even if all individual judgments were consistent.",
+        "verbatimQuote": "the arithmetic form of AIJ (AIJ (WAMM)) generates inconsistent collective pairwise comparison matrices, even if all individual judgments were consistent.",
+        "claim": "AIJ using the arithmetic mean violates reciprocity and creates inconsistent matrices."
+      },
+      "saidaReal": {
+        "rule": "the arithmetic form of AIJ (AIJ (WAMM)) generates inconsistent collective pairwise comparison matrices, even if all individual judgments were consistent.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2032,6 +2639,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the AIJ (WAMM) has to be excluded from any application.",
+        "verbatimQuote": "the AIJ (WAMM) has to be excluded from any application.",
+        "claim": "AIJ-WAMM must be excluded from group preference aggregation applications."
+      },
+      "saidaReal": {
+        "rule": "the AIJ (WAMM) has to be excluded from any application.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2052,6 +2668,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Geometric aggregation leads to a compensation of single inconsistent matrices to consistent group judgments",
+        "verbatimQuote": "Geometric aggregation leads to a compensation of single inconsistent matrices to consistent group judgments",
+        "claim": "Geometric aggregation (AIJ-WGMM) improves group consistency levels."
+      },
+      "saidaReal": {
+        "rule": "Geometric aggregation leads to a compensation of single inconsistent matrices to consistent group judgments",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2080,6 +2705,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Only the procedure of AIP using the geometric mean is able to satisfy the reciprocal property as special case of the power conditions.",
+        "verbatimQuote": "Only the procedure of AIP using the geometric mean is able to satisfy the reciprocal property as special case of the power conditions.",
+        "claim": "Only AIP using the geometric mean fully satisfies the reciprocal property."
+      },
+      "saidaReal": {
+        "rule": "Only the procedure of AIP using the geometric mean is able to satisfy the reciprocal property as special case of the power conditions.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2101,6 +2735,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "AIP remains as the most recommendable aggregation technique within the AHP and ANP to support highly complex decision problems in a small expert group.",
+        "verbatimQuote": "AIP remains as the most recommendable aggregation technique within the AHP and ANP to support highly complex decision problems in a small expert group.",
+        "claim": "AIP is the most recommendable method for small expert groups facing complex strategic decisions."
+      },
+      "saidaReal": {
+        "rule": "AIP remains as the most recommendable aggregation technique within the AHP and ANP to support highly complex decision problems in a small expert group.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2121,6 +2764,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "The use of an MCDM model with these four main criteria aims for a mutually exclusive and collectively exhaustive (MECE) set of criteria.",
+        "verbatimQuote": "The use of an MCDM model with these four main criteria aims for a mutually exclusive and collectively exhaustive (MECE) set of criteria.",
+        "claim": "BOCR models ensure a mutually exclusive and collectively exhaustive set of criteria."
+      },
+      "saidaReal": {
+        "rule": "The use of an MCDM model with these four main criteria aims for a mutually exclusive and collectively exhaustive (MECE) set of criteria.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2150,6 +2802,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "if an alternative i is more costly than j, and a_ij > 1, there are negative priorities: the most costly alternative receives the greatest w_i",
+        "verbatimQuote": "if an alternative i is more costly than j, and a_ij > 1, there are negative priorities: the most costly alternative receives the greatest w_i",
+        "claim": "Negative priorities can emerge when comparing costly alternatives directly."
+      },
+      "saidaReal": {
+        "rule": "if an alternative i is more costly than j, and a_ij > 1, there are negative priorities: the most costly alternative receives the greatest w_i",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2178,6 +2839,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+        "verbatimQuote": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+        "claim": "Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix."
+      },
+      "saidaReal": {
+        "rule": "a reciprocal matrix A with positive entries is consistent if and only if \\lambda_{max} = n",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2204,6 +2874,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "consistency is a necessary but not a sufficient condition for judging how good a set of observational data is.",
+        "verbatimQuote": "consistency is a necessary but not a sufficient condition for judging how good a set of observational data is.",
+        "claim": "Consistency validates the logical relation of estimates but does not guarantee correspondence to real-life accuracy."
+      },
+      "saidaReal": {
+        "rule": "consistency is a necessary but not a sufficient condition for judging how good a set of observational data is.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2232,6 +2911,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "axioms corresponding to hierarchic structures are a special case of axioms for priority setting in systems with feedback",
+        "verbatimQuote": "The set of axioms corresponding to hierarchic structures are a special case of axioms for priority setting in systems with feedback",
+        "claim": "AHP rests on four axioms: reciprocity (Axiom 1), homogeneity (Axiom 2), dependence (Axiom 3), and expectations (Axiom 4)."
+      },
+      "saidaReal": {
+        "rule": "axioms corresponding to hierarchic structures are a special case of axioms for priority setting in systems with feedback",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -2252,6 +2940,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Whenever we make paired comparisons we need to consider both members of the pair to judge the relative value",
+        "verbatimQuote": "Whenever we make paired comparisons we need to consider both members of the pair to judge the relative value",
+        "claim": "The reciprocal axiom states that paired comparisons must satisfy P_C(Ai, Aj) = 1/P_C(Aj, Ai), forming a positive reciprocal matrix."
+      },
+      "saidaReal": {
+        "rule": "Whenever we make paired comparisons we need to consider both members of the pair to judge the relative value",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2274,6 +2971,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Homogeneity is essential for meaningful comparisons, as the mind cannot compare widely disparate elements",
+        "verbatimQuote": "Homogeneity is essential for meaningful comparisons, as the mind cannot compare widely disparate elements",
+        "claim": "The homogeneity axiom requires that elements being compared must be of comparable magnitude, since the mind cannot meaningfully compare widely disparate elements."
+      },
+      "saidaReal": {
+        "rule": "Homogeneity is essential for meaningful comparisons, as the mind cannot compare widely disparate elements",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2294,6 +3000,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "thoughtful individuals who have reasons for their beliefs should make sure that their ideas are adequately represented",
+        "verbatimQuote": "thoughtful individuals who have reasons for their beliefs should make sure that their ideas are adequately represented",
+        "claim": "The expectations axiom states that all relevant alternatives, criteria, and beliefs must be adequately represented in the hierarchy."
+      },
+      "saidaReal": {
+        "rule": "thoughtful individuals who have reasons for their beliefs should make sure that their ideas are adequately represented",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2322,6 +3037,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the principal right eigenvector of the reciprocal pairwise comparison matrix A gives the relative dominance",
+        "verbatimQuote": "the principal right eigenvector of the reciprocal pairwise comparison matrix A gives the relative dominance of A_i",
+        "claim": "Theorem 15 establishes that the principal right eigenvector of the reciprocal pairwise comparison matrix gives the relative dominance of alternatives."
+      },
+      "saidaReal": {
+        "rule": "the principal right eigenvector of the reciprocal pairwise comparison matrix A gives the relative dominance",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -2342,6 +3066,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "the eigenvector is stable to small perturbations in the data",
+        "verbatimQuote": "the eigenvector is stable to small perturbations in the data",
+        "claim": "The principal right eigenvector solution is appropriate for surfacing rank order from inconsistent data, and is stable to small perturbations."
+      },
+      "saidaReal": {
+        "rule": "the eigenvector is stable to small perturbations in the data",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2369,6 +3102,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "one should only use the eigenvector derivation procedure because approximations can lead to rank reversal in spite of the closeness",
+        "verbatimQuote": "one should only use the eigenvector derivation procedure because approximations can lead to rank reversal in spite of the closeness",
+        "claim": "Approximating the principal eigenvector using geometric means can cause rank reversal and should be avoided."
+      },
+      "saidaReal": {
+        "rule": "one should only use the eigenvector derivation procedure because approximations can lead to rank reversal in spite of the closeness",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2398,6 +3140,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "any rule to combine the judgments of several individuals should also satisfy the reciprocal property. A proof that the geometric mean... satisfies this condition",
+        "verbatimQuote": "any rule to combine the judgments of several individuals should also satisfy the reciprocal property. A proof that the geometric mean... satisfies this condition",
+        "claim": "The geometric mean is mathematically required when aggregating group judgments because it satisfies the reciprocal property."
+      },
+      "saidaReal": {
+        "rule": "any rule to combine the judgments of several individuals should also satisfy the reciprocal property. A proof that the geometric mean... satisfies this condition",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2425,6 +3176,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The priority of consistency to obtain a coherent explanation of a set of facts must differ by an order of magnitude from the priority of inconsistency",
+        "verbatimQuote": "The priority of consistency to obtain a coherent explanation of a set of facts must differ by an order of magnitude from the priority of inconsistency",
+        "claim": "The 10% inconsistency threshold is logically sound because consistency measurement errors should be an order of magnitude smaller than priority scales."
+      },
+      "saidaReal": {
+        "rule": "The priority of consistency to obtain a coherent explanation of a set of facts must differ by an order of magnitude from the priority of inconsistency",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2451,6 +3211,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "This is a phenomenon that is strongly counterintuitive and can never be made mathematically right.",
+        "verbatimQuote": "This is a phenomenon that is strongly counterintuitive and can never be made mathematically right.",
+        "claim": "Rank reversal within utility theory, even under a single criterion, is a counterintuitive flaw that lacks a rigorous mathematical solution."
+      },
+      "saidaReal": {
+        "rule": "This is a phenomenon that is strongly counterintuitive and can never be made mathematically right.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2480,6 +3249,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "normalizing separate sets of numbers destroys the linear relation among them.",
+        "verbatimQuote": "normalizing separate sets of numbers destroys the linear relation among them.",
+        "claim": "Normalizing variables from a standard scale separately across multiple criteria distorts their linear relationships and invalidates the results."
+      },
+      "saidaReal": {
+        "rule": "normalizing separate sets of numbers destroys the linear relation among them.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2506,6 +3284,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "the principal eigenvector is necessary for representing the priorities associated with that matrix",
+        "verbatimQuote": "the principal eigenvector is necessary for representing the priorities associated with that matrix",
+        "claim": "The principal eigenvector is the mathematically mandatory method to represent priorities derived from a near-consistent positive reciprocal matrix."
+      },
+      "saidaReal": {
+        "rule": "the principal eigenvector is necessary for representing the priorities associated with that matrix",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2534,6 +3321,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "a modicum of inconsistency may be considered as a good thing and forced consistency... as an undesirable compulsion.",
+        "verbatimQuote": "a modicum of inconsistency may be considered as a good thing and forced consistency... as an undesirable compulsion.",
+        "claim": "A certain degree of inconsistency in human judgment is both inevitable and desirable when evaluating intangibles."
+      },
+      "saidaReal": {
+        "rule": "a modicum of inconsistency may be considered as a good thing and forced consistency... as an undesirable compulsion.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2560,6 +3356,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR",
+        "verbatimQuote": "A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR",
+        "claim": "MCDM structures are deemed comprehensive when they evaluate a problem across Benefits, Opportunities, Costs, and Risks (BOCR)."
+      },
+      "saidaReal": {
+        "rule": "A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2589,6 +3394,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "But consistency is only necessary but not sufficient to capture reality.",
+        "verbatimQuote": "But consistency is only necessary but not sufficient to capture reality.",
+        "claim": "Consistency is necessary but insufficient to guarantee that a decision accurately captures reality."
+      },
+      "saidaReal": {
+        "rule": "But consistency is only necessary but not sufficient to capture reality.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2616,6 +3430,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the ideal itself is derived from all the relevant alternatives... Thus while assuming independence, it turns out that interdependence lies hidden",
+        "verbatimQuote": "the ideal itself is derived from all the relevant alternatives... Thus while assuming independence, it turns out that interdependence lies hidden",
+        "claim": "Methods that rate alternatives one at a time using an ideal fail to account for the interdependence hidden within the ideal's formulation."
+      },
+      "saidaReal": {
+        "rule": "the ideal itself is derived from all the relevant alternatives... Thus while assuming independence, it turns out that interdependence lies hidden",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2642,6 +3465,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "absolute numbers can be both positive and negative, and hence, it is not necessary to confine the BOCR to being positive",
+        "verbatimQuote": "absolute numbers can be both positive and negative, and hence, it is not necessary to confine the BOCR to being positive",
+        "claim": "BOCR criteria can be represented with positive AND negative absolute scale priorities, instead of only converting costs/risks to reciprocals."
+      },
+      "saidaReal": {
+        "rule": "absolute numbers can be both positive and negative, and hence, it is not necessary to confine the BOCR to being positive",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2671,6 +3503,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Several different ways are described in the paper for doing this",
+        "verbatimQuote": "Several different ways are described in the paper for doing this",
+        "claim": "Four synthesis methods for BOCR are presented: multiplicative BO/CR, additive with reciprocals, additive residual (1-C/1-R), and additive subtractive."
+      },
+      "saidaReal": {
+        "rule": "Several different ways are described in the paper for doing this",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2698,6 +3539,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Annual Exten. -0.32 ; Amend NTR -0.07 ; PNTR 0.23",
+        "verbatimQuote": "PNTR is the dominant alternative",
+        "claim": "The Additive Subtractive synthesis can produce negative scores, indicating unprofitability of an alternative when costs+risks exceed benefits+opportunities."
+      },
+      "saidaReal": {
+        "rule": "Annual Exten. -0.32 ; Amend NTR -0.07 ; PNTR 0.23",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2727,6 +3577,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "each of the positive or negative priorities need not have a symmetric opposite value, because the opposite criterion may not exist",
+        "verbatimQuote": "each of the positive or negative priorities need not have a symmetric opposite value, because the opposite criterion may not exist",
+        "claim": "Each positive or negative priority need not have a symmetric opposite value, because the opposite criterion may not exist in practice."
+      },
+      "saidaReal": {
+        "rule": "each of the positive or negative priorities need not have a symmetric opposite value, because the opposite criterion may not exist",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2754,6 +3613,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "If the rankings are different with the methods, there is information that needs to be considered",
+        "verbatimQuote": "If the rankings are different with the methods, there is information that needs to be considered",
+        "claim": "When rankings differ between synthesis methods, this provides additional information that should be considered, not dismissed."
+      },
+      "saidaReal": {
+        "rule": "If the rankings are different with the methods, there is information that needs to be considered",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2783,6 +3651,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "main contribution of this paper has been to discuss and illustrate negative priorities and how to synthesize the priorities",
+        "verbatimQuote": "main contribution of this paper has been to discuss and illustrate negative priorities and how to synthesize the priorities",
+        "claim": "The contribution of the paper is to discuss and illustrate negative priorities and how to synthesize priorities obtained from BOCR hierarchies."
+      },
+      "saidaReal": {
+        "rule": "main contribution of this paper has been to discuss and illustrate negative priorities and how to synthesize the priorities",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2811,6 +3688,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "only the principal eigenvector directly deals with the question of inconsistency and captures the rank order",
+        "verbatimQuote": "only the principal eigenvector directly deals with the question of inconsistency and captures the rank order",
+        "claim": "Only the principal eigenvector method directly addresses inconsistency and captures rank order inherent in inconsistent pairwise comparison data."
+      },
+      "saidaReal": {
+        "rule": "only the principal eigenvector directly deals with the question of inconsistency and captures the rank order",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2838,6 +3724,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "EM, LLSM, and LSM preserve rank strongly",
+        "verbatimQuote": "EM, LLSM, and LSM preserve rank strongly",
+        "claim": "Row dominance (Theorem 1) is a sufficient condition for rank preservation by EM, LLSM, and LSM, regardless of matrix consistency."
+      },
+      "saidaReal": {
+        "rule": "EM, LLSM, and LSM preserve rank strongly",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2858,6 +3753,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "LSM yields A < B > C, even though in the pairwise comparisons A is preferred to B",
+        "verbatimQuote": "LSM yields A < B > C, even though in the pairwise comparisons A is preferred to B",
+        "claim": "LSM can yield non-unique solutions and reverse rank even when intuitively rank reversal should not occur."
+      },
+      "saidaReal": {
+        "rule": "LSM yields A < B > C, even though in the pairwise comparisons A is preferred to B",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2886,6 +3790,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "LLSM would tend to produce a ranking that is insensitive to inconsistencies in the matrix",
+        "verbatimQuote": "LLSM would tend to produce a ranking that is insensitive to inconsistencies in the matrix",
+        "claim": "For n greater than 4, LLSM tends to produce rankings insensitive to matrix inconsistencies because it does not use cross-row coefficients."
+      },
+      "saidaReal": {
+        "rule": "LLSM would tend to produce a ranking that is insensitive to inconsistencies in the matrix",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -2912,6 +3825,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "inconsistency cannot be dismissed as an aberration. We have experienced many situations",
+        "verbatimQuote": "inconsistency cannot be dismissed as an aberration. We have experienced many situations",
+        "claim": "Inconsistency in pairwise comparisons is unavoidable in real decision contexts and cannot be dismissed as an aberration."
+      },
+      "saidaReal": {
+        "rule": "inconsistency cannot be dismissed as an aberration. We have experienced many situations",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2940,6 +3862,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the powers of the above matrix eventually reveal the strict dominance",
+        "verbatimQuote": "the powers of the above matrix eventually reveal the strict dominance of row D over row B",
+        "claim": "The principal eigenvector emerges as the limit of normalized row sums of matrix powers, capturing cumulative dominance along all chain lengths."
+      },
+      "saidaReal": {
+        "rule": "the powers of the above matrix eventually reveal the strict dominance",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -2960,6 +3891,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "If it is not less than 0.10, study the problem and revise the judgments.",
+        "verbatimQuote": "If it is not less than 0.10, study the problem and revise the judgments.",
+        "claim": "CR must be less than 0.10; otherwise revise judgments."
+      },
+      "saidaReal": {
+        "rule": "If it is not less than 0.10, study the problem and revise the judgments.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -2988,6 +3928,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "An inconsistency of 10 percent or less implies that the adjustment is small compared to the actual values of the eigenvector entries.",
+        "verbatimQuote": "An inconsistency of 10 percent or less implies that the adjustment is small compared to the actual values of the eigenvector entries.",
+        "claim": "10% hierarchy inconsistency is small relative to eigenvector values."
+      },
+      "saidaReal": {
+        "rule": "An inconsistency of 10 percent or less implies that the adjustment is small compared to the actual values of the eigenvector entries.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3014,6 +3963,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "then only the geometric mean satisfies all the above conditions.",
+        "verbatimQuote": "then only the geometric mean satisfies all the above conditions.",
+        "claim": "The geometric mean is the only valid function for aggregating individual judgments (AIJ) under reciprocal, separability, unanimity, and homogeneity conditions."
+      },
+      "saidaReal": {
+        "rule": "then only the geometric mean satisfies all the above conditions.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3042,6 +4000,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "then only the weighted geometric mean applies.",
+        "verbatimQuote": "then only the weighted geometric mean applies.",
+        "claim": "For judges with different expertise weights, only the weighted geometric mean is valid under the reciprocal property."
+      },
+      "saidaReal": {
+        "rule": "then only the weighted geometric mean applies.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3068,6 +4035,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "there are four axioms in the AHP... concerned with the reciprocal relation, comparison of homogeneous elements, hierarchic and systems dependence",
+        "verbatimQuote": "there are four axioms in the AHP... concerned with the reciprocal relation, comparison of homogeneous elements, hierarchic and systems dependence",
+        "claim": "AHP has four axioms: reciprocal relation, homogeneous comparison, hierarchic dependence, and expectations about rank/value validity."
+      },
+      "saidaReal": {
+        "rule": "there are four axioms in the AHP... concerned with the reciprocal relation, comparison of homogeneous elements, hierarchic and systems dependence",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3096,6 +4072,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "because now the individual preferences are cardinal rather than ordinal, it is possible to derive a rational group choice satisfying the above four conditions.",
+        "verbatimQuote": "because now the individual preferences are cardinal rather than ordinal, it is possible to derive a rational group choice satisfying the above four conditions.",
+        "claim": "Arrow's Impossibility Theorem does not apply to AHP because cardinal ratio scale preferences allow construction of a rational social choice function."
+      },
+      "saidaReal": {
+        "rule": "because now the individual preferences are cardinal rather than ordinal, it is possible to derive a rational group choice satisfying the above four conditions.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3122,6 +4107,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "I do not recommend ever using multiplicative synthesis. It can lead to an undesirable ranking of the alternatives.",
+        "verbatimQuote": "I do not recommend ever using multiplicative synthesis. It can lead to an undesirable ranking of the alternatives.",
+        "claim": "Additive synthesis (not multiplicative) is recommended; multiplicative synthesis does not generalize to dependence and feedback."
+      },
+      "saidaReal": {
+        "rule": "I do not recommend ever using multiplicative synthesis. It can lead to an undesirable ranking of the alternatives.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3151,6 +4145,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "(kmax - n)/(n - 1) is the variance of the error incurred in estimating aij.",
+        "verbatimQuote": "(kmax - n)/(n - 1) is the variance of the error incurred in estimating aij.",
+        "claim": "CI equals the variance of the error incurred in estimating pairwise comparison entries."
+      },
+      "saidaReal": {
+        "rule": "(kmax - n)/(n - 1) is the variance of the error incurred in estimating aij.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3178,6 +4181,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "According to the upper echelons theory (Hambrick, 2007a; Hambrick and Mason, 1984), the dispositions and actions of the firm's top management, i.e. the upper echelons, matter",
+        "verbatimQuote": "According to the upper echelons theory (Hambrick, 2007a; Hambrick and Mason, 1984), the dispositions and actions of the firm's top management, i.e. the upper echelons, matter",
+        "claim": "According to Upper Echelons Theory, the dispositions and actions of a firm's top management matter significantly for strategic outcomes. CEO power, specifically, is an upper echelons variable whose consequences for organizational performance remain an enigma, making it one of the most-studied yet least-resolved variables in strategic management."
+      },
+      "saidaReal": {
+        "rule": "According to the upper echelons theory (Hambrick, 2007a; Hambrick and Mason, 1984), the dispositions and actions of the firm's top management, i.e. the upper echelons, matter",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3198,6 +4210,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "High power leads to cognitive biases creeping in, especially how the CEO frames the decision calculus and estimates risks inherent in decisions, leading them to concentrate on the upside potential of the decisions and ignore relevant downside consequences",
+        "verbatimQuote": "High power leads to cognitive biases creeping in, especially how the CEO frames the decision calculus and estimates risks inherent in decisions, leading them to concentrate on the upside potential of the decisions and ignore relevant downside consequences",
+        "claim": "High CEO power induces systematic cognitive biases in strategic decision-making: it distorts how the CEO frames decision calculus and estimates risks, causing concentration on upside potential while ignoring relevant downside consequences. This is especially pronounced in volatile, high-entrepreneurial-orientation contexts where strategic flexibility is critical."
+      },
+      "saidaReal": {
+        "rule": "High power leads to cognitive biases creeping in, especially how the CEO frames the decision calculus and estimates risks inherent in decisions, leading them to concentrate on the upside potential of the decisions and ignore relevant downside consequences",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3227,6 +4248,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "individuals operating with high power have been found to (1) indulge in more self-serving behaviors and (2) be less accurate in recognizing the interests and opinions of the people they work with",
+        "verbatimQuote": "individuals operating with high power have been found to (1) indulge in more self-serving behaviors and (2) be less accurate in recognizing the interests and opinions of the people they work with",
+        "claim": "Individuals operating with high power indulge in more self-serving behaviors and are less accurate in recognizing the interests and opinions of colleagues. In group decision-making contexts (such as AHP/BOCR expert panels), the presence of a highly powerful dominant member can systematically distort the group's weight distribution away from consensus and toward that member's individual preferences."
+      },
+      "saidaReal": {
+        "rule": "individuals operating with high power have been found to (1) indulge in more self-serving behaviors and (2) be less accurate in recognizing the interests and opinions of the people they work with",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3247,6 +4277,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "the CEO tends to be more lethargic and reactive, tending to initiate fewer new strategic initiatives, instead choosing to focus on and replicate what has worked successfully in the past. Because long-tenured CEOs also tend to accumulate significant power (Liu and Jiraporn, 2010), the problem may be compounded by the interplay between tenure and power, further affecting the EO-performance link",
+        "verbatimQuote": "the CEO tends to be more lethargic and reactive, tending to initiate fewer new strategic initiatives, instead choosing to focus on and replicate what has worked successfully in the past. Because long-tenured CEOs also tend to accumulate significant power",
+        "claim": "Long-tenured executives accumulate significant power and tend to become more lethargic and reactive, initiating fewer new strategic initiatives and focusing instead on replicating what has worked in the past. The compound effect of high tenure + high power produces inflexibility in interpreting organizational goals and adjusting to an evolving external environment, leading to suboptimal decisions."
+      },
+      "saidaReal": {
+        "rule": "the CEO tends to be more lethargic and reactive, tending to initiate fewer new strategic initiatives, instead choosing to focus on and replicate what has worked successfully in the past. Because long-tenured CEOs also tend to accumulate significant power (Liu and Jiraporn, 2010), the problem may be compounded by the interplay between tenure and power, further affecting the EO-performance link",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3269,6 +4308,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "we suggest that upper echelon factors can function as a \"double-edged sword\", benefiting a firm to a certain extent and then becoming counter-productive",
+        "verbatimQuote": "we suggest that upper echelon factors can function as a \"double-edged sword\", benefiting a firm to a certain extent and then becoming counter-productive",
+        "claim": "Upper echelons factors are not uniformly beneficial but rather function as a 'double-edged sword' — beneficial to a firm up to a certain threshold, beyond which they become counter-productive. This nonlinear relationship is particularly evident in contexts of high market volatility and emerging economies, where contextual dynamism amplifies the consequences of executive bias."
+      },
+      "saidaReal": {
+        "rule": "we suggest that upper echelon factors can function as a \"double-edged sword\", benefiting a firm to a certain extent and then becoming counter-productive",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3289,6 +4337,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "under high CEO power and given the dynamic, uncertain situation that prevails when the firm operates with a high level of EO, chief executives tend to \"shut out\" other views and perspectives instead of pushing through with their own dominant thinking",
+        "verbatimQuote": "under high CEO power and given the dynamic, uncertain situation that prevails when the firm operates with a high level of EO, chief executives tend to \"shut out\" other views and perspectives instead of pushing through with their own dominant thinking",
+        "claim": "Under high CEO power combined with uncertain/dynamic situations (common in entrepreneurial contexts), chief executives tend to 'shut out' other views and perspectives, pushing through with their own dominant thinking. This blocks the possibility of building support for alternative projects competing for resources, which harms firm performance. The implication for group decision-making: panels dominated by a single powerful voice systematically produce biased weight distributions."
+      },
+      "saidaReal": {
+        "rule": "under high CEO power and given the dynamic, uncertain situation that prevails when the firm operates with a high level of EO, chief executives tend to \"shut out\" other views and perspectives instead of pushing through with their own dominant thinking",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3311,6 +4368,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The first advantage of absolute measurement is that there is no boundary for the set of alternatives.",
+        "verbatimQuote": "The first advantage of absolute measurement is that there is no boundary for the set of alternatives.",
+        "claim": "Absolute measurement removes boundaries for the number of alternatives."
+      },
+      "saidaReal": {
+        "rule": "The first advantage of absolute measurement is that there is no boundary for the set of alternatives.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3331,6 +4397,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Combining absolute measurement with ideal synthesis will always preserve ranks",
+        "verbatimQuote": "Combining absolute measurement with ideal synthesis will always preserve ranks",
+        "claim": "Combining absolute measurement with ideal synthesis prevents rank reversal."
+      },
+      "saidaReal": {
+        "rule": "Combining absolute measurement with ideal synthesis will always preserve ranks",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3360,6 +4435,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "That is the '0.77' for Project X in Tables 13 and 17 represent a concept similar to 'utility'",
+        "verbatimQuote": "ideal synthesis is the value in the priority. That is the '0.77' for Project X... represent a concept similar to 'utility'",
+        "claim": "Ideal synthesis scores represent a concept similar to utility."
+      },
+      "saidaReal": {
+        "rule": "That is the '0.77' for Project X in Tables 13 and 17 represent a concept similar to 'utility'",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -3386,6 +4470,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Consistency is a measure of the quality of data input in the AHP.",
+        "verbatimQuote": "Consistency is a measure of the quality of data input in the AHP.",
+        "claim": "Consistency is the primary measure of input data quality in AHP."
+      },
+      "saidaReal": {
+        "rule": "Consistency is a measure of the quality of data input in the AHP.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3414,6 +4507,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "the 0.1 threshold have been accepted for the consistency measurements",
+        "verbatimQuote": "the 0.1 threshold have been accepted for the consistency measurements and analyses of pairwise comparison matrices.",
+        "claim": "The 0.1 CR threshold is standard for evaluating reliability."
+      },
+      "saidaReal": {
+        "rule": "the 0.1 threshold have been accepted for the consistency measurements",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -3440,6 +4542,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "inconsistency itself is important, since \"without it new knowledge that changes preferences cannot be admitted\"",
+        "verbatimQuote": "inconsistency itself is important, since 'without it new knowledge that changes preferences cannot be admitted'",
+        "claim": "Moderate inconsistency is necessary for admitting new knowledge."
+      },
+      "saidaReal": {
+        "rule": "inconsistency itself is important, since \"without it new knowledge that changes preferences cannot be admitted\"",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3468,6 +4579,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "This can be achieved only by taking the geometric mean [113].",
+        "verbatimQuote": "The reciprocal of the aggregated values must correspond to the individual reciprocal values; this can be achieved only by taking the geometric mean.",
+        "claim": "Reciprocal property aggregation requires geometric mean."
+      },
+      "saidaReal": {
+        "rule": "This can be achieved only by taking the geometric mean [113].",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -3488,6 +4608,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Sensitivity analysis for AHP is relevant only when alternatives are included in the hierarchy.",
+        "verbatimQuote": "Sensitivity analysis for AHP is relevant only when alternatives are included in the hierarchy.",
+        "claim": "Sensitivity analysis is essential for rank reversal assessment."
+      },
+      "saidaReal": {
+        "rule": "Sensitivity analysis for AHP is relevant only when alternatives are included in the hierarchy.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3516,6 +4645,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The mean weights of the two groups of CR ≤ 0.1 and CR ≤ 0.2 did not differ significantly.",
+        "verbatimQuote": "The mean weights of the two groups of CR ≤ 0.1 and CR ≤ 0.2 did not differ significantly.",
+        "claim": "Weight difference between CR 0.1 and 0.2 is negligible."
+      },
+      "saidaReal": {
+        "rule": "The mean weights of the two groups of CR ≤ 0.1 and CR ≤ 0.2 did not differ significantly.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3542,6 +4680,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "The CR in the scenario of aggregation by geometric mean was markedly lower for AIJ than for AIP.",
+        "verbatimQuote": "The CR in the scenario of aggregation by geometric mean was markedly lower for AIJ than for AIP.",
+        "claim": "AIJ produces lower CR than AIP."
+      },
+      "saidaReal": {
+        "rule": "The CR in the scenario of aggregation by geometric mean was markedly lower for AIJ than for AIP.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3570,6 +4717,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "The comparison between the different methods (AHP, BWS, ranking tasks) resulted in similar outcomes.",
+        "verbatimQuote": "The comparison between the different methods (AHP, BWS, ranking tasks) resulted in similar outcomes.",
+        "claim": "AHP and BWS results are comparable at group level."
+      },
+      "saidaReal": {
+        "rule": "The comparison between the different methods (AHP, BWS, ranking tasks) resulted in similar outcomes.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3590,6 +4746,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "experts are more motivated and attentive in methods requiring fewer pairwise comparisons and less interaction",
+        "verbatimQuote": "experts are more motivated and attentive in methods requiring fewer pairwise comparisons and less interaction",
+        "claim": "Experts are more motivated and provide better results with methods requiring fewer pairwise comparisons."
+      },
+      "saidaReal": {
+        "rule": "experts are more motivated and attentive in methods requiring fewer pairwise comparisons and less interaction",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3618,6 +4783,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "AHP requires \\frac{m^{2}-m}{2} pairwise comparisons per level with m elements, reducing the willingness of the expert(s) to provide information",
+        "verbatimQuote": "AHP requires \\frac{m^{2}-m}{2} pairwise comparisons per level with m elements, reducing the willingness of the expert(s) to provide information",
+        "claim": "AHP requires a burdensome number of pairwise comparisons as elements increase."
+      },
+      "saidaReal": {
+        "rule": "AHP requires \\frac{m^{2}-m}{2} pairwise comparisons per level with m elements, reducing the willingness of the expert(s) to provide information",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3645,6 +4819,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "AHP-express is a special case of BWM-AHP that reduces the amount of information retrieved from experts.",
+        "verbatimQuote": "AHP-express is a special case of BWM-AHP that reduces the amount of information retrieved from experts.",
+        "claim": "AHP-express significantly reduces evaluation effort compared to traditional AHP."
+      },
+      "saidaReal": {
+        "rule": "AHP-express is a special case of BWM-AHP that reduces the amount of information retrieved from experts.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3671,6 +4854,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "verbatimQuote": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "claim": "BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving."
+      },
+      "saidaReal": {
+        "rule": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3700,6 +4892,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "taking cost and risk reciprocals... actually distorts their originally common scale, thereby producing confounded results.",
+        "verbatimQuote": "taking cost and risk reciprocals... actually distorts their originally common scale, thereby producing confounded results.",
+        "claim": "Using reciprocal values for costs and risks distorts the scale and confounds results."
+      },
+      "saidaReal": {
+        "rule": "taking cost and risk reciprocals... actually distorts their originally common scale, thereby producing confounded results.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide; fornecedor determinado por PRECEDENCIA, texto indistinguivel de campo posterior",
@@ -3727,6 +4928,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "additive synthesis expression should be used where rescaled cost and risk priorities are subtracted from rescaled benefits and opportunities priorities",
+        "verbatimQuote": "The subtractive formula with rescaling: P_i = v_B·s_B·b_i + v_O·s_O·o_i − v_C·s_C·c_i − v_R·s_R·r_i (Eq. 17)",
+        "claim": "A fórmula subtrativa completa para síntese BOCR (Eq. 17) é: P_i = v_B·s_B·B_i + v_O·s_O·O_i − v_C·s_C·C_i − v_R·s_R·R_i, onde v são os pesos pessoais (personal weights da hierarquia de controle) e s são os rescaling weights (para comensurabilidade entre dimensões)."
+      },
+      "saidaReal": {
+        "rule": "additive synthesis expression should be used where rescaled cost and risk priorities are subtracted from rescaled benefits and opportunities priorities",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3756,6 +4966,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "verbatimQuote": "Rescaling weights ensure commensurability across the four merit hierarchies.",
+        "claim": "Os rescaling weights (s) são necessários para garantir a comensurabilidade entre as prioridades de diferentes subhierarquias BOCR. Sem eles, as prioridades locais de B, O, C e R podem estar em escalas incompatíveis."
+      },
+      "saidaReal": {
+        "rule": "Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -3783,6 +5002,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "additive expression is proposed, where costs and risks are treated as negative values rather than reciprocals",
+        "verbatimQuote": "The simplified form assumes commensurability without explicit rescaling.",
+        "claim": "A forma simplificada bB + oO − cC − rR é um caso particular da Eq. 17 quando s_B = s_O = s_C = s_R = 1, assumindo comensurabilidade natural entre as subhierarquias."
+      },
+      "saidaReal": {
+        "rule": "additive expression is proposed, where costs and risks are treated as negative values rather than reciprocals",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3812,6 +5040,15 @@
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
       },
+      "entrada": {
+        "evidenceQuote": "this paper proves that the WGMCJM is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency.",
+        "verbatimQuote": "the weighted geometric mean complex judgement matrix (WGMCJM) is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency.",
+        "claim": "The WGMCJM maintains acceptable consistency if all individual matrices are acceptable."
+      },
+      "saidaReal": {
+        "rule": "this paper proves that the WGMCJM is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency.",
+        "tipo": "string"
+      },
       "selecao": {
         "fornecedor": "evidence.quote",
         "confronto": "coincide",
@@ -3838,6 +5075,15 @@
         "evidence.quote": "com conteudo",
         "verbatim_quote": "com conteudo",
         "claim": "com conteudo"
+      },
+      "entrada": {
+        "evidenceQuote": "The weighted geometric mean method (WGMM) is the most common group preference aggregation method in the Analytic Hierarchy Process.",
+        "verbatimQuote": "The weighted geometric mean method (WGMM) is the most common group preference aggregation method in the Analytic Hierarchy Process.",
+        "claim": "WGMM is the standard for group preference aggregation in AHP."
+      },
+      "saidaReal": {
+        "rule": "The weighted geometric mean method (WGMM) is the most common group preference aggregation method in the Analytic Hierarchy Process.",
+        "tipo": "string"
       },
       "selecao": {
         "fornecedor": "evidence.quote",
@@ -3883,7 +5129,8 @@
       "exclusivaCom": [
         "selecaoConcluida",
         "execucaoNaoAlcancada"
-      ]
+      ],
+      "nota": "excecao DO CODIGO REAL; a da copia local esta em estados.excecoesDaCopiaLocalDaExpressao e conta 0"
     },
     "execucaoNaoAlcancada": {
       "valor": 0,
@@ -3995,6 +5242,290 @@
         "ocorrencias": 135,
         "denominador": "ocorrencias de Fundamento: no contexto capturado"
       }
+    }
+  },
+  "conjuntos": {
+    "distinguiveis": {
+      "criterio": "evidence.quote diferente de verbatim_quote E diferente de claim, por igualdade estrita, SEM trim, que e a comparacao usada no instrumento",
+      "sha": {
+        "arquivos": 37,
+        "sha256": "19210d04b7ba8a3d3646cd6da87a666f1c1c39086a40dcc0285ac757a8fe429c",
+        "regra": "nomes .ts em ordem lexicografica, nome + 0x1E + bytes + 0x1E, concatenados"
+      },
+      "base": "lib/rag/articles, no checkout desta execucao",
+      "total": 26,
+      "chaves": [
+        "ayan2023_weightingMethodsMCDM#2",
+        "ayan2023_weightingMethodsMCDM#5",
+        "bozoki2010_ipc#0",
+        "bozoki2010_ipc#1",
+        "bozoki2010_ipc#3",
+        "bozoki2010_ipc#4",
+        "dodevska2023when#1",
+        "dodevska2023when#2",
+        "escobar2004_note#0",
+        "escobar2004_note#1",
+        "lee2009_wind#0",
+        "neely2020_upperEchelonsMetacritiques#4",
+        "neely2020_upperEchelonsMetacritiques#5",
+        "saaty1986_axiomatic#0",
+        "saaty1986_axiomatic#4",
+        "saatyOzdemir2003_negative#2",
+        "saatyVargas1984_rankpreservation#5",
+        "saiyed2023_ceoPowerUET#3",
+        "salomon2016_absolute#2",
+        "salomon2024_consistency#1",
+        "salomon2024_consistency#2",
+        "schmidt2015_review#0",
+        "wijnmalen2007_bocr#2",
+        "wijnmalen2007_bocr#3",
+        "wijnmalen2007_bocr#4",
+        "xu2000_consistency#0"
+      ]
+    },
+    "a16Localizada": {
+      "estado": "LOCALIZADA",
+      "artefato": "docs/dados/a33-etapa4-v2/evidencias.json",
+      "criterio": [
+        "Igualdade exata após trim; não é juízo de sentido."
+      ],
+      "sha": "344d63121489348a7291725271564f06fe5ef5a5",
+      "unidadesComComparacaoNoArtefato": 101,
+      "divergentesNoArtefato": 19,
+      "divergentesEmKeyClaims": 19,
+      "chaves": [
+        "ayan2023_weightingMethodsMCDM#2",
+        "ayan2023_weightingMethodsMCDM#5",
+        "bozoki2010_ipc#0",
+        "bozoki2010_ipc#1",
+        "dodevska2023when#1",
+        "dodevska2023when#2",
+        "escobar2004_note#0",
+        "escobar2004_note#1",
+        "lee2009_wind#0",
+        "neely2020_upperEchelonsMetacritiques#4",
+        "neely2020_upperEchelonsMetacritiques#5",
+        "saatyOzdemir2003_negative#2",
+        "salomon2016_absolute#2",
+        "salomon2024_consistency#1",
+        "salomon2024_consistency#2",
+        "wijnmalen2007_bocr#2",
+        "wijnmalen2007_bocr#3",
+        "wijnmalen2007_bocr#4",
+        "xu2000_consistency#0"
+      ]
+    },
+    "conjuntoDe26": {
+      "estado": "NAO DETERMINADO: lista nao localizada",
+      "ondeOTotalAparece": "docs/imprecisoes-parecer-ia.md, no texto narrativo, como \"26 entre 138\"",
+      "oQueFoiProcurado": "arrays de exatamente 26 itens em docs/dados/**/*.json, e ocorrencias de 26 ligadas a divergencia; nenhuma lista POR UNIDADE encontrada",
+      "consequencia": "os resultados da comparacao com esse conjunto ficam NAO DETERMINADOS, e NAO sao zero nem identidade",
+      "naoSeImpoeTotal": "o total de 26 NAO foi imposto a lista localizada, que tem o seu proprio total"
+    },
+    "recalculadoPeloCriterioDeA16": {
+      "estado": "TERCEIRO CONJUNTO, recalculado nesta base; NAO e a lista de A.16",
+      "criterio": "verbatim_quote diferente de evidence.quote apos trim, que e o criterio registrado em evidencias.json, aplicado a base ATUAL",
+      "sha": {
+        "arquivos": 37,
+        "sha256": "19210d04b7ba8a3d3646cd6da87a666f1c1c39086a40dcc0285ac757a8fe429c",
+        "regra": "nomes .ts em ordem lexicografica, nome + 0x1E + bytes + 0x1E, concatenados"
+      },
+      "total": 26,
+      "chaves": [
+        "ayan2023_weightingMethodsMCDM#2",
+        "ayan2023_weightingMethodsMCDM#5",
+        "bozoki2010_ipc#0",
+        "bozoki2010_ipc#1",
+        "bozoki2010_ipc#3",
+        "bozoki2010_ipc#4",
+        "dodevska2023when#1",
+        "dodevska2023when#2",
+        "escobar2004_note#0",
+        "escobar2004_note#1",
+        "lee2009_wind#0",
+        "neely2020_upperEchelonsMetacritiques#4",
+        "neely2020_upperEchelonsMetacritiques#5",
+        "saaty1986_axiomatic#0",
+        "saaty1986_axiomatic#4",
+        "saatyOzdemir2003_negative#2",
+        "saatyVargas1984_rankpreservation#5",
+        "saiyed2023_ceoPowerUET#3",
+        "salomon2016_absolute#2",
+        "salomon2024_consistency#1",
+        "salomon2024_consistency#2",
+        "schmidt2015_review#0",
+        "wijnmalen2007_bocr#2",
+        "wijnmalen2007_bocr#3",
+        "wijnmalen2007_bocr#4",
+        "xu2000_consistency#0"
+      ]
+    },
+    "origemDasDiferencas": {
+      "porCriterio": {
+        "efeito": "NENHUM",
+        "comoSeMediu": "o terceiro conjunto aplica o criterio de A.16, com trim, a base atual, e sai IDENTICO ao dos distinguiveis; logo o criterio nao separa nenhuma unidade nesta base"
+      },
+      "porBase": {
+        "efeito": "NENHUM",
+        "comoSeMediu": "os dois conjuntos foram recalculados em arvore auxiliar no commit 3db365c, que e o pai de 8b057d9, ANTES das duas correcoes de A.16; sairam 26 e 26, com as MESMAS chaves do conjunto atual",
+        "commitsConferidos": [
+          "8b057d9db2c70e701a757f5ad83336903c3b8000",
+          "b567d99bec6881faa381651353120e1faaf7366a"
+        ],
+        "unidadesQueEssesCommitsTocaram": [
+          "saaty1977_scaling#0",
+          "wijnmalen2007_bocr#0",
+          "wijnmalen2007_bocr#3"
+        ],
+        "porQueNaoMudouPertenca": "em saaty1977_scaling#0 e wijnmalen2007_bocr#0 os dois campos foram alterados JUNTOS e seguiram iguais entre si, e em wijnmalen2007_bocr#3 o evidence.quote mudou mas continuou diferente do verbatim_quote; medido, e nao deduzido",
+        "provenienciaDestaMedicao": "arvore auxiliar desta execucao complementar, removida ao fim; o registro narrativo traz o comando"
+      },
+      "porEscopoDoArtefato": {
+        "efeito": "EXPLICA AS SETE",
+        "comoSeMediu": "evidencias.json traz 101 unidades de key_claims entre as 165 de porTrecho, e as 138 da base viva nao estao todas ali; as sete de somenteA estao AUSENTES de porTrecho",
+        "keyClaimsNaBaseViva": 138,
+        "keyClaimsCobertasPeloArtefato": 101,
+        "keyClaimsForaDoArtefato": 37
+      },
+      "conclusao": "A diferenca de sete e inteiramente de ESCOPO. Dentro do escopo comum as 101 unidades cobertas, os dois conjuntos coincidem. ⚠ Nenhuma diferenca ficou sem origem determinada, e nenhuma foi atribuida as correcoes de A.16."
+    },
+    "comparacoes": {
+      "distinguiveisVsA16Localizada": {
+        "tamanhoA": 26,
+        "tamanhoB": 19,
+        "intersecao": [
+          "ayan2023_weightingMethodsMCDM#2",
+          "ayan2023_weightingMethodsMCDM#5",
+          "bozoki2010_ipc#0",
+          "bozoki2010_ipc#1",
+          "dodevska2023when#1",
+          "dodevska2023when#2",
+          "escobar2004_note#0",
+          "escobar2004_note#1",
+          "lee2009_wind#0",
+          "neely2020_upperEchelonsMetacritiques#4",
+          "neely2020_upperEchelonsMetacritiques#5",
+          "saatyOzdemir2003_negative#2",
+          "salomon2016_absolute#2",
+          "salomon2024_consistency#1",
+          "salomon2024_consistency#2",
+          "wijnmalen2007_bocr#2",
+          "wijnmalen2007_bocr#3",
+          "wijnmalen2007_bocr#4",
+          "xu2000_consistency#0"
+        ],
+        "somenteA": [
+          "bozoki2010_ipc#3",
+          "bozoki2010_ipc#4",
+          "saaty1986_axiomatic#0",
+          "saaty1986_axiomatic#4",
+          "saatyVargas1984_rankpreservation#5",
+          "saiyed2023_ceoPowerUET#3",
+          "schmidt2015_review#0"
+        ],
+        "somenteB": [],
+        "identicos": false
+      },
+      "distinguiveisNoEscopoComumVsA16Localizada": {
+        "tamanhoA": 19,
+        "tamanhoB": 19,
+        "intersecao": [
+          "ayan2023_weightingMethodsMCDM#2",
+          "ayan2023_weightingMethodsMCDM#5",
+          "bozoki2010_ipc#0",
+          "bozoki2010_ipc#1",
+          "dodevska2023when#1",
+          "dodevska2023when#2",
+          "escobar2004_note#0",
+          "escobar2004_note#1",
+          "lee2009_wind#0",
+          "neely2020_upperEchelonsMetacritiques#4",
+          "neely2020_upperEchelonsMetacritiques#5",
+          "saatyOzdemir2003_negative#2",
+          "salomon2016_absolute#2",
+          "salomon2024_consistency#1",
+          "salomon2024_consistency#2",
+          "wijnmalen2007_bocr#2",
+          "wijnmalen2007_bocr#3",
+          "wijnmalen2007_bocr#4",
+          "xu2000_consistency#0"
+        ],
+        "somenteA": [],
+        "somenteB": [],
+        "identicos": true
+      },
+      "distinguiveisVsRecalculado": {
+        "tamanhoA": 26,
+        "tamanhoB": 26,
+        "intersecao": [
+          "ayan2023_weightingMethodsMCDM#2",
+          "ayan2023_weightingMethodsMCDM#5",
+          "bozoki2010_ipc#0",
+          "bozoki2010_ipc#1",
+          "bozoki2010_ipc#3",
+          "bozoki2010_ipc#4",
+          "dodevska2023when#1",
+          "dodevska2023when#2",
+          "escobar2004_note#0",
+          "escobar2004_note#1",
+          "lee2009_wind#0",
+          "neely2020_upperEchelonsMetacritiques#4",
+          "neely2020_upperEchelonsMetacritiques#5",
+          "saaty1986_axiomatic#0",
+          "saaty1986_axiomatic#4",
+          "saatyOzdemir2003_negative#2",
+          "saatyVargas1984_rankpreservation#5",
+          "saiyed2023_ceoPowerUET#3",
+          "salomon2016_absolute#2",
+          "salomon2024_consistency#1",
+          "salomon2024_consistency#2",
+          "schmidt2015_review#0",
+          "wijnmalen2007_bocr#2",
+          "wijnmalen2007_bocr#3",
+          "wijnmalen2007_bocr#4",
+          "xu2000_consistency#0"
+        ],
+        "somenteA": [],
+        "somenteB": [],
+        "identicos": true
+      },
+      "a16LocalizadaVsRecalculado": {
+        "tamanhoA": 19,
+        "tamanhoB": 26,
+        "intersecao": [
+          "ayan2023_weightingMethodsMCDM#2",
+          "ayan2023_weightingMethodsMCDM#5",
+          "bozoki2010_ipc#0",
+          "bozoki2010_ipc#1",
+          "dodevska2023when#1",
+          "dodevska2023when#2",
+          "escobar2004_note#0",
+          "escobar2004_note#1",
+          "lee2009_wind#0",
+          "neely2020_upperEchelonsMetacritiques#4",
+          "neely2020_upperEchelonsMetacritiques#5",
+          "saatyOzdemir2003_negative#2",
+          "salomon2016_absolute#2",
+          "salomon2024_consistency#1",
+          "salomon2024_consistency#2",
+          "wijnmalen2007_bocr#2",
+          "wijnmalen2007_bocr#3",
+          "wijnmalen2007_bocr#4",
+          "xu2000_consistency#0"
+        ],
+        "somenteA": [],
+        "somenteB": [
+          "bozoki2010_ipc#3",
+          "bozoki2010_ipc#4",
+          "saaty1986_axiomatic#0",
+          "saaty1986_axiomatic#4",
+          "saatyVargas1984_rankpreservation#5",
+          "saiyed2023_ceoPowerUET#3",
+          "schmidt2015_review#0"
+        ],
+        "identicos": false
+      },
+      "distinguiveisVsConjuntoDe26": "NAO DETERMINADO: lista nao localizada"
     }
   },
   "textoDeRuleCompartilhadoEntreUnidades": [
@@ -4115,6 +5646,46 @@
       ],
       "passou": true
     }
+  },
+  "preservacaoDoArtefatoAnterior": {
+    "referencia": {
+      "sha256Canonico": "a6c3b03f24ebd544aaf35c69a21cd7f41b7c871adfc843a0e2ffcc0f7fa21a8d",
+      "bytesCanonicos": 87057,
+      "regra": "JSON.stringify(valor), compacto, UTF-8"
+    },
+    "correcoesDeProcedencia": [
+      {
+        "caminho": "conjuntos",
+        "antes": "inexistente",
+        "depois": "chave nova de topo, com os tres conjuntos e as comparacoes"
+      },
+      {
+        "caminho": "preservacaoDoArtefatoAnterior",
+        "antes": "inexistente",
+        "depois": "chave nova de topo, com a referencia canonica e esta propria enumeracao"
+      },
+      {
+        "caminho": "estados.excecoesDoCodigoReal",
+        "antes": "chave presente, com as excecoes da COPIA LOCAL sob rotulo de codigo real",
+        "depois": "renomeada para estados.excecoesDaCopiaLocalDaExpressao"
+      },
+      {
+        "caminho": "estados.excecaoDoCodigoReal",
+        "antes": "inexistente",
+        "depois": "chave nova, dizendo NENHUMA e como se sabe"
+      },
+      {
+        "caminho": "contagens.excecao.nota",
+        "antes": "inexistente",
+        "depois": "nota separando excecao do codigo real da excecao da copia local"
+      },
+      {
+        "caminho": "camadas[].entrada e camadas[].saidaReal",
+        "antes": "inexistentes",
+        "depois": "os tres valores de entrada e a saida do modulo real, casada por ID"
+      }
+    ],
+    "comoSeVerifica": "reconstruir7405839 desfaz exclusivamente o que esta rodada acrescentou ou renomeou, e o sha256 da serializacao canonica do resultado tem de bater com a referencia; NAO depende de 7405839 existir no checkout"
   },
   "oQueIstoNaoDemonstra": [
     "NAO demonstra recepcao pelo modelo: a captura e da chamada montada",

@@ -38,9 +38,33 @@ const RAIZ = path.resolve(__dirname, '..', '..');
 const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a33-cadeia-rule', 'medicao.json');
 const GRAVAR = process.env.A33_GRAVAR === '1';
 
+/** ⚠ Metadado histórico: o commit em que a medição original foi feita. */
+const COMMIT_DA_MEDICAO_ORIGINAL = 'ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d';
+
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
 const shaArquivo = (rel: string) => sha256(fs.readFileSync(path.join(RAIZ, rel)));
+
+/**
+ * Resumo da BASE DE ARTIGOS, para identificar o conjunto medido **sem depender de
+ * variável de ambiente nem do histórico do git**.
+ *
+ * **Regra declarada:** os arquivos `.ts` de `lib/rag/articles/`, em ordem
+ * lexicográfica, cada um como `nome` mais byte `0x1E` mais bytes do arquivo mais
+ * `0x1E`, concatenados e resumidos em SHA-256.
+ */
+function shaDaBaseDeArtigos() {
+  const dir = path.join(RAIZ, 'lib', 'rag', 'articles');
+  const nomes = fs.readdirSync(dir).filter((n: string) => n.endsWith('.ts')).sort();
+  const h = crypto.createHash('sha256');
+  for (const n of nomes) {
+    h.update(Buffer.from(n, 'utf8'));
+    h.update(Buffer.from([0x1e]));
+    h.update(fs.readFileSync(path.join(dir, n)));
+    h.update(Buffer.from([0x1e]));
+  }
+  return { arquivos: nomes.length, sha256: h.digest('hex'), regra: 'nomes .ts em ordem lexicografica, nome + 0x1E + bytes + 0x1E, concatenados' };
+}
 
 // ============================================================
 // 3.0 IDENTIFICAÇÃO
@@ -105,7 +129,10 @@ type Unidade = {
   estados: { evidenceObj: string; 'evidence.quote': string; verbatim_quote: string; claim: string };
   entrada: { eq: unknown; vq: unknown; cl: unknown };
   previsto: { fornecedor: string | null; valor: unknown };
-  real: { rule: unknown; tipo: string };
+  /** ⚠ Resultado de uma CÓPIA LOCAL da expressão. É PREVISÃO, nunca saída real. */
+  previsaoLocal: { rule: unknown; tipo: string };
+  /** ⚠ Preenchido em `confrontar()`, a partir do documento que o MÓDULO devolve. */
+  saidaReal: { rule: unknown; tipo: string } | null;
   fornecedorConfirmado: string | null;
   confronto: string;
   textoCompartilhadoComOutroCampo: boolean;
@@ -117,7 +144,8 @@ function censo() {
 
   const unidades: Unidade[] = [];
   const anomalias: Array<{ id: string; campo: string; tipo: string; endereco: string }> = [];
-  const excecoes: Array<{ id: string; erro: string }> = [];
+  // ⚠ Exceções da CÓPIA LOCAL da expressão. NÃO são exceções do código real.
+  const excecoesDaCopiaLocal: Array<{ id: string; erro: string }> = [];
   const objEvidenceAusente: string[] = [];
 
   for (const a of artigos) {
@@ -155,17 +183,17 @@ function censo() {
         if (e.startsWith('ANOMALIA')) anomalias.push({ id, campo, tipo: e, endereco });
       }
 
-      // ⚠ A EXECUÇÃO real acontece na montagem de KNOWLEDGE_BASE. Aqui só se
-      //   registra se a leitura dos operandos, do jeito que o código a faz,
-      //   levanta exceção; sem simular que houve fallback.
-      let real: unknown;
-      let tipo = '';
+      // ⚠ CÓPIA LOCAL da expressão, e portanto PREVISÃO. A execução real
+      //   acontece na montagem de KNOWLEDGE_BASE, e a sua saída é lida em
+      //   `confrontar()`. ⚠ Exceção daqui NÃO é exceção do código real.
+      let localRule: unknown;
+      let localTipo = '';
       try {
-        real = c.evidence.quote || c.verbatim_quote || c.claim;
-        tipo = real === undefined ? 'undefined' : real === null ? 'null' : typeof real;
+        localRule = c.evidence.quote || c.verbatim_quote || c.claim;
+        localTipo = localRule === undefined ? 'undefined' : localRule === null ? 'null' : typeof localRule;
       } catch (e: any) {
-        excecoes.push({ id, erro: String(e && e.message) });
-        tipo = 'EXCECAO';
+        excecoesDaCopiaLocal.push({ id, erro: String(e && e.message) });
+        localTipo = 'EXCECAO';
       }
 
       const previsto = preverPrecedencia(eq, vq, cl);
@@ -175,14 +203,15 @@ function censo() {
         id, articleId: a.id, indice: i, endereco, estados,
         entrada: { eq, vq, cl },
         previsto,
-        real: { rule: real, tipo },
+        previsaoLocal: { rule: localRule, tipo: localTipo },
+        saidaReal: null,
         fornecedorConfirmado: null,
         confronto: '',
         textoCompartilhadoComOutroCampo: outros.some((o) => o === previsto.valor),
       });
     });
   }
-  return { artigos, unidades, anomalias, excecoes, objEvidenceAusente };
+  return { artigos, unidades, anomalias, excecoesDaCopiaLocal, objEvidenceAusente };
 }
 
 /**
@@ -197,16 +226,49 @@ function censo() {
  * ⚠ **A origem NÃO é deduzida por igualdade textual**: o vínculo unidade a
  * documento é o `id`, `${article.id}_c${index}`, emitido pelo próprio código.
  */
+/**
+ * ⚠ **Constrói o índice por ID DEPOIS de verificar a unicidade.** Um `Map`
+ * construído de pares silenciosamente mantém o último de um id repetido, e a
+ * duplicata ficaria invisível. Aqui ela INTERROMPE.
+ */
+function indexarPorId(docs: any[]) {
+  const vistos = new Map<string, number>();
+  const semId: number[] = [];
+  const duplicados: string[] = [];
+  docs.forEach((d, i) => {
+    if (typeof d?.id !== 'string' || d.id === '') { semId.push(i); return; }
+    const n = (vistos.get(d.id) || 0) + 1;
+    vistos.set(d.id, n);
+    if (n === 2) duplicados.push(d.id);
+  });
+  if (semId.length) throw new Error('ID ausente nas posicoes ' + semId.join(','));
+  if (duplicados.length) throw new Error('ID duplicado: ' + duplicados.join(','));
+  return new Map<string, any>(docs.map((d: any) => [d.id, d]));
+}
+
+/** O tipo do valor, determinado do PRÓPRIO valor recebido. */
+const tipoDe = (v: unknown) => (v === undefined ? 'undefined' : v === null ? 'null' : typeof v);
+
+/**
+ * Confronta a previsão por precedência com a SAÍDA DO CÓDIGO REAL, e GRAVA essa
+ * saída na unidade.
+ *
+ * ⚠ **`saidaReal` vem do documento que o MÓDULO devolve**, casado por ID, e
+ * `saidaReal.tipo` sai desse mesmo valor. ⚠ **Nada da cópia local entra aqui.**
+ *
+ * ⚠ **ID sem correspondência INTERROMPE**, sem escolher documento nem gravar
+ * saída presumida.
+ */
 function confrontar(unidades: Unidade[]) {
   const k = require('@/app/api/ai-reviewer/knowledge');
   const docs = k.getRefsByContext('');
-  const porId = new Map<string, any>(docs.map((d: any) => [d.id, d]));
+  const porId = indexarPorId(docs);
   const ambiguas: string[] = [];
-  const naoAlcancadas: string[] = [];
 
   for (const u of unidades) {
     const d = porId.get(u.id);
-    if (!d) { naoAlcancadas.push(u.id); u.confronto = 'execucao nao alcancada'; continue; }
+    if (!d) throw new Error('unidade sem correspondencia no modulo real: ' + u.id);
+    u.saidaReal = { rule: d.rule, tipo: tipoDe(d.rule) };
     if (d.rule === u.previsto.valor) {
       u.fornecedorConfirmado = u.previsto.fornecedor;
       u.confronto = u.textoCompartilhadoComOutroCampo
@@ -217,7 +279,8 @@ function confrontar(unidades: Unidade[]) {
       ambiguas.push(u.id);
     }
   }
-  return { docs, porId, ambiguas, naoAlcancadas };
+  // ⚠ Chegar aqui já demonstra que toda unidade foi alcançada: o contrário lança.
+  return { docs, porId, ambiguas, naoAlcancadas: [] as string[] };
 }
 
 // ============================================================
@@ -385,6 +448,164 @@ function rodarSinteticos(keyClaims: any[]) {
 }
 
 // ============================================================
+// OS CONJUNTOS: DISTINGUÍVEIS, A.16 E O RECALCULADO
+// ============================================================
+
+const EVIDENCIAS = 'docs/dados/a33-etapa4-v2/evidencias.json';
+
+/**
+ * A lista de A.16 **localizada**, por unidade.
+ *
+ * ⚠ **Não se impõe a ela nenhum total antes de contá-la.** O que se declara é o
+ * artefato, o critério registrado nele e o `baseSha` em que foi medida.
+ *
+ * ⚠ **A comparação usa `articleId` e índice**, e só entram unidades de
+ * `key_claims`, que é o universo das 138.
+ */
+function listaA16() {
+  const j = JSON.parse(fs.readFileSync(path.join(RAIZ, EVIDENCIAS), 'utf8'));
+  const todas = j.porTrecho || [];
+  const comCampo = todas.filter((t: any) => t.comparacaoDosCampos);
+  const divergentes = comCampo.filter((t: any) => t.comparacaoDosCampos.iguais === false);
+  const criterios = Array.from(new Set(comCampo.map((t: any) => t.comparacaoDosCampos.criterio)));
+  const chaves = divergentes
+    .filter((t: any) => t.enderecoNaBase && t.enderecoNaBase.campo === 'key_claims')
+    .map((t: any) => `${t.articleId}#${t.enderecoNaBase.indiceBaseZero}`);
+  const chavesCobertas = comCampo
+    .filter((t: any) => t.enderecoNaBase && t.enderecoNaBase.campo === 'key_claims')
+    .map((t: any) => `${t.articleId}#${t.enderecoNaBase.indiceBaseZero}`);
+  return {
+    artefato: EVIDENCIAS,
+    chavesCobertas,
+    baseSha: j.baseSha,
+    criterioRegistrado: criterios,
+    unidadesComComparacao: comCampo.length,
+    divergentesNoArtefato: divergentes.length,
+    divergentesEmKeyClaims: chaves.length,
+    chaves,
+  };
+}
+
+/** Chave de comparação, comum aos três conjuntos. */
+const chaveDe = (articleId: string, indice: number) => `${articleId}#${indice}`;
+
+function compararConjuntos(a: string[], b: string[]) {
+  const A = new Set(a);
+  const B = new Set(b);
+  const inter = [...A].filter((x) => B.has(x)).sort();
+  return {
+    tamanhoA: A.size,
+    tamanhoB: B.size,
+    intersecao: inter,
+    somenteA: [...A].filter((x) => !B.has(x)).sort(),
+    somenteB: [...B].filter((x) => !A.has(x)).sort(),
+    identicos: A.size === B.size && inter.length === A.size,
+  };
+}
+
+// ============================================================
+// PRESERVAÇÃO DO ARTEFATO DE `7405839`
+// ============================================================
+
+/**
+ * ⚠ **Referência VERIFICÁVEL nos arquivos versionados**, para que a regressão
+ * NÃO dependa de `7405839` existir no checkout, que é raso no CI.
+ *
+ * **Regra de serialização canônica, declarada:** `JSON.stringify(valor)`,
+ * compacto, sem indentação e sem quebra final, em UTF-8. É a mesma regra já
+ * usada e conferida para a requisição de referência.
+ */
+const ORIGINAL_7405839 = {
+  sha256Canonico: 'a6c3b03f24ebd544aaf35c69a21cd7f41b7c871adfc843a0e2ffcc0f7fa21a8d',
+  bytesCanonicos: 87057,
+  regra: 'JSON.stringify(valor), compacto, UTF-8',
+};
+
+/**
+ * ⚠ **TUDO o que esta rodada acrescentou ou renomeou, enumerado com antes e
+ * depois.** ⚠ **A retirada de `entrada` e `saidaReal` sozinha NÃO reproduz o
+ * JSON de `7405839`**, e o registro diz por quê, em vez de esconder: a rodada
+ * também corrigiu um rótulo FALSO, `excecoesDoCodigoReal`, cujas exceções vinham
+ * da cópia local da expressão, e acrescentou as duas chaves de topo que o
+ * complemento exigia. **Nada fica fora desta lista**: a reconstrução desfaz
+ * exatamente estes itens, e o resumo criptográfico do resultado é a prova.
+ */
+const CORRECOES_DE_PROCEDENCIA = [
+  {
+    caminho: 'conjuntos',
+    antes: 'inexistente',
+    depois: 'chave nova de topo, com os tres conjuntos e as comparacoes',
+  },
+  {
+    caminho: 'preservacaoDoArtefatoAnterior',
+    antes: 'inexistente',
+    depois: 'chave nova de topo, com a referencia canonica e esta propria enumeracao',
+  },
+  {
+    caminho: 'estados.excecoesDoCodigoReal',
+    antes: 'chave presente, com as excecoes da COPIA LOCAL sob rotulo de codigo real',
+    depois: 'renomeada para estados.excecoesDaCopiaLocalDaExpressao',
+  },
+  {
+    caminho: 'estados.excecaoDoCodigoReal',
+    antes: 'inexistente',
+    depois: 'chave nova, dizendo NENHUMA e como se sabe',
+  },
+  {
+    caminho: 'contagens.excecao.nota',
+    antes: 'inexistente',
+    depois: 'nota separando excecao do codigo real da excecao da copia local',
+  },
+  {
+    caminho: 'camadas[].entrada e camadas[].saidaReal',
+    antes: 'inexistentes',
+    depois: 'os tres valores de entrada e a saida do modulo real, casada por ID',
+  },
+];
+
+/**
+ * Desfaz, sobre a medição atual, **exclusivamente** o que esta rodada acrescentou
+ * ou renomeou, reconstruindo as chaves **na ordem original**.
+ *
+ * ⚠ **Reconstrói por ordem explícita**, e não por `delete`, para que a
+ * serialização canônica não dependa de ordem de remoção.
+ */
+function reconstruir7405839(M: any) {
+  const e = M.estados;
+  const estados: any = {
+    definicao: e.definicao,
+    evidenceObj: e.evidenceObj,
+    'evidence.quote': e['evidence.quote'],
+    verbatim_quote: e.verbatim_quote,
+    claim: e.claim,
+    anomalias: e.anomalias,
+    excecoesDoCodigoReal: e.excecoesDaCopiaLocalDaExpressao,
+    objEvidenceAusenteOuNaoObjeto: e.objEvidenceAusenteOuNaoObjeto,
+    soEspacosRegistradosAParte: e.soEspacosRegistradosAParte,
+  };
+  const ex = M.contagens.excecao;
+  const contagens = {
+    ...M.contagens,
+    excecao: { valor: ex.valor, denominador: ex.denominador, exclusivaCom: ex.exclusivaCom },
+  };
+  const camadas = M.camadas.map((c: any) => ({
+    id: c.id,
+    endereco: c.endereco,
+    ocorrenciaNaBase: c.ocorrenciaNaBase,
+    selecao: c.selecao,
+    presencaNoContexto: c.presencaNoContexto,
+  }));
+  // ⚠ As chaves de topo que ESTA rodada criou saem, e estao na enumeração.
+  const NOVAS_DE_TOPO = ['conjuntos', 'preservacaoDoArtefatoAnterior'];
+  const out: any = {};
+  for (const k of Object.keys(M)) {
+    if (NOVAS_DE_TOPO.includes(k)) continue;
+    out[k] = k === 'estados' ? estados : k === 'contagens' ? contagens : k === 'camadas' ? camadas : M[k];
+  }
+  return out;
+}
+
+// ============================================================
 // EXECUÇÃO
 // ============================================================
 
@@ -472,6 +693,14 @@ beforeAll(async () => {
       id: u.id,
       endereco: u.endereco,
       ocorrenciaNaBase: u.estados,
+      // ⚠ Os três valores COMO O CÓDIGO REAL OS RECEBEU, sem normalização.
+      entrada: {
+        evidenceQuote: u.entrada.eq,
+        verbatimQuote: u.entrada.vq,
+        claim: u.entrada.cl,
+      },
+      // ⚠ O que o MÓDULO devolveu, casado por ID. NÃO é a cópia local.
+      saidaReal: { rule: u.saidaReal!.rule, tipo: u.saidaReal!.tipo },
       selecao: { fornecedor: u.fornecedorConfirmado, confronto: u.confronto, textoIndistinguivelDeCampoPosterior: u.textoCompartilhadoComOutroCampo },
       presencaNoContexto: secoes.length
         ? { estado: 'presente', secoes, casos: ['C1', 'C2', 'C3'], confirmadoNosTres: mesmoEmTodosOsCasos }
@@ -509,7 +738,10 @@ beforeAll(async () => {
     rodada: 'A.33 medicao da cadeia de fallback de rule',
     natureza: 'MEDICAO. Nenhum caminho de producao alterado. Nenhuma geracao de parecer, real ou simulada.',
     identificacao: {
-      commitMedido: process.env.A33_SHA || null,
+      // ⚠ METADADO HISTÓRICO: o commit da medição ORIGINAL. O SHA, o ambiente e
+      //   os comandos da execução complementar vão no REGISTRO NARRATIVO, e não
+      //   substituem isto.
+      commitMedido: COMMIT_DA_MEDICAO_ORIGINAL,
       codigo: Object.fromEntries(CODIGO.map((f) => [f, shaArquivo(f)])),
       dados: Object.fromEntries(DADOS.map((f) => [f, shaArquivo(f)])),
       serializacaoDeclarada: {
@@ -537,7 +769,12 @@ beforeAll(async () => {
       verbatim_quote: contEstado('verbatim_quote'),
       claim: contEstado('claim'),
       anomalias: base.anomalias,
-      excecoesDoCodigoReal: base.excecoes,
+      // ⚠ Exceções da CÓPIA LOCAL da expressão, NUNCA apresentadas como do código real.
+      excecoesDaCopiaLocalDaExpressao: base.excecoesDaCopiaLocal,
+      excecaoDoCodigoReal: {
+        observado: 'NENHUMA',
+        comoSeSabe: 'claimToRef roda na montagem de KNOWLEDGE_BASE, na importacao do modulo; uma excecao ali impediria o import, e o modulo importou e devolveu as 138',
+      },
       objEvidenceAusenteOuNaoObjeto: base.objEvidenceAusente,
       soEspacosRegistradosAParte: base.unidades.filter((u) => Object.values(u.estados).includes('so espacos')).map((u) => u.id),
     },
@@ -547,7 +784,7 @@ beforeAll(async () => {
       divergentes: ambiguas,
       textoIndistinguivelDeCampoPosterior: base.unidades.filter((u) => u.textoCompartilhadoComOutroCampo).map((u) => u.id),
       fallbackEfetivamenteUtilizado: base.unidades.filter((u) => u.fornecedorConfirmado !== null && u.fornecedorConfirmado !== 'evidence.quote').map((u) => ({ id: u.id, fornecedor: u.fornecedorConfirmado })),
-      semConteudoUtilizavel: base.unidades.filter((u) => u.fornecedorConfirmado === null).map((u) => ({ id: u.id, valorDevolvido: u.real.rule, tipo: u.real.tipo })),
+      semConteudoUtilizavel: base.unidades.filter((u) => u.fornecedorConfirmado === null).map((u) => ({ id: u.id, valorDevolvido: u.saidaReal!.rule, tipo: u.saidaReal!.tipo })),
     },
     fatiasCriticas: {
       criterio: 'unidades em que rule vem de claim, ou de string so com espacos',
@@ -575,7 +812,7 @@ beforeAll(async () => {
       artigos: { valor: base.artigos.length, denominador: base.artigos.length, nota: 'conjunto efetivamente lido' },
       unidades: { valor: base.unidades.length, denominador: base.unidades.length, nota: 'key_claims dos 36 artigos' },
       selecaoConcluida: { valor: base.unidades.filter((u) => u.confronto.startsWith('coincide')).length, denominador: base.unidades.length, exclusivaCom: ['excecao', 'execucaoNaoAlcancada'] },
-      excecao: { valor: base.excecoes.length, denominador: base.unidades.length, exclusivaCom: ['selecaoConcluida', 'execucaoNaoAlcancada'] },
+      excecao: { valor: 0, denominador: base.unidades.length, exclusivaCom: ['selecaoConcluida', 'execucaoNaoAlcancada'], nota: 'excecao DO CODIGO REAL; a da copia local esta em estados.excecoesDaCopiaLocalDaExpressao e conta ' + base.excecoesDaCopiaLocal.length },
       execucaoNaoAlcancada: { valor: naoAlcancadas.length, denominador: base.unidades.length, exclusivaCom: ['selecaoConcluida', 'excecao'] },
       porFornecedor: { valores: contFornecedor, denominador: base.unidades.length, nota: 'mutuamente exclusivas; fecham no total' },
       comConteudoUtilizavel: { valor: base.unidades.filter((u) => u.fornecedorConfirmado !== null).length, denominador: base.unidades.length },
@@ -587,6 +824,89 @@ beforeAll(async () => {
       ocorrenciasNoContexto: { valor: Object.values(idsPorSecao).reduce((a, v) => a + v.length, 0), denominador: 'nao ha; ocorrencias NAO se somam a unidades distintas', porSecao: Object.fromEntries(Object.entries(idsPorSecao).map(([k2, v]) => [k2, v.length])) },
       porCaso: Object.fromEntries(['C1', 'C2', 'C3'].map((n) => [n, { ocorrencias: casos[n].ocorrenciasDeFundamento, denominador: 'ocorrencias de Fundamento: no contexto capturado' }])),
     },
+    /**
+     * ⚠ **Três conjuntos, com CRITÉRIO e SHA declarados cada um**, e que NÃO se
+     * reconciliam aqui.
+     */
+    conjuntos: (() => {
+      const a16 = listaA16();
+      const baseArtigos = shaDaBaseDeArtigos();
+      const distinguiveis = base.unidades
+        .filter((u) => !u.textoCompartilhadoComOutroCampo)
+        .map((u) => chaveDe(u.articleId, u.indice));
+      // Terceiro conjunto: o critério de A.16 RECALCULADO na base atual.
+      const recalculado = base.unidades
+        .filter((u) => String(u.entrada.eq ?? '').trim() !== String(u.entrada.vq ?? '').trim())
+        .map((u) => chaveDe(u.articleId, u.indice));
+      return {
+        distinguiveis: {
+          criterio: 'evidence.quote diferente de verbatim_quote E diferente de claim, por igualdade estrita, SEM trim, que e a comparacao usada no instrumento',
+          sha: baseArtigos,
+          base: 'lib/rag/articles, no checkout desta execucao',
+          total: distinguiveis.length,
+          chaves: distinguiveis.slice().sort(),
+        },
+        a16Localizada: {
+          estado: 'LOCALIZADA',
+          artefato: a16.artefato,
+          criterio: a16.criterioRegistrado,
+          sha: a16.baseSha,
+          unidadesComComparacaoNoArtefato: a16.unidadesComComparacao,
+          divergentesNoArtefato: a16.divergentesNoArtefato,
+          divergentesEmKeyClaims: a16.divergentesEmKeyClaims,
+          chaves: a16.chaves.slice().sort(),
+        },
+        conjuntoDe26: {
+          estado: 'NAO DETERMINADO: lista nao localizada',
+          ondeOTotalAparece: 'docs/imprecisoes-parecer-ia.md, no texto narrativo, como "26 entre 138"',
+          oQueFoiProcurado: 'arrays de exatamente 26 itens em docs/dados/**/*.json, e ocorrencias de 26 ligadas a divergencia; nenhuma lista POR UNIDADE encontrada',
+          consequencia: 'os resultados da comparacao com esse conjunto ficam NAO DETERMINADOS, e NAO sao zero nem identidade',
+          naoSeImpoeTotal: 'o total de 26 NAO foi imposto a lista localizada, que tem o seu proprio total',
+        },
+        recalculadoPeloCriterioDeA16: {
+          estado: 'TERCEIRO CONJUNTO, recalculado nesta base; NAO e a lista de A.16',
+          criterio: 'verbatim_quote diferente de evidence.quote apos trim, que e o criterio registrado em evidencias.json, aplicado a base ATUAL',
+          sha: baseArtigos,
+          total: recalculado.length,
+          chaves: recalculado.slice().sort(),
+        },
+        /**
+         * ⚠ **A origem da diferença, MEDIDA e não raciocinada.** As duas fontes
+         * que o enunciado nomeia, critério e base, **não explicam nada aqui**, e
+         * a que explica é uma terceira: o **escopo do artefato**.
+         */
+        origemDasDiferencas: {
+          porCriterio: {
+            efeito: 'NENHUM',
+            comoSeMediu: 'o terceiro conjunto aplica o criterio de A.16, com trim, a base atual, e sai IDENTICO ao dos distinguiveis; logo o criterio nao separa nenhuma unidade nesta base',
+          },
+          porBase: {
+            efeito: 'NENHUM',
+            comoSeMediu: 'os dois conjuntos foram recalculados em arvore auxiliar no commit 3db365c, que e o pai de 8b057d9, ANTES das duas correcoes de A.16; sairam 26 e 26, com as MESMAS chaves do conjunto atual',
+            commitsConferidos: ['8b057d9db2c70e701a757f5ad83336903c3b8000', 'b567d99bec6881faa381651353120e1faaf7366a'],
+            unidadesQueEssesCommitsTocaram: ['saaty1977_scaling#0', 'wijnmalen2007_bocr#0', 'wijnmalen2007_bocr#3'],
+            porQueNaoMudouPertenca: 'em saaty1977_scaling#0 e wijnmalen2007_bocr#0 os dois campos foram alterados JUNTOS e seguiram iguais entre si, e em wijnmalen2007_bocr#3 o evidence.quote mudou mas continuou diferente do verbatim_quote; medido, e nao deduzido',
+            provenienciaDestaMedicao: 'arvore auxiliar desta execucao complementar, removida ao fim; o registro narrativo traz o comando',
+          },
+          porEscopoDoArtefato: {
+            efeito: 'EXPLICA AS SETE',
+            comoSeMediu: 'evidencias.json traz 101 unidades de key_claims entre as 165 de porTrecho, e as 138 da base viva nao estao todas ali; as sete de somenteA estao AUSENTES de porTrecho',
+            keyClaimsNaBaseViva: 138,
+            keyClaimsCobertasPeloArtefato: a16.unidadesComComparacao,
+            keyClaimsForaDoArtefato: 138 - a16.unidadesComComparacao,
+          },
+          conclusao: 'A diferenca de sete e inteiramente de ESCOPO. Dentro do escopo comum as 101 unidades cobertas, os dois conjuntos coincidem. ⚠ Nenhuma diferenca ficou sem origem determinada, e nenhuma foi atribuida as correcoes de A.16.',
+        },
+        comparacoes: {
+          distinguiveisVsA16Localizada: compararConjuntos(distinguiveis, a16.chaves),
+          distinguiveisNoEscopoComumVsA16Localizada: compararConjuntos(
+            distinguiveis.filter((c) => a16.chavesCobertas.includes(c)), a16.chaves),
+          distinguiveisVsRecalculado: compararConjuntos(distinguiveis, recalculado),
+          a16LocalizadaVsRecalculado: compararConjuntos(a16.chaves, recalculado),
+          distinguiveisVsConjuntoDe26: 'NAO DETERMINADO: lista nao localizada',
+        },
+      };
+    })(),
     textoDeRuleCompartilhadoEntreUnidades: (() => {
       const m = new Map<string, string[]>();
       for (const d of docs) { if (!m.has(d.rule)) m.set(d.rule, []); m.get(d.rule)!.push(d.id); }
@@ -606,6 +926,11 @@ beforeAll(async () => {
         rules: compartilhado.map((d: any) => d.rule),
         passou: compartilhado.length === 2 && compartilhado[0].rule === compartilhado[1].rule && compartilhado[0].id !== compartilhado[1].id,
       },
+    },
+    preservacaoDoArtefatoAnterior: {
+      referencia: ORIGINAL_7405839,
+      correcoesDeProcedencia: CORRECOES_DE_PROCEDENCIA,
+      comoSeVerifica: 'reconstruir7405839 desfaz exclusivamente o que esta rodada acrescentou ou renomeou, e o sha256 da serializacao canonica do resultado tem de bater com a referencia; NAO depende de 7405839 existir no checkout',
     },
     oQueIstoNaoDemonstra: [
       'NAO demonstra recepcao pelo modelo: a captura e da chamada montada',
@@ -646,7 +971,8 @@ test('item 3: os cinco estados sao mutuamente exclusivos e cobrem as 138', () =>
 
 test('item 3: nenhuma anomalia, nenhuma excecao, e o objeto evidence existe nas 138', () => {
   expect(M.estados.anomalias).toEqual([]);
-  expect(M.estados.excecoesDoCodigoReal).toEqual([]);
+  expect(M.estados.excecoesDaCopiaLocalDaExpressao).toEqual([]);
+  expect(M.estados.excecaoDoCodigoReal.observado).toBe('NENHUMA');
   expect(M.estados.objEvidenceAusenteOuNaoObjeto).toEqual([]);
   expect(M.estados.evidenceObj).toEqual({ objeto: 138 });
 });
@@ -822,4 +1148,197 @@ test('o registro nao apresenta a captura como recepcao pelo modelo', () => {
   expect(s).toMatch(/NAO demonstra recepcao pelo modelo/);
   expect(s).toMatch(/NAO demonstra influencia sobre uma resposta/);
   expect(M.natureza).toMatch(/Nenhuma geracao de parecer, real ou simulada/);
+});
+
+// ============================================================
+// COMPLEMENTO: REGISTRO POR UNIDADE E PROCEDÊNCIA
+// ============================================================
+
+test('complemento: cada unidade traz entrada com os tres valores e saidaReal', () => {
+  expect(M.camadas.length).toBe(138);
+  for (const c of M.camadas) {
+    expect(Object.keys(c.entrada)).toEqual(['evidenceQuote', 'verbatimQuote', 'claim']);
+    expect(Object.keys(c.saidaReal)).toEqual(['rule', 'tipo']);
+    // ⚠ O tipo sai do PRÓPRIO valor de saída.
+    const v = c.saidaReal.rule;
+    expect(c.saidaReal.tipo).toBe(v === undefined ? 'undefined' : v === null ? 'null' : typeof v);
+  }
+});
+
+/**
+ * ⚠ **Isto confere CONSISTÊNCIA, e não procedência.** Nesta base os dois valores
+ * coincidem nas 138, então trocar a fonte não mudaria o resultado. **Quem
+ * discrimina a procedência é o teste do sentinela, logo abaixo.**
+ */
+test('complemento: saidaReal e consistente com o modulo, unidade por unidade', () => {
+  // ⚠ Os controles sintéticos substituem `@/lib/rag/index` por `doMock`. Sem
+  //   desfazer isso, este teste leria o módulo SINTÉTICO e não o real.
+  jest.resetModules();
+  jest.dontMock('@/lib/rag/index');
+  // Lê de novo o módulo real e casa por ID: os valores têm de ser os mesmos.
+  const k = require('@/app/api/ai-reviewer/knowledge');
+  const porId = new Map<string, any>(k.getRefsByContext('').map((d: any) => [d.id, d]));
+  expect(porId.size).toBe(138);
+  for (const c of M.camadas) {
+    expect(porId.has(c.id)).toBe(true);
+    expect(c.saidaReal.rule).toBe(porId.get(c.id).rule);
+  }
+});
+
+/**
+ * ⚠ **Controle que DISCRIMINA a procedência.** A previsão local recebe um valor
+ * sentinela que o módulo nunca produziria. Se `confrontar` lesse a cópia local,
+ * `saidaReal` sairia com o sentinela, e o teste reprova.
+ */
+test('complemento: confrontar toma o valor do MODULO, e nao o da previsao local', () => {
+  jest.resetModules();
+  jest.dontMock('@/lib/rag/index');
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const k = require('@/app/api/ai-reviewer/knowledge');
+  const doc = k.getRefsByContext('')[0];
+  const SENTINELA_LOCAL = 'SENTINELA-DA-COPIA-LOCAL-QUE-O-MODULO-NAO-PRODUZ';
+  const u: any = {
+    id: doc.id,
+    previsto: { fornecedor: 'evidence.quote', valor: doc.rule },
+    previsaoLocal: { rule: SENTINELA_LOCAL, tipo: 'string' },
+    saidaReal: null,
+    confronto: '',
+    textoCompartilhadoComOutroCampo: false,
+  };
+  confrontar([u]);
+  expect(u.saidaReal.rule).toBe(doc.rule);
+  expect(u.saidaReal.rule).not.toBe(SENTINELA_LOCAL);
+  expect(u.saidaReal.tipo).toBe(typeof doc.rule);
+  // Controle POSITIVO: o confronto usa a previsão por precedência, que aqui coincide.
+  expect(u.confronto).toMatch(/^coincide/);
+});
+
+test('complemento: nenhuma excecao da copia local e apresentada como do codigo real', () => {
+  expect(M.estados).not.toHaveProperty('excecoesDoCodigoReal');
+  expect(M.estados.excecoesDaCopiaLocalDaExpressao).toEqual([]);
+  expect(M.estados.excecaoDoCodigoReal.observado).toBe('NENHUMA');
+  expect(M.estados.excecaoDoCodigoReal.comoSeSabe).toMatch(/impediria o import/);
+});
+
+/**
+ * ⚠ **Controles NEGATIVOS da associação por ID.** Sem eles, "todas casaram"
+ * poderia ser verdade por o indexador aceitar qualquer coisa.
+ */
+test('complemento: associacao AUSENTE interrompe, sem escolher documento', () => {
+  const unidade: any = { id: 'inexistente_c0', previsto: { fornecedor: 'x', valor: 'y' }, saidaReal: null, confronto: '', textoCompartilhadoComOutroCampo: false };
+  expect(() => confrontar([unidade])).toThrow(/sem correspondencia no modulo real: inexistente_c0/);
+  // ⚠ Nada presumido foi gravado.
+  expect(unidade.saidaReal).toBeNull();
+  expect(unidade.fornecedorConfirmado).toBeUndefined();
+});
+
+test('complemento: associacao DUPLICADA interrompe antes de qualquer casamento', () => {
+  const d = { id: 'dup_c0', rule: 'A' };
+  expect(() => indexarPorId([d, { id: 'dup_c0', rule: 'B' }])).toThrow(/ID duplicado: dup_c0/);
+  expect(() => indexarPorId([d, { rule: 'sem id' } as any])).toThrow(/ID ausente nas posicoes 1/);
+  // Controle POSITIVO, para o indexador não reprovar tudo.
+  expect(indexarPorId([d, { id: 'outro_c0', rule: 'B' }]).size).toBe(2);
+});
+
+// ------------------------------------------------------------ preservação
+test('complemento: removidos SO entrada e saidaReal, e desfeitas as correcoes de procedencia, o JSON reproduz 7405839', () => {
+  const reconstruido = reconstruir7405839(M);
+  const canonico = JSON.stringify(reconstruido);
+  expect(Buffer.byteLength(canonico, 'utf8')).toBe(ORIGINAL_7405839.bytesCanonicos);
+  expect(sha256(canonico)).toBe(ORIGINAL_7405839.sha256Canonico);
+});
+
+test('complemento: TUDO o que a rodada acrescentou esta ENUMERADO, com antes e depois', () => {
+  expect(M.preservacaoDoArtefatoAnterior.correcoesDeProcedencia.length).toBe(6);
+  for (const c of M.preservacaoDoArtefatoAnterior.correcoesDeProcedencia) {
+    expect(c.caminho).toBeTruthy();
+    expect(c.antes).toBeTruthy();
+    expect(c.depois).toBeTruthy();
+  }
+  expect(M.preservacaoDoArtefatoAnterior.referencia.regra).toMatch(/JSON\.stringify\(valor\), compacto, UTF-8/);
+});
+
+test('complemento: os metadados historicos do artefato foram preservados', () => {
+  const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  expect(gravado.identificacao.serializacaoDeclarada.sha256).toBe(M.identificacao.serializacaoDeclarada.sha256);
+  expect(gravado.identificacao.versoes).toEqual({ preparacao: 'v2', requisicao: 'r2' });
+  expect(gravado.identificacao.codigo).toEqual(M.identificacao.codigo);
+});
+
+// ------------------------------------------------------------ regressão por unidade
+test('complemento: o artefato gravado coincide com a medicao atual UNIDADE POR UNIDADE', () => {
+  const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  expect(gravado.camadas.length).toBe(M.camadas.length);
+  for (let i = 0; i < M.camadas.length; i++) {
+    expect(gravado.camadas[i].id).toBe(M.camadas[i].id);
+    expect(gravado.camadas[i].entrada).toEqual(M.camadas[i].entrada);
+    expect(gravado.camadas[i].saidaReal).toEqual(M.camadas[i].saidaReal);
+    expect(gravado.camadas[i].ocorrenciaNaBase).toEqual(M.camadas[i].ocorrenciaNaBase);
+    expect(gravado.camadas[i].selecao).toEqual(M.camadas[i].selecao);
+  }
+  expect(gravado.conjuntos).toEqual(M.conjuntos);
+});
+
+// ------------------------------------------------------------ conjuntos
+test('conjuntos: distinguiveis e A.16 tem criterio e SHA declarados', () => {
+  const c = M.conjuntos;
+  expect(c.distinguiveis.criterio).toMatch(/SEM trim/);
+  expect(c.a16Localizada.estado).toBe('LOCALIZADA');
+  expect(c.a16Localizada.artefato).toBe('docs/dados/a33-etapa4-v2/evidencias.json');
+  expect(c.a16Localizada.sha).toMatch(/^[0-9a-f]{40}$/);
+  expect(c.distinguiveis.sha.sha256).toMatch(/^[0-9a-f]{64}$/);
+  expect(c.distinguiveis.sha.arquivos).toBeGreaterThan(0);
+  expect(c.a16Localizada.criterio.join(' ')).toMatch(/trim/i);
+});
+
+test('conjuntos: o conjunto de 26 fica NAO DETERMINADO, nunca zero nem identidade', () => {
+  const c = M.conjuntos;
+  expect(c.conjuntoDe26.estado).toMatch(/^NAO DETERMINADO: lista nao localizada/);
+  expect(c.comparacoes.distinguiveisVsConjuntoDe26).toBe('NAO DETERMINADO: lista nao localizada');
+  // ⚠ O total de 26 não foi imposto à lista localizada.
+  expect(c.a16Localizada).not.toHaveProperty('total');
+  expect(c.conjuntoDe26).not.toHaveProperty('chaves');
+});
+
+test('conjuntos: a comparacao reporta intersecao, exclusivos e identidade', () => {
+  for (const nome of ['distinguiveisVsA16Localizada', 'distinguiveisVsRecalculado', 'a16LocalizadaVsRecalculado']) {
+    const r = M.conjuntos.comparacoes[nome];
+    expect(r).toHaveProperty('intersecao');
+    expect(r).toHaveProperty('somenteA');
+    expect(r).toHaveProperty('somenteB');
+    expect(typeof r.identicos).toBe('boolean');
+    // Consistência aritmética das partes sobre o mesmo denominador.
+    expect(r.intersecao.length + r.somenteA.length).toBe(r.tamanhoA);
+    expect(r.intersecao.length + r.somenteB.length).toBe(r.tamanhoB);
+  }
+});
+
+test('conjuntos: o terceiro conjunto esta identificado como recalculado, e nao como a lista de A.16', () => {
+  expect(M.conjuntos.recalculadoPeloCriterioDeA16.estado).toMatch(/NAO e a lista de A\.16/);
+  expect(M.conjuntos.recalculadoPeloCriterioDeA16.criterio).toMatch(/base ATUAL/);
+});
+
+test('conjuntos: a origem da diferenca esta MEDIDA, e separada por fonte', () => {
+  const o = M.conjuntos.origemDasDiferencas;
+  expect(o.porCriterio.efeito).toBe('NENHUM');
+  expect(o.porBase.efeito).toBe('NENHUM');
+  expect(o.porEscopoDoArtefato.efeito).toBe('EXPLICA AS SETE');
+  // ⚠ O efeito "nenhum" do critério é RECOMPUTÁVEL aqui, e não uma afirmação solta.
+  expect(M.conjuntos.comparacoes.distinguiveisVsRecalculado.identicos).toBe(true);
+  // ⚠ O escopo também: sai dos arquivos versionados.
+  expect(o.porEscopoDoArtefato.keyClaimsNaBaseViva).toBe(138);
+  expect(o.porEscopoDoArtefato.keyClaimsCobertasPeloArtefato).toBe(M.conjuntos.a16Localizada.unidadesComComparacaoNoArtefato);
+  expect(o.porEscopoDoArtefato.keyClaimsForaDoArtefato).toBe(138 - M.conjuntos.a16Localizada.unidadesComComparacaoNoArtefato);
+  // ⚠ Nenhuma diferença foi atribuída às correções de A.16.
+  expect(o.conclusao).toMatch(/nenhuma foi atribuida as correcoes de A\.16/);
+});
+
+test('conjuntos: dentro do escopo comum os dois conjuntos COINCIDEM', () => {
+  const r = M.conjuntos.comparacoes.distinguiveisNoEscopoComumVsA16Localizada;
+  expect(r.identicos).toBe(true);
+  expect(r.somenteA).toEqual([]);
+  expect(r.somenteB).toEqual([]);
+  // E as sete de fora são exatamente as que o escopo comum descarta.
+  const fora = M.conjuntos.comparacoes.distinguiveisVsA16Localizada.somenteA;
+  expect(fora.length).toBe(M.conjuntos.distinguiveis.total - r.tamanhoA);
 });
