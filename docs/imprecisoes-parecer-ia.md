@@ -9258,6 +9258,146 @@ entregue ao modelo**. ⚠ **Se a correção posterior alterar o conteúdo de `ru
 sua identificação no contexto, ela exigirá predição registrada ANTES.** **A predição
 de A.33 segue não testada**, e **P1** continua requisito anterior à geração.
 
+### A.33: o complemento da medição de `rule`, e um rótulo falso corrigido, em 22/09/2026
+
+**Gravação:** `bb784c3b8c0d6d2ec92e33db4c20092d958440a4`, sobre a base
+`7405839339dc1962dd85ae9725d340409bbfa988`. **Branch:**
+`claude/loving-shannon-661fy9`. **Comandos desta execução complementar:**
+`A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts`,
+`npx tsc --noEmit` e `npm test -- --runInBand`. **Ambiente:** Linux x86_64, Node
+v22.22.2, npm 10.9.7. ⚠ **Estes metadados são DESTA execução e ficam aqui**: os
+do artefato continuam os da medição original, e não foram substituídos.
+
+⚠ **A auditoria tem razão, e o defeito é de procedência.** O artefato não trazia o
+registro por amostra que RE4 exigia, e **pior**: `u.real.rule` era preenchido pela
+**cópia local da expressão**, isto é, uma **previsão**, sob rótulo de saída real. **A
+saída real é o `doc.rule` que o módulo devolve**, e ele não era atribuído àquele
+campo.
+
+**A procedência foi corrigida ANTES de acrescentar qualquer campo.**
+
+| O que era | O que passou a ser |
+|---|---|
+| `u.real`, preenchido pela cópia local | `previsaoLocal`, nomeada pelo que é |
+| nenhum campo com a saída do módulo | `saidaReal`, vinda do `doc.rule`, casado por ID, com `tipo` derivado **desse mesmo valor** |
+| `estados.excecoesDoCodigoReal` | `estados.excecoesDaCopiaLocalDaExpressao`, porque **aquele rótulo era falso** |
+| nada dizia do código real | `estados.excecaoDoCodigoReal`: **NENHUMA**, e como se sabe, que é o import ter concluído e devolvido as 138 |
+
+**Unicidade antes do mapa.** `indexarPorId` percorre e conta **antes** de construir
+o `Map`, que de outro modo manteria em silêncio o último de um id repetido. ⚠ **ID
+ausente, duplicado ou sem correspondência LANÇA**, e **nenhuma saída presumida é
+gravada**. Dois controles negativos cobrem os dois casos, com controle positivo ao
+lado.
+
+**Registro por unidade.** Cada item de `camadas` passa a trazer `entrada`, com os
+três valores **como o código real os recebeu**, e `saidaReal`, com `rule` e `tipo`.
+**Sem normalização.**
+
+⚠ **Achado sobre o próprio instrumento, e ele veio do primeiro contraexemplo.** O
+teste que comparava `saidaReal` ao módulo **não discriminava procedência**: nesta
+base os dois valores coincidem nas 138, então **trocar a fonte não o reprovava**.
+Foi relabelado como conferência de **consistência**, e entrou um controle que
+**discrimina**, com **sentinela** na previsão local. ⚠ **Um teste que não separa as
+duas hipóteses não é evidência**, e este só passou a ser depois do contraexemplo.
+
+**Preservação do artefato de `7405839`, sem depender do histórico.** A referência é
+o **SHA-256 da serialização canônica** do JSON original,
+`a6c3b03f24ebd544aaf35c69a21cd7f41b7c871adfc843a0e2ffcc0f7fa21a8d`, **87057
+bytes**, **regra declarada:** `JSON.stringify(valor)`, compacto, UTF-8. ⚠ **A
+regressão versionada não precisa de `7405839` no checkout**, que é raso no CI.
+
+⚠ **Retirar só `entrada` e `saidaReal` NÃO reproduz o original, e o registro diz
+por quê em vez de esconder:** a rodada também corrigiu o rótulo falso e acrescentou
+duas chaves de topo. **Tudo fica ENUMERADO em seis itens, com antes e depois**, e a
+reconstrução desfaz **exatamente** esses itens, remontando as chaves na ordem
+original; o resumo canônico do resultado bate com a referência. **Nada fora da
+lista**, e uma chave nova não enumerada reprova.
+
+**Os três conjuntos, cada um com critério e SHA.**
+
+| Conjunto | Critério | SHA | Total |
+|---|---|---|---:|
+| **distinguíveis** | `evidence.quote` diferente de `verbatim_quote` **e** de `claim`, igualdade estrita, **sem trim** | resumo da base de artigos, `19210d04…`, 37 arquivos, regra declarada | **26** |
+| **A.16, LOCALIZADA** | "Igualdade exata após trim; não é juízo de sentido" | `baseSha` `344d6312…` | **19** divergentes, entre **101** unidades de `key_claims` com comparação |
+| **recalculado**, terceiro | o critério de A.16 aplicado à base **ATUAL** | o mesmo resumo da base | **26** |
+
+⚠ **A lista de A.16 está LOCALIZADA**, em `docs/dados/a33-etapa4-v2/evidencias.json`,
+por `comparacaoDosCampos.iguais === false`. ⚠ **O total de 26 NÃO foi imposto a
+ela**: ela tem o seu próprio, que é 19.
+
+⚠ **O conjunto referido como de 26 NÃO foi localizado.** Procurados arrays de
+exatamente 26 itens em `docs/dados/**/*.json` e ocorrências de 26 ligadas a
+divergência: **nenhuma lista POR UNIDADE existe**; o número aparece em texto
+narrativo, como "26 entre 138". ⚠ **Por isso os resultados da comparação com ele
+ficam "não determinados: lista não localizada", e NÃO são zero nem identidade.** O
+terceiro conjunto, recalculado, aparece **à parte** e **não satisfaz** essa
+comparação.
+
+**A comparação, por `articleId` e índice:**
+
+| | Valor |
+|---|---:|
+| interseção, distinguíveis ∩ A.16 | **19** |
+| somente distinguíveis | **7** |
+| somente A.16 | **0** |
+| idênticos | **não** |
+
+As sete são `bozoki2010_ipc#3` e `#4`, `saaty1986_axiomatic#0` e `#4`,
+`saatyVargas1984_rankpreservation#5`, `saiyed2023_ceoPowerUET#3` e
+`schmidt2015_review#0`.
+
+**A origem da diferença, MEDIDA e separada por fonte.** ⚠ **As duas fontes que o
+enunciado nomeia não explicam nada aqui**, e a que explica é uma **terceira**.
+
+| Fonte | Efeito | Como se mediu |
+|---|---|---|
+| **critério** | **NENHUM** | o recalculado, com trim, sai **idêntico** aos distinguíveis nesta base, então o critério não separa nenhuma unidade |
+| **base** | **NENHUM** | recalculado em **árvore auxiliar** no commit `3db365c`, pai de `8b057d9`, **antes** das duas correções: saem **26 e 26**, com as **mesmas chaves**; as sete **já estavam** no conjunto |
+| **escopo do artefato** | **EXPLICA AS SETE** | `evidencias.json` cobre **101 das 138** `key_claims`, e as sete estão **AUSENTES** de `porTrecho` |
+
+**Sobre `8b057d9` e `b567d99`**, que tocaram `saaty1977_scaling` `key_claims[0]` e
+Wijnmalen `key_claims[0]` e `[3]`: nos dois primeiros **os dois campos mudaram
+juntos** e seguiram iguais entre si; no terceiro o `evidence.quote` mudou e
+**continuou diferente** do `verbatim_quote`. ⚠ **Nenhuma pertença mudou, e isso foi
+medido, não deduzido.** ⚠ **Nenhuma diferença foi atribuída às correções de A.16.**
+
+⚠ **Dentro do escopo comum, as 101 unidades cobertas, os dois conjuntos
+COINCIDEM.** Nenhuma diferença ficou sem origem determinada.
+
+**Os dois ambientes de verificação, que não se confundem.**
+
+| Ambiente | O que reproduz | Node | Resultado |
+|---|---|---|---|
+| **clone raso local** | a **profundidade do checkout**, e **não** o resto do workflow | **v22.22.2** | `tsc` **0**, **25 suítes e 434 testes** |
+| **execução real do CI** | o workflow inteiro | **24.x** | ver abaixo |
+
+**Sobre `7405839`, e as duas observações ficam separadas.** ⚠ **Recebido da sessão
+de auditoria:** job `verificar` da execução **`35748706039`** observado como
+`completed/success`, com os passos em `success`. ⚠ **Observação própria desta
+execução, pela API:** a mesma execução **`35748706039`**, job `verificar`, id
+`106816871434`, **`completed/success`**, sobre o SHA
+`7405839339dc1962dd85ae9725d340409bbfa988`, com os sete passos declarados em
+`success`, entre eles `Node 24.x, a mesma versão da produção`, `Typecheck`, `Build`
+e `Testes`. **As duas coincidem, e mesmo assim são registradas à parte.**
+
+**Verificação medida, depois de executar:** `npx tsc --noEmit` saiu **0**;
+`npm test -- --runInBand` saiu **0**, com **25 suítes e 434 testes**, contra 25 e
+418 antes, diferença de **16** casos novos e **nenhum removido**. O mesmo em clone
+raso de um commit com `npm ci`.
+
+**Cinco contraexemplos, com restauro conferido por `sha256` idêntico:** `saidaReal`
+pela cópia local **reprova**; indexador aceitando duplicata **reprova**; o conjunto
+de 26 apresentado como idêntico **reprova**; chave nova não enumerada **reprova**;
+valor de `entrada` adulterado no artefato **reprova**.
+
+**Nada alterado** em `lib/rag/articles/`, em `app/`, no `CLAUDE.md`, no âncora, nos
+artefatos da etapa 4, nos `trechoId`, no índice, nas divergências de A.16, em
+`main` ou em `integra/a30-registros`.
+
+⚠ **Predição não cabe:** a rodada amplia o registro do instrumento e **não altera
+produção nem o contexto entregue ao modelo**. **A predição de A.33 segue não
+testada.**
+
 ### Etapa 4: NÃO EXECUTADA
 
 **A mudança está implementada e a predição permanece não testada.**
