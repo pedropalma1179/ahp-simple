@@ -38,33 +38,33 @@ const RAIZ = path.resolve(__dirname, '..', '..');
 const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a33-cadeia-rule', 'medicao.json');
 const GRAVAR = process.env.A33_GRAVAR === '1';
 
-/** ⚠ Metadado histórico: o commit em que a medição original foi feita. */
-const COMMIT_DA_MEDICAO_ORIGINAL = 'ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d';
+/**
+ * ⚠ **METADADOS HISTÓRICOS DA MEDIÇÃO ORIGINAL, fixados aqui como constantes.**
+ *
+ * ⚠ **NUNCA se regeneram de `process.version`, `process.platform`, `process.arch`
+ * nem de qualquer valor do ambiente desta execução.** O ambiente de quem executa
+ * agora vai para o REGISTRO NARRATIVO, e não para o artefato.
+ *
+ * ⚠ **Isto NÃO simula, sobrescreve nem mascara o runtime atual.** `v22.22.2` é o
+ * valor HISTÓRICO da medição de `ebfc9dd`, sustentado pela referência canônica de
+ * `7405839`, e o processo que roda este teste continua reportando a sua própria
+ * versão, seja ela qual for.
+ *
+ * ⚠ **Servem de referência EXTERNA ao artefato** para o controle de adulteração:
+ * o teste compara o artefato com estas constantes, e **não** o artefato consigo
+ * mesmo.
+ */
+const METADADOS_HISTORICOS = {
+  commitMedido: 'ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d',
+  comando: 'npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+  ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+  versoes: { preparacao: 'v2', requisicao: 'r2' },
+};
 
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
 const shaArquivo = (rel: string) => sha256(fs.readFileSync(path.join(RAIZ, rel)));
 
-/**
- * Resumo da BASE DE ARTIGOS, para identificar o conjunto medido **sem depender de
- * variável de ambiente nem do histórico do git**.
- *
- * **Regra declarada:** os arquivos `.ts` de `lib/rag/articles/`, em ordem
- * lexicográfica, cada um como `nome` mais byte `0x1E` mais bytes do arquivo mais
- * `0x1E`, concatenados e resumidos em SHA-256.
- */
-function shaDaBaseDeArtigos() {
-  const dir = path.join(RAIZ, 'lib', 'rag', 'articles');
-  const nomes = fs.readdirSync(dir).filter((n: string) => n.endsWith('.ts')).sort();
-  const h = crypto.createHash('sha256');
-  for (const n of nomes) {
-    h.update(Buffer.from(n, 'utf8'));
-    h.update(Buffer.from([0x1e]));
-    h.update(fs.readFileSync(path.join(dir, n)));
-    h.update(Buffer.from([0x1e]));
-  }
-  return { arquivos: nomes.length, sha256: h.digest('hex'), regra: 'nomes .ts em ordem lexicografica, nome + 0x1E + bytes + 0x1E, concatenados' };
-}
 
 // ============================================================
 // 3.0 IDENTIFICAÇÃO
@@ -244,6 +244,62 @@ function indexarPorId(docs: any[]) {
   if (semId.length) throw new Error('ID ausente nas posicoes ' + semId.join(','));
   if (duplicados.length) throw new Error('ID duplicado: ' + duplicados.join(','));
   return new Map<string, any>(docs.map((d: any) => [d.id, d]));
+}
+
+/**
+ * ⚠ **Observa o CÓDIGO REAL**, e é daqui que sai a contagem de exceção dele.
+ *
+ * `claimToRef` roda na montagem de `KNOWLEDGE_BASE`, durante a importação do
+ * módulo: **uma exceção ali impediria o `require`**. Mede-se então se o import
+ * concluiu e quantos documentos o módulo devolveu.
+ *
+ * ⚠ **NÃO usa a cópia local da expressão como evidência**, nem a contagem dela.
+ */
+function observarCodigoReal(unidadesEsperadas: number) {
+  let importou = false;
+  let erro: string | null = null;
+  let docs: any[] = [];
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const k = require('@/app/api/ai-reviewer/knowledge');
+    docs = k.getRefsByContext('');
+    importou = true;
+  } catch (e: any) {
+    erro = String(e && e.message);
+  }
+  const limpo = importou && erro === null && docs.length === unidadesEsperadas;
+  return {
+    observado: limpo ? 'NENHUMA' : 'NAO LIMPO',
+    excecoes: limpo ? 0 : null,
+    importouOModulo: importou,
+    erroDoImport: erro,
+    documentosDevolvidos: docs.length,
+    unidadesEsperadas,
+    comoSeSabe:
+      'claimToRef roda na montagem de KNOWLEDGE_BASE, na importacao do modulo, e uma excecao ali impediria o require. Medido nesta mesma medicao: o import concluiu e o modulo devolveu ' +
+      docs.length + ' documentos para ' + unidadesEsperadas + ' unidades.',
+    naoUsaCopiaLocal: 'a contagem de excecao do codigo real NAO deriva da copia local da expressao',
+  };
+}
+
+/**
+ * Monta `contagens.excecao` **a partir da observação do código real**.
+ *
+ * ⚠ **Função pura, para poder ser exercitada com uma observação SINTÉTICA** em que
+ * a contagem real difere da contagem da cópia local. Sem isso o controle não
+ * discriminaria: nesta base as duas valem zero.
+ */
+function montarContagemDeExcecao(obs: { excecoes: number | null; comoSeSabe: string }, denominador: number) {
+  return {
+    valor: obs.excecoes,
+    denominador,
+    exclusivaCom: ['selecaoConcluida', 'execucaoNaoAlcancada'],
+    nota:
+      'Excecao DO CODIGO REAL, e o valor ' + obs.excecoes +
+      ' vem da observacao registrada em estados.excecaoDoCodigoReal, feita nesta mesma medicao: ' +
+      obs.comoSeSabe +
+      ' ⚠ A contagem NAO deriva da copia local da expressao.',
+  };
 }
 
 /** O tipo do valor, determinado do PRÓPRIO valor recebido. */
@@ -448,62 +504,6 @@ function rodarSinteticos(keyClaims: any[]) {
 }
 
 // ============================================================
-// OS CONJUNTOS: DISTINGUÍVEIS, A.16 E O RECALCULADO
-// ============================================================
-
-const EVIDENCIAS = 'docs/dados/a33-etapa4-v2/evidencias.json';
-
-/**
- * A lista de A.16 **localizada**, por unidade.
- *
- * ⚠ **Não se impõe a ela nenhum total antes de contá-la.** O que se declara é o
- * artefato, o critério registrado nele e o `baseSha` em que foi medida.
- *
- * ⚠ **A comparação usa `articleId` e índice**, e só entram unidades de
- * `key_claims`, que é o universo das 138.
- */
-function listaA16() {
-  const j = JSON.parse(fs.readFileSync(path.join(RAIZ, EVIDENCIAS), 'utf8'));
-  const todas = j.porTrecho || [];
-  const comCampo = todas.filter((t: any) => t.comparacaoDosCampos);
-  const divergentes = comCampo.filter((t: any) => t.comparacaoDosCampos.iguais === false);
-  const criterios = Array.from(new Set(comCampo.map((t: any) => t.comparacaoDosCampos.criterio)));
-  const chaves = divergentes
-    .filter((t: any) => t.enderecoNaBase && t.enderecoNaBase.campo === 'key_claims')
-    .map((t: any) => `${t.articleId}#${t.enderecoNaBase.indiceBaseZero}`);
-  const chavesCobertas = comCampo
-    .filter((t: any) => t.enderecoNaBase && t.enderecoNaBase.campo === 'key_claims')
-    .map((t: any) => `${t.articleId}#${t.enderecoNaBase.indiceBaseZero}`);
-  return {
-    artefato: EVIDENCIAS,
-    chavesCobertas,
-    baseSha: j.baseSha,
-    criterioRegistrado: criterios,
-    unidadesComComparacao: comCampo.length,
-    divergentesNoArtefato: divergentes.length,
-    divergentesEmKeyClaims: chaves.length,
-    chaves,
-  };
-}
-
-/** Chave de comparação, comum aos três conjuntos. */
-const chaveDe = (articleId: string, indice: number) => `${articleId}#${indice}`;
-
-function compararConjuntos(a: string[], b: string[]) {
-  const A = new Set(a);
-  const B = new Set(b);
-  const inter = [...A].filter((x) => B.has(x)).sort();
-  return {
-    tamanhoA: A.size,
-    tamanhoB: B.size,
-    intersecao: inter,
-    somenteA: [...A].filter((x) => !B.has(x)).sort(),
-    somenteB: [...B].filter((x) => !A.has(x)).sort(),
-    identicos: A.size === B.size && inter.length === A.size,
-  };
-}
-
-// ============================================================
 // PRESERVAÇÃO DO ARTEFATO DE `7405839`
 // ============================================================
 
@@ -522,50 +522,38 @@ const ORIGINAL_7405839 = {
 };
 
 /**
- * ⚠ **TUDO o que esta rodada acrescentou ou renomeou, enumerado com antes e
- * depois.** ⚠ **A retirada de `entrada` e `saidaReal` sozinha NÃO reproduz o
- * JSON de `7405839`**, e o registro diz por quê, em vez de esconder: a rodada
- * também corrigiu um rótulo FALSO, `excecoesDoCodigoReal`, cujas exceções vinham
- * da cópia local da expressão, e acrescentou as duas chaves de topo que o
- * complemento exigia. **Nada fica fora desta lista**: a reconstrução desfaz
- * exatamente estes itens, e o resumo criptográfico do resultado é a prova.
+ * ⚠ **AS QUATRO EXCEÇÕES APROVADAS pelo contrato revisado**, enumeradas com antes
+ * e depois. **Nada além delas separa este artefato do de `7405839`.**
+ *
+ * ⚠ **Esta enumeração e a referência acima vivem AQUI, no teste, e não no JSON**:
+ * `preservacaoDoArtefatoAnterior` foi retirada do artefato por decisão do autor.
  */
-const CORRECOES_DE_PROCEDENCIA = [
+const EXCECOES_APROVADAS = [
   {
-    caminho: 'conjuntos',
+    caminho: 'camadas[].entrada',
     antes: 'inexistente',
-    depois: 'chave nova de topo, com os tres conjuntos e as comparacoes',
+    depois: 'os tres valores de entrada, como o codigo real os recebeu',
   },
   {
-    caminho: 'preservacaoDoArtefatoAnterior',
+    caminho: 'camadas[].saidaReal',
     antes: 'inexistente',
-    depois: 'chave nova de topo, com a referencia canonica e esta propria enumeracao',
+    depois: 'rule e tipo, do documento devolvido pelo modulo real, casado por ID',
   },
   {
     caminho: 'estados.excecoesDoCodigoReal',
     antes: 'chave presente, com as excecoes da COPIA LOCAL sob rotulo de codigo real',
-    depois: 'renomeada para estados.excecoesDaCopiaLocalDaExpressao',
+    depois: 'renomeada para estados.excecoesDaCopiaLocalDaExpressao, com o mesmo valor',
   },
   {
-    caminho: 'estados.excecaoDoCodigoReal',
-    antes: 'inexistente',
-    depois: 'chave nova, dizendo NENHUMA e como se sabe',
-  },
-  {
-    caminho: 'contagens.excecao.nota',
-    antes: 'inexistente',
-    depois: 'nota separando excecao do codigo real da excecao da copia local',
-  },
-  {
-    caminho: 'camadas[].entrada e camadas[].saidaReal',
+    caminho: 'estados.excecaoDoCodigoReal e contagens.excecao.nota',
     antes: 'inexistentes',
-    depois: 'os tres valores de entrada e a saida do modulo real, casada por ID',
+    depois: 'a observacao do codigo real, e a nota que descreve a procedencia da contagem',
   },
 ];
 
 /**
- * Desfaz, sobre a medição atual, **exclusivamente** o que esta rodada acrescentou
- * ou renomeou, reconstruindo as chaves **na ordem original**.
+ * Desfaz, sobre a medição atual, **exclusivamente as quatro exceções aprovadas**,
+ * reconstruindo as chaves **na ordem original**.
  *
  * ⚠ **Reconstrói por ordem explícita**, e não por `delete`, para que a
  * serialização canônica não dependa de ordem de remoção.
@@ -595,11 +583,10 @@ function reconstruir7405839(M: any) {
     selecao: c.selecao,
     presencaNoContexto: c.presencaNoContexto,
   }));
-  // ⚠ As chaves de topo que ESTA rodada criou saem, e estao na enumeração.
-  const NOVAS_DE_TOPO = ['conjuntos', 'preservacaoDoArtefatoAnterior'];
+  // ⚠ Nenhuma chave de topo a descartar: `conjuntos` e
+  //   `preservacaoDoArtefatoAnterior` NÃO estão mais no artefato.
   const out: any = {};
   for (const k of Object.keys(M)) {
-    if (NOVAS_DE_TOPO.includes(k)) continue;
     out[k] = k === 'estados' ? estados : k === 'contagens' ? contagens : k === 'camadas' ? camadas : M[k];
   }
   return out;
@@ -614,6 +601,7 @@ let M: any;
 beforeAll(async () => {
   const base = censo();
   const { docs, ambiguas, naoAlcancadas } = confrontar(base.unidades);
+  const obsReal = observarCodigoReal(base.unidades.length);
 
   const r2 = JSON.parse(fs.readFileSync(path.join(RAIZ, 'docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json'), 'utf8'));
   const c1 = JSON.parse(fs.readFileSync(path.join(RAIZ, 'docs/dados/a33-etapa4-v2/C1-recuperacao.json'), 'utf8'));
@@ -738,10 +726,9 @@ beforeAll(async () => {
     rodada: 'A.33 medicao da cadeia de fallback de rule',
     natureza: 'MEDICAO. Nenhum caminho de producao alterado. Nenhuma geracao de parecer, real ou simulada.',
     identificacao: {
-      // ⚠ METADADO HISTÓRICO: o commit da medição ORIGINAL. O SHA, o ambiente e
-      //   os comandos da execução complementar vão no REGISTRO NARRATIVO, e não
-      //   substituem isto.
-      commitMedido: COMMIT_DA_MEDICAO_ORIGINAL,
+      // ⚠ METADADO HISTÓRICO. O SHA, o ambiente e os comandos da execução
+      //   complementar vão no REGISTRO NARRATIVO, e não substituem isto.
+      commitMedido: METADADOS_HISTORICOS.commitMedido,
       codigo: Object.fromEntries(CODIGO.map((f) => [f, shaArquivo(f)])),
       dados: Object.fromEntries(DADOS.map((f) => [f, shaArquivo(f)])),
       serializacaoDeclarada: {
@@ -751,9 +738,10 @@ beforeAll(async () => {
         declaradoNoArtefato: r2.requisicaoSerializada.sha256,
         coincide: sha256(serializada) === r2.requisicaoSerializada.sha256,
       },
-      versoes: { preparacao: 'v2', requisicao: 'r2' },
-      comando: 'npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
-      ambiente: { plataforma: process.platform, arch: process.arch, node: process.version },
+      versoes: METADADOS_HISTORICOS.versoes,
+      comando: METADADOS_HISTORICOS.comando,
+      // ⚠ HISTÓRICO, e não o ambiente de quem executa agora.
+      ambiente: METADADOS_HISTORICOS.ambiente,
     },
     inventario: {
       artigos: base.artigos.length,
@@ -771,10 +759,7 @@ beforeAll(async () => {
       anomalias: base.anomalias,
       // ⚠ Exceções da CÓPIA LOCAL da expressão, NUNCA apresentadas como do código real.
       excecoesDaCopiaLocalDaExpressao: base.excecoesDaCopiaLocal,
-      excecaoDoCodigoReal: {
-        observado: 'NENHUMA',
-        comoSeSabe: 'claimToRef roda na montagem de KNOWLEDGE_BASE, na importacao do modulo; uma excecao ali impediria o import, e o modulo importou e devolveu as 138',
-      },
+      excecaoDoCodigoReal: obsReal,
       objEvidenceAusenteOuNaoObjeto: base.objEvidenceAusente,
       soEspacosRegistradosAParte: base.unidades.filter((u) => Object.values(u.estados).includes('so espacos')).map((u) => u.id),
     },
@@ -812,7 +797,8 @@ beforeAll(async () => {
       artigos: { valor: base.artigos.length, denominador: base.artigos.length, nota: 'conjunto efetivamente lido' },
       unidades: { valor: base.unidades.length, denominador: base.unidades.length, nota: 'key_claims dos 36 artigos' },
       selecaoConcluida: { valor: base.unidades.filter((u) => u.confronto.startsWith('coincide')).length, denominador: base.unidades.length, exclusivaCom: ['excecao', 'execucaoNaoAlcancada'] },
-      excecao: { valor: 0, denominador: base.unidades.length, exclusivaCom: ['selecaoConcluida', 'execucaoNaoAlcancada'], nota: 'excecao DO CODIGO REAL; a da copia local esta em estados.excecoesDaCopiaLocalDaExpressao e conta ' + base.excecoesDaCopiaLocal.length },
+      // ⚠ DERIVA da observação do código real, na mesma medição.
+      excecao: montarContagemDeExcecao(obsReal, base.unidades.length),
       execucaoNaoAlcancada: { valor: naoAlcancadas.length, denominador: base.unidades.length, exclusivaCom: ['selecaoConcluida', 'excecao'] },
       porFornecedor: { valores: contFornecedor, denominador: base.unidades.length, nota: 'mutuamente exclusivas; fecham no total' },
       comConteudoUtilizavel: { valor: base.unidades.filter((u) => u.fornecedorConfirmado !== null).length, denominador: base.unidades.length },
@@ -824,89 +810,6 @@ beforeAll(async () => {
       ocorrenciasNoContexto: { valor: Object.values(idsPorSecao).reduce((a, v) => a + v.length, 0), denominador: 'nao ha; ocorrencias NAO se somam a unidades distintas', porSecao: Object.fromEntries(Object.entries(idsPorSecao).map(([k2, v]) => [k2, v.length])) },
       porCaso: Object.fromEntries(['C1', 'C2', 'C3'].map((n) => [n, { ocorrencias: casos[n].ocorrenciasDeFundamento, denominador: 'ocorrencias de Fundamento: no contexto capturado' }])),
     },
-    /**
-     * ⚠ **Três conjuntos, com CRITÉRIO e SHA declarados cada um**, e que NÃO se
-     * reconciliam aqui.
-     */
-    conjuntos: (() => {
-      const a16 = listaA16();
-      const baseArtigos = shaDaBaseDeArtigos();
-      const distinguiveis = base.unidades
-        .filter((u) => !u.textoCompartilhadoComOutroCampo)
-        .map((u) => chaveDe(u.articleId, u.indice));
-      // Terceiro conjunto: o critério de A.16 RECALCULADO na base atual.
-      const recalculado = base.unidades
-        .filter((u) => String(u.entrada.eq ?? '').trim() !== String(u.entrada.vq ?? '').trim())
-        .map((u) => chaveDe(u.articleId, u.indice));
-      return {
-        distinguiveis: {
-          criterio: 'evidence.quote diferente de verbatim_quote E diferente de claim, por igualdade estrita, SEM trim, que e a comparacao usada no instrumento',
-          sha: baseArtigos,
-          base: 'lib/rag/articles, no checkout desta execucao',
-          total: distinguiveis.length,
-          chaves: distinguiveis.slice().sort(),
-        },
-        a16Localizada: {
-          estado: 'LOCALIZADA',
-          artefato: a16.artefato,
-          criterio: a16.criterioRegistrado,
-          sha: a16.baseSha,
-          unidadesComComparacaoNoArtefato: a16.unidadesComComparacao,
-          divergentesNoArtefato: a16.divergentesNoArtefato,
-          divergentesEmKeyClaims: a16.divergentesEmKeyClaims,
-          chaves: a16.chaves.slice().sort(),
-        },
-        conjuntoDe26: {
-          estado: 'NAO DETERMINADO: lista nao localizada',
-          ondeOTotalAparece: 'docs/imprecisoes-parecer-ia.md, no texto narrativo, como "26 entre 138"',
-          oQueFoiProcurado: 'arrays de exatamente 26 itens em docs/dados/**/*.json, e ocorrencias de 26 ligadas a divergencia; nenhuma lista POR UNIDADE encontrada',
-          consequencia: 'os resultados da comparacao com esse conjunto ficam NAO DETERMINADOS, e NAO sao zero nem identidade',
-          naoSeImpoeTotal: 'o total de 26 NAO foi imposto a lista localizada, que tem o seu proprio total',
-        },
-        recalculadoPeloCriterioDeA16: {
-          estado: 'TERCEIRO CONJUNTO, recalculado nesta base; NAO e a lista de A.16',
-          criterio: 'verbatim_quote diferente de evidence.quote apos trim, que e o criterio registrado em evidencias.json, aplicado a base ATUAL',
-          sha: baseArtigos,
-          total: recalculado.length,
-          chaves: recalculado.slice().sort(),
-        },
-        /**
-         * ⚠ **A origem da diferença, MEDIDA e não raciocinada.** As duas fontes
-         * que o enunciado nomeia, critério e base, **não explicam nada aqui**, e
-         * a que explica é uma terceira: o **escopo do artefato**.
-         */
-        origemDasDiferencas: {
-          porCriterio: {
-            efeito: 'NENHUM',
-            comoSeMediu: 'o terceiro conjunto aplica o criterio de A.16, com trim, a base atual, e sai IDENTICO ao dos distinguiveis; logo o criterio nao separa nenhuma unidade nesta base',
-          },
-          porBase: {
-            efeito: 'NENHUM',
-            comoSeMediu: 'os dois conjuntos foram recalculados em arvore auxiliar no commit 3db365c, que e o pai de 8b057d9, ANTES das duas correcoes de A.16; sairam 26 e 26, com as MESMAS chaves do conjunto atual',
-            commitsConferidos: ['8b057d9db2c70e701a757f5ad83336903c3b8000', 'b567d99bec6881faa381651353120e1faaf7366a'],
-            unidadesQueEssesCommitsTocaram: ['saaty1977_scaling#0', 'wijnmalen2007_bocr#0', 'wijnmalen2007_bocr#3'],
-            porQueNaoMudouPertenca: 'em saaty1977_scaling#0 e wijnmalen2007_bocr#0 os dois campos foram alterados JUNTOS e seguiram iguais entre si, e em wijnmalen2007_bocr#3 o evidence.quote mudou mas continuou diferente do verbatim_quote; medido, e nao deduzido',
-            provenienciaDestaMedicao: 'arvore auxiliar desta execucao complementar, removida ao fim; o registro narrativo traz o comando',
-          },
-          porEscopoDoArtefato: {
-            efeito: 'EXPLICA AS SETE',
-            comoSeMediu: 'evidencias.json traz 101 unidades de key_claims entre as 165 de porTrecho, e as 138 da base viva nao estao todas ali; as sete de somenteA estao AUSENTES de porTrecho',
-            keyClaimsNaBaseViva: 138,
-            keyClaimsCobertasPeloArtefato: a16.unidadesComComparacao,
-            keyClaimsForaDoArtefato: 138 - a16.unidadesComComparacao,
-          },
-          conclusao: 'A diferenca de sete e inteiramente de ESCOPO. Dentro do escopo comum as 101 unidades cobertas, os dois conjuntos coincidem. ⚠ Nenhuma diferenca ficou sem origem determinada, e nenhuma foi atribuida as correcoes de A.16.',
-        },
-        comparacoes: {
-          distinguiveisVsA16Localizada: compararConjuntos(distinguiveis, a16.chaves),
-          distinguiveisNoEscopoComumVsA16Localizada: compararConjuntos(
-            distinguiveis.filter((c) => a16.chavesCobertas.includes(c)), a16.chaves),
-          distinguiveisVsRecalculado: compararConjuntos(distinguiveis, recalculado),
-          a16LocalizadaVsRecalculado: compararConjuntos(a16.chaves, recalculado),
-          distinguiveisVsConjuntoDe26: 'NAO DETERMINADO: lista nao localizada',
-        },
-      };
-    })(),
     textoDeRuleCompartilhadoEntreUnidades: (() => {
       const m = new Map<string, string[]>();
       for (const d of docs) { if (!m.has(d.rule)) m.set(d.rule, []); m.get(d.rule)!.push(d.id); }
@@ -927,11 +830,6 @@ beforeAll(async () => {
         passou: compartilhado.length === 2 && compartilhado[0].rule === compartilhado[1].rule && compartilhado[0].id !== compartilhado[1].id,
       },
     },
-    preservacaoDoArtefatoAnterior: {
-      referencia: ORIGINAL_7405839,
-      correcoesDeProcedencia: CORRECOES_DE_PROCEDENCIA,
-      comoSeVerifica: 'reconstruir7405839 desfaz exclusivamente o que esta rodada acrescentou ou renomeou, e o sha256 da serializacao canonica do resultado tem de bater com a referencia; NAO depende de 7405839 existir no checkout',
-    },
     oQueIstoNaoDemonstra: [
       'NAO demonstra recepcao pelo modelo: a captura e da chamada montada',
       'NAO demonstra influencia sobre uma resposta: nenhum parecer foi produzido',
@@ -949,7 +847,9 @@ test('3.0: identificacao registrada, com sha dos artefatos e serializacao declar
   for (const f of DADOS) expect(M.identificacao.dados[f]).toMatch(/^[0-9a-f]{64}$/);
   expect(M.identificacao.serializacaoDeclarada.coincide).toBe(true);
   expect(M.identificacao.serializacaoDeclarada.bytes).toBe(3279);
-  expect(M.identificacao.ambiente.node).toBe(process.version);
+  // ⚠ Referência EXTERNA ao artefato, e não o artefato consigo mesmo.
+  expect(M.identificacao.ambiente).toEqual(METADADOS_HISTORICOS.ambiente);
+  expect(M.identificacao.commitMedido).toBe(METADADOS_HISTORICOS.commitMedido);
 });
 
 // ------------------------------------------------------------ item 2
@@ -1217,7 +1117,12 @@ test('complemento: nenhuma excecao da copia local e apresentada como do codigo r
   expect(M.estados).not.toHaveProperty('excecoesDoCodigoReal');
   expect(M.estados.excecoesDaCopiaLocalDaExpressao).toEqual([]);
   expect(M.estados.excecaoDoCodigoReal.observado).toBe('NENHUMA');
-  expect(M.estados.excecaoDoCodigoReal.comoSeSabe).toMatch(/impediria o import/);
+  // ⚠ Confere o CONTEÚDO medido, e não uma frase: o import concluiu e os
+  //   documentos devolvidos batem com as unidades esperadas.
+  const obs = M.estados.excecaoDoCodigoReal;
+  expect(obs.comoSeSabe).toContain(String(obs.documentosDevolvidos) + ' documentos');
+  expect(obs.comoSeSabe).toContain(String(obs.unidadesEsperadas) + ' unidades');
+  expect(obs.importouOModulo).toBe(true);
 });
 
 /**
@@ -1248,14 +1153,20 @@ test('complemento: removidos SO entrada e saidaReal, e desfeitas as correcoes de
   expect(sha256(canonico)).toBe(ORIGINAL_7405839.sha256Canonico);
 });
 
-test('complemento: TUDO o que a rodada acrescentou esta ENUMERADO, com antes e depois', () => {
-  expect(M.preservacaoDoArtefatoAnterior.correcoesDeProcedencia.length).toBe(6);
-  for (const c of M.preservacaoDoArtefatoAnterior.correcoesDeProcedencia) {
+test('complemento: as QUATRO excecoes aprovadas estao enumeradas, e o JSON nao as carrega', () => {
+  expect(EXCECOES_APROVADAS.length).toBe(4);
+  for (const c of EXCECOES_APROVADAS) {
     expect(c.caminho).toBeTruthy();
     expect(c.antes).toBeTruthy();
     expect(c.depois).toBeTruthy();
   }
-  expect(M.preservacaoDoArtefatoAnterior.referencia.regra).toMatch(/JSON\.stringify\(valor\), compacto, UTF-8/);
+  expect(ORIGINAL_7405839.regra).toMatch(/JSON\.stringify\(valor\), compacto, UTF-8/);
+  // ⚠ Contrato revisado: os dois blocos saíram do artefato.
+  expect(M).not.toHaveProperty('conjuntos');
+  expect(M).not.toHaveProperty('preservacaoDoArtefatoAnterior');
+  const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  expect(gravado).not.toHaveProperty('conjuntos');
+  expect(gravado).not.toHaveProperty('preservacaoDoArtefatoAnterior');
 });
 
 test('complemento: os metadados historicos do artefato foram preservados', () => {
@@ -1276,69 +1187,96 @@ test('complemento: o artefato gravado coincide com a medicao atual UNIDADE POR U
     expect(gravado.camadas[i].ocorrenciaNaBase).toEqual(M.camadas[i].ocorrenciaNaBase);
     expect(gravado.camadas[i].selecao).toEqual(M.camadas[i].selecao);
   }
-  expect(gravado.conjuntos).toEqual(M.conjuntos);
 });
 
 // ------------------------------------------------------------ conjuntos
-test('conjuntos: distinguiveis e A.16 tem criterio e SHA declarados', () => {
-  const c = M.conjuntos;
-  expect(c.distinguiveis.criterio).toMatch(/SEM trim/);
-  expect(c.a16Localizada.estado).toBe('LOCALIZADA');
-  expect(c.a16Localizada.artefato).toBe('docs/dados/a33-etapa4-v2/evidencias.json');
-  expect(c.a16Localizada.sha).toMatch(/^[0-9a-f]{40}$/);
-  expect(c.distinguiveis.sha.sha256).toMatch(/^[0-9a-f]{64}$/);
-  expect(c.distinguiveis.sha.arquivos).toBeGreaterThan(0);
-  expect(c.a16Localizada.criterio.join(' ')).toMatch(/trim/i);
+
+
+
+
+
+
+// ============================================================
+// CONTRATO REVISADO: procedência da contagem e metadados históricos
+// ============================================================
+
+/**
+ * ⚠ **A contagem de exceção do código real vem da OBSERVAÇÃO do código real.**
+ * ⚠ **Este teste NÃO usa `excecoesDaCopiaLocalDaExpressao` como evidência**, e o
+ * contraexemplo abaixo mostra que trocar a fonte reprova.
+ */
+test('contrato: contagens.excecao.valor deriva da observacao do codigo real', () => {
+  const obs = M.estados.excecaoDoCodigoReal;
+  expect(obs.importouOModulo).toBe(true);
+  expect(obs.erroDoImport).toBeNull();
+  expect(obs.documentosDevolvidos).toBe(obs.unidadesEsperadas);
+  expect(obs.observado).toBe('NENHUMA');
+  // O valor da contagem é O MESMO objeto observado, e não um literal.
+  expect(M.contagens.excecao.valor).toBe(obs.excecoes);
+  expect(obs.naoUsaCopiaLocal).toMatch(/NAO deriva da copia local/);
 });
 
-test('conjuntos: o conjunto de 26 fica NAO DETERMINADO, nunca zero nem identidade', () => {
-  const c = M.conjuntos;
-  expect(c.conjuntoDe26.estado).toMatch(/^NAO DETERMINADO: lista nao localizada/);
-  expect(c.comparacoes.distinguiveisVsConjuntoDe26).toBe('NAO DETERMINADO: lista nao localizada');
-  // ⚠ O total de 26 não foi imposto à lista localizada.
-  expect(c.a16Localizada).not.toHaveProperty('total');
-  expect(c.conjuntoDe26).not.toHaveProperty('chaves');
+test('contrato: a nota descreve a procedencia e usa o MESMO numero observado', () => {
+  const nota: string = M.contagens.excecao.nota;
+  const obs = M.estados.excecaoDoCodigoReal;
+  expect(nota).toMatch(/Excecao DO CODIGO REAL/);
+  expect(nota).toContain('estados.excecaoDoCodigoReal');
+  expect(nota).toContain(String(obs.excecoes));
+  expect(nota).toContain(obs.comoSeSabe);
+  expect(nota).toMatch(/NAO deriva da copia local/);
+  // ⚠ A nota não invoca a contagem da cópia local como justificativa.
+  expect(nota).not.toMatch(/excecoesDaCopiaLocalDaExpressao e conta/);
 });
 
-test('conjuntos: a comparacao reporta intersecao, exclusivos e identidade', () => {
-  for (const nome of ['distinguiveisVsA16Localizada', 'distinguiveisVsRecalculado', 'a16LocalizadaVsRecalculado']) {
-    const r = M.conjuntos.comparacoes[nome];
-    expect(r).toHaveProperty('intersecao');
-    expect(r).toHaveProperty('somenteA');
-    expect(r).toHaveProperty('somenteB');
-    expect(typeof r.identicos).toBe('boolean');
-    // Consistência aritmética das partes sobre o mesmo denominador.
-    expect(r.intersecao.length + r.somenteA.length).toBe(r.tamanhoA);
-    expect(r.intersecao.length + r.somenteB.length).toBe(r.tamanhoB);
-  }
+/**
+ * ⚠ **Controle contra ADULTERAÇÃO dos metadados históricos.**
+ *
+ * A referência é `METADADOS_HISTORICOS`, **externa ao artefato**. O teste não lê o
+ * valor do artefato para compará-lo consigo mesmo, e **não** o compara com o
+ * ambiente de quem executa: em Node 24 o histórico continua `v22.22.2`.
+ */
+test('contrato: os metadados historicos do artefato batem com a referencia EXTERNA', () => {
+  const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  expect(gravado.identificacao.commitMedido).toBe(METADADOS_HISTORICOS.commitMedido);
+  expect(gravado.identificacao.comando).toBe(METADADOS_HISTORICOS.comando);
+  expect(gravado.identificacao.ambiente).toEqual(METADADOS_HISTORICOS.ambiente);
+  expect(gravado.identificacao.versoes).toEqual(METADADOS_HISTORICOS.versoes);
+  // ⚠ O histórico é `v22.22.2` mesmo quando o runtime atual é outro.
+  expect(gravado.identificacao.ambiente.node).toBe('v22.22.2');
 });
 
-test('conjuntos: o terceiro conjunto esta identificado como recalculado, e nao como a lista de A.16', () => {
-  expect(M.conjuntos.recalculadoPeloCriterioDeA16.estado).toMatch(/NAO e a lista de A\.16/);
-  expect(M.conjuntos.recalculadoPeloCriterioDeA16.criterio).toMatch(/base ATUAL/);
+/**
+ * ⚠ **O runtime atual NÃO é simulado, sobrescrito nem mascarado.** Este teste
+ * apenas OBSERVA `process.version` e registra que o histórico é independente
+ * dele. Ele passa em qualquer versão, e é a demonstração de que o valor gravado
+ * não vem do ambiente.
+ */
+test('contrato: o valor historico nao depende do runtime que executa agora', () => {
+  const atual = process.version;
+  expect(typeof atual).toBe('string');
+  expect(M.identificacao.ambiente.node).toBe(METADADOS_HISTORICOS.ambiente.node);
+  // Se o artefato viesse do ambiente, em Node 24 este valor seria v24.x.
+  expect(M.identificacao.ambiente.node).toBe('v22.22.2');
+  // ⚠ Nada aqui escreve em process.version.
+  expect(process.version).toBe(atual);
 });
 
-test('conjuntos: a origem da diferenca esta MEDIDA, e separada por fonte', () => {
-  const o = M.conjuntos.origemDasDiferencas;
-  expect(o.porCriterio.efeito).toBe('NENHUM');
-  expect(o.porBase.efeito).toBe('NENHUM');
-  expect(o.porEscopoDoArtefato.efeito).toBe('EXPLICA AS SETE');
-  // ⚠ O efeito "nenhum" do critério é RECOMPUTÁVEL aqui, e não uma afirmação solta.
-  expect(M.conjuntos.comparacoes.distinguiveisVsRecalculado.identicos).toBe(true);
-  // ⚠ O escopo também: sai dos arquivos versionados.
-  expect(o.porEscopoDoArtefato.keyClaimsNaBaseViva).toBe(138);
-  expect(o.porEscopoDoArtefato.keyClaimsCobertasPeloArtefato).toBe(M.conjuntos.a16Localizada.unidadesComComparacaoNoArtefato);
-  expect(o.porEscopoDoArtefato.keyClaimsForaDoArtefato).toBe(138 - M.conjuntos.a16Localizada.unidadesComComparacaoNoArtefato);
-  // ⚠ Nenhuma diferença foi atribuída às correções de A.16.
-  expect(o.conclusao).toMatch(/nenhuma foi atribuida as correcoes de A\.16/);
-});
-
-test('conjuntos: dentro do escopo comum os dois conjuntos COINCIDEM', () => {
-  const r = M.conjuntos.comparacoes.distinguiveisNoEscopoComumVsA16Localizada;
-  expect(r.identicos).toBe(true);
-  expect(r.somenteA).toEqual([]);
-  expect(r.somenteB).toEqual([]);
-  // E as sete de fora são exatamente as que o escopo comum descarta.
-  const fora = M.conjuntos.comparacoes.distinguiveisVsA16Localizada.somenteA;
-  expect(fora.length).toBe(M.conjuntos.distinguiveis.total - r.tamanhoA);
+/**
+ * ⚠ **Controle que DISCRIMINA a fonte da contagem.** Com uma observação sintética
+ * em que o código real teria 7 exceções, `valor` e a nota têm de trazer 7. Se a
+ * contagem viesse da cópia local, que nesta base vale zero, sairia 0 e reprovaria.
+ */
+test('contrato: a contagem segue a OBSERVACAO, e nao a copia local, mesmo quando diferem', () => {
+  const sintetica = { excecoes: 7, comoSeSabe: 'observacao sintetica do controle' };
+  const c = montarContagemDeExcecao(sintetica, 138);
+  expect(c.valor).toBe(7);
+  expect(c.nota).toContain('valor 7');
+  expect(c.nota).toContain('observacao sintetica do controle');
+  // ⚠ A contagem da cópia local nesta base é zero, e NÃO aparece.
+  expect(M.estados.excecoesDaCopiaLocalDaExpressao.length).toBe(0);
+  expect(c.valor).not.toBe(M.estados.excecoesDaCopiaLocalDaExpressao.length);
+  // Controle POSITIVO: com a observação real, sai o valor real.
+  const real = montarContagemDeExcecao(M.estados.excecaoDoCodigoReal, 138);
+  expect(real.valor).toBe(M.contagens.excecao.valor);
+  expect(real.nota).toBe(M.contagens.excecao.nota);
 });
