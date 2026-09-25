@@ -215,23 +215,24 @@
     "pergunta": "o documento gravado distingue QUEM respondeu?",
     "painelA": {
       "identificadores": "ident-alfa-01 ... ident-alfa-12",
-      "bytesComparados": 17948,
       "chavesDeTopo": 21,
-      "sha256SemCalculatedAt": "b14724a17f910b1a97f074fcf4f266acc1b5f1544f2674a7c81fc63fff4bdbce"
+      "folhas": 655,
+      "sha256DaEstrutura": "4b0c117140543ee16f71f5b048f7b0ed97eb35452383f270678541468e9552ec"
     },
     "painelB": {
       "identificadores": "ident-beta-01 ... ident-beta-12",
-      "bytesComparados": 17948,
       "chavesDeTopo": 21,
-      "sha256SemCalculatedAt": "b14724a17f910b1a97f074fcf4f266acc1b5f1544f2674a7c81fc63fff4bdbce"
+      "folhas": 655,
+      "sha256DaEstrutura": "4b0c117140543ee16f71f5b048f7b0ed97eb35452383f270678541468e9552ec"
     },
     "documentosIguais": true,
     "controleDiscriminante": {
       "oQueMudou": "um unico julgamento do primeiro respondente do painel B",
-      "sha256SemCalculatedAt": "47e1507af0e15620f551d030aa788732a2fec1746a00069131206517e61f4dee",
       "documentosIguais": false,
-      "leitura": "o documento responde a JULGAMENTOS e nao a IDENTIDADES"
+      "estruturaIgual": true,
+      "leitura": "o documento responde a JULGAMENTOS e nao a IDENTIDADES: so os NUMEROS mudam"
     },
+    "notaSobreResumoDeBytes": "⚠ resumo dos BYTES nao e registrado: depende do ambiente, porque Math.log e Math.exp sao aproximacao dependente de implementacao. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes, e a igualdade entre os dois paineis se manteve la.",
     "conclusaoDoQueFoiMedido": "dois paineis com identidades inteiramente diferentes gravam documento identico fora de calculatedAt: o artefato NAO determina quem participou"
   },
   "fonteDoIdentificador": {

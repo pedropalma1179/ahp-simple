@@ -130,6 +130,38 @@ function mutilar(julgamentos: any[]): any[] {
 // A medição
 // ---------------------------------------------------------------------------
 
+/**
+ * ⚠ **O artefato NÃO guarda resumo dos BYTES do documento.** Ele **depende do
+ * ambiente**: `aggregateAIJ` agrega por soma de logaritmos, com `Math.log` e
+ * `Math.exp` em `lib/ahp-engine.ts:223-225`, e a norma deixa as duas como
+ * **aproximação dependente de implementação**. O CI de `8879360`, em Node 24,
+ * produziu resumos diferentes dos desta máquina, em Node 22, **com o mesmo número
+ * de bytes e a mesma estrutura**, e o achado se manteve lá: os dois painéis
+ * continuaram iguais entre si.
+ *
+ * O que o artefato guarda é **estrutura**, que não depende disso. A igualdade entre
+ * os dois painéis continua medida **dentro da mesma execução**, onde a comparação é
+ * exata e o ambiente é o mesmo dos dois lados.
+ */
+function caminhosDeChave(o: any, p = ''): string[] {
+  if (o && typeof o === 'object' && !Array.isArray(o)) {
+    return Object.keys(o).flatMap(k => [`${p}.${k}`, ...caminhosDeChave(o[k], `${p}.${k}`)]);
+  }
+  if (Array.isArray(o)) return o.flatMap((v, i) => caminhosDeChave(v, `${p}[${i}]`));
+  return [];
+}
+
+function folhasDe(o: any): number {
+  if (o && typeof o === 'object' && !Array.isArray(o)) {
+    return (Object.values(o) as any[]).reduce((a: number, v: any) => a + folhasDe(v), 0);
+  }
+  if (Array.isArray(o)) return (o as any[]).reduce((a: number, v: any) => a + folhasDe(v), 0);
+  return 1;
+}
+
+/** Resumo da ESTRUTURA: caminhos de chave, ordenados, sem nenhum número. */
+const resumoDaEstrutura = (d: any) => sha256(caminhosDeChave(d).sort().join('\n'));
+
 let M: any;
 
 beforeAll(async () => {
@@ -306,23 +338,27 @@ beforeAll(async () => {
     // ⚠ o tamanho fica registrado para que a igualdade nao possa ser de documento vazio.
     painelA: {
       identificadores: `${idAlfa(1)} ... ${idAlfa(12)}`,
-      bytesComparados: Buffer.byteLength(semTempo(docAlfa), 'utf8'),
       chavesDeTopo: Object.keys(docAlfa).length,
-      sha256SemCalculatedAt: sha256(semTempo(docAlfa)),
+      folhas: folhasDe(docAlfa),
+      sha256DaEstrutura: resumoDaEstrutura(docAlfa),
     },
     painelB: {
       identificadores: `${idBeta(1)} ... ${idBeta(12)}`,
-      bytesComparados: Buffer.byteLength(semTempo(docBeta), 'utf8'),
       chavesDeTopo: Object.keys(docBeta).length,
-      sha256SemCalculatedAt: sha256(semTempo(docBeta)),
+      folhas: folhasDe(docBeta),
+      sha256DaEstrutura: resumoDaEstrutura(docBeta),
     },
+    // ⚠ comparação EXATA, e feita DENTRO da mesma execução: os dois lados passam
+    // pelo mesmo runtime, então a igualdade não depende do ambiente.
     documentosIguais: semTempo(docAlfa) === semTempo(docBeta),
     controleDiscriminante: {
       oQueMudou: 'um unico julgamento do primeiro respondente do painel B',
-      sha256SemCalculatedAt: sha256(semTempo(docBetaAlterado)),
       documentosIguais: semTempo(docBeta) === semTempo(docBetaAlterado),
-      leitura: 'o documento responde a JULGAMENTOS e nao a IDENTIDADES',
+      estruturaIgual: resumoDaEstrutura(docBeta) === resumoDaEstrutura(docBetaAlterado),
+      leitura: 'o documento responde a JULGAMENTOS e nao a IDENTIDADES: so os NUMEROS mudam',
     },
+    notaSobreResumoDeBytes:
+      '⚠ resumo dos BYTES nao e registrado: depende do ambiente, porque Math.log e Math.exp sao aproximacao dependente de implementacao. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes, e a igualdade entre os dois paineis se manteve la.',
     conclusaoDoQueFoiMedido:
       'dois paineis com identidades inteiramente diferentes gravam documento identico fora de calculatedAt: o artefato NAO determina quem participou',
   };
@@ -615,11 +651,17 @@ test('3.2: a identidade existe na origem e cai na agregacao, com arquivo e linha
 
 test('3.2: dois paineis de identidades diferentes gravam o MESMO documento', () => {
   const d = M.duasIdentidades;
+  // Comparação exata, dentro da mesma execução.
   expect(d.documentosIguais).toBe(true);
-  expect(d.painelA.sha256SemCalculatedAt).toBe(d.painelB.sha256SemCalculatedAt);
-  // ⚠ CONTROLE: um julgamento diferente muda o documento.
+  expect(d.painelA.sha256DaEstrutura).toBe(d.painelB.sha256DaEstrutura);
+  expect(d.painelA.chavesDeTopo).toBe(21);
+  expect(d.painelA.folhas).toBe(d.painelB.folhas);
+  expect(d.painelA.folhas).toBeGreaterThan(100); // não é documento vazio
+  // ⚠ CONTROLE: um julgamento diferente muda o documento, e muda SÓ os números.
   expect(d.controleDiscriminante.documentosIguais).toBe(false);
-  expect(d.controleDiscriminante.sha256SemCalculatedAt).not.toBe(d.painelA.sha256SemCalculatedAt);
+  expect(d.controleDiscriminante.estruturaIgual).toBe(true);
+  // ⚠ o limite do registro fica dito no proprio artefato.
+  expect(d.notaSobreResumoDeBytes).toMatch(/depende do ambiente/);
 });
 
 // ---------------------------------------------------------------------------
