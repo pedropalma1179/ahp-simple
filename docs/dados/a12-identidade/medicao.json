@@ -230,10 +230,59 @@
       "oQueMudou": "um unico julgamento do primeiro respondente do painel B",
       "documentosIguais": false,
       "estruturaIgual": true,
-      "leitura": "o documento responde a JULGAMENTOS e nao a IDENTIDADES: so os NUMEROS mudam"
+      "campoNumericoAfetado": {
+        "campo": "bocrWeights[0]",
+        "oQueE": "peso estrategico do merito B, na ordem lida em app/api/calculate/route.ts:54",
+        "julgamentoAlterado": {
+          "respondente": "ident-beta-01",
+          "matriz": "bocr|BOCR",
+          "par": [
+            "B",
+            "O"
+          ],
+          "antes": {
+            "saatyValue": 1,
+            "favors": "equal"
+          },
+          "depois": {
+            "saatyValue": 2,
+            "favors": "A"
+          }
+        },
+        "caminhoDoCalculo": [
+          "o julgamento alterado esta na matriz bocr|BOCR, par [\"B\",\"O\"]",
+          "lib/aggregation.ts:68-95 agrega essa celula pela media geometrica dos doze respondentes",
+          "app/api/calculate/route.ts:816-819 deriva o autovetor principal dessa matriz",
+          "app/api/calculate/route.ts:966 grava esse vetor em bocrWeights",
+          "portanto o peso do merito de par[0] tem de mudar quando o julgamento muda"
+        ],
+        "antesDeComparar": {
+          "indiceResolvido": 0,
+          "chavePresenteNosDois": true,
+          "comprimentoIgual": true,
+          "comprimentoObservado": 4,
+          "tipoNoPainel": "number",
+          "tipoNoControle": "number",
+          "finitoNosDois": true,
+          "mesmoCampoDeSaida": true,
+          "ordemDosMeritosConferidaPor": "chaves de rescalingWeights, montadas na mesma ordem em app/api/calculate/route.ts:972",
+          "chavesDeRescaling": [
+            "sb",
+            "so",
+            "sc",
+            "sr"
+          ]
+        },
+        "diferem": true,
+        "igualEntreOsDoisPaineis": true,
+        "aviso": "⚠ o critério é EXISTENCIA, FINITUDE, MESMO CAMPO e DESIGUALDADE. Nenhum valor numerico e critério de aprovação."
+      },
+      "leitura": "NESTES paineis, que nao tem exclusao nem rejeicao, o documento responde a JULGAMENTOS e nao a IDENTIDADES: a estrutura fica igual e so os NUMEROS mudam",
+      "alcance": "⚠ vale para ESTE percurso, a rota calculate gravando em calculations, e para ESTA forma de entrada, doze respostas completas sem exclusao do gestor e sem rejeicao por incompletude. Com exclusao ou rejeicao o documento DISTINGUE paineis, pela identidade de quem SAIU."
     },
     "notaSobreResumoDeBytes": "⚠ resumo dos BYTES nao e registrado: depende do ambiente, porque Math.log e Math.exp sao aproximacao dependente de implementacao. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes, e a igualdade entre os dois paineis se manteve la.",
-    "conclusaoDoQueFoiMedido": "dois paineis com identidades inteiramente diferentes gravam documento identico fora de calculatedAt: o artefato NAO determina quem participou"
+    "conclusaoDoQueFoiMedido": "dois paineis com identidades inteiramente diferentes, SEM exclusao e SEM rejeicao, gravam documento identico fora de calculatedAt: neste percurso e nesta forma de entrada o artefato NAO determina quem ENTROU",
+    "oQueAConclusaoNaoAlcanca": "⚠ nao vale para painel COM exclusao do gestor ou COM rejeicao por incompletude, onde o documento registra a identidade de quem saiu; nao vale para outros percursos, como a rota de backup, que exporta respondents e responses COM identidade; e nao diz nada sobre o estado vivo, que nao foi consultado"
   },
   "fonteDoIdentificador": {
     "pergunta": "de onde sai o identificador que os filtros usam?",
@@ -353,6 +402,19 @@
     "leitura": "os dois conjuntos de campos diferem nos dois sentidos: o historico tem ipcMetadata e nao tem rejectedIncomplete, e o documento de hoje e o inverso",
     "oQueIstoDemonstra": "que o arquivo historico NAO foi produzido pelo codigo atual",
     "oQueIstoNaoDemonstra": "⚠ qual versao o produziu, nem quais filtros aquela versao aplicou"
+  },
+  "observacaoNumericaNaoNormativa": {
+    "natureza": "OBSERVACAO. NAO e referencia de aprovacao, e NAO e comparada contra o artefato gravado.",
+    "ambienteDaObservacao": {
+      "plataforma": "linux",
+      "arquitetura": "x64",
+      "node": "v22.22.2"
+    },
+    "campo": "bocrWeights[0]",
+    "valorNoPainelA": 0.37227664688843276,
+    "valorNoPainelB": 0.37227664688843276,
+    "valorNoControle": 0.3766556351412416,
+    "aviso": "⚠ registrado para leitura humana. O criterio do controle e desigualdade entre duas execucoes do mesmo processo."
   },
   "oQueIstoNaoDemonstra": [
     "NAO demonstra qual versao produziu o arquivo historico",

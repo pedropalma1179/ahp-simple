@@ -78,6 +78,15 @@ const fixture = require('./fixtures/panel-2026.json');
 // Montagem dos cenários
 // ---------------------------------------------------------------------------
 
+/**
+ * Ordem dos méritos no vetor gravado. ⚠ **Lida no código**, em
+ * `app/api/calculate/route.ts:54` (`const MERITS = ['B','O','C','R']`) e usada em
+ * `:816` (`aggregateMatrix(responses,'bocr','BOCR',[...MERITS])`) e em `:966`
+ * (`bocrWeights: personalWeights`). O teste confere a ordem por via independente,
+ * contra as chaves de `rescalingWeights`, que a rota monta na mesma ordem em `:972`.
+ */
+const ORDEM_DOS_MERITOS = ['B', 'O', 'C', 'R'];
+
 const PROJETO = 'projeto-a12-identidade';
 const ALTERNATIVAS = [
   { code: 'A1', name: 'Alternativa um', description: '' },
@@ -313,14 +322,24 @@ beforeAll(async () => {
     delete c.calculatedAt;
     return JSON.stringify(c);
   };
+  let julgamentoAlterado: any = null;
   const rodarPainel = async (nome: (i: number) => string, alterarUm = false) => {
     const cad = JULGAMENTOS.map((_, i) => nome(i + 1));
     const resp: Entrada[] = JULGAMENTOS.map((j, i) => {
       const julg = copia(j);
       if (alterarUm && i === 0) {
         const alvo = julg.find((x: any) => x.type === 'bocr');
+        const antes = { saatyValue: alvo.saatyValue, favors: alvo.favors };
         alvo.saatyValue = alvo.saatyValue === 9 ? 8 : (alvo.saatyValue ?? 1) + 1;
         alvo.favors = 'A';
+        // ⚠ registrado, e não suposto: qual matriz e qual par mudaram.
+        julgamentoAlterado = {
+          respondente: nome(1),
+          matriz: `${alvo.type}|${alvo.group}`,
+          par: [alvo.itemA, alvo.itemB],
+          antes,
+          depois: { saatyValue: alvo.saatyValue, favors: alvo.favors },
+        };
       }
       return { docId: `d-${nome(i + 1)}`, respondentId: nome(i + 1), judgments: julg, completedAt: `2026-05-0${(i % 9) + 1}T12:00:00.000Z` };
     });
@@ -332,6 +351,70 @@ beforeAll(async () => {
   const docAlfa = await rodarPainel(idAlfa);
   const docBeta = await rodarPainel(idBeta);
   const docBetaAlterado = await rodarPainel(idBeta, true);
+
+  // ==== 3b. O CAMPO NUMÉRICO AFETADO PELO JULGAMENTO ALTERADO ====
+  //
+  // ⚠ **Comparação entre duas execuções do MESMO processo**, a do painel B e a do
+  // controle. Nenhum literal numérico entra como critério, e nada é comparado
+  // contra decimal gravado em artefato.
+  //
+  // **Caminho do cálculo, que é a justificativa de por que este campo tem de
+  // mudar.** O julgamento alterado pertence à matriz `bocr|BOCR`, no par que fica
+  // registrado em `julgamentoAlterado.par`. `aggregateMatrix`
+  // (`lib/aggregation.ts:68-95`) agrega essa célula pela média geométrica dos doze
+  // respondentes; `calculateWeightsGroup` (`app/api/calculate/route.ts:816-819`)
+  // deriva o autovetor principal dessa matriz; e a rota grava esse vetor em
+  // `bocrWeights` (`:966`). Logo o peso do mérito que aparece em `par[0]` tem de
+  // mudar. ⚠ Se não mudar, o controle REPROVA, e isso é achado, não ajuste.
+  const indiceDoMerito = (m: string) => ORDEM_DOS_MERITOS.indexOf(m);
+  const iMerito = indiceDoMerito(julgamentoAlterado?.par?.[0]);
+  const pesoDoMerito = (d: any) =>
+    Array.isArray(d?.bocrWeights) && iMerito >= 0 ? d.bocrWeights[iMerito] : undefined;
+  const vB = pesoDoMerito(docBeta);
+  const vC = pesoDoMerito(docBetaAlterado);
+  const eNumeroFinito = (v: any) => typeof v === 'number' && Number.isFinite(v);
+
+  const campoNumericoAfetado = {
+    campo: `bocrWeights[${iMerito}]`,
+    oQueE: `peso estrategico do merito ${julgamentoAlterado?.par?.[0]}, na ordem lida em ${ROTA_CALCULO}:54`,
+    julgamentoAlterado,
+    caminhoDoCalculo: [
+      `o julgamento alterado esta na matriz ${julgamentoAlterado?.matriz}, par ${JSON.stringify(julgamentoAlterado?.par)}`,
+      `${AGREGACAO}:68-95 agrega essa celula pela media geometrica dos doze respondentes`,
+      `${ROTA_CALCULO}:816-819 deriva o autovetor principal dessa matriz`,
+      `${ROTA_CALCULO}:966 grava esse vetor em bocrWeights`,
+      'portanto o peso do merito de par[0] tem de mudar quando o julgamento muda',
+    ],
+    // ⚠ verificações que PRECEDEM a comparação. Ausência, NaN ou mudança de tipo
+    // NÃO satisfazem o controle.
+    antesDeComparar: {
+      indiceResolvido: iMerito,
+      chavePresenteNosDois: Array.isArray(docBeta?.bocrWeights) && Array.isArray(docBetaAlterado?.bocrWeights),
+      comprimentoIgual: (docBeta?.bocrWeights?.length ?? -1) === (docBetaAlterado?.bocrWeights?.length ?? -2),
+      comprimentoObservado: docBeta?.bocrWeights?.length,
+      tipoNoPainel: typeof vB,
+      tipoNoControle: typeof vC,
+      finitoNosDois: eNumeroFinito(vB) && eNumeroFinito(vC),
+      mesmoCampoDeSaida:
+        Array.isArray(docBeta?.bocrWeights) &&
+        Array.isArray(docBetaAlterado?.bocrWeights) &&
+        (docBeta.bocrWeights.length === docBetaAlterado.bocrWeights.length) &&
+        iMerito >= 0 && iMerito < docBeta.bocrWeights.length,
+      ordemDosMeritosConferidaPor:
+        'chaves de rescalingWeights, montadas na mesma ordem em ' + ROTA_CALCULO + ':972',
+      chavesDeRescaling: Object.keys(docBeta?.rescalingWeights ?? {}),
+    },
+    // A comparação, e ela é de DESIGUALDADE entre duas execuções do mesmo processo.
+    diferem: eNumeroFinito(vB) && eNumeroFinito(vC) && vB !== vC,
+    // ⚠ E os dois paineis de identidade, no mesmo ambiente, continuam com o campo IGUAL.
+    igualEntreOsDoisPaineis: (() => {
+      const a = pesoDoMerito(docAlfa);
+      const b = pesoDoMerito(docBeta);
+      return eNumeroFinito(a) && eNumeroFinito(b) && a === b;
+    })(),
+    aviso:
+      '⚠ o critério é EXISTENCIA, FINITUDE, MESMO CAMPO e DESIGUALDADE. Nenhum valor numerico e critério de aprovação.',
+  };
 
   const duasIdentidades = {
     pergunta: 'o documento gravado distingue QUEM respondeu?',
@@ -355,12 +438,18 @@ beforeAll(async () => {
       oQueMudou: 'um unico julgamento do primeiro respondente do painel B',
       documentosIguais: semTempo(docBeta) === semTempo(docBetaAlterado),
       estruturaIgual: resumoDaEstrutura(docBeta) === resumoDaEstrutura(docBetaAlterado),
-      leitura: 'o documento responde a JULGAMENTOS e nao a IDENTIDADES: so os NUMEROS mudam',
+      campoNumericoAfetado,
+      leitura:
+        'NESTES paineis, que nao tem exclusao nem rejeicao, o documento responde a JULGAMENTOS e nao a IDENTIDADES: a estrutura fica igual e so os NUMEROS mudam',
+      alcance:
+        '⚠ vale para ESTE percurso, a rota calculate gravando em calculations, e para ESTA forma de entrada, doze respostas completas sem exclusao do gestor e sem rejeicao por incompletude. Com exclusao ou rejeicao o documento DISTINGUE paineis, pela identidade de quem SAIU.',
     },
     notaSobreResumoDeBytes:
       '⚠ resumo dos BYTES nao e registrado: depende do ambiente, porque Math.log e Math.exp sao aproximacao dependente de implementacao. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes, e a igualdade entre os dois paineis se manteve la.',
     conclusaoDoQueFoiMedido:
-      'dois paineis com identidades inteiramente diferentes gravam documento identico fora de calculatedAt: o artefato NAO determina quem participou',
+      'dois paineis com identidades inteiramente diferentes, SEM exclusao e SEM rejeicao, gravam documento identico fora de calculatedAt: neste percurso e nesta forma de entrada o artefato NAO determina quem ENTROU',
+    oQueAConclusaoNaoAlcanca:
+      '⚠ nao vale para painel COM exclusao do gestor ou COM rejeicao por incompletude, onde o documento registra a identidade de quem saiu; nao vale para outros percursos, como a rota de backup, que exporta respondents e responses COM identidade; e nao diz nada sobre o estado vivo, que nao foi consultado',
   };
 
   // ==== 3b. DE ONDE SAI O IDENTIFICADOR QUE OS FILTROS USAM ====
@@ -537,6 +626,21 @@ beforeAll(async () => {
     omissaoPorMatrizOuEtapa: omissao,
     vinculoComAExecucao: vinculo,
     versoesDoCodigo: versoes,
+    /**
+     * ⚠ **OBSERVAÇÃO, e não referência de aprovação.** Valor de ponto flutuante
+     * depende do ambiente, e foi assim que o CI de `8879360` reprovou. Por isso
+     * este bloco fica **FORA** da comparação com o artefato gravado: o teste
+     * confere a FORMA dele, nunca os valores.
+     */
+    observacaoNumericaNaoNormativa: {
+      natureza: 'OBSERVACAO. NAO e referencia de aprovacao, e NAO e comparada contra o artefato gravado.',
+      ambienteDaObservacao: { plataforma: process.platform, arquitetura: process.arch, node: process.version },
+      campo: campoNumericoAfetado.campo,
+      valorNoPainelA: pesoDoMerito(docAlfa),
+      valorNoPainelB: vB,
+      valorNoControle: vC,
+      aviso: '⚠ registrado para leitura humana. O criterio do controle e desigualdade entre duas execucoes do mesmo processo.',
+    },
     oQueIstoNaoDemonstra: [
       'NAO demonstra qual versao produziu o arquivo historico',
       'NAO demonstra quais respondentes entraram naquela execucao de 13/07/2026',
@@ -668,6 +772,70 @@ test('3.2: dois paineis de identidades diferentes gravam o MESMO documento', () 
 // 3.4 Rastreabilidade e omissão por matriz
 // ---------------------------------------------------------------------------
 
+/**
+ * ⚠ **O controle discriminante NOMEADO.** Compara duas execuções do MESMO processo,
+ * a do painel B e a do controle, e exige que o campo nomeado DIFIRA. Nenhum literal
+ * numérico é critério, e nada é comparado contra decimal gravado em artefato.
+ */
+test('3.2: o julgamento alterado muda o campo numerico NOMEADO, e nao qualquer campo', () => {
+  const c = M.duasIdentidades.controleDiscriminante.campoNumericoAfetado;
+
+  // A matriz e o par alterados ficam registrados, e não supostos.
+  expect(c.julgamentoAlterado.matriz).toBe('bocr|BOCR');
+  expect(c.julgamentoAlterado.par).toHaveLength(2);
+  expect(ORDEM_DOS_MERITOS).toContain(c.julgamentoAlterado.par[0]);
+  expect(c.julgamentoAlterado.antes).not.toEqual(c.julgamentoAlterado.depois);
+
+  // ⚠ A ordem dos méritos é conferida por via INDEPENDENTE: as chaves que a rota
+  // monta a partir do mesmo vetor, na mesma ordem.
+  expect(c.antesDeComparar.chavesDeRescaling).toEqual(['sb', 'so', 'sc', 'sr']);
+  expect(c.antesDeComparar.indiceResolvido).toBe(ORDEM_DOS_MERITOS.indexOf(c.julgamentoAlterado.par[0]));
+  expect(c.campo).toBe(`bocrWeights[${c.antesDeComparar.indiceResolvido}]`);
+
+  // ⚠ As verificações que PRECEDEM a comparação. Ausência, NaN ou mudança de tipo
+  // não satisfazem o controle, e cada uma é exigida à parte.
+  expect(c.antesDeComparar.chavePresenteNosDois).toBe(true);
+  expect(c.antesDeComparar.comprimentoIgual).toBe(true);
+  expect(c.antesDeComparar.comprimentoObservado).toBe(ORDEM_DOS_MERITOS.length);
+  expect(c.antesDeComparar.tipoNoPainel).toBe('number');
+  expect(c.antesDeComparar.tipoNoControle).toBe('number');
+  expect(c.antesDeComparar.finitoNosDois).toBe(true);
+  expect(c.antesDeComparar.mesmoCampoDeSaida).toBe(true);
+
+  // Só então a comparação: o campo nomeado DIFERE entre painel e controle.
+  expect(c.diferem).toBe(true);
+  // E o MESMO campo, entre os dois painéis de identidade, no mesmo ambiente, é IGUAL.
+  expect(c.igualEntreOsDoisPaineis).toBe(true);
+
+  // O caminho do cálculo está escrito, e nomeia os três pontos.
+  expect(c.caminhoDoCalculo.join(' | ')).toMatch(/aggregation\.ts:68-95.*route\.ts:816-819.*route\.ts:966/s);
+});
+
+test('3.2: a conclusao dos paineis esta delimitada ao percurso e a forma de entrada', () => {
+  const d = M.duasIdentidades;
+  expect(d.controleDiscriminante.leitura).toMatch(/NESTES paineis, que nao tem exclusao nem rejeicao/);
+  expect(d.controleDiscriminante.alcance).toMatch(/Com exclusao ou rejeicao o documento DISTINGUE paineis/);
+  expect(d.conclusaoDoQueFoiMedido).toMatch(/SEM exclusao e SEM rejeicao/);
+  expect(d.conclusaoDoQueFoiMedido).toMatch(/neste percurso e nesta forma de entrada/);
+  expect(d.oQueAConclusaoNaoAlcanca).toMatch(/identidade de quem saiu/);
+  expect(d.oQueAConclusaoNaoAlcanca).toMatch(/rota de backup/);
+});
+
+/**
+ * ⚠ A observação numérica NÃO entra como critério: o teste confere a FORMA, e nunca
+ * compara valor gravado com valor recalculado.
+ */
+test('a observacao numerica e observacao, com ambiente declarado, e nao criterio', () => {
+  const o = M.observacaoNumericaNaoNormativa;
+  expect(o.natureza).toMatch(/NAO e referencia de aprovacao/);
+  expect(Object.keys(o.ambienteDaObservacao).sort()).toEqual(['arquitetura', 'node', 'plataforma']);
+  for (const v of [o.valorNoPainelA, o.valorNoPainelB, o.valorNoControle]) {
+    expect(typeof v).toBe('number');
+    expect(Number.isFinite(v)).toBe(true);
+  }
+  expect(o.campo).toBe(M.duasIdentidades.controleDiscriminante.campoNumericoAfetado.campo);
+});
+
 test('3.4: o vinculo com a execucao e com a versao dos dados fica NAO DETERMINADO', () => {
   const v = M.vinculoComAExecucao;
   expect(v.veredito).toMatch(/^NAO DETERMINADO/);
@@ -711,9 +879,19 @@ test('o registro diz o que NAO demonstra', () => {
   expect(M.natureza).toMatch(/Nao escolhe, nao implementa, nao integra/);
 });
 
+/**
+ * ⚠ **`observacaoNumericaNaoNormativa` fica FORA desta comparação**, de propósito:
+ * ela guarda ponto flutuante, que depende do ambiente. Comparar valor gravado com
+ * valor recalculado foi exatamente o que reprovou o CI de `8879360`. Aqui se
+ * confere a FORMA dela, e os valores ficam só para leitura humana.
+ */
 test('o artefato gravado coincide com a medicao atual', () => {
   expect(fs.existsSync(ARTEFATO)).toBe(true);
   const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  expect(Object.keys(gravado.observacaoNumericaNaoNormativa).sort()).toEqual(
+    Object.keys(M.observacaoNumericaNaoNormativa).sort()
+  );
+  expect(gravado.observacaoNumericaNaoNormativa.campo).toBe(M.observacaoNumericaNaoNormativa.campo);
   for (const chave of [
     'arquivoHistorico', 'execucaoObservada', 'duasIdentidades', 'ondeAIdentidadeCai',
     'omissaoPorMatrizOuEtapa', 'vinculoComAExecucao', 'versoesDoCodigo', 'fonteDoIdentificador',
