@@ -119,6 +119,26 @@ contradiz, e provavelmente mais.**
 ⚠ **A regra orienta contrato e comportamento, e não é prova de que A.12 esteja
 integralmente corrigida.**
 
+**Toda informação usada numa medição ou num relato se descreve em três dimensões
+independentes, e nenhuma exclui as outras:**
+
+| Dimensão | Estados |
+|---|---|
+| origem | medida nesta execução, recebida, ou derivada |
+| disponibilidade e cobertura | disponível, ausente ou incompleta |
+| coerência | consistente, contraditória ou não verificada |
+
+⚠ **Informação medida também pode ser contraditória.** A regra da ausência, acima,
+é o caso da segunda dimensão. **Uma contradição conserva os valores e a fonte de
+cada um, sem escolher um deles em silêncio.** É regra de análise e de relato, não
+esquema de dados.
+
+**Avaliação por condição.** Relate cada subconjunto com o seu **denominador
+declarado**, e examine **à parte** os casos ausentes, incompletos e contraditórios.
+⚠ **Grupos que se sobrepõem não se somam como unidades distintas**, e **nenhuma
+taxa agregada substitui os subconjuntos**: o total pode esconder justamente o
+caminho defeituoso.
+
 ---
 
 ## 4. Antes de alterar arquivos
@@ -134,6 +154,11 @@ surgir decisão fora desse escopo.**
 julgamento. A segunda contamina a conferência da primeira: um diff com setenta
 valores convertidos é verificável, o mesmo diff com reancoragens por leitura deixa
 de ser.
+
+**Separe responsabilidades, e declare quais uma alteração toca.** ⚠ **Mudança
+estrutural não se apresenta como neutra sem verificação de que o comportamento foi
+preservado**, medida no caminho alterado. A divisão concreta vigente fica no
+âncora, como orientação sujeita a revisão.
 
 **Não use `git add -A`.** Liste os caminhos.
 
@@ -339,6 +364,11 @@ mecanismo não prova a ausência da capacidade.
 
 **O caso do IPC está decidido e documentado em A.21 do âncora.** Não redecida:
 leia a tarefa.
+
+**Referencial externo fundamenta critério, não mudança.** A fonte sustenta o
+critério; **a aplicação ao sistema é interpretação da equipe**, e se registra como
+tal; **a mudança exige evidência no código e na medição.** Recomendação genérica de
+um referencial não autoriza adotar ferramenta nem alterar produção.
 
 ---
 
