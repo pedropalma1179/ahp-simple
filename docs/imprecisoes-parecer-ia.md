@@ -10108,6 +10108,270 @@ dois caminhos.
 
 ---
 
+## A.12, identidade de quem participou do cálculo: investigação de 25/09/2026
+
+⚠ **Rodada de INVESTIGAÇÃO, e ela PARA na apresentação.** Nada foi implementado,
+**nada foi escolhido**, produção não foi alterada. **A decisão é do autor.**
+
+⚠ **Nenhuma identidade foi reconstruída por posição nem por contagem**, e onde o
+vínculo falta o registro diz **não determinado**.
+
+**Base** `7157db89ff0fe102bbd36e7d5bc7c4378ab48c67`. **Instrumento**
+`lib/__tests__/a12-identidade.test.ts` e **artefato**
+`docs/dados/a12-identidade/medicao.json`, os dois em `8879360`.
+
+**A pergunta:** é possível recuperar, **por identidade**, quem efetivamente
+participou do cálculo de uma execução?
+
+**A resposta medida, no artefato histórico: não.** E o mesmo vale para o documento
+que o código de hoje grava.
+
+**Procedência de cada afirmação:**
+
+| Afirmação | Procedência |
+|---|---|
+| censo do arquivo histórico | **medida nesta rodada**, e reconferida por caminho independente |
+| os quatro conjuntos, o documento gravado, os dois painéis, a queda da identidade, a omissão por matriz | **medidas nesta rodada**, pelo **handler real** de `calculate` com Firestore por duplo, e pelas funções reais `aggregateMatrix` e `checkResponseCompleteness` |
+| cadeia de `extractRespondentId`, mutabilidade da origem, cadeia de filtros da tela | **lidas no código**, por arquivo e linha, e ⚠ **não exercitadas** |
+| alternativas | **derivadas** dos achados, e são **proposta**, não decisão |
+
+### 1. O caso histórico: `docs/calculations-13jul2026.json`
+
+**Censo medido:** **131** chaves distintas e **700** folhas.
+
+| O arquivo TEM | O arquivo NÃO TEM |
+|---|---|
+| `responseCount` **12**, uma contagem | lista de respondentes, em campo algum |
+| `projectId` `yiEXoz12wN7rqWZZP70g` | identificador de respondente, em campo algum |
+| `calculatedAt` de 13/07/2026 | matrizes por respondente |
+| `metadata.excludedRespondentIds`, **lista vazia** | `metadata.rejectedIncomplete` |
+| `aggregatedMatrices`, já agregadas, em três chaves | campo que ligue célula a respondente |
+
+**O único valor com cara de identificador em todo o arquivo é `projectId`**, que é o
+projeto e não uma pessoa. ⚠ **Lista vazia de excluídos não é lista de incluídos**, e
+não autoriza concluir que ninguém foi excluído nem que os doze são conhecidos.
+
+A completude que o arquivo registra, em `ipcMetadata.<grupo>.completeness`, é da
+**matriz agregada** por grupo, dez de dez em B, O, C e R. ⚠ **Não é completude por
+respondente**, e não existe um só campo por unidade.
+
+⚠ **Ausência no arquivo histórico não demonstra ausência no sistema**, e nada aqui
+conclui sobre o fluxo. O que segue é sobre o fluxo, e foi medido à parte.
+
+### 2. O fluxo atual: onde a identidade existe, e onde ela cai
+
+**Ela existe na origem.** Cada documento de `responses` traz `respondentId`,
+`judgments`, `completedAt` e os pesos individuais, gravados em
+`app/avaliacao/[projectId]/page.tsx:978-987`. A interface de agregação chega a
+declarar o campo, em `lib/aggregation.ts:37`.
+
+**Ela cai em `lib/aggregation.ts:68-95`.** O laço percorre as respostas e, na linha
+**95**, empurra **só o número** em `values`. `aggregateAIJ` recebe um vetor de
+números, e da identidade não sobra nada.
+
+**Medido na função real, com controle discriminante:**
+
+| O que variou | Saída |
+|---|---|
+| só os identificadores | **idêntica** |
+| um julgamento | **diferente** |
+
+**E o documento gravado não a recupera.** Suas **21** chaves de topo, conferidas uma
+a uma contra `app/api/calculate/route.ts:960-1067`, não incluem nenhuma lista de
+incluídos; `metadata` tem **9** chaves, e as duas que carregam identidade são
+`excludedRespondentIds` e `rejectedIncomplete`. **A resposta HTTP da rota também não
+traz a lista.**
+
+**O achado central, medido.** Dois painéis com identificadores **inteiramente
+diferentes** e os mesmos julgamentos gravam documento **idêntico** fora de
+`calculatedAt`, com o mesmo `sha256`. Trocando **um** julgamento, o resumo muda.
+**O documento responde a julgamentos, não a identidades**, e por isso o artefato não
+determina quem participou.
+
+**De onde sai o identificador que os filtros usam.** A cadeia de
+`extractRespondentId`, em `app/api/calculate/route.ts:159-180`, tenta `respondentId`,
+`visitorId`, **o id do documento**, e mais cinco origens, terminando em identidade
+**por posição na lista**. **Observado:** uma resposta **sem** `respondentId`, cujo id
+de **documento** está cadastrado, **entrou** no cálculo; outra sem `respondentId` e
+sem cadastro **caiu como órfã**. ⚠ **O fallback por posição não foi alcançado na
+execução observada**, porque o id do documento o precede, e **não se afirma que seja
+alcançável em produção**. Fica registrado, como leitura, que o índice passado muda
+entre etapas: `:659` percorre `completedResponses` e `:678` percorre
+`validatedResponses`, listas de tamanhos diferentes.
+
+### 3. Os quatro conjuntos, numa execução observada
+
+| Conjunto | Existe hoje | Onde | Tem identidade |
+|---|---|---|---|
+| **participantes cadastrados** | **sim** | coleção `respondents`, lida em `route.ts:632-638` | **sim**, o id do documento |
+| **respostas concluídas** | **sim** | `responses` com `completedAt`, filtradas em `route.ts:654-656` | **sim**, `respondentId` |
+| **respostas utilizadas** | **sim, em memória** | variável `responses` após o portão de completude, `route.ts:713-727` | ⚠ **não no artefato** |
+| **exclusões registradas** | **sim**, duas listas | `metadata.excludedRespondentIds` em `:1060` e `metadata.rejectedIncomplete` em `:1064` | **sim**, para quem saiu |
+
+No cenário exercitado, com catorze cadastrados, catorze documentos concluídos e treze
+identificadores distintos, o artefato declarou `responseCount` **10** e registrou
+`ident-alfa-02` como excluído pelo gestor e `ident-alfa-07` como rejeitado por
+incompletude, **com a matriz nomeada**. **Nenhum dos dez incluídos aparece no
+documento gravado.**
+
+⚠ **Documento e respondente não são a mesma unidade**: a duplicata por
+`respondentId` faz catorze documentos virarem treze identificadores. E o descarte da
+órfã foi medido **pela ausência** do identificador no documento: **o documento não
+registra o descarte**.
+
+⚠ **Identidade, no artefato, existe só para quem ficou de FORA.**
+
+### 4. Participação por matriz, e o que o portão garante
+
+Pelo portão de completude, medido com a função real: **26 matrizes** e **72 pares**
+esperados, e **um par pulado reprova a resposta inteira**, com o defeito nomeado por
+matriz (`subcriteria|O`).
+
+Sem o portão, a agregação **aceita contribuição parcial**: a célula muda de valor, a
+matriz **continua completa** porque outro respondente a preenche, e **não existe
+registro de quem contribuiu**. ⚠ **Presença na lista inicial não demonstra
+contribuição a toda célula**, e o agregado não guarda em que células cada um entrou.
+
+⚠ **O portão é do código atual.** O arquivo histórico **não foi produzido por este
+código**, e o que vale hoje não se transporta para trás.
+
+### 5. Rastreabilidade: não determinado
+
+O documento tem `projectId`, `calculatedAt` e `responseCount`. O primeiro identifica
+o projeto, o segundo o instante, e o terceiro é **contagem**: usá-lo para identificar
+alguém seria **reconstruir por contagem**. **Não existe** lista de incluídos, id de
+documento de resposta, resumo do conjunto de respostas nem carimbo de versão dos
+dados.
+
+**Veredito: não determinado.** Nada no artefato liga o resultado aos respondentes
+daquela execução.
+
+E a origem é **mutável**: em `app/decisor/projetos/page.tsx:1044-1056`, excluir um
+especialista apaga, em lote, o `respondent`, **suas `responses`** e o documento de
+`calculations`. ⚠ **Lido no código, não exercitado.** O artefato exportado sobrevive
+à origem apagada, e nada nele preserva a identidade.
+
+**Uma segunda cadeia de filtros, lida e não exercitada.** A tela de resultados
+reproduz três dos cinco filtros do cálculo, em
+`app/decisor/resultados/[projectId]/page.tsx:1597`, `:1604` e `:1615`, e **não aplica**
+a exclusão do gestor nem o portão de completude. **O conjunto que alimenta a análise
+de qualidade não é, necessariamente, o conjunto que entrou no cálculo.**
+
+### 6. As três camadas, separadas
+
+| Camada | O que responde |
+|---|---|
+| **caso histórico** | **não é recuperável** por identidade em `calculations-13jul2026.json`: o arquivo não traz nenhum identificador de respondente. ⚠ Se é recuperável **fora** dele, no estado vivo, **não foi medido nesta rodada** |
+| **fluxo atual** | a identidade **existe na origem** e é **descartada na agregação**, `lib/aggregation.ts:95`; o documento gravado **não a recupera**, e registra identidade **só das exclusões** |
+| **mudança futura** | tudo o que ligue resultado a participante **exige alteração**, e as alternativas abaixo dizem qual |
+
+⚠ **O código atual não demonstra qual versão produziu o arquivo histórico.** Medido
+nos dois sentidos: o documento de hoje **não tem** `ipcMetadata` e **tem**
+`rejectedIncomplete`; o histórico é o inverso. **Isso demonstra que não foi este
+código, e não diz qual foi.** Em consequência, **aplicar hoje os filtros do código
+atual sobre a origem não reproduz, por si, a seleção daquela execução.**
+
+### 7. Alternativas sustentadas pelos achados, apresentadas SEM escolha
+
+⚠ **Nenhuma foi implementada, e a rodada não escolhe entre elas.**
+
+| Alternativa | O que exige | O que passa a ser possível |
+|---|---|---|
+| **I. gravar os identificadores dos incluídos** | um campo em `metadata`, no ponto em que `responses` já está filtrado, `route.ts:727` | responder **quem entrou** naquela execução, por identidade |
+| **II. gravar também o id do documento de resposta e o seu `completedAt`** | o mesmo ponto, com mais dois campos por unidade | responder **qual versão** de cada resposta entrou |
+| **III. registrar participação por célula** | alterar `lib/aggregation.ts` para propagar, por célula, quem contribuiu, hoje um `number[]` na linha 95 | responder **em que comparações** cada um contribuiu |
+| **IV. vincular um instantâneo da origem à execução** | usar o que `app/api/backup/route.ts:24-37` já exporta com identidade, e amarrá-lo ao cálculo | **reconstituir a entrada** daquela execução |
+
+**O que cada uma NÃO resolve.** A I não diz **qual versão** da resposta entrou nem em
+que células; a II não diz as células; a III é a única que responde a participação por
+comparação, e é a que mais cresce o documento; a IV é a única que preserva a entrada,
+e é a que mais armazena **dado de pessoa**. ⚠ **Nenhuma delas recupera o caso
+histórico**: todas valem das próximas execuções em diante.
+
+### 8. O que esta investigação NÃO demonstra
+
+- **não demonstra qual versão** produziu o arquivo histórico;
+- **não demonstra quais respondentes** entraram na execução de 13/07/2026;
+- **não consultou o estado vivo** do Firestore, então nada diz sobre o que lá exista;
+- **não exercita** a tela de resultados nem o caminho do parecer: foram **lidos**;
+- **não julga a legitimidade** de exclusão alguma;
+- ⚠ **não reconstruiu identidade por posição nem por contagem**, e o achado sobre o
+  fallback por posição é **leitura de código**, não comportamento observado.
+
+### 9. A reprovação do CI em `8879360`, registrada
+
+⚠ **Um verde posterior não a apaga.** Execução **`36191819993`**, job `verificar`
+id **`108258477210`**, passo **7, Testes**, em **`failure`**, com Typecheck e Build
+em `success`. **Um teste falhou de 465:** `o artefato gravado coincide com a medicao
+atual`, de `lib/__tests__/a12-identidade.test.ts`, no campo `duasIdentidades`.
+
+| Valor | No CI, Node 24 | Gravado nesta máquina, Node 22 |
+|---|---|---|
+| resumo dos dois painéis | `389085df…` | `b14724a1…` |
+| resumo do controle | `3829000a…` | `47e1507a…` |
+
+⚠ **O achado não caiu com a falha.** No próprio log do CI **os dois painéis
+continuam com o mesmo resumo entre si**, `389085df…` e `389085df…`, e o controle
+continua diferente. O que divergiu foi o **valor absoluto** do resumo entre
+ambientes, e não a igualdade que o achado afirma.
+
+**Causa mais provável, e ela NÃO está demonstrada por variação controlada de um
+único fator.** Sustentam-na três observações: `aggregateAIJ` agrega por **soma de
+logaritmos**, com `Math.log` e `Math.exp` em `lib/ahp-engine.ts:223-225`, e a norma
+deixa as duas como **aproximação dependente de implementação**; o número de bytes
+comparados saiu **17948 nos dois ambientes**, então a diferença está nos dígitos e
+não na estrutura; e dentro de cada ambiente os dois painéis coincidem. **Node 24 não
+existe nesta máquina**, medido, então a demonstração por variação de um só fator fica
+pelo CI.
+
+**A correção, em `e1f9fde`, e ela não ajusta critério de aceite para bater com o
+resultado.** O que o artefato guardava era resumo de **bytes** de um documento cheio
+de ponto flutuante. Ele passa a guardar **estrutura**: chaves de topo, contagem de
+folhas e resumo dos **caminhos de chave** ordenados, **sem nenhum número**. A
+igualdade entre os painéis continua medida por **comparação exata dentro da mesma
+execução**, onde os dois lados passam pelo mesmo runtime. **Medido depois da
+correção: zero valores de ponto flutuante não inteiros no artefato inteiro.**
+
+⚠ **O controle discriminante ficou mais forte, e não mais fraco:** além de o
+documento mudar quando um julgamento muda, ficou registrado que a **estrutura não
+muda**, isto é, que **só os números mudam**.
+
+**Segundo defeito, este pego pelo `tsc` e não pela suíte.** A função nova de contagem
+de folhas tipava o acumulador como `number` sobre `Object.values`, que sai `unknown`:
+`npm test` passava e `npx tsc --noEmit` saía **2**. Corrigido, e vale o registro:
+**a suíte sozinha não cobre o passo de Typecheck do CI.**
+
+### 10. Ambientes e execuções, registrados em separado
+
+| Ambiente | Node e comandos | Resultado observado |
+|---|---|---|
+| **local**, em `8879360` | Linux x86_64, Node **v22.22.2**, npm 10.9.7; `npx tsc --noEmit` e `npm test` | `tsc` **0**; **27 suítes e 465 testes**, nenhuma falha |
+| **clone raso**, em `8879360` | `git clone --depth 1`, clone com **1** commit e marca `shallow`; Node **v22.22.2**; `npm ci` e `npx jest --runInBand` | `npm ci` 0; **27 suítes e 465 testes**, nenhuma falha |
+| **CI real**, em `8879360` | runner do GitHub Actions, passo "Node 24.x, a mesma versão da produção"; `.github/workflows/ci.yml`, job `verificar` | **`failure`** no passo Testes: 1 de 465, registrado acima |
+| **local**, em `e1f9fde` | Node **v22.22.2**, npm 10.9.7; `npx tsc --noEmit` e `npm test` | `tsc` **0**; **27 suítes e 465 testes**, nenhuma falha |
+| **clone raso**, em `e1f9fde` | `git clone --depth 1`, **1** commit, marca `shallow`; Node **v22.22.2**; `npm ci`, `npx tsc --noEmit` e `npx jest --runInBand` | `npm ci` 0; `tsc` 0; **27 suítes e 465 testes** |
+| **CI real**, em `e1f9fde` | o mesmo workflow e job | execução **`36193359512`**, job id **`108263457641`**, **`completed/success`**, com Typecheck, Build e Testes em `success` e **27 suítes e 465 testes** no log |
+
+⚠ **Clone raso não equivale ao ambiente completo do CI**: ele reproduz a profundidade
+do checkout, e roda em Node v22.22.2, enquanto o CI usa 24.x. **A reprovação de
+`8879360` é a demonstração disso nesta rodada**, e já estava dito que são registros
+de execução, não afirmação de compatibilidade.
+
+**Contra-exemplos executados, com restauro byte a byte conferido por SHA-256.**
+Fazendo a agregação carregar os contribuintes, o teste da perda de identidade
+reprova. Gravando os identificadores incluídos no documento, reprovam o teste da
+identidade só para quem ficou de fora e o dos dois painéis. Depois de cada um,
+`lib/aggregation.ts` volta a `b3ed77ea…` e `app/api/calculate/route.ts` a
+`e912b7d4…`, e `git status` fica limpo nos dois caminhos.
+
+**Primeiro defeito do próprio instrumento, achado na primeira execução.** Duas assertivas
+chamavam `sort()` sobre arrays da medição, e `sort` **muta**: a medição em memória
+passou a divergir do artefato já gravado, e o teste de coincidência reprovou.
+Corrigido copiando antes de ordenar. ⚠ **Foi o teste do artefato que o pegou**, e não
+a leitura.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
