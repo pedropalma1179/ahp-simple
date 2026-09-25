@@ -9902,6 +9902,212 @@ qualquer execução, e não foram revisados depois.
 
 ---
 
+## A.12, bloqueios: diagnóstico de 25/09/2026
+
+⚠ **Rodada de DIAGNÓSTICO, e ela PARA na proposta.** Nada foi implementado, **nenhuma
+fonte de universo foi escolhida** e nenhum dado foi corrigido. **A decisão é do autor.**
+
+**Base** `f964049b3f6639b874111356d8f84b5463793a34`. **Instrumento**
+`lib/__tests__/a12-diagnostico.test.ts` e **artefato**
+`docs/dados/a12-diagnostico/medicao.json`, os dois em `88def3f`. **Requisição de
+referência** `docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json`, sha256
+`2bff4664…`; **dados do projeto** `docs/calculations-13jul2026.json`, sha256
+`00d1d8a1…`.
+
+⚠ **Nenhum parecer foi produzido, real ou simulado.** O cliente do modelo é um duplo
+que **captura** a chamada e **interrompe**, lançando um sentinela dentro de
+`messages.create`, antes de devolver qualquer conteúdo. As chamadas de recuperação e
+de embedding foram **medidas em zero** nos quatro casos.
+
+**Procedência de cada afirmação desta seção:**
+
+| Afirmação | Procedência |
+|---|---|
+| valores das fontes candidatas, cobertura, coerência, exclusões | **medida nesta rodada**, e reconferida à mão por caminho independente |
+| classificação dos quatro casos e conteúdo do contexto | **medida nesta rodada**, pelo tratador real, com o modelo interrompido |
+| linhas de `page.tsx` e de `ParecerAISection.tsx` | **lidas no código**, e ⚠ a apresentação ao gestor **não foi exercitada** |
+| opções de fonte de universo e requisitos da correção | **derivadas** do que foi medido, e são **proposta**, não decisão |
+
+### 1. As fontes candidatas divergem, e a divergência fica registrada sem escolha
+
+Dez fontes levantadas, cada uma com onde está, o que afirma e **o que não pode
+responder**. Pelo critério de **valor numérico**, oito têm valor e eles se partem em
+dois:
+
+| Valor | Fontes |
+|---|---|
+| **12** | `responseCount`; `qualityAnalysis.statistics.total`; soma de `qualityAnalysis.statistics.byStatus`; `qualityAnalysis.summary.total`; `overallStats.total`; `responseCount` dos dados do projeto |
+| **0** | `qualityAnalysis.respondents`; `demographicsSummary.total` |
+
+As outras duas não trazem valor de universo: `exclusionInfo` está **ausente** na
+requisição, e `metadata.excludedRespondentIds` é **lista vazia**, isto é, zero
+identificadores excluídos, que não é o mesmo que zero respondentes.
+
+⚠ **Os valores ficam com a fonte de cada um, e esta rodada não concilia.** A única
+fonte com **identidade por unidade** é `qualityAnalysis.respondents`, e é ela que
+está vazia; as demais são **totais**, e nenhuma delas responde **quem** foi avaliado.
+
+### 2. A cobertura por identificador é NÃO DETERMINADA, e não é zero
+
+Nenhum dos campos procurados (`id`, `respondentId`, `responseId`, `userId`, `email`,
+`name`) foi encontrado, porque a lista está vazia, e os dados do projeto não trazem
+array de respondentes com identificador. O campo usado sai **nulo**, e sem
+identificador **não há conjunto para interseção**.
+
+⚠ **Contagens iguais não demonstram cobertura.** Que seis fontes digam 12 não diz
+que os mesmos doze foram avaliados: um total confere com outro total sem que exista
+uma única identidade em comum.
+
+### 3. Coerência entre agregados, com denominador declarado
+
+Denominador **12**, critério de igualdade exata de inteiros, e **só pares
+compatíveis** foram comparados:
+
+| Par | Esquerda | Direita | Confere |
+|---|---|---|---|
+| `statistics.total` × `overallStats.total` | 12 | 12 | sim |
+| `summary.total` × `overallStats.total` | 12 | 12 | sim |
+| `summary.ok` × `overallStats.valid` | **12** | **0** | **não** |
+| `respondents.length` × `statistics.total` | **0** | **12** | **não** |
+| `demographicsSummary.total` × `overallStats.total` | 0 | 12 | ⚠ **não comparados** |
+
+O último par fica **fora** por incompatibilidade declarada: o resumo demográfico não
+declara a mesma população nem a mesma regra de contagem, e compará-lo seria inventar
+equivalência. ⚠ **As duas contradições ficam conservadas com os dois valores e a
+fonte de cada um. Nenhum dado foi corrigido.**
+
+### 4. Exclusões: três verificações distintas, e elas dão respostas diferentes
+
+| Verificação | Resposta medida |
+|---|---|
+| **existe registro** | **SIM**, em dois lugares: `metadata.excludedRespondentIds` nos dados do projeto, hoje **vazio**, e o contrato `exclusionInfo` em `lib/ai-reviewer/review-request.ts:63-68`, **ausente** nesta requisição |
+| **existe motivo** | **PARCIAL, e não por respondente**: `app/api/ai-reviewer/route.ts:831-832` escreve o critério como **texto fixo** no contexto, e o contrato tem um campo `reason` textual e único |
+| **legitimidade** | **NÃO AVALIADA nesta rodada** |
+
+⚠ **Registrar que existe registro não diz que ele foi preenchido**, e ter motivo no
+texto do prompt não é ter motivo **por respondente excluído**.
+
+### 5. Os quatro casos pelo tratador real, e o achado da rodada
+
+Os três primeiros se comportam como o contrato declara: `disponivel`, `ausente` e
+`incompleta`, e nos dois sem disponibilidade o contexto traz o aviso de suspensão e
+**nenhum percentual**.
+
+⚠ **O quarto caso é o achado.** Quatro respondentes, **todos** com CR 0.05, com três
+contradições explícitas preparadas: os individuais dizem quatro válidos enquanto
+`overallStats` diz **zero** válidos e quatro críticos; `summary.ok` 4 e
+`summary.critical` 4 somam oito sobre total quatro; e `statistics.total` diz **9**
+contra os quatro listados.
+
+**O contrato vê `total 4` e `comCR 4`, devolve `disponivel`, e nenhuma das três
+contradições é examinada.** A classificação global **não** é suspensa, e o contexto
+entregue ao modelo traz percentual pelo ramo de `byStatus`, declarando
+**nove especialistas** e **cem por cento críticos**, enquanto a lista que produziu o
+veredito tem quatro respondentes consistentes.
+
+⚠ **Este é o bloqueio, e ele não é a ausência de dado.** A requisição de referência
+hoje classifica como **`ausente`**, e nesse estado a nota já é suspensa. O que o
+contrato não distingue é **dado presente e contraditório**, que passa como íntegro.
+
+**O caminho até o gestor, lido no código:** a suspensão existe e está implementada,
+de `route.ts:337-341` a `route.ts:1507-1508` e `:1519`, e chega à tela em
+`page.tsx:1309` e a `ParecerAISection.tsx:213-216` e `:225`. **O que a aciona é
+`qualidadeDisponivel` falso**, e só isso. ⚠ **As linhas da interface foram lidas, e
+a apresentação efetiva ao gestor não foi exercitada nesta rodada.**
+
+### 6. Defeito do próprio instrumento, achado na conferência à mão
+
+⚠ **Quarto caso da tabela de instrumentos novos que falharam na primeira execução**,
+e de novo o defeito estava **no centro**, não na borda:
+
+| Instrumento, primeira execução | Onde errou | Achado falso que produziu |
+|---|---|---|
+| detector de percentual desta rodada | o ramo de `byStatus`, que é o que os casos com avaliação disponível percorrem | contexto **com** percentual virou "sem percentual" |
+
+A detecção era o regex `/Respostas (confiáveis|com alerta|críticas):/`, que cobre
+**só** o ramo de `overallStats`. Os ramos de `byStatus` e de `respondents` escrevem
+`- Respostas CONFIÁVEIS (CR ≤ 0.10):`, em caixa alta e com sufixo diferente, então o
+regex devolvia **falso negativo** nos dois casos com avaliação disponível. **O valor
+errado tinha a forma esperada, e nenhum teste reprovava**, porque faltava a assertiva
+que exige verdadeiro onde há percentual.
+
+A correção **amarra os marcadores ao texto de produção**, conferido contra
+`route.ts`, registra quais casaram, qual ramo escreveu e o bloco recortado, e
+acrescenta as duas assertivas que faltavam. ⚠ **Sem a conferência à mão do caso mais
+visível, o registro desta rodada teria dito que o contexto do quarto caso não traz
+percentual, que é o contrário do medido.**
+
+### 7. As opções para a fonte do universo, apresentadas SEM escolha
+
+⚠ **Nenhuma destas foi implementada, e a rodada não escolhe entre elas.**
+
+| Opção | O que exige da requisição | Quem produz |
+|---|---|---|
+| **O-1** a lista `qualityAnalysis.respondents` **é** o universo | a lista completa, com CR por respondente | é o que o contrato já faz |
+| **O-2** o universo é um **total declarado** (`responseCount`), e a lista mede **cobertura** | `responseCount` **e** a lista com identificador | a tela, que já monta os dois |
+| **O-3** o universo é **declarado explicitamente**, com os identificadores que deveriam ter sido avaliados | campo novo no contrato, com origem e identificadores | exige alteração de contrato, e a tela passa a informá-lo |
+| **O-4** o universo é **derivado do estado do projeto**, das respostas coletadas | leitura do estado, e não da requisição | ⚠ **não medido nesta rodada**: o estado histórico não traz array de respondentes com identificador |
+
+**O que cada opção faria nos quatro casos**, pelo que foi medido do contrato atual:
+
+| Caso | O-1 (hoje) | O-2 | O-3 | O-4 |
+|---|---|---|---|---|
+| C-disponível | `disponivel` | `disponivel`, cobertura 4 de 4 | `disponivel` se o universo declarado for 4 | depende do estado, não medido |
+| C-ausente | `ausente` | `ausente`, e ainda cobertura **0 de 12** | `ausente`, e a lacuna fica nomeada | depende do estado, não medido |
+| C-incompleta | `incompleta`, 2 de 4 | `incompleta`, cobertura 2 de 4 | `incompleta`, com os dois faltantes **identificados** | depende do estado, não medido |
+| **C-contradição** | **`disponivel`**, e nenhuma contradição examinada | cobertura 4 de 4 **confere**, e ⚠ a contradição com `statistics.total` 9 **continua sem exame** | idem, ⚠ **a menos que o exame de contradição entre também** | idem |
+
+⚠ **Nenhuma escolha de fonte de universo, sozinha, resolve o quarto caso.** Cobertura
+e contradição são **verificações diferentes**: a primeira pergunta se todos foram
+avaliados, a segunda se o que foi recebido é coerente consigo mesmo. **Uma fonte de
+universo responde a primeira e não a segunda.**
+
+### 8. O que a correção posterior precisa cumprir
+
+| Requisito | Por que, pelo medido |
+|---|---|
+| **suspender nota e veredicto** quando a avaliação estiver **ausente**, **incompleta** ou com **contradição não resolvida** | os dois primeiros já suspendem; o terceiro é o quarto caso, que hoje passa como `disponivel` |
+| **conservar os valores contraditórios com a fonte de cada um**, sem escolher um em silêncio | a requisição de referência já traz `summary.ok` 12 contra `overallStats.valid` 0 |
+| **preservar os cálculos AHP-BOCR não afetados** | a suspensão é da classificação de qualidade, e ⚠ o estado histórico de `docs/calculations-13jul2026.json` reproduz os **24 valores publicados** |
+| **verificar o tratador E a apresentação efetiva ao gestor** | a suspensão está implementada até a tela, mas ⚠ **só foi lida**, e leitura de interface não é apresentação exercitada |
+| **distinguir ausente, incompleta e contraditória na mensagem** | ausência não autoriza resultado favorável nem desfavorável, e contradição não é ausência |
+
+⚠ **A correção que alterar o que o modelo do Parecer IA recebe exige PREDIÇÃO
+registrada ANTES**, aqui, com o caso negativo nomeado, em **commit que não toca
+código**. O quarto caso mostra que o contexto muda de ramo conforme a classificação,
+então mexer no contrato **muda o que o modelo recebe**.
+
+### 9. O que este diagnóstico NÃO demonstra
+
+- **não escolhe a fonte do universo**, que é decisão de produto, do autor;
+- **não demonstra recepção pelo modelo**: o duplo interrompe antes de qualquer conteúdo;
+- **não exercita a apresentação ao gestor**: as linhas da interface foram lidas, não executadas;
+- **não julga a legitimidade** de exclusão alguma;
+- **não corrige nenhum dado**;
+- ⚠ **não mede o caminho de produção com dados vivos**: a requisição de referência é um artefato versionado, e o que vale fora dele **não foi observado**.
+
+### 10. Ambientes e execuções, registrados em separado
+
+| Ambiente | Node e comandos | Resultado observado |
+|---|---|---|
+| **local** | Linux x86_64, Node **v22.22.2**, npm 10.9.7; `npx tsc --noEmit` e `npm test` | `tsc` **0**; **26 suítes e 451 testes**, nenhuma falha |
+| **clone raso** | `git clone --depth 1` do commit `88def3f`, clone com **1** commit e marca `shallow`; Node **v22.22.2**; `npm ci` e `npx jest --runInBand` | `npm ci` 0; **26 suítes e 451 testes**, nenhuma falha |
+| **CI real** | runner do GitHub Actions, passo "Node 24.x, a mesma versão da produção"; workflow `.github/workflows/ci.yml`, job `verificar` | execução **`36175919107`**, job id **`108206365355`**, `completed/success` em 25/09/2026, com Typecheck, Build e Testes em `success`; **26 suítes e 451 testes** no log |
+
+⚠ **O clone raso reproduz a profundidade do checkout, e não a versão do Node**: ele
+roda em v22.22.2, e o CI em 24.x. **São registros de execução, não afirmação de
+compatibilidade.** O verde registra o SHA `88def3f`, e não antecipa commits
+posteriores.
+
+**Contra-exemplos executados, com restauro byte a byte conferido por SHA-256.** Com
+o contrato alterado para examinar a contradição, três testes reprovam, entre eles o
+do quarto caso. Com a redação da rota alterada nas duas ocorrências, a amarra com
+produção reprova. Depois de cada um, `avaliacao-qualidade.ts` volta a `c4cc3879…` e
+`route.ts` a `d3da9b90…`, os mesmos resumos de antes, e `git status` fica limpo nos
+dois caminhos.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
