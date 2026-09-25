@@ -1,0 +1,518 @@
+{
+  "rodada": "A.12 bloqueios, DIAGNOSTICO",
+  "natureza": "LEVANTA E MEDE. Nao escolhe fonte de universo, nao corrige dado, nao altera producao. Nenhum parecer produzido, real ou simulado.",
+  "identificacao": {
+    "commitDaBase": "f964049b3f6639b874111356d8f84b5463793a34",
+    "artefatos": {
+      "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json": "2bff46649ad7f8c06914841a82224b12871eb2bc40f7c92380f0a18bb77a3e70",
+      "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d"
+    },
+    "codigo": {
+      "lib/ai-reviewer/avaliacao-qualidade.ts": "c4cc3879b2ea9d952a46463bd97644c395c6ad0d32e4bb44b2341912f1137259",
+      "app/api/ai-reviewer/route.ts": "d3da9b905ef0b159f28aaa6ab3587c03a3f71cb26c0835d5d4cbd43c7d0e3137",
+      "app/decisor/resultados/[projectId]/page.tsx": "cd40fdcd366eceb04d298ed590075f52ab7b9071b1f46b5edbb12df55cf17e8f",
+      "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
+    }
+  },
+  "universo": {
+    "fontesCandidatas": [
+      {
+        "chave": "responseCount",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.responseCount",
+          "contrato": "lib/ai-reviewer/review-request.ts, ReviewRequest.responseCount"
+        },
+        "oQueAfirma": "quantidade de respostas contabilizadas pela tela ao montar a requisicao",
+        "podeResponder": "quantas respostas a tela contou",
+        "naoPodeResponder": "quem sao elas, nem se foram avaliadas, nem se alguma foi excluida",
+        "valorHoje": 12
+      },
+      {
+        "chave": "qualityAnalysis.respondents",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.qualityAnalysis.respondents",
+          "contrato": "lib/ai-reviewer/review-request.ts, RespondentData[]"
+        },
+        "oQueAfirma": "a LISTA de respondentes avaliados, com CR individual quando houver",
+        "podeResponder": "quem esta listado e quais tem CR; e a UNICA fonte com identidade por unidade",
+        "naoPodeResponder": "se a lista cobre o universo que deveria ter sido avaliado",
+        "valorHoje": 0
+      },
+      {
+        "chave": "qualityAnalysis.statistics.total",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.qualityAnalysis.statistics.total",
+          "contrato": "lib/ai-reviewer/review-request.ts, statistics.total"
+        },
+        "oQueAfirma": "total declarado pela API de qualidade",
+        "podeResponder": "o total que aquela API declarou",
+        "naoPodeResponder": "a identidade de quem compoe esse total",
+        "valorHoje": 12
+      },
+      {
+        "chave": "qualityAnalysis.statistics.byStatus (soma)",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.qualityAnalysis.statistics.byStatus",
+          "contrato": "lib/ai-reviewer/review-request.ts, byStatus"
+        },
+        "oQueAfirma": "distribuicao por categoria de status",
+        "podeResponder": "a soma das categorias declaradas",
+        "naoPodeResponder": "nada sobre identidade; ⚠ o proprio contrato registra que byStatus sozinho NAO e avaliacao",
+        "valorHoje": 12
+      },
+      {
+        "chave": "qualityAnalysis.summary.total",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.qualityAnalysis.summary.total",
+          "contrato": "lib/ai-reviewer/review-request.ts, summary"
+        },
+        "oQueAfirma": "total do resumo da analise de qualidade",
+        "podeResponder": "o total que o resumo declarou",
+        "naoPodeResponder": "identidade, e coerencia com as demais",
+        "valorHoje": 12
+      },
+      {
+        "chave": "overallStats.total",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.overallStats.total",
+          "contrato": "lib/ai-reviewer/review-request.ts, overallStats"
+        },
+        "oQueAfirma": "total das estatisticas gerais",
+        "podeResponder": "o total declarado ali",
+        "naoPodeResponder": "identidade",
+        "valorHoje": 12
+      },
+      {
+        "chave": "demographicsSummary.total",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.demographicsSummary.total",
+          "contrato": "NAO LOCALIZADO contrato escrito para este campo"
+        },
+        "oQueAfirma": "total do resumo demografico",
+        "podeResponder": "o total demografico declarado",
+        "naoPodeResponder": "identidade, e a relacao dele com os respondentes avaliados",
+        "valorHoje": 0
+      },
+      {
+        "chave": "exclusionInfo",
+        "ondeEsta": {
+          "artefato": "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json",
+          "caminho": "requisicao.exclusionInfo",
+          "contrato": "lib/ai-reviewer/review-request.ts:63-68, com totalCollected, activeCount, excludedCount e reason"
+        },
+        "oQueAfirma": "quantos foram coletados, quantos ficaram ativos e quantos sairam",
+        "podeResponder": "os tres TOTAIS e uma razao textual",
+        "naoPodeResponder": "QUEM foi excluido: o contrato nao tem identificador",
+        "valorHoje": "AUSENTE na requisicao"
+      },
+      {
+        "chave": "metadata.excludedRespondentIds",
+        "ondeEsta": {
+          "artefato": "docs/calculations-13jul2026.json",
+          "caminho": "metadata.excludedRespondentIds",
+          "contrato": "NAO LOCALIZADO contrato escrito; o nome do campo declara IDs"
+        },
+        "oQueAfirma": "os identificadores dos respondentes excluidos",
+        "podeResponder": "QUEM foi excluido, por identificador, quando preenchido",
+        "naoPodeResponder": "o motivo de cada exclusao: o campo guarda so os IDs",
+        "valorHoje": {
+          "tipo": "array",
+          "tamanho": 0,
+          "itens": []
+        }
+      },
+      {
+        "chave": "responseCount (dados do projeto)",
+        "ondeEsta": {
+          "artefato": "docs/calculations-13jul2026.json",
+          "caminho": "responseCount",
+          "contrato": "NAO LOCALIZADO contrato escrito"
+        },
+        "oQueAfirma": "quantidade de respostas no estado do projeto",
+        "podeResponder": "o total registrado no calculo publicado",
+        "naoPodeResponder": "identidade, nem a lista",
+        "valorHoje": 12
+      }
+    ],
+    "divergencia": {
+      "criterio": "valores NUMERICOS das fontes candidatas, na requisicao de referencia e nos dados do projeto",
+      "valoresDistintos": [
+        0,
+        12
+      ],
+      "porValor": {
+        "0": [
+          "qualityAnalysis.respondents",
+          "demographicsSummary.total"
+        ],
+        "12": [
+          "responseCount",
+          "qualityAnalysis.statistics.total",
+          "qualityAnalysis.statistics.byStatus (soma)",
+          "qualityAnalysis.summary.total",
+          "overallStats.total",
+          "responseCount (dados do projeto)"
+        ]
+      },
+      "naoSeConcilia": "Os valores ficam registrados com a fonte de cada um. Esta rodada NAO escolhe nem concilia."
+    },
+    "exclusoes": {
+      "alcanceConsultado": "app/, lib/, components/, scripts/, docs/dados/ e docs/calculations-13jul2026.json",
+      "existeRegistro": {
+        "resposta": "SIM, em dois lugares",
+        "onde": [
+          "docs/calculations-13jul2026.json: metadata.excludedRespondentIds",
+          "lib/ai-reviewer/review-request.ts:63-68: exclusionInfo, com totalCollected, activeCount, excludedCount e reason"
+        ],
+        "valorHoje": {
+          "metadata.excludedRespondentIds": [],
+          "requisicao.exclusionInfo": "AUSENTE"
+        }
+      },
+      "existeMotivo": {
+        "resposta": "PARCIAL, e nao por respondente",
+        "onde": "app/api/ai-reviewer/route.ts:831-832 escreve o criterio e a justificativa como TEXTO FIXO no contexto; lib/ai-reviewer/review-request.ts traz um campo reason, textual e unico",
+        "oQueNaoExiste": "motivo POR RESPONDENTE: metadata.excludedRespondentIds guarda so identificadores"
+      },
+      "legitimidade": {
+        "resposta": "NAO AVALIADA nesta rodada",
+        "porque": "legitimidade e juizo sobre o contrato, e esta rodada levanta e mede; ⚠ nenhum criterio de exclusao foi inventado"
+      }
+    }
+  },
+  "cobertura": {
+    "listados": 0,
+    "presencaDeCR": 0,
+    "valorFinitoPeloContrato": 0,
+    "distincaoDeclarada": "presenca de CR e a contagem que medicaoPorRespondente faz; valor VALIDO pelo contrato e numero finito aceito por crDoRespondente. Nesta requisicao as duas coincidem porque a lista esta vazia.",
+    "porIdentificador": {
+      "estado": "NAO DETERMINADA",
+      "porque": "a lista de respondentes da requisicao de referencia esta VAZIA, e os dados do projeto nao trazem array de respondentes com identificador; sem identificador nao ha comparacao",
+      "campoUsado": null,
+      "idsDistintos": 0,
+      "idsDuplicados": 0,
+      "semIdentificador": 0,
+      "contraCadaFonte": "NAO DETERMINADA: as demais fontes sao TOTAIS, sem identidade, entao nao ha conjunto para interseccao",
+      "avisoDeEscopo": "⚠ Contagens iguais NAO demonstram cobertura."
+    }
+  },
+  "coerencia": {
+    "criterio": "so se comparam agregados COMPATIVEIS: mesma populacao declarada, mesma grandeza e mesma regra de contagem. Tolerancia: igualdade exata de inteiros, porque sao contagens.",
+    "denominador": 12,
+    "comparacoes": [
+      {
+        "par": "qualityAnalysis.statistics.total  x  overallStats.total",
+        "compativel": true,
+        "porque": "ambos declaram o total de respondentes",
+        "esquerda": 12,
+        "direita": 12,
+        "confere": true
+      },
+      {
+        "par": "qualityAnalysis.summary.total  x  overallStats.total",
+        "compativel": true,
+        "porque": "ambos declaram o total de respondentes",
+        "esquerda": 12,
+        "direita": 12,
+        "confere": true
+      },
+      {
+        "par": "qualityAnalysis.summary.ok  x  overallStats.valid",
+        "compativel": true,
+        "porque": "ambos contam respondentes sem problema de consistencia, sobre o mesmo total declarado",
+        "esquerda": 12,
+        "direita": 0,
+        "confere": false
+      },
+      {
+        "par": "qualityAnalysis.respondents.length  x  qualityAnalysis.statistics.total",
+        "compativel": true,
+        "porque": "a lista deveria compor o total que a mesma secao declara",
+        "esquerda": 0,
+        "direita": 12,
+        "confere": false
+      },
+      {
+        "par": "demographicsSummary.total  x  overallStats.total",
+        "compativel": false,
+        "porque": "⚠ NAO COMPARADOS: o resumo demografico nao declara a mesma populacao nem a mesma regra; comparar seria inventar equivalencia",
+        "esquerda": 0,
+        "direita": 12,
+        "confere": null
+      }
+    ],
+    "contradicoesConservadas": "Os dois valores de cada par ficam registrados com a fonte. ⚠ Nenhum dado foi corrigido."
+  },
+  "caminhoAteOGestor": {
+    "classificacao": [
+      {
+        "onde": "lib/ai-reviewer/avaliacao-qualidade.ts:61",
+        "o_que": "classificarAvaliacaoRecebida, o contrato do lado da rota"
+      },
+      {
+        "onde": "lib/ai-reviewer/avaliacao-qualidade.ts:100",
+        "o_que": "classificarAvaliacaoDaTela, o contrato do lado da tela"
+      },
+      {
+        "onde": "app/decisor/resultados/[projectId]/page.tsx:1180",
+        "o_que": "a tela classifica antes de montar a requisicao"
+      },
+      {
+        "onde": "app/api/ai-reviewer/route.ts:544",
+        "o_que": "normalizeRequest classifica a requisicao recebida"
+      }
+    ],
+    "contextoDoModelo": [
+      {
+        "onde": "app/api/ai-reviewer/route.ts:680",
+        "o_que": "avaliada = qualidadeDisponivel(...), que decide se percentuais entram"
+      },
+      {
+        "onde": "app/api/ai-reviewer/route.ts:687",
+        "o_que": "so com avaliada verdadeiro o byStatus vira texto"
+      },
+      {
+        "onde": "app/api/ai-reviewer/route.ts:771-778",
+        "o_que": "sem avaliacao, entra o aviso de suspensao e NENHUM percentual"
+      }
+    ],
+    "notaEVeredicto": [
+      {
+        "onde": "app/api/ai-reviewer/route.ts:333",
+        "o_que": "calculateGrade"
+      },
+      {
+        "onde": "app/api/ai-reviewer/route.ts:337-341",
+        "o_que": "SUSPENSAO: sem qualidade disponivel devolve suspensa com motivo, e nota, veredicto e score nulos"
+      },
+      {
+        "onde": "app/api/ai-reviewer/route.ts:1507-1508",
+        "o_que": "notaSuspensa entra na resposta com rotulo, motivo e a avaliacao"
+      },
+      {
+        "onde": "app/api/ai-reviewer/route.ts:1519",
+        "o_que": "gradeSource vira suspensa"
+      }
+    ],
+    "tela": [
+      {
+        "onde": "app/decisor/resultados/[projectId]/page.tsx:1309",
+        "o_que": "a tela recebe notaSuspensa da resposta"
+      },
+      {
+        "onde": "components/ParecerAISection.tsx:213-216",
+        "o_que": "quando suspensa, exibe rotulo e motivo"
+      },
+      {
+        "onde": "components/ParecerAISection.tsx:225",
+        "o_que": "com suspensa, nota e veredicto NAO sao exibidos"
+      }
+    ],
+    "estadoDeSuspensaoAtual": {
+      "implementado": true,
+      "oQueAciona": "qualidadeDisponivel(avaliacao) falso, isto e, estado diferente de disponivel",
+      "oQueNaoAciona": "⚠ contradicao entre individuais e agregados NAO aciona: o contrato nao a examina"
+    },
+    "avisoDeAlcance": "⚠ As linhas da tela e do componente foram LIDAS no codigo. A apresentacao efetiva ao gestor NAO foi exercitada nesta rodada."
+  },
+  "classificacaoDaRequisicaoDeReferencia": {
+    "estado": "ausente",
+    "motivo": "Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
+    "fonte": "inferida: requisição sem lista de respondentes; byStatus sozinho não é avaliação"
+  },
+  "quatroCasos": [
+    {
+      "nome": "C-disponivel",
+      "condicaoPreparada": {
+        "campos": "qualityAnalysis.respondents com 4 itens, todos com cr numerico finito; overallStats e individualStats coerentes com eles",
+        "valores": "4 respondentes, cr 0.05 cada; overallStats {total:4, valid:4, warning:0, critical:0}",
+        "relacoes": "individuais e agregados CONCORDAM: 4 listados, 4 com CR, 4 validos"
+      },
+      "classificacaoDevolvida": {
+        "estado": "disponivel",
+        "motivo": null,
+        "fonte": "inferida: lista de respondentes com CR individual"
+      },
+      "executadoAntesDaInterrupcao": {
+        "chamouOModelo": true,
+        "interrompidoAntesDeConteudo": true,
+        "chamadasAVoyage": 0,
+        "chamadasAoIndice": 0,
+        "contextoTrazAvisoDeSuspensao": false,
+        "contextoTrazPercentualDeQualidade": true,
+        "marcadoresDePercentualEncontrados": [
+          "- Respostas CONFIÁVEIS (CR ≤ 0.10):",
+          "- Respostas para REVISAR (0.10 < CR ≤ 0.15):",
+          "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20):",
+          "- Respostas CRÍTICAS (CR > 0.20):"
+        ],
+        "ramoDoResumoDeQualidade": "P1: percentual derivado de qualityAnalysis.statistics.byStatus",
+        "blocoDeQualidadeNoContexto": [
+          "**Distribuição de Qualidade dos Respondentes (CR Individual):**",
+          "- Total: 4 especialistas",
+          "- Respostas CONFIÁVEIS (CR ≤ 0.10): 4 (100.0%)",
+          "- Respostas para REVISAR (0.10 < CR ≤ 0.15): 0 (0.0%)",
+          "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
+          "- Respostas CRÍTICAS (CR > 0.20): 0 (0.0%)"
+        ],
+        "bytesDoContexto": 71860
+      },
+      "respostaDecorrenteDaInterrupcao": {
+        "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
+        "status": 500,
+        "chavesDoCorpo": [
+          "error",
+          "details",
+          "errorType"
+        ],
+        "notaSuspensaPresente": false
+      }
+    },
+    {
+      "nome": "C-ausente",
+      "condicaoPreparada": {
+        "campos": "sem qualityAnalysis.respondents; byStatus FABRICADO com CONFIAVEL igual ao numero de respostas",
+        "valores": "respondents ausente; byStatus {CONFIAVEL:12}; overallStats {total:12, valid:0}",
+        "relacoes": "nao ha individuais; os agregados afirmam 12 confiaveis sem lista que os sustente"
+      },
+      "classificacaoDevolvida": {
+        "estado": "ausente",
+        "motivo": "Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
+        "fonte": "inferida: requisição sem lista de respondentes; byStatus sozinho não é avaliação"
+      },
+      "executadoAntesDaInterrupcao": {
+        "chamouOModelo": true,
+        "interrompidoAntesDeConteudo": true,
+        "chamadasAVoyage": 0,
+        "chamadasAoIndice": 0,
+        "contextoTrazAvisoDeSuspensao": true,
+        "contextoTrazPercentualDeQualidade": false,
+        "marcadoresDePercentualEncontrados": [],
+        "ramoDoResumoDeQualidade": "suspensao: nenhum percentual apresentado",
+        "blocoDeQualidadeNoContexto": [
+          "**Qualidade dos Dados:**",
+          "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
+          "O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.",
+          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada.",
+          "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
+          "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
+        ],
+        "bytesDoContexto": 70222
+      },
+      "respostaDecorrenteDaInterrupcao": {
+        "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
+        "status": 500,
+        "chavesDoCorpo": [
+          "error",
+          "details",
+          "errorType"
+        ],
+        "notaSuspensaPresente": false
+      }
+    },
+    {
+      "nome": "C-incompleta",
+      "condicaoPreparada": {
+        "campos": "qualityAnalysis.respondents com 4 itens, sendo 2 SEM cr",
+        "valores": "4 respondentes; cr 0.05 em dois, ausente nos outros dois",
+        "relacoes": "individuais INCOMPLETOS: 2 de 4 com CR"
+      },
+      "classificacaoDevolvida": {
+        "estado": "incompleta",
+        "motivo": "Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 2 de 4 respondentes com CR.",
+        "fonte": "inferida: lista de respondentes sem CR completo"
+      },
+      "executadoAntesDaInterrupcao": {
+        "chamouOModelo": true,
+        "interrompidoAntesDeConteudo": true,
+        "chamadasAVoyage": 0,
+        "chamadasAoIndice": 0,
+        "contextoTrazAvisoDeSuspensao": true,
+        "contextoTrazPercentualDeQualidade": false,
+        "marcadoresDePercentualEncontrados": [],
+        "ramoDoResumoDeQualidade": "suspensao: nenhum percentual apresentado",
+        "blocoDeQualidadeNoContexto": [
+          "**Qualidade dos Dados:**",
+          "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 2 de 4 respondentes com CR.",
+          "O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.",
+          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada.",
+          "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
+          "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
+        ],
+        "bytesDoContexto": 71893
+      },
+      "respostaDecorrenteDaInterrupcao": {
+        "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
+        "status": 500,
+        "chavesDoCorpo": [
+          "error",
+          "details",
+          "errorType"
+        ],
+        "notaSuspensaPresente": false
+      }
+    },
+    {
+      "nome": "C-contradicao",
+      "condicaoPreparada": {
+        "campos": "campos SUFICIENTES para disponibilidade pelo contrato ATUAL, com contradicao EXPLICITA entre individuais e agregados",
+        "valores": "4 respondentes, TODOS com cr 0.05, logo todos validos pelo limiar; mas overallStats {total:4, valid:0, critical:4} e summary {ok:4, critical:4}; e statistics.total 9, diferente dos 4 listados",
+        "relacoes": "contradicao 1: individuais dizem 4 validos, overallStats diz 0 validos e 4 criticos; contradicao 2: summary.ok 4 contra summary.critical 4, somando 8 sobre total 4; contradicao 3: statistics.total 9 contra 4 listados",
+        "oQueOContratoAtualVE": "total 4 e comCR 4, logo temMedicao verdadeiro: NENHUMA das tres contradicoes e examinada"
+      },
+      "classificacaoDevolvida": {
+        "estado": "disponivel",
+        "motivo": null,
+        "fonte": "inferida: lista de respondentes com CR individual"
+      },
+      "executadoAntesDaInterrupcao": {
+        "chamouOModelo": true,
+        "interrompidoAntesDeConteudo": true,
+        "chamadasAVoyage": 0,
+        "chamadasAoIndice": 0,
+        "contextoTrazAvisoDeSuspensao": false,
+        "contextoTrazPercentualDeQualidade": true,
+        "marcadoresDePercentualEncontrados": [
+          "- Respostas CONFIÁVEIS (CR ≤ 0.10):",
+          "- Respostas para REVISAR (0.10 < CR ≤ 0.15):",
+          "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20):",
+          "- Respostas CRÍTICAS (CR > 0.20):"
+        ],
+        "ramoDoResumoDeQualidade": "P1: percentual derivado de qualityAnalysis.statistics.byStatus",
+        "blocoDeQualidadeNoContexto": [
+          "**Distribuição de Qualidade dos Respondentes (CR Individual):**",
+          "- Total: 9 especialistas",
+          "- Respostas CONFIÁVEIS (CR ≤ 0.10): 0 (0.0%)",
+          "- Respostas para REVISAR (0.10 < CR ≤ 0.15): 0 (0.0%)",
+          "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
+          "- Respostas CRÍTICAS (CR > 0.20): 9 (100.0%)"
+        ],
+        "bytesDoContexto": 71851
+      },
+      "respostaDecorrenteDaInterrupcao": {
+        "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
+        "status": 500,
+        "chavesDoCorpo": [
+          "error",
+          "details",
+          "errorType"
+        ],
+        "notaSuspensaPresente": false
+      }
+    }
+  ],
+  "oQueIstoNaoDemonstra": [
+    "NAO escolhe a fonte do universo: e decisao de produto, do autor",
+    "NAO demonstra recepcao pelo modelo: o duplo interrompe antes de qualquer conteudo",
+    "NAO exercita a apresentacao ao gestor: as linhas da interface foram lidas, nao executadas",
+    "NAO julga a legitimidade das exclusoes",
+    "NAO corrige nenhum dado"
+  ]
+}
