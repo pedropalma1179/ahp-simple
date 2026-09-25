@@ -1,0 +1,363 @@
+{
+  "rodada": "A.12 identidade de quem participou do calculo, INVESTIGACAO",
+  "natureza": "LE E MEDE. Nao escolhe, nao implementa, nao integra. Nenhum parecer produzido, real ou simulado. Nenhuma identidade reconstruida por posicao ou contagem.",
+  "identificacao": {
+    "commitDaBase": "7157db89ff0fe102bbd36e7d5bc7c4378ab48c67",
+    "arquivos": {
+      "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
+      "app/api/calculate/route.ts": "e912b7d4cf0bdf2cc2d3f7335ec97da1fae5f24f602148a8ab9c6c76b66c937b",
+      "lib/aggregation.ts": "b3ed77eac53edaad2e4db3f9eeafcd33c4020e3452535987a3a01ede8e2d23e1",
+      "lib/completeness.ts": "6080500aa2aa1a90ef8dcc79161f1bb9b2cc971c73bf444fd131c15fe05f7a92"
+    }
+  },
+  "arquivoHistorico": {
+    "caminho": "docs/calculations-13jul2026.json",
+    "sha256": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d",
+    "chavesDistintas": 131,
+    "folhas": 700,
+    "temDadosIndividuais": false,
+    "oQueTem": {
+      "responseCount": 12,
+      "projectId": "yiEXoz12wN7rqWZZP70g",
+      "calculatedAt": "2026-07-13T19:39:31.334Z",
+      "metadata.excludedRespondentIds": [],
+      "matrizesAgregadas": [
+        "subcriteria",
+        "magnitude",
+        "bocr"
+      ],
+      "ipcMetadata.hasIncompleteGroups": false,
+      "ipcMetadata.version": "IPC-1.0"
+    },
+    "oQueNaoTem": {
+      "listaDeRespondentes": true,
+      "matrizesPorRespondente": true,
+      "metadata.rejectedIncomplete": true,
+      "identificadorDeRespondenteEmQualquerCampo": true
+    },
+    "valoresComCaraDeIdentificador": [
+      {
+        "caminho": ".projectId",
+        "valor": "yiEXoz12wN7rqWZZP70g"
+      }
+    ],
+    "completudeQueRegistra": {
+      "onde": "ipcMetadata.<grupo>.completeness",
+      "oQueE": "dado e possivel da MATRIZ AGREGADA, por grupo",
+      "oQueNaoE": "⚠ NAO e completude por respondente: nao ha um so campo por unidade",
+      "medido": {
+        "R": {
+          "given": 10,
+          "ratio": 1,
+          "isComplete": true,
+          "possible": 10
+        },
+        "O": {
+          "ratio": 1,
+          "isComplete": true,
+          "possible": 10,
+          "given": 10
+        },
+        "C": {
+          "given": 10,
+          "possible": 10,
+          "isComplete": true,
+          "ratio": 1
+        },
+        "B": {
+          "isComplete": true,
+          "given": 10,
+          "possible": 10,
+          "ratio": 1
+        }
+      }
+    },
+    "vinculoComAsMatrizes": "as matrizes de aggregatedMatrices sao strings JSON de matrizes JA agregadas; nao ha campo que ligue celula a respondente"
+  },
+  "execucaoObservada": {
+    "comoFoiExercitado": "handler real de app/api/calculate/route.ts, com Firestore por duplo e setDoc espionado. Nenhuma chamada externa.",
+    "status": 200,
+    "conjuntos": {
+      "participantesCadastrados": {
+        "existeHoje": true,
+        "onde": "colecao respondents, lida em app/api/calculate/route.ts:632-638",
+        "temIdentidade": true,
+        "quantos": 14,
+        "identificadores": [
+          "ident-alfa-01",
+          "ident-alfa-02",
+          "ident-alfa-03",
+          "ident-alfa-04",
+          "ident-alfa-05",
+          "ident-alfa-06",
+          "ident-alfa-07",
+          "ident-alfa-08",
+          "ident-alfa-09",
+          "ident-alfa-10",
+          "ident-alfa-11",
+          "ident-alfa-12",
+          "ident-alfa-13",
+          "ident-alfa-14"
+        ]
+      },
+      "respostasConcluidas": {
+        "existeHoje": true,
+        "onde": "colecao responses com completedAt, filtrada em app/api/calculate/route.ts:654-656",
+        "temIdentidade": true,
+        "documentos": 14,
+        "identificadoresDistintos": [
+          "ident-alfa-01",
+          "ident-alfa-02",
+          "ident-alfa-03",
+          "ident-alfa-04",
+          "ident-alfa-05",
+          "ident-alfa-06",
+          "ident-alfa-07",
+          "ident-alfa-08",
+          "ident-alfa-09",
+          "ident-alfa-10",
+          "ident-alfa-11",
+          "ident-alfa-12",
+          "ident-orfao-99"
+        ],
+        "aviso": "⚠ documento e respondente nao sao a mesma unidade: ha duplicata por respondentId"
+      },
+      "respostasUtilizadas": {
+        "existeHoje": "SIM, em memoria durante a execucao",
+        "onde": "variavel responses apos o portao de completude, app/api/calculate/route.ts:713-727",
+        "temIdentidadeNoArtefato": false,
+        "quantosOArtefatoDeclara": 10,
+        "identificadoresNoArtefato": "NAO DETERMINADO: o documento gravado nao traz lista de incluidos",
+        "identificadoresPelaConstrucaoDaEntrada": [
+          "ident-alfa-01",
+          "ident-alfa-03",
+          "ident-alfa-04",
+          "ident-alfa-05",
+          "ident-alfa-06",
+          "ident-alfa-08",
+          "ident-alfa-09",
+          "ident-alfa-10",
+          "ident-alfa-11",
+          "ident-alfa-12"
+        ],
+        "aviso": "⚠ a lista acima e conhecida porque ESTE instrumento montou a entrada. Nao e recuperavel do artefato."
+      },
+      "exclusoesRegistradas": {
+        "existeHoje": true,
+        "onde": "metadata.excludedRespondentIds em app/api/calculate/route.ts:1060 e metadata.rejectedIncomplete em app/api/calculate/route.ts:1064",
+        "temIdentidade": true,
+        "decisaoDoGestor": [
+          "ident-alfa-02"
+        ],
+        "decisaoDoSistema": [
+          {
+            "respondentId": "ident-alfa-07",
+            "matrizes": [
+              "O: 1 comparação(ões) sem resposta"
+            ]
+          }
+        ],
+        "aviso": "⚠ identidade existe no artefato SO para quem ficou de FORA"
+      }
+    },
+    "documentoGravado": {
+      "colecao": {
+        "__col": "calculations",
+        "__id": "projeto-a12-identidade"
+      },
+      "chavesDeTopo": [
+        "projectId",
+        "calculatedAt",
+        "responseCount",
+        "bocrWeights",
+        "bocrConsistency",
+        "rescalingWeights",
+        "magnitudeConsistency",
+        "subWeights",
+        "subConsistency",
+        "aggregatedMatrices",
+        "bocrPrioritiesTable",
+        "altScores",
+        "altMeritScores",
+        "finalScores",
+        "ranking",
+        "methodConcordance",
+        "sensitivityAnalysis",
+        "sensitivityInflections",
+        "sensitivityTrajectories",
+        "alerts",
+        "metadata"
+      ],
+      "chavesDeMetadata": [
+        "projectName",
+        "alternativesCount",
+        "methodsCount",
+        "primaryMethod",
+        "version",
+        "q1Features",
+        "references",
+        "excludedRespondentIds",
+        "rejectedIncomplete"
+      ],
+      "temIpcMetadata": false,
+      "temRejectedIncomplete": true,
+      "ocorrenciasDeIdentificadorIncluido": [],
+      "respostaDaRotaTrazListaDeIncluidos": false
+    },
+    "orfaEDuplicata": {
+      "orfaDescartada": true,
+      "ondeAOrfaCai": "app/api/calculate/route.ts:659-665, validacao cruzada contra respondents",
+      "ondeADuplicataCai": "app/api/calculate/route.ts:676-685, deduplicacao por respondentId mantendo o completedAt maior",
+      "aviso": "⚠ descarte medido pela AUSENCIA do identificador no documento; o documento nao registra o descarte"
+    }
+  },
+  "duasIdentidades": {
+    "pergunta": "o documento gravado distingue QUEM respondeu?",
+    "painelA": {
+      "identificadores": "ident-alfa-01 ... ident-alfa-12",
+      "bytesComparados": 17948,
+      "chavesDeTopo": 21,
+      "sha256SemCalculatedAt": "b14724a17f910b1a97f074fcf4f266acc1b5f1544f2674a7c81fc63fff4bdbce"
+    },
+    "painelB": {
+      "identificadores": "ident-beta-01 ... ident-beta-12",
+      "bytesComparados": 17948,
+      "chavesDeTopo": 21,
+      "sha256SemCalculatedAt": "b14724a17f910b1a97f074fcf4f266acc1b5f1544f2674a7c81fc63fff4bdbce"
+    },
+    "documentosIguais": true,
+    "controleDiscriminante": {
+      "oQueMudou": "um unico julgamento do primeiro respondente do painel B",
+      "sha256SemCalculatedAt": "47e1507af0e15620f551d030aa788732a2fec1746a00069131206517e61f4dee",
+      "documentosIguais": false,
+      "leitura": "o documento responde a JULGAMENTOS e nao a IDENTIDADES"
+    },
+    "conclusaoDoQueFoiMedido": "dois paineis com identidades inteiramente diferentes gravam documento identico fora de calculatedAt: o artefato NAO determina quem participou"
+  },
+  "fonteDoIdentificador": {
+    "pergunta": "de onde sai o identificador que os filtros usam?",
+    "cadeiaLidaNoCodigo": {
+      "onde": "app/api/calculate/route.ts:159-180, funcao extractRespondentId",
+      "ordem": [
+        "respondentId",
+        "visitorId",
+        "id do DOCUMENTO",
+        "responses.respondentId",
+        "responses.visitorId",
+        "data.respondentId",
+        "userId",
+        "parte do email antes do arroba"
+      ],
+      "ultimoElo": "respondente_ seguido do INDICE mais um, isto e, identidade por POSICAO na lista",
+      "procedencia": "LIDO no codigo"
+    },
+    "observado": {
+      "responseCount": 2,
+      "respostaSemRespondentIdComDocumentoCadastrado": "ENTROU: o id do documento serviu de identidade e passou na validacao cruzada",
+      "respostaSemRespondentIdSemCadastro": "CAIU como orfa",
+      "leitura": "a identidade que o filtro usa pode vir do DOCUMENTO e nao do respondente, e as duas nao sao a mesma coisa"
+    },
+    "fallbackPorPosicao": {
+      "alcancadoNaExecucaoObservada": false,
+      "porque": "o id do documento precede o fallback na cadeia, e documento vindo do Firestore sempre tem id",
+      "procedencia": "⚠ LIDO no codigo. Nao exercitado, e NAO se afirma alcancavel no caminho de producao",
+      "ondeMudaDeValor": "⚠ o indice passado muda entre etapas: app/api/calculate/route.ts:659 filtra sobre completedResponses e :678 percorre validatedResponses, que sao listas de tamanhos diferentes"
+    },
+    "naoAplicadoAqui": "⚠ esta rodada NAO usa posicao nem contagem para identificar ninguem; o achado acima e sobre o codigo lido"
+  },
+  "ondeAIdentidadeCai": {
+    "arquivo": "lib/aggregation.ts",
+    "linhas": "68-95",
+    "oQueEntra": "objetos de resposta que TEM respondentId: a interface AggregationResponse o declara em lib/aggregation.ts:37",
+    "oQueSai": [
+      "matrix",
+      "isComplete",
+      "filledCells",
+      "totalCells"
+    ],
+    "oQuePassaAdiante": "values: number[], em lib/aggregation.ts:95, e aggregateAIJ recebe SO numeros",
+    "trocandoSoOsIdentificadores": {
+      "iguais": true,
+      "leitura": "a saida nao depende da identidade"
+    },
+    "controleDiscriminante": {
+      "oQueMudou": "um julgamento de um dos tres",
+      "iguais": false,
+      "leitura": "a saida depende dos julgamentos, entao a comparacao anterior nao e trivial"
+    },
+    "aviso": "⚠ medido na funcao REAL, com entradas sinteticas. Nao e execucao do painel de 2026."
+  },
+  "omissaoPorMatrizOuEtapa": {
+    "portaoAtual": {
+      "arquivo": "lib/completeness.ts",
+      "matrizesEsperadas": 26,
+      "paresEsperados": 72,
+      "paresValidos": 71,
+      "isComplete": false,
+      "matrizesComDefeito": [
+        "subcriteria|O"
+      ],
+      "descricao": [
+        "O: 1 comparação(ões) sem resposta"
+      ],
+      "leitura": "um par PULADO reprova a resposta inteira, e o defeito e nomeado POR MATRIZ"
+    },
+    "semOPortao": {
+      "oQueFoiMedido": "a mesma aggregateMatrix com um julgamento marcado skipped",
+      "celulaMudaDeValor": true,
+      "matrizContinuaCompleta": true,
+      "celulasPreenchidas": {
+        "semPulo": 6,
+        "comPulo": 6
+      },
+      "registroDeQuemContribuiu": "NAO EXISTE: a saida nao tem campo por respondente nem por celula",
+      "leitura": "participacao por celula altera o valor agregado e nao deixa rastro; presenca na lista inicial nao demonstra contribuicao a toda celula"
+    },
+    "alcance": "⚠ o portao e do codigo ATUAL, lido e exercitado aqui. O arquivo historico nao foi produzido por este codigo."
+  },
+  "vinculoComAExecucao": {
+    "oQueOArtefatoTem": [
+      "projectId",
+      "calculatedAt",
+      "responseCount"
+    ],
+    "oQueIssoDemonstra": {
+      "projectId": "o projeto, nao os respondentes",
+      "calculatedAt": "o instante do calculo, nao quem entrou",
+      "responseCount": "⚠ contagem; usar contagem para identificar seria reconstruir por contagem"
+    },
+    "oQueNaoExiste": [
+      "lista de identificadores incluidos",
+      "identificador de documento de resposta",
+      "resumo ou versao do conjunto de respostas",
+      "carimbo de versao dos dados de origem"
+    ],
+    "origemEMutavel": {
+      "onde": "app/decisor/projetos/page.tsx:1044-1056",
+      "oQue": "exclusao de especialista apaga respondent, suas responses e o documento de calculations, em lote",
+      "efeito": "⚠ o artefato exportado sobrevive a origem apagada, e nada nele preserva a identidade",
+      "procedencia": "LIDO no codigo, nao exercitado nesta rodada"
+    },
+    "veredito": "NAO DETERMINADO: nada no artefato liga o resultado aos respondentes daquela execucao"
+  },
+  "versoesDoCodigo": {
+    "documentoGravadoHoje": {
+      "temIpcMetadata": false,
+      "temRejectedIncomplete": true
+    },
+    "arquivoHistorico": {
+      "temIpcMetadata": true,
+      "temRejectedIncomplete": false
+    },
+    "leitura": "os dois conjuntos de campos diferem nos dois sentidos: o historico tem ipcMetadata e nao tem rejectedIncomplete, e o documento de hoje e o inverso",
+    "oQueIstoDemonstra": "que o arquivo historico NAO foi produzido pelo codigo atual",
+    "oQueIstoNaoDemonstra": "⚠ qual versao o produziu, nem quais filtros aquela versao aplicou"
+  },
+  "oQueIstoNaoDemonstra": [
+    "NAO demonstra qual versao produziu o arquivo historico",
+    "NAO demonstra quais respondentes entraram naquela execucao de 13/07/2026",
+    "NAO exercita a tela de resultados nem o caminho do parecer: foram LIDOS",
+    "NAO julga a legitimidade de exclusao alguma",
+    "NAO altera producao, e nenhuma identidade foi reconstruida por posicao ou contagem"
+  ]
+}
