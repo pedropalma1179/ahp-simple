@@ -10184,9 +10184,19 @@ traz a lista.**
 
 **O achado central, medido.** Dois painéis com identificadores **inteiramente
 diferentes** e os mesmos julgamentos gravam documento **idêntico** fora de
-`calculatedAt`, com o mesmo `sha256`. Trocando **um** julgamento, o resumo muda.
-**O documento responde a julgamentos, não a identidades**, e por isso o artefato não
-determina quem participou.
+`calculatedAt`. **O que sustenta a igualdade é `documentosIguais`**, de comparação
+exata do documento serializado, dentro da mesma execução; `sha256DaEstrutura`, que o
+artefato guarda, cobre **só a estrutura**. Trocando **um** julgamento, o documento
+muda, e a estrutura não.
+
+⚠ **Condição da demonstração, e ela vale onde a afirmação está.** Os dois painéis
+**não têm exclusão do gestor nem rejeição por incompletude**: nos dois,
+`excludedRespondentIds` e `rejectedIncomplete` saem vazios. **Sob essa condição** o
+documento responde a julgamentos e não a identidades, e o artefato não determina quem
+**entrou**. ⚠ **Com exclusão ou rejeição, o documento DISTINGUE painéis**, pela
+identidade de quem **saiu**, como a seção 3 mostra. **A demonstração vale para este
+percurso**, a rota `calculate` gravando em `calculations`, **e para esta forma de
+entrada**, doze respostas completas. Ver a retificação **R1** e **R2** de 26/09/2026.
 
 **De onde sai o identificador que os filtros usam.** A cadeia de
 `extractRespondentId`, em `app/api/calculate/route.ts:159-180`, tenta `respondentId`,
@@ -10278,7 +10288,7 @@ atual sobre a origem não reproduz, por si, a seleção daquela execução.**
 | Alternativa | O que exige | O que passa a ser possível |
 |---|---|---|
 | **I. gravar os identificadores dos incluídos** | um campo em `metadata`, no ponto em que `responses` já está filtrado, `route.ts:727` | responder **quem entrou** naquela execução, por identidade |
-| **II. gravar também o id do documento de resposta e o seu `completedAt`** | o mesmo ponto, com mais dois campos por unidade | responder **qual versão** de cada resposta entrou |
+| **II. gravar também o id do documento de resposta e o seu `completedAt`** | o mesmo ponto, com mais dois campos por unidade | registrar **qual documento** e **qual data**. ⚠ **Não demonstra a versão utilizada**: ver a retificação **R4** |
 | **III. registrar participação por célula** | alterar `lib/aggregation.ts` para propagar, por célula, quem contribuiu, hoje um `number[]` na linha 95 | responder **em que comparações** cada um contribuiu |
 | **IV. vincular um instantâneo da origem à execução** | usar o que `app/api/backup/route.ts:24-37` já exporta com identidade, e amarrá-lo ao cálculo | **reconstituir a entrada** daquela execução |
 
@@ -10286,7 +10296,9 @@ atual sobre a origem não reproduz, por si, a seleção daquela execução.**
 que células; a II não diz as células; a III é a única que responde a participação por
 comparação, e é a que mais cresce o documento; a IV é a única que preserva a entrada,
 e é a que mais armazena **dado de pessoa**. ⚠ **Nenhuma delas recupera o caso
-histórico**: todas valem das próximas execuções em diante.
+histórico**: todas valem das próximas execuções em diante. **A reavaliação pelo
+requisito conjunto**, identificar os incluídos **e** vincular as respostas deles à
+execução, está na retificação **R5** de 26/09/2026.
 
 ### 8. O que esta investigação NÃO demonstra
 
@@ -10315,14 +10327,24 @@ continuam com o mesmo resumo entre si**, `389085df…` e `389085df…`, e o cont
 continua diferente. O que divergiu foi o **valor absoluto** do resumo entre
 ambientes, e não a igualdade que o achado afirma.
 
-**Causa mais provável, e ela NÃO está demonstrada por variação controlada de um
-único fator.** Sustentam-na três observações: `aggregateAIJ` agrega por **soma de
-logaritmos**, com `Math.log` e `Math.exp` em `lib/ahp-engine.ts:223-225`, e a norma
-deixa as duas como **aproximação dependente de implementação**; o número de bytes
-comparados saiu **17948 nos dois ambientes**, então a diferença está nos dígitos e
-não na estrutura; e dentro de cada ambiente os dois painéis coincidem. **Node 24 não
-existe nesta máquina**, medido, então a demonstração por variação de um só fator fica
-pelo CI.
+**O que ficou estabelecido, e é só isto: divergência entre ambientes no conteúdo
+serializado, com mesma estrutura e mesmo número de bytes; causa específica NÃO
+DETERMINADA.**
+
+⚠ **Retificado em 26/09/2026, e o texto anterior atribuía uma causa provável.** As
+três observações abaixo permanecem **como observações**, e **nenhuma delas estabelece
+a causa**:
+
+| Observação | Procedência |
+|---|---|
+| `aggregateAIJ` agrega por soma de logaritmos, com `Math.log` e `Math.exp` em `lib/ahp-engine.ts:223-225` | **lida no código** |
+| o número de bytes comparados saiu **17948 nos dois ambientes** | medida, no log do CI |
+| dentro de cada ambiente os dois painéis coincidem | medida, no log do CI |
+
+⚠ **Nenhum valor numérico divergente foi preservado, em nenhum dos dois lados**: o
+artefato de `8879360` guardava resumos, não números, e o lado local nunca foi
+registrado em precisão alguma. **A evidência para comparar campo a campo não existe.**
+**Node 24 não existe nesta máquina**, medido. Ver a retificação **R3**.
 
 **A correção, em `e1f9fde`, e ela não ajusta critério de aceite para bater com o
 resultado.** O que o artefato guardava era resumo de **bytes** de um documento cheio
@@ -10369,6 +10391,191 @@ chamavam `sort()` sobre arrays da medição, e `sort` **muta**: a medição em m
 passou a divergir do artefato já gravado, e o teste de coincidência reprovou.
 Corrigido copiando antes de ordenar. ⚠ **Foi o teste do artefato que o pegou**, e não
 a leitura.
+
+---
+
+## A.12, identidade: retificação datada de 26/09/2026
+
+⚠ **Retificação de registro, e o histórico FICA.** Nada aqui apaga a reprovação do CI
+de `8879360`, as medições da investigação de 25/09/2026 nem os dois defeitos do
+instrumento: tudo isso continua escrito acima, e esta seção corrige **o que o registro
+afirmava além do que a medição alcança**.
+
+**Base da retificação** `3b64f90ecb542fab8d75702476e6fd768c60d288`. **Instrumento e
+artefato alterados em** `f52fcfb`. ⚠ **Produção não foi tocada**, e nenhuma
+alternativa foi escolhida: a escolha é do autor.
+
+**Cada afirmação foi localizada ANTES de editar:**
+
+| # | Afirmação | Onde estava, na base `3b64f90` |
+|---|---|---|
+| R1 | "o documento responde a julgamentos, não a identidades" | `docs/imprecisoes-parecer-ia.md`, linha **10188**, seção 2 da investigação; e em `docs/dados/a12-identidade/medicao.json`, caminho `.duasIdentidades.controleDiscriminante.leitura`; e no instrumento, linha **358** |
+| R2 | "com o mesmo `sha256`" | `docs/imprecisoes-parecer-ia.md`, linha **10187** |
+| R3 | "Causa mais provável … Sustentam-na três observações" | `docs/imprecisoes-parecer-ia.md`, linhas **10318 a 10325**, seção 9 |
+| R4 | alternativa II, "responder qual versão de cada resposta entrou" | `docs/imprecisoes-parecer-ia.md`, tabela da seção 7 |
+| R5 | "o que cada uma NÃO resolve" | `docs/imprecisoes-parecer-ia.md`, parágrafo após a tabela da seção 7 |
+
+### R1. A conclusão dos painéis, delimitada aos artefatos e aos painéis ensaiados
+
+**O que o registro dizia:** "O documento responde a julgamentos, não a identidades, e
+por isso o artefato não determina quem participou."
+
+**O que a medição alcança.** Os dois painéis ensaiados **não têm exclusão do gestor
+nem rejeição por incompletude**: nos dois, `excludedRespondentIds` e
+`rejectedIncomplete` saem vazios. ⚠ **Com exclusão ou rejeição, o documento DISTINGUE
+painéis**, pela identidade de quem **saiu**, e isso a própria seção 3 do registro
+mede. A afirmação vale **sob a condição de ausência de exclusão e de rejeição**, para
+**este percurso**, a rota `calculate` gravando em `calculations`, e para **esta forma
+de entrada**, doze respostas completas.
+
+**Onde a condição foi escrita:** na própria passagem da seção 2, e no artefato, nos
+campos `.duasIdentidades.controleDiscriminante.leitura`,
+`.duasIdentidades.controleDiscriminante.alcance` e
+`.duasIdentidades.oQueAConclusaoNaoAlcanca`.
+
+### R2. Igualdade de conteúdo e resumo de estrutura, separados
+
+**O que o registro dizia:** "gravam documento idêntico fora de `calculatedAt`, **com o
+mesmo `sha256`**". ⚠ **Esse campo não existe mais no artefato:** a correção de
+`e1f9fde` retirou `sha256SemCalculatedAt`, justamente por depender do ambiente.
+
+**O que sustenta a igualdade** é `documentosIguais`, de **comparação exata** do
+documento serializado, feita dentro da mesma execução. **`sha256DaEstrutura`**, que o
+artefato guarda, cobre **só a estrutura**, e não o conteúdo. A referência foi
+corrigida na passagem.
+
+### R3. A causa da divergência entre ambientes: NÃO DETERMINADA
+
+**O que o registro dizia:** "Causa mais provável … Sustentam-na três observações",
+apontando `Math.log` e `Math.exp`.
+
+**A formulação que fica:** **divergência entre ambientes no conteúdo serializado, com
+mesma estrutura e mesmo número de bytes; causa específica não determinada.** As três
+observações permanecem como observações, e nenhuma estabelece a causa.
+
+⚠ **Nenhum valor numérico divergente foi preservado, em nenhum dos dois lados.** O
+artefato de `8879360` guardava resumos, não números; o lado local nunca foi registrado
+em precisão alguma. **A evidência para comparar campo a campo não existe**, e por isso
+a origem específica segue não determinada.
+
+⚠ **Sobre a reprovação:** o CI de `8879360` reprovou na **comparação dos resumos do
+conteúdo serializado**, e **não** numa comparação direta de decimais preservados.
+
+**Experimento possível, e não prova de causa.** Trocar a soma de logaritmos por
+produto e raiz e observar se a divergência desaparece ⚠ **altera o percurso
+numérico**, então mede outro caminho e não isola o atual. Registra-se como experimento
+possível, e **não** como demonstração.
+
+**Um limite numérico que o registro NÃO afirmava, e que também não passa a afirmar.**
+A formulação "divergência menor que meia unidade na quarta decimal" **existiu apenas
+no relato da conferência de 25/09/2026, e nunca foi escrita no repositório**:
+`git grep` por "quarta decimal" e por "meia unidade" em `docs/` e `lib/` devolve
+**uma única** ocorrência, e ela é um comentário **pré-existente** de
+`lib/__tests__/characterization.test.ts:104`, sobre a tolerância daquele teste, alheio
+a esta questão. ⚠ **Nenhuma remoção foi feita no repositório por conta disso**, porque
+não havia o que remover. E a formulação não se sustenta: **dois resultados aprovados
+contra a mesma referência podem estar em lados opostos dela**, e aprovação em outra
+suíte **não estabelece correspondência** com os campos que produziram os resumos
+divergentes. O mesmo vale para a troca por produto e raiz, que também só existia no
+relato.
+
+### R4. A alternativa II, reformulada
+
+**O que a tabela dizia:** "responder **qual versão** de cada resposta entrou".
+
+**O que os dois campos fazem:** o id do documento identifica **o documento**, e
+`completedAt` identifica **uma data**. ⚠ **Nenhum dos dois demonstra a versão dos
+julgamentos utilizada.**
+
+**O requisito para demonstrar versão**, declarado e **NÃO demonstrado**: seria preciso
+que **qualquer alteração nos julgamentos mudasse essa referência**, ou que a
+referência **apontasse para conteúdo imutável**.
+
+**E o que foi lido no código vai na direção contrária.** Em
+`app/avaliacao/[projectId]/page.tsx:1473-1480`, `progressData` grava `judgments` e
+`updatedAt` e **não** grava `completedAt`; ele é aplicado por `updateDoc` em `:1484` e
+em `:1497`. ⚠ **Existe, portanto, caminho de escrita que altera os julgamentos de um
+documento sem tocar `completedAt`.** Isso é **leitura de código**, não execução
+observada, e basta para que a capacidade **não** seja afirmada.
+
+### R5. As quatro alternativas pelo requisito CONJUNTO
+
+**O requisito tem duas partes, e elas se avaliam em separado:** **(a)** identificar os
+incluídos; **(b)** vincular as respostas deles à execução.
+
+| Alternativa | (a) identificar os incluídos | (b) vincular as respostas à execução | Atende |
+|---|---|---|---|
+| **I** ids dos incluídos | **sim** | **não**: a lista de identificadores não diz qual resposta de cada um entrou, nem em que estado | **uma só** |
+| **II** id do documento e `completedAt` | **sim**, por incluir a I | **não demonstrado**, e ver R4: há caminho que muda julgamentos sem mudar `completedAt` | **uma só** |
+| **III** participação por célula | **sim**, quem contribuiu implica quem entrou | **parcial**: amarra a contribuição às células daquela execução, e **não** preserva o conteúdo julgado | **uma e parte da outra** |
+| **IV** instantâneo da origem vinculado à execução | **sim**, o instantâneo carrega identidade | **sim, SE** o instantâneo for imutável e estiver amarrado à execução, o que é **requisito, não capacidade demonstrada** | **as duas, sob requisito** |
+
+⚠ **Nenhuma mudança futura, por si só, recupera os dados históricos ausentes.** Todas
+valem das próximas execuções em diante, e o arquivo de 13/07/2026 continua sem
+identificador de respondente. ⚠ **A escolha entre I e IV é do autor, e esta rodada não
+escolhe.**
+
+### O complemento do instrumento, em `f52fcfb`
+
+**O controle discriminante passou a NOMEAR o campo numérico afetado.** O julgamento
+alterado fica **registrado, e não suposto**: respondente `ident-beta-01`, matriz
+`bocr|BOCR`, par `["B","O"]`, de `saatyValue` 1 com `favors` `equal` para
+`saatyValue` 2 com `favors` `A`. O campo nomeado é **`bocrWeights[0]`**, o peso
+estratégico do mérito B.
+
+**A justificativa pelo caminho do cálculo**, escrita no artefato: o julgamento está na
+matriz `bocr|BOCR`, par (B,O); `lib/aggregation.ts:68-95` agrega essa célula pela
+média geométrica dos doze; `app/api/calculate/route.ts:816-819` deriva o autovetor
+principal dessa matriz; e `:966` grava o vetor em `bocrWeights`. **Logo o peso do
+mérito de `par[0]` tem de mudar.**
+
+**A comparação é entre duas execuções do MESMO processo**, a do painel B e a do
+controle, e é de **desigualdade**. ⚠ **Nenhum literal numérico é critério de
+aprovação, e nada é comparado contra decimal gravado em artefato.**
+
+**As verificações que PRECEDEM a comparação**, cada uma exigida à parte: `bocrWeights`
+é array nos dois documentos; os comprimentos são iguais e valem **4**; o índice
+resolve em **0**; os dois valores são do tipo `number`; os dois são finitos; e
+`mesmoCampoDeSaida` sai verdadeiro. ⚠ **Ausência, `NaN` ou mudança de tipo NÃO
+satisfazem o controle.** A ordem dos méritos é conferida por **via independente**, as
+chaves de `rescalingWeights`, que a rota monta do mesmo vetor em `:972` e saem
+`sb`, `so`, `sc`, `sr`.
+
+**E o mesmo campo continua IGUAL entre os dois painéis de identidade**, no mesmo
+ambiente: a comparação dos painéis não foi substituída, foi complementada.
+
+**Contra-exemplos executados**, com restauro byte a byte do instrumento conferido por
+SHA-256. Primeiro: alterando julgamento de outra matriz, `subcriteria|C`, reprova na
+guarda da matriz. Segundo, e é o que exercita a desigualdade: mudando **só** o campo
+`favors` de `equal` para `A` com `saatyValue` 1, o que **não altera a célula
+agregada**, reprova exatamente em `expect(c.diferem).toBe(true)`.
+
+**Observação numérica, não normativa**, em chave própria e com **ambiente declarado**,
+`linux`, `x64`, Node `v22.22.2`: o campo sai `0.37227664688843276` no painel A e no
+painel B, e `0.3766556351412416` no controle. ⚠ **É observação, e não referência de
+aprovação**; o bloco fica **fora** da comparação com o artefato gravado, e o teste
+confere a **forma** dele, nunca os valores. **Conferência à mão, por via
+independente:** `0.37227664688843276` arredonda a **0.3723**, que é o peso de B em
+`reference_published` do fixture, e o controle **sobe**, coerente com um dos doze
+passando de igual para 2 favorecendo B.
+
+**Diff do artefato, por caminho:** **42** campos entraram, **2** mudaram de valor,
+**zero** saíram. ⚠ **Os metadados históricos ficam preservados:**
+`identificacao.commitDaBase` e os resumos de arquivo não foram tocados.
+
+### Ambientes e execuções desta retificação, registrados em separado
+
+| Ambiente | Node e comandos | Resultado observado |
+|---|---|---|
+| **local**, em `f52fcfb` | Linux x86_64, Node **v22.22.2**, npm 10.9.7; `npx tsc --noEmit` e `npm test` | `tsc` **0**; **27 suítes e 468 testes**, nenhuma falha |
+| **clone raso**, em `f52fcfb` | `git clone --depth 1`, **1** commit, marca `shallow`; Node **v22.22.2**, npm 10.9.7; `npm ci`, `npx tsc --noEmit` e `npx jest --runInBand` | `npm ci` 0; `tsc` 0; **27 suítes e 468 testes** |
+| **CI real**, em `f52fcfb` | runner do GitHub Actions, passo "Node 24.x, a mesma versão da produção"; `.github/workflows/ci.yml`, job `verificar` | execução **`36245714902`**, job id **`108414411546`**, **`completed/success`**, com Typecheck, Build e Testes em `success` e **468 testes** no log |
+| **CI real**, neste commit de registro | o mesmo workflow e job | ⚠ observado **depois** deste commit, e relatado na entrega da rodada: nenhum resultado é antecipado aqui |
+
+**A série foi de 465 para 468 testes**, e a diferença são os **três** testes novos: o
+do campo numérico nomeado, o da conclusão delimitada e o da observação não normativa.
+⚠ **Clone raso não equivale ao ambiente completo do CI**, e roda em Node v22.22.2
+enquanto o CI usa 24.x.
 
 ---
 
