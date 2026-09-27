@@ -27,7 +27,10 @@ const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a12-diagnostico', 'medicao.js
 const GRAVAR = process.env.A12_GRAVAR === '1';
 
 /**
- * ⚠ **PROCEDÊNCIA DESTA REGRAVAÇÃO, e o `commitDaBase` histórico NÃO é substituído.**
+ * ⚠ **PROCEDÊNCIA DAS REGRAVAÇÕES, uma entrada por regravação, e o `commitDaBase`
+ * histórico NÃO é substituído.** ⚠ **A lista ACUMULA:** uma regravação posterior
+ * acrescenta entrada em vez de sobrescrever a anterior, para que a evidência de cada uma
+ * fique no próprio artefato, e não só no histórico do git.
  * A remoção da análise de fairness alterou `app/api/ai-reviewer/route.ts` e
  * `app/api/ai-reviewer/system-prompt.ts`, e o contexto medido encolheu, então o artefato
  * foi regravado.
@@ -39,21 +42,38 @@ const GRAVAR = process.env.A12_GRAVAR === '1';
  * ⚠ **O vínculo com o código medido é `identificacao.codigo`**, com o sha256 dos
  * arquivos lidos nesta execução.
  */
-const PROCEDENCIA_DA_REGRAVACAO = {
-  motivo: 'remocao da analise de fairness do Parecer IA',
-  commitDaBase: '1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a',
-  comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
-  ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
-  artefato: 'docs/dados/a12-diagnostico/medicao.json',
-  // ⚠ Caminhos MEDIDOS por comparacao campo a campo, e nao descritos de memoria.
-  camposRegravados: [
-    'quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto',
-    'identificacao.codigo[app/api/ai-reviewer/route.ts]',
-  ],
-  camposPerdidos: 0,
-  vinculo: 'identificacao.codigo traz o sha256 dos arquivos DESTA execucao',
-  oQueNaoE: 'NAO substitui commitDaBase, que identifica a base da PRIMEIRA medicao',
-};
+const PROCEDENCIA_DAS_REGRAVACOES = [
+  {
+    ordem: 1,
+    motivo: 'remocao da analise de fairness, commit A: o que o modelo recebe e o que a API devolve',
+    commitDaBase: '1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ Caminhos MEDIDOS por comparacao campo a campo, e nao descritos de memoria.
+    camposRegravados: [
+      'quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto',
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+    ],
+    camposPerdidos: 0,
+  },
+  {
+    ordem: 2,
+    motivo: 'remocao da analise de fairness, commit B: a interface e o estado da tela',
+    commitDaBase: '41d7e56ca754e8760dc28be23e8157f16085029a',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ A tela entra em `identificacao.codigo` por TELA, e por isso o commit B tambem
+    //   exige regravacao. NAO estava previsto na alocacao da fase 2.4, e fica dito.
+    camposRegravados: ['identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]'],
+    camposPerdidos: 0,
+  },
+];
+const VINCULO_DA_PROCEDENCIA =
+  'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
+const O_QUE_A_PROCEDENCIA_NAO_E =
+  'NAO substitui commitDaBase, que identifica a base da PRIMEIRA medicao';
 
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
@@ -507,8 +527,10 @@ beforeAll(async () => {
     identificacao: {
       // ⚠ HISTÓRICO: a base da PRIMEIRA medição, e não a desta execução.
       commitDaBase: 'f964049b3f6639b874111356d8f84b5463793a34',
-      // ⚠ A procedência DESTA regravação, ao lado do histórico e sem substituí-lo.
-      procedenciaDaRegravacao: PROCEDENCIA_DA_REGRAVACAO,
+      // ⚠ A procedência de CADA regravação, ao lado do histórico e sem substituí-lo.
+      procedenciaDasRegravacoes: PROCEDENCIA_DAS_REGRAVACOES,
+      vinculoDaProcedencia: VINCULO_DA_PROCEDENCIA,
+      oQueAProcedenciaNaoE: O_QUE_A_PROCEDENCIA_NAO_E,
       artefatos: Object.fromEntries([REQUISICAO, PROJETO].map((f) => [f, shaArquivo(f)])),
       codigo: Object.fromEntries([CONTRATO, ROTA, TELA, COMPONENTE].map((f) => [f, shaArquivo(f)])),
     },
@@ -854,13 +876,19 @@ test('o registro diz o que NAO demonstra', () => {
  * `procedenciaDaRegravacao`, desta execução. **Um artefato regravado com só o histórico
  * apresentaria medição nova sob procedência antiga.**
  */
-test('a regravacao registra procedencia PROPRIA, ao lado da historica', () => {
+test('cada regravacao registra procedencia PROPRIA, e a lista ACUMULA', () => {
   const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
-  const p = gravado.identificacao.procedenciaDaRegravacao;
-  expect(p).toEqual(PROCEDENCIA_DA_REGRAVACAO);
+  const lista = gravado.identificacao.procedenciaDasRegravacoes;
+  expect(lista).toEqual(PROCEDENCIA_DAS_REGRAVACOES);
+  // ⚠ Acumula: a entrada anterior NAO foi sobrescrita pela nova.
+  expect(lista.length).toBeGreaterThanOrEqual(2);
+  expect(lista.map((e: any) => e.ordem)).toEqual(lista.map((_: any, i: number) => i + 1));
+  const bases = lista.map((e: any) => e.commitDaBase);
+  expect(new Set(bases).size).toBe(bases.length);
+  // ⚠ O historico fica, e nenhuma base de regravacao o substitui.
   expect(gravado.identificacao.commitDaBase).toBe('f964049b3f6639b874111356d8f84b5463793a34');
-  expect(p.commitDaBase).not.toBe(gravado.identificacao.commitDaBase);
-  expect(p.oQueNaoE).toMatch(/NAO substitui commitDaBase/);
+  for (const b of bases) expect(b).not.toBe(gravado.identificacao.commitDaBase);
+  expect(gravado.identificacao.oQueAProcedenciaNaoE).toMatch(/NAO substitui commitDaBase/);
 });
 
 test('o artefato gravado coincide com a medicao atual', () => {

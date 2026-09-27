@@ -61,8 +61,6 @@ const ANCORAS_DA_TELA = [
   ['body: JSON.stringify(finalPayload)', 1],
   // r2: a fonte das exclusões da tela é o próprio documento de cálculo.
   ['setExcludedIds(calcData.metadata.excludedRespondentIds);', 1],
-  ['setSensitiveGroups(projectData.sensitiveGroups);', 1],
-  ['sensitiveGroups: sensitiveGroups || undefined', 1],
 ];
 
 /**
@@ -80,6 +78,26 @@ const ANCORAS_RETIRADAS_POR_A12 = [
   'ok: individualStats.valid || calculation.responseCount || 0',
   'total: individualStats.total || calculation.responseCount || activeProjectResponses.length || 0',
   'individualStats: individualStats.total > 0 ? individualStats : undefined',
+];
+
+/**
+ * ⚠ **Âncoras que a REMOÇÃO DA ANÁLISE DE FAIRNESS retirou da tela**, conferidas agora
+ * pela AUSÊNCIA, na mesma convenção de `ANCORAS_RETIRADAS_POR_A12`. Elas eram a leitura
+ * da configuração de grupos sensíveis do documento do projeto e o envio dela no payload.
+ *
+ * ⚠ **A r2 espelha a tela ANTERIOR a esta remoção**, e por isso a requisição dela
+ * mantém `sensitiveGroups` entre os campos inventariados, com tratamento `omissao`: é
+ * registro do estado de então, e não do que a tela envia hoje.
+ *
+ * ⚠ **Nenhum valor de `sensitiveGroups` já gravado em `projects` foi apagado.** O que
+ * saiu é o código que lia, enviava e escrevia o campo.
+ */
+const ANCORAS_RETIRADAS_PELA_REMOCAO_DE_FAIRNESS = [
+  'setSensitiveGroups(projectData.sensitiveGroups);',
+  'sensitiveGroups: sensitiveGroups || undefined',
+  'await updateDoc(projectRef, { sensitiveGroups: config });',
+  'await updateDoc(projectRef, { sensitiveGroups: deleteField() });',
+  "import BiasAnalysisCard from '@/components/BiasAnalysisCard';",
 ];
 
 /** r2: de onde a rota de cálculo tira os dois metadados que a requisição usa. */
@@ -379,6 +397,7 @@ function declaracaoR2() {
 }
 
 module.exports = {
-  ARQUIVO, TELA, CALCULO, ANCORAS_DA_TELA, ANCORAS_DO_CALCULO, ANCORAS_RETIRADAS_POR_A12, ESTADOS, TRATAMENTOS, PENDENCIA_A12,
+  ARQUIVO, TELA, CALCULO, ANCORAS_DA_TELA, ANCORAS_DO_CALCULO, ANCORAS_RETIRADAS_POR_A12,
+  ANCORAS_RETIRADAS_PELA_REMOCAO_DE_FAIRNESS, ESTADOS, TRATAMENTOS, PENDENCIA_A12,
   montarRequisicao, declaracaoR1, montarRequisicaoR2, declaracaoR2, serializarRequisicao, lerArquivo,
 };

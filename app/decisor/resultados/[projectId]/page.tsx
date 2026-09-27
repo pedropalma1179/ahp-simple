@@ -42,7 +42,6 @@ import {
 import ParecerAISection from '@/components/ParecerAISection';
 import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
 import ExternalValidation from '@/components/ExternalValidation';
-import BiasAnalysisCard from '@/components/BiasAnalysisCard';
 
 // Componentes Q1/A1
 import BOCRPrioritiesTable from '@/components/BOCRPrioritiesTable';
@@ -167,11 +166,6 @@ interface Project {
     name: string;
     description?: string;
   }>;
-  sensitiveGroups?: {
-    attribute: string;
-    discriminated: string[];
-    privileged: string[];
-  };
   status: string;
 }
 
@@ -626,17 +620,8 @@ export default function ResultadosPage() {
   const [audit, setAudit] = useState<any>(null);
   const [aiReview, setAiReview] = useState<any>(null);
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
-  const [biasAnalysis, setBiasAnalysis] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  // Configuração de Disparate Impact (Dodevska et al., 2023)
-  // Opcional — o pesquisador define atributo sensível e agrupamento
-  const [sensitiveGroups, setSensitiveGroups] = useState<{
-    attribute: string;
-    discriminated: string[];
-    privileged: string[];
-  } | null>(null);
 
   // Implementação de aba persistente via URL hash
   const validTabs = ['executive', 'results', 'quality', 'robustness', 'review', 'export'] as const;
@@ -940,7 +925,6 @@ export default function ResultadosPage() {
 
     setAiReviewLoading(true);
     setAiReview(null);
-    setBiasAnalysis(null);
 
     try {
       // ============================================================
@@ -1133,23 +1117,27 @@ export default function ResultadosPage() {
       // ------------------------------------------------------------
 
       // ============================================================
-      // CONSTRUIR RESPONDENTES PARA ANÁLISE DE VIÉS
-      // Garante que o bias-detection.ts sempre recebe dados individuais
+      // CONSTRUIR A LISTA INDIVIDUAL DE RESPONDENTES COM CR NORMALIZADO
+      // ⚠ Esta lista alimenta `payload.qualityAnalysis.respondents` nos DOIS ramos,
+      //   inclusive no ramo AUSENTE, e é dela que A.12 tira o CR por respondente,
+      //   via `crDoRespondente` de `lib/ai-reviewer/avaliacao-qualidade.ts`.
+      // ⚠ O nome anterior, `biasRespondents`, dizia que o destino era a análise de
+      //   fairness. Não era: a análise saiu e esta lista continua necessária.
       // ============================================================
-      let biasRespondents: any[] = [];
+      let respondentesComCR: any[] = [];
 
       if (activeRespondents.length > 0) {
         // Usar respondentes da análise de qualidade (já processados)
-        biasRespondents = activeRespondents.map((r: any) => ({
+        respondentesComCR = activeRespondents.map((r: any) => ({
           ...r,
           cr: typeof r.cr === 'number' ? r.cr
             : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
           isSimulated: r.isSimulated === true, // Strict boolean
         }));
-        console.log(`📊 [AI-REVIEW] Bias: ${biasRespondents.length} respondentes de qualityAnalysis`);
+        console.log(`📊 [AI-REVIEW] CR individual: ${respondentesComCR.length} respondentes de qualityAnalysis`);
       } else if (activeProjectResponses.length > 0) {
         // Fallback: construir respondentes a partir das respostas brutas do Firestore
-        biasRespondents = activeProjectResponses.map((response: any, idx: number) => {
+        respondentesComCR = activeProjectResponses.map((response: any, idx: number) => {
           let cr = 0;
           if (response.consistency?.cr !== undefined) cr = response.consistency.cr;
           else if (response.cr !== undefined) cr = response.cr;
@@ -1168,7 +1156,7 @@ export default function ResultadosPage() {
             metrics: { avgCR: cr },
           };
         });
-        console.log(`📊 [AI-REVIEW] Bias: ${biasRespondents.length} respondentes de projectResponses (fallback)`);
+        console.log(`📊 [AI-REVIEW] CR individual: ${respondentesComCR.length} respondentes de projectResponses (fallback)`);
       }
 
       // ============================================================
@@ -1222,7 +1210,7 @@ export default function ResultadosPage() {
         // ⚠ A.12: a distribuição só vai quando foi MEDIDA. Sem avaliação, segue só
         // a lista de respondentes que houver, sem estatísticas fabricadas.
         qualityAnalysis: qualidadeAvaliada ? {
-          respondents: biasRespondents,
+          respondents: respondentesComCR,
           statistics: {
             byStatus: {
               'CONFIÁVEL': individualStats.valid,
@@ -1241,7 +1229,7 @@ export default function ResultadosPage() {
             critical: individualStats.critical
           }
         } : {
-          respondents: biasRespondents
+          respondents: respondentesComCR
         },
         // overallStats para compatibilidade, e só com avaliação medida.
         overallStats: qualidadeAvaliada ? {
@@ -1271,8 +1259,6 @@ export default function ResultadosPage() {
       const finalPayload = {
         ...payload,
         demographicsSummary,
-        // Disparate Impact (Dodevska et al., 2023) — opcional
-        sensitiveGroups: sensitiveGroups || undefined,
         // NOVO: Informação de exclusão para contextualizar a IA
         exclusionInfo: excludedIds.length > 0 ? {
           totalCollected: projectResponses.length,
@@ -1297,8 +1283,6 @@ export default function ResultadosPage() {
       console.log('📥 [AI-REVIEW] Response status:', response.status);
       const data = await response.json();
       console.log('📥 [AI-REVIEW] Response data:', { success: data.success, hasReview: !!data.review, error: data.error });
-      console.log('📥 [AI-REVIEW] biasAnalysis in response:', data.biasAnalysis ? `${data.biasAnalysis.overallRiskLevel} (${data.biasAnalysis.totalIndicators} indicators)` : 'NULL');
-      console.log('📥 [AI-REVIEW] metadata.biasDetection:', data.metadata?.biasDetection);
 
       if (data.success && data.review) {
         console.log('✅ [AI-REVIEW] Sucesso! Nota:', data.nota, 'Veredicto:', data.veredicto);
@@ -1311,11 +1295,6 @@ export default function ResultadosPage() {
           validation: data.validation,
           metadata: data.metadata
         });
-        // Capturar análise de viés (Dodevska et al., 2023)
-        if (data.biasAnalysis) {
-          setBiasAnalysis(data.biasAnalysis);
-          console.log('✅ [AI-REVIEW] Bias analysis:', data.biasAnalysis.overallRiskLevel, `(${data.biasAnalysis.overallScore}/100)`);
-        }
       } else {
         console.error('❌ [AI-REVIEW] Erro na resposta:', data.error);
         setAiReview({
@@ -1332,39 +1311,6 @@ export default function ResultadosPage() {
     } finally {
       console.log('🏁 [AI-REVIEW] Finalizando...');
       setAiReviewLoading(false);
-    }
-  };
-
-  // ============================================================
-  // Disparate Impact — Salvar/Remover configuração
-  // ============================================================
-
-  const saveSensitiveGroups = async (config: {
-    attribute: string;
-    discriminated: string[];
-    privileged: string[];
-  } | null) => {
-    if (!projectId) return;
-
-    try {
-      const { doc, updateDoc } = await import('firebase/firestore');
-      const { db } = await import('@/lib/firebase');
-
-      const projectRef = doc(db, 'projects', projectId);
-
-      if (config) {
-        await updateDoc(projectRef, { sensitiveGroups: config });
-        setSensitiveGroups(config);
-        console.log('✅ [DI] Configuração salva:', config);
-      } else {
-        // Remover configuração
-        const { deleteField } = await import('firebase/firestore');
-        await updateDoc(projectRef, { sensitiveGroups: deleteField() });
-        setSensitiveGroups(null);
-        console.log('🗑️ [DI] Configuração removida');
-      }
-    } catch (err) {
-      console.error('❌ [DI] Erro ao salvar:', err);
     }
   };
 
@@ -1513,12 +1459,6 @@ export default function ResultadosPage() {
         const calcDoc = await getDoc(doc(db, 'calculations', projectId));
         if (calcDoc.exists()) {
           const calcData = calcDoc.data() as CalculationResult;
-
-          // Carregar configuração de Disparate Impact (se existir)
-          if (projectData.sensitiveGroups) {
-            setSensitiveGroups(projectData.sensitiveGroups);
-            console.log('📊 [DI] Configuração carregada:', projectData.sensitiveGroups);
-          }
 
           setCalculation(calcData);
 
@@ -4948,16 +4888,6 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               loading={aiReviewLoading}
               onExecute={runAiReview}
             />
-
-            {/* 🔍 Análise de Viés nos Julgamentos (Dodevska et al., 2023) */}
-            {biasAnalysis && (
-              <BiasAnalysisCard
-                biasAnalysis={biasAnalysis}
-                alternatives={project?.alternatives || []}
-                sensitiveGroups={sensitiveGroups}
-                onSaveSensitiveGroups={saveSensitiveGroups}
-              />
-            )}
           </div>
         )}
 

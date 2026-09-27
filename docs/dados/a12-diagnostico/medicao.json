@@ -3,24 +3,43 @@
   "natureza": "LEVANTA E MEDE. Nao escolhe fonte de universo, nao corrige dado, nao altera producao. Nenhum parecer produzido, real ou simulado.",
   "identificacao": {
     "commitDaBase": "f964049b3f6639b874111356d8f84b5463793a34",
-    "procedenciaDaRegravacao": {
-      "motivo": "remocao da analise de fairness do Parecer IA",
-      "commitDaBase": "1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a",
-      "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
-      "ambiente": {
-        "plataforma": "linux",
-        "arch": "x64",
-        "node": "v22.22.2"
+    "procedenciaDasRegravacoes": [
+      {
+        "ordem": 1,
+        "motivo": "remocao da analise de fairness, commit A: o que o modelo recebe e o que a API devolve",
+        "commitDaBase": "1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto",
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+        ],
+        "camposPerdidos": 0
       },
-      "artefato": "docs/dados/a12-diagnostico/medicao.json",
-      "camposRegravados": [
-        "quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto",
-        "identificacao.codigo[app/api/ai-reviewer/route.ts]"
-      ],
-      "camposPerdidos": 0,
-      "vinculo": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao",
-      "oQueNaoE": "NAO substitui commitDaBase, que identifica a base da PRIMEIRA medicao"
-    },
+      {
+        "ordem": 2,
+        "motivo": "remocao da analise de fairness, commit B: a interface e o estado da tela",
+        "commitDaBase": "41d7e56ca754e8760dc28be23e8157f16085029a",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]"
+        ],
+        "camposPerdidos": 0
+      }
+    ],
+    "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
+    "oQueAProcedenciaNaoE": "NAO substitui commitDaBase, que identifica a base da PRIMEIRA medicao",
     "artefatos": {
       "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json": "2bff46649ad7f8c06914841a82224b12871eb2bc40f7c92380f0a18bb77a3e70",
       "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d"
@@ -28,7 +47,7 @@
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "c4cc3879b2ea9d952a46463bd97644c395c6ad0d32e4bb44b2341912f1137259",
       "app/api/ai-reviewer/route.ts": "0e3098930e1484e62745407325a778baa5d73599cbaae4e27472f6e9da14e09f",
-      "app/decisor/resultados/[projectId]/page.tsx": "cd40fdcd366eceb04d298ed590075f52ab7b9071b1f46b5edbb12df55cf17e8f",
+      "app/decisor/resultados/[projectId]/page.tsx": "5cacebc64304c0c53015424e9cafcd34eee956c3f1c3fe33c63db6e99c28708f",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }
   },
