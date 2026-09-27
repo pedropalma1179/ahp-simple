@@ -140,13 +140,12 @@ function mutilar(julgamentos: any[]): any[] {
 // ---------------------------------------------------------------------------
 
 /**
- * ⚠ **O artefato NÃO guarda resumo dos BYTES do documento.** Ele **depende do
- * ambiente**: `aggregateAIJ` agrega por soma de logaritmos, com `Math.log` e
- * `Math.exp` em `lib/ahp-engine.ts:223-225`, e a norma deixa as duas como
- * **aproximação dependente de implementação**. O CI de `8879360`, em Node 24,
- * produziu resumos diferentes dos desta máquina, em Node 22, **com o mesmo número
- * de bytes e a mesma estrutura**, e o achado se manteve lá: os dois painéis
- * continuaram iguais entre si.
+ * ⚠ **O artefato NÃO guarda resumo dos BYTES do documento**, porque esse resumo
+ * **divergiu entre ambientes**, medido. O CI de `8879360`, em Node 24, produziu
+ * resumos diferentes dos desta máquina, em Node 22, **com o mesmo número de bytes
+ * e a mesma estrutura**, e o achado se manteve lá: os dois painéis continuaram
+ * iguais entre si. ⚠ **A causa específica dessa divergência NÃO foi determinada**,
+ * e **os valores divergentes não foram preservados** em nenhum dos dois lados.
  *
  * O que o artefato guarda é **estrutura**, que não depende disso. A igualdade entre
  * os dois painéis continua medida **dentro da mesma execução**, onde a comparação é
@@ -445,7 +444,7 @@ beforeAll(async () => {
         '⚠ vale para ESTE percurso, a rota calculate gravando em calculations, e para ESTA forma de entrada, doze respostas completas sem exclusao do gestor e sem rejeicao por incompletude. Com exclusao ou rejeicao o documento DISTINGUE paineis, pela identidade de quem SAIU.',
     },
     notaSobreResumoDeBytes:
-      '⚠ resumo dos BYTES nao e registrado: depende do ambiente, porque Math.log e Math.exp sao aproximacao dependente de implementacao. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes, e a igualdade entre os dois paineis se manteve la.',
+      '⚠ resumo dos BYTES nao e registrado: divergiu entre ambientes. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes e a MESMA estrutura, e a igualdade entre os dois paineis se manteve la. ⚠ causa especifica NAO determinada, e os valores divergentes NAO foram preservados.',
     conclusaoDoQueFoiMedido:
       'dois paineis com identidades inteiramente diferentes, SEM exclusao e SEM rejeicao, gravam documento identico fora de calculatedAt: neste percurso e nesta forma de entrada o artefato NAO determina quem ENTROU',
     oQueAConclusaoNaoAlcanca:
@@ -627,10 +626,11 @@ beforeAll(async () => {
     vinculoComAExecucao: vinculo,
     versoesDoCodigo: versoes,
     /**
-     * ⚠ **OBSERVAÇÃO, e não referência de aprovação.** Valor de ponto flutuante
-     * depende do ambiente, e foi assim que o CI de `8879360` reprovou. Por isso
-     * este bloco fica **FORA** da comparação com o artefato gravado: o teste
-     * confere a FORMA dele, nunca os valores.
+     * ⚠ **OBSERVAÇÃO, e não referência de aprovação.** No CI de `8879360`,
+     * divergiram os resumos do conteúdo serializado entre ambientes.
+     * Não foram preservados os valores que permitiriam localizar a diferença.
+     * ⚠ **Causa específica não determinada.** Este bloco fica FORA da comparação
+     * com o artefato gravado: o teste confere a FORMA dele, nunca os valores.
      */
     observacaoNumericaNaoNormativa: {
       natureza: 'OBSERVACAO. NAO e referencia de aprovacao, e NAO e comparada contra o artefato gravado.',
@@ -765,7 +765,11 @@ test('3.2: dois paineis de identidades diferentes gravam o MESMO documento', () 
   expect(d.controleDiscriminante.documentosIguais).toBe(false);
   expect(d.controleDiscriminante.estruturaIgual).toBe(true);
   // ⚠ o limite do registro fica dito no proprio artefato.
-  expect(d.notaSobreResumoDeBytes).toMatch(/depende do ambiente/);
+  expect(d.notaSobreResumoDeBytes).toMatch(/divergiu entre ambientes/);
+  expect(d.notaSobreResumoDeBytes).toMatch(/causa especifica NAO determinada/);
+  // ⚠ CONTROLE NEGATIVO: a atribuicao causal nao pode voltar ao artefato. Esta
+  // linha e PROIBICAO TESTADA, e nao afirmacao causal.
+  expect(d.notaSobreResumoDeBytes).not.toMatch(/Math\.log|Math\.exp|aproximacao dependente/);
 });
 
 // ---------------------------------------------------------------------------
@@ -881,9 +885,10 @@ test('o registro diz o que NAO demonstra', () => {
 
 /**
  * ⚠ **`observacaoNumericaNaoNormativa` fica FORA desta comparação**, de propósito:
- * ela guarda ponto flutuante, que depende do ambiente. Comparar valor gravado com
- * valor recalculado foi exatamente o que reprovou o CI de `8879360`. Aqui se
- * confere a FORMA dela, e os valores ficam só para leitura humana.
+ * ela guarda ponto flutuante, e foi a comparação de resumos do conteúdo serializado
+ * que reprovou o CI de `8879360`. ⚠ **Causa específica não determinada, e os valores
+ * divergentes não foram preservados.** Aqui se confere a FORMA dela, e os valores
+ * ficam só para leitura humana.
  */
 test('o artefato gravado coincide com a medicao atual', () => {
   expect(fs.existsSync(ARTEFATO)).toBe(true);

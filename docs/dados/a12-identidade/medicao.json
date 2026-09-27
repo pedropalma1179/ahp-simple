@@ -280,7 +280,7 @@
       "leitura": "NESTES paineis, que nao tem exclusao nem rejeicao, o documento responde a JULGAMENTOS e nao a IDENTIDADES: a estrutura fica igual e so os NUMEROS mudam",
       "alcance": "⚠ vale para ESTE percurso, a rota calculate gravando em calculations, e para ESTA forma de entrada, doze respostas completas sem exclusao do gestor e sem rejeicao por incompletude. Com exclusao ou rejeicao o documento DISTINGUE paineis, pela identidade de quem SAIU."
     },
-    "notaSobreResumoDeBytes": "⚠ resumo dos BYTES nao e registrado: depende do ambiente, porque Math.log e Math.exp sao aproximacao dependente de implementacao. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes, e a igualdade entre os dois paineis se manteve la.",
+    "notaSobreResumoDeBytes": "⚠ resumo dos BYTES nao e registrado: divergiu entre ambientes. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes e a MESMA estrutura, e a igualdade entre os dois paineis se manteve la. ⚠ causa especifica NAO determinada, e os valores divergentes NAO foram preservados.",
     "conclusaoDoQueFoiMedido": "dois paineis com identidades inteiramente diferentes, SEM exclusao e SEM rejeicao, gravam documento identico fora de calculatedAt: neste percurso e nesta forma de entrada o artefato NAO determina quem ENTROU",
     "oQueAConclusaoNaoAlcanca": "⚠ nao vale para painel COM exclusao do gestor ou COM rejeicao por incompletude, onde o documento registra a identidade de quem saiu; nao vale para outros percursos, como a rota de backup, que exporta respondents e responses COM identidade; e nao diz nada sobre o estado vivo, que nao foi consultado"
   },
