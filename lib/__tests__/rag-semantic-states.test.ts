@@ -384,21 +384,32 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // percentuais e sem pontuação automática. Os valores de A.16 ficam nomeados
     // acima. **O `system` segue o mesmo**, e isso também é evidência: a correção
     // alcançou o bloco de qualidade, e nada mais.
-    const A12_MESSAGES_COM_CHUNKS = '29f55aa73a2c31588e74756fbedd5deebc8ad7b89b5ea99bdef1496a3e63be2f';
-    const A12_MESSAGES_SEM_CHUNKS = '339f5f3fca46dbcf84585b5e9a4289d834dde79dd75280d653260ce77780ebed';
+    // ⚠ **A REMOÇÃO DA ANÁLISE DE FAIRNESS move os `messages` também**, porque a
+    // seção "Análise de Viés nos Julgamentos" era montada NO CONTEXTO, junto com a
+    // linha de recurso disponível e a proibição de alegar ausência da análise. Os
+    // valores de A.12 ficam nomeados: eram `29f55aa7…` com chunks e `339f5f3f…` sem.
+    const A12_MESSAGES_COM_CHUNKS = '241117eaa1d5f12efbabc5ba1501db916adaede07878521e0ca7cc2a7158f2bf';
+    const A12_MESSAGES_SEM_CHUNKS = '5b2cb948064279be81ae4488dd87dfc8b3ccc24e1c2563f2f4e684bde82243da';
 
     // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
     // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui
     // foi medido num estado INTERMEDIÁRIO, antes de a página sair também do exemplo
     // PROIBIDO, e a suíte o reprovou. **Resumo de contexto se mede depois da última
     // alteração, nunca durante.**
-    const SYSTEM_A33 = '635fda53f7aa334dc0b30f8dab94b4bc6d30cbd3ec8e55dddcc134d001ec778e';
+    //
+    // ⚠ **A REMOÇÃO DA ANÁLISE DE FAIRNESS move o `system` de novo**, e o valor
+    // anterior fica nomeado: era `635fda53…`, o de A.33. Saíram do prompt a seção de
+    // saída "Análise de Viés e Fairness nos Julgamentos", o bloco de tipos de
+    // indicador, os dois limiares de DI, a entrada de Dodevska na bibliografia e a
+    // regra que autorizava apresentar DI em "AÇÕES DE MITIGAÇÃO". **Medido depois da
+    // última edição do prompt**, conforme o aviso acima.
+    const SYSTEM_SEM_FAIRNESS = 'f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98';
 
     const REFERENCIA: Record<string, { system: string; messages: string }> = {
-      comResultados: { system: SYSTEM_A33, messages: A12_MESSAGES_COM_CHUNKS },
-      vazio: { system: SYSTEM_A33, messages: A12_MESSAGES_SEM_CHUNKS },
-      erro: { system: SYSTEM_A33, messages: A12_MESSAGES_SEM_CHUNKS },
-      misto: { system: SYSTEM_A33, messages: A12_MESSAGES_COM_CHUNKS },
+      comResultados: { system: SYSTEM_SEM_FAIRNESS, messages: A12_MESSAGES_COM_CHUNKS },
+      vazio: { system: SYSTEM_SEM_FAIRNESS, messages: A12_MESSAGES_SEM_CHUNKS },
+      erro: { system: SYSTEM_SEM_FAIRNESS, messages: A12_MESSAGES_SEM_CHUNKS },
+      misto: { system: SYSTEM_SEM_FAIRNESS, messages: A12_MESSAGES_COM_CHUNKS },
     };
 
     const casos: Record<string, Desfecho[]> = {

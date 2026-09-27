@@ -1,13 +1,12 @@
 // app/api/ai-reviewer/route.ts
 // API de Revisão IA - PEER REVIEW ACADÊMICO A1/Q1
 // Versão: ver constante API_VERSION abaixo
-// Features: Análise Qualitativa Profunda + RAG + Detecção de Viés (Dodevska et al., 2023) + Anti-Alucinação
+// Features: Análise Qualitativa Profunda + RAG + Anti-Alucinação
 
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 import SYSTEM_PROMPT from './system-prompt';
 import { getKnowledgeStats, getCriticalRefs, getRefsByTopic, getRAGThresholds, getRAGFormulas, getRAGBenchmarks } from './knowledge';
-import { analyzeBias, formatBiasForPrompt, BiasAnalysisResult } from './bias-detection';
 import { validateCitationsAgainstWhitelist } from '@/lib/rag/citation-whitelist';
 import { getValidFinalScores, type ReviewRequest } from '@/lib/ai-reviewer/review-request';
 import {
@@ -638,8 +637,7 @@ function normalizeRequest(rawData: any): ReviewRequest {
 
 async function generateReview(
   data: ReviewRequest,
-  classification: Classificacao,
-  biasAnalysis?: BiasAnalysisResult
+  classification: Classificacao
 ): Promise<{ review: string; semanticStats: SemanticStats }> {
   console.log('[AI-REVIEWER] sensitivityInflections recebido:', JSON.stringify(data.sensitivityInflections));
 
@@ -1215,7 +1213,6 @@ Recomende ao pesquisador executar a análise de sensibilidade.`;
 - ✅ Classificação de qualidade (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO)
 - ✅ Agregação por média geométrica (Saaty, 1990)
 - ✅ Validação externa com pyAHP
-- ✅ **Detecção de viés nos julgamentos** (baseada em Dodevska et al., 2023)
 - ✅ **Fórmula de síntese BOCR ESPECIFICADA:** Síntese Subtrativa Completa (Wijnmalen, 2007, Eq. 17)
   - Score_i = vb × sb × B_i + vo × so × O_i − vc × sc × C_i − vr × sr × R_i
   - Onde v = pesos pessoais (hierarquia de controle) e s = rescaling weights (comensurabilidade)
@@ -1229,27 +1226,6 @@ Recomende ao pesquisador executar a análise de sensibilidade.`;
 - ✅ **Homogeneidade:** Escala 1-9 limita comparações a uma ordem de magnitude
 - ✅ **Dependência:** Estrutura hierárquica BOCR respeita dependência funcional
 - ✅ **Expectativas:** Ranking final reflete preferências agregadas dos especialistas
-
-## Análise de Viés nos Julgamentos
-${(() => {
-      if (biasAnalysis && biasAnalysis.totalIndicators > 0) {
-        return `✅ **ANÁLISE DE VIÉS EXECUTADA** (baseada em Dodevska et al., 2023)
-
-${formatBiasForPrompt(biasAnalysis)}
-
-**IMPORTANTE:** Inclua uma seção "Análise de Viés e Fairness nos Julgamentos" na sua revisão.
-Interprete os indicadores acima no contexto do estudo e forneça recomendações de mitigação.`;
-      } else if (biasAnalysis) {
-        return `✅ **ANÁLISE DE VIÉS EXECUTADA** - Nenhum indicador de viés significativo detectado.
-- Score de fairness: ${biasAnalysis.overallScore}/100
-- Nível de risco: ${biasAnalysis.overallRiskLevel}
-
-Reconheça a ausência de viés significativo como ponto forte do estudo.`;
-      } else {
-        return `⚠️ **ANÁLISE DE VIÉS NÃO DISPONÍVEL**
-Dados insuficientes para execução da análise de viés nos julgamentos.`;
-      }
-    })()}
 
 ## Caracterização da Amostra (Dados Demográficos)
 ${(() => {
@@ -1310,7 +1286,6 @@ Para cada métrica, siga: DADO (valor observado) → REFERÊNCIA (o que a litera
 - ❌ "Ausência de verificação dos axiomas" → Garantidos pela estrutura do sistema
 - ❌ "Implementar análise de sensibilidade" → Já implementada E executada
 - ❌ "Falta de caracterização da amostra" → Dados demográficos disponíveis
-- ❌ "Ausência de análise de viés" → Se marcada como ✅, a análise FOI executada
 - ❌ Sugerir integração com ANP, MOMILP, análise multi-período, comparação internacional ou qualquer extensão teórica
 - ❌ Sugerir "expandir" ou "complementar" com análises não implementadas
 - ❌ Sugerir limiares não publicados (como CR > 0.15)
@@ -1363,7 +1338,7 @@ export async function GET() {
   return NextResponse.json({
     name: 'AI Reviewer API',
     version: API_VERSION,
-    description: 'Peer Review Acadêmico A1/Q1 - Com Detecção de Viés (Dodevska et al., 2023)',
+    description: 'Peer Review Acadêmico A1/Q1',
     model: MODEL_CONFIG.id,
     features: [
       'Peer Review como revisor sênior A1/Q1',
@@ -1374,8 +1349,6 @@ export async function GET() {
       'Tom educativo e construtivo',
       'Suporte a bocrWeights como array ou objeto',
       'Conversão automática de formatos',
-      'Detecção de viés nos julgamentos (Dodevska et al., 2023)',
-      'Análise de fairness com explicações LLM (XAI)',
     ],
     knowledgeBase: {
       totalRefs: stats.totalRefs,
@@ -1406,63 +1379,8 @@ export async function POST(request: NextRequest) {
     const classification = calculateGrade(data);
     console.log(`${LOG_PREFIX} Classificação:`, classification);
 
-    // Executar análise de viés (Dodevska et al., 2023)
-    let biasAnalysis: BiasAnalysisResult | undefined;
-    try {
-      const respondents = data.qualityAnalysis?.respondents || [];
-      console.log(`${LOG_PREFIX} Bias: ${respondents.length} respondentes disponíveis`);
-
-      if (respondents.length > 0) {
-        // Mapear respondentes para formato esperado pelo módulo
-        const mappedRespondents = respondents.map((r: any) => ({
-          id: r.respondentId || r.id || 'unknown',
-          name: r.name || r.respondentName,
-          cr: typeof r.cr === 'number' ? r.cr : (r.metrics?.avgCR ?? r.avgCR ?? 0),
-          status: r.status || 'DESCONHECIDO',
-          isSimulated: r.isSimulated || false,
-          metrics: r.metrics || {
-            avgCR: typeof r.avgCR === 'number' ? r.avgCR : (r.cr ?? 0),
-          },
-        }));
-
-        console.log(`${LOG_PREFIX} Bias: CRs mapeados:`, mappedRespondents.slice(0, 3).map((r: any) => `${r.id}: CR=${r.cr}`));
-
-        // Mapear scores finais para cálculo de DI (Dodevska et al., 2023)
-        const rawFinalScores = data.finalScores || rawData.finalScores || [];
-        const finalScores = rawFinalScores.map((fs: any) => {
-          // Resolver o score priorizando nomenclaturas mais específicas
-          let resolvedScore = 0;
-          if (typeof fs.score === 'number') resolvedScore = fs.score;
-          else if (typeof fs.scoreSubtractive === 'number') resolvedScore = fs.scoreSubtractive;
-          else if (typeof fs.finalScore === 'number') resolvedScore = fs.finalScore;
-
-          return {
-            code: fs.code || fs.id || '',
-            name: fs.name || fs.code || '',
-            score: resolvedScore,
-          };
-        });
-
-        console.log(`${LOG_PREFIX} Bias: ${finalScores.length} alternativas com scores`);
-
-        // sensitiveGroups: definido pelo pesquisador (opcional)
-        const sensitiveGroups = rawData.sensitiveGroups || undefined;
-
-        biasAnalysis = analyzeBias({
-          respondents: mappedRespondents,
-          finalScores: finalScores.length > 0 ? finalScores : undefined,
-          sensitiveGroups,
-        });
-        console.log(`${LOG_PREFIX} Bias OK: ${biasAnalysis.overallRiskLevel}, CR compliance: ${(biasAnalysis.crComplianceRate * 100).toFixed(1)}%, ${biasAnalysis.totalIndicators} indicadores`);
-      } else {
-        console.log(`${LOG_PREFIX} Bias: sem respondentes, pulando análise`);
-      }
-    } catch (biasError: any) {
-      console.error(`${LOG_PREFIX} Erro na análise de viés (não-crítico):`, biasError.message, biasError.stack);
-    }
-
     console.log(`${LOG_PREFIX} Iniciando chamada à API Anthropic...`);
-    const { review, semanticStats } = await generateReview(data, classification, biasAnalysis);
+    const { review, semanticStats } = await generateReview(data, classification);
     console.log(`${LOG_PREFIX} Revisão gerada com sucesso!`, review.substring(0, 100) + '...');
 
     // ANTI-ALUCINAÇÃO: Validação pós-geração
@@ -1508,7 +1426,6 @@ export async function POST(request: NextRequest) {
         ? { suspensa: true, rotulo: ROTULO_NOTA_SUSPENSA, motivo: classification.motivo, avaliacaoDeQualidade: data.avaliacaoDeQualidade }
         : null,
       review,
-      biasAnalysis: biasAnalysis || null,
       // `success` informa que a geração terminou. A autorização para apresentar
       // o texto vem exclusivamente deste contrato versionado (A.27, eixo 2).
       validation: toReviewValidationContract(validation),
@@ -1529,11 +1446,6 @@ export async function POST(request: NextRequest) {
           uniqueArticles: getKnowledgeStats().uniqueArticles,
           semantic: semanticStats,
         },
-        biasDetection: biasAnalysis ? {
-          riskLevel: biasAnalysis.overallRiskLevel,
-          score: biasAnalysis.overallScore,
-          indicators: biasAnalysis.totalIndicators,
-        } : null,
         debug: debugInfo
       },
     });

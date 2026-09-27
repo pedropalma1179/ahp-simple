@@ -26,6 +26,35 @@ const RAIZ = path.resolve(__dirname, '..', '..');
 const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a12-diagnostico', 'medicao.json');
 const GRAVAR = process.env.A12_GRAVAR === '1';
 
+/**
+ * ⚠ **PROCEDÊNCIA DESTA REGRAVAÇÃO, e o `commitDaBase` histórico NÃO é substituído.**
+ * A remoção da análise de fairness alterou `app/api/ai-reviewer/route.ts` e
+ * `app/api/ai-reviewer/system-prompt.ts`, e o contexto medido encolheu, então o artefato
+ * foi regravado.
+ *
+ * ⚠ **Constante FIXA, e não leitura do ambiente de quem executa**, pelo mesmo motivo
+ * registrado em `8879360`: valor dependente do ambiente dentro de artefato comparado
+ * reprova no CI sem indicar defeito.
+ *
+ * ⚠ **O vínculo com o código medido é `identificacao.codigo`**, com o sha256 dos
+ * arquivos lidos nesta execução.
+ */
+const PROCEDENCIA_DA_REGRAVACAO = {
+  motivo: 'remocao da analise de fairness do Parecer IA',
+  commitDaBase: '1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a',
+  comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+  ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+  artefato: 'docs/dados/a12-diagnostico/medicao.json',
+  // ⚠ Caminhos MEDIDOS por comparacao campo a campo, e nao descritos de memoria.
+  camposRegravados: [
+    'quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto',
+    'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+  ],
+  camposPerdidos: 0,
+  vinculo: 'identificacao.codigo traz o sha256 dos arquivos DESTA execucao',
+  oQueNaoE: 'NAO substitui commitDaBase, que identifica a base da PRIMEIRA medicao',
+};
+
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
 const shaArquivo = (rel: string) => sha256(fs.readFileSync(path.join(RAIZ, rel)));
@@ -476,7 +505,10 @@ beforeAll(async () => {
     rodada: 'A.12 bloqueios, DIAGNOSTICO',
     natureza: 'LEVANTA E MEDE. Nao escolhe fonte de universo, nao corrige dado, nao altera producao. Nenhum parecer produzido, real ou simulado.',
     identificacao: {
+      // ⚠ HISTÓRICO: a base da PRIMEIRA medição, e não a desta execução.
       commitDaBase: 'f964049b3f6639b874111356d8f84b5463793a34',
+      // ⚠ A procedência DESTA regravação, ao lado do histórico e sem substituí-lo.
+      procedenciaDaRegravacao: PROCEDENCIA_DA_REGRAVACAO,
       artefatos: Object.fromEntries([REQUISICAO, PROJETO].map((f) => [f, shaArquivo(f)])),
       codigo: Object.fromEntries([CONTRATO, ROTA, TELA, COMPONENTE].map((f) => [f, shaArquivo(f)])),
     },
@@ -814,6 +846,21 @@ test('o registro diz o que NAO demonstra', () => {
   expect(s).toMatch(/NAO exercita a apresentacao ao gestor/);
   expect(s).toMatch(/NAO julga a legitimidade/);
   expect(M.natureza).toMatch(/Nenhum parecer produzido/);
+});
+
+/**
+ * ⚠ **A REGRAVAÇÃO REGISTRA PROCEDÊNCIA PRÓPRIA, e não herda a do primeiro
+ * levantamento.** O artefato traz os dois: `commitDaBase`, histórico, e
+ * `procedenciaDaRegravacao`, desta execução. **Um artefato regravado com só o histórico
+ * apresentaria medição nova sob procedência antiga.**
+ */
+test('a regravacao registra procedencia PROPRIA, ao lado da historica', () => {
+  const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  const p = gravado.identificacao.procedenciaDaRegravacao;
+  expect(p).toEqual(PROCEDENCIA_DA_REGRAVACAO);
+  expect(gravado.identificacao.commitDaBase).toBe('f964049b3f6639b874111356d8f84b5463793a34');
+  expect(p.commitDaBase).not.toBe(gravado.identificacao.commitDaBase);
+  expect(p.oQueNaoE).toMatch(/NAO substitui commitDaBase/);
 });
 
 test('o artefato gravado coincide com a medicao atual', () => {

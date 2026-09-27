@@ -3,13 +3,31 @@
   "natureza": "LEVANTA E MEDE. Nao escolhe fonte de universo, nao corrige dado, nao altera producao. Nenhum parecer produzido, real ou simulado.",
   "identificacao": {
     "commitDaBase": "f964049b3f6639b874111356d8f84b5463793a34",
+    "procedenciaDaRegravacao": {
+      "motivo": "remocao da analise de fairness do Parecer IA",
+      "commitDaBase": "1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a",
+      "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+      "ambiente": {
+        "plataforma": "linux",
+        "arch": "x64",
+        "node": "v22.22.2"
+      },
+      "artefato": "docs/dados/a12-diagnostico/medicao.json",
+      "camposRegravados": [
+        "quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto",
+        "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+      ],
+      "camposPerdidos": 0,
+      "vinculo": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao",
+      "oQueNaoE": "NAO substitui commitDaBase, que identifica a base da PRIMEIRA medicao"
+    },
     "artefatos": {
       "docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json": "2bff46649ad7f8c06914841a82224b12871eb2bc40f7c92380f0a18bb77a3e70",
       "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d"
     },
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "c4cc3879b2ea9d952a46463bd97644c395c6ad0d32e4bb44b2341912f1137259",
-      "app/api/ai-reviewer/route.ts": "d3da9b905ef0b159f28aaa6ab3587c03a3f71cb26c0835d5d4cbd43c7d0e3137",
+      "app/api/ai-reviewer/route.ts": "0e3098930e1484e62745407325a778baa5d73599cbaae4e27472f6e9da14e09f",
       "app/decisor/resultados/[projectId]/page.tsx": "cd40fdcd366eceb04d298ed590075f52ab7b9071b1f46b5edbb12df55cf17e8f",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }
@@ -362,7 +380,7 @@
           "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
           "- Respostas CRÍTICAS (CR > 0.20): 0 (0.0%)"
         ],
-        "bytesDoContexto": 71860
+        "bytesDoContexto": 70886
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -404,7 +422,7 @@
           "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 70222
+        "bytesDoContexto": 69894
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -446,7 +464,7 @@
           "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 71893
+        "bytesDoContexto": 70919
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -494,7 +512,7 @@
           "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
           "- Respostas CRÍTICAS (CR > 0.20): 9 (100.0%)"
         ],
-        "bytesDoContexto": 71851
+        "bytesDoContexto": 70877
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",

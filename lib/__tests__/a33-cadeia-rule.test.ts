@@ -111,6 +111,29 @@ const METADADOS_HISTORICOS = {
   versoes: { preparacao: 'v2', requisicao: 'r2' },
 };
 
+/**
+ * ⚠ **PROCEDÊNCIA DESTA REGRAVAÇÃO, e é o bloco que `METADADOS_HISTORICOS` NÃO
+ * substitui.** A remoção da análise de fairness alterou `app/api/ai-reviewer/route.ts`
+ * e `app/api/ai-reviewer/system-prompt.ts`, então a medição corrente deixou de
+ * coincidir com a gravação anterior e o artefato foi regravado.
+ *
+ * ⚠ **Constante FIXA, e não leitura do ambiente de quem executa.** Ler
+ * `process.version` aqui reproduziria a reprovação de CI de `8879360`, em que um valor
+ * dependente do ambiente entrou no artefato comparado.
+ *
+ * ⚠ **O vínculo com o código medido é `identificacao.codigo`**, que traz o sha256 dos
+ * arquivos lidos nesta execução. É ele, e não este bloco, que muda quando o código muda.
+ */
+const PROCEDENCIA_DA_REGRAVACAO = {
+  motivo: 'remocao da analise de fairness do Parecer IA',
+  commitDaBase: '1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a',
+  comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+  ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+  artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+  vinculo: 'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido',
+  oQueNaoE: 'NAO substitui commitMedido, comando, versoes nem ambiente, que identificam a medicao ORIGINAL',
+};
+
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
 const shaArquivo = (rel: string) => sha256(fs.readFileSync(path.join(RAIZ, rel)));
@@ -402,6 +425,9 @@ const CHAVES_FALSAS: Record<string, string> = {
 const NOMES_ENV = [...Object.keys(CHAVES_FALSAS), 'USE_RAG_SEMANTIC'];
 const SENTINELA = 'INTERROMPIDO-ANTES-DE-PRODUZIR-CONTEUDO';
 
+/** Texto capturado por caso, para os controles de ausência. Não entra no artefato. */
+const CAPTURAS: Record<string, { system: string; messages: string }> = {};
+
 const SECOES = [
   { chave: 'consistencia', titulo: '## Referências sobre Consistência e Validação de Dados', comContexto: true },
   { chave: 'bocr', titulo: '## Referências sobre Metodologia BOCR', comContexto: true },
@@ -678,6 +704,9 @@ beforeAll(async () => {
     ['C3', 'true', [[], [], [], [], []]],
   ] as Array<[string, string | null, any]>) {
     const cap = await capturar(flag, chunks, requisicao);
+    // ⚠ Guardado em variável de MÓDULO, e NÃO no artefato: o artefato registra
+    //   comprimentos, não o texto do prompt.
+    CAPTURAS[nome] = { system: cap.system, messages: cap.messages };
     const alvo = cap.system.includes(SECOES[0].titulo) ? 'system' : 'messages';
     const texto = alvo === 'system' ? cap.system : cap.messages;
     const recortes = recortarSecoes(texto);
@@ -792,6 +821,8 @@ beforeAll(async () => {
       comando: METADADOS_HISTORICOS.comando,
       // ⚠ HISTÓRICO, e não o ambiente de quem executa agora.
       ambiente: METADADOS_HISTORICOS.ambiente,
+      // ⚠ A procedência DESTA regravação, ao lado dos históricos e sem substituí-los.
+      procedenciaDaRegravacao: PROCEDENCIA_DA_REGRAVACAO,
     },
     inventario: {
       artigos: base.artigos.length,
@@ -1195,6 +1226,75 @@ test('complemento: associacao DUPLICADA interrompe antes de qualquer casamento',
   expect(indexarPorId([d, { id: 'outro_c0', rule: 'B' }]).size).toBe(2);
 });
 
+// ------------------------------------------------------------ ausência de fairness
+
+/**
+ * ⚠ **CONTROLE DE AUSÊNCIA DA ANÁLISE DE FAIRNESS, sobre o que o modelo RECEBE.**
+ *
+ * ⚠ **As marcas são strings que SÓ o sistema escreve**, e não as palavras genéricas
+ * "fairness" ou "Disparate Impact" sozinhas. **A razão é medida, não estilística:** o
+ * artigo `dodevska2023when.ts` permanece no RAG por decisão da tarefa, as suas claims
+ * falam de fairness, e em C1 os trechos recuperados entram no contexto. **Exigir zero
+ * menções reprovaria pela evidência bibliográfica preservada**, que é o esperado, e não
+ * pelo resíduo da funcionalidade.
+ *
+ * ⚠ **A busca cobre `system` E `messages` juntos**, porque as seções de referência
+ * podem ser montadas em qualquer um dos dois: `alvo`, acima, decide isso em execução.
+ */
+const MARCAS_QUE_SO_O_SISTEMA_ESCREVIA = [
+  '## Análise de Viés nos Julgamentos',
+  'Análise de Viés e Fairness nos Julgamentos',
+  'ANÁLISE DE VIÉS EXECUTADA',
+  'ANÁLISE DE VIÉS NÃO DISPONÍVEL',
+  'SEÇÃO ADICIONAL - ANÁLISE DE VIÉS',
+  'Score de fairness',
+  'Detecção de viés nos julgamentos',
+  'Ausência de análise de viés',
+  'DISPARATE_IMPACT_BELOW',
+  'DISPARATE_IMPACT_ABOVE',
+  'DI_NOT_CONFIGURED',
+  'DI_COMPLIANT',
+  'DI ≥ 0.80',
+  'DI ≤ 1.25',
+];
+
+/**
+ * ⚠ **O QUE TEM DE CONTINUAR CHEGANDO**, e é a metade do controle que a ausência não
+ * cobre: um controle que só verifica ausência passaria com o prompt inteiro apagado.
+ */
+const ANCORAS_PRESERVADAS = [
+  '### Consistência dos Julgamentos',
+  'CR ≤ 0.10',
+  'NUNCA atribuir a Dodevska',
+  'Cálculo automático de CR por respondente',
+];
+
+test('fairness: nada que o sistema escrevia sobre a analise retirada chega ao modelo', () => {
+  for (const nome of ['C1', 'C2', 'C3']) {
+    const texto = CAPTURAS[nome].system + '\n' + CAPTURAS[nome].messages;
+    expect(texto.length).toBeGreaterThan(1000);
+    for (const marca of MARCAS_QUE_SO_O_SISTEMA_ESCREVIA) {
+      expect(texto).not.toContain(marca);
+    }
+    for (const ancora of ANCORAS_PRESERVADAS) {
+      expect(texto).toContain(ancora);
+    }
+  }
+});
+
+test('fairness: o modulo retirado nao existe, e nada em producao o importa', () => {
+  expect(fs.existsSync(path.join(RAIZ, 'app', 'api', 'ai-reviewer', 'bias-detection.ts'))).toBe(false);
+  const rota = fs.readFileSync(path.join(RAIZ, 'app', 'api', 'ai-reviewer', 'route.ts'), 'utf8');
+  expect(rota).not.toContain('bias-detection');
+  expect(rota).not.toContain('analyzeBias');
+  expect(rota).not.toContain('formatBiasForPrompt');
+  expect(rota).not.toContain('biasAnalysis');
+  expect(rota).not.toContain('biasDetection');
+  // ⚠ PRESERVADO: a consulta semântica de viés cognitivo é RECUPERAÇÃO, e sai do
+  //   escopo desta remoção. Conferida pela PRESENÇA, para que a remoção não a leve.
+  expect(rota).toContain("'viés cognitivo painel decisão MCDM'");
+});
+
 // ------------------------------------------------------------ preservação
 /**
  * ⚠ **INTEGRIDADE HISTÓRICA, e a fonte é a CÓPIA CONGELADA**, não `M`. Aplicar a
@@ -1252,6 +1352,26 @@ test('complemento: os metadados historicos do artefato foram preservados', () =>
   expect(gravado.identificacao.serializacaoDeclarada.sha256).toBe(M.identificacao.serializacaoDeclarada.sha256);
   expect(gravado.identificacao.versoes).toEqual({ preparacao: 'v2', requisicao: 'r2' });
   expect(gravado.identificacao.codigo).toEqual(M.identificacao.codigo);
+});
+
+/**
+ * ⚠ **A REGRAVAÇÃO REGISTRA PROCEDÊNCIA PRÓPRIA, e não herda a histórica.** Este
+ * controle exige que o artefato traga os dois blocos ao mesmo tempo: o histórico, que
+ * identifica a medição original, e o desta regravação. **Um artefato regravado que
+ * trouxesse só o histórico apresentaria medição nova sob procedência antiga.**
+ */
+test('complemento: a regravacao registra procedencia PROPRIA, ao lado da historica', () => {
+  const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  const p = gravado.identificacao.procedenciaDaRegravacao;
+  expect(p).toEqual(PROCEDENCIA_DA_REGRAVACAO);
+  // ⚠ Os dois blocos coexistem, e o novo NAO substituiu o historico.
+  expect(gravado.identificacao.commitMedido).toBe(METADADOS_HISTORICOS.commitMedido);
+  expect(p.commitDaBase).not.toBe(METADADOS_HISTORICOS.commitMedido);
+  expect(p.oQueNaoE).toMatch(/NAO substitui commitMedido/);
+  // ⚠ O vinculo com o codigo e `identificacao.codigo`, medido, e nao este bloco.
+  expect(gravado.identificacao.codigo['app/api/ai-reviewer/route.ts']).toBe(
+    shaArquivo('app/api/ai-reviewer/route.ts')
+  );
 });
 
 // ------------------------------------------------------------ regressão por unidade
