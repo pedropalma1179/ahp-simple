@@ -10508,7 +10508,13 @@ incluídos; **(b)** vincular as respostas deles à execução.
 | **I** ids dos incluídos | **sim** | **não**: a lista de identificadores não diz qual resposta de cada um entrou, nem em que estado | **uma só** |
 | **II** id do documento e `completedAt` | **sim**, por incluir a I | **não demonstrado**, e ver R4: há caminho que muda julgamentos sem mudar `completedAt` | **uma só** |
 | **III** participação por célula | **sim**, quem contribuiu implica quem entrou | **parcial**: amarra a contribuição às células daquela execução, e **não** preserva o conteúdo julgado | **uma e parte da outra** |
-| **IV** instantâneo da origem vinculado à execução | **sim**, o instantâneo carrega identidade | **sim, SE** o instantâneo for imutável e estiver amarrado à execução, o que é **requisito, não capacidade demonstrada** | **as duas, sob requisito** |
+| **IV** instantâneo da origem vinculado à execução | **não por si só**: `app/api/backup/route.ts:24-38` exporta TODOS os respondentes e TODAS as respostas do projeto, filtradas só por `projectId` e **incluindo as incompletas**, então as identidades do instantâneo **não dizem quais passaram pela seleção do cálculo**. **Sim, SE** o instantâneo preservar **as entradas efetivamente selecionadas**, ou houver **vínculo verificável** entre ele e a seleção daquela execução | **sim, SE** o instantâneo for imutável e estiver amarrado à execução, o que é **requisito, não capacidade demonstrada** | **as duas, sob requisito** |
+
+⚠ **O requisito da IV tem três partes, e nenhuma delas está demonstrada:** o
+instantâneo precisa ser **imutável**, precisa estar **amarrado à execução**, e precisa
+**explicitar a seleção efetivamente utilizada**, por preservar as entradas selecionadas
+ou por vínculo verificável com elas. ⚠ **Isto precisa o requisito, e não escolhe nem
+implementa a alternativa.**
 
 ⚠ **Nenhuma mudança futura, por si só, recupera os dados históricos ausentes.** Todas
 valem das próximas execuções em diante, e o arquivo de 13/07/2026 continua sem
