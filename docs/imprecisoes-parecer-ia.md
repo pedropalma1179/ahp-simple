@@ -10701,6 +10701,115 @@ alocação acima vem do que cada teste importa e exercita.
 
 ---
 
+## A.33: integridade histórica separada do comportamento atual, em 27/09/2026
+
+⚠ **Esta rodada NÃO remove fairness.** Ela corrige o contrato de preservação do
+instrumento `lib/__tests__/a33-cadeia-rule.test.ts`, que era o que travava a remoção. A
+remoção retoma depois, pelo prompt próprio. Base
+`0d02fab52777dd8e3673e8d2c3f2e6121b0f9013`.
+
+### O nó que se desfez
+
+O arquivo `docs/dados/a33-cadeia-rule/medicao.json` servia de **registro histórico** e
+de **espelho da medição corrente**, e os dois papéis se tornaram incompatíveis quando
+`app/api/ai-reviewer/route.ts` mudou. O artefato embute `identificacao.codigo` e os
+comprimentos do contexto, e `reconstruir7405839` **não** desfaz nenhum dos dois:
+medido, o resumo canônico saía de `a6c3b03f…` para `8c1e31b7…`, com
+`identificacao.codigo['app/api/ai-reviewer/route.ts']` de `d3da9b90…` para `0e309893…`
+e os bytes do `system` de **37200** para **34170** nos três casos.
+
+### A decisão do autor, e o que NÃO foi feito
+
+**Preservar o teste histórico e separar a sua finalidade da medição atual.** Não
+suspender o teste, e **não congelar valores dentro da medição viva**.
+
+⚠ **Nenhum valor histórico foi fixado dentro de `M`.** `identificacao.codigo` continua
+calculado do código **atual**. Fixar ali o resumo antigo de `route.ts` esconderia a
+alteração que ocorreu, e a aprovação anterior, que era sobre metadados de **ambiente**,
+não autoriza apresentar medição atual como se viesse do código antigo.
+
+### A cópia congelada, e o que ela é
+
+`docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`, cópia **byte a byte** de
+`medicao.json` em `0d02fab`, conferida por `cmp` e por `sha256sum`:
+**223411 bytes**, sha256 `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d`,
+idêntico ao objeto do git em `0d02fab`.
+
+⚠ **Ela NÃO é o artefato de `7405839`.** É a **medição de `0d02fab`** que **reproduz** o
+artefato de `7405839` quando se aplica `reconstruir7405839`. O nome diz a data da cópia,
+e não a do artefato reproduzido, e a distinção está escrita no instrumento, no campo
+`PRESERVADO_0D02FAB.oQueNaoE`.
+
+⚠ **`medicao.json` não foi renomeado nem alterado**, conferido por `sha256sum` antes e
+depois: segue em `a5a8d996…`. Ele continua sendo a medição corrente, regravável por
+`A33_GRAVAR=1`.
+
+### Os três controles, e o que cada um alcança
+
+| Controle | Fonte | Alcança | NÃO alcança |
+|---|---|---|---|
+| **integridade histórica** | a cópia congelada | que a medição de `0d02fab` reproduz `a6c3b03f…` com **87057** bytes sob a reconstrução declarada | os campos que a reconstrução descarta, e qualquer execução posterior |
+| **integridade integral da cópia** | a cópia congelada | os **bytes completos**, inclusive `camadas[].entrada` e `saidaReal` | o comportamento do código |
+| **comportamento atual** | `M` e `medicao.json` | entradas, saídas reais de `rule`, seleção e presença no contexto, medidas pelo código **atual** | integridade histórica |
+
+⚠ **A referência `ORIGINAL_7405839` não mudou**, nem o resumo `a6c3b03f…` nem os 87057
+bytes: é ela que o controle histórico confere, e a reprodução foi **reconferida na
+execução**, com a função real.
+
+⚠ **O que o contrato DEIXOU de exigir:** que a medição corrente continue igual ao
+artefato de `7405839` a cada execução futura. **Em compensação**, os três testes que
+comparam o gravado com `M`, em `:1030`, `:1175` e `:1180` da base, seguem intactos e
+continuam exigindo **regravação** quando o código muda. **Nada do que eles verificam foi
+alterado.**
+
+⚠ **Os dois controles de integridade têm alcances diferentes e nenhum substitui o
+outro**, e o próprio teste o afirma: `223411` não é `87057`, e `a5a8d996…` não é
+`a6c3b03f…`.
+
+### A referência do controle integral, e de onde ela veio
+
+**Fixa no teste**, obtida da **origem** `medicao.json` **antes** de a cópia existir, e
+nunca calculada do próprio arquivo em execução. A ordem está registrada: primeiro o
+`sha256sum` da origem, depois o `cp`, depois a conferência por `cmp`.
+
+### Procedência das regravações futuras
+
+Os valores de `METADADOS_HISTORICOS` continuam identificando **a medição original**, e
+não a execução corrente, e isso está declarado no instrumento. ⚠ **Cada regravação
+futura de `medicao.json` deverá registrar procedência própria:** SHA do código medido,
+ambiente, comando e vínculo com o artefato produzido.
+
+### Os dois contra-exemplos, nos controles corretos
+
+| Ensaio | O que foi adulterado | Reprovou em | Passou em |
+|---|---|---|---|
+| **1, histórico** | `camadas[0].entrada.claim` na cópia congelada, campo que a reconstrução **descarta** | `preservacao: os BYTES COMPLETOS da copia congelada conferem com a referencia fixa`, com 223411 esperado contra 223374 recebido | `preservacao: a copia congelada reproduz 7405839 sob a reconstrucao declarada`, que **ignora** aquele campo |
+| **2, comportamento** | no **instrumento**, `u.saidaReal` passou a receber a cópia local em vez do valor capturado do módulo real | `complemento: confrontar toma o valor do MODULO, e nao o da previsao local`, na linha 1160, com o sentinela `SENTINELA-DA-COPIA-LOCAL-QUE-O-MODULO-NAO-PRODUZ` no lugar da frase do módulo | os controles de arquivo, e **nenhum artefato foi regravado** |
+
+⚠ **O primeiro demonstra que o controle integral pega o que a reconstrução não pega.** O
+segundo reprovou numa **asserção comportamental**, e não num resumo de arquivo, que é o
+que o ensaio exigia. Restauro conferido por `sha256sum` depois de cada um.
+
+### Verificação, medida pela execução
+
+Ambiente **local**: Linux x86_64, Node **v22.22.2**, npm 10.9.7. `npx tsc --noEmit` sai
+**0**. `npm test` sai 0 com **27 suítes e 469 testes**, contra 468 antes: o teste novo é
+o do controle integral. ⚠ **A suíte passa inteira SEM a remoção de fairness aplicada**,
+e `app/api/ai-reviewer/bias-detection.ts` segue presente, como esta rodada exige.
+
+### O que a retomada da remoção terá de relatar
+
+Registrado aqui para não se perder, além do que o prompt v3 da remoção já pede:
+
+- **`rag-semantic-states`:** o **diff das expectativas que mudaram**, e não só os
+  resumos novos;
+- **`a12-diagnostico`:** **quais campos foram regravados**, conservando as evidências
+  anteriores necessárias.
+
+⚠ **"Regravou e passou" não basta para a auditoria.**
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção

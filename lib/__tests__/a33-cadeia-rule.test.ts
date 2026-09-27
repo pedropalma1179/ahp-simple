@@ -39,6 +39,50 @@ const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a33-cadeia-rule', 'medicao.js
 const GRAVAR = process.env.A33_GRAVAR === '1';
 
 /**
+ * ⚠ **CONTRATO NOVO, de 27/09/2026: integridade histórica e comportamento atual são
+ * controles SEPARADOS.**
+ *
+ * O arquivo `medicao.json` servia de registro histórico E de espelho da medição
+ * corrente, e os dois papéis se tornaram incompatíveis quando `app/api/ai-reviewer/route.ts`
+ * mudou: o artefato embute `identificacao.codigo` e os comprimentos do contexto, e a
+ * reconstrução de `7405839` não os desfaz.
+ *
+ * **O que cada controle passa a alcançar:**
+ *
+ * | Controle | Fonte | Alcança | NÃO alcança |
+ * |---|---|---|---|
+ * | integridade histórica | a CÓPIA CONGELADA | que a medição de `0d02fab` reproduz o artefato de `7405839` sob a reconstrução declarada | os campos que a reconstrução descarta, e qualquer execução posterior |
+ * | integridade integral da cópia | a CÓPIA CONGELADA | os BYTES COMPLETOS do arquivo congelado, inclusive `camadas[].entrada` e `saidaReal` | o comportamento do código |
+ * | comportamento atual | `M` e `medicao.json` | entradas, saídas reais de `rule`, seleção e presença no contexto, medidas pelo código ATUAL | integridade histórica |
+ *
+ * ⚠ **O que o contrato DEIXOU de exigir:** que a medição corrente continue igual ao
+ * artefato de `7405839` a cada execução futura. **Em compensação, os controles
+ * comportamentais continuam ativos**, e os três testes que comparam o gravado com `M`
+ * seguem exigindo regravação quando o código muda.
+ *
+ * ⚠ **Nenhum valor histórico foi fixado dentro de `M`.** `identificacao.codigo`
+ * continua calculado do código ATUAL, e fixar ali o resumo antigo de `route.ts`
+ * esconderia a alteração que ocorreu.
+ */
+const ARTEFATO_PRESERVADO = path.join(RAIZ, 'docs', 'dados', 'a33-cadeia-rule', 'medicao-preservada-0d02fab.json');
+
+/**
+ * ⚠ **O que a cópia congelada É, e o que ela NÃO É.** Ela **não** é o artefato de
+ * `7405839`: é a **cópia byte a byte da medição em `0d02fab`**, que **reproduz** o
+ * artefato de `7405839` quando se aplica `reconstruir7405839`.
+ *
+ * ⚠ **Referência FIXA, obtida da ORIGEM `docs/dados/a33-cadeia-rule/medicao.json`
+ * ANTES de a cópia existir**, e nunca calculada do próprio arquivo em execução.
+ */
+const PRESERVADO_0D02FAB = {
+  sha256Bytes: 'a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d',
+  bytes: 223411,
+  origem: 'copia byte a byte de docs/dados/a33-cadeia-rule/medicao.json em 0d02fab52777dd8e3673e8d2c3f2e6121b0f9013',
+  regra: 'SHA-256 dos BYTES COMPLETOS do arquivo, com a referencia obtida da origem ANTES da copia',
+  oQueNaoE: 'NAO e o artefato de 7405839: e a medicao de 0d02fab, que o REPRODUZ sob reconstruir7405839',
+};
+
+/**
  * ⚠ **METADADOS HISTÓRICOS DA MEDIÇÃO ORIGINAL, fixados aqui como constantes.**
  *
  * ⚠ **NUNCA se regeneram de `process.version`, `process.platform`, `process.arch`
@@ -53,6 +97,12 @@ const GRAVAR = process.env.A33_GRAVAR === '1';
  * ⚠ **Servem de referência EXTERNA ao artefato** para o controle de adulteração:
  * o teste compara o artefato com estas constantes, e **não** o artefato consigo
  * mesmo.
+ */
+/**
+ * ⚠ **PROCEDÊNCIA DAS REGRAVAÇÕES FUTURAS.** Os valores abaixo identificam **a medição
+ * ORIGINAL**, e não a execução corrente. **Cada regravação futura de `medicao.json`
+ * deverá registrar procedência própria:** SHA do código medido, ambiente, comando e
+ * vínculo com o artefato produzido. **Nesta tarefa, `medicao.json` permanece intacto.**
  */
 const METADADOS_HISTORICOS = {
   commitMedido: 'ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d',
@@ -1146,11 +1196,39 @@ test('complemento: associacao DUPLICADA interrompe antes de qualquer casamento',
 });
 
 // ------------------------------------------------------------ preservação
-test('complemento: removidos SO entrada e saidaReal, e desfeitas as correcoes de procedencia, o JSON reproduz 7405839', () => {
-  const reconstruido = reconstruir7405839(M);
+/**
+ * ⚠ **INTEGRIDADE HISTÓRICA, e a fonte é a CÓPIA CONGELADA**, não `M`. Aplicar a
+ * reconstrução sobre a medição corrente deixou de reproduzir o artefato quando
+ * `route.ts` mudou, porque o artefato embute `identificacao.codigo` e os comprimentos
+ * do contexto. ⚠ **A referência `ORIGINAL_7405839` NÃO muda**, nem o resumo nem os
+ * bytes: é ela que este controle confere.
+ */
+test('preservacao: a copia congelada reproduz 7405839 sob a reconstrucao declarada', () => {
+  const preservado = JSON.parse(fs.readFileSync(ARTEFATO_PRESERVADO, 'utf8'));
+  const reconstruido = reconstruir7405839(preservado);
   const canonico = JSON.stringify(reconstruido);
   expect(Buffer.byteLength(canonico, 'utf8')).toBe(ORIGINAL_7405839.bytesCanonicos);
   expect(sha256(canonico)).toBe(ORIGINAL_7405839.sha256Canonico);
+});
+
+/**
+ * ⚠ **INTEGRIDADE INTEGRAL DA CÓPIA, e ela NÃO substitui o controle acima.** A
+ * reconstrução **descarta** justamente os campos acrescentados depois de `7405839`,
+ * entre eles `camadas[].entrada` e `camadas[].saidaReal`, então `a6c3b03f…` **não
+ * protege o arquivo inteiro**. E a igualdade entre origem e cópia, medida só na
+ * criação, não cobre adulteração posterior. Este controle confere os **bytes
+ * completos** contra a referência FIXA acima.
+ */
+test('preservacao: os BYTES COMPLETOS da copia congelada conferem com a referencia fixa', () => {
+  const bytes = fs.readFileSync(ARTEFATO_PRESERVADO);
+  expect(bytes.length).toBe(PRESERVADO_0D02FAB.bytes);
+  expect(sha256(bytes)).toBe(PRESERVADO_0D02FAB.sha256Bytes);
+  // ⚠ A referência NÃO é calculada do próprio arquivo: é constante do teste.
+  expect(PRESERVADO_0D02FAB.regra).toMatch(/obtida da origem ANTES da copia/);
+  expect(PRESERVADO_0D02FAB.oQueNaoE).toMatch(/NAO e o artefato de 7405839/);
+  // ⚠ Os dois controles têm alcances diferentes, e nenhum substitui o outro.
+  expect(PRESERVADO_0D02FAB.sha256Bytes).not.toBe(ORIGINAL_7405839.sha256Canonico);
+  expect(PRESERVADO_0D02FAB.bytes).not.toBe(ORIGINAL_7405839.bytesCanonicos);
 });
 
 test('complemento: as QUATRO excecoes aprovadas estao enumeradas, e o JSON nao as carrega', () => {
