@@ -10585,6 +10585,122 @@ enquanto o CI usa 24.x.
 
 ---
 
+## Remoção da análise de fairness: predição registrada em 27/09/2026
+
+⚠ **Predição escrita ANTES de qualquer alteração de código**, conforme a regra central
+deste repositório. Base `75d7971277fa68b3839eaebc8b73abb093e9c2ff`.
+
+**A decisão do autor:** o software não precisa de análise de fairness, e nem a
+dissertação nem o artigo a abordam. Pelo teste de trilho, ela não corrige cálculo, não
+ajuda o gestor a decidir ou a argumentar e não diferencia o artigo. **A decisão inclui a
+interface**, e não se reabre aqui.
+
+### 1. A predição
+
+**Depois da remoção, o parecer gerado deixa de trazer a seção "Análise de Viés e
+Fairness nos Julgamentos" e não menciona Disparate Impact.**
+
+### 2. O caso negativo, nomeado
+
+**O modelo continua escrevendo a seção**, ou **passa a declarar a ausência da análise
+como limitação do estudo**, que é exatamente o que `app/api/ai-reviewer/system-prompt.ts:108`
+hoje proíbe em texto explícito. ⚠ **Se a proibição sair junto com o resto, o caso
+negativo fica mais plausível, não menos.**
+
+⚠ **Precedente que torna esse caso plausível:** em A.3 a predição foi **refutada**, e a
+refutação revelou um **segundo canal no prompt** que o levantamento não tinha visto. É a
+razão de esta predição ser escrita antes, e de o levantamento da Fase 2 declarar onde
+procurou.
+
+### 3. O controle comportamental, sobre o que se PRESERVA
+
+Os CRs por respondente, a classificação de A.12 e a suspensão continuam **iguais nos
+mesmos casos**, nomeados aqui antes da mudança:
+
+| Caso | Onde está | Estado esperado, antes e depois |
+|---|---|---|
+| `C-disponivel` | `lib/__tests__/a12-diagnostico.test.ts`, quatro respondentes com `cr` 0.05 | `disponivel`, sem suspensão, contexto com percentual |
+| `C-ausente` | idem, sem `qualityAnalysis.respondents`, com `byStatus` fabricado | `ausente`, com suspensão e sem percentual |
+| `C-incompleta` | idem, quatro respondentes e dois sem `cr` | `incompleta`, com suspensão e sem percentual |
+| `C-contradicao` | idem, campos suficientes com três contradições | `disponivel`, sem suspensão, e as contradições seguem não examinadas |
+| requisição de referência r2 | `docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json` | `ausente`, porque a lista de respondentes está vazia |
+
+⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA até a geração
+autorizada.** Nenhum parecer novo será produzido nesta rodada, e as respostas fixas do
+cliente simulado **não** verificam redação.
+
+### 4. O alcance levantado, com o que foi conferido e o que faltava
+
+**Escopo consultado:** `git grep -n -i` por `bias`, `fairness`, `disparate` e
+`sensitiveGroup` em `app`, `lib`, `components` e `scripts`, **244 ocorrências** em 20
+arquivos, mais leitura dirigida de `bias-detection.ts`, `route.ts`, `system-prompt.ts`,
+`page.tsx` e `BiasAnalysisCard.tsx`.
+
+**O inventário do analista conferiu no essencial, e estava INCOMPLETO em cinco pontos:**
+
+| O que faltava | Onde |
+|---|---|
+| o log de saída da análise | `route.ts:1456` |
+| o `catch` que engole o erro da análise | `route.ts:1458-1460` |
+| oito linhas de fairness no prompt de sistema | `system-prompt.ts` `18`, `70`, `77`, `83-84`, `90`, `350`, `370-380` |
+| o estado e o reset do cartão na tela | `page.tsx` `629`, `943`, `1137-1171`, `1225`, `1244`, `1300-1301`, `1315-1317`, `1342` |
+| ⚠ **o aparato de teste que CONTA as linhas de `sensitiveGroups` da tela** | `scripts/a33-payload-referencia.cjs:64-65`, consumido por `lib/__tests__/a33-snapshot-v2.test.ts:611` |
+
+⚠ **O quinto é o que quebraria a suíte sem aviso.** O script fixa duas âncoras da tela
+com contagem **1** cada, `setSensitiveGroups(projectData.sensitiveGroups);` e
+`sensitiveGroups: sensitiveGroups || undefined`, e o teste as confere contra o fonte
+vivo. O próprio script já traz a convenção para este caso, a lista
+`ANCORAS_RETIRADAS_POR_A12`, conferida pela **ausência**.
+
+**Levantamento da consistência, e ele decide o que fica.** O módulo une duas análises:
+`analyzeConsistency` em `245`, que produz `crComplianceRate`, e
+`analyzeDisparateImpact` em `317`, que produz `disparateImpact`. **Pela cadeia de
+chamadas**, o que de CR sai do módulo é consumido **somente** pelo cartão
+`BiasAnalysisCard.tsx` e pelos três pontos da rota que também saem: o bloco de contexto
+em `1235-1250`, o log em `1456` e `metadata.biasDetection` em `1532-1535`.
+
+**De onde A.12 tira o CR hoje:** de `lib/ai-reviewer/avaliacao-qualidade.ts`, função
+`crDoRespondente`, que lê `r.cr`, `r.metrics.avgCR`, `r.avgCR` e `r.consistency.cr` da
+**requisição**, e **não importa o módulo removido**. A distribuição de qualidade que a
+rota monta em `352-392` também vem da requisição. A origem primária dos CRs é
+`lib/respondent-weights.ts`, pela rota `/api/response-quality` e pela tela.
+
+⚠ **Conclusão do levantamento: nenhuma verificação de consistência de que o sistema
+depende existe SOMENTE no módulo removido.** O que o módulo faz com CR é uma **segunda
+leitura** dos mesmos CRs da requisição, consumida apenas pelo que sai. **Não é parada.**
+
+**Homônimos que NÃO pertencem a esta tarefa**, com produtor e consumidor identificados:
+`overallScore` em `app/api/response-quality/route.ts:390` e `422`, que é o score da
+análise de qualidade; e `warningCount` e `criticalCount` em `route.ts:352-431`,
+`QualityConsistency.tsx:168`, `page.tsx:1048-1118` e `page.tsx:2449`, todos calculados
+da requisição ou do estado da tela.
+
+**Testes identificados pelo que exercitam, e a alocação nos commits:**
+
+| Teste | O que exercita | Commit |
+|---|---|---|
+| `a12-diagnostico.test.ts` | tratador real de `ai-reviewer`, os quatro casos, captura de contexto | A, sem edição prevista |
+| `a12-qualidade-ausente.test.ts` | tratador real, suspensão e aviso no contexto | A, sem edição prevista |
+| `a33-montagem-contexto.test.ts` | captura de `system` e `messages` do tratador real | A, sem edição prevista |
+| `a33-cadeia-rule.test.ts` | monta requisição e percorre a cadeia até o contexto | A, sem edição prevista |
+| `rag-diagnostico-regressao.test.ts`, `rag-semantic-states.test.ts` | tratador real, recuperação simulada | A, sem edição prevista |
+| `engine-census.test.ts` | varredura de fontes por padrão | A, sem edição prevista: todas as asserções são de conjunto vazio ou de inexistência |
+| `a33-conferencia-regressao.test.ts` | formas de citação, com Dodevska como **dado de teste** | nenhum: importa `lib/rag/conferencia-sustentacao`, não o prompt |
+| **`a33-snapshot-v2.test.ts`** | **conta as âncoras da tela contra o fonte vivo** | **B, com edição**, junto de `scripts/a33-payload-referencia.cjs` |
+
+⚠ **Nenhuma conclusão de ausência de cobertura foi tirada por busca de termos.** A
+alocação acima vem do que cada teste importa e exercita.
+
+### 5. O que esta predição NÃO afirma
+
+- **não afirma** que o modelo obedecerá: isso é o caso negativo, e só a geração
+  autorizada decide;
+- **não afirma** que a suíte existente verifica redação, porque ela usa respostas fixas;
+- **não afirma** que o levantamento é completo: A.3 mostrou que um segundo canal pode
+  escapar, e é por isso que o alcance está declarado acima.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
