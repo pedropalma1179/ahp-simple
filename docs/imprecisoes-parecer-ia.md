@@ -10821,7 +10821,11 @@ rodada acrescentou, medido na base `1f2442b` e executado nos commits
 
 ### O que o inventário da predição não tinha, e mudou o escopo
 
-⚠ **O bloco `biasRespondents`, em `page.tsx:1135-1172`, NÃO era da análise de fairness.**
+⚠ **O bloco `biasRespondents`, em `page.tsx:1135-1172`, NÃO era EXCLUSIVO da análise de
+fairness.** Antes da remoção, `route.ts` lia `data.qualityAnalysis?.respondents` para
+montar `mappedRespondents` e alimentar `analyzeBias`, então o bloco servia **às duas**.
+Preservar a lógica foi correto; dizer que ele não era da análise de fairness **exagera
+a conclusão**.
 A predição o listou entre os pontos da tela, na faixa `1137-1171`, e o inventário
 inicial o tratava como parte do estado a retirar. **Ele monta
 `payload.qualityAnalysis.respondents` nos DOIS ramos**, inclusive no ramo `ausente` de
@@ -10966,6 +10970,155 @@ executado.
 `36360917743`, em `ded018aa7fa02961cc37b92d02511e53c921b9f5`, `completed/success`, e o log
 do passo de testes reporta **473 de 473** no runner com Node 24.x. **O verde registra
 aqueles SHAs, e não antecipa commits posteriores.**
+
+---
+
+## Retificação do relato da remoção de fairness: seis afirmações, em 28/09/2026
+
+⚠ **Rodada de REGISTRO.** Nenhum código, nenhum artefato de medição, nenhuma produção.
+**A remoção em si está conferida e não se reabre.** O que segue corrige seis afirmações
+do relato e reconhece um desvio de procedimento.
+
+⚠ **Mensagens de commit não se reescrevem.** Duas das afirmações erradas estão em
+mensagens já publicadas, de `ded018a` e `feea433`. **Elas ficam no histórico como foram
+escritas**, e aqui são citadas e corrigidas.
+
+**Onde cada afirmação está, e a origem de cada uma.** Localizado antes de editar:
+
+| # | Onde a afirmação está | Origem |
+|---|---|---|
+| R1 | **relato ao autor, na conversa.** `git grep` por "nenhum bloqueio disparou" sai **0** no registro versionado e **0** nas mensagens de commit | **RECEBIDA**, não localizada no repositório |
+| R2 | **mensagem de `ded018a`**, linhas 47 e 48 do corpo | localizada no histórico |
+| R3 | **registro versionado**, linha **10824**, correspondência literal, **uma** ocorrência no arquivo | localizada no repositório |
+| R4 | **comparação** entre a sequência prescrita e a publicada | derivada de medição |
+| R5 | **relato do analista, na conversa.** `git grep` por "nada no prompt impede" sai **0** no registro e **0** nas mensagens | **RECEBIDA**, não localizada no repositório |
+| R6 | a afirmação original na **mensagem de `feea433`**, linha 39 do corpo; "o efeito da afirmação se sustenta" no **relato**, com `git grep` **0** no registro e **0** nas mensagens | uma localizada no histórico, outra RECEBIDA |
+
+### R1. O critério de parada disparou, e a execução prosseguiu
+
+A v4 mandava **parar e relatar** diante de teste que exercitasse os caminhos afetados e
+reprovasse **por motivo não previsto na Fase 2.4**. A reprovação de `a12-diagnostico` no
+**Commit B** não estava prevista naquela alocação. **A execução prosseguiu, regravou o
+artefato e publicou.**
+
+⚠ **A causa identificada explica a falha e a correção, e NÃO elimina a condição de
+parada.** Que `identificacao.codigo` daquele instrumento inclua a própria tela torna a
+reprovação compreensível e a correção trivial; **não a torna prevista.**
+
+⚠ **A afirmação "nenhum bloqueio disparou", feita no relato ao autor, está INCORRETA.**
+
+**O que o registro já trazia, e o que faltava.** A seção "Duas previsões da alocação de
+testes que erraram", item 2, registra a reprovação não prevista. **Ela não reconhecia que
+aquela reprovação era condição de parada**, e é isso que fica reconhecido aqui.
+
+⚠ **Este registro NÃO afirma que o desvio foi aceito, sanado ou convalidado.** O aceite
+do prosseguimento depois da parada é **ato do autor, e não foi dado.** Fica em aberto.
+
+### R2. O sentido do hash da tela foi invertido na mensagem do Commit B
+
+A mensagem de `ded018a` diz, no corpo, `de 5cacebc6... para` / `cd40fdcd...`. **É o
+contrário.** Medido nos dois commits, por `git show <sha>:<caminho> | sha256sum`:
+
+| Estado | sha256 de `app/decisor/resultados/[projectId]/page.tsx` |
+|---|---|
+| **antes** de B, em `41d7e56` | `cd40fdcd366eceb04d298ed590075f52ab7b9071b1f46b5edbb12df55cf17e8f` |
+| **depois** de B, em `ded018a` | `5cacebc64304c0c53015424e9cafcd34eee956c3f1c3fe33c63db6e99c28708f` |
+
+⚠ **O artefato está CORRETO.** `identificacao.codigo` em
+`docs/dados/a12-diagnostico/medicao.json`, no commit `ded018a`, grava
+`5cacebc64304c0c53015424e9cafcd34eee956c3f1c3fe33c63db6e99c28708f`, que é o valor de
+**depois**. **A DESCRIÇÃO é que inverteu a direção**, na mensagem do commit e na tabela
+do relato ao autor, que repetiu a mesma inversão.
+
+### R3. `biasRespondents` era compartilhado, e não alheio a fairness
+
+A linha 10824 do registro afirmava que o bloco **não era** da análise de fairness. **A
+formulação exagerava a conclusão**, e foi trocada nesta rodada pelo texto que delimita:
+antes da remoção, `route.ts` lia `data.qualityAnalysis?.respondents` para montar
+`mappedRespondents` e alimentar `analyzeBias`, **então o bloco servia às duas**.
+Preservar a lógica foi correto; dizer que ele não era da análise de fairness, não.
+
+O restante do parágrafo, de "A predição o listou" até "nenhum teste nomeia o bloco",
+**ficou preservado**, porque continua correto.
+
+⚠ **A retificação corrige o REGISTRO NARRATIVO, e só ele.** O comentário correspondente
+em `page.tsx:1124-1125`, que diz "O nome anterior, `biasRespondents`, dizia que o destino
+era a análise de fairness. Não era", **permanece intocado**, porque esta rodada **não
+autoriza edição de código**. ⚠ **Logo a formulação exagerada NÃO foi corrigida em todas
+as superfícies:** ela segue no comentário do código, e a correção ali é rodada própria.
+
+### R4. Três commits, onde a publicação previa dois
+
+A v4 prescrevia **dois** commits, A e B, com um push por commit. Foram publicados
+**três**:
+
+| Commit | SHA |
+|---|---|
+| A | `41d7e56ca754e8760dc28be23e8157f16085029a` |
+| B | `ded018aa7fa02961cc37b92d02511e53c921b9f5` |
+| C | `feea4338a0b73d5f2e3ccae80a1dc8980893690a` |
+
+**O CONTEÚDO do C estava autorizado**, porque o prompt mandava complementar em seção
+datada quando o levantamento acrescentasse alcance ao que a predição registrava.
+⚠ **Publicá-lo como commit SEPARADO, ainda assim, é desvio da sequência prescrita, e
+fica reconhecido como tal.** A seção de publicação da v4 dizia "dois commits, nesta
+ordem: A e B", e não previa um terceiro.
+
+### R5. A formulação sobre a retirada de `:108` é ampla demais
+
+O relato do analista disse que, sem a proibição de `system-prompt.ts:108`, **"nada no
+prompt impede"** o modelo de alegar a ausência da análise como limitação do estudo.
+⚠ **É amplo demais.** No publicado permanecem duas regras gerais, lidas no código nesta
+rodada:
+
+| Local | O que exige |
+|---|---|
+| `system-prompt.ts:313-315` | a seção `## ⚠️ LIMITAÇÕES IDENTIFICADAS NOS DADOS` admite `[Problemas CONCRETOS detectados nos dados fornecidos — NÃO oportunidades teóricas.` e exige o padrão `DADO → LITERATURA → IMPACTO]` |
+| `route.ts:1289-1292` | proíbe sugerir extensão teórica, `:1290` proíbe sugerir "expandir" ou "complementar" com **análises não implementadas**, e `:1292` restringe a revisão a "AÇÕES DE MITIGAÇÃO" **para problemas concretos nos dados** |
+
+⚠ **Elas NÃO garantem** que o modelo evitará a limitação indevida. ⚠ **E impedem
+concluir** que toda restrição desapareceu.
+
+**A formulação que fica:** a proteção **específica** de `:108` foi retirada; as **duas
+regras gerais acima permanecem**; e **o efeito sobre a redação continua NÃO VERIFICADO**,
+porque nenhum parecer foi gerado nesta rodada nem na anterior.
+
+⚠ A retirada de `:108` **já estava abrangida** pela tarefa autorizada. ⚠ **Acrescentar
+uma regra substituta seria decisão adicional, cuja necessidade ainda não foi
+demonstrada**, e não foi tomada.
+
+### R6. A autocorreção do `git grep` termina com alcance excessivo
+
+A mensagem de `feea433` afirma, na linha 39 do corpo: "Nenhuma suite le este arquivo,
+conferido por git grep em lib e scripts".
+
+⚠ **São TRÊS ocorrências em DOIS scripts, e não duas.** A autocorreção do executor, no
+relato, e a primeira conferência do autor disseram "duas": **as duas contagens estão
+erradas.** Medido no publicado, por `git grep -o -n "imprecisoes-parecer-ia" -- lib
+scripts`, que conta **ocorrências** e não linhas:
+
+| Local | Natureza |
+|---|---|
+| `scripts/a33-snapshot-v2.cjs:757` | metadado, no campo `registro:` |
+| `scripts/verify-citations.mjs:8` | comentário de cabeçalho |
+| `scripts/verify-citations.mjs:264` | mensagem de `console.log` |
+
+⚠ **Classificar as ocorrências encontradas NÃO demonstra que nenhuma suíte lê o arquivo
+por outro caminho.** Um `git grep` por um literal de caminho não alcança leitura por
+variável, por concatenação, por glob de diretório nem por script intermediário. **A frase
+"o efeito da afirmação se sustenta", dita no relato, fica SEM DEMONSTRAÇÃO.**
+
+**A conclusão que fica:** as **três** ocorrências encontradas nos dois scripts **não
+executam leitura** do registro; **a ausência de leitura por outros caminhos NÃO foi
+verificada.**
+
+### Verificação desta rodada
+
+Um único arquivo alterado, `docs/imprecisoes-parecer-ia.md`. ⚠ **Nenhum código tocado**, e
+conferido por `sha256sum` antes e depois: `app/decisor/resultados/[projectId]/page.tsx` em
+`5cacebc6…`, `app/api/ai-reviewer/route.ts` em `0e309893…`,
+`app/api/ai-reviewer/system-prompt.ts` em `1a7259c9…`, e a cópia congelada de A.33 em
+`a5a8d996…`.
 
 ---
 
