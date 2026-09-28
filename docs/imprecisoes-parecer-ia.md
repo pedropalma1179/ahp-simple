@@ -10810,6 +10810,165 @@ Registrado aqui para não se perder, além do que o prompt v3 da remoção já p
 
 ---
 
+## Remoção da análise de fairness: complemento datado do alcance, em 28/09/2026
+
+⚠ **Isto COMPLEMENTA a predição publicada em `0d02fab`, e não a reescreve.** A predição,
+o caso negativo nomeado e o controle comportamental dela ficam como foram publicados,
+antes de qualquer alteração de código. O que segue é o alcance que o levantamento desta
+rodada acrescentou, medido na base `1f2442b` e executado nos commits
+`41d7e56ca754e8760dc28be23e8157f16085029a`, A, e
+`ded018aa7fa02961cc37b92d02511e53c921b9f5`, B.
+
+### O que o inventário da predição não tinha, e mudou o escopo
+
+⚠ **O bloco `biasRespondents`, em `page.tsx:1135-1172`, NÃO era da análise de fairness.**
+A predição o listou entre os pontos da tela, na faixa `1137-1171`, e o inventário
+inicial o tratava como parte do estado a retirar. **Ele monta
+`payload.qualityAnalysis.respondents` nos DOIS ramos**, inclusive no ramo `ausente` de
+`:1243-1245`, e é dele que A.12 tira o CR por respondente, via `crDoRespondente` de
+`lib/ai-reviewer/avaliacao-qualidade.ts:41-46`. **Retirá-lo teria quebrado A.12 sem
+aviso**, porque nenhum teste nomeia o bloco.
+
+**É o quinto caso medido da regra de que nome de identificador é hipótese, não
+evidência.** O `dominanceAnalyzer` não media dominância, o `avgCR` era o máximo, o
+`verbatim_quote` não era verbatim, o "Skip link" pulava instruções, e o
+`biasRespondents` não era de viés.
+
+**O que se fez:** a lógica ficou intacta; mudaram o nome, para `respondentesComCR`, dois
+comentários que apontavam para o módulo removido, e dois rótulos de log. ⚠ **Manter o
+comentário "Garante que o bias-detection.ts sempre recebe dados individuais" seria
+afirmação falsa no código, sobre arquivo que não existe mais.**
+
+### Duas preservações na rota que o inventário não previa
+
+| Ponto | Por que fica |
+|---|---|
+| `route.ts:57`, a consulta `'viés cognitivo painel decisão MCDM'` | é uma das cinco consultas semânticas fixas do RAG. **É recuperação**, da mesma natureza dos sinônimos de `knowledge.ts:39` que a tarefa preserva, e mexer ali muda o que o índice devolve para outras consultas |
+| `route.ts:458`, o comentário `// Penalidade se Riscos muito baixo (pode indicar viés)` | justifica uma penalidade de peso BOCR na classificação de qualidade, que é outra funcionalidade e está fora desta tarefa |
+
+O primeiro é conferido pela **PRESENÇA** no controle novo, para que uma remoção futura
+não o leve junto.
+
+### O prompt de sistema: as duas edições parciais, e o preço do item 108
+
+⚠ **Preservação prevaleceu sobre remoção de bloco em dois pontos.** Em `:77` ficou a
+proibição geral de citar "Feldman et al. (2015)", que tem outro uso e é registro próprio
+do projeto; saiu só o redirecionamento para a regra dos 80%. Em `:18` saiu apenas a
+palavra `viés` da lista de métricas. E `:90`, a regra de **nunca** atribuir viés
+cognitivo ao Dodevska, ficou: **o risco permanece**, porque o artigo continua no RAG e
+continua recuperável pela consulta preservada de `:57`.
+
+⚠ **O item `:108` saiu, e isso torna o caso negativo da predição MAIS plausível.** A
+premissa daquela proibição, de que DI é uma camada opcional de auditoria aplicada sobre o
+ranking final, deixa de ser verdadeira quando a camada não existe; mantê-la seria
+instruir o modelo sobre funcionalidade ausente, e reintroduzir o assunto no parecer.
+**A predição publicada já previa exatamente isto, nestes termos.** ⚠ **Não foi inventada
+proibição substituta:** uma regra geral nova, proibindo tratar como limitação qualquer
+análise que o sistema não executa, seria construto novo e decisão do autor, fora do
+escopo autorizado aqui.
+
+⚠ **A análise de CR do parecer NÃO dependia da seção retirada.** A seção
+`### Consistência dos Julgamentos`, em `:325-332`, cobre CR global, por dimensão BOCR,
+individual e mitigação, e ficou intacta.
+
+### O levantamento da consistência, pela cadeia de chamadas
+
+`crDoRespondente` lê da **requisição**, nos campos `cr`, `metrics.avgCR`, `avgCR` e
+`consistency.cr`; o arquivo do contrato **não tem import algum** nem uma ocorrência de
+`bias`; a origem primária é `lib/respondent-weights.ts`. Fora dos testes, os únicos
+vínculos com o módulo retirado eram o import de `route.ts:10` e **dois comentários**.
+⚠ **Nenhuma verificação de consistência de que o sistema depende existia somente no
+módulo retirado**, então não houve parada.
+
+### O que o contexto perdeu, medido
+
+O `system` passou de **37200** para **34170** bytes nos três casos, e o arquivo
+`system-prompt.ts` de **37875** para **34845**: **delta de 3030 nos dois**, que é a
+conferência à mão do agregado. O contexto dos quatro casos de A.12 encolheu **974, 328,
+974 e 974** bytes; **170 desses bytes são as duas linhas constantes retiradas**, medidas,
+e o resto é a seção, que tem ramos.
+
+⚠ **Na primeira leitura do relato do jest eu inverti o lado do diff** e li o contexto
+como tendo crescido. A conferência do valor gravado em disco mostrou o contrário. Fica
+registrado: **o lado `+` do jest é o `received`, e aqui o `received` era o gravado.**
+
+### Duas previsões da alocação de testes que erraram
+
+1. Em `a33-cadeia-rule` reprovaram **dois** dos três testes que comparam o gravado com
+   `M`, e não os três: passou o `UNIDADE POR UNIDADE`, porque os campos que ele compara
+   não mudaram.
+2. **`a12-diagnostico` reprovou TAMBÉM no commit B**, o que a alocação não previa:
+   `identificacao.codigo` daquele instrumento inclui a própria tela, então alterar
+   `page.tsx` exige regravar. Um campo, zero campos perdidos.
+
+### Procedência das regravações, e por que virou lista
+
+A regra de A.33 exige que cada regravação registre procedência própria. Com duas
+regravações do mesmo artefato, **um campo único faria o commit B apagar a procedência do
+commit A**, deixando-a só no histórico do git. `procedenciaDasRegravacoes` passou a ser
+**lista que acumula**, com uma entrada por regravação, e o teste exige que ela acumule,
+que as ordens sejam consecutivas, que as bases sejam distintas e que nenhuma substitua o
+`commitDaBase` histórico.
+
+⚠ **As constantes de ambiente são FIXAS no teste, e não leitura de `process.version`:**
+valor dependente do ambiente dentro de artefato comparado foi o que reprovou o CI em
+`8879360`.
+
+### O controle de ausência, e por que não exige zero menções
+
+As marcas do controle são **strings que só o sistema escrevia**, e não as palavras
+"fairness" ou "Disparate Impact" sozinhas. ⚠ **A razão é medida, não estilística:** o
+artigo `dodevska2023when.ts` fica no RAG por decisão da tarefa, as claims dele falam de
+fairness, e em C1 os trechos recuperados entram no contexto. **Exigir zero menções
+reprovaria pela evidência bibliográfica preservada**, que é o esperado, e não pelo
+resíduo da funcionalidade.
+
+O mesmo teste exige a **presença** de quatro âncoras, porque um controle só de ausência
+passaria com o prompt inteiro apagado.
+
+**Contraexemplo executado:** reintroduzida uma exigência de fairness no prompt, reprovou
+exatamente um teste, na asserção de ausência, e a restauração conferiu por `sha256`.
+
+### O alcance, e o que NÃO foi verificado
+
+A captura interrompe **antes** de produzir conteúdo. Ela demonstra que o contexto é
+montado inteiro e que a chamada ao modelo é alcançada, com `chamouOModelo` verdadeiro nos
+quatro casos, e **nada diz** sobre a resposta final do handler nem sobre a apresentação ao
+gestor.
+
+⚠ **A predição sobre a REDAÇÃO do modelo permanece NÃO VERIFICADA.** Nenhum parecer foi
+produzido, nenhuma chamada externa de inferência, embedding ou recuperação foi feita, e as
+respostas fixas do cliente simulado não a verificam. **A avaliação da predição depende de
+uma geração autorizada, e é rodada própria.**
+
+### Preservações conferidas por hash, antes de A e depois de B
+
+`lib/rag/articles/dodevska2023when.ts`, `lib/rag/index.ts` com o import de `:30` e o
+registro de `:72`, `app/api/ai-reviewer/knowledge.ts` com os sinônimos de `:39`, e a cópia
+congelada de A.33 em `a5a8d996…` com 223411 bytes: **diff vazio nas duas conferências**.
+Os dois controles de preservação de A.33 seguem passando, e nem `a6c3b03f…` nem os 87057
+bytes mudaram.
+
+⚠ **Nenhum valor de `sensitiveGroups` gravado em `projects` foi apagado**, e nenhuma
+migração foi escrita: saiu o código que lia, enviava e escrevia o campo. **A limpeza do
+dado vivo é outra tarefa, e não estava autorizada.**
+
+### Medição, pela execução
+
+`npx tsc --noEmit` sai 0. `npm test` sai 0 com **27 suítes e 473 testes**, contra 469
+antes; os quatro acrescentados são os dois de procedência e os dois de ausência de
+fairness. `npm run build` compila e gera 17 páginas. Ambiente **observado**, e não
+requisito do repositório: Linux x86_64, Node v22.22.2, npm 10.9.7. `npm run lint` não foi
+executado.
+
+**CI, pelo identificador e pelo `head_sha`:** commit A na execução `36359705101`, em
+`41d7e56ca754e8760dc28be23e8157f16085029a`, `completed/success`; commit B na execução
+`36360917743`, em `ded018aa7fa02961cc37b92d02511e53c921b9f5`, `completed/success`, e o log
+do passo de testes reporta **473 de 473** no runner com Node 24.x. **O verde registra
+aqueles SHAs, e não antecipa commits posteriores.**
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
