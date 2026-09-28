@@ -11402,6 +11402,66 @@ utilização exige **diferença de significado demonstrada para o par efetivamen
 ⚠ Coerência interna, sem cobertura do universo real nem vínculo com a execução. **A predição
 sobre a redação do modelo permanece NÃO TESTADA.**
 
+
+## A.12 etapa 1, complemento datado da predição: o ramo compartilhado deixa de prometer um nome, em 28/09/2026
+
+**Base:** `2c1a9db25244e8b4f1e262d3cb1479264e83960a`, cabeça de
+`claude/loving-shannon-661fy9`. ⚠ **Registrado ANTES de qualquer edição de código**, e o
+commit deste complemento não toca código.
+
+### O achado, E1, e é de redação e não de comportamento
+
+Em `app/api/ai-reviewer/route.ts`, o ramo do contexto criado por D1 atende às **duas**
+causas de coerência, e a sua segunda linha diz:
+
+> Os CRs individuais dos respondentes FORAM avaliados; o que não se concluiu foi a verificação nomeada acima, e NENHUMA contradição foi demonstrada.
+
+⚠ Em `coerencia_nao_concluida` o motivo interpolado na linha anterior **nomeia** V2 ou V3,
+e a frase é exata. Em `coerencia_nao_avaliada` o motivo diz que a coerência **não chegou a
+correr**, e **não nomeia verificação alguma**: a frase promete ao modelo um nome que ali
+não existe. **É a mesma classe de defeito de C5 e de D1** — afirmar ao modelo algo que não
+foi medido —, agora em escala menor e no eixo da redação.
+
+**A frase passa a ser:**
+
+> Os CRs individuais dos respondentes FORAM avaliados; a verificação de coerência não foi concluída, pelo motivo informado acima, e NENHUMA contradição foi demonstrada.
+
+⚠ **Nada mais muda no ramo**, e **nenhum ramo novo é criado**: as duas causas continuam
+partilhando este, com rótulos próprios interpolados por `elegivel.rotulo`.
+
+### A PREDIÇÃO
+
+**Medido antes de editar**, no fonte das duas frases: a atual tem **146 caracteres e 151
+bytes** em UTF-8, a nova tem **166 e 173**. O delta é **+20 caracteres e +22 bytes**, e é o
+único delta que esta correção introduz no texto entregue ao modelo.
+
+| # | O que se prevê | Como se verifica |
+|---|---|---|
+| E1.1 | No caso **não avaliada**, o que o modelo recebe deixa de conter `verificação nomeada acima`, e nenhuma outra frase passa a prometer nome | asserção sobre o contexto capturado, com o componente real exercitado |
+| E1.2 | No caso **não concluída**, quem nomeia a verificação continua sendo o **motivo**, na linha anterior, que segue trazendo `V2:` ou `V3:` | asserção sobre o motivo entregue |
+| E1.3 | Os ramos de **contradição**, **ausente** e **incompleta** ficam **palavra por palavra** | `git grep -o -F` de cada linha, uma ocorrência cada, mais o diff do commit |
+| E1.4 | `bytesDoContexto` dos **quatro** casos de `a12-diagnostico` **não muda**, porque nenhum deles usa este ramo: são `P1`, `ausente`, `incompleta` e `contradicao` | regravação campo a campo do artefato |
+
+### O CASO NEGATIVO, NOMEADO
+
+⚠ **A predição fica REFUTADA se** o texto entregue no caso **não avaliada** continuar
+apontando para um nome; **ou** se o caso **não concluída** deixar de ter a verificação
+nomeada em lugar nenhum do que o modelo recebe; **ou** se qualquer linha dos três ramos
+preservados mudar; **ou** se `bytesDoContexto` se mover em algum dos quatro casos.
+
+### E2 NÃO altera o que o modelo recebe, e por isso NÃO tem predição
+
+⚠ **Predição só cabe onde a correção altera o que o modelo recebe.** E2 muda o **nome de
+um teste**, **comentários** e este **registro** — o modelo não lê nenhum dos três. **Verifica-se
+contra a fonte**, e é o que a implementação faz, com os números reconferidos antes de
+escrever.
+
+### O limite, que não muda
+
+⚠ Coerência interna, sem cobertura do universo real nem vínculo com a execução. **A predição
+sobre a redação do modelo permanece NÃO TESTADA:** nenhum parecer novo foi gerado, e o que se
+mede é o que o modelo **recebe**, não o que ele escreve.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
