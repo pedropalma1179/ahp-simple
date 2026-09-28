@@ -1122,7 +1122,8 @@ export default function ResultadosPage() {
       //   inclusive no ramo AUSENTE, e é dela que A.12 tira o CR por respondente,
       //   via `crDoRespondente` de `lib/ai-reviewer/avaliacao-qualidade.ts`.
       // ⚠ O nome anterior, `biasRespondents`, dizia que o destino era a análise de
-      //   fairness. Não era: a análise saiu e esta lista continua necessária.
+      //   fairness. Ela era UMA das destinatárias: a lista atendia fairness E A.12.
+      //   A análise saiu, e a lista permanece necessária para A.12.
       // ============================================================
       let respondentesComCR: any[] = [];
 

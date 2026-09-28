@@ -69,6 +69,19 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 3,
+    motivo: 'correcao do comentario de respondentesComCR na tela: a lista atendia fairness E A.12',
+    commitDaBase: 'd7b0bc4c31acc781a6a3ac8f41dc81fa9795e6a3',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ Alteracao de COMENTARIO, sem mudanca de logica: o diff da tela traz duas linhas
+    //   de comentario que entram e uma que sai, e ZERO linhas nao-comentario. O sha256 do
+    //   arquivo muda de todo modo, e e por isso que a regravacao e necessaria.
+    camposRegravados: ['identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]'],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

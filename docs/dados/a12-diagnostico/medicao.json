@@ -36,6 +36,22 @@
           "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 3,
+        "motivo": "correcao do comentario de respondentesComCR na tela: a lista atendia fairness E A.12",
+        "commitDaBase": "d7b0bc4c31acc781a6a3ac8f41dc81fa9795e6a3",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -47,7 +63,7 @@
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "c4cc3879b2ea9d952a46463bd97644c395c6ad0d32e4bb44b2341912f1137259",
       "app/api/ai-reviewer/route.ts": "0e3098930e1484e62745407325a778baa5d73599cbaae4e27472f6e9da14e09f",
-      "app/decisor/resultados/[projectId]/page.tsx": "5cacebc64304c0c53015424e9cafcd34eee956c3f1c3fe33c63db6e99c28708f",
+      "app/decisor/resultados/[projectId]/page.tsx": "2d3442c0cbd31828083cf7cfbb92abd4c178cc6d65569ce4c6aeff8edc8d9ad8",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }
   },
