@@ -152,8 +152,19 @@ test('V1 nao tem via de producao para INCOMPATIVEL, e nenhum campo a cria', () =
  * ⚠ **O estado continua no VOCABULARIO**, e a sua utilizacao exige **diferenca de
  * significado demonstrada para o par efetivamente comparado**. Esta rodada **nao cria
  * caminhos artificiais para produzi-lo** nem amplia V4 para outras categorias.
+ *
+ * ⚠ **A base desta afirmação é a enumeração dos 28 pontos DE CÓDIGO que definem `estado`
+ * no módulo**, classificados em declaração de tipo, indireção e literal, e **não** o
+ * `git grep` pelo literal de atribuição do estado incompatível, que sai 0 em linha de
+ * código. ⚠ **O padrão vai DESCRITO e não citado:** escrevê-lo aqui faria este comentário
+ * casar com ele, e por isso as duas contagens se fazem sobre linhas de código. **Um grep
+ * por literal é conferência de apoio, e não prova suficiente:** não alcança atribuição por
+ * variável, por cast, por construção fora do módulo, nem variação de aspas ou de
+ * espaçamento. Dos cinco casts do módulo, **nenhum** é sobre `estado`. O ensaio das oito
+ * requisições é **controle complementar**, e mede apenas que o estado não apareceu
+ * naqueles casos.
  */
-test('nenhuma comparacao tem hoje via de producao para INCOMPATIVEL, e isso e MEDIDO', () => {
+test('nas oito requisicoes examinadas, nenhuma comparacao produz INCOMPATIVEL', () => {
   const requisicoes: any[] = [coerente()];
   for (const mutar of [
     (x: any) => { x.overallStats.total = 9; x.overallStats.valid = 9; },
@@ -519,4 +530,92 @@ test('coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradic
   expect(causas).toEqual(['coerencia_nao_avaliada', 'contradicao', 'coerencia_nao_concluida']);
   expect(new Set([e.rotulo, contradicao.rotulo, naoConcluida.rotulo]).size).toBe(3);
   expect(naoConcluida.motivo).not.toContain('Contradição interna não resolvida');
+});
+
+// ============================================================ E1: o texto entregue
+/**
+ * Executa o tratador REAL e devolve o corpo MAIS o texto entregue ao modelo.
+ *
+ * ⚠ **Instrumento novo:** o achatamento abaixo percorre `system` e `messages` sem
+ * `JSON.stringify`, que escaparia as quebras de linha e faria uma asserção de frase
+ * passar ou reprovar por motivo errado. O teste confere um marcador conhecido antes de
+ * afirmar qualquer ausência, para não passar por captura vazia.
+ */
+async function executarCapturando(payload: any): Promise<{ corpo: any; contexto: string }> {
+  jest.resetModules();
+  const antes = { chave: process.env.ANTHROPIC_API_KEY, flag: process.env.USE_RAG_SEMANTIC };
+  process.env.ANTHROPIC_API_KEY = CHAVE;
+  delete process.env.USE_RAG_SEMANTIC;
+  const capturas: string[] = [];
+  const achatar = (v: any): string =>
+    typeof v === 'string'
+      ? v
+      : Array.isArray(v)
+        ? v.map(achatar).join('\n')
+        : v && typeof v === 'object'
+          ? Object.values(v).map(achatar).join('\n')
+          : '';
+  jest.doMock('@anthropic-ai/sdk', () => ({
+    __esModule: true,
+    default: class {
+      messages = {
+        create: async (params: any) => {
+          capturas.push(achatar(params?.system) + '\n' + achatar(params?.messages));
+          return { content: [{ type: 'text', text: 'Parecer simulado, sem nota.' }] };
+        },
+      };
+    },
+  }));
+  const silencios = ['log', 'warn', 'error'].map((m) =>
+    jest.spyOn(console, m as 'log').mockImplementation(() => undefined)
+  );
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { POST } = require('@/app/api/ai-reviewer/route');
+    const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+    return { corpo: await res.json(), contexto: capturas.join('\n') };
+  } finally {
+    silencios.forEach((s) => s.mockRestore());
+    if (antes.chave === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = antes.chave;
+    if (antes.flag === undefined) delete process.env.USE_RAG_SEMANTIC; else process.env.USE_RAG_SEMANTIC = antes.flag;
+  }
+}
+
+/**
+ * ⚠ **E1: o ramo compartilhado deixa de prometer um nome.** A frase anterior dizia que o
+ * que não se concluiu "foi a verificação nomeada acima": exata em `coerencia_nao_concluida`,
+ * onde o motivo nomeia V2 ou V3, e **falsa** em `coerencia_nao_avaliada`, onde o motivo diz
+ * que a verificação não chegou a correr e **não nomeia nenhuma**.
+ *
+ * ⚠ **MEDIDO por leitura da cadeia de chamadas, e não das importações:** `avaliarCoerencia`
+ * devolve `Coerencia` não anulável, e a rota a calcula sempre antes de montar o contexto,
+ * então o braço `coerencia_nao_avaliada` do ramo **não tem caminho por esta API**. **O que
+ * se exercita aqui é o braço alcançável**, e a correção retira a promessa de nome dos dois.
+ */
+test('E1: o texto entregue nao promete nome de verificacao, e o motivo segue nomeando', async () => {
+  const r = coerente();
+  delete r.qualityAnalysis.statistics.total; // V2 e V3 ficam nao_determinada
+  const { corpo, contexto } = await executarCapturando(r);
+
+  expect(corpo.notaSuspensa.causa).toBe('coerencia_nao_concluida');
+  // ⚠ CONTROLE de captura NAO VAZIA: sem isto, toda ausencia passaria por vacuidade.
+  expect(contexto).toContain('CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA');
+  // ⚠ A frase antiga SAIU do que o modelo recebe.
+  expect(contexto).not.toContain('nomeada acima');
+  expect(contexto).toContain(
+    'a verificação de coerência não foi concluída, pelo motivo informado acima'
+  );
+  // ⚠ E o que NOMEIA a verificacao continua presente: e o MOTIVO, na linha anterior.
+  expect(contexto).toMatch(/V2:|V3:/);
+
+  // ⚠ CONTROLE de que a assercao DISCRIMINA: o ramo da contradicao nao recebeu a frase, e
+  //   continua com a sua, palavra por palavra.
+  const s = coerente();
+  s.qualityAnalysis.summary.critical = 4;
+  const outro = await executarCapturando(s);
+  expect(outro.corpo.notaSuspensa.causa).toBe('contradicao');
+  expect(outro.contexto).not.toContain('a verificação de coerência não foi concluída');
+  expect(outro.contexto).toContain(
+    'o que não se resolveu foi a contradição entre os valores declarados na própria requisição'
+  );
 });

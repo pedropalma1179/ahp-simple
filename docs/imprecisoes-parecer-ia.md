@@ -11387,6 +11387,38 @@ contrato e aqui. **Declarar escopos exige contrato explícito**, e não expedien
 exercitar um estado. ⚠ O estado `incompativel` **continua no vocabulário**, e a sua
 utilização exige **diferença de significado demonstrada para o par efetivamente comparado**.
 
+#### A BASE dessa conclusão, acrescentada em 28/09/2026 por E2
+
+⚠ **A base é a enumeração dos 28 pontos DE CÓDIGO que definem `estado` no módulo**,
+classificados em declaração de tipo, indireção e literal, e **não** o `git grep` pelo
+literal de atribuição do estado incompatível, que sai **0** em linha de código.
+⚠ **O padrão vai DESCRITO e não citado:** escrevê-lo aqui faria este registro casar com
+ele, e por isso as contagens se fazem sobre linhas de código.
+
+| Natureza | Quantos | Onde |
+|---|---|---|
+| declaração de tipo | 2 | `:38`, `:234` |
+| **atribuição por indireção** | **1** | `:83`, e é do tipo `EstadoAvaliacaoQualidade`, guardada por `ESTADOS_AVALIACAO.includes(...)`, cujo conteúdo em `:45` é `['disponivel', 'ausente', 'incompleta']` |
+| literais de `EstadoAvaliacaoQualidade` | 10 | `disponivel` ×4, `incompleta` ×4, `ausente` ×2 |
+| literais de `EstadoComparacao` | 15 | `nao_determinada` ×8, `contraditoria` ×5, `consistente` ×2 |
+
+**Nenhum dos quinze é `incompativel`**, e 2 + 1 + 10 + 15 fecha em **28**.
+
+⚠ **Um grep por literal é conferência de apoio, e não prova suficiente:** não alcança
+atribuição por variável, por cast, por construção fora do módulo, nem variação de aspas ou
+de espaçamento. **Dos cinco casts do módulo** — `:404`, `:480`, `:536` e `:606`, todos
+`as IdComparacao`, e `:552`, `as LadoDaComparacao[]` — **nenhum** é sobre `estado`.
+⚠ **Uma correção ao que eu havia relatado:** eu afirmei que não havia casts no módulo, e
+**isso estava errado**: o que eu medira foram os casts **de `EstadoComparacao`**, e relatei
+como casts em geral.
+
+⚠ **O ensaio das oito requisições é CONTROLE COMPLEMENTAR**, e mede apenas que o estado não
+apareceu naqueles casos. O nome do teste passou a dizer isso:
+`nas oito requisicoes examinadas, nenhuma comparacao produz INCOMPATIVEL`.
+
+**Medido em 28/09/2026**, sobre `8b6e2082c6d369ebb78c07d20bd5c6ecebe02bb1`, em Linux
+x86_64 com Node v22.22.2.
+
 ### D3: as duas reprovações adicionais da rodada anterior, classificadas
 
 | Reprovação | Estava abrangida pela causa anunciada antes da edição? |

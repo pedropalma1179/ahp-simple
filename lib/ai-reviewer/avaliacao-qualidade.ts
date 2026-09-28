@@ -423,6 +423,17 @@ export function avaliarCoerencia(raw: any): Coerencia {
     //   enviasse o campo por outra razão, V1 sairia do veredito **em silêncio**, que é a
     //   exclusão indevida que C1 corrigiu. **A leitura saiu.**
     //
+    // ⚠ **A base desta afirmação é a enumeração dos 28 pontos DE CÓDIGO que definem
+    //   `estado` no módulo**, classificados em declaração de tipo, indireção e literal, e
+    //   **não** o `git grep` pelo literal de atribuição do estado incompatível, que sai 0
+    //   em linha de código. ⚠ **O padrão vai DESCRITO e não citado:** escrevê-lo aqui
+    //   faria este comentário casar com ele, e por isso as duas contagens se fazem sobre
+    //   linhas de código. **Um grep por literal é conferência de apoio, e não prova
+    //   suficiente:** não alcança atribuição por variável, por cast, por construção fora
+    //   do módulo, nem variação de aspas ou de espaçamento. Dos cinco casts do módulo,
+    //   **nenhum** é sobre `estado`. O ensaio das oito requisições é **controle
+    //   complementar**, e mede apenas que o estado não apareceu naqueles casos.
+    //
     // ⚠ **Declarar escopos distintos exige CONTRATO EXPLÍCITO**, e não expediente para
     //   exercitar um estado. O estado `incompativel` continua no vocabulário, e a sua
     //   utilização exige **diferença de significado demonstrada para o par efetivamente

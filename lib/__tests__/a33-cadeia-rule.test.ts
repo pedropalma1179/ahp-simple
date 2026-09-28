@@ -195,6 +195,19 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 5,
+    motivo: 'A.12 etapa 1, E1: o ramo compartilhado da coerencia deixa de prometer um nome de verificacao',
+    commitDaBase: '8b6e2082c6d369ebb78c07d20bd5c6ecebe02bb1',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 3082 campos antes e 3082 depois, ZERO
+    //   perdidos, ZERO novos, UM mudado. Nenhum texto de contexto se moveu: as requisicoes
+    //   desta suite sao `ausente`, e E1 so tocou o ramo da coerencia nao concluida.
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

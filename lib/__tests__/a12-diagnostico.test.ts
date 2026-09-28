@@ -142,6 +142,24 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 7,
+    motivo: 'A.12 etapa 1, E1 e E2: o ramo compartilhado deixa de prometer um nome, e a base da conclusao entra no contrato',
+    commitDaBase: '8b6e2082c6d369ebb78c07d20bd5c6ecebe02bb1',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 387 campos antes e 387 depois, ZERO perdidos,
+    //   ZERO novos, DOIS mudados, e sao os dois resumos de codigo. ⚠ bytesDoContexto NAO se
+    //   moveu em nenhum dos quatro casos, porque nenhum deles usa o ramo que E1 alterou:
+    //   C-disponivel e P1, C-ausente e C-incompleta usam o ramo preservado, e C-contradicao
+    //   usa o ramo da contradicao. ⚠ E2 mudou COMENTARIO no contrato, e nao comportamento.
+    camposRegravados: [
+      'identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]',
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

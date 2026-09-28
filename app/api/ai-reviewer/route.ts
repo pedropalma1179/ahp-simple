@@ -800,7 +800,7 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
     respondentSummary = `
 **Qualidade dos Dados:**
 ⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — ${elegivel.motivo}
-Os CRs individuais dos respondentes FORAM avaliados; o que não se concluiu foi a verificação nomeada acima, e NENHUMA contradição foi demonstrada.
+Os CRs individuais dos respondentes FORAM avaliados; a verificação de coerência não foi concluída, pelo motivo informado acima, e NENHUMA contradição foi demonstrada.
 Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${elegivel.rotulo}.
 ⚠️ Verificação não concluída NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum valor como conferido.
 Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
