@@ -114,21 +114,65 @@ test('V1 DETECTA a contradicao quando os totais declarados divergem, em vez de e
 });
 
 /**
- * ⚠ **`incompativel` em V1 exige evidencia DISTINTA da propria divergencia**, a saber uma
- * declaracao explicita de escopos nos campos. ⚠ **O formato recebido NAO tem esse campo**,
- * em `review-request.ts:99-134`, entao este estado e INALCANCAVEL pelo formato atual, e o
- * teste o exercita por campo hipotetico para que a regra fique conferida, e nao suposta.
+ * ⚠ **D2: V1 NAO TEM HOJE VIA DE PRODUCAO PARA `incompativel`.**
+ *
+ * A versao anterior deste teste INJETAVA um campo `escopo` para exercitar aquele estado, e
+ * o codigo o lia. ⚠ **A avaliacao opera sobre a requisicao BRUTA**, entao a ausencia de
+ * `escopo` na interface TypeScript nao o tornava inalcancavel: o sistema reconhecia um
+ * contrato de escopos que ninguem declarou, e qualquer produtor que enviasse o campo por
+ * outra razao tiraria V1 do veredito EM SILENCIO. **A leitura saiu, e o teste que a
+ * injetava saiu com ela.**
+ *
+ * ⚠ **O que fica conferido aqui e a AUSENCIA da via**, e nao um estado simulado.
  */
-test('V1 so sai INCOMPATIVEL com escopos DECLARADOS distintos, e nao por divergencia', () => {
+test('V1 nao tem via de producao para INCOMPATIVEL, e nenhum campo a cria', () => {
   const r = coerente();
-  r.qualityAnalysis.summary.escopo = 'painel completo';
-  r.overallStats.escopo = 'somente respondentes ativos';
-  const v1 = estadoDe(r, 'V1');
-  expect(v1.estado).toBe('incompativel');
-  expect(v1.motivo).toContain('escopos DECLARADOS distintos');
-  // ⚠ NAO reprova o conjunto: V2 e V3, o minimo de P1, seguem concluidas e consistentes.
-  expect(avaliarCoerencia(r).conclusao).toBe('coerente');
-  expect(elegivel(r).elegivel).toBe(true);
+  // Nenhuma combinacao de divergencia produz `incompativel` em V1.
+  for (const mutar of [
+    (x: any) => { x.overallStats.total = 9; },
+    (x: any) => { x.qualityAnalysis.summary.total = 9; },
+    (x: any) => { delete x.qualityAnalysis.summary.total; },
+    (x: any) => { x.qualityAnalysis.summary.ok = 3; },
+    (x: any) => { delete x.overallStats; },
+    (x: any) => { x.qualityAnalysis.summary.total = 9; x.overallStats.total = 9; },
+  ]) {
+    const s = coerente();
+    mutar(s);
+    expect(estadoDe(s, 'V1').estado).not.toBe('incompativel');
+  }
+  // ⚠ CONTROLE de que o ensaio nao passa por vacuidade: a requisicao base produz V1
+  //   CONSISTENTE, logo a comparacao esta sendo de fato executada.
+  expect(estadoDe(r, 'V1').estado).toBe('consistente');
+});
+
+/**
+ * ⚠ **MEDIDO, e declarado em vez de suposto: depois de C2 e D2, NENHUMA comparacao tem via
+ * de producao para `incompativel`.** C2 retirou a via de V4, e D2 a de V1.
+ *
+ * ⚠ **O estado continua no VOCABULARIO**, e a sua utilizacao exige **diferenca de
+ * significado demonstrada para o par efetivamente comparado**. Esta rodada **nao cria
+ * caminhos artificiais para produzi-lo** nem amplia V4 para outras categorias.
+ */
+test('nenhuma comparacao tem hoje via de producao para INCOMPATIVEL, e isso e MEDIDO', () => {
+  const requisicoes: any[] = [coerente()];
+  for (const mutar of [
+    (x: any) => { x.overallStats.total = 9; x.overallStats.valid = 9; },
+    (x: any) => { delete x.qualityAnalysis.statistics.total; },
+    (x: any) => { x.qualityAnalysis.statistics.byStatus = { 'REVISAR': 4 }; },
+    (x: any) => { x.qualityAnalysis.statistics.byStatus = { 'SUSPEITO': 0, 'CRÍTICO': 4 }; },
+    (x: any) => { x.qualityAnalysis.summary.critical = 4; },
+    (x: any) => { delete x.overallStats; },
+    (x: any) => { x.qualityAnalysis = { respondents: [1, 2].map((i) => ({ id: `r-${i}`, cr: 0.05 })) }; delete x.overallStats; },
+  ]) {
+    const s = coerente();
+    mutar(s);
+    requisicoes.push(s);
+  }
+  const estados = requisicoes.flatMap((s) => avaliarCoerencia(s).comparacoes.map((c) => c.estado));
+  expect(estados.length).toBeGreaterThan(30);
+  expect(estados).not.toContain('incompativel');
+  // ⚠ E o ensaio DISCRIMINA: os outros tres estados aparecem todos.
+  for (const e of ['consistente', 'contraditoria', 'nao_determinada']) expect(estados).toContain(e);
 });
 
 // ============================================================ V2
@@ -421,4 +465,58 @@ test('apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que pas
   const htmlOk = renderizar(corpoOk);
   expect(htmlOk).not.toContain('Nota não calculada: qualidade individual não avaliada');
   expect(htmlOk).not.toContain('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
+  // ⚠ D1: e o caso contraditorio NAO usa a redacao da verificacao nao concluida.
+  expect(corpo.notaSuspensa.causa).toBe('contradicao');
+  expect(html).not.toContain('verificação de coerência não concluída');
+});
+
+/**
+ * ⚠ **D1: a apresentação do caso NÃO CONCLUÍDO, também EXERCITADA.** Suspende igual, e
+ * **não pode anunciar contradição**, porque nenhuma foi demonstrada.
+ */
+test('apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao', async () => {
+  const r = coerente();
+  delete r.qualityAnalysis.statistics.total; // V2 e V3 ficam nao_determinada
+  const corpo = await executar(r);
+
+  expect(corpo.nota).toBeNull();
+  expect(corpo.veredicto).toBeNull();
+  expect(corpo.notaSuspensa?.suspensa).toBe(true);
+  // ⚠ CAUSA, ROTULO e MOTIVO proprios, distintos dos da contradicao.
+  expect(corpo.notaSuspensa.causa).toBe('coerencia_nao_concluida');
+  expect(corpo.notaSuspensa.rotulo).toBe('Nota não calculada: verificação de coerência não concluída');
+  expect(corpo.notaSuspensa.motivo).toContain('NENHUMA contradicao foi demonstrada');
+  // ⚠ E NOMEIA a verificacao pendente.
+  expect(corpo.notaSuspensa.motivo).toMatch(/V2:|V3:/);
+
+  const html = renderizar(corpo);
+  expect(html).toContain('Nota não calculada: verificação de coerência não concluída');
+  // ⚠ NAO afirma contradicao, nem indisponibilidade, em lugar nenhum do markup.
+  expect(html).not.toContain('contradição interna não resolvida');
+  expect(html).not.toContain('Nota não calculada: qualidade individual não avaliada');
+});
+
+/**
+ * ⚠ **D1: coerência NÃO AVALIADA não é apresentada como contradição.** É o terceiro caso
+ * que antes colapsava na mesma causa.
+ */
+test('coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradicao', () => {
+  const av = classificarAvaliacaoRecebida(coerente());
+  const e = elegivelParaClassificacao(av, null);
+  expect(e.elegivel).toBe(false);
+  expect(e.causa).toBe('coerencia_nao_avaliada');
+  expect(e.rotulo).toBe('Nota não calculada: coerência interna não avaliada nesta requisição');
+  expect(e.motivo).toContain('NENHUMA contradicao foi demonstrada');
+  expect(e.motivo).not.toContain('Contradição interna não resolvida');
+  // ⚠ E as tres causas de coerencia sao DISTINTAS entre si.
+  const r = coerente();
+  r.qualityAnalysis.summary.critical = 4;
+  const contradicao = elegivel(r);
+  const s = coerente();
+  delete s.qualityAnalysis.statistics.total;
+  const naoConcluida = elegivel(s);
+  const causas = [e.causa, contradicao.causa, naoConcluida.causa];
+  expect(causas).toEqual(['coerencia_nao_avaliada', 'contradicao', 'coerencia_nao_concluida']);
+  expect(new Set([e.rotulo, contradicao.rotulo, naoConcluida.rotulo]).size).toBe(3);
+  expect(naoConcluida.motivo).not.toContain('Contradição interna não resolvida');
 });

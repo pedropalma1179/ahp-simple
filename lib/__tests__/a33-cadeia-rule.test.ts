@@ -183,6 +183,18 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 4,
+    motivo: 'A.12 etapa 1, D1 e D2: causas distintas de suspensao e retirada da leitura de escopo',
+    commitDaBase: 'c73c8eee23b65146dd15cfda2d915a7f8bffd567',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo. Nenhum texto de contexto se moveu: as
+    //   requisicoes desta suite sao `ausente`, e o ramo delas ficou palavra por palavra.
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

@@ -125,6 +125,23 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     preservadosPalavraPorPalavra: ['quatroCasos[1]', 'quatroCasos[2]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 6,
+    motivo: 'A.12 etapa 1, D1 e D2: causas distintas de suspensao e retirada da leitura de escopo',
+    commitDaBase: 'c73c8eee23b65146dd15cfda2d915a7f8bffd567',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: SO os dois resumos de codigo. ⚠ NENHUM texto
+    //   de contexto se moveu, e bytesDoContexto nao mudou em nenhum dos quatro casos:
+    //   C-contradicao segue `contraditoria`, no mesmo ramo, e C-ausente e C-incompleta
+    //   seguem no ramo preservado palavra por palavra.
+    camposRegravados: [
+      'identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]',
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

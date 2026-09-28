@@ -783,13 +783,26 @@ async function generateReview(
   // INTERNA. ⚠ **Dizer aqui que a avaliação não está disponível, ou que os CRs não foram
   // avaliados, seria afirmar ao modelo algo que NÃO foi medido** — a classe de defeito que
   // A.12 existe para corrigir. Este ramo é PRÓPRIO, e não reaproveita o texto abaixo.
-  else if (elegivel.causa === 'coerencia') {
+  else if (elegivel.causa === 'contradicao') {
     respondentSummary = `
 **Qualidade dos Dados:**
 ⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — ${elegivel.motivo}
 Os CRs individuais dos respondentes FORAM avaliados; o que não se resolveu foi a contradição entre os valores declarados na própria requisição.
 Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO}.
 ⚠️ A contradição NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum dos valores em conflito como o correto.
+Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
+`;
+  }
+  // A.12 etapa 1, D1: a avaliação EXISTE e uma verificação de coerência NÃO CONCLUIU.
+  // ⚠ **Não concluir NÃO é contradizer.** Anunciar contradição aqui seria afirmar ao
+  // modelo algo que NÃO foi demonstrado, e este ramo é PRÓPRIO por isso.
+  else if (elegivel.causa === 'coerencia_nao_concluida' || elegivel.causa === 'coerencia_nao_avaliada') {
+    respondentSummary = `
+**Qualidade dos Dados:**
+⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — ${elegivel.motivo}
+Os CRs individuais dos respondentes FORAM avaliados; o que não se concluiu foi a verificação nomeada acima, e NENHUMA contradição foi demonstrada.
+Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${elegivel.rotulo}.
+⚠️ Verificação não concluída NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum valor como conferido.
 Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
 `;
   }
@@ -1455,15 +1468,20 @@ export async function POST(request: NextRequest) {
       // A.12: a ausência de avaliação suspende a classificação, e diz por quê.
       // ⚠ C5: o rótulo é o da CAUSA. Com a avaliação disponível e contraditória, dizer
       //   "qualidade individual não avaliada" seria falso.
+      // ⚠ D1: a CAUSA vai num campo próprio, para que a apresentação não precise
+      //   inferi-la do texto, e para que contradição demonstrada e verificação não
+      //   concluída nunca se confundam na saída.
       notaSuspensa: classification.suspensa
-        ? {
-            suspensa: true,
-            rotulo:
-              elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade).rotulo ||
-              ROTULO_NOTA_SUSPENSA,
-            motivo: classification.motivo,
-            avaliacaoDeQualidade: data.avaliacaoDeQualidade,
-          }
+        ? (() => {
+            const e = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);
+            return {
+              suspensa: true,
+              causa: e.causa,
+              rotulo: e.rotulo || ROTULO_NOTA_SUSPENSA,
+              motivo: classification.motivo,
+              avaliacaoDeQualidade: data.avaliacaoDeQualidade,
+            };
+          })()
         : null,
       review,
       // `success` informa que a geração terminou. A autorização para apresentar

@@ -101,6 +101,23 @@
           "quatroCasos[2]"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 6,
+        "motivo": "A.12 etapa 1, D1 e D2: causas distintas de suspensao e retirada da leitura de escopo",
+        "commitDaBase": "c73c8eee23b65146dd15cfda2d915a7f8bffd567",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]",
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -110,8 +127,8 @@
       "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d"
     },
     "codigo": {
-      "lib/ai-reviewer/avaliacao-qualidade.ts": "91b5a2b1045522b6c9472c8f3fe56f2ce454212b6776f721e7e5424115836883",
-      "app/api/ai-reviewer/route.ts": "883e818f50aece85896439101627c59a0e386b3c4727fe1a4fcc9d6534c17760",
+      "lib/ai-reviewer/avaliacao-qualidade.ts": "22b8d00b916d083b036f361d304a6e4efd0a27ca03c3118380f79da0d8406be6",
+      "app/api/ai-reviewer/route.ts": "9e99c91ac8a6946def70d7a3ebc76236ac2227d1a17c3739ce104c79f6ae7dc9",
       "app/decisor/resultados/[projectId]/page.tsx": "2d3442c0cbd31828083cf7cfbb92abd4c178cc6d65569ce4c6aeff8edc8d9ad8",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }

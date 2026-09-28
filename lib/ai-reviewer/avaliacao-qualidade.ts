@@ -177,6 +177,25 @@ export const ROTULO_NOTA_SUSPENSA = 'Nota não calculada: qualidade individual n
 export const ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO =
   'Nota não calculada: contradição interna não resolvida na avaliação de qualidade';
 
+/**
+ * O rótulo quando a nota não é calculada porque uma verificação de coerência **não foi
+ * concluída**.
+ *
+ * ⚠ **D1: não concluir NÃO é contradizer.** Usar aqui o rótulo da contradição anuncia ao
+ * gestor uma contradição que **não foi demonstrada** — a mesma classe de defeito de C5, no
+ * eixo da causa.
+ */
+export const ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA =
+  'Nota não calculada: verificação de coerência não concluída';
+
+/**
+ * O rótulo quando a coerência **não foi avaliada** nesta requisição.
+ *
+ * ⚠ **Distinto de "avaliada e não concluída"**: aqui a verificação nem chegou a correr.
+ */
+export const ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA =
+  'Nota não calculada: coerência interna não avaliada nesta requisição';
+
 // ============================================================================
 // A.12 etapa 1: COERÊNCIA INTERNA
 // ============================================================================
@@ -294,6 +313,9 @@ export const MOTIVO_COERENCIA_CONTRADICAO =
   'Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa.';
 export const MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO =
   'Conjunto mínimo de verificações não estabelecido para o formato recebido: a classificação fica suspensa.';
+/** ⚠ D1: a coerência **nem chegou a correr**, o que é distinto de correr e não concluir. */
+export const MOTIVO_COERENCIA_NAO_AVALIADA =
+  'Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr.';
 
 const numeroFinito = (v: unknown): number | null =>
   typeof v === 'number' && Number.isFinite(v) ? v : null;
@@ -393,29 +415,25 @@ export function avaliarCoerencia(raw: any): Coerencia {
     //   divergência para declarar `incompativel` é circular, e anula a comparação: a
     //   contagem diferente pode ser exatamente a contradição procurada.
     //
-    // ⚠ **`incompativel` aqui exige declaração EXPLÍCITA de escopos distintos nos
-    //   campos.** O formato recebido, em `lib/ai-reviewer/review-request.ts:99-134`, NÃO
-    //   tem campo algum que declare escopo, então este estado é **inalcançável pelo
-    //   formato atual**, e fica escrito em vez de simulado por divergência.
-    const escoposDeclaradosDistintos =
-      typeof sum?.escopo === 'string' && typeof os?.escopo === 'string' && sum.escopo !== os.escopo;
+    // ⚠ **D2: V1 NÃO TEM HOJE VIA DE PRODUÇÃO PARA `incompativel`, e isto é declaração de
+    //   contrato.** Uma versão anterior lia um campo `escopo` para produzir aquele estado.
+    //   ⚠ **A avaliação opera sobre a requisição BRUTA:** a ausência de `escopo` na
+    //   interface TypeScript **não** o torna inalcançável no JSON recebido, e o efeito era
+    //   reconhecer um contrato de escopos **que ninguém declarou** — se algum produtor
+    //   enviasse o campo por outra razão, V1 sairia do veredito **em silêncio**, que é a
+    //   exclusão indevida que C1 corrigiu. **A leitura saiu.**
+    //
+    // ⚠ **Declarar escopos distintos exige CONTRATO EXPLÍCITO**, e não expediente para
+    //   exercitar um estado. O estado `incompativel` continua no vocabulário, e a sua
+    //   utilização exige **diferença de significado demonstrada para o par efetivamente
+    //   comparado** — como em V4, onde os intervalos dos dois produtores estão declarados.
     const tSum = numeroFinito(sum?.total);
     const tOs = numeroFinito(os?.total);
     const ladosTotais: LadoDaComparacao[] = [
       { fonte: 'qualityAnalysis.summary.total', valor: tSum },
       { fonte: 'overallStats.total', valor: tOs },
     ];
-    if (escoposDeclaradosDistintos) {
-      comparacoes.push({
-        ...base,
-        lados: [
-          { fonte: `qualityAnalysis.summary.escopo = ${sum.escopo}`, valor: null },
-          { fonte: `overallStats.escopo = ${os.escopo}`, valor: null },
-        ],
-        estado: 'incompativel',
-        motivo: `V1: NAO APLICAVEL, por escopos DECLARADOS distintos nos proprios campos: "${sum.escopo}" contra "${os.escopo}". O par nao entra no veredito.`,
-      });
-    } else if (tSum !== null && tOs !== null && tSum !== tOs) {
+    if (tSum !== null && tOs !== null && tSum !== tOs) {
       // ⚠ Os dois totais sao grandezas da MESMA populacao declarada: divergir entre si e
       //   CONTRADICAO, e nao prova de populacoes distintas.
       comparacoes.push({
@@ -705,13 +723,29 @@ export function avaliarCoerencia(raw: any): Coerencia {
  * motivos anteriores.
  */
 /**
- * ⚠ **A CAUSA da suspensão, exposta**, porque a apresentação depende dela: com a
- * avaliação AUSENTE ou INCOMPLETA as afirmações de indisponibilidade são verdadeiras;
- * com a avaliação DISPONÍVEL e contraditória, são falsas.
+ * ⚠ **A CAUSA da suspensão, exposta e DISTINTA por situação**, porque a apresentação
+ * depende dela.
+ *
+ * ⚠ **D1: `contradicao` e `coerencia_nao_concluida` NÃO são a mesma causa.** Antes as
+ * três situações abaixo devolviam uma causa única e o rótulo da contradição, e o sistema
+ * anunciava contradição **não demonstrada** — a mesma classe de defeito de C5.
+ *
+ * | Causa | Quando | O que se pode afirmar |
+ * |---|---|---|
+ * | `disponibilidade` | `ausente` ou `incompleta` | a avaliação não está disponível |
+ * | `contradicao` | conclusão `contraditoria` | há contradição **demonstrada** |
+ * | `coerencia_nao_concluida` | conclusão `nao_determinada` | a verificação **não concluiu**, e **nenhuma contradição foi demonstrada** |
+ * | `coerencia_nao_avaliada` | a coerência nem chegou a correr | nada sobre coerência |
  */
+export type CausaDaSuspensao =
+  | 'disponibilidade'
+  | 'contradicao'
+  | 'coerencia_nao_concluida'
+  | 'coerencia_nao_avaliada';
+
 export interface Elegibilidade {
   elegivel: boolean;
-  causa: 'disponibilidade' | 'coerencia' | null;
+  causa: CausaDaSuspensao | null;
   motivo: string | null;
   /** O rótulo que a apresentação deve usar, próprio de cada causa. */
   rotulo: string | null;
@@ -728,13 +762,21 @@ export function elegivelParaClassificacao(
   if (!coerencia) {
     return {
       elegivel: false,
-      causa: 'coerencia',
-      motivo: `${MOTIVO_COERENCIA_NAO_DETERMINADA} A coerencia interna nao foi avaliada nesta requisicao.`,
-      rotulo: ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO,
+      causa: 'coerencia_nao_avaliada',
+      motivo: `${MOTIVO_COERENCIA_NAO_AVALIADA} NENHUMA contradicao foi demonstrada.`,
+      rotulo: ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA,
     };
   }
-  if (coerencia.conclusao !== 'coerente') {
-    return { elegivel: false, causa: 'coerencia', motivo: coerencia.motivo, rotulo: ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO };
+  if (coerencia.conclusao === 'contraditoria') {
+    return { elegivel: false, causa: 'contradicao', motivo: coerencia.motivo, rotulo: ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO };
+  }
+  if (coerencia.conclusao === 'nao_determinada') {
+    return {
+      elegivel: false,
+      causa: 'coerencia_nao_concluida',
+      motivo: `${coerencia.motivo} ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu.`,
+      rotulo: ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA,
+    };
   }
   return { elegivel: true, causa: null, motivo: null, rotulo: null };
 }
