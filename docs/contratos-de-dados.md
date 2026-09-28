@@ -130,6 +130,7 @@ Gravado **só** por `calculate/route.ts:1320`, via `setDoc`. Lido por
 | Campo | Tipo | Quem lê |
 |---|---|---|
 | `projectId`, `calculatedAt`, `responseCount` | string, string, int | dashboard, IA |
+| `executionId` | string opaca, **uma por execução** | rastreabilidade |
 | `bocrWeights` | `number[4]` ordem B,O,C,R | dashboard, IA, gráficos |
 | `bocrConsistency` | `{cr, ci, lambda}` | `BOCRConsistencyMatrix`, IA |
 | `rescalingWeights` | `{sb, so, sc, sr}` | síntese, IA |
@@ -196,6 +197,82 @@ a ser válida.
 ---
 
 ## Rotas de API
+
+
+#### A.12 etapa 2: rastreabilidade da execução atual
+
+**Três campos novos.** ⚠ **Rastreabilidade, e não portão:** nenhum respondente deixa de
+entrar no cálculo por causa deles.
+
+`executionId`, de topo, diz **qual execução** o documento é. Opaco, sem significado de
+ordem, e **não derivado de `calculatedAt`**: instante não é identidade, e duas execuções
+podem cair no mesmo milissegundo.
+
+`metadata.includedRespondents`, **ordenado por `respondentId` ascendente** — ordem de
+retorno do Firestore não é propriedade dos dados —, com um item por incluído:
+
+| Campo | O que é |
+|---|---|
+| `respondentId` | o valor da etapa **`deduplicacao`**, declarada como **etapa de origem**: é a chave sob a qual respostas foram colapsadas numa única identidade, e que o restante do percurso herda |
+| `responseDocId` | `docSnap.id`, capturado **antes do espalhamento**. ⚠ O espalhamento vem depois de `id: docSnap.id`, então um campo `id` gravado no documento **sobrescreve** o id do documento |
+| `identifierSource` | um dos nove rótulos, e cada um **nomeia a expressão lida no código**. ⚠ `'response.id'` **não é** sinônimo de id do documento, pelo motivo acima. ⚠ `'fallbackPorIndice'` é **identidade por posição**, e registrá-la a torna visível |
+| `judgmentsSha256` | o resumo, ou **`null`** — nunca zero, vazio ou resumo de outra coisa |
+| `judgmentsUnavailableReason` | o motivo **com o caminho**, quando o resumo faltar |
+
+⚠ **Excluídos e rejeitados não entram nessa lista**, e continuam nos seus campos, de
+propósito distinto: exclusão é decisão do gestor, rejeição é dado inválido decidido pelo
+sistema.
+
+⚠ **A concordância entre as quatro etapas de seleção é EXIGIDA, e não suposta.** Os
+valores de `validacaoCruzada`, `deduplicacao`, `filtroDeExcluidos` e `portaoDeCompletude`
+têm de coincidir para todo incluído; divergência **para a execução** com HTTP 409,
+nomeando a resposta, as etapas e os valores, **sem escrever**. ⚠ O log do fallback fica
+**fora** da concordância, por **não ser etapa de seleção**, e a exclusão é deliberada.
+
+`metadata.judgmentsDigest`: `{ algorithm: 'sha256', serialization, panel, unavailableReason }`.
+O resumo do painel é o `sha256` da serialização da lista de pares
+`[respondentId, judgmentsSha256]` **ordenada por `respondentId`** ascendente.
+
+**Regras da versão `a12-julgamentos-v1`**, em `lib/julgamentos-resumo.ts`:
+
+1. chaves de objeto **ordenadas** ascendentemente por unidade de código UTF-16, em todos
+   os níveis;
+2. **ordem dos arrays preservada**: a ordem dos julgamentos é conteúdo;
+3. `undefined` **omitido** em objeto; `undefined` **dentro de array** é erro nomeado;
+4. `null` **preservado**, e distinto de ausente — `saatyValue: null` marca comparação
+   pulada;
+5. números pela serialização padrão, com `-0` normalizado para `0`; `NaN` e infinitos são
+   **erro nomeado com o caminho**;
+6. `Date`, `Map`, carimbo do Firestore e instância de classe são **erro nomeado com o
+   caminho**, e não coagidos em silêncio;
+7. sem indentação; bytes UTF-8 para o resumo.
+
+**OS QUATRO LIMITES, e eles não se apagam com a implementação.**
+
+> O resumo identifica a representação canônica dos julgamentos segundo a versão
+> declarada. Sua igualdade é evidência de igualdade dessa representação, sob a hipótese
+> de ausência de colisão SHA-256; não demonstra identidade do objeto bruto nem de toda a
+> entrada do cálculo.
+
+⚠ **Por que não se pode dizer "conteúdo recebido igual":** a própria versão v1 omite
+`undefined` em objeto e normaliza `-0`, então **objetos brutos distintos podem ter a mesma
+representação canônica**, independentemente de colisão criptográfica.
+
+⚠ **Resumo diferente NÃO implica resultado agregado diferente.** `lib/aggregation.ts` lê
+apenas `type`, `group`, `itemA`, `itemB`, `skipped`, `saatyValue` e `favors`. **Medido:**
+`.rawSlider` não aparece nenhuma vez como acesso de propriedade naquele arquivo.
+
+⚠ **O resumo do painel não identifica documentos nem a ordem de processamento.** Essas
+duas coisas têm campos próprios: `responseDocId` e a ordenação declarada da lista.
+
+⚠ **A sobrescrita apaga execuções anteriores.** O documento é **único por projeto** e é
+regravado a cada cálculo: `executionId` diz **qual execução o documento é**, e **não**
+quais execuções houve. Preservar o histórico é decisão separada. ⚠ **A afirmação vale
+para o percurso examinado**, a rota `calculate` gravando em `calculations`.
+
+⚠ **O resumo IDENTIFICA e NÃO PRESERVA:** depois de uma sobrescrita das respostas, ele não
+recupera o que foi julgado.
+
 
 ### `POST /api/calculate`
 

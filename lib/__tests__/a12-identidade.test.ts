@@ -1,61 +1,44 @@
 /**
  * lib/__tests__/a12-identidade.test.ts
  *
- * A.12: **existe identidade de quem participou do cálculo?**
+ * **A.12: a medição histórica de identidade, CONGELADA.**
  *
- * ⚠ **Rodada de INVESTIGAÇÃO. Lê e mede, e não altera produção.** Nenhuma geração
- * de parecer, nenhuma reingestão, nenhuma chamada externa.
+ * ⚠ **Este instrumento é de INTEGRIDADE HISTÓRICA, e não executa código de produção.**
+ * Ele lê `docs/dados/a12-identidade/medicao-preservada-03c7d8b.json`, a cópia congelada
+ * da medição que **justificou a etapa 2**, e confere que ela continua íntegra.
  *
- * ⚠ **O relato separa três coisas, e este arquivo também:** o que está no
- * **arquivo histórico**; o que a **execução observada** do handler real produz; e o
- * que foi apenas **lido no código**. **Leitura de código não é execução observada.**
+ * ⚠ **O FATO ESTRUTURAL que motivou a separação, medido por leitura.** Até `03c7d8b`
+ * este arquivo construía `M` num `beforeAll` que **executava a rota real**, a agregação
+ * real e a completude real. Então as suas asserções sobre `M.execucaoObservada`,
+ * `M.duasIdentidades`, `M.fonteDoIdentificador`, `M.ondeAIdentidadeCai`,
+ * `M.omissaoPorMatrizOuEtapa` e `M.observacaoNumericaNaoNormativa` mediam o
+ * **comportamento de hoje**, qualquer que fosse o rótulo. ⚠ **Nomear um commit numa
+ * asserção não transforma execução do código atual em medição histórica.**
  *
- * ⚠ **Nenhuma identidade é reconstruída por posição nem por contagem.** Onde o
- * vínculo falta, o registro diz `NAO DETERMINADO`.
+ * ⚠ **EXCEÇÃO MEDIDA:** partes daquele `M` eram **literais** escritos no `beforeAll`, e
+ * não derivavam da execução — `identificadoresNoArtefato` e todo o bloco `vinculo`, com
+ * `veredito` e `oQueOArtefatoTem`. Elas **descrevem o documento da base**, e por isso
+ * pertencem à leitura congelada. ⚠ **Depois da etapa 2 elas deixaram de descrever o
+ * documento atual, e é exatamente por isso que ficam CONGELADAS e não invertidas.**
  *
- * O Firestore entra por duplo, no mesmo padrão de `calculate-route.test.ts`, e o
- * `setDoc` é espionado: é o que permite afirmar o que o documento gravado carrega.
+ * **Onde foi cada controle de comportamento atual:**
  *
- * ---
+ * | Controle | Destino |
+ * |---|---|
+ * | quatro conjuntos distinguidos | `a12-rastreabilidade.test.ts`, `'MIGRADO: os quatro conjuntos continuam distinguidos…'` |
+ * | identidade só para quem ficou de fora | **superado**: `a12-rastreabilidade.test.ts`, ensaios 1 e 4 |
+ * | órfã e duplicata caem no caminho | `a12-rastreabilidade.test.ts`, `'MIGRADO: orfa e duplicata caem no caminho…'` e ensaio 4 |
+ * | identidade pode vir do DOCUMENTO | `a12-rastreabilidade.test.ts`, ensaio 2 |
+ * | identidade cai na agregação | `a12-rastreabilidade.test.ts`, `'MIGRADO: a identidade cai na agregacao…'` |
+ * | dois painéis gravam o MESMO documento | **superado**: `a12-rastreabilidade.test.ts`, ensaio 1, invertido |
+ * | julgamento alterado muda campo NOMEADO | `a12-rastreabilidade.test.ts`, ensaio 6 e o controle de `'MIGRADO: a identidade cai na agregacao…'` |
+ * | observação numérica é observação | `a12-rastreabilidade.test.ts`, ensaio 6, como comparação entre duas execuções |
+ * | julgamento omitido reprova por matriz | **coberto**: `completeness.test.ts`, `'26 matrizes e 72 pares, com duas alternativas'`, `'par faltante é rejeitado e a matriz é nomeada'` e `'nomeia a matriz e o que falta nela'`; e `calculate-route.test.ts`, `'resposta incompleta COM completedAt é rejeitada e registrada'` |
+ * | sem o portão, célula sem rastro | `a12-rastreabilidade.test.ts`, `'MIGRADO: sem o portao…'` |
+ * | código atual não produziu o histórico | metade histórica fica aqui; a metade atual é o ensaio 1 de `a12-rastreabilidade` |
  *
- * ⚠ **A.12 etapa 2: a medição histórica está CONGELADA e SEPARADA.** A cópia é
- * `docs/dados/a12-identidade/medicao-preservada-03c7d8b.json`, e as asserções de
- * **integridade histórica** leem dela, e não de `M`.
- *
- * ⚠ **O FATO ESTRUTURAL que decide a classificação:** `M` é construído num `beforeAll`
- * que **executa a rota real**, a agregação real e a completude real. Então asserção
- * sobre `M.execucaoObservada`, `M.duasIdentidades`, `M.fonteDoIdentificador`,
- * `M.ondeAIdentidadeCai`, `M.omissaoPorMatrizOuEtapa` e
- * `M.observacaoNumericaNaoNormativa` é asserção sobre o **comportamento de hoje**,
- * qualquer que seja o rótulo. **Só `M.arquivoHistorico` vem da leitura do arquivo
- * histórico.** ⚠ **Nomear um commit numa asserção não transforma execução em medição
- * histórica.**
- *
- * ⚠ **EXCEÇÃO MEDIDA:** partes de `M` são **literais** escritos no `beforeAll`, e não
- * derivam da execução — `identificadoresNoArtefato` e todo o bloco `vinculo`. Elas
- * descrevem o documento **da base**, e por isso entram na leitura congelada.
- *
- * **Classificação dos dezessete, com destino:**
- *
- * | Ensaio | Classe | Destino |
- * |---|---|---|
- * | histórico sem dados individuais | integridade histórica | lê a cópia congelada |
- * | completude do histórico é da agregada | integridade histórica | lê a cópia congelada |
- * | quatro conjuntos distinguidos | comportamento atual | migra para `a12-rastreabilidade` |
- * | identidade só para quem ficou de fora | comportamento atual | **superado** pela etapa 2 |
- * | órfã e duplicata caem no caminho | comportamento atual | migra para `a12-rastreabilidade` |
- * | identidade pode vir do DOCUMENTO | comportamento atual | migra para `a12-rastreabilidade` |
- * | identidade cai na agregação | comportamento atual | migra para `a12-rastreabilidade` |
- * | dois painéis gravam o MESMO documento | comportamento atual | **superado** pela etapa 2 |
- * | julgamento alterado muda campo NOMEADO | comportamento atual | migra: é o controle que impede vacuidade |
- * | delimitação da conclusão | integridade histórica | lê a cópia congelada |
- * | observação numérica é observação | forma, sobre valores da execução | migra a conferência de forma |
- * | vínculo NÃO DETERMINADO | literais, medição da base | **superado**, e fica congelado |
- * | julgamento omitido reprova por matriz | comportamento atual | **coberto**: `completeness.test.ts` `'26 matrizes e 72 pares, com duas alternativas'`, `'par faltante é rejeitado e a matriz é nomeada'` e `'nomeia a matriz e o que falta nela'`; e `calculate-route.test.ts` `'resposta incompleta COM completedAt é rejeitada e registrada'` |
- * | sem o portão, célula sem rastro | comportamento atual | migra para `a12-rastreabilidade` |
- * | código atual não produziu o histórico | mista | metade histórica fica; metade atual migra |
- * | o registro diz o que NÃO demonstra | integridade histórica | lê a cópia congelada |
- * | artefato coincide com a medição | mista | parte-se em preservação e em comportamento |
+ * ⚠ **Nenhum valor esperado foi invertido no lugar, e
+ * `docs/dados/a12-identidade/medicao.json` NÃO foi regravado.**
  */
 
 export {};
@@ -69,650 +52,43 @@ const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a12-identidade', 'medicao.jso
 
 /**
  * ⚠ **A CÓPIA CONGELADA da medição histórica.** É a evidência do estado que a etapa 2
- * corrige, e **não se regrava**: `A12ID_GRAVAR=1` escreve em `ARTEFATO`, nunca aqui, e
- * um controle abaixo exige que os dois caminhos sejam distintos.
+ * corrige, e **não se regrava**.
  */
 const PRESERVADO = path.join(
   RAIZ, 'docs', 'dados', 'a12-identidade', 'medicao-preservada-03c7d8b.json'
 );
 const SHA_PRESERVADO = '85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25';
 const BYTES_PRESERVADO = 17326;
-/** A medição histórica, LIDA da cópia congelada. Não deriva de execução alguma. */
-const CONGELADO = JSON.parse(fs.readFileSync(PRESERVADO, 'utf8'));
-
-const GRAVAR = process.env.A12ID_GRAVAR === '1';
-const COMMIT_DA_BASE = '7157db89ff0fe102bbd36e7d5bc7c4378ab48c67';
 
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
-const shaArquivo = (rel: string) => sha256(fs.readFileSync(path.join(RAIZ, rel)));
 
-const HISTORICO = 'docs/calculations-13jul2026.json';
-const ROTA_CALCULO = 'app/api/calculate/route.ts';
-const AGREGACAO = 'lib/aggregation.ts';
-const COMPLETUDE = 'lib/completeness.ts';
+/** A medição histórica, LIDA da cópia congelada. Não deriva de execução alguma. */
+const CONGELADO = JSON.parse(fs.readFileSync(PRESERVADO, 'utf8'));
 
 // ---------------------------------------------------------------------------
-// Firestore simulado. ⚠ É duplo de TESTE, e não caminho de produção.
+// Preservação
 // ---------------------------------------------------------------------------
 
-type Doc = { id: string; data: Record<string, unknown> };
-const store: Record<string, Doc[]> = { projects: [], respondents: [], responses: [] };
-const setDocSpy = jest.fn();
+test('preservacao: a copia congelada tem o resumo e o tamanho declarados', () => {
+  expect(fs.existsSync(PRESERVADO)).toBe(true);
+  const bytes = fs.readFileSync(PRESERVADO);
+  expect(bytes.length).toBe(BYTES_PRESERVADO);
+  expect(sha256(bytes)).toBe(SHA_PRESERVADO);
+  // ⚠ CONTROLE de que a assercao discrimina: um byte a mais reprovaria.
+  expect(sha256(Buffer.concat([bytes, Buffer.from('x')]))).not.toBe(SHA_PRESERVADO);
+});
 
-jest.mock('@/lib/firebase', () => ({ db: { __mock: true } }));
-
-jest.mock('firebase/firestore', () => ({
-  collection: (_db: unknown, name: string) => ({ __col: name }),
-  query: (ref: unknown) => ref,
-  where: (field: string, _op: string, value: unknown) => ({ field, value }),
-  doc: (_db: unknown, col: string, id: string) => ({ __col: col, __id: id }),
-  getDoc: async (ref: { __col: string; __id: string }) => {
-    const achado = store[ref.__col]?.find(d => d.id === ref.__id);
-    return { exists: () => Boolean(achado), id: ref.__id, data: () => achado?.data };
-  },
-  getDocs: async (ref: { __col: string }) => {
-    const docs = (store[ref.__col] ?? []).map(d => ({ id: d.id, data: () => d.data }));
-    return { docs, size: docs.length };
-  },
-  setDoc: (...args: unknown[]) => {
-    setDocSpy(...args);
-    return Promise.resolve();
-  },
-}));
-
-// Os imports do código real vêm DEPOIS dos duplos.
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { POST } = require('@/app/api/calculate/route');
-const { aggregateMatrix } = require('@/lib/aggregation');
-const { checkResponseCompleteness, describeIncompleteness } = require('@/lib/completeness');
-const fixture = require('./fixtures/panel-2026.json');
-/* eslint-enable @typescript-eslint/no-var-requires */
-
-// ---------------------------------------------------------------------------
-// Montagem dos cenários
-// ---------------------------------------------------------------------------
-
-/**
- * Ordem dos méritos no vetor gravado. ⚠ **Lida no código**, em
- * `app/api/calculate/route.ts:54` (`const MERITS = ['B','O','C','R']`) e usada em
- * `:816` (`aggregateMatrix(responses,'bocr','BOCR',[...MERITS])`) e em `:966`
- * (`bocrWeights: personalWeights`). O teste confere a ordem por via independente,
- * contra as chaves de `rescalingWeights`, que a rota monta na mesma ordem em `:972`.
- */
-const ORDEM_DOS_MERITOS = ['B', 'O', 'C', 'R'];
-
-const PROJETO = 'projeto-a12-identidade';
-const ALTERNATIVAS = [
-  { code: 'A1', name: 'Alternativa um', description: '' },
-  { code: 'A2', name: 'Alternativa dois', description: '' },
-];
-
-/** Os 72 julgamentos de cada respondente do painel de referência. */
-const JULGAMENTOS: any[][] = (fixture as any).responses.map((r: any) => r.judgments);
-
-/**
- * Identificadores DISTINTOS dos códigos do instrumento (A1, A2, B1..R5), para que
- * a busca por identidade no documento gravado não case por acaso.
- */
-const idAlfa = (i: number) => `ident-alfa-${String(i).padStart(2, '0')}`;
-const idBeta = (i: number) => `ident-beta-${String(i).padStart(2, '0')}`;
-
-type Entrada = { docId: string; respondentId?: string; judgments: any[]; completedAt?: string };
-
-function montarStore(cadastrados: string[], respostas: Entrada[]) {
-  store.projects = [
-    { id: PROJETO, data: { name: 'Painel de investigação', description: '', alternatives: ALTERNATIVAS } },
-  ];
-  store.respondents = cadastrados.map(id => ({ id, data: { projectId: PROJETO } }));
-  store.responses = respostas.map(r => ({
-    id: r.docId,
-    data: {
-      projectId: PROJETO,
-      ...(r.respondentId === undefined ? {} : { respondentId: r.respondentId }),
-      judgments: r.judgments,
-      ...(r.completedAt === undefined ? {} : { completedAt: r.completedAt }),
-    },
-  }));
-}
-
-const pedir = (body: Record<string, unknown> = { projectId: PROJETO }) =>
-  POST({ json: async () => body } as any);
-
-const copia = (x: any) => JSON.parse(JSON.stringify(x));
-
-/** Remove um par de um conjunto de julgamentos, deixando a matriz incompleta. */
-function mutilar(julgamentos: any[]): any[] {
-  const j = copia(julgamentos);
-  const i = j.findIndex((x: any) => x.type === 'subcriteria' && x.group === 'O' && x.itemA === 'O1' && x.itemB === 'O2');
-  if (i < 0) throw new Error('par de referência não encontrado no fixture');
-  j.splice(i, 1);
-  return j;
-}
-
-// ---------------------------------------------------------------------------
-// A medição
-// ---------------------------------------------------------------------------
-
-/**
- * ⚠ **O artefato NÃO guarda resumo dos BYTES do documento**, porque esse resumo
- * **divergiu entre ambientes**, medido. O CI de `8879360`, em Node 24, produziu
- * resumos diferentes dos desta máquina, em Node 22, **com o mesmo número de bytes
- * e a mesma estrutura**, e o achado se manteve lá: os dois painéis continuaram
- * iguais entre si. ⚠ **A causa específica dessa divergência NÃO foi determinada**,
- * e **os valores divergentes não foram preservados** em nenhum dos dois lados.
- *
- * O que o artefato guarda é **estrutura**, que não depende disso. A igualdade entre
- * os dois painéis continua medida **dentro da mesma execução**, onde a comparação é
- * exata e o ambiente é o mesmo dos dois lados.
- */
-function caminhosDeChave(o: any, p = ''): string[] {
-  if (o && typeof o === 'object' && !Array.isArray(o)) {
-    return Object.keys(o).flatMap(k => [`${p}.${k}`, ...caminhosDeChave(o[k], `${p}.${k}`)]);
-  }
-  if (Array.isArray(o)) return o.flatMap((v, i) => caminhosDeChave(v, `${p}[${i}]`));
-  return [];
-}
-
-function folhasDe(o: any): number {
-  if (o && typeof o === 'object' && !Array.isArray(o)) {
-    return (Object.values(o) as any[]).reduce((a: number, v: any) => a + folhasDe(v), 0);
-  }
-  if (Array.isArray(o)) return (o as any[]).reduce((a: number, v: any) => a + folhasDe(v), 0);
-  return 1;
-}
-
-/** Resumo da ESTRUTURA: caminhos de chave, ordenados, sem nenhum número. */
-const resumoDaEstrutura = (d: any) => sha256(caminhosDeChave(d).sort().join('\n'));
-
-let M: any;
-
-beforeAll(async () => {
-  // ==== 1. O ARQUIVO HISTÓRICO ====
-  const hist = JSON.parse(fs.readFileSync(path.join(RAIZ, HISTORICO), 'utf8'));
-  const chaves = new Set<string>();
-  const folhas: [string, any][] = [];
-  const andar = (o: any, p = '') => {
-    if (o && typeof o === 'object' && !Array.isArray(o)) {
-      for (const [k, v] of Object.entries(o)) { chaves.add(k); andar(v, `${p}.${k}`); }
-    } else if (Array.isArray(o)) {
-      o.forEach((v, i) => andar(v, `${p}[${i}]`));
-    } else {
-      folhas.push([p, o]);
-    }
-  };
-  andar(hist);
-  const pareceIdentificador = folhas.filter(
-    ([, v]) => typeof v === 'string' && (/^[A-Za-z0-9_-]{16,28}$/.test(v) || v.includes('@'))
-  );
-  const arquivoHistorico = {
-    caminho: HISTORICO,
-    sha256: shaArquivo(HISTORICO),
-    chavesDistintas: chaves.size,
-    folhas: folhas.length,
-    temDadosIndividuais: false,
-    oQueTem: {
-      responseCount: hist.responseCount,
-      projectId: hist.projectId,
-      calculatedAt: hist.calculatedAt,
-      'metadata.excludedRespondentIds': hist.metadata?.excludedRespondentIds,
-      matrizesAgregadas: Object.keys(hist.aggregatedMatrices ?? {}),
-      'ipcMetadata.hasIncompleteGroups': hist.ipcMetadata?.hasIncompleteGroups,
-      'ipcMetadata.version': hist.ipcMetadata?.version,
-    },
-    oQueNaoTem: {
-      listaDeRespondentes: !('respondents' in hist) && !('qualityAnalysis' in hist),
-      matrizesPorRespondente: true,
-      'metadata.rejectedIncomplete': hist.metadata?.rejectedIncomplete === undefined,
-      identificadorDeRespondenteEmQualquerCampo: true,
-    },
-    valoresComCaraDeIdentificador: pareceIdentificador.map(([p, v]) => ({ caminho: p, valor: v })),
-    completudeQueRegistra: {
-      onde: 'ipcMetadata.<grupo>.completeness',
-      oQueE: 'dado e possivel da MATRIZ AGREGADA, por grupo',
-      oQueNaoE: '⚠ NAO e completude por respondente: nao ha um so campo por unidade',
-      medido: Object.fromEntries(
-        Object.entries(hist.ipcMetadata?.subcriteria ?? {}).map(([g, v]: any) => [g, v.completeness])
-      ),
-    },
-    vinculoComAsMatrizes:
-      'as matrizes de aggregatedMatrices sao strings JSON de matrizes JA agregadas; nao ha campo que ligue celula a respondente',
-  };
-
-  // ==== 2. A EXECUÇÃO OBSERVADA: os quatro conjuntos ====
-  // Cadastrados: doze com resposta completa, um sem resposta, um com resposta não
-  // concluída. Mais uma resposta órfã, uma duplicada e uma incompleta.
-  const cadastrados = [...JULGAMENTOS.map((_, i) => idAlfa(i + 1)), 'ident-alfa-13', 'ident-alfa-14'];
-  const respostas: Entrada[] = JULGAMENTOS.map((j, i) => ({
-    docId: `doc-${i + 1}`,
-    respondentId: idAlfa(i + 1),
-    judgments: i === 6 ? mutilar(j) : copia(j), // o sétimo fica incompleto
-    completedAt: `2026-05-0${(i % 9) + 1}T12:00:00.000Z`,
-  }));
-  respostas.push({
-    docId: 'doc-dup', respondentId: idAlfa(3), judgments: copia(JULGAMENTOS[2]),
-    completedAt: '2026-06-01T12:00:00.000Z', // mais recente: a deduplicação fica com esta
-  });
-  respostas.push({
-    docId: 'doc-orfa', respondentId: 'ident-orfao-99', judgments: copia(JULGAMENTOS[0]),
-    completedAt: '2026-05-02T12:00:00.000Z',
-  });
-  respostas.push({ docId: 'doc-sem-fim', respondentId: 'ident-alfa-14', judgments: copia(JULGAMENTOS[1]) });
-
-  montarStore(cadastrados, respostas);
-  setDocSpy.mockClear();
-  const excluidoPeloGestor = idAlfa(2);
-  const res = await pedir({ projectId: PROJETO, excludedRespondentIds: [excluidoPeloGestor] });
-  const corpo = await res.json();
-  const gravado = setDocSpy.mock.calls[0]?.[1] as any;
-
-  // Quem a instrumentação SABE ter entrado, por construção da entrada.
-  const utilizadosPelaConstrucao = JULGAMENTOS
-    .map((_, i) => idAlfa(i + 1))
-    .filter(id => id !== excluidoPeloGestor && id !== idAlfa(7));
-
-  const serializado = JSON.stringify(gravado);
-  const execucaoObservada = {
-    comoFoiExercitado:
-      'handler real de app/api/calculate/route.ts, com Firestore por duplo e setDoc espionado. Nenhuma chamada externa.',
-    status: res.status,
-    conjuntos: {
-      participantesCadastrados: {
-        existeHoje: true,
-        onde: `colecao respondents, lida em ${ROTA_CALCULO}:632-638`,
-        temIdentidade: true,
-        quantos: cadastrados.length,
-        identificadores: cadastrados,
-      },
-      respostasConcluidas: {
-        existeHoje: true,
-        onde: `colecao responses com completedAt, filtrada em ${ROTA_CALCULO}:654-656`,
-        temIdentidade: true,
-        documentos: respostas.filter(r => r.completedAt !== undefined).length,
-        identificadoresDistintos: Array.from(
-          new Set(respostas.filter(r => r.completedAt !== undefined).map(r => r.respondentId))
-        ),
-        aviso: '⚠ documento e respondente nao sao a mesma unidade: ha duplicata por respondentId',
-      },
-      respostasUtilizadas: {
-        existeHoje: 'SIM, em memoria durante a execucao',
-        onde: `variavel responses apos o portao de completude, ${ROTA_CALCULO}:713-727`,
-        temIdentidadeNoArtefato: false,
-        quantosOArtefatoDeclara: gravado?.responseCount,
-        identificadoresNoArtefato: 'NAO DETERMINADO: o documento gravado nao traz lista de incluidos',
-        identificadoresPelaConstrucaoDaEntrada: utilizadosPelaConstrucao,
-        aviso:
-          '⚠ a lista acima e conhecida porque ESTE instrumento montou a entrada. Nao e recuperavel do artefato.',
-      },
-      exclusoesRegistradas: {
-        existeHoje: true,
-        onde: `metadata.excludedRespondentIds em ${ROTA_CALCULO}:1060 e metadata.rejectedIncomplete em ${ROTA_CALCULO}:1064`,
-        temIdentidade: true,
-        decisaoDoGestor: gravado?.metadata?.excludedRespondentIds,
-        decisaoDoSistema: gravado?.metadata?.rejectedIncomplete,
-        aviso: '⚠ identidade existe no artefato SO para quem ficou de FORA',
-      },
-    },
-    documentoGravado: {
-      colecao: setDocSpy.mock.calls[0]?.[0],
-      chavesDeTopo: Object.keys(gravado ?? {}),
-      chavesDeMetadata: Object.keys(gravado?.metadata ?? {}),
-      temIpcMetadata: gravado?.ipcMetadata !== undefined,
-      temRejectedIncomplete: gravado?.metadata?.rejectedIncomplete !== undefined,
-      ocorrenciasDeIdentificadorIncluido: utilizadosPelaConstrucao.filter(id => serializado.includes(id)),
-      respostaDaRotaTrazListaDeIncluidos: JSON.stringify(corpo).includes(utilizadosPelaConstrucao[0]),
-    },
-    orfaEDuplicata: {
-      orfaDescartada: !serializado.includes('ident-orfao-99'),
-      ondeAOrfaCai: `${ROTA_CALCULO}:659-665, validacao cruzada contra respondents`,
-      ondeADuplicataCai: `${ROTA_CALCULO}:676-685, deduplicacao por respondentId mantendo o completedAt maior`,
-      aviso: '⚠ descarte medido pela AUSENCIA do identificador no documento; o documento nao registra o descarte',
-    },
-  };
-
-  // ==== 3. DUAS IDENTIDADES, O MESMO DOCUMENTO ====
-  const semTempo = (o: any) => {
-    const c = copia(o);
-    delete c.calculatedAt;
-    return JSON.stringify(c);
-  };
-  let julgamentoAlterado: any = null;
-  const rodarPainel = async (nome: (i: number) => string, alterarUm = false) => {
-    const cad = JULGAMENTOS.map((_, i) => nome(i + 1));
-    const resp: Entrada[] = JULGAMENTOS.map((j, i) => {
-      const julg = copia(j);
-      if (alterarUm && i === 0) {
-        const alvo = julg.find((x: any) => x.type === 'bocr');
-        const antes = { saatyValue: alvo.saatyValue, favors: alvo.favors };
-        alvo.saatyValue = alvo.saatyValue === 9 ? 8 : (alvo.saatyValue ?? 1) + 1;
-        alvo.favors = 'A';
-        // ⚠ registrado, e não suposto: qual matriz e qual par mudaram.
-        julgamentoAlterado = {
-          respondente: nome(1),
-          matriz: `${alvo.type}|${alvo.group}`,
-          par: [alvo.itemA, alvo.itemB],
-          antes,
-          depois: { saatyValue: alvo.saatyValue, favors: alvo.favors },
-        };
-      }
-      return { docId: `d-${nome(i + 1)}`, respondentId: nome(i + 1), judgments: julg, completedAt: `2026-05-0${(i % 9) + 1}T12:00:00.000Z` };
-    });
-    montarStore(cad, resp);
-    setDocSpy.mockClear();
-    await pedir();
-    return setDocSpy.mock.calls[0][1] as any;
-  };
-  const docAlfa = await rodarPainel(idAlfa);
-  const docBeta = await rodarPainel(idBeta);
-  const docBetaAlterado = await rodarPainel(idBeta, true);
-
-  // ==== 3b. O CAMPO NUMÉRICO AFETADO PELO JULGAMENTO ALTERADO ====
-  //
-  // ⚠ **Comparação entre duas execuções do MESMO processo**, a do painel B e a do
-  // controle. Nenhum literal numérico entra como critério, e nada é comparado
-  // contra decimal gravado em artefato.
-  //
-  // **Caminho do cálculo, que é a justificativa de por que este campo tem de
-  // mudar.** O julgamento alterado pertence à matriz `bocr|BOCR`, no par que fica
-  // registrado em `julgamentoAlterado.par`. `aggregateMatrix`
-  // (`lib/aggregation.ts:68-95`) agrega essa célula pela média geométrica dos doze
-  // respondentes; `calculateWeightsGroup` (`app/api/calculate/route.ts:816-819`)
-  // deriva o autovetor principal dessa matriz; e a rota grava esse vetor em
-  // `bocrWeights` (`:966`). Logo o peso do mérito que aparece em `par[0]` tem de
-  // mudar. ⚠ Se não mudar, o controle REPROVA, e isso é achado, não ajuste.
-  const indiceDoMerito = (m: string) => ORDEM_DOS_MERITOS.indexOf(m);
-  const iMerito = indiceDoMerito(julgamentoAlterado?.par?.[0]);
-  const pesoDoMerito = (d: any) =>
-    Array.isArray(d?.bocrWeights) && iMerito >= 0 ? d.bocrWeights[iMerito] : undefined;
-  const vB = pesoDoMerito(docBeta);
-  const vC = pesoDoMerito(docBetaAlterado);
-  const eNumeroFinito = (v: any) => typeof v === 'number' && Number.isFinite(v);
-
-  const campoNumericoAfetado = {
-    campo: `bocrWeights[${iMerito}]`,
-    oQueE: `peso estrategico do merito ${julgamentoAlterado?.par?.[0]}, na ordem lida em ${ROTA_CALCULO}:54`,
-    julgamentoAlterado,
-    caminhoDoCalculo: [
-      `o julgamento alterado esta na matriz ${julgamentoAlterado?.matriz}, par ${JSON.stringify(julgamentoAlterado?.par)}`,
-      `${AGREGACAO}:68-95 agrega essa celula pela media geometrica dos doze respondentes`,
-      `${ROTA_CALCULO}:816-819 deriva o autovetor principal dessa matriz`,
-      `${ROTA_CALCULO}:966 grava esse vetor em bocrWeights`,
-      'portanto o peso do merito de par[0] tem de mudar quando o julgamento muda',
-    ],
-    // ⚠ verificações que PRECEDEM a comparação. Ausência, NaN ou mudança de tipo
-    // NÃO satisfazem o controle.
-    antesDeComparar: {
-      indiceResolvido: iMerito,
-      chavePresenteNosDois: Array.isArray(docBeta?.bocrWeights) && Array.isArray(docBetaAlterado?.bocrWeights),
-      comprimentoIgual: (docBeta?.bocrWeights?.length ?? -1) === (docBetaAlterado?.bocrWeights?.length ?? -2),
-      comprimentoObservado: docBeta?.bocrWeights?.length,
-      tipoNoPainel: typeof vB,
-      tipoNoControle: typeof vC,
-      finitoNosDois: eNumeroFinito(vB) && eNumeroFinito(vC),
-      mesmoCampoDeSaida:
-        Array.isArray(docBeta?.bocrWeights) &&
-        Array.isArray(docBetaAlterado?.bocrWeights) &&
-        (docBeta.bocrWeights.length === docBetaAlterado.bocrWeights.length) &&
-        iMerito >= 0 && iMerito < docBeta.bocrWeights.length,
-      ordemDosMeritosConferidaPor:
-        'chaves de rescalingWeights, montadas na mesma ordem em ' + ROTA_CALCULO + ':972',
-      chavesDeRescaling: Object.keys(docBeta?.rescalingWeights ?? {}),
-    },
-    // A comparação, e ela é de DESIGUALDADE entre duas execuções do mesmo processo.
-    diferem: eNumeroFinito(vB) && eNumeroFinito(vC) && vB !== vC,
-    // ⚠ E os dois paineis de identidade, no mesmo ambiente, continuam com o campo IGUAL.
-    igualEntreOsDoisPaineis: (() => {
-      const a = pesoDoMerito(docAlfa);
-      const b = pesoDoMerito(docBeta);
-      return eNumeroFinito(a) && eNumeroFinito(b) && a === b;
-    })(),
-    aviso:
-      '⚠ o critério é EXISTENCIA, FINITUDE, MESMO CAMPO e DESIGUALDADE. Nenhum valor numerico e critério de aprovação.',
-  };
-
-  const duasIdentidades = {
-    pergunta: 'o documento gravado distingue QUEM respondeu?',
-    // ⚠ o tamanho fica registrado para que a igualdade nao possa ser de documento vazio.
-    painelA: {
-      identificadores: `${idAlfa(1)} ... ${idAlfa(12)}`,
-      chavesDeTopo: Object.keys(docAlfa).length,
-      folhas: folhasDe(docAlfa),
-      sha256DaEstrutura: resumoDaEstrutura(docAlfa),
-    },
-    painelB: {
-      identificadores: `${idBeta(1)} ... ${idBeta(12)}`,
-      chavesDeTopo: Object.keys(docBeta).length,
-      folhas: folhasDe(docBeta),
-      sha256DaEstrutura: resumoDaEstrutura(docBeta),
-    },
-    // ⚠ comparação EXATA, e feita DENTRO da mesma execução: os dois lados passam
-    // pelo mesmo runtime, então a igualdade não depende do ambiente.
-    documentosIguais: semTempo(docAlfa) === semTempo(docBeta),
-    controleDiscriminante: {
-      oQueMudou: 'um unico julgamento do primeiro respondente do painel B',
-      documentosIguais: semTempo(docBeta) === semTempo(docBetaAlterado),
-      estruturaIgual: resumoDaEstrutura(docBeta) === resumoDaEstrutura(docBetaAlterado),
-      campoNumericoAfetado,
-      leitura:
-        'NESTES paineis, que nao tem exclusao nem rejeicao, o documento responde a JULGAMENTOS e nao a IDENTIDADES: a estrutura fica igual e so os NUMEROS mudam',
-      alcance:
-        '⚠ vale para ESTE percurso, a rota calculate gravando em calculations, e para ESTA forma de entrada, doze respostas completas sem exclusao do gestor e sem rejeicao por incompletude. Com exclusao ou rejeicao o documento DISTINGUE paineis, pela identidade de quem SAIU.',
-    },
-    notaSobreResumoDeBytes:
-      '⚠ resumo dos BYTES nao e registrado: divergiu entre ambientes. Medido: o CI de 8879360, em Node 24, deu resumos diferentes dos desta maquina, em Node 22, com o MESMO numero de bytes e a MESMA estrutura, e a igualdade entre os dois paineis se manteve la. ⚠ causa especifica NAO determinada, e os valores divergentes NAO foram preservados.',
-    conclusaoDoQueFoiMedido:
-      'dois paineis com identidades inteiramente diferentes, SEM exclusao e SEM rejeicao, gravam documento identico fora de calculatedAt: neste percurso e nesta forma de entrada o artefato NAO determina quem ENTROU',
-    oQueAConclusaoNaoAlcanca:
-      '⚠ nao vale para painel COM exclusao do gestor ou COM rejeicao por incompletude, onde o documento registra a identidade de quem saiu; nao vale para outros percursos, como a rota de backup, que exporta respondents e responses COM identidade; e nao diz nada sobre o estado vivo, que nao foi consultado',
-  };
-
-  // ==== 3b. DE ONDE SAI O IDENTIFICADOR QUE OS FILTROS USAM ====
-  // Três respostas: uma normal, uma SEM respondentId cujo id de DOCUMENTO está
-  // cadastrado, e uma SEM respondentId e sem cadastro.
-  montarStore(['ident-alfa-01', 'doc-vira-identidade'], [
-    { docId: 'doc-normal', respondentId: 'ident-alfa-01', judgments: copia(JULGAMENTOS[0]), completedAt: '2026-05-01T12:00:00.000Z' },
-    { docId: 'doc-vira-identidade', judgments: copia(JULGAMENTOS[1]), completedAt: '2026-05-02T12:00:00.000Z' },
-    { docId: 'doc-sem-cadastro', judgments: copia(JULGAMENTOS[2]), completedAt: '2026-05-03T12:00:00.000Z' },
-  ]);
-  setDocSpy.mockClear();
-  const resFonte = await pedir();
-  const corpoFonte = await resFonte.json();
-  const gravadoFonte = setDocSpy.mock.calls[0]?.[1] as any;
-
-  const fonteDoIdentificador = {
-    pergunta: 'de onde sai o identificador que os filtros usam?',
-    cadeiaLidaNoCodigo: {
-      onde: `${ROTA_CALCULO}:159-180, funcao extractRespondentId`,
-      ordem: [
-        'respondentId', 'visitorId', 'id do DOCUMENTO', 'responses.respondentId',
-        'responses.visitorId', 'data.respondentId', 'userId', 'parte do email antes do arroba',
-      ],
-      ultimoElo: 'respondente_ seguido do INDICE mais um, isto e, identidade por POSICAO na lista',
-      procedencia: 'LIDO no codigo',
-    },
-    observado: {
-      responseCount: gravadoFonte?.responseCount,
-      respostaSemRespondentIdComDocumentoCadastrado:
-        'ENTROU: o id do documento serviu de identidade e passou na validacao cruzada',
-      respostaSemRespondentIdSemCadastro: 'CAIU como orfa',
-      leitura:
-        'a identidade que o filtro usa pode vir do DOCUMENTO e nao do respondente, e as duas nao sao a mesma coisa',
-    },
-    fallbackPorPosicao: {
-      alcancadoNaExecucaoObservada: false,
-      porque: 'o id do documento precede o fallback na cadeia, e documento vindo do Firestore sempre tem id',
-      procedencia: '⚠ LIDO no codigo. Nao exercitado, e NAO se afirma alcancavel no caminho de producao',
-      ondeMudaDeValor:
-        `⚠ o indice passado muda entre etapas: ${ROTA_CALCULO}:659 filtra sobre completedResponses e :678 percorre validatedResponses, que sao listas de tamanhos diferentes`,
-    },
-    naoAplicadoAqui:
-      '⚠ esta rodada NAO usa posicao nem contagem para identificar ninguem; o achado acima e sobre o codigo lido',
-  };
-  void corpoFonte;
-
-  // ==== 4. ONDE A IDENTIDADE CAI ====
-  const trio = [
-    { respondentId: 'quem-a', judgments: copia(JULGAMENTOS[0]) },
-    { respondentId: 'quem-b', judgments: copia(JULGAMENTOS[1]) },
-    { respondentId: 'quem-c', judgments: copia(JULGAMENTOS[2]) },
-  ];
-  const trioOutrosNomes = trio.map((r, i) => ({ respondentId: `outro-${i}`, judgments: r.judgments }));
-  const trioOutroJulgamento = copia(trio);
-  const alvoTrio = trioOutroJulgamento[0].judgments.find((x: any) => x.type === 'bocr');
-  alvoTrio.saatyValue = alvoTrio.saatyValue === 9 ? 8 : (alvoTrio.saatyValue ?? 1) + 1;
-  alvoTrio.favors = 'A';
-
-  const agr = (rs: any[]) => aggregateMatrix(rs, 'bocr', 'BOCR', ['B', 'O', 'C', 'R']);
-  const rA = agr(trio);
-  const rB = agr(trioOutrosNomes);
-  const rC = agr(trioOutroJulgamento);
-
-  const ondeCai = {
-    arquivo: AGREGACAO,
-    linhas: '68-95',
-    oQueEntra: 'objetos de resposta que TEM respondentId: a interface AggregationResponse o declara em lib/aggregation.ts:37',
-    oQueSai: Object.keys(rA),
-    oQuePassaAdiante: 'values: number[], em lib/aggregation.ts:95, e aggregateAIJ recebe SO numeros',
-    trocandoSoOsIdentificadores: {
-      iguais: JSON.stringify(rA) === JSON.stringify(rB),
-      leitura: 'a saida nao depende da identidade',
-    },
-    controleDiscriminante: {
-      oQueMudou: 'um julgamento de um dos tres',
-      iguais: JSON.stringify(rA) === JSON.stringify(rC),
-      leitura: 'a saida depende dos julgamentos, entao a comparacao anterior nao e trivial',
-    },
-    aviso: '⚠ medido na funcao REAL, com entradas sinteticas. Nao e execucao do painel de 2026.',
-  };
-
-  // ==== 5. OMISSÃO POR MATRIZ OU ETAPA ====
-  const comPulado = copia(JULGAMENTOS[0]);
-  const parPulado = comPulado.find((x: any) => x.type === 'subcriteria' && x.group === 'O' && x.itemA === 'O1' && x.itemB === 'O2');
-  parPulado.skipped = true;
-  const relatorio = checkResponseCompleteness(comPulado, ALTERNATIVAS);
-
-  // Sem o portão, a agregação aceita contribuição PARCIAL e não registra quem deu.
-  const dois = [{ respondentId: 'p1', judgments: copia(JULGAMENTOS[0]) }, { respondentId: 'p2', judgments: copia(JULGAMENTOS[1]) }];
-  const doisComUmPulado = copia(dois);
-  const alvoPulado = doisComUmPulado[1].judgments.find((x: any) => x.type === 'bocr');
-  alvoPulado.skipped = true;
-  const semPulo = agr(dois);
-  const comPulo = agr(doisComUmPulado);
-
-  const omissao = {
-    portaoAtual: {
-      arquivo: COMPLETUDE,
-      matrizesEsperadas: relatorio.expectedMatrices,
-      paresEsperados: relatorio.expectedPairs,
-      paresValidos: relatorio.validPairs,
-      isComplete: relatorio.isComplete,
-      matrizesComDefeito: relatorio.incompleteMatrices,
-      descricao: describeIncompleteness(relatorio),
-      leitura: 'um par PULADO reprova a resposta inteira, e o defeito e nomeado POR MATRIZ',
-    },
-    semOPortao: {
-      oQueFoiMedido: 'a mesma aggregateMatrix com um julgamento marcado skipped',
-      celulaMudaDeValor: JSON.stringify(semPulo.matrix) !== JSON.stringify(comPulo.matrix),
-      matrizContinuaCompleta: comPulo.isComplete,
-      celulasPreenchidas: { semPulo: semPulo.filledCells, comPulo: comPulo.filledCells },
-      registroDeQuemContribuiu: 'NAO EXISTE: a saida nao tem campo por respondente nem por celula',
-      leitura:
-        'participacao por celula altera o valor agregado e nao deixa rastro; presenca na lista inicial nao demonstra contribuicao a toda celula',
-    },
-    alcance:
-      '⚠ o portao e do codigo ATUAL, lido e exercitado aqui. O arquivo historico nao foi produzido por este codigo.',
-  };
-
-  // ==== 6. VÍNCULO COM A EXECUÇÃO E COM A VERSÃO DOS DADOS ====
-  const vinculo = {
-    oQueOArtefatoTem: ['projectId', 'calculatedAt', 'responseCount'],
-    oQueIssoDemonstra: {
-      projectId: 'o projeto, nao os respondentes',
-      calculatedAt: 'o instante do calculo, nao quem entrou',
-      responseCount: '⚠ contagem; usar contagem para identificar seria reconstruir por contagem',
-    },
-    oQueNaoExiste: [
-      'lista de identificadores incluidos',
-      'identificador de documento de resposta',
-      'resumo ou versao do conjunto de respostas',
-      'carimbo de versao dos dados de origem',
-    ],
-    origemEMutavel: {
-      onde: 'app/decisor/projetos/page.tsx:1044-1056',
-      oQue: 'exclusao de especialista apaga respondent, suas responses e o documento de calculations, em lote',
-      efeito: '⚠ o artefato exportado sobrevive a origem apagada, e nada nele preserva a identidade',
-      procedencia: 'LIDO no codigo, nao exercitado nesta rodada',
-    },
-    veredito: 'NAO DETERMINADO: nada no artefato liga o resultado aos respondentes daquela execucao',
-  };
-
-  // ==== 7. O CÓDIGO ATUAL NÃO É O QUE PRODUZIU O HISTÓRICO ====
-  const versoes = {
-    documentoGravadoHoje: {
-      temIpcMetadata: docAlfa.ipcMetadata !== undefined,
-      temRejectedIncomplete: docAlfa.metadata?.rejectedIncomplete !== undefined,
-    },
-    arquivoHistorico: {
-      temIpcMetadata: hist.ipcMetadata !== undefined,
-      temRejectedIncomplete: hist.metadata?.rejectedIncomplete !== undefined,
-    },
-    leitura:
-      'os dois conjuntos de campos diferem nos dois sentidos: o historico tem ipcMetadata e nao tem rejectedIncomplete, e o documento de hoje e o inverso',
-    oQueIstoDemonstra: 'que o arquivo historico NAO foi produzido pelo codigo atual',
-    oQueIstoNaoDemonstra: '⚠ qual versao o produziu, nem quais filtros aquela versao aplicou',
-  };
-
-  M = {
-    rodada: 'A.12 identidade de quem participou do calculo, INVESTIGACAO',
-    natureza:
-      'LE E MEDE. Nao escolhe, nao implementa, nao integra. Nenhum parecer produzido, real ou simulado. Nenhuma identidade reconstruida por posicao ou contagem.',
-    identificacao: {
-      commitDaBase: COMMIT_DA_BASE,
-      arquivos: Object.fromEntries(
-        [HISTORICO, ROTA_CALCULO, AGREGACAO, COMPLETUDE].map(f => [f, shaArquivo(f)])
-      ),
-    },
-    arquivoHistorico,
-    execucaoObservada,
-    duasIdentidades,
-    fonteDoIdentificador,
-    ondeAIdentidadeCai: ondeCai,
-    omissaoPorMatrizOuEtapa: omissao,
-    vinculoComAExecucao: vinculo,
-    versoesDoCodigo: versoes,
-    /**
-     * ⚠ **OBSERVAÇÃO, e não referência de aprovação.** No CI de `8879360`,
-     * divergiram os resumos do conteúdo serializado entre ambientes.
-     * Não foram preservados os valores que permitiriam localizar a diferença.
-     * ⚠ **Causa específica não determinada.** Este bloco fica FORA da comparação
-     * com o artefato gravado: o teste confere a FORMA dele, nunca os valores.
-     */
-    observacaoNumericaNaoNormativa: {
-      natureza: 'OBSERVACAO. NAO e referencia de aprovacao, e NAO e comparada contra o artefato gravado.',
-      ambienteDaObservacao: { plataforma: process.platform, arquitetura: process.arch, node: process.version },
-      campo: campoNumericoAfetado.campo,
-      valorNoPainelA: pesoDoMerito(docAlfa),
-      valorNoPainelB: vB,
-      valorNoControle: vC,
-      aviso: '⚠ registrado para leitura humana. O criterio do controle e desigualdade entre duas execucoes do mesmo processo.',
-    },
-    oQueIstoNaoDemonstra: [
-      'NAO demonstra qual versao produziu o arquivo historico',
-      'NAO demonstra quais respondentes entraram naquela execucao de 13/07/2026',
-      'NAO exercita a tela de resultados nem o caminho do parecer: foram LIDOS',
-      'NAO julga a legitimidade de exclusao alguma',
-      'NAO altera producao, e nenhuma identidade foi reconstruida por posicao ou contagem',
-    ],
-  };
-
-  if (GRAVAR) {
-    fs.mkdirSync(path.dirname(ARTEFATO), { recursive: true });
-    fs.writeFileSync(ARTEFATO, JSON.stringify(M, null, 2) + '\n', 'utf8');
-  }
+test('preservacao: o artefato da rodada de investigacao continua identico a copia', () => {
+  expect(fs.existsSync(ARTEFATO)).toBe(true);
+  // ⚠ Os DOIS caminhos sao distintos, e a distincao e testada: nenhuma regravacao do
+  //   artefato pode alcancar a copia.
+  expect(path.resolve(ARTEFATO)).not.toBe(path.resolve(PRESERVADO));
+  expect(sha256(fs.readFileSync(ARTEFATO))).toBe(SHA_PRESERVADO);
 });
 
 // ---------------------------------------------------------------------------
-// 3.1 O arquivo histórico
+// 3.1 O arquivo histórico de 13/07/2026
 // ---------------------------------------------------------------------------
 
 test('3.1: o arquivo historico nao tem dados individuais nem identificador de respondente', () => {
@@ -736,141 +112,16 @@ test('3.1: a completude do historico e da matriz AGREGADA, e nao por respondente
   // E o vínculo com as matrizes é inexistente: elas já vêm agregadas.
   expect(CONGELADO.arquivoHistorico.vinculoComAsMatrizes).toMatch(/JA agregadas/);
   // ⚠ copia antes de ordenar: `sort` muta, e mutar a medicao dentro da assertiva
-  // foi defeito medido na primeira execucao deste instrumento.
-  expect([...CONGELADO.arquivoHistorico.oQueTem.matrizesAgregadas].sort()).toEqual(['bocr', 'magnitude', 'subcriteria']);
+  // foi defeito medido na primeira execucao daquele instrumento.
+  expect([...CONGELADO.arquivoHistorico.oQueTem.matrizesAgregadas].sort())
+    .toEqual(['bocr', 'magnitude', 'subcriteria']);
 });
 
 // ---------------------------------------------------------------------------
-// 3.3 Os quatro conjuntos
+// A delimitação, e o que a medição NÃO alcançava
 // ---------------------------------------------------------------------------
 
-test('3.3: os quatro conjuntos estao distinguidos, com existencia, local e identidade', () => {
-  const c = M.execucaoObservada.conjuntos;
-  expect(Object.keys(c)).toEqual([
-    'participantesCadastrados', 'respostasConcluidas', 'respostasUtilizadas', 'exclusoesRegistradas',
-  ]);
-  for (const k of Object.keys(c)) {
-    expect(typeof c[k].onde).toBe('string');
-    expect(c[k].onde.length).toBeGreaterThan(10);
-  }
-  expect(c.participantesCadastrados.quantos).toBe(14);
-  expect(c.respostasConcluidas.documentos).toBe(14);
-  expect(c.respostasConcluidas.identificadoresDistintos).toHaveLength(13);
-  // Doze do painel, menos o excluído pelo gestor e o rejeitado por incompletude.
-  expect(c.respostasUtilizadas.quantosOArtefatoDeclara).toBe(10);
-  expect(c.respostasUtilizadas.identificadoresPelaConstrucaoDaEntrada).toHaveLength(10);
-});
-
-test('3.3: identidade no artefato existe SO para quem ficou de fora', () => {
-  const c = M.execucaoObservada.conjuntos;
-  expect(c.exclusoesRegistradas.decisaoDoGestor).toEqual(['ident-alfa-02']);
-  expect(c.exclusoesRegistradas.decisaoDoSistema).toEqual([
-    { respondentId: 'ident-alfa-07', matrizes: ['O: 1 comparação(ões) sem resposta'] },
-  ]);
-  // E nenhum identificador de INCLUÍDO aparece no documento gravado.
-  expect(M.execucaoObservada.documentoGravado.ocorrenciasDeIdentificadorIncluido).toEqual([]);
-  expect(M.execucaoObservada.documentoGravado.respostaDaRotaTrazListaDeIncluidos).toBe(false);
-  expect(c.respostasUtilizadas.identificadoresNoArtefato).toMatch(/^NAO DETERMINADO/);
-});
-
-test('3.3: orfa e duplicata caem no caminho, e o documento nao registra o descarte', () => {
-  const o = M.execucaoObservada.orfaEDuplicata;
-  expect(o.orfaDescartada).toBe(true);
-  expect(o.ondeAOrfaCai).toMatch(/route\.ts:\d+/);
-  expect(o.ondeADuplicataCai).toMatch(/route\.ts:\d+/);
-  expect(o.aviso).toMatch(/o documento nao registra o descarte/);
-  // A duplicata não vira respondente a mais: doze documentos de painel, onze ids.
-  expect(M.execucaoObservada.conjuntos.respostasUtilizadas.quantosOArtefatoDeclara).toBe(10);
-});
-
-test('3.3: a identidade que o filtro usa pode vir do DOCUMENTO, e o fallback por posicao nao foi alcancado', () => {
-  const f = M.fonteDoIdentificador;
-  expect(f.observado.responseCount).toBe(2);
-  expect(f.observado.respostaSemRespondentIdComDocumentoCadastrado).toMatch(/^ENTROU/);
-  expect(f.observado.respostaSemRespondentIdSemCadastro).toMatch(/^CAIU/);
-  // ⚠ o ultimo elo da cadeia e identidade por posicao, e fica registrado como LIDO.
-  expect(f.cadeiaLidaNoCodigo.ultimoElo).toMatch(/POSICAO/);
-  expect(f.fallbackPorPosicao.alcancadoNaExecucaoObservada).toBe(false);
-  expect(f.fallbackPorPosicao.procedencia).toMatch(/LIDO no codigo/);
-  expect(f.naoAplicadoAqui).toMatch(/NAO usa posicao nem contagem/);
-});
-
-// ---------------------------------------------------------------------------
-// 3.2 Onde a identidade existe e onde é descartada
-// ---------------------------------------------------------------------------
-
-test('3.2: a identidade existe na origem e cai na agregacao, com arquivo e linha', () => {
-  const o = M.ondeAIdentidadeCai;
-  expect(o.arquivo).toBe('lib/aggregation.ts');
-  expect([...o.oQueSai].sort()).toEqual(['filledCells', 'isComplete', 'matrix', 'totalCells']);
-  expect(o.trocandoSoOsIdentificadores.iguais).toBe(true);
-  // ⚠ CONTROLE: se mudar um julgamento, a saída muda — a igualdade acima não é trivial.
-  expect(o.controleDiscriminante.iguais).toBe(false);
-});
-
-test('3.2: dois paineis de identidades diferentes gravam o MESMO documento', () => {
-  const d = M.duasIdentidades;
-  // Comparação exata, dentro da mesma execução.
-  expect(d.documentosIguais).toBe(true);
-  expect(d.painelA.sha256DaEstrutura).toBe(d.painelB.sha256DaEstrutura);
-  expect(d.painelA.chavesDeTopo).toBe(21);
-  expect(d.painelA.folhas).toBe(d.painelB.folhas);
-  expect(d.painelA.folhas).toBeGreaterThan(100); // não é documento vazio
-  // ⚠ CONTROLE: um julgamento diferente muda o documento, e muda SÓ os números.
-  expect(d.controleDiscriminante.documentosIguais).toBe(false);
-  expect(d.controleDiscriminante.estruturaIgual).toBe(true);
-  // ⚠ o limite do registro fica dito no proprio artefato.
-  expect(d.notaSobreResumoDeBytes).toMatch(/divergiu entre ambientes/);
-  expect(d.notaSobreResumoDeBytes).toMatch(/causa especifica NAO determinada/);
-  // ⚠ CONTROLE NEGATIVO: a atribuicao causal nao pode voltar ao artefato. Esta
-  // linha e PROIBICAO TESTADA, e nao afirmacao causal.
-  expect(d.notaSobreResumoDeBytes).not.toMatch(/Math\.log|Math\.exp|aproximacao dependente/);
-});
-
-// ---------------------------------------------------------------------------
-// 3.4 Rastreabilidade e omissão por matriz
-// ---------------------------------------------------------------------------
-
-/**
- * ⚠ **O controle discriminante NOMEADO.** Compara duas execuções do MESMO processo,
- * a do painel B e a do controle, e exige que o campo nomeado DIFIRA. Nenhum literal
- * numérico é critério, e nada é comparado contra decimal gravado em artefato.
- */
-test('3.2: o julgamento alterado muda o campo numerico NOMEADO, e nao qualquer campo', () => {
-  const c = M.duasIdentidades.controleDiscriminante.campoNumericoAfetado;
-
-  // A matriz e o par alterados ficam registrados, e não supostos.
-  expect(c.julgamentoAlterado.matriz).toBe('bocr|BOCR');
-  expect(c.julgamentoAlterado.par).toHaveLength(2);
-  expect(ORDEM_DOS_MERITOS).toContain(c.julgamentoAlterado.par[0]);
-  expect(c.julgamentoAlterado.antes).not.toEqual(c.julgamentoAlterado.depois);
-
-  // ⚠ A ordem dos méritos é conferida por via INDEPENDENTE: as chaves que a rota
-  // monta a partir do mesmo vetor, na mesma ordem.
-  expect(c.antesDeComparar.chavesDeRescaling).toEqual(['sb', 'so', 'sc', 'sr']);
-  expect(c.antesDeComparar.indiceResolvido).toBe(ORDEM_DOS_MERITOS.indexOf(c.julgamentoAlterado.par[0]));
-  expect(c.campo).toBe(`bocrWeights[${c.antesDeComparar.indiceResolvido}]`);
-
-  // ⚠ As verificações que PRECEDEM a comparação. Ausência, NaN ou mudança de tipo
-  // não satisfazem o controle, e cada uma é exigida à parte.
-  expect(c.antesDeComparar.chavePresenteNosDois).toBe(true);
-  expect(c.antesDeComparar.comprimentoIgual).toBe(true);
-  expect(c.antesDeComparar.comprimentoObservado).toBe(ORDEM_DOS_MERITOS.length);
-  expect(c.antesDeComparar.tipoNoPainel).toBe('number');
-  expect(c.antesDeComparar.tipoNoControle).toBe('number');
-  expect(c.antesDeComparar.finitoNosDois).toBe(true);
-  expect(c.antesDeComparar.mesmoCampoDeSaida).toBe(true);
-
-  // Só então a comparação: o campo nomeado DIFERE entre painel e controle.
-  expect(c.diferem).toBe(true);
-  // E o MESMO campo, entre os dois painéis de identidade, no mesmo ambiente, é IGUAL.
-  expect(c.igualEntreOsDoisPaineis).toBe(true);
-
-  // O caminho do cálculo está escrito, e nomeia os três pontos.
-  expect(c.caminhoDoCalculo.join(' | ')).toMatch(/aggregation\.ts:68-95.*route\.ts:816-819.*route\.ts:966/s);
-});
-
-test('3.2: a conclusao dos paineis esta delimitada ao percurso e a forma de entrada', () => {
+test('a conclusao dos paineis estava delimitada ao percurso e a forma de entrada', () => {
   const d = CONGELADO.duasIdentidades;
   expect(d.controleDiscriminante.leitura).toMatch(/NESTES paineis, que nao tem exclusao nem rejeicao/);
   expect(d.controleDiscriminante.alcance).toMatch(/Com exclusao ou rejeicao o documento DISTINGUE paineis/);
@@ -881,55 +132,24 @@ test('3.2: a conclusao dos paineis esta delimitada ao percurso e a forma de entr
 });
 
 /**
- * ⚠ A observação numérica NÃO entra como critério: o teste confere a FORMA, e nunca
- * compara valor gravado com valor recalculado.
+ * ⚠ **A MEDIÇÃO DA BASE que justificou a etapa 2, e ela descreve o documento DE ENTÃO.**
+ * Depois da etapa 2 o documento passou a trazer `executionId`, `includedRespondents` e
+ * `judgmentsDigest`. **Esta asserção não é sobre o documento de hoje**, e o controle do
+ * documento de hoje está em `a12-rastreabilidade.test.ts`.
  */
-test('a observacao numerica e observacao, com ambiente declarado, e nao criterio', () => {
-  const o = M.observacaoNumericaNaoNormativa;
-  expect(o.natureza).toMatch(/NAO e referencia de aprovacao/);
-  expect(Object.keys(o.ambienteDaObservacao).sort()).toEqual(['arquitetura', 'node', 'plataforma']);
-  for (const v of [o.valorNoPainelA, o.valorNoPainelB, o.valorNoControle]) {
-    expect(typeof v).toBe('number');
-    expect(Number.isFinite(v)).toBe(true);
-  }
-  expect(o.campo).toBe(M.duasIdentidades.controleDiscriminante.campoNumericoAfetado.campo);
-});
-
-test('3.4: o vinculo com a execucao e com a versao dos dados fica NAO DETERMINADO', () => {
+test('3.4: na base, o vinculo com a execucao ficava NAO DETERMINADO', () => {
   const v = CONGELADO.vinculoComAExecucao;
   expect(v.veredito).toMatch(/^NAO DETERMINADO/);
   expect(v.oQueOArtefatoTem).toEqual(['projectId', 'calculatedAt', 'responseCount']);
   expect(v.oQueIssoDemonstra.responseCount).toMatch(/reconstruir por contagem/);
   expect(v.origemEMutavel.procedencia).toMatch(/LIDO no codigo, nao exercitado/);
+  // ⚠ E o que NAO existia no documento da base, nomeado na propria medicao.
+  expect(v.oQueNaoExiste).toContain('lista de identificadores incluidos');
 });
 
-test('3.4: julgamento omitido reprova a resposta e e nomeado POR MATRIZ', () => {
-  const p = M.omissaoPorMatrizOuEtapa.portaoAtual;
-  expect(p.matrizesEsperadas).toBe(26);
-  expect(p.paresEsperados).toBe(72);
-  expect(p.isComplete).toBe(false);
-  expect(p.matrizesComDefeito).toEqual(['subcriteria|O']);
-  expect(p.descricao).toEqual(['O: 1 comparação(ões) sem resposta']);
-});
-
-test('3.4: sem o portao, a contribuicao por celula muda o valor e NAO deixa rastro', () => {
-  const s = M.omissaoPorMatrizOuEtapa.semOPortao;
-  expect(s.celulaMudaDeValor).toBe(true);
-  expect(s.matrizContinuaCompleta).toBe(true); // o outro respondente preenche a célula
-  expect(s.registroDeQuemContribuiu).toMatch(/^NAO EXISTE/);
-  expect(M.omissaoPorMatrizOuEtapa.alcance).toMatch(/nao foi produzido por este codigo/);
-});
-
-// ---------------------------------------------------------------------------
-// Versões, limites e artefato
-// ---------------------------------------------------------------------------
-
-test('o codigo atual NAO e o que produziu o arquivo historico, e nao diz qual foi', () => {
-  // ⚠ ENSAIO MISTO, e as duas metades vêm de fontes declaradas: o documento de HOJE é
-  //   comportamento atual, e sai de `M`; o arquivo histórico e a delimitação são
-  //   integridade histórica, e saem da cópia CONGELADA.
-  expect(M.versoesDoCodigo.documentoGravadoHoje).toEqual({ temIpcMetadata: false, temRejectedIncomplete: true });
-  expect(CONGELADO.versoesDoCodigo.arquivoHistorico).toEqual({ temIpcMetadata: true, temRejectedIncomplete: false });
+test('o arquivo historico nao foi produzido pelo codigo desta base, e a medicao nao diz qual foi', () => {
+  expect(CONGELADO.versoesDoCodigo.arquivoHistorico)
+    .toEqual({ temIpcMetadata: true, temRejectedIncomplete: false });
   expect(CONGELADO.versoesDoCodigo.oQueIstoNaoDemonstra).toMatch(/qual versao o produziu/);
 });
 
@@ -938,43 +158,5 @@ test('o registro diz o que NAO demonstra', () => {
   expect(s).toMatch(/NAO demonstra qual versao produziu o arquivo historico/);
   expect(s).toMatch(/nenhuma identidade foi reconstruida por posicao ou contagem/);
   expect(CONGELADO.natureza).toMatch(/Nao escolhe, nao implementa, nao integra/);
-});
-
-/**
- * ⚠ **`observacaoNumericaNaoNormativa` fica FORA desta comparação**, de propósito:
- * ela guarda ponto flutuante, e foi a comparação de resumos do conteúdo serializado
- * que reprovou o CI de `8879360`. ⚠ **Causa específica não determinada, e os valores
- * divergentes não foram preservados.** Aqui se confere a FORMA dela, e os valores
- * ficam só para leitura humana.
- */
-/**
- * ⚠ **PRESERVAÇÃO, e é integridade histórica.** Não executa código de produção: confere
- * que a cópia congelada tem o resumo e o tamanho declarados, e que o caminho de
- * regravação por `A12ID_GRAVAR=1` **não é** o da cópia.
- */
-test('preservacao: a copia congelada tem o resumo declarado, e A12ID_GRAVAR nao a alcanca', () => {
-  expect(fs.existsSync(PRESERVADO)).toBe(true);
-  const bytes = fs.readFileSync(PRESERVADO);
-  expect(bytes.length).toBe(BYTES_PRESERVADO);
-  expect(sha256(bytes)).toBe(SHA_PRESERVADO);
-  // ⚠ O caminho de escrita e o da copia sao DISTINTOS, e a distincao e testada.
-  expect(path.resolve(ARTEFATO)).not.toBe(path.resolve(PRESERVADO));
-  // ⚠ CONTROLE de que a assercao discrimina: um resumo diferente reprovaria.
-  expect(sha256(Buffer.concat([bytes, Buffer.from('x')]))).not.toBe(SHA_PRESERVADO);
-});
-
-test('o artefato gravado coincide com a medicao atual', () => {
-  expect(fs.existsSync(ARTEFATO)).toBe(true);
-  const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
-  expect(Object.keys(gravado.observacaoNumericaNaoNormativa).sort()).toEqual(
-    Object.keys(M.observacaoNumericaNaoNormativa).sort()
-  );
-  expect(gravado.observacaoNumericaNaoNormativa.campo).toBe(M.observacaoNumericaNaoNormativa.campo);
-  for (const chave of [
-    'arquivoHistorico', 'execucaoObservada', 'duasIdentidades', 'ondeAIdentidadeCai',
-    'omissaoPorMatrizOuEtapa', 'vinculoComAExecucao', 'versoesDoCodigo', 'fonteDoIdentificador',
-  ]) {
-    expect(gravado[chave]).toEqual(M[chave]);
-  }
-  expect(gravado.identificacao).toEqual(M.identificacao);
+  expect(CONGELADO.identificacao.commitDaBase).toBe('7157db89ff0fe102bbd36e7d5bc7c4378ab48c67');
 });

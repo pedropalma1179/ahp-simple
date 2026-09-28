@@ -46,6 +46,18 @@ import {
   consistency as engineConsistency,
   aggregateAIJ,
 } from '@/lib/ahp-engine';
+// A.12 etapa 2: a representação canônica dos julgamentos, versionada.
+import {
+  SERIALIZACAO_JULGAMENTOS,
+  resumirJulgamentos,
+  resumirPainel,
+} from '@/lib/julgamentos-resumo';
+import {
+  identificarRespondente,
+  extractRespondentId,
+  type FonteDoIdentificador,
+} from '@/lib/identificador-respondente';
+import crypto from 'node:crypto';
 
 // ============================================================================
 // CONSTANTES
@@ -156,28 +168,7 @@ export interface SensitivityTrajectory {
  * Extrai ID do respondente de várias fontes possíveis
  * (Mesma lógica de response-quality/route.ts para garantir consistência)
  */
-function extractRespondentId(response: any, idx: number): string {
-  // Tentar várias fontes de ID
-  const possibleIds = [
-    response.respondentId,
-    response.visitorId,
-    response.id,
-    response.responses?.respondentId,
-    response.responses?.visitorId,
-    response.data?.respondentId,
-    response.userId,
-    response.email?.split('@')[0], // Usar parte do email como fallback
-  ];
 
-  for (const id of possibleIds) {
-    if (id && id !== 'undefined' && id !== 'null') {
-      return String(id);
-    }
-  }
-
-  // Fallback: gerar ID baseado no índice
-  return `respondente_${idx + 1}`;
-}
 
 // ============================================================================
 // AGREGAÇÃO DOS JULGAMENTOS
@@ -646,10 +637,41 @@ export async function POST(request: NextRequest) {
     const responsesSnapshot = await getDocs(responsesQuery);
 
     // 3. Filtrar responses: apenas completedAt preenchido
-    const allResponses = responsesSnapshot.docs.map(docSnap => ({ 
-      id: docSnap.id, 
-      ...(docSnap.data() as ResponseData) 
-    }));
+    // ⚠ **A.12 etapa 2: o id do DOCUMENTO, capturado ANTES do espalhamento.** O
+    //   espalhamento vem depois de `id: docSnap.id`, então um campo `id` gravado no
+    //   documento **sobrescreve** o id do documento; `ResponseData` não declara `id`, e o
+    //   `as ResponseData` não impede que o JSON recebido o traga. ⚠ **Leitura do código,
+    //   e não medição sobre produção.**
+    // ⚠ **Mapa por REFERÊNCIA, e não campo novo:** um campo teria de ter nome que nenhum
+    //   documento use, e entraria nos objetos passados a `aggregateMatrix` e a
+    //   `checkResponseCompleteness`. As referências sobrevivem a `filter`, ao `Map` da
+    //   deduplicação e ao `push` do ponto de coleta.
+    const docIdPorResposta = new Map<object, string>();
+    const allResponses = responsesSnapshot.docs.map(docSnap => {
+      const r = { 
+        id: docSnap.id, 
+        ...(docSnap.data() as ResponseData) 
+      };
+      docIdPorResposta.set(r, docSnap.id);
+      return r;
+    });
+
+    // ⚠ **O identificador é capturado ONDE É USADO, e não recalculado no fim.**
+    //   `identificarRespondente` depende do índice no último elo, e o índice passado muda
+    //   a cada etapa: recalcular depois do ponto de coleta produziria um QUINTO valor,
+    //   sobre um quinto índice. "O identificador que os filtros usaram" não designa um
+    //   único valor por construção.
+    // ⚠ A etapa do log do fallback fica FORA disto e da concordância, por NÃO ser etapa
+    //   de seleção. A exclusão é deliberada, e está nomeada aqui para ser legível.
+    type IdentificadorNaEtapa = { etapa: string; valor: string; fonte: FonteDoIdentificador };
+    const identificadorPorResposta = new Map<object, IdentificadorNaEtapa[]>();
+    const registrarIdentificador = (r: object, idx: number, etapa: string): string => {
+      const { valor, fonte } = identificarRespondente(r as any, idx);
+      const anteriores = identificadorPorResposta.get(r) ?? [];
+      anteriores.push({ etapa, valor, fonte });
+      identificadorPorResposta.set(r, anteriores);
+      return valor;
+    };
     
     const completedResponses = allResponses.filter(data => 
       data.completedAt != null && data.completedAt !== ''
@@ -657,7 +679,7 @@ export async function POST(request: NextRequest) {
 
     // 4. Validação cruzada: respondentId deve existir em respondents (Elimina Órfãos)
     const validatedResponses = completedResponses.filter((data, idx) => {
-      const rId = extractRespondentId(data, idx);
+      const rId = registrarIdentificador(data, idx, 'validacaoCruzada');
       if (!validRespondentIds.has(rId)) {
         console.warn(`[CALCULATE] Ignorando response órfã: respondentId ${rId} não existe em respondents`);
         return false;
@@ -676,7 +698,7 @@ export async function POST(request: NextRequest) {
     // 5. Deduplicação: Manter o mais recente por respondentId
     const uniqueMap = new Map<string, any>();
     validatedResponses.forEach((data, idx) => {
-      const rId = extractRespondentId(data, idx);
+      const rId = registrarIdentificador(data, idx, 'deduplicacao');
       const existing = uniqueMap.get(rId);
       
       if (!existing || (data.completedAt > existing.completedAt)) {
@@ -688,7 +710,7 @@ export async function POST(request: NextRequest) {
 
     // Filtrar respondentes excluídos
     const responses = finalResponses.filter((r, idx) => {
-      const id = extractRespondentId(r, idx);
+      const id = registrarIdentificador(r, idx, 'filtroDeExcluidos');
       return !excludedRespondentIds.includes(id);
     });
 
@@ -711,7 +733,7 @@ export async function POST(request: NextRequest) {
     // ══════════════════════════════════════════════════════════════════════
     const rejectedIncomplete: { respondentId: string; matrizes: string[] }[] = [];
     const completeResponses = responses.filter((r, idx) => {
-      const id = extractRespondentId(r, idx);
+      const id = registrarIdentificador(r, idx, 'portaoDeCompletude');
       const relatorio = checkResponseCompleteness(r.judgments as any, alternatives);
       if (relatorio.isComplete) return true;
 
@@ -725,6 +747,112 @@ export async function POST(request: NextRequest) {
     });
     responses.length = 0;
     responses.push(...completeResponses);
+
+    // ══════════════════════════════════════════════════════════════════════
+    // A.12 ETAPA 2: QUEM ENTROU, E O QUE FOI JULGADO
+    //
+    // Montado AQUI porque, depois do `push` acima, `responses` é a lista efetivamente
+    // entregue ao cálculo: já passou por `completedAt`, órfãs, deduplicação, excluídos
+    // pelo gestor e portão de completude. Montar antes incluiria rejeitados.
+    //
+    // ⚠ Montado ANTES dos blocos de fallback, que escrevem apenas `r.responses` e nunca
+    //   `r.judgments`: o resumo seria o mesmo, e coletar aqui o deixa INDEPENDENTE do
+    //   fallback em vez de dependente dele.
+    //
+    // ⚠ **ESTA ETAPA É DE RASTREABILIDADE, E NÃO É PORTÃO.** Nenhum respondente deixa de
+    //   entrar no cálculo por causa do resumo.
+    //
+    // ⚠ **O que isto NÃO resolve:** não preserva execuções anteriores, porque o documento
+    //   é único por projeto e sobrescrito; não preserva o conteúdo julgado, porque o
+    //   resumo IDENTIFICA e não guarda; e não vincula a avaliação de qualidade aos
+    //   incluídos, que é a etapa 3.
+    // ══════════════════════════════════════════════════════════════════════
+    const ETAPAS_DE_SELECAO = ['validacaoCruzada', 'deduplicacao', 'filtroDeExcluidos', 'portaoDeCompletude'];
+    /** ⚠ A etapa declarada de ORIGEM do valor gravado: a chave sob a qual respostas foram
+     *  colapsadas numa única identidade, e que o restante do percurso herda. */
+    const ETAPA_DE_ORIGEM = 'deduplicacao';
+
+    const includedRespondents: {
+      respondentId: string;
+      responseDocId: string;
+      identifierSource: FonteDoIdentificador;
+      judgmentsSha256: string | null;
+      judgmentsUnavailableReason: string | null;
+    }[] = [];
+
+    for (const r of responses as object[]) {
+      const etapas = identificadorPorResposta.get(r) ?? [];
+      const porEtapa = new Map(etapas.map(e => [e.etapa, e]));
+      // ⚠ CONCORDÂNCIA EXIGIDA, e não suposta. Divergência PARA a execução, e nomeia a
+      //   resposta, as etapas e os valores. Nada é escolhido em silêncio, e o
+      //   identificador NÃO é recalculado pela posição final.
+      const vistas = ETAPAS_DE_SELECAO.filter(e => porEtapa.has(e));
+      const valores = [...new Set(vistas.map(e => porEtapa.get(e)!.valor))];
+      if (vistas.length !== ETAPAS_DE_SELECAO.length || valores.length !== 1) {
+        const detalhe = ETAPAS_DE_SELECAO.map(e => `${e}=${porEtapa.get(e)?.valor ?? 'AUSENTE'}`).join(', ');
+        console.error(`[CALCULATE] Identificador divergente entre etapas de seleção: ${detalhe}`);
+        return NextResponse.json({
+          success: false,
+          error: 'Identificador divergente entre as etapas de seleção: a execução foi interrompida.',
+          identificadorDivergente: {
+            responseDocId: docIdPorResposta.get(r) ?? 'NAO DETERMINADO',
+            etapas: ETAPAS_DE_SELECAO.map(e => ({ etapa: e, valor: porEtapa.get(e)?.valor ?? null })),
+            valoresDistintos: valores,
+          },
+        }, { status: 409 });
+      }
+
+      const origem = porEtapa.get(ETAPA_DE_ORIGEM)!;
+      let judgmentsSha256: string | null = null;
+      let judgmentsUnavailableReason: string | null = null;
+      try {
+        judgmentsSha256 = resumirJulgamentos((r as any).judgments);
+      } catch (e: any) {
+        // ⚠ `null`, NUNCA zero, string vazia ou resumo de outra coisa.
+        judgmentsUnavailableReason = e?.message ?? 'motivo não determinado';
+      }
+      includedRespondents.push({
+        respondentId: origem.valor,
+        responseDocId: docIdPorResposta.get(r) ?? 'NAO DETERMINADO',
+        identifierSource: origem.fonte,
+        judgmentsSha256,
+        judgmentsUnavailableReason,
+      });
+    }
+
+    // ⚠ ORDEM DECLARADA: por `respondentId` ascendente. Ordem de retorno do Firestore não
+    //   é propriedade dos dados.
+    includedRespondents.sort((a, b) =>
+      a.respondentId < b.respondentId ? -1 : a.respondentId > b.respondentId ? 1 : 0
+    );
+
+    // ⚠ A unicidade vale DEPOIS da deduplicação. Repetição aqui é sinal de que a premissa
+    //   mudou, e PARA a execução.
+    const idsIncluidos = includedRespondents.map(i => i.respondentId);
+    if (new Set(idsIncluidos).size !== idsIncluidos.length) {
+      console.error('[CALCULATE] Identificador repetido na lista montada depois da deduplicação');
+      return NextResponse.json({
+        success: false,
+        error: 'Identificador repetido na lista de incluídos depois da deduplicação: a execução foi interrompida.',
+        identificadoresIncluidos: idsIncluidos,
+      }, { status: 409 });
+    }
+
+    // O resumo do painel. ⚠ Um painel com parte desconhecida NÃO tem resumo conhecido.
+    let painelSha256: string | null = null;
+    let painelUnavailableReason: string | null = null;
+    try {
+      painelSha256 = resumirPainel(
+        includedRespondents.map(i => ({ respondentId: i.respondentId, judgmentsSha256: i.judgmentsSha256 }))
+      );
+    } catch (e: any) {
+      painelUnavailableReason = e?.message ?? 'motivo não determinado';
+    }
+
+    /** ⚠ Opaco, UM por execução, e sem significado de ordem. NÃO deriva de `calculatedAt`:
+     *  instante não é identidade, e duas execuções podem cair no mesmo milissegundo.
+     *  ⚠ Ele diz QUAL execução o documento é, e NÃO quais execuções houve. */
+    const executionId = crypto.randomUUID();
 
     // Fallback: calcular campo responses para responses que têm judgments mas não têm pesos pré-calculados
     const altCodesForCalc = alternatives.map((a: any) => a.code);
@@ -960,6 +1088,12 @@ export async function POST(request: NextRequest) {
     const calculationResult = {
       projectId,
       calculatedAt: new Date().toISOString(),
+      // ⚠ **A.12 etapa 2: QUAL execução este documento é.** Opaco, um por execução, sem
+      //   significado de ordem. ⚠ **NÃO preserva execuções anteriores:** o documento é
+      //   único por projeto e é SOBRESCRITO a cada cálculo, e preservar o histórico é
+      //   decisão separada. ⚠ A afirmação vale para o percurso examinado, a rota
+      //   `calculate` gravando em `calculations`.
+      executionId,
       responseCount,
 
       // Pesos
@@ -1058,6 +1192,28 @@ export async function POST(request: NextRequest) {
           alizadeh2020: 'Alizadeh et al. (2020) Energy policy: Sensitivity classification'
         },
         excludedRespondentIds, // Persistir lista de excluídos: decisão do gestor
+        // ⚠ **A.12 etapa 2: QUEM ENTROU.** Um item por incluído, ORDENADO por
+        //   `respondentId` ascendente. ⚠ Excluídos e rejeitados NÃO entram aqui, e
+        //   continuam nos seus campos, de propósito distinto: exclusão é decisão do
+        //   gestor, rejeição é dado inválido decidido pelo sistema.
+        // ⚠ `identifierSource` nomeia a EXPRESSÃO lida, e `'response.id'` NÃO é sinônimo
+        //   de id do documento: este vai em `responseDocId`, capturado antes do
+        //   espalhamento. ⚠ Nenhuma identidade é reconstruída por posição ou contagem.
+        includedRespondents,
+        // ⚠ **O CONTEÚDO JULGADO, identificado e NÃO guardado.**
+        //   O resumo identifica a representação canônica dos julgamentos segundo a versão
+        //   declarada. Sua igualdade é evidência de igualdade dessa representação, sob a
+        //   hipótese de ausência de colisão SHA-256; não demonstra identidade do objeto
+        //   bruto nem de toda a entrada do cálculo.
+        // ⚠ Resumo diferente NÃO implica resultado agregado diferente. ⚠ O resumo do
+        //   painel não identifica documentos nem ordem de processamento. ⚠ Depois de uma
+        //   sobrescrita das respostas, ele não recupera o que foi julgado.
+        judgmentsDigest: {
+          algorithm: 'sha256' as const,
+          serialization: SERIALIZACAO_JULGAMENTOS,
+          panel: painelSha256,
+          unavailableReason: painelUnavailableReason,
+        },
         // Rejeição por integridade, decidida pelo sistema. Campo separado de
         // propósito: no mesmo campo, um defeito de coleta passaria a parecer
         // decisão de pesquisa. Vazio é o valor esperado.
