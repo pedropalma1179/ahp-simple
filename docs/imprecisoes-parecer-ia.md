@@ -11326,6 +11326,84 @@ permanece NÃO TESTADA**: nenhum parecer foi gerado.
 
 ---
 
+## A.12 etapa 1, complemento datado da predição: a verificação não concluída ganha texto próprio, em 28/09/2026
+
+⚠ **COMPLEMENTA as predições de `634f078` e `1d01736`, e não reescreve nenhuma delas.**
+Registrado **antes** de alterar o código, sobre a base
+`b38b76ef7c61f5195aaf6cc8ac0f0d5cb6ddfe0c`.
+
+### O achado, D1, e é a mesma classe de defeito de C5 no eixo da causa
+
+`elegivelParaClassificacao` devolvia `causa: 'coerencia'` e o rótulo da **contradição** em
+**três** situações distintas, e a rota escolhia o ramo do contexto por essa causa única:
+
+| Situação | O rótulo dizia | É verdade? |
+|---|---|---|
+| coerência **não avaliada** nesta requisição | "contradição interna não resolvida" | **não** |
+| conclusão **`nao_determinada`** | "contradição interna não resolvida" | **não** |
+| conclusão **`contraditoria`** | "contradição interna não resolvida" | sim |
+
+⚠ **O contrato distingue os quatro estados por comparação e COLAPSA na saída.** Retirar
+`statistics.total` suspende corretamente e **anuncia uma contradição que não foi
+demonstrada** — o sistema afirmando ao modelo e ao gestor algo que não foi medido, que é o
+que A.12 existe para corrigir.
+
+### A PREDIÇÃO COMPLEMENTAR
+
+Depois da correção, para a requisição **disponível** cuja coerência **não se concluiu**:
+
+- o contexto traz **ramo próprio**, que diz que a verificação de coerência **não foi
+  concluída**, **nomeia a verificação pendente**, e **afirma que nenhuma contradição foi
+  demonstrada**;
+- **nenhuma** das palavras de contradição aparece nesse caso;
+- o rótulo é **próprio**, distinto do da contradição e do da indisponibilidade;
+- a resposta traz **campo próprio da causa**, para que a apresentação não precise inferi-la
+  do texto;
+- a nota e o veredicto seguem nulos, e o estado segue `disponivel`.
+
+⚠ **O ramo da contradição demonstrada fica como está**, e os textos de `ausente` e
+`incompleta` ficam **palavra por palavra**.
+
+### O CASO NEGATIVO, NOMEADO
+
+1. O texto da verificação não concluída **vaza** para o caso contraditório, ou o contrário.
+2. A coerência **não avaliada** continua sendo apresentada como contradição.
+3. O ramo novo **vaza** para `ausente` ou `incompleta`.
+
+### D2: o campo `escopo` não era hipotético
+
+⚠ **A avaliação opera sobre a requisição BRUTA.** A ausência de `escopo` na interface
+TypeScript de `lib/ai-reviewer/review-request.ts` **não** torna o campo inalcançável no JSON
+recebido: eu o descrevi como "inalcançável pelo formato atual" e **isso estava errado**. O
+sistema passou a reconhecer um **contrato adicional de escopos que ninguém declarou**, e o
+teste o injetava para exercitar `incompativel`.
+
+⚠ **Risco concreto:** se algum produtor enviasse `escopo` por outra razão, V1 sairia do
+veredito **em silêncio** — exatamente a exclusão indevida que C1 corrigiu.
+
+**O que fica:** o tratamento de `escopo` **sai**, e o teste que o injetava **sai** com ele.
+⚠ **V1 não tem hoje via de produção para `incompativel`**, e isso passa a estar declarado no
+contrato e aqui. **Declarar escopos exige contrato explícito**, e não expediente para
+exercitar um estado. ⚠ O estado `incompativel` **continua no vocabulário**, e a sua
+utilização exige **diferença de significado demonstrada para o par efetivamente comparado**.
+
+### D3: as duas reprovações adicionais da rodada anterior, classificadas
+
+| Reprovação | Estava abrangida pela causa anunciada antes da edição? |
+|---|---|
+| `a requisicao coerente … e ELEGIVEL`, pela **forma nova do retorno** da elegibilidade | **NÃO.** A causa anunciada era "texto e rótulo próprios"; mudar a assinatura da função foi **escolha de implementação**, e o mesmo resultado caberia sem tocá-la. ⚠ **Fica registrado como desvio de previsão** |
+| `no caso disponivel E COERENTE o contexto TRAZ percentual`, pelo **detector de ramo** | **SIM.** A causa anunciada era apresentação própria **no contexto**, e o instrumento amarra os marcadores ao texto de produção por contrato próprio. **Não estava na enumeração de asserções, que eu não fiz** |
+
+⚠ **Mesma suíte não basta** para dar uma reprovação por prevista, e a partir daqui a previsão
+**enumera asserções**.
+
+### O limite, que não muda
+
+⚠ Coerência interna, sem cobertura do universo real nem vínculo com a execução. **A predição
+sobre a redação do modelo permanece NÃO TESTADA.**
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
