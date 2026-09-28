@@ -52,6 +52,31 @@
           "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 4,
+        "motivo": "A.12 etapa 1: suspensao de nota e veredicto por contradicao interna",
+        "commitDaBase": "634f07801ab71672b720b5f085117c8c5afccd69",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]",
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "quatroCasos[3].executadoAntesDaInterrupcao.contextoTrazAvisoDeSuspensao",
+          "quatroCasos[3].executadoAntesDaInterrupcao.contextoTrazPercentualDeQualidade",
+          "quatroCasos[3].executadoAntesDaInterrupcao.ramoDoResumoDeQualidade",
+          "quatroCasos[3].executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto[0..5]",
+          "quatroCasos[3].executadoAntesDaInterrupcao.bytesDoContexto"
+        ],
+        "arraysEsvaziados": [
+          "quatroCasos[3].executadoAntesDaInterrupcao.marcadoresDePercentualEncontrados"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -61,8 +86,8 @@
       "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d"
     },
     "codigo": {
-      "lib/ai-reviewer/avaliacao-qualidade.ts": "c4cc3879b2ea9d952a46463bd97644c395c6ad0d32e4bb44b2341912f1137259",
-      "app/api/ai-reviewer/route.ts": "0e3098930e1484e62745407325a778baa5d73599cbaae4e27472f6e9da14e09f",
+      "lib/ai-reviewer/avaliacao-qualidade.ts": "33d5c953d51877330b055d5bd826aae1302fa77be1dedc85ad4aa1d5ba8fc487",
+      "app/api/ai-reviewer/route.ts": "86c599f88d3d4c2539502c658bc92e662c8924d68bd91a64be29030f68264771",
       "app/decisor/resultados/[projectId]/page.tsx": "2d3442c0cbd31828083cf7cfbb92abd4c178cc6d65569ce4c6aeff8edc8d9ad8",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }
@@ -530,24 +555,19 @@
         "interrompidoAntesDeConteudo": true,
         "chamadasAVoyage": 0,
         "chamadasAoIndice": 0,
-        "contextoTrazAvisoDeSuspensao": false,
-        "contextoTrazPercentualDeQualidade": true,
-        "marcadoresDePercentualEncontrados": [
-          "- Respostas CONFIÁVEIS (CR ≤ 0.10):",
-          "- Respostas para REVISAR (0.10 < CR ≤ 0.15):",
-          "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20):",
-          "- Respostas CRÍTICAS (CR > 0.20):"
-        ],
-        "ramoDoResumoDeQualidade": "P1: percentual derivado de qualityAnalysis.statistics.byStatus",
+        "contextoTrazAvisoDeSuspensao": true,
+        "contextoTrazPercentualDeQualidade": false,
+        "marcadoresDePercentualEncontrados": [],
+        "ramoDoResumoDeQualidade": "suspensao: nenhum percentual apresentado",
         "blocoDeQualidadeNoContexto": [
-          "**Distribuição de Qualidade dos Respondentes (CR Individual):**",
-          "- Total: 9 especialistas",
-          "- Respostas CONFIÁVEIS (CR ≤ 0.10): 0 (0.0%)",
-          "- Respostas para REVISAR (0.10 < CR ≤ 0.15): 0 (0.0%)",
-          "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
-          "- Respostas CRÍTICAS (CR > 0.20): 9 (100.0%)"
+          "**Qualidade dos Dados:**",
+          "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V1: qualityAnalysis.summary.ok = 4 contra overallStats.valid = 0. Os dois valores e as suas fontes ficam conservados. V2: qualityAnalysis.respondents.length = 4 contra qualityAnalysis.statistics.total = 9. Os dois valores e as suas fontes ficam conservados. V4: contagem derivada dos CRs individuais, CR <= 0.1 = 4 contra byStatus['CONFIÁVEL'] = 0. Os dois valores e as suas fontes ficam conservados. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.",
+          "O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.",
+          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada.",
+          "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
+          "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 70877
+        "bytesDoContexto": 71868
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",

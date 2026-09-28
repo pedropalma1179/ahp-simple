@@ -15,7 +15,7 @@
  * enganosa.
  */
 
-import type { AvaliacaoQualidade } from './avaliacao-qualidade';
+import type { AvaliacaoQualidade, Coerencia } from './avaliacao-qualidade';
 
 // ============================================================
 // TIPOS DA REQUISIÇÃO
@@ -132,6 +132,14 @@ export interface ReviewRequest {
     warning: number;
     critical: number;
   };
+  /**
+   * A.12 etapa 1: a coerência interna da requisição, comparação por comparação.
+   *
+   * ⚠ **Dimensão INDEPENDENTE de `avaliacaoDeQualidade`.** A disponibilidade continua
+   * em `avaliacaoDeQualidade.estado`; a elegibilidade para classificar é função das
+   * duas, em `elegivelParaClassificacao`.
+   */
+  coerenciaDaQualidade?: Coerencia;
 }
 
 /**

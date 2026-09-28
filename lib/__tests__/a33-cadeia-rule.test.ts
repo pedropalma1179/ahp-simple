@@ -124,7 +124,12 @@ const METADADOS_HISTORICOS = {
  * ⚠ **O vínculo com o código medido é `identificacao.codigo`**, que traz o sha256 dos
  * arquivos lidos nesta execução. É ele, e não este bloco, que muda quando o código muda.
  */
-const PROCEDENCIA_DA_REGRAVACAO = {
+/**
+ * ⚠ **A entrada da regravação de `1f2442b`, PRESERVADA INTEGRALMENTE.** Os sete campos
+ * abaixo são os mesmos que o artefato já trazia, sem uma letra alterada: a lista passou a
+ * acumular, e **isso não é licença para reescrever o que já estava gravado**.
+ */
+const PROCEDENCIA_1F2442B = {
   motivo: 'remocao da analise de fairness do Parecer IA',
   commitDaBase: '1f2442bfdc4b6f1cf565032ad3f1d464fbf65e7a',
   comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
@@ -133,6 +138,39 @@ const PROCEDENCIA_DA_REGRAVACAO = {
   vinculo: 'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido',
   oQueNaoE: 'NAO substitui commitMedido, comando, versoes nem ambiente, que identificam a medicao ORIGINAL',
 };
+
+/**
+ * ⚠ **MUDANÇA DE ESTRUTURA, declarada.** O campo era `procedenciaDaRegravacao`, uma
+ * entrada ÚNICA, e passa a `procedenciaDasRegravacoes`, uma **lista que ACUMULA**, como
+ * já é a convenção de `lib/__tests__/a12-diagnostico.test.ts`.
+ *
+ * ⚠ **A razão é medida:** regravar com o campo único **apagaria** a procedência da
+ * regravação anterior, deixando-a só no histórico do git. A comparação por caminhos vai
+ * mostrar a **retirada da chave singular** e a **inclusão da plural**; isso é mudança de
+ * estrutura, **e não campo perdido**, e a igualdade do conteúdo anterior é conferida
+ * campo a campo dentro do primeiro elemento.
+ */
+const PROCEDENCIA_DAS_REGRAVACOES = [
+  { ordem: 1, ...PROCEDENCIA_1F2442B },
+  {
+    ordem: 2,
+    motivo: 'A.12 etapa 1: suspensao de nota e veredicto por contradicao interna, que alterou route.ts',
+    commitDaBase: '634f07801ab71672b720b5f085117c8c5afccd69',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ Caminhos MEDIDOS por comparacao campo a campo, e nao antecipados. UM unico
+    //   valor mudou: montagem.casos.*.bytesSystem e bytesMessages NAO se moveram, porque
+    //   as requisicoes desta suite classificam `ausente` e a precedencia preserva o
+    //   motivo, deixando o contexto identico.
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    // ⚠ MUDANCA DE ESTRUTURA, e nao campo perdido: a chave singular
+    //   `procedenciaDaRegravacao` saiu e a plural entrou, com o conteudo anterior
+    //   preservado INTEGRALMENTE no primeiro elemento, conferido campo a campo.
+    mudancaDeEstrutura: 'procedenciaDaRegravacao (objeto) -> procedenciaDasRegravacoes (lista que acumula)',
+    camposPerdidos: 0,
+  },
+];
 
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
@@ -821,8 +859,9 @@ beforeAll(async () => {
       comando: METADADOS_HISTORICOS.comando,
       // ⚠ HISTÓRICO, e não o ambiente de quem executa agora.
       ambiente: METADADOS_HISTORICOS.ambiente,
-      // ⚠ A procedência DESTA regravação, ao lado dos históricos e sem substituí-los.
-      procedenciaDaRegravacao: PROCEDENCIA_DA_REGRAVACAO,
+      // ⚠ A procedência de CADA regravação, ao lado dos históricos e sem substituí-los.
+      //   ⚠ LISTA que ACUMULA: o campo único anterior apagaria a entrada precedente.
+      procedenciaDasRegravacoes: PROCEDENCIA_DAS_REGRAVACOES,
     },
     inventario: {
       artigos: base.artigos.length,
@@ -1360,14 +1399,27 @@ test('complemento: os metadados historicos do artefato foram preservados', () =>
  * identifica a medição original, e o desta regravação. **Um artefato regravado que
  * trouxesse só o histórico apresentaria medição nova sob procedência antiga.**
  */
-test('complemento: a regravacao registra procedencia PROPRIA, ao lado da historica', () => {
+test('complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA', () => {
   const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
-  const p = gravado.identificacao.procedenciaDaRegravacao;
-  expect(p).toEqual(PROCEDENCIA_DA_REGRAVACAO);
-  // ⚠ Os dois blocos coexistem, e o novo NAO substituiu o historico.
+  const lista = gravado.identificacao.procedenciaDasRegravacoes;
+  expect(lista).toEqual(PROCEDENCIA_DAS_REGRAVACOES);
+  // ⚠ Acumula: a entrada anterior NAO foi sobrescrita pela nova.
+  expect(lista.length).toBeGreaterThanOrEqual(2);
+  expect(lista.map((e: any) => e.ordem)).toEqual(lista.map((_: any, i: number) => i + 1));
+  expect(new Set(lista.map((e: any) => e.commitDaBase)).size).toBe(lista.length);
+  // ⚠ A entrada de 1f2442b esta PRESERVADA INTEGRALMENTE, campo a campo, no primeiro
+  //   elemento: a mudanca foi de ESTRUTURA, e nao reescrita de conteudo gravado.
+  for (const [k, v] of Object.entries(PROCEDENCIA_1F2442B)) {
+    expect([k, lista[0][k]]).toEqual([k, v]);
+  }
+  // ⚠ O campo SINGULAR nao pode voltar: ele apagaria a entrada anterior na proxima vez.
+  expect(gravado.identificacao.procedenciaDaRegravacao).toBeUndefined();
+  // ⚠ Os blocos coexistem, e nenhuma base de regravacao substitui o historico.
   expect(gravado.identificacao.commitMedido).toBe(METADADOS_HISTORICOS.commitMedido);
-  expect(p.commitDaBase).not.toBe(METADADOS_HISTORICOS.commitMedido);
-  expect(p.oQueNaoE).toMatch(/NAO substitui commitMedido/);
+  for (const e of lista) {
+    expect(e.commitDaBase).not.toBe(METADADOS_HISTORICOS.commitMedido);
+  }
+  expect(lista[0].oQueNaoE).toMatch(/NAO substitui commitMedido/);
   // ⚠ O vinculo com o codigo e `identificacao.codigo`, medido, e nao este bloco.
   expect(gravado.identificacao.codigo['app/api/ai-reviewer/route.ts']).toBe(
     shaArquivo('app/api/ai-reviewer/route.ts')

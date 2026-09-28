@@ -24,6 +24,12 @@ module.exports = {
       'ts-jest',
       {
         tsconfig: {
+          // A.12 etapa 1: sem `jsx`, nenhum `.tsx` compila nos testes, e a exigência de
+          // EXERCITAR a apresentação — renderizar o componente real, em vez de reproduzir
+          // a sua condição — fica impossível. ⚠ Habilita compilação de JSX no runner, e
+          // NÃO altera comportamento de produção: o `tsconfig.json` do projeto segue com
+          // `"jsx": "preserve"`, que é o que o Next usa.
+          jsx: 'react-jsx',
           module: 'commonjs',
           moduleResolution: 'node',
           resolveJsonModule: true,

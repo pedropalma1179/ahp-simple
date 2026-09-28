@@ -82,6 +82,29 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 4,
+    motivo: 'A.12 etapa 1: suspensao de nota e veredicto por contradicao interna',
+    commitDaBase: '634f07801ab71672b720b5f085117c8c5afccd69',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ Caminhos MEDIDOS por comparacao campo a campo, e nao antecipados.
+    camposRegravados: [
+      'identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]',
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'quatroCasos[3].executadoAntesDaInterrupcao.contextoTrazAvisoDeSuspensao',
+      'quatroCasos[3].executadoAntesDaInterrupcao.contextoTrazPercentualDeQualidade',
+      'quatroCasos[3].executadoAntesDaInterrupcao.ramoDoResumoDeQualidade',
+      'quatroCasos[3].executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto[0..5]',
+      'quatroCasos[3].executadoAntesDaInterrupcao.bytesDoContexto',
+    ],
+    // ⚠ O array marcadoresDePercentualEncontrados passou de QUATRO elementos a ZERO, e
+    //   isso e MUDANCA DE COMPORTAMENTO, nao campo perdido: o array continua existindo,
+    //   vazio, porque o caso deixou de apresentar percentual.
+    arraysEsvaziados: ['quatroCasos[3].executadoAntesDaInterrupcao.marcadoresDePercentualEncontrados'],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
@@ -799,24 +822,38 @@ test('3.3: a resposta da interrupcao NAO e apresentada como resposta normal', ()
  * classificação global NÃO é suspensa, embora individuais e agregados se
  * contradigam em três pontos preparados.
  */
-test('3.3: o quarto caso mostra o que o contrato ATUAL nao distingue', () => {
+/**
+ * ⚠ **A.12 etapa 1: o quarto caso passa a SUSPENDER, e continua `disponivel`.** A
+ * mudança é na **elegibilidade**, não na disponibilidade: a avaliação existe, e é a
+ * contradição interna que impede classificar.
+ *
+ * ⚠ **`condicaoPreparada.oQueOContratoAtualVE` é REGISTRO DO DIAGNÓSTICO de A.12**, do
+ * contrato **anterior** a esta etapa, e é conferido aqui como histórico. **Não descreve
+ * o contrato vigente**, que agora examina as três contradições.
+ */
+test('3.3: o quarto caso continua disponivel e passa a SUSPENDER por contradicao', () => {
   const c4 = M.quatroCasos.find((c: any) => c.nome === 'C-contradicao');
   expect(c4.condicaoPreparada.relacoes).toMatch(/contradicao 1.*contradicao 2.*contradicao 3/s);
-  // A condição preparada e a classificação devolvida são registradas à parte.
+  // ⚠ HISTÓRICO do diagnóstico, e não descrição do contrato vigente.
   expect(c4.condicaoPreparada.oQueOContratoAtualVE).toMatch(/NENHUMA das tres contradicoes e examinada/);
+  // ⚠ A DISPONIBILIDADE não mudou: o estado segue `disponivel`.
   expect(c4.classificacaoDevolvida.estado).toBe('disponivel');
-  // E o contexto entregue traz percentuais, como se a avaliação fosse íntegra.
   const e4 = c4.executadoAntesDaInterrupcao;
-  expect(e4.contextoTrazAvisoDeSuspensao).toBe(false);
-  expect(e4.contextoTrazPercentualDeQualidade).toBe(true);
-  // ⚠ O contexto leva a CONTRADIÇÃO adiante, e com percentual: o bloco declara
-  // nove especialistas e cem por cento críticos, enquanto a lista traz quatro
-  // respondentes, todos com CR 0.05, e foi ela que produziu `disponivel`.
+  // ⚠ E a ELEGIBILIDADE mudou: o contexto passa a trazer o aviso e NENHUM percentual.
+  expect(e4.contextoTrazAvisoDeSuspensao).toBe(true);
+  expect(e4.contextoTrazPercentualDeQualidade).toBe(false);
+  expect(e4.marcadoresDePercentualEncontrados).toEqual([]);
+  expect(e4.ramoDoResumoDeQualidade).toMatch(/^suspensao:/);
+  // ⚠ O motivo NOMEIA as verificações que falharam, e conserva os dois valores de cada
+  //   par com a fonte de cada um. Nada aqui é motivo genérico.
   const bloco4 = e4.blocoDeQualidadeNoContexto.join('\n');
-  expect(e4.ramoDoResumoDeQualidade).toMatch(/^P1:/);
-  expect(bloco4).toContain('Total: 9 especialistas');
-  expect(bloco4).toContain('- Respostas CRÍTICAS (CR > 0.20): 9 (100.0%)');
-  expect(bloco4).toContain('- Respostas CONFIÁVEIS (CR ≤ 0.10): 0 (0.0%)');
+  expect(bloco4).toContain('Contradição interna não resolvida');
+  for (const v of ['V1:', 'V2:', 'V4:', 'V5:']) expect(bloco4).toContain(v);
+  expect(bloco4).toContain('qualityAnalysis.respondents.length = 4 contra qualityAnalysis.statistics.total = 9');
+  expect(bloco4).toContain('summary.ok = 4 contra overallStats.valid = 0');
+  // ⚠ E o percentual que levava a contradição adiante NÃO chega mais ao modelo.
+  expect(bloco4).not.toContain('Total: 9 especialistas');
+  expect(bloco4).not.toContain('- Respostas CRÍTICAS (CR > 0.20): 9 (100.0%)');
 });
 
 test('3.3: os tres primeiros casos se comportam como o contrato declara', () => {
@@ -835,9 +872,11 @@ test('3.3: os tres primeiros casos se comportam como o contrato declara', () => 
  * ⚠ **Assertiva que faltava na primeira execução.** Sem ela, o falso negativo do
  * regex passava: nada exigia `true` onde o contexto traz percentual.
  */
-test('3.3: nos dois casos com avaliacao disponivel o contexto TRAZ percentual', () => {
+test('3.3: no caso disponivel E COERENTE o contexto TRAZ percentual', () => {
   const por = (n: string) => M.quatroCasos.find((c: any) => c.nome === n);
-  for (const n of ['C-disponivel', 'C-contradicao']) {
+  // ⚠ A.12 etapa 1: `C-contradicao` SAIU deste grupo. Ele continua `disponivel`, e
+  //   deixou de ser ELEGÍVEL, então não traz mais percentual.
+  for (const n of ['C-disponivel']) {
     const e = por(n).executadoAntesDaInterrupcao;
     expect(e.contextoTrazAvisoDeSuspensao).toBe(false);
     expect(e.contextoTrazPercentualDeQualidade).toBe(true);
@@ -845,8 +884,9 @@ test('3.3: nos dois casos com avaliacao disponivel o contexto TRAZ percentual', 
     expect(e.ramoDoResumoDeQualidade).toMatch(/^P[123]:/);
     expect(e.blocoDeQualidadeNoContexto.length).toBeGreaterThan(1);
   }
-  // E nos dois sem disponibilidade o ramo é o da suspensão, sem nenhum marcador.
-  for (const n of ['C-ausente', 'C-incompleta']) {
+  // E nos que suspendem o ramo é o da suspensão, sem nenhum marcador: os dois sem
+  // disponibilidade, e o contraditório, que é disponível e inelegível.
+  for (const n of ['C-ausente', 'C-incompleta', 'C-contradicao']) {
     const e = por(n).executadoAntesDaInterrupcao;
     expect(e.ramoDoResumoDeQualidade).toMatch(/^suspensao:/);
     expect(e.marcadoresDePercentualEncontrados).toEqual([]);

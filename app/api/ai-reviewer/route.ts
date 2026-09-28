@@ -12,6 +12,8 @@ import { getValidFinalScores, type ReviewRequest } from '@/lib/ai-reviewer/revie
 import {
   classificarAvaliacaoRecebida,
   qualidadeDisponivel,
+  avaliarCoerencia,
+  elegivelParaClassificacao,
   motivoDaSuspensao,
   ROTULO_NOTA_SUSPENSA,
   type AvaliacaoQualidade,
@@ -333,8 +335,12 @@ function calculateGrade(data: ReviewRequest): Classificacao {
   const stats = data.individualStats;
   const weights = data.bocrWeights;
 
-  if (!qualidadeDisponivel(data.avaliacaoDeQualidade)) {
-    const motivo = motivoDaSuspensao(data.avaliacaoDeQualidade);
+  // ⚠ ELEGIBILIDADE, e não disponibilidade: este ponto decide CLASSIFICAR. A regra
+  //   exige avaliação disponível, nenhuma contradição não resolvida e conclusão
+  //   satisfatória das verificações obrigatórias aplicáveis.
+  const elegibilidade = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);
+  if (!elegibilidade.elegivel) {
+    const motivo = elegibilidade.motivo || motivoDaSuspensao(data.avaliacaoDeQualidade);
     console.log(`${LOG_PREFIX} Classificação SUSPENSA: ${motivo}`);
     return { suspensa: true, nota: null, veredicto: null, score: null, motivo };
   }
@@ -541,6 +547,9 @@ function normalizeRequest(rawData: any): ReviewRequest {
   // A.12: o estado da avaliação vem do contrato, e é conferido; `byStatus` sozinho
   // não é avaliação.
   const avaliacaoDeQualidade: AvaliacaoQualidade = classificarAvaliacaoRecebida(rawData);
+  // A.12 etapa 1: a coerência interna é medida sobre a requisição RECEBIDA, e é
+  // dimensão independente da disponibilidade.
+  const coerenciaDaQualidade = avaliarCoerencia(rawData);
   // Detectar se individualStats está no formato agregado (sem dimensões)
   let individualStats = rawData.individualStats || rawData.criteriaStats;
 
@@ -610,6 +619,7 @@ function normalizeRequest(rawData: any): ReviewRequest {
 
   return {
     avaliacaoDeQualidade,
+    coerenciaDaQualidade,
     projectName: rawData.projectName || rawData.name || 'Projeto sem nome',
     projectDescription: rawData.projectDescription || rawData.description,
     individualStats,
@@ -675,7 +685,11 @@ async function generateReview(
 
   // A.12: sem avaliação disponível, NENHUM percentual de qualidade é montado, nem
   // a partir de `byStatus`, que a tela antiga fabricava.
-  const avaliada = qualidadeDisponivel(data.avaliacaoDeQualidade);
+  // ⚠ ELEGIBILIDADE, e não disponibilidade: o percentual daqui SUSTENTA a
+  //   classificação, então ele não pode ser apresentado quando a classificação está
+  //   suspensa. `qualidadeDisponivel` continua descrevendo só disponibilidade.
+  const elegivel = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);
+  const avaliada = elegivel.elegivel;
 
   // Análise de respondentes individuais
   let respondentAnalysis = '';
@@ -768,7 +782,7 @@ async function generateReview(
   else {
     respondentSummary = `
 **Qualidade dos Dados:**
-⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — ${motivoDaSuspensao(data.avaliacaoDeQualidade)}
+⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — ${elegivel.motivo || motivoDaSuspensao(data.avaliacaoDeQualidade)}
 O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.
 Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA}.
 ⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.
