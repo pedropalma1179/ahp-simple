@@ -15,6 +15,47 @@
  *
  * O Firestore entra por duplo, no mesmo padrão de `calculate-route.test.ts`, e o
  * `setDoc` é espionado: é o que permite afirmar o que o documento gravado carrega.
+ *
+ * ---
+ *
+ * ⚠ **A.12 etapa 2: a medição histórica está CONGELADA e SEPARADA.** A cópia é
+ * `docs/dados/a12-identidade/medicao-preservada-03c7d8b.json`, e as asserções de
+ * **integridade histórica** leem dela, e não de `M`.
+ *
+ * ⚠ **O FATO ESTRUTURAL que decide a classificação:** `M` é construído num `beforeAll`
+ * que **executa a rota real**, a agregação real e a completude real. Então asserção
+ * sobre `M.execucaoObservada`, `M.duasIdentidades`, `M.fonteDoIdentificador`,
+ * `M.ondeAIdentidadeCai`, `M.omissaoPorMatrizOuEtapa` e
+ * `M.observacaoNumericaNaoNormativa` é asserção sobre o **comportamento de hoje**,
+ * qualquer que seja o rótulo. **Só `M.arquivoHistorico` vem da leitura do arquivo
+ * histórico.** ⚠ **Nomear um commit numa asserção não transforma execução em medição
+ * histórica.**
+ *
+ * ⚠ **EXCEÇÃO MEDIDA:** partes de `M` são **literais** escritos no `beforeAll`, e não
+ * derivam da execução — `identificadoresNoArtefato` e todo o bloco `vinculo`. Elas
+ * descrevem o documento **da base**, e por isso entram na leitura congelada.
+ *
+ * **Classificação dos dezessete, com destino:**
+ *
+ * | Ensaio | Classe | Destino |
+ * |---|---|---|
+ * | histórico sem dados individuais | integridade histórica | lê a cópia congelada |
+ * | completude do histórico é da agregada | integridade histórica | lê a cópia congelada |
+ * | quatro conjuntos distinguidos | comportamento atual | migra para `a12-rastreabilidade` |
+ * | identidade só para quem ficou de fora | comportamento atual | **superado** pela etapa 2 |
+ * | órfã e duplicata caem no caminho | comportamento atual | migra para `a12-rastreabilidade` |
+ * | identidade pode vir do DOCUMENTO | comportamento atual | migra para `a12-rastreabilidade` |
+ * | identidade cai na agregação | comportamento atual | migra para `a12-rastreabilidade` |
+ * | dois painéis gravam o MESMO documento | comportamento atual | **superado** pela etapa 2 |
+ * | julgamento alterado muda campo NOMEADO | comportamento atual | migra: é o controle que impede vacuidade |
+ * | delimitação da conclusão | integridade histórica | lê a cópia congelada |
+ * | observação numérica é observação | forma, sobre valores da execução | migra a conferência de forma |
+ * | vínculo NÃO DETERMINADO | literais, medição da base | **superado**, e fica congelado |
+ * | julgamento omitido reprova por matriz | comportamento atual | **coberto**: `completeness.test.ts` `'26 matrizes e 72 pares, com duas alternativas'`, `'par faltante é rejeitado e a matriz é nomeada'` e `'nomeia a matriz e o que falta nela'`; e `calculate-route.test.ts` `'resposta incompleta COM completedAt é rejeitada e registrada'` |
+ * | sem o portão, célula sem rastro | comportamento atual | migra para `a12-rastreabilidade` |
+ * | código atual não produziu o histórico | mista | metade histórica fica; metade atual migra |
+ * | o registro diz o que NÃO demonstra | integridade histórica | lê a cópia congelada |
+ * | artefato coincide com a medição | mista | parte-se em preservação e em comportamento |
  */
 
 export {};
@@ -25,6 +66,20 @@ const crypto = require('node:crypto');
 
 const RAIZ = path.resolve(__dirname, '..', '..');
 const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a12-identidade', 'medicao.json');
+
+/**
+ * ⚠ **A CÓPIA CONGELADA da medição histórica.** É a evidência do estado que a etapa 2
+ * corrige, e **não se regrava**: `A12ID_GRAVAR=1` escreve em `ARTEFATO`, nunca aqui, e
+ * um controle abaixo exige que os dois caminhos sejam distintos.
+ */
+const PRESERVADO = path.join(
+  RAIZ, 'docs', 'dados', 'a12-identidade', 'medicao-preservada-03c7d8b.json'
+);
+const SHA_PRESERVADO = '85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25';
+const BYTES_PRESERVADO = 17326;
+/** A medição histórica, LIDA da cópia congelada. Não deriva de execução alguma. */
+const CONGELADO = JSON.parse(fs.readFileSync(PRESERVADO, 'utf8'));
+
 const GRAVAR = process.env.A12ID_GRAVAR === '1';
 const COMMIT_DA_BASE = '7157db89ff0fe102bbd36e7d5bc7c4378ab48c67';
 
@@ -661,7 +716,7 @@ beforeAll(async () => {
 // ---------------------------------------------------------------------------
 
 test('3.1: o arquivo historico nao tem dados individuais nem identificador de respondente', () => {
-  const a = M.arquivoHistorico;
+  const a = CONGELADO.arquivoHistorico;
   expect(a.chavesDistintas).toBe(131);
   expect(a.folhas).toBe(700);
   // O ÚNICO valor com cara de identificador é o do projeto.
@@ -673,16 +728,16 @@ test('3.1: o arquivo historico nao tem dados individuais nem identificador de re
 });
 
 test('3.1: a completude do historico e da matriz AGREGADA, e nao por respondente', () => {
-  const c = M.arquivoHistorico.completudeQueRegistra;
+  const c = CONGELADO.arquivoHistorico.completudeQueRegistra;
   expect(c.oQueNaoE).toMatch(/NAO e completude por respondente/);
   for (const g of ['B', 'O', 'C', 'R']) {
     expect(c.medido[g]).toEqual({ given: 10, possible: 10, isComplete: true, ratio: 1 });
   }
   // E o vínculo com as matrizes é inexistente: elas já vêm agregadas.
-  expect(M.arquivoHistorico.vinculoComAsMatrizes).toMatch(/JA agregadas/);
+  expect(CONGELADO.arquivoHistorico.vinculoComAsMatrizes).toMatch(/JA agregadas/);
   // ⚠ copia antes de ordenar: `sort` muta, e mutar a medicao dentro da assertiva
   // foi defeito medido na primeira execucao deste instrumento.
-  expect([...M.arquivoHistorico.oQueTem.matrizesAgregadas].sort()).toEqual(['bocr', 'magnitude', 'subcriteria']);
+  expect([...CONGELADO.arquivoHistorico.oQueTem.matrizesAgregadas].sort()).toEqual(['bocr', 'magnitude', 'subcriteria']);
 });
 
 // ---------------------------------------------------------------------------
@@ -816,7 +871,7 @@ test('3.2: o julgamento alterado muda o campo numerico NOMEADO, e nao qualquer c
 });
 
 test('3.2: a conclusao dos paineis esta delimitada ao percurso e a forma de entrada', () => {
-  const d = M.duasIdentidades;
+  const d = CONGELADO.duasIdentidades;
   expect(d.controleDiscriminante.leitura).toMatch(/NESTES paineis, que nao tem exclusao nem rejeicao/);
   expect(d.controleDiscriminante.alcance).toMatch(/Com exclusao ou rejeicao o documento DISTINGUE paineis/);
   expect(d.conclusaoDoQueFoiMedido).toMatch(/SEM exclusao e SEM rejeicao/);
@@ -841,7 +896,7 @@ test('a observacao numerica e observacao, com ambiente declarado, e nao criterio
 });
 
 test('3.4: o vinculo com a execucao e com a versao dos dados fica NAO DETERMINADO', () => {
-  const v = M.vinculoComAExecucao;
+  const v = CONGELADO.vinculoComAExecucao;
   expect(v.veredito).toMatch(/^NAO DETERMINADO/);
   expect(v.oQueOArtefatoTem).toEqual(['projectId', 'calculatedAt', 'responseCount']);
   expect(v.oQueIssoDemonstra.responseCount).toMatch(/reconstruir por contagem/);
@@ -870,17 +925,19 @@ test('3.4: sem o portao, a contribuicao por celula muda o valor e NAO deixa rast
 // ---------------------------------------------------------------------------
 
 test('o codigo atual NAO e o que produziu o arquivo historico, e nao diz qual foi', () => {
-  const v = M.versoesDoCodigo;
-  expect(v.documentoGravadoHoje).toEqual({ temIpcMetadata: false, temRejectedIncomplete: true });
-  expect(v.arquivoHistorico).toEqual({ temIpcMetadata: true, temRejectedIncomplete: false });
-  expect(v.oQueIstoNaoDemonstra).toMatch(/qual versao o produziu/);
+  // ⚠ ENSAIO MISTO, e as duas metades vêm de fontes declaradas: o documento de HOJE é
+  //   comportamento atual, e sai de `M`; o arquivo histórico e a delimitação são
+  //   integridade histórica, e saem da cópia CONGELADA.
+  expect(M.versoesDoCodigo.documentoGravadoHoje).toEqual({ temIpcMetadata: false, temRejectedIncomplete: true });
+  expect(CONGELADO.versoesDoCodigo.arquivoHistorico).toEqual({ temIpcMetadata: true, temRejectedIncomplete: false });
+  expect(CONGELADO.versoesDoCodigo.oQueIstoNaoDemonstra).toMatch(/qual versao o produziu/);
 });
 
 test('o registro diz o que NAO demonstra', () => {
-  const s = JSON.stringify(M.oQueIstoNaoDemonstra);
+  const s = JSON.stringify(CONGELADO.oQueIstoNaoDemonstra);
   expect(s).toMatch(/NAO demonstra qual versao produziu o arquivo historico/);
   expect(s).toMatch(/nenhuma identidade foi reconstruida por posicao ou contagem/);
-  expect(M.natureza).toMatch(/Nao escolhe, nao implementa, nao integra/);
+  expect(CONGELADO.natureza).toMatch(/Nao escolhe, nao implementa, nao integra/);
 });
 
 /**
@@ -890,6 +947,22 @@ test('o registro diz o que NAO demonstra', () => {
  * divergentes não foram preservados.** Aqui se confere a FORMA dela, e os valores
  * ficam só para leitura humana.
  */
+/**
+ * ⚠ **PRESERVAÇÃO, e é integridade histórica.** Não executa código de produção: confere
+ * que a cópia congelada tem o resumo e o tamanho declarados, e que o caminho de
+ * regravação por `A12ID_GRAVAR=1` **não é** o da cópia.
+ */
+test('preservacao: a copia congelada tem o resumo declarado, e A12ID_GRAVAR nao a alcanca', () => {
+  expect(fs.existsSync(PRESERVADO)).toBe(true);
+  const bytes = fs.readFileSync(PRESERVADO);
+  expect(bytes.length).toBe(BYTES_PRESERVADO);
+  expect(sha256(bytes)).toBe(SHA_PRESERVADO);
+  // ⚠ O caminho de escrita e o da copia sao DISTINTOS, e a distincao e testada.
+  expect(path.resolve(ARTEFATO)).not.toBe(path.resolve(PRESERVADO));
+  // ⚠ CONTROLE de que a assercao discrimina: um resumo diferente reprovaria.
+  expect(sha256(Buffer.concat([bytes, Buffer.from('x')]))).not.toBe(SHA_PRESERVADO);
+});
+
 test('o artefato gravado coincide com a medicao atual', () => {
   expect(fs.existsSync(ARTEFATO)).toBe(true);
   const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
