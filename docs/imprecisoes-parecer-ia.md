@@ -11122,6 +11122,123 @@ conferido por `sha256sum` antes e depois: `app/decisor/resultados/[projectId]/pa
 
 ---
 
+## A.12 etapa 1: predição registrada ANTES da suspensão por contradição interna, em 28/09/2026
+
+⚠ **Predição escrita antes de qualquer alteração de código**, sobre a base
+`2036ba811d161d23755f73abf52af28b45b96f05`. Este commit toca **somente** este arquivo.
+
+### A PREDIÇÃO
+
+Com a requisição que hoje classifica `disponivel` apesar das contradições, isto é o
+`C-contradicao` de `lib/__tests__/a12-diagnostico.test.ts`, depois da mudança:
+
+- o contexto passa a trazer **o aviso de suspensão**, e
+  `contextoTrazAvisoDeSuspensao` vira `true`;
+- o contexto deixa de trazer **qualquer percentual usado para sustentar a classificação de
+  qualidade suspensa**, e `contextoTrazPercentualDeQualidade` vira `false`;
+- **a nota e o veredicto ficam nulos**, com `notaSuspensa` preenchido e motivo específico;
+- ⚠ **e o estado continua `disponivel`**: a mudança é na **elegibilidade**, não na
+  disponibilidade.
+
+⚠ **Os percentuais dos cálculos AHP-BOCR não são alcançados por esta predição.** Pesos,
+CR global, síntese e sensibilidade seguem apresentados: o que sai é o percentual de
+qualidade dos respondentes que sustentaria a classificação suspensa.
+
+### O CASO NEGATIVO, NOMEADO
+
+A suspensão dispara onde **não** deveria, isto é, numa requisição coerente. Três formas
+concretas, nomeadas antes:
+
+1. `C-disponivel` deixa de ser elegível, por comparação aplicada **fora da sua condição**
+   de população, categoria ou condição;
+2. um campo **ausente** é tratado como **zero** e produz divergência aritmética falsa;
+3. um par cujos produtores têm **significado diferente** é lido como `contraditoria` em
+   vez de `incompativel`, e reprova o conjunto por incomparabilidade.
+
+⚠ **Precedente:** em A.3 a predição foi REFUTADA, e a refutação revelou um segundo canal
+no prompt que o levantamento não tinha visto. Uma refutação aqui vale mais que uma
+confirmação.
+
+### O CONTROLE DO QUE SE PRESERVA, nomeado antes da mudança
+
+| Caso | Estado | Motivo | Fonte |
+|---|---|---|---|
+| `C-disponivel` | `disponivel` | `null` | `inferida: lista de respondentes com CR individual` |
+| `C-ausente` | `ausente` | `MOTIVO_AUSENTE` | `inferida: requisição sem lista de respondentes; byStatus sozinho não é avaliação` |
+| `C-incompleta` | `incompleta` | `MOTIVO_INCOMPLETA` com `Medido: 2 de 4 respondentes com CR.` | `inferida: lista de respondentes sem CR completo` |
+| requisição de referência `r2` | `ausente` | `MOTIVO_AUSENTE` | a mesma de `C-ausente` |
+
+**O disponível coerente permanece ELEGÍVEL**; `ausente` e `incompleta` **permanecem
+suspensos, com estes motivos e estas fontes**, pela precedência declarada: a coerência
+acrescenta razões próprias **somente quando a disponibilidade está satisfeita**, e nunca
+substitui nem reescreve as anteriores.
+
+### O CONJUNTO MÍNIMO DE VERIFICAÇÕES, declarado antes da predição
+
+Medido nos formatos recebidos, em `lib/ai-reviewer/review-request.ts:99-134`, onde
+`qualityAnalysis`, `statistics`, `summary`, `overall` e `overallStats` são **todos
+opcionais**; e nos produtores: a tela, em `page.tsx:1213-1241`, envia `respondents`,
+`statistics.byStatus`, `statistics.total`, `summary` e `overallStats` **juntos, no mesmo
+ternário**, e no ramo sem avaliação envia **só** `respondents`.
+
+**O conjunto mínimo é o das verificações que aferem os dados que vão sustentar a
+classificação apresentada**, e o ramo é escolhido pelo formato recebido, em
+`route.ts:685`, `:738` e `:757`:
+
+| Ramo | Conjunto mínimo | Fundamento |
+|---|---|---|
+| **P1**, com `statistics.byStatus` | **V2 e V3** | o ramo calcula todo percentual sobre `statistics.total`, com queda para a soma de `byStatus`: V2 afere esse total contra a população listada, V3 afere a soma contra o total |
+| **P2**, só `respondents` | **V4 restrita a `CONFIÁVEL`** | sem agregados, o único par com dois lados é o CR individual contra o `status` da própria lista |
+| **P3**, só `overallStats` | **V5 sobre `overallStats`** | é a única partição disponível |
+
+⚠ **Não estabelecer o conjunto do ramo aplicável produz conclusão global
+`nao_determinada`, com suspensão.** Sem isso, todas as comparações saindo `incompativel`
+aprovaria por vacuidade.
+
+⚠ **Consequência declarada como suposição, e não como decisão tomada:** uma requisição
+legada `disponivel` que traga **apenas** `respondents` **sem** `status` cai em P2, deixa
+V4 `nao_determinada` e **passa a suspender**. É a leitura da regra literal, e não
+construto novo. **Nenhuma requisição da suíte está nessa condição:** todas as
+`disponivel` medidas carregam `statistics`, logo caem em P1.
+
+### DELIMITAÇÃO DE V4, com os dois lados declarados
+
+| Categoria | Intervalo na tela, `page.tsx:1006-1018` | Intervalo no rótulo da rota, `route.ts:698-701` | Veredito do par |
+|---|---|---|---|
+| `CONFIÁVEL` | `CR ≤ 0.10` | `CR ≤ 0.10` | **coincidem**: aplicável |
+| `REVISAR` | fixo em **0** | `0.10 < CR ≤ 0.15` | divergência **demonstrada**: `incompativel` |
+| `SUSPEITO` | `CR > 0.10`, sem teto de 0.20 separado | `0.15 < CR ≤ 0.20` | divergência **demonstrada**: `incompativel` |
+| `CRÍTICO` | `CR > 0.20` **ou** `status ∈ {SUSPEITO, CRÍTICO}` | `CR > 0.20` | divergência **demonstrada**: `incompativel` |
+
+⚠ **Faltando a demonstração de um dos lados, o estado é `nao_determinada`, não
+`incompativel`.** E um par `incompativel` **não aprova nem reprova** o conjunto.
+
+### A PREVISÃO DE TESTES, registrada antes de editar
+
+| Instrumento | Previsão |
+|---|---|
+| `a12-diagnostico.test.ts` | **REPROVA**: `:810-811` e `:838-846` codificam o comportamento antigo de `C-contradicao`, e `:817-819` o bloco contraditório. Exige edição dessas asserções |
+| `docs/dados/a12-diagnostico/medicao.json` | **regravação prevista**, com procedência própria de ordem 4 |
+| `a12-qualidade-ausente.test.ts` | **passa**: `comAvaliacao` deriva `statistics`, `summary` e `overallStats` do mesmo vetor de CRs |
+| `rag-semantic-states.test.ts` | **passa**, pela precedência: as requisições dele classificam `ausente` e o motivo preservado mantém o texto do contexto idêntico. ⚠ Se o motivo mudasse, os três resumos mudariam |
+| `a33-montagem-contexto`, `rag-diagnostico-regressao` | **passam**: `ausente` |
+| `a33-cadeia-rule`, `a33-snapshot-v2` | **passam**: a r2 tem zero respondentes |
+| motor, rota de cálculo, A.27 e RAG | **passam** |
+
+⚠ **Reprovação fora desta previsão é parada.**
+
+### O LIMITE, e ele entra no contrato e no registro
+
+⚠ **Esta etapa verifica COERÊNCIA INTERNA da requisição.** **Cobertura do universo real e
+vínculo com a execução NÃO são demonstrados aqui**, e ficam para a etapa 3. Uma requisição
+internamente coerente pode descrever um painel que não é o que respondeu, e nada nesta
+etapa detecta isso.
+
+⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA:** nenhum parecer será
+gerado, e as respostas fixas do cliente simulado não a verificam.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
