@@ -73,7 +73,7 @@ test('a requisicao coerente tem as cinco comparacoes concluidas, e e ELEGIVEL', 
   expect(c.conclusao).toBe('coerente');
   expect(c.conjuntoMinimo).toEqual(CONJUNTO_MINIMO.P1);
   expect(c.conjuntoMinimoConcluido).toBe(true);
-  expect(elegivel(r)).toEqual({ elegivel: true, motivo: null });
+  expect(elegivel(r)).toEqual({ elegivel: true, causa: null, motivo: null, rotulo: null });
 });
 
 // ============================================================ V1
@@ -90,14 +90,43 @@ test('V1 reprova quando summary.ok divergir de overallStats.valid, e conserva os
   expect(elegivel(r).elegivel).toBe(false);
 });
 
-test('V1 sai INCOMPATIVEL quando as populacoes declaradas diferem, e isso NAO reprova o conjunto', () => {
+/**
+ * ⚠ **C1: a divergencia NAO prova que as populacoes diferem.** Este teste consagrava o
+ * defeito: exigia `incompativel` e elegibilidade onde ha contradicao a detectar.
+ */
+test('V1 DETECTA a contradicao quando os totais declarados divergem, em vez de excluir o par', () => {
   const r = coerente();
   r.overallStats.total = 9;
   r.overallStats.valid = 9;
   const v1 = estadoDe(r, 'V1');
+  expect(v1.estado).toBe('contraditoria');
+  expect(v1.motivo).toContain('grandezas da mesma populacao declarada');
+  expect(v1.motivo).not.toContain('populacoes DIFERENTES');
+  // ⚠ E os quatro lados ficam conservados: os dois totais e os dois valores comparados.
+  expect(v1.lados.map((l) => [l.fonte, l.valor])).toEqual([
+    ['qualityAnalysis.summary.total', 4],
+    ['overallStats.total', 9],
+    ['qualityAnalysis.summary.ok', 4],
+    ['overallStats.valid', 9],
+  ]);
+  expect(avaliarCoerencia(r).conclusao).toBe('contraditoria');
+  expect(elegivel(r).elegivel).toBe(false);
+});
+
+/**
+ * ⚠ **`incompativel` em V1 exige evidencia DISTINTA da propria divergencia**, a saber uma
+ * declaracao explicita de escopos nos campos. ⚠ **O formato recebido NAO tem esse campo**,
+ * em `review-request.ts:99-134`, entao este estado e INALCANCAVEL pelo formato atual, e o
+ * teste o exercita por campo hipotetico para que a regra fique conferida, e nao suposta.
+ */
+test('V1 so sai INCOMPATIVEL com escopos DECLARADOS distintos, e nao por divergencia', () => {
+  const r = coerente();
+  r.qualityAnalysis.summary.escopo = 'painel completo';
+  r.overallStats.escopo = 'somente respondentes ativos';
+  const v1 = estadoDe(r, 'V1');
   expect(v1.estado).toBe('incompativel');
-  expect(v1.motivo).toContain('populacoes DIFERENTES');
-  // ⚠ V2 e V3, o conjunto minimo de P1, seguem concluidas, e o conjunto e COERENTE.
+  expect(v1.motivo).toContain('escopos DECLARADOS distintos');
+  // ⚠ NAO reprova o conjunto: V2 e V3, o minimo de P1, seguem concluidas e consistentes.
   expect(avaliarCoerencia(r).conclusao).toBe('coerente');
   expect(elegivel(r).elegivel).toBe(true);
 });
@@ -169,24 +198,34 @@ test('V4 declara os intervalos dos DOIS produtores, e so CONFIAVEL coincide', ()
   }
 });
 
-test('V4 sai INCOMPATIVEL com limiares divergentes, e isso sozinho NAO aprova nem reprova', () => {
-  const r = coerente();
-  // Só baldes de intervalo DEMONSTRADAMENTE diferente, sem o CONFIÁVEL comparável.
-  r.qualityAnalysis.statistics.byStatus = { 'SUSPEITO': 0, 'CRÍTICO': 0, 'REVISAR': 4 };
-  const v4 = estadoDe(r, 'V4');
-  expect(v4.estado).toBe('incompativel');
-  expect(v4.motivo).toContain('diferenca de significado DEMONSTRADA');
-  expect(v4.motivo).toContain('intervalos divergentes');
-  // ⚠ NAO REPROVA: V2 e V3, o conjunto minimo de P1, seguem concluidas e consistentes.
-  expect(avaliarCoerencia(r).conclusao).toBe('coerente');
-  expect(elegivel(r).elegivel).toBe(true);
-  // ⚠ E NAO APROVA sozinho: com o conjunto minimo pendente, o veredito e nao_determinada.
-  const s = coerente();
-  s.qualityAnalysis.statistics.byStatus = { 'REVISAR': 4 };
-  delete s.qualityAnalysis.statistics.total;
-  expect(estadoDe(s, 'V4').estado).toBe('incompativel');
-  expect(avaliarCoerencia(s).conclusao).toBe('nao_determinada');
-  expect(elegivel(s).elegivel).toBe(false);
+/**
+ * ⚠ **C2: campo AUSENTE nao vira incompatibilidade.** Este teste consagrava o defeito:
+ * exigia `incompativel` onde falta o lado necessario a comparacao.
+ */
+test('V4 com CONFIAVEL ausente sai NAO_DETERMINADA, qualquer que seja o restante', () => {
+  for (const by of [
+    { 'SUSPEITO': 0, 'CRÍTICO': 0, 'REVISAR': 4 },
+    { 'REVISAR': 4 },
+    { 'DESCONHECIDO': 4 },
+    {},
+  ]) {
+    const r = coerente();
+    r.qualityAnalysis.statistics.byStatus = by as any;
+    const v4 = estadoDe(r, 'V4');
+    expect([JSON.stringify(by), v4.estado]).toEqual([JSON.stringify(by), 'nao_determinada']);
+    expect(v4.motivo).toContain('Campo ausente NAO vale zero');
+    // ⚠ A divergencia de intervalos das OUTRAS categorias nao torna ESTE par incompativel,
+    //   e o motivo diz isso. ⚠ A asserção é sobre o ESTADO, e o estado já foi aferido acima.
+    expect(v4.motivo).toContain('nao torna ESTE par incompativel');
+    // ⚠ E os dois lados ficam registrados, com o ausente em `null` e a fonte nomeada.
+    expect(v4.lados.map((l) => l.fonte)).toEqual([
+      'contagem derivada dos CRs individuais, CR <= 0.1',
+      "byStatus['CONFIÁVEL']",
+    ]);
+    expect(v4.lados[1].valor).toBeNull();
+    // ⚠ E SUSPENDE, porque comparacao aplicavel nao concluida suspende.
+    expect(elegivel(r).elegivel).toBe(false);
+  }
 });
 
 // ============================================================ V5
@@ -213,14 +252,26 @@ test('V5 tambem reprova na particao de overallStats', () => {
 });
 
 // ============================================================ não determinada
-test('campo ausente produz NAO_DETERMINADA, e nao zero nem consistente, e SUSPENDE', () => {
+/**
+ * ⚠ **C4: a versao anterior deste teste passava por VACUIDADE.** Ela exigia que nao
+ * houvesse valor zero entre os lados, e um array VAZIO satisfaz isso sem demonstrar nada.
+ * **Agora exige os DOIS lados presentes, com o ausente em `null` e a fonte NOMEADA.**
+ */
+test('campo ausente produz NAO_DETERMINADA, com os DOIS lados registrados, e SUSPENDE', () => {
   const r = coerente();
   delete r.qualityAnalysis.statistics.total;
   for (const id of ['V2', 'V3'] as IdComparacao[]) {
     const c = estadoDe(r, id);
     expect([id, c.estado]).toEqual([id, 'nao_determinada']);
-    // ⚠ NAO virou zero: o lado ausente vale `null`.
+    // ⚠ Os DOIS lados existem no registro ESTRUTURADO, e nao so no motivo textual.
+    expect([id, c.lados.length]).toEqual([id, 2]);
+    for (const l of c.lados) expect([id, typeof l.fonte, l.fonte.length > 0]).toEqual([id, 'string', true]);
+    // ⚠ O lado ausente vale `null`, e NAO zero.
+    const ausente = c.lados.find((l) => l.fonte === 'qualityAnalysis.statistics.total')!;
+    expect([id, ausente.valor]).toEqual([id, null]);
     expect(c.lados.some((l) => l.valor === 0)).toBe(false);
+    // ⚠ E o outro lado traz o valor MEDIDO, o que prova que o par foi montado.
+    expect(c.lados.filter((l) => typeof l.valor === 'number').length).toBe(1);
     expect(c.motivo).toContain('Campo ausente NAO vale zero');
   }
   const c = avaliarCoerencia(r);
@@ -229,6 +280,41 @@ test('campo ausente produz NAO_DETERMINADA, e nao zero nem consistente, e SUSPEN
   const e = elegivel(r);
   expect(e.elegivel).toBe(false);
   expect(e.motivo).toContain('Verificação obrigatória de coerência não determinada');
+});
+
+/**
+ * ⚠ **C3: o conjunto minimo e PISO, e nao teto.** Uma comparacao APLICAVEL que fique
+ * `nao_determinada` FORA do conjunto minimo tambem suspende, porque a regra literal exige
+ * conclusao satisfatoria de TODAS as verificacoes obrigatorias aplicaveis.
+ */
+test('pendente FORA do conjunto minimo tambem SUSPENDE', () => {
+  const r = coerente();
+  delete r.qualityAnalysis.summary.total;
+  // O minimo de P1 e V2 e V3, e as duas seguem CONCLUIDAS e consistentes.
+  expect(CONJUNTO_MINIMO.P1).toEqual(['V2', 'V3']);
+  for (const id of ['V2', 'V3'] as IdComparacao[]) expect([id, estadoDe(r, id).estado]).toEqual([id, 'consistente']);
+  expect(avaliarCoerencia(r).conjuntoMinimoConcluido).toBe(true);
+  // ⚠ E V1 e V5, FORA do minimo, ficam nao_determinada: o conjunto SUSPENDE mesmo assim.
+  for (const id of ['V1', 'V5'] as IdComparacao[]) expect([id, estadoDe(r, id).estado]).toEqual([id, 'nao_determinada']);
+  const c = avaliarCoerencia(r);
+  expect(c.conclusao).toBe('nao_determinada');
+  expect(c.motivo).toContain('FORA do conjunto minimo, que tambem suspende');
+  expect(elegivel(r).elegivel).toBe(false);
+});
+
+/**
+ * ⚠ **C3, perda interna a V5: cada particao presente e verificacao PROPRIA.** Uma
+ * particao completa nao pode deixar o resultado `consistente` com outra incompleta.
+ */
+test('V5: particao completa NAO salva o par quando outra particao presente esta incompleta', () => {
+  const r = coerente();
+  delete r.overallStats.warning;
+  const v5 = estadoDe(r, 'V5');
+  // A particao de `summary` fecha, e a de `overallStats` esta incompleta.
+  expect(v5.estado).toBe('nao_determinada');
+  expect(v5.motivo).toContain('cada particao presente e verificacao propria');
+  expect(v5.lados.some((l) => l.fonte === 'overallStats.warning' && l.valor === null)).toBe(true);
+  expect(elegivel(r).elegivel).toBe(false);
 });
 
 test('conjunto minimo de P2 nao estabelecido, sem status na lista, SUSPENDE', () => {
@@ -320,10 +406,13 @@ test('apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que pas
   expect(corpo.nota).toBeNull();
   expect(corpo.veredicto).toBeNull();
   expect(corpo.notaSuspensa?.suspensa).toBe(true);
+  expect(corpo.notaSuspensa.rotulo).toBe('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
   expect(corpo.notaSuspensa.motivo).toContain('V5: a particao de qualityAnalysis.summary soma 8 sobre total 4');
 
   const html = renderizar(corpo);
-  expect(html).toContain('Nota não calculada: qualidade individual não avaliada');
+  // ⚠ C5: o rotulo e o PROPRIO do caso contraditorio, e o antigo NAO aparece.
+  expect(html).toContain('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
+  expect(html).not.toContain('Nota não calculada: qualidade individual não avaliada');
   expect(html).toContain('soma 8 sobre total 4');
   expect(html).toContain('Os cálculos AHP-BOCR');
   // ⚠ CONTROLE de que a asserção discrimina: no caso coerente o cartão de suspensão NÃO sai.
@@ -331,4 +420,5 @@ test('apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que pas
   expect(corpoOk.notaSuspensa).toBeNull();
   const htmlOk = renderizar(corpoOk);
   expect(htmlOk).not.toContain('Nota não calculada: qualidade individual não avaliada');
+  expect(htmlOk).not.toContain('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
 });

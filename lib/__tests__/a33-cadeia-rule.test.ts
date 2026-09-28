@@ -170,6 +170,19 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     mudancaDeEstrutura: 'procedenciaDaRegravacao (objeto) -> procedenciaDasRegravacoes (lista que acumula)',
     camposPerdidos: 0,
   },
+  {
+    ordem: 3,
+    motivo: 'A.12 etapa 1, C1 a C5: correcoes de contrato, que alteraram route.ts',
+    commitDaBase: '1d0173659709ce956b42ec36841af63eddad366f',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ Caminhos MEDIDOS por comparacao campo a campo, e nao antecipados. Como na ordem 2,
+    //   bytesSystem e bytesMessages NAO se moveram: as requisicoes desta suite classificam
+    //   `ausente`, e o texto daquele ramo foi preservado palavra por palavra.
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

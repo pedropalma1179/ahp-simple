@@ -159,8 +159,23 @@ export function motivoDaSuspensao(avaliacao?: AvaliacaoQualidade | null): string
   return avaliacao.motivo || (avaliacao.estado === 'ausente' ? MOTIVO_AUSENTE : MOTIVO_INCOMPLETA);
 }
 
-/** O rótulo fixo da apresentação, quando a nota não é calculada. */
+/**
+ * O rótulo da apresentação quando a nota não é calculada **por falta de avaliação**.
+ *
+ * ⚠ **Só serve aos casos `ausente` e `incompleta`**, em que a afirmação "qualidade
+ * individual não avaliada" é **verdadeira**.
+ */
 export const ROTULO_NOTA_SUSPENSA = 'Nota não calculada: qualidade individual não avaliada';
+
+/**
+ * O rótulo quando a nota não é calculada **por contradição interna**.
+ *
+ * ⚠ **C5: a avaliação EXISTE nesse caso**, e dizer "qualidade individual não avaliada"
+ * seria afirmar ao gestor algo que não foi medido. **É a classe de defeito que A.12
+ * existe para corrigir.**
+ */
+export const ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO =
+  'Nota não calculada: contradição interna não resolvida na avaliação de qualidade';
 
 // ============================================================================
 // A.12 etapa 1: COERÊNCIA INTERNA
@@ -322,19 +337,25 @@ function comparar(
   b: LadoDaComparacao,
   rotulo: string
 ): Comparacao {
+  // ⚠ **C4: os DOIS lados ficam SEMPRE no registro estruturado**, inclusive o ausente,
+  //   com `valor: null` e a sua fonte NOMEADA. **Texto não é registro estruturado**, e
+  //   deixar `lados` vazio fazia a conservação dos dois valores existir só no motivo.
+  const lados = [a, b];
   if (a.valor === null || b.valor === null) {
     const qual = a.valor === null ? a.fonte : b.fonte;
     return {
       ...base,
+      lados,
       estado: 'nao_determinada',
       motivo: `${rotulo}: nao concluida porque ${qual} esta ausente ou nao e numero finito. Campo ausente NAO vale zero.`,
     };
   }
   if (a.valor === b.valor) {
-    return { ...base, estado: 'consistente', motivo: `${rotulo}: ${a.fonte} e ${b.fonte} conferem em ${a.valor}.` };
+    return { ...base, lados, estado: 'consistente', motivo: `${rotulo}: ${a.fonte} e ${b.fonte} conferem em ${a.valor}.` };
   }
   return {
     ...base,
+    lados,
     estado: 'contraditoria',
     motivo: `${rotulo}: ${a.fonte} = ${a.valor} contra ${b.fonte} = ${b.valor}. Os dois valores e as suas fontes ficam conservados.`,
   };
@@ -368,19 +389,47 @@ export function avaliarCoerencia(raw: any): Coerencia {
       ],
       chavesSomadas: null,
     };
+    // ⚠ **C1: a divergência NÃO é prova de que as populações diferem.** Usar a própria
+    //   divergência para declarar `incompativel` é circular, e anula a comparação: a
+    //   contagem diferente pode ser exatamente a contradição procurada.
+    //
+    // ⚠ **`incompativel` aqui exige declaração EXPLÍCITA de escopos distintos nos
+    //   campos.** O formato recebido, em `lib/ai-reviewer/review-request.ts:99-134`, NÃO
+    //   tem campo algum que declare escopo, então este estado é **inalcançável pelo
+    //   formato atual**, e fica escrito em vez de simulado por divergência.
+    const escoposDeclaradosDistintos =
+      typeof sum?.escopo === 'string' && typeof os?.escopo === 'string' && sum.escopo !== os.escopo;
     const tSum = numeroFinito(sum?.total);
     const tOs = numeroFinito(os?.total);
-    if (tSum === null || tOs === null) {
+    const ladosTotais: LadoDaComparacao[] = [
+      { fonte: 'qualityAnalysis.summary.total', valor: tSum },
+      { fonte: 'overallStats.total', valor: tOs },
+    ];
+    if (escoposDeclaradosDistintos) {
       comparacoes.push({
         ...base,
-        estado: 'nao_determinada',
-        motivo: 'V1: a coincidencia das populacoes nao foi demonstrada, porque summary.total ou overallStats.total esta ausente.',
-      });
-    } else if (tSum !== tOs) {
-      comparacoes.push({
-        ...base,
+        lados: [
+          { fonte: `qualityAnalysis.summary.escopo = ${sum.escopo}`, valor: null },
+          { fonte: `overallStats.escopo = ${os.escopo}`, valor: null },
+        ],
         estado: 'incompativel',
-        motivo: `V1: populacoes DIFERENTES, demonstrado: summary.total = ${tSum} contra overallStats.total = ${tOs}. O par nao entra no veredito.`,
+        motivo: `V1: NAO APLICAVEL, por escopos DECLARADOS distintos nos proprios campos: "${sum.escopo}" contra "${os.escopo}". O par nao entra no veredito.`,
+      });
+    } else if (tSum !== null && tOs !== null && tSum !== tOs) {
+      // ⚠ Os dois totais sao grandezas da MESMA populacao declarada: divergir entre si e
+      //   CONTRADICAO, e nao prova de populacoes distintas.
+      comparacoes.push({
+        ...base,
+        lados: [...ladosTotais, ...base.lados],
+        estado: 'contraditoria',
+        motivo: `V1: qualityAnalysis.summary.total = ${tSum} contra overallStats.total = ${tOs}, grandezas da mesma populacao declarada. Os dois valores e as suas fontes ficam conservados.`,
+      });
+    } else if (tSum === null || tOs === null) {
+      comparacoes.push({
+        ...base,
+        lados: [...ladosTotais, ...base.lados],
+        estado: 'nao_determinada',
+        motivo: 'V1: a coincidencia das populacoes nao pode ser demonstrada nem refutada, porque summary.total ou overallStats.total esta ausente. Campo ausente NAO vale zero.',
       });
     } else {
       comparacoes.push(comparar(base, base.lados[0], base.lados[1], 'V1'));
@@ -485,26 +534,21 @@ export function avaliarCoerencia(raw: any): Coerencia {
           lados: [] as LadoDaComparacao[],
         };
     const fonteAgregada = by ? "byStatus['CONFIÁVEL']" : 'status CONFIAVEL na propria lista';
-    // ⚠ **APLICABILIDADE antes de executabilidade.** Se o unico balde de significado
-    //   comparavel, `CONFIÁVEL`, nao esta declarado, e ha outros baldes, entao o que
-    //   sobra tem significado DEMONSTRADAMENTE diferente, pelos intervalos acima: o par
-    //   e INCOMPATIVEL, e nao `nao_determinada`. ⚠ E um par incompativel NAO aprova nem
-    //   reprova o conjunto: quem decide isso e o conjunto minimo do ramo.
-    const outrosBaldes = by
-      ? CHAVES_BY_STATUS.filter((k) => k !== 'CONFIÁVEL').filter((k) => baldeComAlias(by, k).lados.length > 0)
-      : [];
-    if (by && agregada.lados.length === 0 && outrosBaldes.length > 0) {
-      const divergentes = outrosBaldes
-        .filter((k) => (INTERVALOS_DECLARADOS as any)[k] && !(INTERVALOS_DECLARADOS as any)[k].coincidem)
-        .map((k) => `${k}: tela "${(INTERVALOS_DECLARADOS as any)[k].tela}" contra rota "${(INTERVALOS_DECLARADOS as any)[k].rota}"`);
+    // ⚠ **C2: `CONFIÁVEL` AUSENTE produz `nao_determinada`, qualquer que seja o restante
+    //   de `byStatus`.** Falta do lado necessário à comparação é **executabilidade**, e o
+    //   contrato literal manda `nao_determinada`. ⚠ **Divergência de intervalos nas OUTRAS
+    //   categorias não demonstra incompatibilidade DESTE par**, que é `CR <= 0.10` contra
+    //   `CONFIÁVEL`: a divergência só torna `incompativel` o par cuja categoria comparada
+    //   é a divergente, e este par compara a categoria que COINCIDE.
+    if (by && agregada.lados.length === 0) {
       comparacoes.push({
         ...base,
-        estado: 'incompativel',
+        estado: 'nao_determinada',
         lados: [
           { fonte: `contagem derivada dos CRs individuais, CR <= ${LIMIAR_CONFIAVEL}`, valor: derivada },
           { fonte: "byStatus['CONFIÁVEL']", valor: null },
         ],
-        motivo: `V4: NAO APLICAVEL, por diferenca de significado DEMONSTRADA. O unico balde de intervalo coincidente, CONFIAVEL, nao esta declarado, e os presentes sao ${outrosBaldes.join(', ')}${divergentes.length ? `, com intervalos divergentes: ${divergentes.join('; ')}` : ''}. O par NAO entra no veredito, e nao aprova nem reprova o conjunto.`,
+        motivo: "V4: nao concluida porque byStatus['CONFIÁVEL'] esta ausente, e e o unico balde de intervalo coincidente. Campo ausente NAO vale zero, e a divergencia de intervalos das OUTRAS categorias nao torna ESTE par incompativel.",
       });
     } else if (lista.length === 0 || semCR > 0) {
       comparacoes.push({
@@ -554,49 +598,56 @@ export function avaliarCoerencia(raw: any): Coerencia {
     if (sum) particoes.push({ nome: 'qualityAnalysis.summary', chaves: CHAVES_PARTICAO.summary, obj: sum });
     if (os) particoes.push({ nome: 'overallStats', chaves: CHAVES_PARTICAO.overallStats, obj: os });
 
-    let resultado: Comparacao | null = null;
-    const naoDeterminadas: string[] = [];
+    // ⚠ **C3: CADA partição presente é verificação PRÓPRIA.** Uma partição completa **não**
+    //   pode deixar o resultado `consistente` enquanto outra partição presente está
+    //   incompleta: isso seria aprovar por vacuidade dentro da própria comparação.
+    const contraditorias: string[] = [];
+    const incompletas: string[] = [];
+    const lados: LadoDaComparacao[] = [];
     for (const p of particoes) {
       const valores = p.chaves.map((k) => ({ fonte: `${p.nome}.${k}`, valor: numeroFinito(p.obj[k]) }));
       const total = numeroFinito(p.obj.total);
       if (total === null || valores.some((v) => v.valor === null)) {
-        naoDeterminadas.push(p.nome);
+        incompletas.push(p.nome);
+        // ⚠ Os lados ficam registrados AINDA ASSIM, com o ausente em `null`.
+        lados.push(...valores, { fonte: `${p.nome}.total`, valor: total });
         continue;
       }
       const soma = valores.reduce((a, v) => a + (v.valor as number), 0);
-      if (soma !== total) {
-        resultado = {
-          ...base,
-          estado: 'contraditoria',
-          lados: [
-            { fonte: `soma de ${p.nome} [${p.chaves.join(', ')}]`, valor: soma },
-            { fonte: `${p.nome}.total`, valor: total },
-          ],
-          motivo: `V5: a particao de ${p.nome} soma ${soma} sobre total ${total}, com as chaves ${p.chaves.join(', ')}. Os dois valores e as suas fontes ficam conservados.`,
-        };
-        break;
-      }
-      if (!resultado) {
-        resultado = {
-          ...base,
-          estado: 'consistente',
-          lados: [
-            { fonte: `soma de ${p.nome} [${p.chaves.join(', ')}]`, valor: soma },
-            { fonte: `${p.nome}.total`, valor: total },
-          ],
-          motivo: `V5: a particao de ${p.nome} fecha em ${total}.`,
-        };
-      }
+      lados.push(
+        { fonte: `soma de ${p.nome} [${p.chaves.join(', ')}]`, valor: soma },
+        { fonte: `${p.nome}.total`, valor: total }
+      );
+      if (soma !== total) contraditorias.push(`${p.nome} soma ${soma} sobre total ${total}, com as chaves ${p.chaves.join(', ')}`);
     }
-    if (!resultado) {
+    if (particoes.length === 0) {
       comparacoes.push({
         ...base,
         estado: 'nao_determinada',
         lados: [],
-        motivo: `V5: nao concluida porque nenhuma particao declarada esta completa${naoDeterminadas.length ? `, e ${naoDeterminadas.join(' e ')} tem campo ausente ou invalido` : ''}. Campo ausente NAO vale zero.`,
+        motivo: 'V5: nao concluida porque nenhuma particao declarada esta presente. Campo ausente NAO vale zero.',
+      });
+    } else if (contraditorias.length > 0) {
+      comparacoes.push({
+        ...base,
+        estado: 'contraditoria',
+        lados,
+        motivo: `V5: a particao de ${contraditorias.join('; e a particao de ')}. Os dois valores e as suas fontes ficam conservados.${incompletas.length ? ` ⚠ E ${incompletas.join(' e ')} esta incompleta.` : ''}`,
+      });
+    } else if (incompletas.length > 0) {
+      comparacoes.push({
+        ...base,
+        estado: 'nao_determinada',
+        lados,
+        motivo: `V5: nao concluida porque a particao de ${incompletas.join(' e a de ')} tem campo ausente ou invalido, e cada particao presente e verificacao propria. Campo ausente NAO vale zero.`,
       });
     } else {
-      comparacoes.push(resultado);
+      comparacoes.push({
+        ...base,
+        estado: 'consistente',
+        lados,
+        motivo: `V5: as ${particoes.length} particoes presentes fecham, ${particoes.map((p) => p.nome).join(' e ')}.`,
+      });
     }
   }
 
@@ -610,6 +661,12 @@ export function avaliarCoerencia(raw: any): Coerencia {
     return e !== 'consistente' && e !== 'contraditoria';
   });
   const conjuntoMinimoConcluido = ramo !== 'indeterminado' && minimoPendentes.length === 0;
+  // ⚠ **C3: o conjunto mínimo é PISO, e não teto.** A regra literal exige "conclusão
+  //   satisfatória de TODAS as verificações obrigatórias APLICÁVEIS". O conjunto mínimo
+  //   impede aprovação por vacuidade; **não dispensa as demais**. Uma comparação
+  //   APLICÁVEL que fique `nao_determinada`, dentro ou fora do conjunto mínimo, suspende.
+  //   ⚠ `incompativel` é NÃO APLICÁVEL, e por isso não entra aqui.
+  const aplicaveisPendentes = comparacoes.filter((c) => c.estado === 'nao_determinada');
 
   let conclusao: Coerencia['conclusao'] = 'coerente';
   let motivo: string | null = null;
@@ -619,9 +676,16 @@ export function avaliarCoerencia(raw: any): Coerencia {
   } else if (ramo === 'indeterminado') {
     conclusao = 'nao_determinada';
     motivo = `${MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO} Nenhum dos ramos P1, P2 ou P3 se aplica ao formato recebido.`;
+  } else if (aplicaveisPendentes.length > 0) {
+    conclusao = 'nao_determinada';
+    const forasDoMinimo = aplicaveisPendentes.filter((c) => !conjuntoMinimo.includes(c.id)).map((c) => c.id);
+    motivo =
+      `${MOTIVO_COERENCIA_NAO_DETERMINADA} Ramo ${ramo}, conjunto minimo ${conjuntoMinimo.join(' e ')}` +
+      `${forasDoMinimo.length ? `, e ${forasDoMinimo.join(' e ')} FORA do conjunto minimo, que tambem suspende` : ''}. ` +
+      `Pendentes: ${aplicaveisPendentes.map((c) => c.motivo).join(' ')}`;
   } else if (!conjuntoMinimoConcluido) {
     conclusao = 'nao_determinada';
-    motivo = `${MOTIVO_COERENCIA_NAO_DETERMINADA} Ramo ${ramo}, conjunto minimo ${conjuntoMinimo.join(' e ')}. Pendentes: ${minimoPendentes.map((id) => porId(id).motivo).join(' ')}`;
+    motivo = `${MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO} Ramo ${ramo}, conjunto minimo ${conjuntoMinimo.join(' e ')}, e nenhuma delas foi concluida: ${minimoPendentes.map((id) => porId(id).motivo).join(' ')}`;
   }
 
   return { comparacoes, ramo, conjuntoMinimo, conjuntoMinimoConcluido, conclusao, motivo };
@@ -640,22 +704,37 @@ export function avaliarCoerencia(raw: any): Coerencia {
  * disponibilidade está satisfeita**. A coerência **não substitui nem reescreve** os
  * motivos anteriores.
  */
+/**
+ * ⚠ **A CAUSA da suspensão, exposta**, porque a apresentação depende dela: com a
+ * avaliação AUSENTE ou INCOMPLETA as afirmações de indisponibilidade são verdadeiras;
+ * com a avaliação DISPONÍVEL e contraditória, são falsas.
+ */
+export interface Elegibilidade {
+  elegivel: boolean;
+  causa: 'disponibilidade' | 'coerencia' | null;
+  motivo: string | null;
+  /** O rótulo que a apresentação deve usar, próprio de cada causa. */
+  rotulo: string | null;
+}
+
 export function elegivelParaClassificacao(
   avaliacao?: AvaliacaoQualidade | null,
   coerencia?: Coerencia | null
-): { elegivel: boolean; motivo: string | null } {
+): Elegibilidade {
   // ⚠ PRECEDÊNCIA: a disponibilidade vem primeiro, e o seu motivo é conservado.
   if (!qualidadeDisponivel(avaliacao)) {
-    return { elegivel: false, motivo: motivoDaSuspensao(avaliacao) };
+    return { elegivel: false, causa: 'disponibilidade', motivo: motivoDaSuspensao(avaliacao), rotulo: ROTULO_NOTA_SUSPENSA };
   }
   if (!coerencia) {
     return {
       elegivel: false,
+      causa: 'coerencia',
       motivo: `${MOTIVO_COERENCIA_NAO_DETERMINADA} A coerencia interna nao foi avaliada nesta requisicao.`,
+      rotulo: ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO,
     };
   }
   if (coerencia.conclusao !== 'coerente') {
-    return { elegivel: false, motivo: coerencia.motivo };
+    return { elegivel: false, causa: 'coerencia', motivo: coerencia.motivo, rotulo: ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO };
   }
-  return { elegivel: true, motivo: null };
+  return { elegivel: true, causa: null, motivo: null, rotulo: null };
 }

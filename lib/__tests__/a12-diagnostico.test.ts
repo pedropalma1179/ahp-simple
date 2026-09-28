@@ -105,6 +105,26 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     arraysEsvaziados: ['quatroCasos[3].executadoAntesDaInterrupcao.marcadoresDePercentualEncontrados'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 5,
+    motivo: 'A.12 etapa 1, C1 a C5: correcoes de contrato, com texto e rotulo proprios do caso contraditorio',
+    commitDaBase: '1d0173659709ce956b42ec36841af63eddad366f',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ Caminhos MEDIDOS por comparacao campo a campo, e nao antecipados.
+    camposRegravados: [
+      'identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]',
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'quatroCasos[3].executadoAntesDaInterrupcao.ramoDoResumoDeQualidade',
+      'quatroCasos[3].executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto[1..4]',
+      'quatroCasos[3].executadoAntesDaInterrupcao.bytesDoContexto',
+    ],
+    // ⚠ Os blocos de C-ausente e C-incompleta NAO aparecem entre os alterados: os textos
+    //   daqueles dois casos ficaram palavra por palavra, e isso e MEDIDO, nao suposto.
+    preservadosPalavraPorPalavra: ['quatroCasos[1]', 'quatroCasos[2]'],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
@@ -306,6 +326,12 @@ function base() {
  * valor errado tinha a forma esperada e nenhum teste reprovava.
  */
 const MARCA_SUSPENSAO = '⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL';
+/**
+ * ⚠ **A.12 etapa 1, C5: o QUINTO ramo, da suspensão por CONTRADIÇÃO.** A avaliação
+ * existe nesse caso, e o texto de produção não pode dizer que não está disponível.
+ */
+const MARCA_SUSPENSAO_CONTRADICAO =
+  '⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA';
 const MARCA_NOTA_SAATY_P1 = '**Nota:** Conforme Saaty (1977), CR individual > 0.10';
 const CABECALHO_P12 = '**Distribuição de Qualidade dos Respondentes (CR Individual):**';
 const CABECALHO_P3 = '**Distribuição de Qualidade dos Respondentes:**';
@@ -327,6 +353,7 @@ const MARCADOR_INEXISTENTE = '- Respostas confiáveis:';
 
 /** Qual dos quatro ramos de `respondentSummary` escreveu no contexto capturado. */
 function ramoDoResumo(texto: string): string {
+  if (texto.includes(MARCA_SUSPENSAO_CONTRADICAO)) return 'suspensao por contradicao: avaliacao disponivel, nenhum percentual apresentado';
   if (texto.includes(MARCA_SUSPENSAO)) return 'suspensao: nenhum percentual apresentado';
   if (texto.includes(CABECALHO_P12)) {
     return texto.includes(MARCA_NOTA_SAATY_P1)
@@ -541,7 +568,9 @@ beforeAll(async () => {
         interrompidoAntesDeConteudo: r.interrompidoAntesDeConteudo,
         chamadasAVoyage: r.chamouVoyage,
         chamadasAoIndice: r.chamouIndice,
-        contextoTrazAvisoDeSuspensao: r.capturado.messages.includes(MARCA_SUSPENSAO),
+        contextoTrazAvisoDeSuspensao:
+          r.capturado.messages.includes(MARCA_SUSPENSAO) ||
+          r.capturado.messages.includes(MARCA_SUSPENSAO_CONTRADICAO),
         contextoTrazPercentualDeQualidade: MARCADORES_DE_PERCENTUAL.some((m) => r.capturado.messages.includes(m)),
         marcadoresDePercentualEncontrados: MARCADORES_DE_PERCENTUAL.filter((m) => r.capturado.messages.includes(m)),
         ramoDoResumoDeQualidade: ramoDoResumo(r.capturado.messages),
@@ -843,11 +872,19 @@ test('3.3: o quarto caso continua disponivel e passa a SUSPENDER por contradicao
   expect(e4.contextoTrazAvisoDeSuspensao).toBe(true);
   expect(e4.contextoTrazPercentualDeQualidade).toBe(false);
   expect(e4.marcadoresDePercentualEncontrados).toEqual([]);
-  expect(e4.ramoDoResumoDeQualidade).toMatch(/^suspensao:/);
+  expect(e4.ramoDoResumoDeQualidade).toMatch(/^suspensao por contradicao:/);
   // ⚠ O motivo NOMEIA as verificações que falharam, e conserva os dois valores de cada
   //   par com a fonte de cada um. Nada aqui é motivo genérico.
   const bloco4 = e4.blocoDeQualidadeNoContexto.join('\n');
   expect(bloco4).toContain('Contradição interna não resolvida');
+  // ⚠ C5: as TRÊS afirmações falsas NÃO aparecem neste caso.
+  expect(bloco4).not.toContain('AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
+  expect(bloco4).not.toContain('os CRs individuais dos respondentes NÃO foram avaliados');
+  expect(bloco4).not.toContain('Nota não calculada: qualidade individual não avaliada');
+  // ⚠ E o que fica dito é o que FOI medido.
+  expect(bloco4).toContain('AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA');
+  expect(bloco4).toContain('Os CRs individuais dos respondentes FORAM avaliados');
+  expect(bloco4).toContain('contradição interna não resolvida na avaliação de qualidade');
   for (const v of ['V1:', 'V2:', 'V4:', 'V5:']) expect(bloco4).toContain(v);
   expect(bloco4).toContain('qualityAnalysis.respondents.length = 4 contra qualityAnalysis.statistics.total = 9');
   expect(bloco4).toContain('summary.ok = 4 contra overallStats.valid = 0');
@@ -886,10 +923,24 @@ test('3.3: no caso disponivel E COERENTE o contexto TRAZ percentual', () => {
   }
   // E nos que suspendem o ramo é o da suspensão, sem nenhum marcador: os dois sem
   // disponibilidade, e o contraditório, que é disponível e inelegível.
-  for (const n of ['C-ausente', 'C-incompleta', 'C-contradicao']) {
+  for (const n of ['C-ausente', 'C-incompleta']) {
     const e = por(n).executadoAntesDaInterrupcao;
     expect(e.ramoDoResumoDeQualidade).toMatch(/^suspensao:/);
     expect(e.marcadoresDePercentualEncontrados).toEqual([]);
+  }
+  // ⚠ C5: o contraditório suspende pelo ramo PRÓPRIO, e não pelo da indisponibilidade.
+  const e4 = por('C-contradicao').executadoAntesDaInterrupcao;
+  expect(e4.ramoDoResumoDeQualidade).toMatch(/^suspensao por contradicao:/);
+  expect(e4.marcadoresDePercentualEncontrados).toEqual([]);
+  // ⚠ E os textos de `ausente` e `incompleta` ficam PALAVRA POR PALAVRA.
+  for (const n of ['C-ausente', 'C-incompleta']) {
+    const bloco = por(n).executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto.join('\n');
+    expect(bloco).toContain('⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
+    expect(bloco).toContain('O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.');
+    expect(bloco).toContain('SUSPENSA: Nota não calculada: qualidade individual não avaliada.');
+    expect(bloco).toContain('⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.');
+    expect(bloco).toContain('Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.');
+    expect(bloco).not.toContain('CONTRADIÇÃO INTERNA');
   }
 });
 
@@ -899,7 +950,7 @@ test('3.3: no caso disponivel E COERENTE o contexto TRAZ percentual', () => {
  */
 test('os marcadores do contexto coincidem com o texto de producao', () => {
   const fonte = fs.readFileSync(path.join(RAIZ, ROTA), 'utf8');
-  const todos = [MARCA_SUSPENSAO, MARCA_NOTA_SAATY_P1, CABECALHO_P12, CABECALHO_P3, CABECALHO_SUSPENSAO, ...MARCADORES_DE_PERCENTUAL];
+  const todos = [MARCA_SUSPENSAO, MARCA_SUSPENSAO_CONTRADICAO, MARCA_NOTA_SAATY_P1, CABECALHO_P12, CABECALHO_P3, CABECALHO_SUSPENSAO, ...MARCADORES_DE_PERCENTUAL];
   for (const m of todos) expect({ marcador: m, presente: fonte.includes(m) }).toEqual({ marcador: m, presente: true });
   // ⚠ Contra-exemplo: a string que o regex defeituoso procurava NÃO existe ali.
   expect(fonte.includes(MARCADOR_INEXISTENTE)).toBe(false);

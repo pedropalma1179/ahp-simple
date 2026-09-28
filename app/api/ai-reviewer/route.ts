@@ -16,6 +16,7 @@ import {
   elegivelParaClassificacao,
   motivoDaSuspensao,
   ROTULO_NOTA_SUSPENSA,
+  ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO,
   type AvaliacaoQualidade,
 } from '@/lib/ai-reviewer/avaliacao-qualidade';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
@@ -778,7 +779,23 @@ async function generateReview(
 - Respostas críticas: ${stats.critical} (${((stats.critical / stats.total) * 100).toFixed(1)}%)
 `;
   }
+  // A.12 etapa 1, C5: a avaliação EXISTE e a classificação está suspensa por CONTRADIÇÃO
+  // INTERNA. ⚠ **Dizer aqui que a avaliação não está disponível, ou que os CRs não foram
+  // avaliados, seria afirmar ao modelo algo que NÃO foi medido** — a classe de defeito que
+  // A.12 existe para corrigir. Este ramo é PRÓPRIO, e não reaproveita o texto abaixo.
+  else if (elegivel.causa === 'coerencia') {
+    respondentSummary = `
+**Qualidade dos Dados:**
+⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — ${elegivel.motivo}
+Os CRs individuais dos respondentes FORAM avaliados; o que não se resolveu foi a contradição entre os valores declarados na própria requisição.
+Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO}.
+⚠️ A contradição NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum dos valores em conflito como o correto.
+Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
+`;
+  }
   // A.12: sem avaliação, nenhum percentual de qualidade é apresentado.
+  // ⚠ Texto PRESERVADO palavra por palavra: para `ausente` e `incompleta` as três
+  //   afirmações abaixo são VERDADEIRAS.
   else {
     respondentSummary = `
 **Qualidade dos Dados:**
@@ -1436,8 +1453,17 @@ export async function POST(request: NextRequest) {
       nota: finalNota,
       veredicto: finalVeredicto,
       // A.12: a ausência de avaliação suspende a classificação, e diz por quê.
+      // ⚠ C5: o rótulo é o da CAUSA. Com a avaliação disponível e contraditória, dizer
+      //   "qualidade individual não avaliada" seria falso.
       notaSuspensa: classification.suspensa
-        ? { suspensa: true, rotulo: ROTULO_NOTA_SUSPENSA, motivo: classification.motivo, avaliacaoDeQualidade: data.avaliacaoDeQualidade }
+        ? {
+            suspensa: true,
+            rotulo:
+              elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade).rotulo ||
+              ROTULO_NOTA_SUSPENSA,
+            motivo: classification.motivo,
+            avaliacaoDeQualidade: data.avaliacaoDeQualidade,
+          }
         : null,
       review,
       // `success` informa que a geração terminou. A autorização para apresentar
