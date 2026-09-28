@@ -11239,6 +11239,93 @@ gerado, e as respostas fixas do cliente simulado não a verificam.
 
 ---
 
+## A.12 etapa 1, complemento datado da predição: o caso contraditório ganha texto próprio, em 28/09/2026
+
+⚠ **COMPLEMENTA a predição publicada em `634f078`, e não a reescreve.** Aquela previa que o
+contexto passaria a trazer **o aviso de suspensão**; **não previa que o texto do aviso
+teria de mudar**. Este complemento registra essa mudança **antes** de alterar o código,
+sobre a base `9b843b220250416e9f147440337ea9a88802ae57`.
+
+### O achado, e ele é um defeito da implementação publicada
+
+No caso **disponível e contraditório**, o ramo de suspensão de
+`app/api/ai-reviewer/route.ts:782-790` continua afirmando três coisas **falsas**:
+
+| Afirmação | Onde | Por que é falsa nesse caso |
+|---|---|---|
+| `⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL` | `:785` | a avaliação **existe**: são quatro respondentes com CR individual |
+| `os CRs individuais dos respondentes NÃO foram avaliados` | `:786` | foram: é deles que a contradição é derivada |
+| `Nota não calculada: qualidade individual não avaliada`, em `ROTULO_NOTA_SUSPENSA` | `avaliacao-qualidade.ts:163` | a qualidade **foi** avaliada; o que há é contradição entre agregados |
+
+⚠ **A alteração de `:785` trocou apenas o motivo interpolado.** O relato ao autor disse que
+aquele ponto passara a "descrever o motivo da elegibilidade, para não anunciar
+indisponibilidade onde a avaliação existe": **a segunda metade da frase não corresponde ao
+diff**, e fica retificada aqui.
+
+⚠ **Esta é exatamente a classe de defeito que A.12 existe para corrigir:** o sistema
+afirmando ao modelo e ao gestor algo que não foi medido. A implementação publicada trocou
+um enunciado não medido por outro.
+
+### A PREDIÇÃO COMPLEMENTAR
+
+Depois da correção, para a requisição disponível e contraditória:
+
+- o contexto entregue ao modelo traz **texto próprio do caso contraditório**, que **afirma
+  que a avaliação existe** e que a classificação está suspensa **por contradição interna**,
+  **nomeando a verificação que falhou**;
+- **nenhuma** das três afirmações acima aparece nesse caso;
+- o rótulo apresentado ao gestor é **próprio**, e não `ROTULO_NOTA_SUSPENSA`;
+- **a nota e o veredicto seguem nulos**, e o estado segue `disponivel`.
+
+⚠ **Isto muda o que o modelo recebe**, e por isso é registrado antes.
+
+### O CASO NEGATIVO, NOMEADO
+
+1. O texto novo **vaza** para `ausente` ou `incompleta`, que passariam a receber redação que
+   não descreve o seu caso.
+2. O caso contraditório **conserva** qualquer uma das três afirmações falsas.
+3. O rótulo próprio aparece onde a avaliação de fato **não** existe.
+
+### O CONTROLE DO QUE SE PRESERVA, palavra por palavra
+
+Os textos de `ausente` e `incompleta` ficam **idênticos**, e são estes, na ordem em que o
+contexto os traz:
+
+```
+**Qualidade dos Dados:**
+⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — <motivo>
+O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.
+Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada.
+⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.
+Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
+```
+
+⚠ **Para esses dois casos as três afirmações são VERDADEIRAS**, e é por isso que ficam.
+
+### As outras quatro correções, que NÃO alteram o que o modelo recebe
+
+⚠ **Predição só cabe onde a correção altera o que o modelo recebe.** C1 a C4 corrigem a
+lógica das comparações e o registro estruturado, e **se verificam contra a fonte**, com
+contraexemplo por correção, e não contra a saída do modelo:
+
+| # | O que estava errado |
+|---|---|
+| C1 | V1 usava a própria divergência como prova de que as populações diferem, e excluía o par: raciocínio circular que impedia V1 de detectar qualquer coisa |
+| C2 | V4 transformava **campo ausente** em `incompativel`, contrariando o contrato literal, que manda `nao_determinada` |
+| C3 | o conjunto mínimo virou **teto**: uma comparação aplicável `nao_determinada` fora dele não suspendia |
+| C4 | `comparar` não preenchia `lados`, e os valores existiam só no motivo textual; e o teste da ausência passava por **vacuidade**, porque um array vazio satisfaz "nenhum valor zero" |
+
+⚠ **C4 é o mesmo modo de falha que esta sessão já registrou duas vezes:** asserção que
+passa porque o campo não existe. **Texto não é registro estruturado.**
+
+### O limite, que não muda
+
+⚠ Esta etapa segue verificando **coerência interna**. **Cobertura do universo real e vínculo
+com a execução continuam não demonstrados.** E **a predição sobre a redação do modelo
+permanece NÃO TESTADA**: nenhum parecer foi gerado.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
