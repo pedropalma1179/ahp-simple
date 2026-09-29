@@ -662,6 +662,9 @@ export function descreverVinculoParaContexto(raw: unknown): string {
   const div = comoRegistro(v.divergencia);
   const rc = comoRegistro(v.resumoDoConteudo);
   const linhas: string[] = [MARCADOR_DO_BLOCO_DO_VINCULO];
+  // ⚠ A relação entre enviados e incluídos vem da COMPARAÇÃO DAS DUAS LISTAS, com multiplicidade,
+  //   e nunca do estado nem do booleano transportado.
+  const leitura = lerVinculoParaTexto(raw);
 
   linhas.push(`- Estado do vínculo: **${v.estado}** — ${seguro(v.motivo ?? 'sem motivo informado', 700)}`);
   linhas.push(
@@ -670,6 +673,7 @@ export function descreverVinculoParaContexto(raw: unknown): string {
     }`
   );
   linhas.push(`- Origem da lista de respondentes avaliados: ${seguro(v.origemDaListaAvaliada ?? 'não informada')}`);
+  linhas.push(...CHAVE_DE_LEITURA_DAS_CONTAGENS(leitura));
   linhas.push(
     '- Contagens: incluídos no documento de cálculo: ' +
       (cob?.incluidosNoDocumento === null || cob?.incluidosNoDocumento === undefined
@@ -716,6 +720,7 @@ export function descreverVinculoParaContexto(raw: unknown): string {
       ? `- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados.`
       : '- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado.'
   );
+  linhas.push(LINHA_DA_RELACAO(leitura));
 
   // ---- os resumos, transportados
   const painel = comoRegistro(rc?.painel);
@@ -730,7 +735,8 @@ export function descreverVinculoParaContexto(raw: unknown): string {
       `- Resumo do painel (algoritmo ${seguro(painel.algorithm ?? 'não informado')}, ` +
         `serialização ${seguro(painel.serialization ?? 'não informada')}): ${conteudo}`
     );
-    const iguais = cob?.enviadosIguaisAoDocumento;
+    // ⚠ Da COMPARAÇÃO DAS LISTAS (`null` quando ela não se realizou), e não do booleano transportado.
+    const iguais = leitura.relacao ? leitura.relacao.iguais : null;
     linhas.push(
       '  - Cobre o conjunto do DOCUMENTO de cálculo; identifica, e não verifica.' +
         (iguais === false
@@ -767,6 +773,299 @@ export function descreverVinculoParaContexto(raw: unknown): string {
     );
   }
 
+  if (leitura.modo === 'comparado') linhas.push(LINHA_DO_PORTAO_DE_COMPLETUDE);
   linhas.push(LIMITE_DO_VINCULO);
   return linhas.join('\n');
+}
+
+// ======================================================================================
+// A.12 etapa 3, estágio 1, correções antes do aceite: AS FRASES AO REDOR DO BLOCO
+// ======================================================================================
+
+/**
+ * ⚠ **O que estas funções corrigem.** O contexto entregue ao modelo afirmava, em frases ao
+ * redor do bloco, uma população que o próprio vínculo contradiz: a lista ENVIADA como
+ * "COMPLETA — não existem outros", como a participação plena de todos, e como o N de TODAS as
+ * matrizes agregadas; a contagem de restantes da exclusão do gestor como a dos "dados de
+ * qualidade abaixo"; e a regra de menção proibindo citar quem o bloco nomeia.
+ *
+ * ⚠ **Escopo, declarado:** a redação nova vale para requisição que TRAZ o campo (modo
+ * `comparado` ou `sem-comparacao`). Requisição SEM o campo (`ausente`) mantém a redação
+ * anterior, byte a byte, e a rota é quem a conserva.
+ *
+ * ⚠ **A relação entre enviados e incluídos é a COMPARAÇÃO DAS DUAS LISTAS**, com
+ * multiplicidade, e nunca o estado: com o MESMO estado `divergente`, os enviados podem
+ * coincidir com os incluídos (a sobra estava na avaliação, e a restrição a retirou) ou diferir
+ * deles (a sobra estava no documento).
+ */
+
+export type ModoDoTexto = 'ausente' | 'sem-comparacao' | 'comparado';
+
+export interface RelacaoEnviadosIncluidos {
+  /** Multiplicidade preservada: os mesmos identificadores, o mesmo número de vezes cada um. */
+  iguais: boolean;
+  enviados: number;
+  incluidos: number;
+  /** Incluídos no documento e ausentes dos enviados (uma entrada por unidade de falta). */
+  incluidosForaDosEnviados: string[];
+  /** Enviados ausentes do documento (uma entrada por unidade de excesso). */
+  enviadosForaDoDocumento: string[];
+  /** Identificadores que se repetem nos enviados. */
+  repetidosNosEnviados: { identificador: string; ocorrencias: number }[];
+}
+
+export interface LeituraDoVinculo {
+  /**
+   * `ausente`: o campo não veio. `sem-comparacao`: veio, mas não há conjunto de incluídos
+   * utilizável (`indisponivel`, `invalido`, formato não reconhecido ou listas malformadas).
+   * `comparado`: `vinculado` ou `divergente` com as duas listas bem formadas.
+   */
+  modo: ModoDoTexto;
+  /** `null`: o campo não veio, ou o formato não é reconhecido. */
+  estado: EstadoDoVinculo | null;
+  reconhecido: boolean;
+  /** Só em `comparado`; copiados como vieram, porque são a FONTE da comparação. */
+  incluidos: string[] | null;
+  enviados: string[] | null;
+  relacao: RelacaoEnviadosIncluidos | null;
+  /**
+   * `cobertura.incluidosNoDocumento` e `cobertura.enviados` COMO O BLOCO OS IMPRIME: número
+   * finito, ou `null`. ⚠ São contagens DECLARADAS, transportadas; a fonte da comparação são as
+   * listas. Quando diferem da lista, o contexto conserva os dois valores.
+   */
+  incluidosDeclarados: number | null;
+  enviadosDeclarados: number | null;
+}
+
+const listaDeTexto = (x: unknown): string[] | null =>
+  Array.isArray(x) && x.every((i) => typeof i === 'string' && i !== '') ? (x as string[]) : null;
+
+/**
+ * A comparação das duas listas, com multiplicidade. ⚠ Converter em conjuntos apagaria
+ * duplicidade em silêncio: `[a, a, b]` contra `[a, b]` NÃO é coincidência.
+ */
+export function compararEnviadosComIncluidos(enviados: string[], incluidos: string[]): RelacaoEnviadosIncluidos {
+  const contar = (xs: string[]) => {
+    const m = new Map<string, number>();
+    for (const x of xs) m.set(x, (m.get(x) ?? 0) + 1);
+    return m;
+  };
+  const noEnviado = contar(enviados);
+  const noDocumento = contar(incluidos);
+  const incluidosForaDosEnviados: string[] = [];
+  const enviadosForaDoDocumento: string[] = [];
+  for (const [id, n] of noDocumento) {
+    for (let k = noEnviado.get(id) ?? 0; k < n; k++) incluidosForaDosEnviados.push(id);
+  }
+  for (const [id, n] of noEnviado) {
+    for (let k = noDocumento.get(id) ?? 0; k < n; k++) enviadosForaDoDocumento.push(id);
+  }
+  return {
+    iguais: incluidosForaDosEnviados.length === 0 && enviadosForaDoDocumento.length === 0,
+    enviados: enviados.length,
+    incluidos: incluidos.length,
+    incluidosForaDosEnviados,
+    enviadosForaDoDocumento,
+    repetidosNosEnviados: [...noEnviado]
+      .filter(([, n]) => n > 1)
+      .map(([identificador, ocorrencias]) => ({ identificador, ocorrencias })),
+  };
+}
+
+/**
+ * Lê o que veio em `vinculoDaExecucao` para o TEXTO ao redor do bloco. Nunca lança, e nunca
+ * afirma o que as listas não sustentam: sem as duas listas bem formadas não há comparação.
+ */
+export function lerVinculoParaTexto(raw: unknown): LeituraDoVinculo {
+  const vazio = { incluidos: null, enviados: null, relacao: null, incluidosDeclarados: null, enviadosDeclarados: null };
+  if (raw === undefined || raw === null) {
+    return { modo: 'ausente', estado: null, reconhecido: false, ...vazio };
+  }
+  const v = comoRegistro(raw);
+  if (!v || typeof v.estado !== 'string' || !ESTADOS_RECONHECIDOS.includes(v.estado)) {
+    return { modo: 'sem-comparacao', estado: null, reconhecido: false, ...vazio };
+  }
+  const estado = v.estado as EstadoDoVinculo;
+  // ⚠ Os mesmos critérios com que o bloco imprime `Contagens`: número finito, ou nada.
+  const cob = comoRegistro(v.cobertura);
+  const declarado = (x: unknown): number | null => (typeof x === 'number' && Number.isFinite(x) ? x : null);
+  const declarados = {
+    incluidosDeclarados: declarado(cob?.incluidosNoDocumento),
+    enviadosDeclarados: declarado(cob?.enviados),
+  };
+  if (estado === 'vinculado' || estado === 'divergente') {
+    const incluidos = listaDeTexto(v.incluidosNoDocumento);
+    const enviados = listaDeTexto(v.enviados);
+    if (incluidos !== null && incluidos.length > 0 && enviados !== null) {
+      return {
+        modo: 'comparado',
+        estado,
+        reconhecido: true,
+        incluidos,
+        enviados,
+        relacao: compararEnviadosComIncluidos(enviados, incluidos),
+        ...declarados,
+      };
+    }
+  }
+  return { modo: 'sem-comparacao', estado, reconhecido: true, incluidos: null, enviados: null, relacao: null, ...declarados };
+}
+
+// ---- as linhas novas DO BLOCO
+
+/** ⚠ Define as populações e as etapas, e diz a que população se referem as distribuições. */
+export const CHAVE_DE_LEITURA_DAS_CONTAGENS = (l: LeituraDoVinculo): string[] => [
+  '- Chave de leitura das contagens deste contexto (cálculo, avaliação e envio NÃO são sinônimos):',
+  '  - amostra coletada: as respostas carregadas pela tela (etapa: coleta);',
+  '  - restantes após a exclusão do gestor (etapa: exclusão do gestor, anterior a qualquer restrição do vínculo);',
+  l.modo === 'comparado'
+    ? '  - incluídos no documento de cálculo (etapa: cálculo): a contagem registrada no documento;'
+    : l.incluidosDeclarados !== null
+      ? '  - incluídos no documento de cálculo (etapa: cálculo): contagem declarada no vínculo, SEM lista de incluídos utilizável para compará-la;'
+      : '  - incluídos no documento de cálculo (etapa: cálculo): contagem NÃO disponível nesta requisição;',
+  '  - avaliados antes de qualquer restrição (etapa: avaliação de qualidade);',
+  '  - enviados a você (etapa: envio): a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles;',
+  '  - os totais por dimensão BOCR de "Estatísticas por Dimensão" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma ' +
+    '(quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo).',
+];
+
+const PREFIXO_DA_RELACAO =
+  '- Relação entre os ENVIADOS e os INCLUÍDOS no documento de cálculo (comparação dos dois conjuntos, com multiplicidade; não deduzida do estado): ';
+
+export const LINHA_DA_RELACAO = (l: LeituraDoVinculo): string => {
+  const r = l.relacao;
+  if (l.modo !== 'comparado' || r === null) {
+    return (
+      `${PREFIXO_DA_RELACAO}comparação NÃO realizada (` +
+      (l.incluidosDeclarados !== null
+        ? 'não há lista de incluídos utilizável nesta requisição'
+        : 'a contagem de incluídos no documento de cálculo não está disponível nesta requisição') +
+      ').'
+    );
+  }
+  // ⚠ O acréscimo sobre a divergência anterior à restrição depende de o vínculo tê-la REGISTRADO
+  //   (estado `divergente`); a coincidência em si vem só da comparação das listas.
+  return r.iguais
+    ? `${PREFIXO_DA_RELACAO}COINCIDEM, um a um (${r.enviados} enviados, ${r.incluidos} incluídos).` +
+        (l.estado === 'divergente' ? ' A divergência anterior à restrição, acima, permanece registrada.' : '')
+    : `${PREFIXO_DA_RELACAO}DIFEREM (${r.enviados} enviados, ${r.incluidos} incluídos): ${r.incluidosForaDosEnviados.length} incluído(s) no documento e ausente(s) dos enviados; ${r.enviadosForaDoDocumento.length} enviado(s) ausente(s) do documento; ${r.repetidosNosEnviados.length} identificador(es) repetido(s) nos enviados.`;
+};
+
+/**
+ * ⚠ O portão é PROPRIEDADE DO PERCURSO DE CÁLCULO EXAMINADO, e não conferência desta
+ * execução: o vínculo de identificadores não verificou os julgamentos.
+ */
+export const LINHA_DO_PORTAO_DE_COMPLETUDE =
+  '- Portão de completude de A.21, propriedade do PERCURSO DE CÁLCULO EXAMINADO (o código da rota de cálculo), e não conferência desta execução: ' +
+  'esse código rejeita a resposta que tem algum par de alguma matriz sem julgamento válido, e agrega cada célula só com julgamento existente, não pulado e com valor. ' +
+  'Este vínculo de identificadores NÃO verificou os julgamentos daquela execução.';
+
+// ---- as frases DE FORA DO BLOCO, que a rota troca quando o campo veio
+
+export interface LinhasDeExclusao {
+  amostra: string;
+  restantes: string;
+  excluidos: string;
+  qualidade: string;
+}
+
+/**
+ * ⚠ As quatro linhas do bloco de exclusão que mudam. Cada contagem nomeia a população e a
+ * etapa, e a última usa a população ENVIADA: a lista de respondentes, e não `activeCount`.
+ */
+export function linhasDeExclusaoComVinculo(
+  info: { totalCollected: number; activeCount: number; excludedCount: number },
+  taxaDeExclusao: string,
+  nEnviados: number
+): LinhasDeExclusao {
+  return {
+    amostra:
+      `- Amostra original coletada (população: respostas carregadas pela tela, finalizadas, de respondentes cadastrados e uma por respondente; etapa: coleta): ` +
+      `${info.totalCollected} especialistas`,
+    restantes:
+      `- Restantes após a exclusão do gestor (população: respondentes não excluídos; etapa: exclusão do gestor, anterior a qualquer restrição do vínculo): ` +
+      `${info.activeCount} especialistas`,
+    excluidos:
+      `- Respondentes excluídos pelo gestor (população: excluídos; etapa: exclusão do gestor): ` +
+      `${info.excludedCount} (${taxaDeExclusao}% da amostra original)`,
+    // ⚠ Lista enviada VAZIA (a restrição a esvaziou): não há "lista abaixo" a que a contagem se refira.
+    qualidade:
+      nEnviados > 0
+        ? `- Os dados de qualidade abaixo referem-se APENAS aos ${nEnviados} respondentes ENVIADOS a você ` +
+          `(população: enviados; etapa: envio; contagem da lista de respondentes abaixo).`
+        : '- Nenhum respondente foi ENVIADO a você (população: enviados; etapa: envio; contagem: 0): a lista de respondentes abaixo não existe.',
+  };
+}
+
+export interface FrasesDaLista {
+  cabecalho: string;
+  total: string;
+  /** Duas linhas, unidas por quebra de linha, como a redação anterior. */
+  agregacao: string;
+  /** Termina em quebra de linha, para preceder a primeira contagem por status. */
+  cabecalhoDasContagens: string;
+  regraDeMencao: string;
+}
+
+/**
+ * ⚠ A exaustividade só é afirmada DA LISTA ENVIADA. A relação com o conjunto do cálculo vem da
+ * comparação das listas (`l.relacao`), e sem ela nada se afirma sobre o cálculo.
+ */
+export function frasesDaListaComVinculo(l: LeituraDoVinculo, n: number): FrasesDaLista {
+  const r = l.relacao;
+  const abertura = `**TOTAL ENVIADO A VOCÊ: ${n} respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado`;
+  const naoComparada = `${abertura}; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**`;
+
+  let total: string;
+  let agregacao: string;
+  if (l.modo === 'comparado' && r !== null) {
+    total = r.iguais
+      ? `${abertura} e COINCIDE, um a um, com os ${r.incluidos} incluídos no documento de cálculo.**`
+      : `${abertura}, mas DIFERE dos ${r.incluidos} incluídos no documento de cálculo: ${r.incluidosForaDosEnviados.length} incluído(s) no documento e ausente(s) desta lista, ${r.enviadosForaDoDocumento.length} enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**`;
+    agregacao =
+      `**CÁLCULO — contagem registrada no documento de cálculo: ${r.incluidos} respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ` +
+      `⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.\n` +
+      `⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. ` +
+      `O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução.`;
+    // ⚠ A contagem declarada em `Contagens` pode diferir da LISTA de incluídos: os dois valores se conservam.
+    if (l.incluidosDeclarados !== null && l.incluidosDeclarados !== r.incluidos) {
+      agregacao += `\n⚠ O bloco declara ${l.incluidosDeclarados} incluídos em "Contagens", e a lista de incluídos do vínculo traz ${r.incluidos}: os dois valores se conservam.`;
+    }
+  } else if (l.incluidosDeclarados !== null) {
+    // Há contagem DECLARADA (o bloco a imprime), mas nenhuma lista utilizável para compará-la.
+    total = naoComparada;
+    agregacao =
+      `**CÁLCULO — o vínculo declara ${l.incluidosDeclarados} incluídos no documento de cálculo (contagem transportada; etapa: cálculo), mas SEM lista de incluídos utilizável para compará-la com os enviados.** ` +
+      `⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas: não a apresente como o N de matriz alguma.\n` +
+      `⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.`;
+  } else {
+    total = naoComparada;
+    agregacao =
+      `**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** ` +
+      `Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.\n` +
+      `⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.`;
+  }
+
+  // ⚠ O que o vínculo declara como ENVIADOS (a lista de identificadores e a contagem de `Contagens`)
+  //   pode diferir do que esta lista traz: cada valor se conserva, e nenhum é escolhido em silêncio.
+  const declaradosDeEnviados = [
+    ...new Set(
+      [l.enviados !== null ? l.enviados.length : null, l.enviadosDeclarados].filter((x): x is number => x !== null && x !== n)
+    ),
+  ];
+  if (declaradosDeEnviados.length > 0) {
+    total +=
+      `\n⚠ O vínculo declara ${declaradosDeEnviados.join(' e ')} enviados, e esta lista traz ${n}: ` +
+      `${declaradosDeEnviados.length === 1 ? 'os dois valores se conservam' : 'os valores se conservam'}.`;
+  }
+
+  return {
+    cabecalho: '## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)',
+    total,
+    agregacao,
+    cabecalhoDasContagens: 'Contagens por status, sobre os ENVIADOS a você (etapa: envio):\n',
+    regraDeMencao:
+      '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. ' +
+      'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.',
+  };
 }

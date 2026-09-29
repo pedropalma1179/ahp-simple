@@ -19,7 +19,13 @@ import {
   ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO,
   type AvaliacaoQualidade,
 } from '@/lib/ai-reviewer/avaliacao-qualidade';
-import { descreverVinculoParaContexto } from '@/lib/ai-reviewer/vinculo-execucao';
+import {
+  descreverVinculoParaContexto,
+  frasesDaListaComVinculo,
+  lerVinculoParaTexto,
+  linhasDeExclusaoComVinculo,
+  type FrasesDaLista,
+} from '@/lib/ai-reviewer/vinculo-execucao';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
 import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-contract';
 import { getRAGSemanticDiagnosticado } from '@/lib/rag/semantic-retrieve';
@@ -865,18 +871,35 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
     ? `**Taxa de Validade Geral:** ${overallValidPercent.toFixed(1)}% das respostas com CR ≤ 0.10`
     : '**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.';
 
+  // A.12 etapa 3, estágio 1, correções antes do aceite: as frases AO REDOR do bloco do vínculo.
+  // ⚠ Requisição SEM o campo mantém a redação anterior, byte a byte (`comVinculo` falso). COM o
+  //   campo, cada contagem nomeia a população e a etapa, a exaustividade é só da lista enviada, a
+  //   relação com o cálculo vem da COMPARAÇÃO das listas (e nunca do estado), e a regra de
+  //   menção distingue o participante da divergência registrada.
+  const leituraDoVinculo = lerVinculoParaTexto(data.vinculoDaExecucao);
+  const comVinculo = leituraDoVinculo.modo !== 'ausente';
+  const nEnviados = Array.isArray(data.qualityAnalysis?.respondents) ? data.qualityAnalysis.respondents.length : 0;
+
   // Contexto de exclusão de respondentes
   let exclusionContext = '';
   if (data.exclusionInfo && data.exclusionInfo.excludedCount > 0) {
     const exclusionRate = ((data.exclusionInfo.excludedCount / data.exclusionInfo.totalCollected) * 100).toFixed(1);
+    const linhasDaExclusao = comVinculo
+      ? linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados)
+      : {
+          amostra: `- Amostra original coletada: ${data.exclusionInfo.totalCollected} especialistas`,
+          restantes: `- Respondentes incluídos na análise: ${data.exclusionInfo.activeCount} especialistas`,
+          excluidos: `- Respondentes excluídos: ${data.exclusionInfo.excludedCount} (${exclusionRate}% da amostra original)`,
+          qualidade: `- Os dados de qualidade abaixo referem-se APENAS aos ${data.exclusionInfo.activeCount} respondentes incluídos.`,
+        };
     exclusionContext = `
 **⚠️ FILTRAGEM DE RESPONDENTES APLICADA:**
-- Amostra original coletada: ${data.exclusionInfo.totalCollected} especialistas
-- Respondentes incluídos na análise: ${data.exclusionInfo.activeCount} especialistas
-- Respondentes excluídos: ${data.exclusionInfo.excludedCount} (${exclusionRate}% da amostra original)
+${linhasDaExclusao.amostra}
+${linhasDaExclusao.restantes}
+${linhasDaExclusao.excluidos}
 - Critério de exclusão: CR > 0.10 (Saaty, 1977)
 - Justificativa: A revisão individual dos julgamentos (Saaty, 2003) não foi viável após encerramento da coleta. Na AIJ por média geométrica, julgamentos individuais inconsistentes afetam a agregação do grupo (Forman & Peniwati, 1998). A exclusão foi aplicada ANTES da agregação.
-- Os dados de qualidade abaixo referem-se APENAS aos ${data.exclusionInfo.activeCount} respondentes incluídos.
+${linhasDaExclusao.qualidade}
 
 **INSTRUÇÃO PARA O REVISOR:** Você DEVE mencionar esta filtragem no RESUMO DA SUBMISSÃO e na seção de CONSISTÊNCIA, usando a cadeia de justificação: limiar (Saaty, 1977) + impossibilidade de revisão (Saaty, 2003) + impacto na agregação (Forman & Peniwati, 1998).
 `;
@@ -934,23 +957,34 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
       desconhecido: respondents.filter((r: any) => r.status === 'DESCONHECIDO' || !r.status).length,
     };
 
+    const frases: FrasesDaLista = comVinculo
+      ? frasesDaListaComVinculo(leituraDoVinculo, respondents.length)
+      : {
+          cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',
+          total: `**TOTAL: ${respondents.length} respondentes (esta lista é COMPLETA — não existem outros)**`,
+          agregacao:
+            `**AGREGAÇÃO POR MATRIZ: todos os ${respondents.length} respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = ${respondents.length} em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**\n` +
+            `⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos ${respondents.length} julgamentos, sem particionamento.`,
+          cabecalhoDasContagens: '',
+          regraDeMencao: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.',
+        };
+
     fullRespondentList = `
-## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)
+${frases.cabecalho}
 
 ${lines.join('\n')}
 
-**TOTAL: ${respondents.length} respondentes (esta lista é COMPLETA — não existem outros)**
+${frases.total}
 
-**AGREGAÇÃO POR MATRIZ: todos os ${respondents.length} respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = ${respondents.length} em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**
-⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos ${respondents.length} julgamentos, sem particionamento.
+${frases.agregacao}
 
-- CONFIÁVEIS (CR ≤ 10%): ${statusCounts.confiavel}
+${frases.cabecalhoDasContagens}- CONFIÁVEIS (CR ≤ 10%): ${statusCounts.confiavel}
 - REVISAR (10–15%): ${statusCounts.revisar}
 - SUSPEITOS (15–20%): ${statusCounts.suspeito}
 - CRÍTICOS (>20%): ${statusCounts.critico}
 ${statusCounts.desconhecido > 0 ? `- DESCONHECIDO (CR não disponível): ${statusCounts.desconhecido}` : ''}
 
-⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.
+${frases.regraDeMencao}
 `;
 
     console.log(`${LOG_PREFIX} Anti-alucinação: ${respondents.length} respondentes injetados nominalmente`);

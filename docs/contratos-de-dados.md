@@ -453,8 +453,9 @@ Três efeitos independentes, cada um com o seu alcance:
 1. **O bloco do contexto** (`## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A
    EXECUÇÃO DO CÁLCULO`), nos quatro estados. Declara estado, identificador da execução,
    divergência e cobertura enviada, e **não emite veredito**. Requisição **sem** o campo
-   gera contexto **byte a byte** igual ao anterior ao estágio. Uma frase de limite é a única
-   com palavras de verificação, e todas negadas.
+   gera contexto **byte a byte** igual ao anterior ao estágio, e isso inclui as frases ao
+   redor do bloco. **COM** o campo, essas frases também mudam (subseção seguinte). Uma frase de
+   limite é a única com palavras de verificação, e todas negadas.
 2. **A restrição do conjunto avaliado** (P1), em `vinculado` (onde é identidade) e
    `divergente` (onde muda a lista e o N que o contexto declara). ⚠ Retirar respondentes pode
    mudar disponibilidade, completude e coerência **pelas regras da etapa 1**, sem tocar na
@@ -462,6 +463,81 @@ Três efeitos independentes, cada um com o seu alcance:
 3. **A omissão de `qualityAnalysis.overall`** quando `enviados` difere de
    `avaliadosAntesDaRestricao`. ⚠ **Sem efeito sobre o texto entregue:** `overall` não tem
    consumidor no código atual. Fica como guarda de transporte.
+
+##### As frases AO REDOR do bloco: população, etapa e relação (correções antes do aceite)
+
+⚠ **Escopo, decidido nesta rodada.** A redação abaixo vale **COM** `vinculoDaExecucao`, nos quatro
+estados e em formato não reconhecido. **SEM** o campo, o contexto segue **byte a byte** o de
+`a973c8f`, com as afirmações que ele já trazia; ampliar a correção a esse caminho é decisão do
+autor e exige regravar as linhas de base. ⚠ A cláusula "com o campo, a única diferença é o bloco
+inserido" **deixa de valer**: a lista de respondentes, o bloco de exclusão e a regra de menção
+também mudam.
+
+**O defeito.** O contexto afirmava, em frases ao redor do bloco, uma população que o próprio
+vínculo contradiz: a lista **enviada** como "COMPLETA — não existem outros", como participação
+plena de todos e como o "N = …" de **todas** as matrizes agregadas; a contagem de restantes da
+exclusão do gestor como a dos "dados de qualidade abaixo", calculados sobre a lista enviada; e a
+regra de menção proibindo citar quem o bloco nomeia.
+
+**Três regras.**
+
+1. **Cada contagem nomeia a sua população e a etapa a que se refere**, e cálculo, avaliação e envio
+   **não são sinônimos**:
+
+   | População | Etapa | Onde o contexto a conta |
+   |---|---|---|
+   | amostra coletada | coleta | `exclusionInfo.totalCollected` |
+   | restantes após a exclusão do gestor | exclusão do gestor, **anterior** a qualquer restrição do vínculo | `exclusionInfo.activeCount` (`page.tsx:1338` em `a973c8f`) |
+   | excluídos pelo gestor | exclusão do gestor | `exclusionInfo.excludedCount` |
+   | incluídos no documento de cálculo | cálculo | `metadata.includedRespondents`, no bloco e na linha de cálculo |
+   | avaliados antes de qualquer restrição | avaliação de qualidade | no bloco |
+   | enviados a você | envio | a lista de respondentes e as contagens por status |
+
+   ⚠ O contexto também informa a amostra coletada e os excluídos pelo gestor, que **não** são
+   nenhuma das três populações do vínculo. A **chave de leitura** do bloco define as populações e as
+   etapas. Onde a linha **afirma** uma população (exclusão, total da lista, cálculo, contagens por
+   status) o rótulo vai **na própria linha**. As distribuições que esta rodada **não reescreve**
+   (`Total: N especialistas`, as quatro contagens por status, `Taxa de Validade Geral` e os quatro
+   `Respostas totais` por dimensão) ficam cobertas **só pela chave**, e são **dez** linhas no cenário
+   do inventário de `vinculo-execucao-fiacao.test.ts`. ⚠ `Respostas totais` por dimensão **não é
+   população medida:** quando a requisição traz o total agregado, como a da tela, `normalizeRequest`
+   o reparte por quatro, arredondando para baixo (`route.ts:559-588` em `a973c8f`). Isso não é objeto
+   desta correção, e a chave apenas diz que esses totais não medem participação nem são o N de
+   matriz alguma.
+
+2. **A relação entre enviados e incluídos vem da COMPARAÇÃO DAS DUAS LISTAS, com multiplicidade, e
+   nunca do estado nem do booleano transportado** (`cobertura.enviadosIguaisAoDocumento`). O mesmo
+   estado `divergente` cobre dois casos opostos: no **5 / 4 / 4** (5 avaliados, 4 incluídos, 4
+   enviados) os enviados **coincidem** com os incluídos e a divergência anterior à restrição
+   **permanece registrada**; no **3 / 4 / 3** (3 avaliados, 4 incluídos, 3 enviados) os enviados
+   **diferem**, e o contexto nomeia quantos faltam de cada lado. Sem as duas listas bem formadas
+   (`indisponivel`, `invalido`, formato não reconhecido, lista malformada) a comparação **não foi
+   realizada**, e o contexto diz isso.
+
+3. **A contagem informada é o tamanho do conjunto incluído registrado no documento de cálculo, e
+   não é apresentada como medição da participação em cada célula das matrizes agregadas.** O
+   portão de completude de A.21 é descrito como **propriedade do percurso de cálculo examinado**
+   (o código da rota de cálculo, que rejeita a resposta com algum par sem julgamento válido e agrega
+   cada célula só com julgamento existente, não pulado e com valor), e a linha diz que o vínculo de
+   identificadores **não verificou** os julgamentos daquela execução. Com `indisponivel` ou
+   `invalido` **não existe** contagem de incluídos, e **nada se afirma** sobre ela. Se o bloco traz
+   uma contagem **declarada** mas nenhuma lista utilizável para compará-la, ela é nomeada como
+   declarada; se a contagem declarada difere da lista, o contexto conserva os **dois** valores, sem
+   escolher um em silêncio. O mesmo vale para os enviados: a lista de identificadores do vínculo e a
+   contagem declarada, quando diferem da lista de respondentes, entram as duas.
+
+**A exaustividade** é afirmada **só da lista enviada** ("a lista é COMPLETA para o conjunto
+enviado"), e nunca do universo. **A linha de dados de qualidade** da exclusão usa a população
+**enviada** (a contagem da própria lista), e não `activeCount`; com a lista enviada **vazia** ela
+diz que nenhum respondente foi enviado e que não há lista abaixo.
+
+**A regra de menção** passa a distinguir dois papéis: o **participante da avaliação enviada**, que
+só a lista nomeia, e a **divergência registrada**, cujo identificador o bloco nomeia e a regra
+permite citar **somente nesse papel**, nunca como quem contribuiu para os dados de qualidade.
+
+⚠ **O que isto NÃO é.** Nenhuma causa de suspensão, nenhuma alteração em `calculateGrade`,
+penalidades, limiares ou faixas, e nenhuma suspensão por divergência. ⚠ A redação do modelo sobre
+estas frases **não foi testada**: só o que ele **recebe**.
 
 ##### Limites, e o que foi medido
 
@@ -475,12 +551,20 @@ Três efeitos independentes, cada um com o seu alcance:
   construção, a restrição esvazia a lista, e a avaliação da etapa 1 passa de `disponivel`
   para `ausente` (causa `disponibilidade`). Decisão sobre P1 e sobre a cadeia: do autor.
 - ⚠ `exclusionInfo.activeCount` e `responseCount` seguem descrevendo o conjunto **antes** da
-  restrição. Com exclusão do gestor **e** restrição que retire alguém, a frase do contexto
-  "os dados de qualidade abaixo referem-se APENAS aos N respondentes incluídos" usa a contagem
-  anterior. Não alterado.
-- ⚠ A afirmação de que N vale em todas as matrizes agregadas, na lista exaustiva, descreve o
-  conjunto **enviado**. Com sobra só no documento, as matrizes foram agregadas sobre o
-  conjunto do **documento**. Não alterado: é redação anterior ao estágio.
+  restrição. Com exclusão do gestor **e** restrição que retire alguém, a redação de `a973c8f`
+  ("os dados de qualidade abaixo referem-se APENAS aos N respondentes incluídos") usava a contagem
+  anterior para dados calculados sobre a lista enviada. **Corrigido COM o campo:** a linha nomeia
+  população e etapa e usa a contagem da lista enviada. **SEM o campo permanece a redação
+  anterior**, por decisão de escopo desta rodada.
+- ⚠ A afirmação de que N vale em todas as matrizes agregadas, na lista exaustiva, descrevia o
+  conjunto **enviado**; com sobra só no documento, as matrizes foram agregadas sobre o conjunto do
+  **documento**. **Corrigido COM o campo:** o contexto informa a contagem de incluídos registrada
+  no documento, nomeada, e diz que ela não é medição por célula. **SEM o campo permanece a redação
+  anterior.**
+- ⚠ Cobertas **só pela chave** (sem rótulo na própria linha): `Total: N especialistas`, as quatro
+  contagens por status, `Taxa de Validade Geral` e `Respostas totais` por dimensão. Ficam como
+  estão; rotulá-las uma a uma é decisão do autor. O ramo do prompt para lista de respondentes
+  **ausente** ("Lista individual de respondentes não disponível") também não foi alterado.
 - ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem verificação de
   conteúdo, e sem consulta a produção.
 

@@ -178,6 +178,20 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 9,
+    motivo: 'A.12 etapa 3, estagio 1, correcoes antes do aceite: R1 e R2 alteraram route.ts, e a tela NAO mudou',
+    commitDaBase: '337bca015bacbbd97fbb2101c719e835caac264a',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 409 campos antes e 419 depois, ZERO perdidos,
+    //   DEZ novos (todos nesta propria entrada) e UM mudado, e e o resumo de codigo da rota.
+    //   bytesDoContexto NAO se moveu em nenhum dos quatro casos: nenhuma das quatro requisicoes
+    //   traz `vinculoDaExecucao`, e sem o campo o contexto e byte a byte o de antes.
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

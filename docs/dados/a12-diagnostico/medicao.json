@@ -152,6 +152,22 @@
           "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 9,
+        "motivo": "A.12 etapa 3, estagio 1, correcoes antes do aceite: R1 e R2 alteraram route.ts, e a tela NAO mudou",
+        "commitDaBase": "337bca015bacbbd97fbb2101c719e835caac264a",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -162,7 +178,7 @@
     },
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "244c14176794a5566c47418c91dc152d0d43dc755e63ab45c14fad1a5f62f30f",
-      "app/api/ai-reviewer/route.ts": "8514df6e94acc6d68a71e56af038b1779d8ada6070a2e10d567b15c015ae83fb",
+      "app/api/ai-reviewer/route.ts": "d16432e21c4a4b6728291a460a0fbd32039cbbc91cf354990b4aa812bfb1cf4e",
       "app/decisor/resultados/[projectId]/page.tsx": "ccbf9abc8cf76cc3a70769dbbbbbe032c746734001f4673abca59cf3f65e57be",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }

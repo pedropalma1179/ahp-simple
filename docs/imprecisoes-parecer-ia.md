@@ -11912,6 +11912,183 @@ ensaio novo do enunciado nasce com a correção que o satisfaz.
 conteúdo. ⚠ **A fiação na tela segue sem execução por teste:** esta rodada não toca a tela.
 ⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA.**
 
+### Implementado e medido: R1 e R2, em 29/09/2026
+
+⚠ **Este bloco é escrito DEPOIS do código e dos testes, e por isso NÃO é predição:** é relato e
+medição. A predição é a do complemento acima (commit `337bca0`, CI `success` na execução
+`36628338143`, `head_sha` igual ao do commit), e as divergências entre ela e a execução estão
+abaixo, nomeadas.
+
+#### Responsabilidades que a alteração toca
+
+| Responsabilidade | Tocada? |
+|---|---|
+| Redação do contexto (o que o modelo **recebe**): frases ao redor do bloco, linhas novas do bloco, regra de menção | **SIM** |
+| Decisão do vínculo (`prepararVinculoDaTela`, os quatro estados, comparação antes da restrição, valor `null`/`[]`) | não |
+| Tela (`page.tsx`) | não |
+| Elegibilidade e nota (`avaliacao-qualidade.ts`, `calculateGrade`, penalidades, limiares, faixas) | não |
+| `app/api/calculate/route.ts`, `julgamentos-resumo.ts`, `identificador-respondente.ts`, `aggregation.ts` | não |
+
+⚠ **Mudança estrutural, não apresentada como neutra:** a lógica das frases mora em três funções do
+módulo puro (`lerVinculoParaTexto`, `frasesDaListaComVinculo`, `linhasDeExclusaoComVinculo`), que a
+rota chama **só quando o campo veio**. Sem o campo a rota conserva os literais anteriores, e a
+preservação é **medida no caminho alterado**: âncoras ABSOLUTAS (`LISTA_ANTERIOR`,
+`EXCLUSAO_ANTERIOR`), escritas contra a saída de `a973c8f` **antes** de editar a rota e
+conferidas passando no código anterior, mais o contexto de `a33-cadeia-rule` e de
+`a12-diagnostico` idêntico campo a campo.
+
+#### Reconferência dos localizadores da base, em `a973c8f`
+
+Lidos com `git show a973c8f:app/api/ai-reviewer/route.ts`: `:875` "Respondentes incluídos na
+análise: ${activeCount} especialistas"; `:879` "Os dados de qualidade abaixo referem-se APENAS aos
+${activeCount} respondentes incluídos."; `:942` "**TOTAL: N respondentes (esta lista é COMPLETA —
+não existem outros)**"; `:944` "**AGREGAÇÃO POR MATRIZ: … Portanto N = N em TODAS as matrizes
+agregadas …**"; `:945` "⚠ NÃO existe divisão … sem particionamento."; `:953` "⚠️ REGRA: Você NÃO
+pode mencionar respondentes fora desta lista …"; e `:559-588`, o repartir por quatro do
+`individualStats` agregado. **Todos os seis apontam para a passagem que o pedido nomeia**, e o
+commit da base é `a973c8fc24a8a19231446361328db01d62938f5e`.
+
+#### Duas correções ao complemento datado (`337bca0`)
+
+1. **Localizadores de quatro asserções estavam desatualizados.** O complemento cita
+   `a33-cadeia-rule.test.ts:1188`, `:1431` e `:1462` e `a12-diagnostico.test.ts:1040`. Em
+   `a973c8f` as **mesmas quatro asserções**, lidas pelo nome do teste, estão em `:1202`
+   (`RE2: o inventario gravado coincide com o medido agora`), `:1445` (`complemento: os metadados
+   historicos do artefato foram preservados`), `:1476` (`complemento: cada regravacao registra
+   procedencia PROPRIA, e a lista ACUMULA`) e `a12-diagnostico.test.ts:1058` (`o artefato gravado
+   coincide com a medicao atual`). O erro foi de **numeração de linha**, e não de teste previsto.
+2. **A mensagem do commit `337bca0` diz "DEZ PREDICOES (R7 a R17)", mas são ONZE** (R7, R8, R9, R10,
+   R11, R12, R13, R14, R15, R16 e R17). Não há `amend` nesta rodada; esta linha é a correção.
+
+#### A previsão de testes: confirmada pelo nome do teste
+
+Com os testes **antigos** e o código **novo**, reprovaram **onze asserções, e só elas**: as quatro
+acima, mais sete em `vinculo-execucao-fiacao.test.ts` (o cabeçalho da lista, a diferença "única = o
+bloco" nos **quatro** estados do `test.each`, as linhas da rota que citam o vínculo, e a frase
+"TOTAL: 4 respondentes … não existem outros" em `divergente com restrição`). Os testes foram então
+atualizados, e as duas linhas de base regravadas (ordens 7 e 9).
+
+#### Onde a minha leitura errou, ao rodar os testes NOVOS pela primeira vez
+
+Três falhas na primeira execução, **todas de asserção minha, nenhuma de código de produção**, e o
+critério não foi ajustado para bater com o resultado: cada uma foi corrigida por releitura do que o
+contexto deve dizer.
+
+1. **A lista das linhas da rota que citam o vínculo** esqueceu `const linhasDaExclusao = comVinculo` e
+   trocou a ordem de `textoDoVinculo` e `blocoDoVinculo` (o bloco é montado antes da lista). Relida
+   com `grep -n` sobre a rota.
+2. **"⚠️ REGRA:" ocorre 3 vezes no contexto completo**, e não uma: o prompt tem outras duas. A asserção
+   passou a contar a frase da **lista**, que começa por "⚠️ REGRA: Você NÃO pode mencionar
+   respondentes fora desta lista".
+3. **O lembrete "A divergência anterior à restrição" foi esperado em todo `divergente`**, mas só
+   acompanha a **coincidência** (o 5 / 4 / 4). Em `divergente` com sobra só no documento os enviados
+   **diferem** e não há lembrete.
+
+E **um mutante sobreviveu ao primeiro lote** (K15, o rótulo de etapa das contagens por status): só as
+funções do módulo o fixavam, e o teste lia o valor do próprio módulo. Ganhou âncora absoluta no
+controle 5 / 4 / 4, e morreu.
+
+#### Achados da implementação, DEPOIS da predição
+
+⚠ Nenhum estava na predição.
+
+1. **Lista de incluídos malformada dentro de um `vinculado`.** O bloco (texto da etapa anterior)
+   imprime a contagem **declarada** ("incluídos no documento de cálculo: 4"), e a frase nova dizia
+   "contagem NÃO disponível": **contradição dentro do próprio contexto**. Achada ao rodar o caso, e
+   corrigida com três formas: *comparado* (a contagem da lista), *declarada sem lista utilizável*
+   (nomeada como declarada, sem comparação) e *não disponível* (nada declarado). Quando a contagem
+   declarada difere da lista, ou os enviados declarados diferem da lista de respondentes, o contexto
+   conserva os **dois** valores.
+2. **O rótulo "etapa: avaliação de qualidade" sobre os ENVIADOS confundia dois conjuntos:** a etapa de
+   avaliação conta os *avaliados* (5 no cenário 5 / 4 / 4), e as contagens por status são sobre os
+   *enviados* (4). Passou a "etapa: envio".
+3. **O lembrete da divergência anterior à restrição** aparecia com a coincidência mesmo em
+   `vinculado`, onde não há divergência a lembrar. Passou a acompanhar só `divergente`.
+4. **Lista enviada vazia** (a restrição a esvaziou): a linha de qualidade dizia "referem-se APENAS aos 0
+   respondentes … contagem da lista abaixo", sem lista abaixo. Passou a dizer que nenhum respondente
+   foi enviado e que a lista abaixo não existe. O ramo do prompt para lista ausente **não foi
+   alterado**.
+5. **A descrição da amostra coletada** ("respostas carregadas pela tela, finalizadas, de respondentes
+   cadastrados e uma por respondente") foi conferida por **leitura** de `page.tsx:1610-1640`: filtro
+   por `completedAt`, filtro por `respondentId` presente em `respondents`, e deduplicação por
+   `respondentId`. É leitura do código, e **não** medição sobre dados de produção.
+6. **A frase da chave sobre "Respostas totais" por dimensão** foi condicionada: só quando a requisição
+   traz o total agregado (a da tela, `page.tsx:1051` e `:1314`) a rota o reparte por quatro
+   (`normalizeRequest`). Uma frase incondicional afirmaria, de quem manda totais por dimensão, mais do
+   que se sabe.
+
+#### O resultado por predição (R7 a R17)
+
+| # | Resultado | Evidência |
+|---|---|---|
+| R7 | **confirmada** | âncoras absolutas da lista e da exclusão, sem o campo; `a33-cadeia-rule` e `a12-diagnostico` com camadas, montagem e `bytesDoContexto` **idênticos** (0 campos perdidos, 1 mudado: o resumo de código da rota) |
+| R8 | **confirmada** | as nove frases antigas ocorrem **1 vez** no contexto de base e **0** no novo, nos quatro estados e no formato não reconhecido (capturas do handler real), e os testes conferem também a lista malformada |
+| R9 | **confirmada** | controle 5 / 4 / 4: coincidência declarada, `r5` na sobra da avaliação, nenhuma afirmação de diferença |
+| R10 | **confirmada** | controle 3 / 4 / 3: "DIFERE dos 4 incluídos … 1 incluído(s) … ausente(s) desta lista" |
+| R11 | **confirmada** | o mesmo estado `divergente` dá afirmações **opostas**, e o mutante "relação deduzida do estado" reprova 9 testes |
+| R12 | **confirmada** | `indisponivel`, `invalido` e formato não reconhecido: nenhuma contagem de incluídos, "NÃO está disponível", nada sobre célula |
+| R13 | **confirmada** | contagem nomeada, "NÃO é medição da participação em cada célula", portão como propriedade do percurso examinado, com a negação; toda ocorrência de "verificou" está negada |
+| R14 | **confirmada** | as contagens da exclusão nomeiam população e etapa, e `:879` usa a lista enviada (4), não `activeCount` (5) |
+| R15 | **confirmada** | a regra distingue os dois papéis; a antiga com o bloco presente é detectada como a contradição de M9 |
+| R16 | **confirmada** | ensaio 10 inalterado e passando: a decisão é a mesma nos quatro estados |
+| R17 | **confirmada** | o ensaio 11 e a varredura `AFIRMA`/`NOTA` sobre todos os textos novos passam |
+| T5 a T9 | **NÃO TESTADAS** | nenhum parecer foi gerado, como declarado |
+
+#### Mutantes executados sobre a rota e o módulo
+
+**Vinte e quatro**, cada um aplicado sobre o arquivo, com os dois arquivos de teste do vínculo
+rodados, e o arquivo restaurado depois (o sha256 de ambos conferido antes e depois): relação
+deduzida do estado, do booleano transportado, sem multiplicidade; "não existem outros"; contagem
+promovida a célula; portão sem negação; contagem de enviados afirmada sem comparação; regra de
+menção antiga; `activeCount` na linha de qualidade; amostra sem população; contagem declarada
+tratada como "não disponível"; lembrete incondicional; sem aviso de valores declarados; chave sem a
+cobertura das distribuições; etapa das contagens por status; lista vazia com "dados abaixo";
+cabeçalho antigo; e, na rota, redação antiga com o campo, redação nova sem o campo, `nEnviados`
+vindo de `activeCount`, regra antiga, cabeçalho das contagens retirado, o vínculo chegando à
+elegibilidade, e as linhas de exclusão ignorando o campo. **Os vinte e quatro reprovam algum
+teste** (o K15 só depois de ganhar a âncora citada acima).
+
+#### O que o contexto passou a dizer, nos dois controles (texto medido)
+
+| Cenário | Linha do total | Linha do cálculo |
+|---|---|---|
+| **5 / 4 / 4** (`divergente`) | "**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**" | "**CÁLCULO — contagem registrada no documento de cálculo: 4 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas …" |
+| **3 / 4 / 3** (`divergente`) | "… A lista é COMPLETA para o conjunto enviado, mas DIFERE dos 4 incluídos no documento de cálculo: 1 incluído(s) no documento e ausente(s) desta lista, 0 enviado(s) ausente(s) do documento …" | a mesma, com 4 incluídos |
+| `indisponivel`, `invalido`, formato não reconhecido | "… A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada." | "**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** Nada se afirma aqui sobre quantos respondentes entraram no cálculo …" |
+
+#### Execução, medida nesta sessão
+
+- `npx tsc --noEmit`: **saída 0**.
+- `npx jest` (suíte inteira): **33 suítes, 732 testes, 0 falhas**, e **48374 asserções**. ⚠ O total de
+  asserções vem de um **instrumento NÃO versionado**, um `setupFilesAfterEnv` que soma
+  `expect.getState().assertionCalls` a cada teste e grava por suíte (33 linhas somadas); ele vive no
+  diretório de trabalho da sessão e **não está no repositório**. Nas suítes tocadas: `vinculo-execucao`
+  **126**, `vinculo-execucao-fiacao` **67**, `a33-cadeia-rule` **41**, `a12-diagnostico` **19**.
+- `npm run build`: **saída 0**, "Generating static pages (17/17)". ⚠ A saída traz a mensagem "ESLint
+  must be installed in order to run during builds", que não reprova o build.
+- Ambiente: Linux x86_64, Node v22.22.2, npm 10.9.7. ⚠ É ambiente observado, e não requisito. A CI
+  usa Node 24.x, e o resultado dela é reportado por commit, fora deste registro.
+- `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`:
+  `85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25`, iguais entre si e ao valor
+  de antes. `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`:
+  `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d`, igual ao de antes.
+- Regravações, campo a campo: `a33-cadeia-rule` **3102 → 3112** campos (0 perdidos, 10 novos na
+  própria entrada da ordem 7, 1 mudado: o resumo de código da rota); `a12-diagnostico` **409 → 419**
+  (0 perdidos, 10 novos na ordem 9, 1 mudado, o mesmo resumo). Todas as outras seções idênticas.
+
+#### O que NÃO foi feito, e o que continua aberto
+
+- ⚠ **Sem o campo `vinculoDaExecucao` a redação anterior continua, com as afirmações que M7 e M8
+  mostram.** Ampliar a correção a esse caminho é decisão do autor.
+- ⚠ **Dez linhas seguem cobertas SÓ pela chave de leitura**, sem rótulo na própria linha: `Total: N
+  especialistas`, as quatro contagens por status da distribuição, `Taxa de Validade Geral` e os
+  quatro `Respostas totais` por dimensão. ⚠ Estes últimos não são população medida (M11). Rotulá-las
+  uma a uma é decisão do autor.
+- ⚠ **A redação do modelo sobre estas frases não foi testada** (T5 a T9), e a fiação na tela **continua
+  sem execução por teste**: esta rodada não toca a tela.
+- ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem consulta a produção e sem
+  geração de parecer.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

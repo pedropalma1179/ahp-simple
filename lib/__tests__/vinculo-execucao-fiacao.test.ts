@@ -29,7 +29,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 import {
+  frasesDaListaComVinculo,
+  lerVinculoParaTexto,
   LIMITE_DO_VINCULO,
+  linhasDeExclusaoComVinculo,
   MARCADOR_DO_BLOCO_DO_VINCULO,
   prepararVinculoDaTela,
 } from '@/lib/ai-reviewer/vinculo-execucao';
@@ -230,10 +233,12 @@ describe('ensaio 9: vinculoDaExecucao sobrevive a normalizeRequest e aparece no 
     const { contexto } = await executar(payloadDaTela(lista, vinculoDoEstado('vinculado', lista)));
     const amostra = contexto.indexOf('## Amostra e Qualidade Geral');
     const marcador = contexto.indexOf(MARCADOR_DO_BLOCO_DO_VINCULO);
-    const listaExaustiva = contexto.indexOf('## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)');
+    // ⚠ COM o campo o cabeçalho da lista nomeia a população enviada (R1); o antigo deixa de existir
+    const listaExaustiva = contexto.indexOf('## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)');
     expect(amostra).toBeGreaterThan(-1);
     expect(marcador).toBeGreaterThan(amostra);
     expect(listaExaustiva).toBeGreaterThan(marcador);
+    expect(contexto).not.toContain('## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)');
   });
 
   test('R1: requisição SEM o campo não ganha bloco, e `undefined` explícito é o mesmo que ausente', async () => {
@@ -256,14 +261,28 @@ describe('ensaio 9: vinculoDaExecucao sobrevive a normalizeRequest e aparece no 
     expect(sem.contexto).toContain('## Amostra e Qualidade Geral\n\n\n\n\n## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)');
   });
 
-  test.each(ESTADOS.map((e) => [e] as const))('R1: em %s a ÚNICA diferença para o contexto sem o campo é o bloco inserido', async (estado) => {
+  test.each(ESTADOS.map((e) => [e] as const))('R1: em %s a diferença para o contexto sem o campo é o bloco e as CINCO frases da lista trocadas, e nada mais', async (estado) => {
     const lista = elegivel();
     const sem = await executar(payloadDaTela(lista));
-    const com = await executar(payloadDaTela(lista, vinculoDoEstado(estado, lista)));
+    const v = vinculoDoEstado(estado, lista);
+    const com = await executar(payloadDaTela(lista, v));
     const bloco = blocoDe(com.contexto);
     expect(bloco.length).toBeGreaterThan(200);
-    // ⚠ retirado o bloco (com as quebras que o cercam), o resto é BYTE A BYTE o contexto anterior
-    expect(com.contexto.replace(`\n${bloco}\n`, '')).toBe(sem.contexto);
+    // ⚠ Retirado o bloco (com as quebras que o cercam) e devolvidas as cinco frases da lista à redação de
+    //   `a973c8f` (as âncoras ABSOLUTAS de R7), o resto é BYTE A BYTE o contexto sem o campo. A cláusula
+    //   "a única diferença é o bloco" DEIXOU DE VALER por decisão da rodada, e esta é a que a substitui.
+    const f = frasesDaListaComVinculo(lerVinculoParaTexto(v), lista.length);
+    let reconstruido = com.contexto.replace(`\n${bloco}\n`, '');
+    const devolver = (nova: string, antiga: string) => {
+      expect(ocorrencias(reconstruido, nova)).toBe(1);
+      reconstruido = reconstruido.replace(nova, () => antiga);
+    };
+    devolver(f.cabecalho, ANTIGA.cabecalho);
+    devolver(f.total, ANTIGA.total);
+    devolver(f.agregacao, ANTIGA.agregacao);
+    devolver(f.cabecalhoDasContagens, '');
+    devolver(f.regraDeMencao, ANTIGA.regra);
+    expect(reconstruido).toBe(sem.contexto);
     expect(com.contexto).not.toBe(sem.contexto);
   });
 
@@ -294,6 +313,427 @@ describe('ensaio 9: vinculoDaExecucao sobrevive a normalizeRequest e aparece no 
     expect(status).toBe(200);
     expect(ocorrencias(contexto, MARCADOR_DO_BLOCO_DO_VINCULO)).toBe(1);
     expect(contexto).toContain('Vínculo recebido em formato NÃO reconhecido: nada dele foi usado.');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// A redação de `a973c8f`, copiada da saída do handler ANTES de qualquer edição da rota, e não da
+// saída de agora. ⚠ São ÂNCORAS ABSOLUTAS: passam no código anterior e sem o campo seguem passando.
+// ---------------------------------------------------------------------------
+const LISTA_ANTERIOR = [
+  "## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)",
+  "",
+  "- ID: r1 | Email: Respondente r1 | CR: 5.0% | Status: CONFIÁVEL",
+  "- ID: r2 | Email: Respondente r2 | CR: 5.0% | Status: CONFIÁVEL",
+  "- ID: r3 | Email: Respondente r3 | CR: 5.0% | Status: CONFIÁVEL",
+  "- ID: r4 | Email: Respondente r4 | CR: 5.0% | Status: CONFIÁVEL",
+  "",
+  "**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**",
+  "",
+  "**AGREGAÇÃO POR MATRIZ: todos os 4 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 4 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+  "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 4 julgamentos, sem particionamento.",
+  "",
+  "- CONFIÁVEIS (CR ≤ 10%): 4",
+  "- REVISAR (10–15%): 0",
+  "- SUSPEITOS (15–20%): 0",
+  "- CRÍTICOS (>20%): 0",
+  "",
+  "",
+  "⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.",
+].join('\n');
+const EXCLUSAO_ANTERIOR = [
+  "**⚠️ FILTRAGEM DE RESPONDENTES APLICADA:**",
+  "- Amostra original coletada: 6 especialistas",
+  "- Respondentes incluídos na análise: 5 especialistas",
+  "- Respondentes excluídos: 1 (16.7% da amostra original)",
+  "- Critério de exclusão: CR > 0.10 (Saaty, 1977)",
+  "- Justificativa: A revisão individual dos julgamentos (Saaty, 2003) não foi viável após encerramento da coleta. Na AIJ por média geométrica, julgamentos individuais inconsistentes afetam a agregação do grupo (Forman & Peniwati, 1998). A exclusão foi aplicada ANTES da agregação.",
+  "- Os dados de qualidade abaixo referem-se APENAS aos 5 respondentes incluídos.",
+  "",
+  "**INSTRUÇÃO PARA O REVISOR:** Você DEVE mencionar esta filtragem no RESUMO DA SUBMISSÃO e na seção de CONSISTÊNCIA, usando a cadeia de justificação: limiar (Saaty, 1977) + impossibilidade de revisão (Saaty, 2003) + impacto na agregação (Forman & Peniwati, 1998).",
+].join('\n');
+const EXCLUSAO = { totalCollected: 6, activeCount: 5, excludedCount: 1, reason: 'Filtragem por consistencia' };
+
+/** As cinco frases da lista, uma a uma, na redação anterior (quatro respondentes). */
+const ANTIGA = {
+  cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',
+  total: '**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**',
+  agregacao:
+    '**AGREGAÇÃO POR MATRIZ: todos os 4 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 4 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**\n' +
+    '⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 4 julgamentos, sem particionamento.',
+  regra: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.',
+};
+
+// ============================================================ R7 (âncoras absolutas do texto ANTERIOR)
+describe('R7: sem o campo a redação anterior fica byte a byte — âncoras ABSOLUTAS, escritas contra o texto de a973c8f', () => {
+  // ⚠ As constantes estão acima, no escopo do módulo: a lista e a exclusão de `a973c8f`.
+  test('a lista de respondentes, sem o campo, traz as frases antigas exatamente', async () => {
+    const { contexto } = await executar(payloadDaTela(elegivel()));
+    expect(contexto).toContain(LISTA_ANTERIOR);
+  });
+
+  test('o bloco de exclusão, sem o campo, traz as frases antigas exatamente', async () => {
+    const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
+    expect(contexto).toContain(EXCLUSAO_ANTERIOR);
+  });
+
+  test('CONTRAEXEMPLO: as âncoras discriminam — um caractere a menos em qualquer frase reprova', async () => {
+    const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
+    expect(contexto).toContain(LISTA_ANTERIOR);
+    expect(contexto).toContain(EXCLUSAO_ANTERIOR);
+    expect(contexto).not.toContain(LISTA_ANTERIOR.replace('não existem outros', 'nao existem outros'));
+    expect(contexto).not.toContain(EXCLUSAO_ANTERIOR.replace('incluídos na análise', 'incluídos na analise'));
+    expect(contexto).not.toContain(EXCLUSAO_ANTERIOR.replace('APENAS aos 5', 'APENAS aos 4'));
+  });
+});
+
+// ============================================================ R1 e R2 (o CONTEXTO COMPLETO, com as frases antigas)
+describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos controles 5 / 4 / 4 e 3 / 4 / 3, nos estados sem comparação e nas linhas de exclusão', () => {
+  /**
+   * ⚠ Fragmentos da redação de `a973c8f` que NÃO podem sobreviver no contexto COM o campo. Cada um
+   * ocorre UMA vez na redação anterior e nenhuma no resto do contexto (medido nas capturas de base,
+   * antes de editar), então a ausência é conferida no contexto COMPLETO, e não no trecho da lista.
+   */
+  const FRASES_ANTIGAS = [
+    'esta lista é COMPLETA — não existem outros',
+    'responderam à TOTALIDADE das comparações pareadas',
+    'Portanto N =',
+    'em TODAS as matrizes agregadas',
+    'NÃO existe divisão de respondentes por mérito',
+    'sem particionamento',
+    'Se precisar referenciá-los',
+    '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',
+    '**TOTAL: ',
+  ];
+  const frasesAntigasPresentes = (contexto: string) => FRASES_ANTIGAS.filter((f) => contexto.includes(f));
+
+  const ids = (n: number) => Array.from({ length: n }, (_, i) => `r${i + 1}`);
+  /** O preparo REAL da tela: `avaliados` no conjunto avaliado, `documento` em `includedRespondents`. */
+  function cenario(avaliados: string[], documento: string[]) {
+    return prepararVinculoDaTela({
+      calculo: calculo(documento),
+      respondentesAtivos: avaliados.map((id) => respondente(id, 0.05)),
+      respostasAtivas: [],
+    });
+  }
+  const executarCenario = (p: ReturnType<typeof cenario>, extra: Record<string, unknown> = {}) =>
+    executar({ ...payloadDaTela(p.respondentesEnviados, p.vinculo, !p.omitirOverall), ...extra });
+
+  // ---- as âncoras ABSOLUTAS da redação nova, escritas por leitura do que a rota deve dizer
+  const TOTAL_COINCIDE_4 =
+    '**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**';
+  const TOTAL_DIFERE_3_4 =
+    '**TOTAL ENVIADO A VOCÊ: 3 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado, mas DIFERE dos 4 incluídos no documento de cálculo: 1 incluído(s) no documento e ausente(s) desta lista, 0 enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**';
+  const TOTAL_NAO_COMPARADO_4 =
+    '**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**';
+  const CALCULO_NOMEADO = (k: number) =>
+    `**CÁLCULO — contagem registrada no documento de cálculo: ${k} respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ` +
+    '⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.\n' +
+    '⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. ' +
+    'O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução.';
+  const CALCULO_NAO_DISPONIVEL =
+    '**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** ' +
+    'Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.\n' +
+    '⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.';
+  const CALCULO_DECLARADO_SEM_LISTA =
+    '**CÁLCULO — o vínculo declara 4 incluídos no documento de cálculo (contagem transportada; etapa: cálculo), mas SEM lista de incluídos utilizável para compará-la com os enviados.** ' +
+    '⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas: não a apresente como o N de matriz alguma.\n' +
+    '⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.';
+  const PORTAO =
+    '- Portão de completude de A.21, propriedade do PERCURSO DE CÁLCULO EXAMINADO (o código da rota de cálculo), e não conferência desta execução: ' +
+    'esse código rejeita a resposta que tem algum par de alguma matriz sem julgamento válido, e agrega cada célula só com julgamento existente, não pulado e com valor. ' +
+    'Este vínculo de identificadores NÃO verificou os julgamentos daquela execução.';
+  const REGRA_NOVA =
+    '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. ' +
+    'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.';
+
+  test('as âncoras antigas são consistentes: cada frase antiga ocorre UMA vez na lista de a973c8f, e ANTIGA é feita delas', () => {
+    for (const f of FRASES_ANTIGAS) expect(ocorrencias(LISTA_ANTERIOR, f)).toBe(1);
+    for (const f of Object.values(ANTIGA)) expect(ocorrencias(LISTA_ANTERIOR, f)).toBe(1);
+  });
+
+  test('CONTROLE 5 / 4 / 4: enviados = incluídos e o estado é divergente — declara a COINCIDÊNCIA e CONSERVA a divergência anterior à restrição', async () => {
+    const p = cenario(ids(5), ids(4));
+    expect(p.vinculo.estado).toBe('divergente');
+    expect(p.respondentesEnviados.map((r: any) => r.respondentId)).toEqual(ids(4));
+    const { contexto, status } = await executarCenario(p);
+    expect(status).toBe(200);
+
+    expect(contexto).toContain(TOTAL_COINCIDE_4);
+    expect(contexto).toContain('COINCIDEM, um a um (4 enviados, 4 incluídos). A divergência anterior à restrição, acima, permanece registrada.');
+    // a divergência anterior à restrição está LÁ: 5 avaliados, e r5 na sobra da avaliação
+    expect(contexto).toContain('- Contagens: incluídos no documento de cálculo: 4; avaliados antes de qualquer restrição: 5; enviados a você: 4');
+    expect(contexto).toContain('- Na avaliação e NÃO no documento de cálculo: "r5" [fora-do-documento; campo respondentId]');
+    // e o contexto NÃO diz que a lista enviada difere do cálculo
+    expect(contexto).not.toContain('mas DIFERE dos');
+    expect(contexto).not.toContain('DIFEREM (');
+    expect(contexto).toContain(CALCULO_NOMEADO(4));
+    // as contagens por status nomeiam a população e a etapa, e a primeira vem logo depois do cabeçalho
+    expect(contexto).toContain(
+      'Contagens por status, sobre os ENVIADOS a você (etapa: envio):\n- CONFIÁVEIS (CR ≤ 10%): 4\n- REVISAR (10–15%): 0\n- SUSPEITOS (15–20%): 0\n- CRÍTICOS (>20%): 0'
+    );
+    expect(contexto).toContain('## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)');
+    expect(frasesAntigasPresentes(contexto)).toEqual([]);
+  });
+
+  test('CONTROLE 3 / 4 / 3: enviados DIFEREM dos incluídos — e o MESMO estado divergente dá a afirmação OPOSTA à do 5 / 4 / 4', async () => {
+    const p534 = cenario(ids(5), ids(4));
+    const p343 = cenario(ids(3), ids(4));
+    expect(p343.vinculo.estado).toBe('divergente');
+    expect(p343.vinculo.estado).toBe(p534.vinculo.estado); // ⚠ o estado NÃO distingue os dois cenários
+    expect(p343.respondentesEnviados.map((r: any) => r.respondentId)).toEqual(ids(3));
+
+    const c343 = (await executarCenario(p343)).contexto;
+    expect(c343).toContain(TOTAL_DIFERE_3_4);
+    expect(c343).toContain('DIFEREM (3 enviados, 4 incluídos): 1 incluído(s) no documento e ausente(s) dos enviados; 0 enviado(s) ausente(s) do documento; 0 identificador(es) repetido(s) nos enviados.');
+    expect(c343).toContain('- No documento de cálculo e NÃO na avaliação: "r4"');
+    expect(c343).toContain(CALCULO_NOMEADO(4));
+    // ⚠ o defeito medido em M7: a lista enviada (3) apresentada como o N das matrizes
+    expect(c343).not.toMatch(/\bN = \d/);
+    expect(c343).not.toContain('COINCIDE');
+    expect(frasesAntigasPresentes(c343)).toEqual([]);
+
+    // as afirmações OPOSTAS, do mesmo estado
+    const c534 = (await executarCenario(p534)).contexto;
+    expect(c534).toContain('COINCIDE, um a um');
+    expect(c343).not.toContain('COINCIDE, um a um');
+    expect(c343).toContain('DIFERE dos');
+    expect(c534).not.toContain('DIFERE dos');
+  });
+
+  test('CONTRAEXEMPLO do controle: deduzir a relação do ESTADO afirmaria DIFERE no 5 / 4 / 4, e o detector do teste enxerga isso', async () => {
+    const real = (await executarCenario(cenario(ids(5), ids(4)))).contexto;
+    // o texto que um "divergente ⇒ diferem" geraria no 5 / 4 / 4
+    const doEstado = real.replace(TOTAL_COINCIDE_4, TOTAL_DIFERE_3_4.replace('3 respondentes', '4 respondentes'));
+    expect(doEstado).not.toBe(real);
+    const afirmaDiferenca = (c: string) => c.includes('mas DIFERE dos');
+    expect(afirmaDiferenca(real)).toBe(false);
+    expect(afirmaDiferenca(doEstado)).toBe(true);
+  });
+
+  test.each([
+    ['indisponivel', (l: any[]) => vinculoDoEstado('indisponivel', l)],
+    ['invalido', (l: any[]) => vinculoDoEstado('invalido', l)],
+    ['formato não reconhecido', () => ({ estado: 'inventado' })],
+  ] as const)('%s: NENHUMA contagem de incluídos, nenhuma participação por célula, e o contexto diz que a contagem não está disponível', async (_nome, montar) => {
+    const lista = elegivel();
+    const { contexto, status } = await executar(payloadDaTela(lista, montar(lista)));
+    expect(status).toBe(200);
+
+    expect(contexto).toContain(TOTAL_NAO_COMPARADO_4);
+    expect(contexto).toContain(CALCULO_NAO_DISPONIVEL);
+    // o que NÃO pode haver: contagem de incluídos, coincidência ou diferença afirmadas, o portão como propriedade do percurso
+    const afirmaIncluidos = (c: string) => /\d+ respondentes INCLUÍDOS|COINCIDE|DIFERE|INCLUÍDOS \(tamanho/.test(c);
+    expect(afirmaIncluidos(contexto)).toBe(false);
+    expect(contexto).not.toContain('Portão de completude de A.21');
+    expect(frasesAntigasPresentes(contexto)).toEqual([]);
+
+    // CONTRAEXEMPLO: afirmar a partir da contagem ENVIADA (o defeito de M7) seria flagrado pelo mesmo detector
+    const mutante = contexto.replace(CALCULO_NAO_DISPONIVEL, CALCULO_NOMEADO(4));
+    expect(mutante).not.toBe(contexto);
+    expect(afirmaIncluidos(mutante)).toBe(true);
+    // e a redação de a973c8f, sem o campo, é a que afirmava "N = 4 em TODAS as matrizes" mesmo aqui
+    const legado = (await executar(payloadDaTela(lista))).contexto;
+    expect(legado).toContain('Portanto N = 4 em TODAS as matrizes agregadas');
+  });
+
+  test('vinculado com a lista de incluídos MALFORMADA: a contagem é a DECLARADA no bloco, sem lista para compará-la — nem "não disponível", nem coincidência', async () => {
+    const lista = elegivel();
+    const v = { ...vinculoDoEstado('vinculado', lista), incluidosNoDocumento: 'nao-e-lista' };
+    const { contexto, status } = await executar(payloadDaTela(lista, v));
+    expect(status).toBe(200);
+    expect(contexto).toContain('incluídos no documento de cálculo: 4;'); // o bloco a imprime
+    expect(contexto).toContain(TOTAL_NAO_COMPARADO_4);
+    expect(contexto).toContain(CALCULO_DECLARADO_SEM_LISTA);
+    expect(contexto).toContain('comparação NÃO realizada (não há lista de incluídos utilizável nesta requisição)');
+    expect(contexto).toContain('contagem declarada no vínculo, SEM lista de incluídos utilizável para compará-la');
+    // CONTRAEXEMPLO: "não disponível" contradiria o "4" impresso pelo próprio bloco
+    expect(contexto).not.toContain('NÃO está disponível nesta requisição');
+    expect(contexto).not.toContain('contagem NÃO disponível nesta requisição');
+    expect(contexto).not.toMatch(/COINCIDE|DIFERE|\d+ respondentes INCLUÍDOS/);
+    expect(contexto).not.toContain('Portão de completude de A.21');
+    expect(frasesAntigasPresentes(contexto)).toEqual([]);
+  });
+
+  test.each([['vinculado'], ['divergente']] as const)(
+    '%s: a contagem de incluídos é NOMEADA, não é promovida a participação por célula, e o portão de A.21 é propriedade do PERCURSO, e não conclusão do vínculo',
+    async (estado) => {
+      const lista = elegivel();
+      const v = vinculoDoEstado(estado, lista);
+      const { contexto } = await executar(payloadDaTela(lista, v));
+      const k = estado === 'vinculado' ? 4 : 5; // divergente: r1..r4 + a sobra do documento
+      expect(contexto).toContain(CALCULO_NOMEADO(k));
+      expect(contexto).toContain(PORTAO);
+      expect(ocorrencias(contexto, PORTAO)).toBe(1);
+      // a contagem NÃO vira o N de célula: nenhum "N = " e nenhuma participação plena afirmada
+      expect(contexto).not.toMatch(/\bN = \d/);
+      expect(contexto).not.toContain('TOTALIDADE das comparações');
+      // toda menção a "verificou" está NEGADA: o vínculo de identificadores não verificou os julgamentos
+      expect(contexto.match(/(NÃO )?verificou/g)).toEqual(['NÃO verificou']);
+      // CONTRAEXEMPLO: o detector flagra o portão apresentado como conclusão do vínculo
+      const comoConclusao = contexto.replace('Este vínculo de identificadores NÃO verificou', 'Este vínculo de identificadores verificou');
+      expect(comoConclusao.match(/(NÃO )?verificou/g)).toEqual(['verificou']);
+      // o lembrete da divergência anterior à restrição só acompanha a COINCIDÊNCIA em `divergente` (o 5 / 4 / 4);
+      // aqui, sem restrição, os enviados são os avaliados e não há lembrete em nenhum dos dois
+      expect(contexto).not.toContain('A divergência anterior à restrição');
+      expect(frasesAntigasPresentes(contexto)).toEqual([]);
+    }
+  );
+
+  test('a contradição entre o que o vínculo declara e o que a lista traz é CONSERVADA no contexto, sem escolher um em silêncio', async () => {
+    const lista = elegivel();
+    const v = vinculoDoEstado('vinculado', lista) as any;
+    const { contexto } = await executar(payloadDaTela(lista, { ...v, enviados: [...v.enviados, 'r9'] }));
+    expect(contexto).toContain('⚠ O vínculo declara 5 enviados, e esta lista traz 4: os dois valores se conservam.');
+    const comIncluidos = await executar(payloadDaTela(lista, { ...v, cobertura: { ...v.cobertura, incluidosNoDocumento: 7 } }));
+    expect(comIncluidos.contexto).toContain('⚠ O bloco declara 7 incluídos em "Contagens", e a lista de incluídos do vínculo traz 4: os dois valores se conservam.');
+  });
+
+  // ---- :875 e :879
+  describe('as linhas de exclusão (`route.ts:875` e `:879`): cada contagem nomeia população e etapa, e a última usa a população ENVIADA', () => {
+    const AMOSTRA =
+      '- Amostra original coletada (população: respostas carregadas pela tela, finalizadas, de respondentes cadastrados e uma por respondente; etapa: coleta): 6 especialistas';
+    const RESTANTES =
+      '- Restantes após a exclusão do gestor (população: respondentes não excluídos; etapa: exclusão do gestor, anterior a qualquer restrição do vínculo): 5 especialistas';
+    const EXCLUIDOS = '- Respondentes excluídos pelo gestor (população: excluídos; etapa: exclusão do gestor): 1 (16.7% da amostra original)';
+    const QUALIDADE =
+      '- Os dados de qualidade abaixo referem-se APENAS aos 4 respondentes ENVIADOS a você (população: enviados; etapa: envio; contagem da lista de respondentes abaixo).';
+
+    test('5 / 4 / 4 com exclusão: 5 restantes (antes da restrição) e 4 enviados, e `:879` fala dos 4', async () => {
+      const { contexto } = await executarCenario(cenario(ids(5), ids(4)), { exclusionInfo: EXCLUSAO });
+      expect(contexto).toContain(AMOSTRA);
+      expect(contexto).toContain(RESTANTES);
+      expect(contexto).toContain(EXCLUIDOS);
+      expect(contexto).toContain(QUALIDADE);
+      // a redação antiga, com o mesmo cenário, dizia "APENAS aos 5" sobre dados calculados sobre 4
+      expect(contexto).not.toContain('referem-se APENAS aos 5');
+      expect(contexto).not.toContain('Respondentes incluídos na análise');
+      expect(contexto).not.toContain('- Respondentes excluídos: 1');
+      expect(contexto).toContain('**TOTAL ENVIADO A VOCÊ: 4 respondentes');
+      expect(frasesAntigasPresentes(contexto)).toEqual([]);
+    });
+
+    test('CONTRAEXEMPLO: usar `activeCount` em `:879` produz outra linha, que o contexto NÃO contém', async () => {
+      const { contexto } = await executarCenario(cenario(ids(5), ids(4)), { exclusionInfo: EXCLUSAO });
+      const comActiveCount = linhasDeExclusaoComVinculo(EXCLUSAO, '16.7', EXCLUSAO.activeCount).qualidade;
+      expect(comActiveCount).toContain('APENAS aos 5 respondentes ENVIADOS');
+      expect(contexto).not.toContain(comActiveCount);
+      // e a linha CERTA é a da população enviada, calculada pelo módulo com a lista
+      expect(linhasDeExclusaoComVinculo(EXCLUSAO, '16.7', 4).qualidade).toBe(QUALIDADE);
+    });
+
+    test('nos estados sem comparação a exclusão também nomeia população e etapa, e `:879` usa a lista enviada', async () => {
+      const lista = elegivel();
+      for (const v of [vinculoDoEstado('indisponivel', lista), vinculoDoEstado('invalido', lista), { estado: 'inventado' }]) {
+        const { contexto } = await executar({ ...payloadDaTela(lista, v), exclusionInfo: EXCLUSAO });
+        expect(contexto).toContain(RESTANTES);
+        expect(contexto).toContain(QUALIDADE);
+        expect(contexto).not.toContain('referem-se APENAS aos 5');
+      }
+    });
+
+    test('a restrição ESVAZIA a lista enviada: a linha não afirma lista abaixo, e a seção da lista segue a do prompt sem lista', async () => {
+      const p = cenario(['r1', 'r2'], ['r7', 'r8']); // nenhum avaliado está no documento
+      expect(p.respondentesEnviados).toEqual([]);
+      const { contexto, status } = await executarCenario(p, { exclusionInfo: EXCLUSAO });
+      expect(status).toBe(200);
+      expect(contexto).toContain('- Nenhum respondente foi ENVIADO a você (população: enviados; etapa: envio; contagem: 0): a lista de respondentes abaixo não existe.');
+      expect(contexto).not.toContain('referem-se APENAS aos 0');
+      expect(contexto).toContain('⚠️ Lista individual de respondentes não disponível.');
+      expect(contexto).toContain(RESTANTES);
+    });
+
+    test('sem o campo, a exclusão fica com a redação anterior, byte a byte (âncora absoluta de R7)', async () => {
+      const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
+      expect(contexto).toContain(EXCLUSAO_ANTERIOR);
+      expect(contexto).not.toContain('(população: ');
+    });
+  });
+
+  // ---- :953
+  describe('a regra de menção (`route.ts:953`): distingue o PARTICIPANTE da avaliação enviada da DIVERGÊNCIA REGISTRADA', () => {
+    /** A regra antiga proíbe, sem exceção, citar quem está fora da lista, e o bloco NOMEIA quem está fora. */
+    const contradiz = (c: string) =>
+      c.includes(ANTIGA.regra) && /(Na avaliação e NÃO no documento de cálculo|No documento de cálculo e NÃO na avaliação): "[^"]+"/.test(c);
+
+    test('CAPTURA do contexto 5 / 4 / 4: o bloco nomeia r5 como divergência, e a regra permite nomeá-lo SOMENTE nesse papel', async () => {
+      const { contexto } = await executarCenario(cenario(ids(5), ids(4)));
+      expect(contexto).toContain('- Na avaliação e NÃO no documento de cálculo: "r5" [fora-do-documento; campo respondentId]');
+      expect(contexto).toContain(REGRA_NOVA);
+      // ⚠ o prompt tem outras linhas "⚠️ REGRA:"; a da LISTA é a que começa por esta frase, e é uma só
+      expect(ocorrencias(contexto, '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista')).toBe(1);
+      expect(contexto).not.toContain(ANTIGA.regra);
+      expect(contexto).not.toContain('Se precisar referenciá-los');
+      // os dois papéis, distintos
+      expect(contexto).toContain('COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA');
+      expect(contexto).toContain('DIVERGÊNCIA REGISTRADA');
+      expect(contexto).toContain('SOMENTE nesse papel');
+      expect(contradiz(contexto)).toBe(false);
+    });
+
+    test('CONTRAEXEMPLO: a regra ANTIGA com o bloco presente é a contradição de M9, e o detector a enxerga', async () => {
+      const { contexto } = await executarCenario(cenario(ids(5), ids(4)));
+      const comRegraAntiga = contexto.replace(REGRA_NOVA, ANTIGA.regra);
+      expect(comRegraAntiga).not.toBe(contexto);
+      expect(contradiz(comRegraAntiga)).toBe(true);
+      expect(contradiz(contexto)).toBe(false);
+      // sem o campo não há bloco que nomeie ninguém, então a regra antiga sozinha não contradiz
+      const semCampo = (await executar(payloadDaTela(elegivel()))).contexto;
+      expect(semCampo).toContain(ANTIGA.regra);
+      expect(contradiz(semCampo)).toBe(false);
+    });
+
+    test('nos quatro estados e no formato não reconhecido a regra é a NOVA, e a antiga não sobrevive', async () => {
+      const lista = elegivel();
+      for (const v of [...ESTADOS.map((e) => vinculoDoEstado(e, lista)), { estado: 'inventado' }]) {
+        const { contexto } = await executar(payloadDaTela(lista, v));
+        expect(contexto).toContain(REGRA_NOVA);
+        expect(contexto).not.toContain(ANTIGA.regra);
+        expect(contradiz(contexto)).toBe(false);
+      }
+    });
+  });
+
+  // ---- o inventário das contagens do contexto
+  describe('o inventário das contagens de respondentes do contexto completo: cada uma nomeia a população, ou está entre as cobertas pela chave, que é declarada', () => {
+    const CANDIDATA = /respondentes|especialistas|enviados|Enviados|avaliados|incluídos|INCLUÍDOS|Respostas|respostas|N = |Restantes|Amostra original|excluídos/;
+    const temNumero = (l: string) => /\d/.test(l.replace(/\bA\.\d+\b/g, '')); // "A.21" é nome de tarefa, e não contagem
+    const candidatas = (contexto: string) => contexto.split('\n').filter((l) => !l.startsWith('- ID:') && temNumero(l) && CANDIDATA.test(l));
+
+    /** Nomeiam a população NO PRÓPRIO TEXTO: rótulo `etapa:` ou os nomes dos conjuntos do vínculo. */
+    const rotulada = (l: string) =>
+      /etapa:/.test(l) ||
+      /^- (Estado do vínculo|Contagens: incluídos no documento de cálculo|Cobertura enviada|Relação entre os ENVIADOS)/.test(l);
+    /** ⚠ Cobertas SÓ pela chave de leitura, e declaradas: nenhuma reescrita neste estágio. */
+    const coberta = (l: string) =>
+      /^- Total: \d+ especialistas$/.test(l) ||
+      /^- Respostas (CONFIÁVEIS|para REVISAR|SUSPEITAS|CRÍTICAS)/.test(l) ||
+      /^\*\*Taxa de Validade Geral:\*\*/.test(l) ||
+      /^- Respostas totais: \d+$/.test(l);
+
+    test('COM o campo, 5 / 4 / 4 com exclusão: nenhuma contagem fica sem população, e as cobertas só pela chave são exatamente dez', async () => {
+      const { contexto } = await executarCenario(cenario(ids(5), ids(4)), { exclusionInfo: EXCLUSAO });
+      const todas = candidatas(contexto);
+      const semRotulo = todas.filter((l) => !rotulada(l) && !coberta(l));
+      expect(semRotulo).toEqual([]);
+      const soChave = todas.filter((l) => !rotulada(l) && coberta(l));
+      expect(soChave.length).toBe(10); // Total + 4 status + Taxa + 4 "Respostas totais" por dimensão
+      expect(todas.length - soChave.length).toBe(10); // e dez nomeiam a população no próprio texto
+      // a chave existe, UMA vez, e diz a que população cada uma dessas contagens se refere
+      expect(ocorrencias(contexto, '- Chave de leitura das contagens deste contexto')).toBe(1);
+      expect(contexto).toContain('a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles');
+      expect(contexto).toContain('os totais por dimensão BOCR de "Estatísticas por Dimensão" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma');
+    });
+
+    test('CONTRAEXEMPLO: SEM o campo, o mesmo inventário acha as contagens da redação anterior SEM população e SEM chave', async () => {
+      const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
+      const todas = candidatas(contexto);
+      const semRotulo = todas.filter((l) => !rotulada(l) && !coberta(l));
+      expect(semRotulo.length).toBe(7);
+      expect(semRotulo.join('\n')).toContain('Portanto N = 4 em TODAS as matrizes agregadas');
+      expect(semRotulo.join('\n')).toContain('APENAS aos 5 respondentes incluídos');
+      expect(contexto).not.toContain('Chave de leitura das contagens');
+    });
   });
 });
 
@@ -360,19 +800,37 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
     }
   });
 
-  test('a rota não lê o vínculo para decidir: a função de elegibilidade não o recebe', () => {
+  test('a rota lê o vínculo só para montar TEXTO, e nunca para decidir: a elegibilidade e a nota não o recebem', () => {
     const contrato = ler('lib/ai-reviewer/avaliacao-qualidade.ts');
     expect(contrato).not.toMatch(/vinculo/i);
     const rota = ler(ROTA);
-    // a única referência do vínculo na rota: o import, a cópia, o texto do bloco
+    // toda referência do vínculo na rota, em ordem: o import, a cópia, a leitura para o TEXTO e o bloco
     const linhas = rota.split('\n').filter((l) => /vinculo/i.test(l) && !l.trim().startsWith('//'));
     expect(linhas.map((l) => l.trim())).toEqual([
-      "import { descreverVinculoParaContexto } from '@/lib/ai-reviewer/vinculo-execucao';",
+      'descreverVinculoParaContexto,',
+      'frasesDaListaComVinculo,',
+      'lerVinculoParaTexto,',
+      'linhasDeExclusaoComVinculo,',
+      "} from '@/lib/ai-reviewer/vinculo-execucao';",
       'vinculoDaExecucao: rawData.vinculoDaExecucao,',
+      'const leituraDoVinculo = lerVinculoParaTexto(data.vinculoDaExecucao);',
+      "const comVinculo = leituraDoVinculo.modo !== 'ausente';",
+      'const linhasDaExclusao = comVinculo',
+      '? linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados)',
       'const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao);',
       "const blocoDoVinculo = textoDoVinculo === '' ? '' : `\\n${textoDoVinculo}\\n`;",
+      'const frases: FrasesDaLista = comVinculo',
+      '? frasesDaListaComVinculo(leituraDoVinculo, respondents.length)',
       '${blocoDoVinculo}',
     ]);
+    // ⚠ e nenhuma dessas leituras chega à decisão: as três chamadas da elegibilidade recebem só a avaliação e a coerência
+    const chamadas = rota.match(/elegivelParaClassificacao\([^)]*\)/g) ?? [];
+    expect(chamadas.length).toBe(3);
+    for (const c of chamadas) expect(c).toBe('elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade)');
+    const inicio = rota.indexOf('function calculateGrade(');
+    const nota = rota.slice(inicio, rota.indexOf('\n}\n', inicio));
+    expect(nota.length).toBeGreaterThan(100);
+    expect(nota).not.toMatch(/vinculo/i);
   });
 });
 
@@ -388,8 +846,10 @@ describe('ensaio 8 e R6: o conjunto restringido é o que o contexto lista e cont
 
     const payload = payloadDaTela(preparo.respondentesEnviados, preparo.vinculo, !preparo.omitirOverall);
     const { contexto } = await executar(payload);
-    expect(contexto).toContain('**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**');
-    expect(contexto).not.toContain('**TOTAL: 5 respondentes');
+    // ⚠ 5 avaliados, 4 incluídos, 4 enviados: a lista é a de `enviados`, e COINCIDE com os incluídos
+    expect(contexto).toContain('**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**');
+    expect(contexto).not.toContain('**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**');
+    expect(contexto).not.toContain('**TOTAL ENVIADO A VOCÊ: 5 respondentes');
     expect(contexto).toContain('ID: r4 |');
     expect(contexto).not.toContain('ID: r5 |');
     const bloco = blocoDe(contexto);

@@ -23,13 +23,20 @@
  */
 
 import {
+  CHAVE_DE_LEITURA_DAS_CONTAGENS,
+  compararEnviadosComIncluidos,
   compararIdentificadores,
   descreverVinculoParaContexto,
+  frasesDaListaComVinculo,
   idDoElementoNaAnalise,
   idDoElementoNoFallback,
   identificarNaAnalise,
   identificarNoFallback,
   LIMITE_DO_VINCULO,
+  LINHA_DA_RELACAO,
+  LINHA_DO_PORTAO_DE_COMPLETUDE,
+  lerVinculoParaTexto,
+  linhasDeExclusaoComVinculo,
   MARCADOR_DO_BLOCO_DO_VINCULO,
   prepararVinculoDaTela,
 } from '@/lib/ai-reviewer/vinculo-execucao';
@@ -1272,5 +1279,328 @@ describe('ensaio 10 (parte pura) e seção 7: o estado do vínculo, isoladamente
       }
     }
     expect([...causas].sort()).toEqual([null, 'coerencia_nao_avaliada', 'coerencia_nao_concluida', 'contradicao', 'disponibilidade'].sort());
+  });
+});
+
+
+// ============================================================ R1: a relação entre enviados e incluídos vem das LISTAS
+describe('R1: a relação entre enviados e incluídos é a comparação das duas listas, com multiplicidade, e nunca o estado', () => {
+  test('compararEnviadosComIncluidos: mesmos identificadores, o mesmo número de vezes cada um, em qualquer ordem', () => {
+    const r = compararEnviadosComIncluidos(['b', 'a', 'c'], ['a', 'b', 'c']);
+    expect(r).toEqual({
+      iguais: true,
+      enviados: 3,
+      incluidos: 3,
+      incluidosForaDosEnviados: [],
+      enviadosForaDoDocumento: [],
+      repetidosNosEnviados: [],
+    });
+  });
+
+  test('a MULTIPLICIDADE conta: [a, a, b] contra [a, b] não coincide, e [a, b] contra [a, a, b] também não', () => {
+    const excesso = compararEnviadosComIncluidos(['a', 'a', 'b'], ['a', 'b']);
+    expect(excesso.iguais).toBe(false);
+    expect(excesso.enviadosForaDoDocumento).toEqual(['a']);
+    expect(excesso.repetidosNosEnviados).toEqual([{ identificador: 'a', ocorrencias: 2 }]);
+    const falta = compararEnviadosComIncluidos(['a', 'b'], ['a', 'a', 'b']);
+    expect(falta.iguais).toBe(false);
+    expect(falta.incluidosForaDosEnviados).toEqual(['a']);
+    // CONTRAEXEMPLO EXECUTADO: converter em conjuntos apagaria a diferença
+    expect(new Set(['a', 'a', 'b'])).toEqual(new Set(['a', 'b']));
+  });
+
+  test('a diferença nomeia os dois lados, e as duas sobras podem coexistir', () => {
+    const r = compararEnviadosComIncluidos(['a', 'x'], ['a', 'y', 'z']);
+    expect(r.iguais).toBe(false);
+    expect(r.incluidosForaDosEnviados.sort()).toEqual(['y', 'z']);
+    expect(r.enviadosForaDoDocumento).toEqual(['x']);
+  });
+
+  test('lerVinculoParaTexto: os três modos, e nunca lança', () => {
+    expect(lerVinculoParaTexto(undefined).modo).toBe('ausente');
+    expect(lerVinculoParaTexto(null).modo).toBe('ausente');
+    for (const raw of [{}, 'texto', 42, [], { estado: 'inventado' }, { estado: 7 }]) {
+      const l = lerVinculoParaTexto(raw);
+      expect(l.modo).toBe('sem-comparacao');
+      expect(l.reconhecido).toBe(false);
+      expect(l.relacao).toBeNull();
+    }
+    for (const estado of ['indisponivel', 'invalido'] as const) {
+      const l = lerVinculoParaTexto(vinculoDoEstado(estado));
+      expect(l.modo).toBe('sem-comparacao');
+      expect(l.reconhecido).toBe(true);
+      expect(l.estado).toBe(estado);
+      expect(l.relacao).toBeNull();
+    }
+    for (const estado of ['vinculado', 'divergente'] as const) {
+      const l = lerVinculoParaTexto(vinculoDoEstado(estado));
+      expect(l.modo).toBe('comparado');
+      expect(l.relacao).not.toBeNull();
+    }
+  });
+
+  test('vinculado ou divergente com as listas MALFORMADAS não compara: sem-comparacao, e nada é afirmado', () => {
+    const base = vinculoDoEstado('divergente');
+    for (const quebra of [
+      { incluidosNoDocumento: null },
+      { incluidosNoDocumento: [] },
+      { incluidosNoDocumento: ['a', 7] },
+      { incluidosNoDocumento: ['a', ''] },
+      { enviados: null },
+      { enviados: ['a', null] },
+      { enviados: 'a' },
+    ]) {
+      const l = lerVinculoParaTexto({ ...base, ...quebra });
+      expect(l.modo).toBe('sem-comparacao');
+      expect(l.relacao).toBeNull();
+    }
+  });
+
+  test('CONTROLES 5 / 4 / 4 e 3 / 4 / 3: o MESMO estado divergente, e afirmações OPOSTAS', () => {
+    const c544 = prep(calculo(['r1', 'r2', 'r3', 'r4']), analise('r1', 'r2', 'r3', 'r4', 'r5')).vinculo;
+    const c343 = prep(calculo(['r1', 'r2', 'r3', 'r4']), analise('r1', 'r2', 'r3')).vinculo;
+    expect(c544.estado).toBe('divergente');
+    expect(c343.estado).toBe('divergente');
+
+    const l544 = lerVinculoParaTexto(c544);
+    const l343 = lerVinculoParaTexto(c343);
+    expect(l544.relacao).toMatchObject({ iguais: true, enviados: 4, incluidos: 4 });
+    expect(l343.relacao).toMatchObject({ iguais: false, enviados: 3, incluidos: 4, incluidosForaDosEnviados: ['r4'] });
+
+    // CONTRAEXEMPLO EXECUTADO: deduzir do estado daria a MESMA resposta para os dois, e errada em um
+    const deduzidoDoEstado = (l: ReturnType<typeof lerVinculoParaTexto>) => l.estado === 'vinculado';
+    expect(deduzidoDoEstado(l544)).toBe(false); // errado: os enviados COINCIDEM com os incluídos
+    expect(deduzidoDoEstado(l343)).toBe(false);
+    expect(deduzidoDoEstado(l544)).toBe(deduzidoDoEstado(l343)); // não distingue os controles
+    expect(l544.relacao!.iguais).not.toBe(l343.relacao!.iguais); // a comparação das listas distingue
+  });
+
+  test('a relação vem das LISTAS, não do booleano transportado: booleano contraditório não muda o texto', () => {
+    const c343 = prep(calculo(['r1', 'r2', 'r3', 'r4']), analise('r1', 'r2', 'r3')).vinculo;
+    const mentiroso = { ...c343, cobertura: { ...c343.cobertura, enviadosIguaisAoDocumento: true } };
+    const bloco = descreverVinculoParaContexto(mentiroso);
+    expect(bloco).toContain('DIFEREM (3 enviados, 4 incluídos)');
+    expect(bloco).toContain('NÃO descreve o conjunto enviado a você, que difere do conjunto do documento');
+    expect(bloco).not.toContain('O conjunto enviado coincide com o do documento');
+  });
+});
+
+// ============================================================ R1: as linhas novas do bloco e as frases ao redor
+describe('R1: o bloco ganha a chave, a relação e o portão; as frases ao redor nomeiam população e etapa', () => {
+  const AFIRMA = /conferid|verificad|validad|íntegr|integr|auditáv|comprovad|autentic/i;
+  const NOTA = /\bnota\b|classifica(?:r|ção|do)|rótulo|elegibil|suspens|reprov|aprov|confiável|recomend/i;
+
+  const c544 = () => prep(calculo(['r1', 'r2', 'r3', 'r4']), analise('r1', 'r2', 'r3', 'r4', 'r5')).vinculo;
+  const c343 = () => prep(calculo(['r1', 'r2', 'r3', 'r4']), analise('r1', 'r2', 'r3')).vinculo;
+
+  test('a chave existe nos quatro estados, e só diz que os incluídos NÃO estão disponíveis onde não estão', () => {
+    for (const estado of ESTADOS) {
+      const bloco = descreverVinculoParaContexto(vinculoDoEstado(estado));
+      expect(bloco).toContain('Chave de leitura das contagens deste contexto (cálculo, avaliação e envio NÃO são sinônimos)');
+      expect(bloco).toContain('enviados a você (etapa: envio)');
+      expect(bloco).toContain('avaliados antes de qualquer restrição (etapa: avaliação de qualidade)');
+      const semIncluidos = estado === 'indisponivel' || estado === 'invalido';
+      expect(bloco.includes('contagem NÃO disponível nesta requisição')).toBe(semIncluidos);
+      expect(bloco.includes('a contagem registrada no documento')).toBe(!semIncluidos);
+    }
+  });
+
+  test('a relação: NÃO realizada sem comparação; COINCIDEM ou DIFEREM com ela; e o portão só onde há comparação', () => {
+    const linhaDaRelacao = (b: string) => b.split('\n').find((l) => l.startsWith('- Relação entre os ENVIADOS')) ?? '';
+    for (const estado of ['indisponivel', 'invalido'] as const) {
+      const b = descreverVinculoParaContexto(vinculoDoEstado(estado));
+      expect(linhaDaRelacao(b)).toContain('comparação NÃO realizada');
+      expect(b).not.toContain('Portão de completude de A.21');
+    }
+    const b544 = descreverVinculoParaContexto(c544());
+    expect(linhaDaRelacao(b544)).toContain('COINCIDEM, um a um (4 enviados, 4 incluídos). A divergência anterior à restrição, acima, permanece registrada.');
+    expect(b544).toContain('Na avaliação e NÃO no documento de cálculo: "r5"'); // a divergência anterior à restrição, conservada
+    expect(b544).toContain(LINHA_DO_PORTAO_DE_COMPLETUDE);
+    const b343 = descreverVinculoParaContexto(c343());
+    expect(linhaDaRelacao(b343)).toContain('DIFEREM (3 enviados, 4 incluídos): 1 incluído(s) no documento e ausente(s) dos enviados; 0 enviado(s) ausente(s) do documento');
+    expect(b343).toContain(LINHA_DO_PORTAO_DE_COMPLETUDE);
+  });
+
+  test('o portão é PROPRIEDADE DO PERCURSO EXAMINADO, e a linha nega que o vínculo tenha verificado os julgamentos', () => {
+    expect(LINHA_DO_PORTAO_DE_COMPLETUDE).toContain('propriedade do PERCURSO DE CÁLCULO EXAMINADO');
+    expect(LINHA_DO_PORTAO_DE_COMPLETUDE).toContain('não conferência desta execução');
+    expect(LINHA_DO_PORTAO_DE_COMPLETUDE).toContain('NÃO verificou os julgamentos daquela execução');
+    // CONTRAEXEMPLO: a afirmação ampla NÃO está aqui
+    expect(LINHA_DO_PORTAO_DE_COMPLETUDE).not.toMatch(/todos os \d+ respondentes|TOTALIDADE|participação (plena|integral)/i);
+  });
+
+  test('nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)', () => {
+    const textos = [
+      ...CHAVE_DE_LEITURA_DAS_CONTAGENS(lerVinculoParaTexto(c544())),
+      ...CHAVE_DE_LEITURA_DAS_CONTAGENS(lerVinculoParaTexto(vinculoDoEstado('invalido'))),
+      ...CHAVE_DE_LEITURA_DAS_CONTAGENS(lerVinculoParaTexto({ ...c544(), incluidosNoDocumento: 'nao-e-lista' })),
+      LINHA_DA_RELACAO(lerVinculoParaTexto({ ...c544(), incluidosNoDocumento: 'nao-e-lista' })),
+      LINHA_DA_RELACAO(lerVinculoParaTexto(c544())),
+      LINHA_DA_RELACAO(lerVinculoParaTexto(c343())),
+      LINHA_DA_RELACAO(lerVinculoParaTexto(vinculoDoEstado('invalido'))),
+      LINHA_DO_PORTAO_DE_COMPLETUDE,
+      ...[c544(), c343(), vinculoDoEstado('indisponivel')].flatMap((v) => {
+        const f = frasesDaListaComVinculo(lerVinculoParaTexto(v), 4);
+        return [f.cabecalho, f.total, f.agregacao, f.cabecalhoDasContagens, f.regraDeMencao];
+      }),
+      ...Object.values(linhasDeExclusaoComVinculo({ totalCollected: 6, activeCount: 5, excludedCount: 1 }, '16.7', 4)),
+    ].join('\n');
+    // ⚠ as negações "NÃO verificou" não casam com o detector, que procura a forma AFIRMATIVA
+    expect(textos).not.toMatch(AFIRMA);
+    expect(textos).not.toMatch(NOTA);
+    // CONTRAEXEMPLO: o detector discrimina
+    expect('- Julgamentos verificados e íntegros.').toMatch(AFIRMA);
+  });
+
+  test('as frases ao redor: o TOTAL é da lista enviada, e a relação com o cálculo vem da comparação', () => {
+    const iguais = frasesDaListaComVinculo(lerVinculoParaTexto(c544()), 4);
+    expect(iguais.total).toBe('**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**');
+    const diferem = frasesDaListaComVinculo(lerVinculoParaTexto(c343()), 3);
+    expect(diferem.total).toContain('DIFERE dos 4 incluídos no documento de cálculo: 1 incluído(s) no documento e ausente(s) desta lista, 0 enviado(s) ausente(s) do documento');
+    const sem = frasesDaListaComVinculo(lerVinculoParaTexto(vinculoDoEstado('indisponivel')), 2);
+    expect(sem.total).toBe('**TOTAL ENVIADO A VOCÊ: 2 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**');
+    // ⚠ "não existem outros" é exaustividade do MUNDO, e só a da lista é afirmada
+    for (const f of [iguais, diferem, sem]) expect(f.total).not.toContain('não existem outros');
+  });
+
+  test('a agregação: a contagem de incluídos é NOMEADA e NÃO é participação por célula; sem comparação, nada se afirma', () => {
+    const c = frasesDaListaComVinculo(lerVinculoParaTexto(c544()), 4);
+    expect(c.agregacao).toContain('contagem registrada no documento de cálculo: 4 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo)');
+    expect(c.agregacao).toContain('NÃO é medição da participação em cada célula das matrizes agregadas');
+    expect(c.agregacao).toContain('propriedade do percurso de cálculo examinado');
+    expect(c.agregacao).toContain('e não conferência desta execução');
+    const s = frasesDaListaComVinculo(lerVinculoParaTexto(vinculoDoEstado('invalido')), 2);
+    expect(s.agregacao).toContain('a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição');
+    expect(s.agregacao).toContain('Nada se afirma aqui sobre quantos respondentes entraram no cálculo');
+    expect(s.agregacao).not.toMatch(/\d+ respondentes INCLUÍDOS/);
+    // CONTRAEXEMPLO: a afirmação ampla não sobrevive em nenhum dos dois
+    for (const t of [c.agregacao, s.agregacao]) expect(t).not.toMatch(/TOTALIDADE|Portanto N =|em TODAS as matrizes agregadas: BOCR|sem particionamento/);
+  });
+
+  test('a contradição entre o que o vínculo declara e o que a lista traz é CONSERVADA, sem escolher um em silêncio', () => {
+    const f = frasesDaListaComVinculo(lerVinculoParaTexto(c544()), 3);
+    expect(f.total).toContain('⚠ O vínculo declara 4 enviados, e esta lista traz 3: os dois valores se conservam.');
+    const coerente = frasesDaListaComVinculo(lerVinculoParaTexto(c544()), 4);
+    expect(coerente.total).not.toContain('O vínculo declara');
+  });
+
+  test('a regra de menção: dois papéis, e a redação antiga (sem exceção) não sobrevive', () => {
+    for (const v of [c544(), c343(), vinculoDoEstado('indisponivel'), { estado: 'inventado' }]) {
+      const r = frasesDaListaComVinculo(lerVinculoParaTexto(v), 3).regraDeMencao;
+      expect(r).toContain('COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA');
+      expect(r).toContain('DIVERGÊNCIA REGISTRADA');
+      expect(r).toContain('SOMENTE nesse papel');
+      expect(r).not.toContain('Se precisar referenciá-los');
+    }
+  });
+
+  test('as linhas de exclusão: cada contagem nomeia população e etapa, e a última usa a população ENVIADA, não activeCount', () => {
+    const l = linhasDeExclusaoComVinculo({ totalCollected: 6, activeCount: 5, excludedCount: 1 }, '16.7', 4);
+    for (const linha of Object.values(l)) {
+      expect(linha).toMatch(/população:/);
+      expect(linha).toMatch(/etapa:/);
+    }
+    expect(l.restantes).toContain('5 especialistas');
+    expect(l.restantes).toContain('anterior a qualquer restrição do vínculo');
+    expect(l.qualidade).toContain('aos 4 respondentes ENVIADOS a você');
+    // CONTRAEXEMPLO: activeCount (5) não aparece na linha dos dados de qualidade
+    expect(l.qualidade).not.toContain('5');
+    expect(l.qualidade).not.toContain('incluídos na análise');
+  });
+
+  test('lista ENVIADA vazia (a restrição a esvaziou): a linha não fala de "dados de qualidade abaixo" nem de "lista abaixo" como se existissem', () => {
+    const vazia = linhasDeExclusaoComVinculo({ totalCollected: 6, activeCount: 5, excludedCount: 1 }, '16.7', 0);
+    expect(vazia.qualidade).toBe('- Nenhum respondente foi ENVIADO a você (população: enviados; etapa: envio; contagem: 0): a lista de respondentes abaixo não existe.');
+    expect(vazia.qualidade).not.toContain('referem-se APENAS');
+    expect(vazia.qualidade).toMatch(/população:/);
+    expect(vazia.qualidade).toMatch(/etapa:/);
+    // as outras três linhas seguem iguais
+    const com = linhasDeExclusaoComVinculo({ totalCollected: 6, activeCount: 5, excludedCount: 1 }, '16.7', 4);
+    expect({ ...vazia, qualidade: '' }).toEqual({ ...com, qualidade: '' });
+  });
+});
+
+// ============================================================ R1: contagem declarada, e a relação por estado
+describe('R1: contagem DECLARADA sem lista utilizável, contagem declarada que difere da lista, e a divergência anterior à restrição', () => {
+  const c544 = () => prep(calculo(['r1', 'r2', 'r3', 'r4']), analise('r1', 'r2', 'r3', 'r4', 'r5')).vinculo;
+  const cVinculado = () => prep(calculo(['r1', 'r2', 'r3', 'r4']), analise('r1', 'r2', 'r3', 'r4')).vinculo;
+  const malformado = (): any => ({ ...cVinculado(), incluidosNoDocumento: 'nao-e-lista' });
+
+  test('vinculado com a lista de incluídos malformada: sem comparação, e a contagem DECLARADA (4) é nomeada como declarada, não como N de célula', () => {
+    const l = lerVinculoParaTexto(malformado());
+    expect(l.modo).toBe('sem-comparacao');
+    expect(l.reconhecido).toBe(true);
+    expect(l.incluidosDeclarados).toBe(4);
+    expect(l.relacao).toBeNull();
+
+    const chave = CHAVE_DE_LEITURA_DAS_CONTAGENS(l).join('\n');
+    expect(chave).toContain('contagem declarada no vínculo, SEM lista de incluídos utilizável para compará-la');
+    expect(chave).not.toContain('contagem NÃO disponível nesta requisição');
+    expect(LINHA_DA_RELACAO(l)).toContain('comparação NÃO realizada (não há lista de incluídos utilizável nesta requisição)');
+
+    const f = frasesDaListaComVinculo(l, 4);
+    expect(f.total).toContain('a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada');
+    expect(f.agregacao).toContain('o vínculo declara 4 incluídos no documento de cálculo (contagem transportada; etapa: cálculo), mas SEM lista de incluídos utilizável');
+    expect(f.agregacao).toContain('NÃO é medição da participação em cada célula');
+    // CONTRAEXEMPLO: nem "não disponível" (o bloco imprime o 4), nem coincidência ou diferença afirmadas
+    expect(f.agregacao).not.toContain('NÃO está disponível');
+    expect(f.total).not.toMatch(/COINCIDE|DIFERE/);
+    expect(f.agregacao).not.toMatch(/respondentes INCLUÍDOS \(tamanho/);
+    // o bloco, esse, imprime o 4 declarado: os dois textos concordam sobre o que é declarado
+    expect(descreverVinculoParaContexto(malformado())).toContain('incluídos no documento de cálculo: 4;');
+  });
+
+  test('sem número declarado (indisponivel, invalido, formato não reconhecido): a contagem NÃO está disponível, e nada se afirma', () => {
+    for (const v of [vinculoDoEstado('indisponivel'), vinculoDoEstado('invalido'), { estado: 'inventado' }]) {
+      const l = lerVinculoParaTexto(v);
+      expect(l.incluidosDeclarados).toBeNull();
+      expect(CHAVE_DE_LEITURA_DAS_CONTAGENS(l).join('\n')).toContain('contagem NÃO disponível nesta requisição');
+      expect(frasesDaListaComVinculo(l, 4).agregacao).toContain('a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição');
+    }
+  });
+
+  test('indisponivel com um número declarado (entrada contraditória): segue a regra da contagem DECLARADA, sem lista, e não a de "não disponível"', () => {
+    const v: any = { ...vinculoDoEstado('indisponivel'), cobertura: { ...(vinculoDoEstado('indisponivel') as any).cobertura, incluidosNoDocumento: 9 } };
+    const l = lerVinculoParaTexto(v);
+    expect(l.modo).toBe('sem-comparacao');
+    expect(l.incluidosDeclarados).toBe(9);
+    expect(frasesDaListaComVinculo(l, 4).agregacao).toContain('o vínculo declara 9 incluídos');
+    expect(descreverVinculoParaContexto(v)).toContain('incluídos no documento de cálculo: 9;');
+  });
+
+  test('comparado com a contagem declarada DIFERENTE da lista de incluídos: os dois valores se conservam no CÁLCULO', () => {
+    const v: any = { ...cVinculado(), cobertura: { ...(cVinculado() as any).cobertura, incluidosNoDocumento: 7 } };
+    const f = frasesDaListaComVinculo(lerVinculoParaTexto(v), 4);
+    expect(f.agregacao).toContain('contagem registrada no documento de cálculo: 4 respondentes INCLUÍDOS');
+    expect(f.agregacao).toContain('⚠ O bloco declara 7 incluídos em "Contagens", e a lista de incluídos do vínculo traz 4: os dois valores se conservam.');
+    // e, quando concordam, o aviso não aparece
+    expect(frasesDaListaComVinculo(lerVinculoParaTexto(cVinculado()), 4).agregacao).not.toContain('O bloco declara');
+  });
+
+  test('enviados: a lista de identificadores e a contagem declarada, se diferem de N, entram os DOIS valores, sem escolher', () => {
+    const base: any = cVinculado();
+    // só a lista de identificadores diverge (5 ids), a contagem declarada é 4
+    const soLista = frasesDaListaComVinculo(lerVinculoParaTexto({ ...base, enviados: [...base.enviados, 'r9'] }), 4);
+    expect(soLista.total).toContain('⚠ O vínculo declara 5 enviados, e esta lista traz 4: os dois valores se conservam.');
+    // só a contagem declarada diverge (6), a lista de ids tem 4
+    const soContagem = frasesDaListaComVinculo(lerVinculoParaTexto({ ...base, cobertura: { ...base.cobertura, enviados: 6 } }), 4);
+    expect(soContagem.total).toContain('⚠ O vínculo declara 6 enviados, e esta lista traz 4: os dois valores se conservam.');
+    // as duas divergem, com valores distintos
+    const ambas = frasesDaListaComVinculo(lerVinculoParaTexto({ ...base, enviados: [...base.enviados, 'r9'], cobertura: { ...base.cobertura, enviados: 6 } }), 4);
+    expect(ambas.total).toContain('⚠ O vínculo declara 5 e 6 enviados, e esta lista traz 4: os valores se conservam.');
+    // também sem comparação: a lista traz N e o vínculo declara outro número
+    const semComparacao = frasesDaListaComVinculo(lerVinculoParaTexto({ ...(vinculoDoEstado('indisponivel') as any), cobertura: { ...(vinculoDoEstado('indisponivel') as any).cobertura, enviados: 3 } }), 4);
+    expect(semComparacao.total).toContain('⚠ O vínculo declara 3 enviados, e esta lista traz 4: os dois valores se conservam.');
+  });
+
+  test('a divergência anterior à restrição só é lembrada onde o vínculo a REGISTROU (divergente); em vinculado a coincidência vem sem ela', () => {
+    const linha = (v: any) => LINHA_DA_RELACAO(lerVinculoParaTexto(v));
+    // 5 avaliados, 4 incluídos, 4 enviados: divergente + COINCIDEM + lembrete
+    expect(linha(c544())).toContain('COINCIDEM, um a um (4 enviados, 4 incluídos). A divergência anterior à restrição, acima, permanece registrada.');
+    // 4 avaliados, 4 incluídos, 4 enviados: vinculado + COINCIDEM, sem lembrete
+    expect(linha(cVinculado())).toContain('COINCIDEM, um a um (4 enviados, 4 incluídos).');
+    expect(linha(cVinculado())).not.toContain('divergência anterior');
+    expect(lerVinculoParaTexto(cVinculado()).estado).toBe('vinculado');
+    expect(lerVinculoParaTexto(c544()).estado).toBe('divergente');
   });
 });
