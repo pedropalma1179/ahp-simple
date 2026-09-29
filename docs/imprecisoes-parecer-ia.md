@@ -11766,6 +11766,152 @@ e sem consulta a produção. `vinculado` é **correspondência de identificadore
 declaradas. ⚠ **A fiação na tela não é executada por teste algum:** é verificada por leitura,
 `tsc` e `build`. ⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA.**
 
+## A.12 etapa 3, estágio 1, correções antes do aceite: complemento datado da predição, em 29/09/2026
+
+**Base:** `a973c8fc24a8a19231446361328db01d62938f5e`. ⚠ **Registrado ANTES de qualquer edição de
+código**, e o commit deste complemento não toca código.
+
+⚠ **Nada do que foi publicado se desfaz.** A separação dos três conjuntos, a comparação antes
+da restrição, a conservação de duplicidades, a regra de valor `null`/`[]` e o mapa por
+`respondentId` seguem como estão. ⚠ **P1 permanece**, e nenhuma cadeia de identificador é
+unificada.
+
+### O que este complemento cobre
+
+Três correções, e só duas mudam o que o modelo **recebe**: **R1**, as frases do contexto que
+afirmam uma população que o próprio vínculo contradiz, e **R2**, a regra de menção que o bloco
+novo contradiz. **R3** corrige o enunciado e o registro do achado do fallback e **não altera
+comportamento**: para ela a predição é só a de que nenhum byte do contexto muda.
+
+### As medições que sustentam a predição
+
+Por leitura de `a973c8f`, com o instrumento declarado. As marcadas **(exec.)** também por
+execução do handler real com o cliente simulado, sobre cenários construídos, antes de qualquer
+edição.
+
+| # | Medição | Instrumento e limite |
+|---|---|---|
+| M7 | `route.ts:942`, `:944` e `:945` interpolam `respondents.length`, que é a lista **enviada**, e afirmam com ele quatro coisas: exaustividade sem qualificação ("não existem outros"), participação plena ("todos os N … TOTALIDADE das comparações pareadas"), o N de cada matriz ("N = N em TODAS as matrizes agregadas") e a composição das matrizes ("resulta dos N julgamentos") | leitura das três linhas. **(exec.)** no cenário **3 / 4 / 3** (3 avaliados, 4 incluídos, 3 enviados) o bloco declara `r4` no documento e fora da avaliação **e** a lista diz "N = 3 em TODAS as matrizes agregadas"; em `indisponivel`, cujo bloco diz "incluídos no documento de cálculo: não comparado", a lista diz "N = 4 em TODAS as matrizes agregadas" |
+| M8 | `:875` e `:879` interpolam `exclusionInfo.activeCount`, que a tela preenche com `activeProjectResponses.length` (`page.tsx:1338` em `a973c8f`): as respostas restantes depois da exclusão do gestor e **antes** da restrição do vínculo. Mas `:879` fala dos "dados de qualidade abaixo", e a tela os calcula sobre as listas **enviadas** | leitura. **(exec.)** cenário **5 / 4 / 4 com exclusão** (`activeCount` 5): `:879` diz "referem-se APENAS aos 5 respondentes incluídos" e a lista diz "TOTAL: 4". Só diverge com exclusão do gestor **e** restrição que retire alguém |
+| M9 | `:953` proíbe mencionar respondente fora da lista, e o bloco **nomeia** identificadores fora dela (`sobraNaAvaliacao`, `sobraNoDocumento`, `repetidosNaAvaliacao`) | **(exec.)** cenário 5 / 4 / 4: o bloco nomeia `r5`, e a regra proíbe citá-lo. A contradição está **no contexto entregue**, com ou sem parecer gerado |
+| M10 | O bloco declara a coincidência entre enviados e incluídos **só** na sub-linha do resumo do painel, e a partir do booleano transportado `cobertura.enviadosIguaisAoDocumento`, e não da comparação das duas listas | leitura de `lib/ai-reviewer/vinculo-execucao.ts`. **(exec.)** 5 / 4 / 4: "O conjunto enviado coincide com o do documento" aparece só ali |
+| M11 | `normalizeRequest` (`route.ts:559-588` em `a973c8f`) reparte por quatro, com `Math.floor`, o `individualStats` agregado que a tela envia: "Respostas totais" por dimensão BOCR é `floor(total / 4)`, **contagem sem população medida** | leitura. Não é objeto desta correção (é a distribuição de A.12); entra só como uma frase de chave |
+| M12 | Nenhum teste fora dos meus fixa as frases de `:875`, `:879`, `:942`, `:944`, `:945` e `:953`, e **nada fixa o bloco de exclusão, nem indiretamente** | `git grep` por `TOTALIDADE`, `não existem outros`, `Você NÃO pode mencionar`, `sem particionamento`, `FILTRAGEM DE RESPONDENTES`, `referem-se APENAS` e `incluídos na análise` em `lib/__tests__`, `scripts` e `docs/dados`: **uma** ocorrência, `vinculo-execucao-fiacao.test.ts:391`. As requisições de referência de `a12-diagnostico` e `a33-cadeia-rule` não trazem `exclusionInfo` (`a12-diagnostico.test.ts:673` registra `AUSENTE`) |
+
+### A decisão de escopo: a redação nova vale COM `vinculoDaExecucao`
+
+⚠ **Requisição sem o campo mantém a redação anterior, byte a byte**, e essa é a R1 da predição
+original, confirmada e preservada. A redação nova vale para toda requisição que **traz** o
+campo, nos quatro estados e em formato não reconhecido. A tela envia o campo sempre, então na
+prática o efeito de produção é o mesmo; a diferença é que as linhas de base já medidas
+(`a12-diagnostico`, `a33-cadeia-rule`) seguem válidas.
+
+⚠ **A consequência, declarada:** a redação anterior continua sendo o que o modelo recebe de
+quem chama **sem** o campo, com as afirmações que M7 e M8 mostram. Ampliar a correção a esse
+caminho é decisão do autor, e exige regravar as linhas de base.
+
+⚠ **E a cláusula "com o campo, a única diferença é o bloco inserido", da R1 original, deixa de
+valer:** as frases ao redor também mudam, por decisão desta rodada. O que segue valendo é a
+outra metade, sem o campo, nenhum byte.
+
+### O que a redação nova faz, em três regras
+
+1. **Cada contagem nomeia a sua população e a etapa a que se refere**, e cálculo, avaliação e
+   envio não são usados como sinônimos. ⚠ O contexto informa também a amostra coletada e os
+   excluídos pelo gestor, que não são nenhuma das três populações do vínculo. Onde a linha
+   afirma uma população (exclusão, total da lista, agregação, contagens por status) o rótulo
+   vai na própria linha; as distribuições de qualidade que não são reescritas ficam cobertas
+   por uma **chave de leitura** no bloco, que diz a que população elas se referem.
+2. **A relação entre enviados e incluídos vem da comparação das duas listas, com
+   multiplicidade, e nunca do estado.** Coincidindo, o contexto declara a coincidência e
+   conserva a divergência anterior à restrição; diferindo, declara a diferença. Controles:
+   **5 / 4 / 4**, em que os enviados são os incluídos e o vínculo é `divergente`, e
+   **3 / 4 / 3**, em que os enviados diferem dos incluídos.
+3. **O tamanho do conjunto incluído fica separado do N por célula.** O contexto informa o
+   número de incluídos registrado no documento, não o apresenta como medição de participação
+   por célula, e descreve o portão de A.21 como propriedade do percurso de cálculo examinado,
+   sem dizer que o vínculo verificou os julgamentos daquela execução. Com `indisponivel` ou
+   `invalido` não há contagem de incluídos, e **nada se afirma** sobre ela.
+
+E a regra de menção (`:953`) passa a distinguir dois papéis: **participante da avaliação
+enviada**, proibido para quem está fora da lista, e **divergência registrada**, permitido,
+nomeando a identidade só nesse papel.
+
+### A predição sobre o que o modelo RECEBE
+
+Determinística, e verificada por testes que capturam o **contexto completo**. Cada item traz a
+observação que o contraria.
+
+| # | Predição | O que a contraria |
+|---|---|---|
+| R7 | Requisição **sem** o campo gera contexto **byte a byte** o de `a973c8f`, com e sem `exclusionInfo` | qualquer byte diferente, medido pelas suítes que já medem contexto e por âncoras absolutas novas, escritas contra o texto anterior e conferidas contra o código de `a973c8f` **antes** de editar |
+| R8 | **Com** o campo, nos quatro estados e em formato não reconhecido, nenhuma das frases antigas sobrevive no contexto completo: "esta lista é COMPLETA — não existem outros", "responderam à TOTALIDADE das comparações pareadas", "Portanto N =", "em TODAS as matrizes agregadas", "sem particionamento", "Se precisar referenciá-los", e, com `exclusionInfo`, "Respondentes incluídos na análise" e "referem-se APENAS aos … respondentes incluídos" | qualquer uma presente |
+| R9 | No controle **5 / 4 / 4** o contexto declara a coincidência entre enviados e incluídos e **conserva** a divergência anterior à restrição (5 avaliados, `r5` na sobra da avaliação); não diz que a lista enviada difere da população do cálculo | coincidência ausente, divergência ausente, ou afirmação de diferença |
+| R10 | No controle **3 / 4 / 3** o contexto declara a **diferença** (3 enviados, 4 incluídos, um incluído ausente da lista) | coincidência declarada, ou silêncio |
+| R11 | A relação vem das listas: com o **mesmo** estado `divergente`, 5 / 4 / 4 e 3 / 4 / 3 produzem afirmações **opostas** | a mesma afirmação nos dois |
+| R12 | Em `indisponivel`, `invalido` e formato não reconhecido o contexto **não traz** contagem de incluídos nem afirma participação por célula, e diz que a contagem não está disponível | um N de cálculo, "N =", "TOTALIDADE", ou a contagem enviada apresentada como a do cálculo |
+| R13 | Em `vinculado` e `divergente` a contagem de incluídos aparece **nomeada** como registrada no documento, com a ressalva de que não é medição de participação por célula; o portão de A.21 aparece como propriedade do percurso de cálculo examinado, com a negação de que o vínculo verificou os julgamentos | participação plena afirmada como conclusão do vínculo, ou o portão apresentado como verificação desta execução |
+| R14 | Com `exclusionInfo`, as contagens do bloco de exclusão trazem população e etapa, e `:879` usa a contagem da **lista enviada** quando ela difere de `activeCount` | `activeCount` em `:879` |
+| R15 | A regra de menção distingue os dois papéis, e a redação antiga não sobrevive com o bloco presente | redação antiga presente |
+| R16 | Nota, veredicto, suspensão, causa e rótulo **não mudam** com a redação: os quatro estados, sobre o mesmo conjunto avaliado, dão a mesma decisão (R5 original) | decisão diferente entre os estados |
+| R17 | O bloco continua terminando na frase de limite e continua sem afirmar conferência de conteúdo (R4 original); as frases novas ao redor também não | palavra de conferência não negada em qualquer texto novo |
+
+### A predição sobre o TEXTO gerado — NÃO TESTADA
+
+⚠ **Nenhum parecer novo será gerado.** Registradas com a observação que contrariaria cada uma.
+
+| # | Predição | O que a contraria |
+|---|---|---|
+| T5 | No cenário 3 / 4 / 3, se o parecer tratar do N das matrizes, dirá que o documento registra **4** incluídos e a avaliação enviada traz **3**, e **não** atribuirá 3 às matrizes como fato | o texto afirma "N = 3" nas matrizes agregadas |
+| T6 | No cenário 5 / 4 / 4 o parecer não tratará a lista enviada como diferente da população do cálculo; se citar a divergência, será a de 5 avaliados contra 4 incluídos, anterior à restrição | afirma que a lista enviada difere do cálculo |
+| T7 | Em `indisponivel` e `invalido` o parecer não afirmará quantos respondentes entraram no cálculo, nem participação por célula; se tocar no assunto, dirá indisponível | cita um N de cálculo como fato |
+| T8 | O parecer não usará o portão de A.21 como conclusão de que os julgamentos **desta execução** foram verificados | "os julgamentos foram verificados/íntegros por A.21" |
+| T9 | O parecer só nomeará respondente fora da lista enviada como divergência registrada, nunca como quem contribuiu para os dados de qualidade | atribui CR ou status a respondente fora da lista |
+
+### O caso negativo geral
+
+A predição fica **REFUTADA** se alguma das R falhar na execução dos testes, ou se algum teste
+fora da previsão abaixo reprovar; nesse caso a divergência é reportada, e o critério não se
+ajusta. ⚠ **Refutação de T é registrada como achado.**
+
+### A previsão de testes, enumerada por leitura, antes de editar
+
+**Este complemento:** ZERO reprovações. Razão lida: nenhum arquivo de código é tocado. O que lê
+o registro por conteúdo (`vinculo-execucao-fiacao.test.ts`, ensaio 11 e o bloco dos docs)
+exige presença de literais que este texto não remove, e ausência da frase que a seção 5
+proíbe, que este texto não contém. ⚠ Observação, e não prova de ausência de leitura: os
+commits anteriores que só alteraram documentos passaram com zero.
+
+**Implementação de R1 e R2, com os testes ANTIGOS e o código NOVO.** Reprovariam estas
+asserções, e só elas:
+
+| # | Asserção | Razão |
+|---|---|---|
+| 1 a 3 | `a33-cadeia-rule.test.ts:1188`, `:1431` e `:1462` | `identificacao.codigo` hasheia `route.ts` |
+| 4 | `a12-diagnostico.test.ts:1040` | idem. ⚠ A tela **não** muda, então o resumo dela não muda |
+| 5 | `vinculo-execucao-fiacao.test.ts:236` | procura o cabeçalho "RESPONDENTES (lista EXAUSTIVA)", que em vínculo passa a nomear a população enviada |
+| 6 a 9 | `vinculo-execucao-fiacao.test.ts:266`, uma por estado do `test.each` | exige que o **único** byte novo seja o bloco, e as frases ao redor mudam |
+| 10 | `vinculo-execucao-fiacao.test.ts:369` | enumera as linhas da rota que citam o vínculo, e entram as da leitura e das frases |
+| 11 | `vinculo-execucao-fiacao.test.ts:391` | exige a frase "TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)" |
+
+**Previstas a passar, com a razão lida:** `vinculo-execucao-fiacao.test.ts:256`, a âncora
+absoluta sem o campo; `:392`, `:401` e `:408`; **todo** `vinculo-execucao.test.ts`, porque o
+bloco só ganha linhas e nenhuma existente é alterada; `vinculo-execucao-calculo.test.ts`;
+`a12-qualidade-ausente.test.ts:271-281` e `:327-331`; `a33-snapshot-v2.test.ts:610-611`, porque a
+tela não muda; e todo teste que roda a rota sem o campo, cujo contexto sai byte a byte o de
+antes. Depois de atualizar os testes 5 a 11 e de regravar `a33-cadeia-rule` (ordem 7) e
+`a12-diagnostico` (ordem 9): ZERO.
+
+**R3:** ZERO reprovações, porque nenhum byte de produção muda. ⚠ Os ensaios que leem docs por
+literal (`vinculo-execucao-fiacao.test.ts`, contrato e registro) seguem satisfeitos, e o
+ensaio novo do enunciado nasce com a correção que o satisfaz.
+
+### O limite, que não muda
+
+⚠ Coerência interna do pedido, **sem cobertura do universo real** e sem verificação de
+conteúdo. ⚠ **A fiação na tela segue sem execução por teste:** esta rodada não toca a tela.
+⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA.**
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
