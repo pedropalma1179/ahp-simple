@@ -41,6 +41,8 @@ import {
 // Valores numéricos do SISTEMA + análise qualitativa da IA
 import ParecerAISection from '@/components/ParecerAISection';
 import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
+import { idDoElementoNoFallback, prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';
+import type { FonteDoIdentificador } from '@/lib/identificador-respondente';
 import ExternalValidation from '@/components/ExternalValidation';
 
 // Componentes Q1/A1
@@ -236,6 +238,12 @@ interface CalculationResult {
   sensitivityInflections: Record<string, number | null>;
   responseCount: number;
 
+  /**
+   * A.12 etapa 2: QUAL execução produziu este documento. Opaco, sem significado de ordem.
+   * Ausente em documento gravado antes da etapa 2, o que dá vínculo `indisponivel`.
+   */
+  executionId?: string;
+
   // === NOVOS CAMPOS v5.0 Q1/A1 ===
 
   // Tabela BOCR Priorities [Lee 2009a Table 6]
@@ -262,6 +270,27 @@ interface CalculationResult {
     excludedRespondentIds?: string[]; // Adicionado para persistência
     /** Recusadas pelo portão de completude (A.21). Vazio é o valor esperado. */
     rejectedIncomplete?: { respondentId: string; matrizes: string[] }[];
+    /**
+     * A.12 etapa 2: QUEM ENTROU no cálculo, ordenado por `respondentId` ascendente. Excluídos e
+     * rejeitados não entram aqui. Ausente em documento anterior à etapa 2.
+     */
+    includedRespondents?: {
+      respondentId: string;
+      responseDocId: string;
+      identifierSource: FonteDoIdentificador;
+      judgmentsSha256: string | null;
+      judgmentsUnavailableReason: string | null;
+    }[];
+    /**
+     * A.12 etapa 2: identifica a representação canônica dos julgamentos segundo a versão
+     * declarada. IDENTIFICA e NÃO PRESERVA, e cobre `includedRespondents`.
+     */
+    judgmentsDigest?: {
+      algorithm: 'sha256';
+      serialization: string;
+      panel: string | null;
+      unavailableReason: string | null;
+    };
   };
 }
 
@@ -982,16 +1011,51 @@ export default function ResultadosPage() {
       console.log('📤 [AI-REVIEW] activeProjectResponses count:', activeProjectResponses.length);
 
       // ------------------------------------------------------------
+      // A.12 etapa 3, estágio 1: O VÍNCULO DA AVALIAÇÃO COM A EXECUÇÃO DO CÁLCULO.
+      //
+      // ⚠ A decisão mora em `lib/ai-reviewer/vinculo-execucao.ts`, que é puro e exercitado por
+      //   teste. ESTA tela é `'use client'` e nenhum teste a executa: a fiação abaixo é
+      //   verificada por LEITURA, `tsc` e `build`, e isso é um limite declarado.
+      // ⚠ A ORDEM É A REGRA. A origem da lista é escolhida DEPOIS das exclusões acima e ANTES da
+      //   restrição; a comparação com `metadata.includedRespondents` é feita ANTES da restrição;
+      //   e a restrição NUNCA reabre o fallback (a lista enviada é subconjunto da selecionada).
+      // ⚠ `indisponivel` e `invalido` NÃO restringem: as listas voltam como vieram, e o
+      //   comportamento anterior a este estágio se preserva. Nenhum dos quatro estados bloqueia o
+      //   parecer. O estado do vínculo, isoladamente, não acrescenta causa de suspensão nem
+      //   altera a elegibilidade; alterações decorrentes do novo conjunto avaliado continuam
+      //   sujeitas às regras existentes da etapa 1.
+      // ⚠ NÃO unifica as cadeias de identificador desta tela. A do ramo de análise é a do filtro
+      //   de excluídos acima; a do fallback segue como estava, com `visitorId` antes de `id`. O
+      //   vínculo registra a expressão que produziu cada identificador.
+      // ⚠ Daqui até o classificador, `respondentesEnviados` e `respostasEnviadas` fazem o papel
+      //   de `activeRespondents` e `activeProjectResponses`. Os nomes antigos seguem valendo em
+      //   `responseCount` e `exclusionInfo`, que descrevem o conjunto ANTES da restrição.
+      const preparoDoVinculo = prepararVinculoDaTela({
+        calculo: calculation,
+        respondentesAtivos: activeRespondents,
+        respostasAtivas: activeProjectResponses,
+      });
+      const vinculoDaExecucao = preparoDoVinculo.vinculo;
+      const respondentesEnviados = preparoDoVinculo.respondentesEnviados;
+      const respostasEnviadas = preparoDoVinculo.respostasEnviadas;
+      console.log(
+        '🔗 [AI-REVIEW] Vínculo com a execução:', vinculoDaExecucao.estado,
+        '| origem:', vinculoDaExecucao.origemDaListaAvaliada,
+        '| avaliados:', vinculoDaExecucao.cobertura.avaliadosAntesDaRestricao,
+        '| enviados:', vinculoDaExecucao.cobertura.enviados
+      );
+
+      // ------------------------------------------------------------
       // CORREÇÃO CRÍTICA: CÁLCULO DE QUALIDADE ROBUSTO
       // ------------------------------------------------------------
       let individualStats = { valid: 0, warning: 0, critical: 0, total: 0, avgCR: 0 };
 
       // Tentar usar dados da análise de qualidade primeiro
-      if (activeRespondents.length > 0) {
-        console.log('📊 [AI-REVIEW] Usando dados de qualityAnalysis:', activeRespondents.length, 'respondentes ativos (de', currentQualityAnalysis?.respondents?.length || 0, 'total)');
+      if (respondentesEnviados.length > 0) {
+        console.log('📊 [AI-REVIEW] Usando dados de qualityAnalysis:', respondentesEnviados.length, 'respondentes ativos (de', currentQualityAnalysis?.respondents?.length || 0, 'total)');
 
         let totalCR = 0;
-        individualStats = activeRespondents.reduce((acc: any, r: any) => {
+        individualStats = respondentesEnviados.reduce((acc: any, r: any) => {
           // 1. Tenta encontrar o CR em qualquer lugar possível
           let crValue = 0;
 
@@ -1023,16 +1087,16 @@ export default function ResultadosPage() {
 
         individualStats.avgCR = individualStats.total > 0 ? totalCR / individualStats.total : 0;
 
-      } else if (activeProjectResponses.length > 0) {
+      } else if (respostasEnviadas.length > 0) {
         // Fallback: calcular CR diretamente das respostas
-        console.log('📊 [AI-REVIEW] Fallback: calculando CR de', activeProjectResponses.length, 'respostas ativas');
+        console.log('📊 [AI-REVIEW] Fallback: calculando CR de', respostasEnviadas.length, 'respostas ativas');
 
         let totalCR = 0;
         let validCount = 0;
         let warningCount = 0;
         let criticalCount = 0;
 
-        activeProjectResponses.forEach((response: any) => {
+        respostasEnviadas.forEach((response: any) => {
           // Tentar extrair CR de várias estruturas possíveis
           let cr = 0;
 
@@ -1077,17 +1141,17 @@ export default function ResultadosPage() {
 
           if (globalCR <= 0.10) {
             // CR global excelente = assumir todas respostas válidas
-            validCount = activeProjectResponses.length;
+            validCount = respostasEnviadas.length;
             console.log(`✅ [QUALITY] CR global ${(globalCR * 100).toFixed(2)}% - todas respostas consideradas válidas`);
           } else if (globalCR <= 0.20) {
             // CR global aceitável = assumir maioria válida
-            validCount = Math.floor(activeProjectResponses.length * 0.7);
-            warningCount = activeProjectResponses.length - validCount;
+            validCount = Math.floor(respostasEnviadas.length * 0.7);
+            warningCount = respostasEnviadas.length - validCount;
           } else {
             // CR global ruim = assumir maioria problemática
-            validCount = Math.floor(activeProjectResponses.length * 0.4);
-            warningCount = Math.floor(activeProjectResponses.length * 0.3);
-            criticalCount = activeProjectResponses.length - validCount - warningCount;
+            validCount = Math.floor(respostasEnviadas.length * 0.4);
+            warningCount = Math.floor(respostasEnviadas.length * 0.3);
+            criticalCount = respostasEnviadas.length - validCount - warningCount;
           }
         }
 
@@ -1095,11 +1159,11 @@ export default function ResultadosPage() {
           valid: validCount,
           warning: warningCount,
           critical: criticalCount,
-          total: activeProjectResponses.length,
-          avgCR: activeProjectResponses.length > 0 ? totalCR / activeProjectResponses.length : 0
+          total: respostasEnviadas.length,
+          avgCR: respostasEnviadas.length > 0 ? totalCR / respostasEnviadas.length : 0
         };
 
-        console.log(`📊 [AI-REVIEW] Qualidade calculada: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌ de ${activeProjectResponses.length} respostas`);
+        console.log(`📊 [AI-REVIEW] Qualidade calculada: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌ de ${respostasEnviadas.length} respostas`);
       }
 
       console.log('📉 [AI-REVIEW] RESUMO DE QUALIDADE:', individualStats);
@@ -1127,18 +1191,18 @@ export default function ResultadosPage() {
       // ============================================================
       let respondentesComCR: any[] = [];
 
-      if (activeRespondents.length > 0) {
+      if (respondentesEnviados.length > 0) {
         // Usar respondentes da análise de qualidade (já processados)
-        respondentesComCR = activeRespondents.map((r: any) => ({
+        respondentesComCR = respondentesEnviados.map((r: any) => ({
           ...r,
           cr: typeof r.cr === 'number' ? r.cr
             : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
           isSimulated: r.isSimulated === true, // Strict boolean
         }));
         console.log(`📊 [AI-REVIEW] CR individual: ${respondentesComCR.length} respondentes de qualityAnalysis`);
-      } else if (activeProjectResponses.length > 0) {
+      } else if (respostasEnviadas.length > 0) {
         // Fallback: construir respondentes a partir das respostas brutas do Firestore
-        respondentesComCR = activeProjectResponses.map((response: any, idx: number) => {
+        respondentesComCR = respostasEnviadas.map((response: any, idx: number) => {
           let cr = 0;
           if (response.consistency?.cr !== undefined) cr = response.consistency.cr;
           else if (response.cr !== undefined) cr = response.cr;
@@ -1149,7 +1213,10 @@ export default function ResultadosPage() {
           else if (cr > 0.10) status = 'SUSPEITO';
 
           return {
-            id: response.visitorId || response.id || `resp-${idx + 1}`,
+            // ⚠ A MESMA expressão de antes (`visitorId` antes de `id`, e `resp-N` por posição), agora
+            //   escrita uma vez em `vinculo-execucao.ts`: o identificador enviado e o comparado saem
+            //   do mesmo código. Não é unificação de cadeias: o comportamento não mudou.
+            id: idDoElementoNoFallback(response, idx),
             name: response.respondentName || response.name || `Respondente ${idx + 1}`,
             cr: cr,
             status: status,
@@ -1167,8 +1234,8 @@ export default function ResultadosPage() {
       // fazer com isso é a rota, que suspende a classificação global.
       // ============================================================
       const avaliacaoDeQualidade = classificarAvaliacaoDaTela({
-        respondentesAvaliados: activeRespondents,
-        respostasAtivas: activeProjectResponses,
+        respondentesAvaliados: respondentesEnviados,
+        respostasAtivas: respostasEnviadas,
       });
       const qualidadeAvaliada = avaliacaoDeQualidade.estado === 'disponivel';
       console.log('📤 [AI-REVIEW] Avaliação de qualidade:', avaliacaoDeQualidade.estado, avaliacaoDeQualidade.fonte);
@@ -1176,6 +1243,8 @@ export default function ResultadosPage() {
       // Preparar payload
       const payload = {
         avaliacaoDeQualidade,
+        // A.12 etapa 3, estágio 1: separado de `avaliacaoDeQualidade`, que é contrato da etapa 1.
+        vinculoDaExecucao,
         projectName: project.name || 'Projeto sem nome',
         projectDescription: project.description || '',
         alternatives: project.alternatives || [],
@@ -1222,7 +1291,10 @@ export default function ResultadosPage() {
             total: individualStats.total,
             avgCR: individualStats.avgCR
           },
-          overall: currentQualityAnalysis?.overall || {},
+          // ⚠ `overall` descreve o conjunto NÃO restringido, produzido pela API de qualidade sobre
+          //   todas as respostas. Quando o conjunto enviado difere do avaliado, esse agregado NÃO vai:
+          //   estatística de um conjunto não se apresenta como avaliação de outro.
+          overall: preparoDoVinculo.omitirOverall ? undefined : (currentQualityAnalysis?.overall || {}),
           summary: {
             total: individualStats.total,
             ok: individualStats.valid,

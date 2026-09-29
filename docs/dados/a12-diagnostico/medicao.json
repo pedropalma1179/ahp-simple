@@ -135,6 +135,23 @@
           "identificacao.codigo[app/api/ai-reviewer/route.ts]"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 8,
+        "motivo": "A.12 etapa 3, estagio 1: o vinculo da avaliacao de qualidade com a execucao, que alterou route.ts e page.tsx",
+        "commitDaBase": "128fd76c1dae2f35ded8057db7be63454f1fe145",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -145,8 +162,8 @@
     },
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "244c14176794a5566c47418c91dc152d0d43dc755e63ab45c14fad1a5f62f30f",
-      "app/api/ai-reviewer/route.ts": "8c907408159639165c6f6e5bc0dec5cf4ac3db44be26bcabee6ede0b3726e74e",
-      "app/decisor/resultados/[projectId]/page.tsx": "2d3442c0cbd31828083cf7cfbb92abd4c178cc6d65569ce4c6aeff8edc8d9ad8",
+      "app/api/ai-reviewer/route.ts": "8514df6e94acc6d68a71e56af038b1779d8ada6070a2e10d567b15c015ae83fb",
+      "app/decisor/resultados/[projectId]/page.tsx": "ccbf9abc8cf76cc3a70769dbbbbbe032c746734001f4673abca59cf3f65e57be",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }
   },

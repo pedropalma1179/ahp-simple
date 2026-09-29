@@ -19,6 +19,7 @@ import {
   ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO,
   type AvaliacaoQualidade,
 } from '@/lib/ai-reviewer/avaliacao-qualidade';
+import { descreverVinculoParaContexto } from '@/lib/ai-reviewer/vinculo-execucao';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
 import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-contract';
 import { getRAGSemanticDiagnosticado } from '@/lib/rag/semantic-retrieve';
@@ -621,6 +622,9 @@ function normalizeRequest(rawData: any): ReviewRequest {
   return {
     avaliacaoDeQualidade,
     coerenciaDaQualidade,
+    // A.12 etapa 3, estágio 1: COPIADO tal como veio. É esta linha, e não a declaração de
+    // `ReviewRequest`, que faz o campo chegar ao contexto: interface não remove campo em execução.
+    vinculoDaExecucao: rawData.vinculoDaExecucao,
     projectName: rawData.projectName || rawData.name || 'Projeto sem nome',
     projectDescription: rawData.projectDescription || rawData.description,
     individualStats,
@@ -878,6 +882,14 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
 `;
   }
 
+  // A.12 etapa 3, estágio 1: o vínculo da avaliação de qualidade com a execução do cálculo.
+  // ⚠ Requisição SEM `vinculoDaExecucao` não ganha bloco algum: `''` deixa
+  //   `${exclusionContext}\n${blocoDoVinculo}\n${fullRespondentList}` byte a byte o texto
+  //   anterior a este estágio. ⚠ O bloco declara estado, identificador, divergência e cobertura
+  //   enviada; NÃO emite veredito, NÃO classifica e NÃO suspende.
+  const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao);
+  const blocoDoVinculo = textoDoVinculo === '' ? '' : `\n${textoDoVinculo}\n`;
+
   // ============================================================
   // ANTI-ALUCINAÇÃO: Lista completa de respondentes
   // ============================================================
@@ -1074,7 +1086,7 @@ Os pesos BOCR (B=${safePercent(data.bocrWeights?.Benefits, 1)}, O=${safePercent(
 ## Amostra e Qualidade Geral
 
 ${exclusionContext}
-
+${blocoDoVinculo}
 ${fullRespondentList}
 
 ${formulaSection}

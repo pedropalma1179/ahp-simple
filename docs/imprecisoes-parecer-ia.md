@@ -11586,6 +11586,186 @@ declaradas, e **não** comprova que os CRs foram calculados sobre as versões re
 ⚠ **A fiação na tela não é executada por teste (M5):** é verificada por leitura, `tsc` e
 `build`. ⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA.**
 
+## A.12 etapa 3, estágio 1: o que foi implementado e o que foi medido, em 29/09/2026
+
+**Base:** `799273e911d694b9d458d5d64b61ed8dddca80d6`. **Commits do estágio:** a predição em
+`e82c58a`, o módulo puro e os seus ensaios em `128fd76`, e a fiação neste commit.
+⚠ **A predição acima NÃO foi reescrita.** O que segue é o que a execução mediu, e o que ela
+mediu **além** da predição está separado, abaixo, como achado posterior.
+
+### O que entrou
+
+- `lib/ai-reviewer/vinculo-execucao.ts`: quatro estados, três conjuntos, comparação **antes**
+  da restrição, multiplicidade preservada, identidade ausente nunca casada, mapa de resumos
+  chaveado por `respondentId`, regra de valor `null`/`[]`, e o texto do bloco. Sem nenhuma
+  importação.
+- Tela: `prepararVinculoDaTela` é chamado **uma vez**, depois das exclusões e antes de toda
+  estatística; as duas cadeias de estatística, o `respondentesComCR` e o classificador da
+  etapa 1 leem as listas **enviadas**; o payload leva `vinculoDaExecucao`; `overall` sai
+  quando o conjunto enviado difere do avaliado; `CalculationResult` declara `executionId`,
+  `includedRespondents` e `judgmentsDigest` (P4).
+- `ReviewRequest` declara o campo; `normalizeRequest` o **copia**; o contexto ganha o bloco,
+  entre a filtragem de respondentes e a lista exaustiva.
+
+### A regra da elegibilidade, literal
+
+> O estado do vínculo, isoladamente, não acrescenta causa de suspensão nem altera a elegibilidade. Alterações decorrentes do novo conjunto avaliado continuam sujeitas às regras existentes da etapa 1 e devem ter seus efeitos previstos e testados.
+
+### O limite, na redação obrigatória
+
+> O módulo atual não pode ser importado diretamente pelo navegador, pois depende de APIs do Node. Este estágio não implementa verificação de conteúdo no navegador nem no servidor.
+
+⚠ **Medido:** `page.tsx:4` é `'use client'`, e `lib/julgamentos-resumo.ts` importa
+`node:crypto` em `:31` e usa `Buffer` em `:152` e `:194`. A restrição é de implementação e de
+escopo. A tela não importa aquele módulo, e o ensaio 12 confere que não existe segunda
+implementação da serialização.
+
+### A predição sobre o que o modelo RECEBE, conferida por execução
+
+| # | Resultado | Onde é verificado |
+|---|---|---|
+| R1 | **Confirmada.** Sem o campo, o contexto é byte a byte o de antes; com o campo, a **única** diferença é o bloco inserido | as regravações de `a33-cadeia-rule` (3092 → 3102 campos, 1 mudado, 0 perdidos) e de `a12-diagnostico` (398 → 409, 2 mudados, 0 perdidos) mudaram **só** resumos de código e acrescentaram a própria entrada de procedência: `camadas[].saidaReal` e `bytesDoContexto` **não se moveram**. Além disso, `vinculo-execucao-fiacao.test.ts` retira o bloco e exige igualdade byte a byte, com **âncora absoluta** no ponto de inserção |
+| R2 | **Confirmada.** Um bloco, com o estado literal, nos quatro estados | `vinculo-execucao-fiacao.test.ts`, ensaio 9 |
+| R3 | **Confirmada.** `null` diz "comparação NÃO realizada"; `[]` diz "nenhum (comparação realizada)"; `divergente` lista os dois lados | `vinculo-execucao.test.ts`, bloco do contexto |
+| R4 | **Confirmada.** Fora a frase de limite, que só nega, nenhuma palavra de conferência | `vinculo-execucao.test.ts` e `vinculo-execucao-fiacao.test.ts`, ensaio 11 |
+| R5 | **Confirmada.** Com o mesmo conjunto avaliado, os quatro estados dão a mesma nota, veredicto, suspensão, causa e rótulo, nos conjuntos elegível e não elegível | `vinculo-execucao-fiacao.test.ts`, ensaio 10 |
+| R6 | **Confirmada.** Em `divergente` com restrição, o N e a lista do contexto são os de `enviados`, e o bloco diz que o resumo do painel não descreve o conjunto enviado quando ele difere do documento | `vinculo-execucao-fiacao.test.ts`, ensaio 8 e R6 |
+| M1 | **Confirmada por execução.** Com e sem `qualityAnalysis.overall` o contexto é o mesmo byte a byte | `vinculo-execucao-fiacao.test.ts` |
+
+⚠ **T1 a T4 permanecem NÃO TESTADAS.** Nenhum parecer novo foi gerado, e o que se mediu é o
+que o modelo **recebe**.
+
+### O que a execução mediu ALÉM da predição (achados posteriores)
+
+⚠ **Nenhum destes estava na predição, e nenhum foi corrigido.** Cada um espera decisão.
+
+**Achado 1: no ramo `fallbackSobreRespostas` o vínculo diverge por construção.** A cadeia de
+`id:` em `respondentesComCR` é `visitorId || id || resp-N`, e `respondentId` **não está nela**.
+Medido por leitura: nenhum ponto do app grava `visitorId` (`git grep` só o encontra em
+leituras), e a resposta carregada pela tela é `{ id: doc.id, ...data }`. O identificador do
+ramo é, então, o id do **documento da resposta**, e o documento de cálculo é chaveado por
+`respondentId`. **Medido por execução** (`vinculo-execucao-calculo.test.ts`, sobre o documento
+que a rota real grava): quatro respostas coincidentes com o documento dão `divergente`, as
+quatro entram em `sobraNaAvaliacao` com motivo `fora-do-documento`, as quatro do documento
+entram em `sobraNoDocumento`, a restrição esvazia a lista, e a avaliação da etapa 1 passa de
+`disponivel` para `ausente`, com a causa `disponibilidade`. ⚠ **O fallback só roda quando a
+API de qualidade não devolve respondentes.** A decisão sobre **P1** e sobre a cadeia é do
+autor, e este estágio não unificou cadeia alguma.
+
+**Achado 2: `exclusionInfo.activeCount` e `responseCount` descrevem o conjunto ANTES da
+restrição.** Com exclusão do gestor **e** restrição que retire alguém, a frase "Os dados de
+qualidade abaixo referem-se APENAS aos N respondentes incluídos" (`route.ts`, contexto de
+exclusão) usa a contagem anterior à restrição. O bloco traz as duas contagens. Não alterado.
+
+**Achado 3: a afirmação de N na lista exaustiva descreve o conjunto enviado.** O contexto diz
+que "N = N em TODAS as matrizes agregadas" (`app/api/ai-reviewer/route.ts:932` em `799273e`, redação anterior ao estágio). Com
+sobra só no documento, as matrizes foram agregadas sobre o conjunto do **documento**, e o N
+enviado é menor. O bloco declara a divergência e a cobertura; a redação não foi alterada.
+
+**Achado 4: um detector meu estava cego.** A primeira versão do ensaio 12 lia os imports
+linha a linha, e não enxergava `} from '@/lib/julgamentos-resumo'` de um import de várias
+linhas. Quem mostrou foi o **contraexemplo** do próprio ensaio (a rota de cálculo, que
+importa o módulo): o detector não a acusava. Passou a ler os **especificadores**, e o ensaio
+agora confere que a rota de cálculo é acusada.
+
+### O vínculo observado sobre o documento que a rota real grava
+
+⚠ **Fixtures de referência e cenários construídos**, com o carregamento da tela como MODELO
+ancorado a fonte por leitura. Nenhuma medição de produção.
+
+| Caso | Origem da lista | Estado | Avaliados / incluídos / enviados | `overall` |
+|---|---|---|---|---|
+| painel de referência (12) | `analiseDeQualidade` | `vinculado` | 12 / 12 / 12 | **inalterado** |
+| rejeitado por incompletude (portão de A.21) | `analiseDeQualidade` | `divergente` | 5 / 4 / 4, uma sobra na avaliação | **omitido** |
+| resposta sem `respondentId`, com id de documento cadastrado | `analiseDeQualidade` | `divergente` | 1 / 2 / 1, uma sobra no documento | inalterado |
+| quatro respostas no ramo do fallback | `fallbackSobreRespostas` | `divergente` | 4 / 4 / 0 | **omitido** |
+| snapshot versionado de 13/07/2026 (**não é produção**) | nenhuma | `indisponivel` | — | inalterado |
+
+O portão de completude que origina a divergência do segundo caso é o de
+`app/api/calculate/route.ts`, medido em **`:734-749`** (`const rejectedIncomplete` até
+`responses.push(...completeResponses)`); a especificação cita `:734-748`, o mesmo trecho com a
+última linha uma abaixo.
+
+### O efeito sobre a classificação, com a causa da etapa 1 nomeada
+
+- **Só o estado muda:** nada muda (R5).
+- **O conjunto muda:** avaliação `{r1 com CR, r2 sem CR}` contra documento `{r1}` passa de
+  `incompleta` para `disponivel` (a causa anterior era `disponibilidade`), e a nota deixa de
+  estar suspensa; o mesmo vínculo `divergente`, sobre o conjunto original, continua
+  suspendendo pela **mesma** causa. A restrição que esvazia a lista leva a `ausente`, causa
+  `disponibilidade`. ⚠ São efeitos do **conjunto**, previstos e testados, e não do estado.
+
+### A previsão de testes, conferida
+
+- **Commit 2** (módulo e ensaios próprios): previsto **zero** reprovação nas 30 suítes
+  existentes, porque nenhum arquivo existente era alterado. **Observado: zero.**
+- **Commit 3** (tela, tipo, `ReviewRequest`, `normalizeRequest`, bloco): previstas **quatro**
+  asserções em duas suítes, todas por `identificacao.codigo` hashear arquivo alterado.
+  **Observado: exatamente as quatro previstas**, `a33-cadeia-rule.test.ts:1188`, `:1431` e
+  `:1462` e `a12-diagnostico.test.ts:1040`, e **nenhuma outra**. Depois da regravação, com a
+  procedência acumulada (a33, ordem 6; a12-diagnostico, ordem 8): zero.
+- ⚠ Os localizadores `TELA:1180` e `TELA:1309` de `a12-diagnostico.test.ts` são texto
+  declarativo do artefato, já estavam desatualizados, e a edição da tela os desloca mais.
+  **Não foram corrigidos**: é tarefa própria.
+
+### Os contraexemplos executados sobre a fonte
+
+⚠ Onde o contraexemplo é uma mutação da fonte, ela foi **executada à mão** e desfeita, com os
+`sha256` conferidos depois. O que sobrevive é dito.
+
+- **Módulo puro:** 22 mutantes (comparar sobre `enviados`, reabrir o fallback, casar o valor
+  posicional, `[]` no lugar de `null`, desempate, vinculado apesar de repetidos, lista vazia
+  aceita, `overall` nunca omitido, cadeia do fallback unificada, `responseDocId` descartado,
+  bloco sem o campo, `executionId` ausente tolerado, só a primeira violação, mapa por posição,
+  identidade coincidente tratada como resumo, frase de limite removida, bloco que afirma
+  conferência, cobertura do resumo calada, restrição em estado sem conjunto, sanitização
+  removida, vazio aceito): **os 22 reprovaram** algum ensaio.
+- **Rota real de cálculo:** 5 mutantes; **4 reprovaram**. O que sobreviveu foi a reabertura do
+  fallback, que esse arquivo não exercita, e que o ensaio 18 do módulo puro reprova.
+- **Fiação:** 16 mutantes sobre a rota, a tela, o contrato da etapa 1 e o contrato de dados.
+  ⚠ **O ensaio 9, o contraexemplo que a especificação pede:** retirar a linha que **copia** o
+  campo em `normalizeRequest` reprova **15** testes. Os outros: bloco emitido sem o campo,
+  bloco depois da lista, `overall` sempre enviado, classificador com as listas anteriores,
+  retorno antecipado pelo estado, import do módulo de resumo, tipo sem `executionId`,
+  estatística lendo a lista anterior, payload sem o vínculo, contrato da etapa 1 citando o
+  vínculo, redação da seção 5 corrompida, **suspensão por divergência** (o que o estágio
+  proíbe: reprovou 5), expressão do fallback duplicada na tela e cadeia do filtro de excluídos
+  unificada. **15 de 16 reprovaram na primeira execução.**
+- ⚠ **O que sobreviveu à primeira execução, e o que isso mostrou:** uma quebra de linha a
+  mais no ponto de inserção do gabarito. Os ensaios de R1 comparavam o contexto com o campo e
+  sem ele **na mesma versão da rota**, e portanto **não viam** um byte a mais que atingisse
+  toda requisição sem o campo. Entrou uma **âncora absoluta**, derivada do gabarito anterior
+  ao estágio (cinco quebras entre o título e a lista), e o mutante passou a reprovar. ⚠ Quem
+  protegia esse byte de fato eram as suítes que medem o contexto contra valores gravados
+  antes.
+
+### Os vinte e um ensaios
+
+Os números são os da seção 10 da especificação. `M` marca contraexemplo que é mutante
+EXECUTADO dentro do ensaio.
+
+| # | Arquivo | Contraexemplo |
+|---|---|---|
+| 1, 2, 3, 4 | `vinculo-execucao.test.ts` | documento utilizável restringe (a igualdade de referência discrimina); ausente ≠ vazio; documento bem formado não viola regra; duplicata do mesmo conjunto não é `vinculado` |
+| 5 | `vinculo-execucao.test.ts` | **M:** comparar sobre `enviados` apaga a sobra e daria `vinculado` |
+| 6, 7 | `vinculo-execucao-calculo.test.ts`, sobre a rota real | a quinta resposta completa é `vinculado`; com `respondentId` presente a tela mantém a resposta |
+| 8 | `vinculo-execucao.test.ts` e `vinculo-execucao-fiacao.test.ts` | `divergente` sem restrição efetiva mantém `overall`; a região da tela só lê as listas enviadas |
+| 9 | `vinculo-execucao-fiacao.test.ts` | nome de campo diferente não chega; **mutação da fonte:** retirar a cópia em `normalizeRequest` reprova o ensaio |
+| 10 | `vinculo-execucao-fiacao.test.ts` | o novo conjunto muda a elegibilidade com a causa nomeada |
+| 11, 12 | `vinculo-execucao-fiacao.test.ts` | o detector discrimina; a redação corrompida não é achada; a rota de cálculo é acusada |
+| 13, 21 | `vinculo-execucao.test.ts` e `vinculo-execucao-fiacao.test.ts` | `[]` em `invalido` ou `indisponivel` reprova; nenhum `if`, `return` ou `throw` pelo estado na tela |
+| 14 | `vinculo-execucao.test.ts` | o mesmo objeto recebe identificador diferente conforme o ramo |
+| 15 | `vinculo-execucao.test.ts` | **M:** casar o valor posicional daria `vinculado` |
+| 16 | `vinculo-execucao.test.ts` | **M:** array paralelo por índice troca os resumos de dono ao embaralhar |
+| 17, 18, 19, 20 | `vinculo-execucao.test.ts` | coincidência não diz "não descreve"; **M:** reentrada faz os elementos reaparecerem; **M:** desempate perde ocorrência; exigir as três listas vazias reprova |
+
+### O limite, que não muda
+
+⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem verificação de conteúdo
+e sem consulta a produção. `vinculado` é **correspondência de identificadores** segundo regras
+declaradas. ⚠ **A fiação na tela não é executada por teste algum:** é verificada por leitura,
+`tsc` e `build`. ⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA.**
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

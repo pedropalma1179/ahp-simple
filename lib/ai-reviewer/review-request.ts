@@ -16,6 +16,7 @@
  */
 
 import type { AvaliacaoQualidade, Coerencia } from './avaliacao-qualidade';
+import type { VinculoDaExecucao } from './vinculo-execucao';
 
 // ============================================================
 // TIPOS DA REQUISIÇÃO
@@ -43,6 +44,14 @@ export interface ReviewRequest {
    * o campo é classificada pela rota, e `byStatus` sozinho não é avaliação.
    */
   avaliacaoDeQualidade?: AvaliacaoQualidade;
+  /**
+   * A.12 etapa 3, estágio 1: o vínculo da avaliação de qualidade com a execução do cálculo.
+   * ⚠ REPRESENTA o vínculo e NÃO decide o que a divergência faz com a classificação: o estado,
+   * isoladamente, não acrescenta causa de suspensão nem altera a elegibilidade. Requisição sem o
+   * campo gera contexto byte a byte igual ao anterior a este estágio. ⚠ Os resumos que ele leva
+   * são TRANSPORTADOS, e nunca verificados.
+   */
+  vinculoDaExecucao?: VinculoDaExecucao;
   projectName: string;
   projectDescription?: string;
   sensitivityInflections?: Record<string, number | null>;

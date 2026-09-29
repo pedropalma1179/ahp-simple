@@ -331,6 +331,160 @@ para o percurso examinado**, a rota `calculate` gravando em `calculations`.
 recupera o que foi julgado.
 
 
+#### A.12 etapa 3, estágio 1: o vínculo da avaliação de qualidade com a execução
+
+**Campo novo no payload de `POST /api/ai-reviewer`, `vinculoDaExecucao`**, separado de
+`avaliacaoDeQualidade`, que é contrato da etapa 1 e não muda. A tela lê
+`metadata.includedRespondents` do documento de cálculo, compara com o conjunto que ela mesma
+avalia e envia o resultado. Onde mora cada parte: a decisão, em
+`lib/ai-reviewer/vinculo-execucao.ts` (puro, sem nenhuma importação); a fiação, em
+`runAiReview`, na tela; a cópia, em `normalizeRequest`; e o bloco, no contexto, entre a
+filtragem de respondentes e a lista exaustiva.
+
+⚠ **Este estágio REPRESENTA o vínculo, e NÃO decide o que a divergência faz com a
+classificação.** Nenhuma causa nova entra em `elegivelParaClassificacao`, e nada altera
+`calculateGrade`, penalidades, limiares ou faixas. A regra, literal:
+
+> O estado do vínculo, isoladamente, não acrescenta causa de suspensão nem altera a elegibilidade. Alterações decorrentes do novo conjunto avaliado continuam sujeitas às regras existentes da etapa 1 e devem ter seus efeitos previstos e testados.
+
+⚠ **O que `vinculado` significa:** correspondência de identificadores segundo as regras
+declaradas abaixo. Isso não comprova que os CRs foram calculados sobre as versões registradas,
+e nenhum resumo é verificado.
+
+⚠ **O limite, na redação obrigatória:**
+
+> O módulo atual não pode ser importado diretamente pelo navegador, pois depende de APIs do Node. Este estágio não implementa verificação de conteúdo no navegador nem no servidor.
+
+`lib/julgamentos-resumo.ts` não é importado pela tela nem pelo módulo do vínculo, e não existe
+segunda implementação da serialização: os resumos são **transportados** como texto.
+
+##### Os quatro estados, avaliados nesta ordem
+
+| Estado | Quando | Restrição | Listas de divergência | Resumos | Parecer |
+|---|---|---|---|---|---|
+| `indisponivel` | `includedRespondents` **ausente** ou `executionId` **ausente** | **não ocorre** | `null`, e não vazias | não viajam | não bloqueia |
+| `invalido` | presentes, mas inutilizáveis por uma regra de boa formação | **não ocorre** | `null`, e não vazias | só os de painel, **sem** o mapa por incluído | não bloqueia |
+| `vinculado` | correspondência **um a um** entre `incluidosNoDocumento` e `avaliadosAntesDaRestricao` | ocorre, e é **identidade** | `[]`, e isso é medição | viajam | não bloqueia |
+| `divergente` | qualquer diferença, com as **duas** listas conservadas | ocorre | o que sobrou de cada lado | viajam | não bloqueia |
+
+**Regras de boa formação**, cada uma com motivo próprio, todas avaliadas: `includedRespondents`
+não é array; array **vazio**; item sem `respondentId`; `respondentId` que não é string;
+`respondentId` vazio; `respondentId` **repetido**; `executionId` que não é string não vazia.
+O estado `invalido` conserva **todas** as violações em `violacoes`, e o `motivo` nomeia a
+primeira. ⚠ **Ausente, vazio e malformado são três coisas:** lista vazia é `invalido`, e não
+`indisponivel` nem `vinculado`; dois conjuntos vazios **não** são coincidentes.
+
+⚠ **`indisponivel` é o estado ESPERADO dos documentos gravados antes da etapa 2**, e não é
+falha. É inferência sobre produção, que não se consulta; o que foi **medido** é que o
+snapshot versionado de 13/07/2026, que **não é produção**, dá `indisponivel`.
+
+##### Três conjuntos, e a comparação vem ANTES da restrição
+
+| Conjunto | O que é |
+|---|---|
+| `incluidosNoDocumento` | `metadata.includedRespondents` do documento de cálculo |
+| `avaliadosAntesDaRestricao` | os respondentes da avaliação de qualidade, **antes** de qualquer restrição |
+| `enviados` | os que de fato vão no payload, **depois** da restrição |
+
+As duas diferenças, `sobraNoDocumento` e `sobraNaAvaliacao`, são calculadas sobre os dois
+primeiros conjuntos, **antes** da restrição, e nenhuma se reconstrói a partir de `enviados`:
+restringir primeiro apagaria a sobra do lado da avaliação por construção. ⚠ **A comparação
+preserva multiplicidade:** identificador repetido no lado da avaliação é **achado**
+(`repetidosNaAvaliacao`), as ocorrências se conservam, o estado é `divergente`, e **não há
+desempate** por ordem, por posição nem por recência. ⚠ O contexto distingue a **divergência
+encontrada** da **cobertura efetivamente enviada**.
+
+##### A origem da lista avaliada, e a identidade de cada elemento
+
+A origem é **selecionada depois das exclusões que a tela já aplica e antes da restrição**:
+`analiseDeQualidade` quando há respondentes ativos da API de qualidade; senão
+`fallbackSobreRespostas`, quando há respostas ativas; senão `nenhuma`. ⚠ **A restrição nunca
+reabre o fallback:** a lista enviada é sempre subconjunto da selecionada, e a lista da
+**outra** origem volta vazia.
+
+Cada elemento registra o identificador **e o campo que o produziu**:
+
+| Origem | Expressão | Campos possíveis |
+|---|---|---|
+| `analiseDeQualidade` | `respondentId \|\| id \|\| visitorId \|\| ''`, a do filtro de excluídos | `respondentId`, `id`, `visitorId`, `vazio` |
+| `fallbackSobreRespostas` | `visitorId \|\| id \|\| resp-${idx + 1}`, a de `id:` em `respondentesComCR` | `visitorId`, `id`, `posicao` |
+
+⚠ **As duas cadeias NÃO foram unificadas**, e a ordem difere: no fallback, `visitorId` vem
+antes de `id`, e `respondentId` **não está na cadeia**. ⚠ **`vazio` e `posicao` são identidade
+AUSENTE:** entram na `sobraNaAvaliacao` com motivo próprio (`identidade-ausente-vazia`,
+`identidade-ausente-por-posicao`) e **nunca** correspondem a ninguém. Nada nesta etapa
+reconstrói identidade por posição ou por contagem. `posicaoNaLista` é **localizador**, e
+não identidade.
+
+##### O que viaja em `vinculoDaExecucao`
+
+`estado`, `motivo`, `violacoes`, `executionId`, `origemDaListaAvaliada`,
+`avaliadosAntesDaRestricao[]`, `incluidosNoDocumento`, `divergencia{sobraNoDocumento,
+sobraNaAvaliacao, repetidosNaAvaliacao}`, `enviados`, `cobertura{restringiu,
+avaliadosAntesDaRestricao, enviados, incluidosNoDocumento, enviadosDiferemDosAvaliados,
+enviadosIguaisAoDocumento}` e `resumoDoConteudo`. Este, **transportado e declarado não
+verificado** (`verificado: false`), traz `serialization`, `algorithm`, `panel` e
+`unavailableReason` de `metadata.judgmentsDigest` em `painel`, o `mapaPorRespondentId` e três
+listas. ⚠ **O mapa é chaveado por `respondentId`, e NUNCA por posição nem por ordem**; cada
+entrada é `{ responseDocId, judgmentsSha256, judgmentsUnavailableReason }`. ⚠ **O mapa e
+`judgmentsDigest.panel` cobrem `incluidosNoDocumento`**, e não `enviados`; quando `enviados`
+difere do documento, o contexto diz que o resumo do painel **não descreve o conjunto
+enviado**.
+
+##### A regra de valor, e as três listas
+
+- `null`: comparação não realizada. É o valor de `sobraNoDocumento`, `sobraNaAvaliacao`,
+  `repetidosNaAvaliacao`, do mapa e das três listas abaixo em `indisponivel` e `invalido`.
+- `[]`: comparação **realizada, sem ocorrência**.
+- Resumo individual indisponível permanece `null`, **com motivo**, e nunca vira string vazia,
+  zero ou resumo de outra pessoa. Resumo **e** motivo juntos no documento se conservam os
+  dois: contradição não se resolve em silêncio.
+
+⚠ **Identidade coincidente não é resumo disponível.** A etapa 2 admite identificador
+coincidente com `judgmentsSha256: null`, e esse respondente continua sem resumo. Por isso
+são **três** listas, e elas não se confundem: `enviadosSemEntradaNoMapa` (em `enviados` e sem
+entrada), `enviadosComResumoIndisponivel` (entrada presente, `judgmentsSha256` nulo, com o
+motivo) e `entradasDeNaoEnviados` (entrada cujo identificador não está em `enviados`).
+
+##### O que o modelo recebe
+
+Três efeitos independentes, cada um com o seu alcance:
+
+1. **O bloco do contexto** (`## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A
+   EXECUÇÃO DO CÁLCULO`), nos quatro estados. Declara estado, identificador da execução,
+   divergência e cobertura enviada, e **não emite veredito**. Requisição **sem** o campo
+   gera contexto **byte a byte** igual ao anterior ao estágio. Uma frase de limite é a única
+   com palavras de verificação, e todas negadas.
+2. **A restrição do conjunto avaliado** (P1), em `vinculado` (onde é identidade) e
+   `divergente` (onde muda a lista e o N que o contexto declara). ⚠ Retirar respondentes pode
+   mudar disponibilidade, completude e coerência **pelas regras da etapa 1**, sem tocar na
+   função de elegibilidade: esse efeito é do conjunto, e não do estado.
+3. **A omissão de `qualityAnalysis.overall`** quando `enviados` difere de
+   `avaliadosAntesDaRestricao`. ⚠ **Sem efeito sobre o texto entregue:** `overall` não tem
+   consumidor no código atual. Fica como guarda de transporte.
+
+##### Limites, e o que foi medido
+
+- ⚠ **A fiação na tela não é executada por teste algum.** `page.tsx` é `'use client'` e o
+  repositório não tem `jsdom` nem `@testing-library`. A decisão mora no módulo puro, que é
+  executado; a fiação é verificada por leitura da fonte, `tsc` e `build`.
+- ⚠ **Ramo `fallbackSobreRespostas`:** a cadeia do fallback não contém `respondentId`,
+  nenhum ponto do app grava `visitorId`, e a resposta carregada é `{ id: doc.id, ...data }`.
+  O identificador é, na prática, o id do **documento da resposta**, que o documento de
+  cálculo (chaveado por `respondentId`) não contém. **Medido:** o vínculo diverge por
+  construção, a restrição esvazia a lista, e a avaliação da etapa 1 passa de `disponivel`
+  para `ausente` (causa `disponibilidade`). Decisão sobre P1 e sobre a cadeia: do autor.
+- ⚠ `exclusionInfo.activeCount` e `responseCount` seguem descrevendo o conjunto **antes** da
+  restrição. Com exclusão do gestor **e** restrição que retire alguém, a frase do contexto
+  "os dados de qualidade abaixo referem-se APENAS aos N respondentes incluídos" usa a contagem
+  anterior. Não alterado.
+- ⚠ A afirmação de que N vale em todas as matrizes agregadas, na lista exaustiva, descreve o
+  conjunto **enviado**. Com sobra só no documento, as matrizes foram agregadas sobre o
+  conjunto do **documento**. Não alterado: é redação anterior ao estágio.
+- ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem verificação de
+  conteúdo, e sem consulta a produção.
+
+
 ### `POST /api/calculate`
 
 **Entrada** (`route.ts:782`):
@@ -364,7 +518,8 @@ Campos principais: `projectName`, `projectDescription`, `alternatives[]`,
 `bocrWeights` (⚠ aqui como `{Benefits, Opportunities, Costs, Risks}`, não array),
 `personalWeights`, `bocrConsistency`, `subWeights`, `subConsistency`,
 `finalScores[]`, `responseCount`, `sensitivityInflections`, `ipcMetadata`,
-`demographicsSummary`, `exclusionInfo`, `individualStats`, `qualityAnalysis`.
+`demographicsSummary`, `exclusionInfo`, `individualStats`, `qualityAnalysis`,
+`avaliacaoDeQualidade` (etapa 1) e `vinculoDaExecucao` (etapa 3, estágio 1, descrito acima).
 
 ⚠ **O dashboard envia `'REVISAR': 0` fixo** (`resultados/page.tsx:1167`). A
 distribuição de status que chega à IA nunca tem essa categoria preenchida.

@@ -160,6 +160,24 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 8,
+    motivo: 'A.12 etapa 3, estagio 1: o vinculo da avaliacao de qualidade com a execucao, que alterou route.ts e page.tsx',
+    commitDaBase: '128fd76c1dae2f35ded8057db7be63454f1fe145',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 398 campos antes e 409 depois, ZERO perdidos,
+    //   ONZE novos (todos nesta propria entrada) e DOIS mudados, e sao os resumos de codigo da
+    //   rota e da tela. bytesDoContexto NAO se moveu em nenhum dos quatro casos: nenhuma das
+    //   quatro requisicoes traz `vinculoDaExecucao`, e sem o campo o contexto e byte a byte o
+    //   de antes. A rota e a tela mudaram; o CONTRATO e o COMPONENTE nao.
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

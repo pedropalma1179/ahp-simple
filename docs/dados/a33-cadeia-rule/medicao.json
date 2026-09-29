@@ -5,7 +5,7 @@
     "commitMedido": "ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d",
     "codigo": {
       "app/api/ai-reviewer/knowledge.ts": "7d76ce6e92103edf8d6d5106cb5a592e6328800f4c5045bc046b1eb51fed3d34",
-      "app/api/ai-reviewer/route.ts": "8c907408159639165c6f6e5bc0dec5cf4ac3db44be26bcabee6ede0b3726e74e"
+      "app/api/ai-reviewer/route.ts": "8514df6e94acc6d68a71e56af038b1779d8ada6070a2e10d567b15c015ae83fb"
     },
     "dados": {
       "docs/dados/a33-etapa4-v2/casos.json": "49b6c5ad94ef461c8973511b765e35b58f3de2958d76ca16642c7c0c6217afc7",
@@ -98,6 +98,22 @@
         "ordem": 5,
         "motivo": "A.12 etapa 1, E1: o ramo compartilhado da coerencia deixa de prometer um nome de verificacao",
         "commitDaBase": "8b6e2082c6d369ebb78c07d20bd5c6ecebe02bb1",
+        "comando": "A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a33-cadeia-rule/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+        ],
+        "camposPerdidos": 0
+      },
+      {
+        "ordem": 6,
+        "motivo": "A.12 etapa 3, estagio 1: o vinculo da avaliacao de qualidade com a execucao, que alterou route.ts",
+        "commitDaBase": "128fd76c1dae2f35ded8057db7be63454f1fe145",
         "comando": "A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts",
         "ambiente": {
           "plataforma": "linux",
