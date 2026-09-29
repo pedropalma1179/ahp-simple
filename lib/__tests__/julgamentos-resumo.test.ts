@@ -73,6 +73,96 @@ test('regra 3: undefined e OMITIDO em objeto, e regra 4: null e PRESERVADO e dis
   expect(serializarJulgamentos({ saatyValue: null })).toBe('{"saatyValue":null}');
 });
 
+/**
+ * ⚠ **P1: POSIÇÃO VAZIA DE ARRAY, e são quatro casos que se discriminam entre si.**
+ *
+ * `Array.prototype.map` **não visita posição vazia**, e `join` a renderizava como texto
+ * vazio. **Medido no módulo publicado em `6aea771`, Node v22.22.2:** `Array(1)` dava `[]`,
+ * **o mesmo texto e o mesmo resumo de `[]`**, e `[1, , 3]` dava `[1,,3]`, que **não é JSON
+ * válido**. ⚠ **É colisão de REPRESENTAÇÃO, e não colisão do SHA-256:** o resumo coincidia
+ * porque a entrada canônica coincidia.
+ *
+ * ⚠ **Defeito demonstrado no serializador.** Não se afirma que esse conteúdo exista no
+ * Firestore, e **produção não se consulta**.
+ */
+test('P1: array vazio SERIALIZA, e continua sendo JSON valido', () => {
+  expect(serializarJulgamentos([])).toBe('[]');
+  expect(() => JSON.parse(serializarJulgamentos([]))).not.toThrow();
+  expect(serializarJulgamentos({ js: [] })).toBe('{"js":[]}');
+});
+
+test('P1: posicao VAZIA e recusada, com motivo proprio e caminho', () => {
+  for (const [nome, v] of [['Array(1)', Array(1)], ['Array(2)', Array(2)]] as [string, any][]) {
+    try {
+      serializarJulgamentos(v);
+      throw new Error(`deveria ter recusado ${nome}`);
+    } catch (e: any) {
+      expect(e).toBeInstanceOf(ErroDeSerializacao);
+      expect(e.motivo).toBe('posicao ausente de array nao e representavel');
+      expect(e.caminho).toBe('$[0]');
+    }
+  }
+  // ⚠ E o buraco NO MEIO, que era o que produzia texto invalido.
+  const comBuraco: any[] = [1];
+  comBuraco[2] = 3;
+  try {
+    serializarJulgamentos({ js: comBuraco });
+    throw new Error('deveria ter recusado o buraco no meio');
+  } catch (e: any) {
+    expect(e.motivo).toBe('posicao ausente de array nao e representavel');
+    expect(e.caminho).toBe('$.js[1]');
+  }
+});
+
+test('P1: a COLISAO DE REPRESENTACAO acabou — Array(1) e [] nao dao mais o mesmo resultado', () => {
+  // ⚠ Este e o ensaio obrigatorio: antes, os dois davam `[]` e o MESMO resumo.
+  expect(serializarJulgamentos([])).toBe('[]');
+  expect(() => serializarJulgamentos(Array(1))).toThrow(ErroDeSerializacao);
+  expect(() => resumirJulgamentos(Array(1))).toThrow(ErroDeSerializacao);
+  // ⚠ CONTROLE de que a assercao discrimina: o array vazio segue resumindo.
+  expect(resumirJulgamentos([])).toMatch(/^[0-9a-f]{64}$/);
+});
+
+test('P1: array PREENCHIDO serializa como antes, e a representacao e preservada', () => {
+  expect(serializarJulgamentos([1, 2, 3])).toBe('[1,2,3]');
+  expect(serializarJulgamentos([julgamento()])).toBe(
+    '[{"favors":"A","group":"BOCR","itemA":"B","itemB":"O","saatyValue":3,"type":"bocr"}]'
+  );
+  // ⚠ REGRA DE PRESERVACAO, conferida no ensaio: para entradas validas segundo o contrato
+  //   corrigido, a representacao permanece identica. A unica mudanca deliberada e a recusa
+  //   de posicoes vazias, antes processadas incorretamente.
+  for (const v of [{}, [], [1, 2, 3], { a: 1, b: null }, { a: undefined, b: 2 }, { v: -0 }]) {
+    expect(() => serializarJulgamentos(v)).not.toThrow();
+  }
+});
+
+/**
+ * ⚠ **D4: `undefined` na RAIZ nomeia o seu próprio caso.** Antes a mensagem dizia "dentro
+ * de array" com caminho `$`, afirmando um array que não existe.
+ *
+ * ⚠ **No percurso da rota isto é inalcançável**, porque `checkResponseCompleteness`
+ * reprova `undefined` e o portão rejeita antes de a montagem chegar ao resumo. **É
+ * precisão de redação, e não defeito de comportamento.**
+ */
+test('D4: undefined na RAIZ tem mensagem propria, distinta da de dentro de array', () => {
+  try {
+    serializarJulgamentos(undefined);
+    throw new Error('deveria ter recusado');
+  } catch (e: any) {
+    expect(e).toBeInstanceOf(ErroDeSerializacao);
+    expect(e.motivo).toBe('undefined na raiz nao e conteudo julgado');
+    expect(e.motivo).not.toMatch(/dentro de array/);
+    expect(e.caminho).toBe('$');
+  }
+  // ⚠ CONTROLE de que as duas mensagens sao DISTINTAS: dentro de array conserva a sua.
+  try {
+    serializarJulgamentos([undefined]);
+  } catch (e: any) {
+    expect(e.motivo).toBe('undefined dentro de array nao vira null');
+    expect(e.caminho).toBe('$[0]');
+  }
+});
+
 test('regra 3: undefined DENTRO de array e erro nomeado, e nao vira null', () => {
   expect(() => serializarJulgamentos([1, undefined, 3])).toThrow(ErroDeSerializacao);
   try {

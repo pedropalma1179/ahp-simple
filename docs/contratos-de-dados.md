@@ -247,6 +247,48 @@ O resumo do painel é o `sha256` da serialização da lista de pares
    caminho**, e não coagidos em silêncio;
 7. sem indentação; bytes UTF-8 para o resumo.
 
+#### Correção datada da v1, em 29/09/2026
+
+⚠ **As sete regras acima NÃO estavam integralmente implementadas antes desta data**, e
+esta correção é a condição para que a afirmação de implementação integral apareça:
+
+- a **regra 3** cobria `undefined` **explícito** e **não** cobria **posição vazia** de
+  array. `Array.prototype.map` não visita posição vazia, e `join` a renderizava como texto
+  vazio;
+- a **regra 7** produzia **texto que não é JSON válido** quando o buraco estava no meio.
+
+**Medido, executando o módulo publicado em `6aea771` fora da árvore, em Node v22.22.2:**
+
+| Entrada | Saída antes | JSON válido |
+|---|---|---|
+| `[]` | `[]` | sim |
+| `Array(1)` | `[]`, **o mesmo texto e o mesmo resumo de `[]`** | sim |
+| `Array(2)` | `[,]` | **não** |
+| `[1, , 3]` | `[1,,3]` | **não** |
+| `[1, undefined, 3]` | erro nomeado, `$[1]` | não se aplica |
+
+⚠ **O termo é COLISÃO DE REPRESENTAÇÃO, e nunca colisão do SHA-256:** o resumo coincidia
+porque a **entrada canônica** coincidia. ⚠ **Defeito demonstrado no serializador. Não se
+afirma que esse conteúdo exista no Firestore.**
+
+**A versão continua `a12-julgamentos-v1`**, e a regra de preservação é esta:
+
+> Para entradas válidas segundo o contrato corrigido, a representação permanece idêntica.
+> A mudança deliberada é a recusa de posições vazias, antes processadas incorretamente.
+> Qualquer outra alteração de representação é parada.
+
+⚠ **A preservação foi conferida:** os doze conjuntos de julgamentos do painel de referência
+e dez entradas válidas construídas cobrindo as sete regras dão **representação idêntica**
+antes e depois, doze de doze e dez de dez.
+
+⚠ **LIMITE:** **não foi verificado se algum documento em produção já carrega um resumo**,
+porque **produção não se consulta**.
+
+⚠ **Correção de redação na mesma rodada:** `undefined` na **raiz** passou a ter mensagem
+própria. Antes ela dizia "dentro de array" com caminho `$`, afirmando um array que não
+existe. ⚠ **No percurso da rota é inalcançável**, porque o portão de completude rejeita
+antes: é precisão de redação, e não defeito de comportamento.
+
 **OS QUATRO LIMITES, e eles não se apagam com a implementação.**
 
 > O resumo identifica a representação canônica dos julgamentos segundo a versão

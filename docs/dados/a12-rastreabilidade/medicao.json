@@ -4,7 +4,7 @@
   "identificacao": {
     "codigo": {
       "app/api/calculate/route.ts": "b42118dd04164e0c00460ec36f0b958c5fe55d9e20b8dad72a590599ca772967",
-      "lib/julgamentos-resumo.ts": "1d25d877ef93d9582ea0b6515af578940b4d3e78366bf61105747b55f2848055",
+      "lib/julgamentos-resumo.ts": "f0800a4ed74e9928598c879fa193d624494ab90c5b28894913873454f06a5deb",
       "lib/identificador-respondente.ts": "e42396dc6fa0d12f46db2df8cc3a857ebe43008f52b5bb51556600c50c4f129a"
     },
     "serializacao": "a12-julgamentos-v1"

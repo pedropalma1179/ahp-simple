@@ -76,8 +76,15 @@ function serializarValor(v: unknown, caminho: string): string {
       return JSON.stringify(Object.is(v, -0) ? 0 : v);
 
     case 'undefined':
-      // Só alcançável dentro de array: em objeto, a chave é omitida antes de chegar aqui.
-      throw new ErroDeSerializacao('undefined dentro de array nao vira null', caminho);
+      // ⚠ Em objeto a chave é omitida antes de chegar aqui, então só sobram dois casos: a
+      //   RAIZ e dentro de array. **A mensagem distingue os dois**, porque dizer "dentro
+      //   de array" na raiz afirmaria um array que não existe.
+      throw new ErroDeSerializacao(
+        caminho === '$'
+          ? 'undefined na raiz nao e conteudo julgado'
+          : 'undefined dentro de array nao vira null',
+        caminho
+      );
 
     case 'bigint':
       throw new ErroDeSerializacao('bigint nao e representavel nesta versao', caminho);
@@ -90,8 +97,25 @@ function serializarValor(v: unknown, caminho: string): string {
   }
 
   // Regra 2: a ordem dos arrays é CONTEÚDO, e se preserva.
+  //
+  // ⚠ **Percorre os ÍNDICES, e não `map`.** `Array.prototype.map` **não visita posição
+  //   vazia**, e `join` a renderizaria como texto vazio: `Array(1)` daria `[]`, o mesmo
+  //   texto e o mesmo resumo de `[]` — **colisão de REPRESENTAÇÃO**, e não colisão do
+  //   SHA-256 —, e `[1, , 3]` daria `[1,,3]`, que **não é JSON válido**. A recusa de
+  //   `undefined` explícito não alcançava o buraco, porque o serializador nunca chegava lá.
+  // ⚠ **Posição ausente é RECUSADA**, com motivo próprio, distinto do de `undefined`
+  //   explícito. É coerente com as regras 3, 5 e 6, que já recusam em vez de coagir.
+  // ⚠ **Defeito demonstrado no serializador.** Não se afirma que esse conteúdo exista no
+  //   Firestore, e produção não se consulta.
   if (Array.isArray(v)) {
-    return '[' + v.map((item, i) => serializarValor(item, `${caminho}[${i}]`)).join(',') + ']';
+    const partes: string[] = [];
+    for (let i = 0; i < v.length; i++) {
+      if (!Object.prototype.hasOwnProperty.call(v, i)) {
+        throw new ErroDeSerializacao('posicao ausente de array nao e representavel', `${caminho}[${i}]`);
+      }
+      partes.push(serializarValor(v[i], `${caminho}[${i}]`));
+    }
+    return '[' + partes.join(',') + ']';
   }
 
   // Regra 6: `Date`, `Map`, carimbo do Firestore e instância de classe são ERRO NOMEADO.
