@@ -474,15 +474,72 @@ test('MIGRADO: a identidade cai na agregacao, e a saida so tem os quatro campos'
   expect(agr(alterado)).not.toEqual(saida);
 });
 
-test('MIGRADO: sem o portao, a contribuicao por celula muda o valor e NAO deixa rastro', () => {
+/**
+ * ⚠ **MIGRADO: PARTICIPAÇÃO PARCIAL POR CÉLULA, e não remoção de respondente.** O painel
+ * fica o mesmo, e **um único julgamento** passa a `skipped`. Comparar um respondente
+ * contra dois mediria outra coisa — o efeito de retirar um respondente inteiro —, e **não
+ * preservaria a cobertura original**.
+ *
+ * ⚠ **A célula é escolhida e CONFERIDA, e a conferência usa a própria `aggregateMatrix`:**
+ * com um respondente só, a média geométrica de um valor **é** aquele valor, então a célula
+ * de `agr([r0])` e a de `agr([r1])` são as duas contribuições **já orientadas**, depois da
+ * inversão que a agregação faz conforme `favors` e a posição de `itemA`. ⚠ **Exigir
+ * `favors !== 'equal'` NÃO bastaria:** se as contribuições orientadas coincidissem,
+ * retirar uma não mudaria a média geométrica e o controle não discriminaria.
+ */
+test('MIGRADO: um julgamento pulado muda a celula, e a matriz continua completa', () => {
+  const ITENS = ['B', 'O', 'C', 'R'];
+  const iB = ITENS.indexOf('B');
+  const iC = ITENS.indexOf('C');
+  const agr = (x: any[]) => aggregateMatrix(x, 'bocr', 'BOCR', ITENS);
   const rs = [0, 1].map(i => ({ respondentId: `x-${i}`, judgments: copia(JULGAMENTOS[i]) }));
-  const agr = (x: any[]) => aggregateMatrix(x, 'bocr', 'BOCR', ['B', 'O', 'C', 'R']);
-  const so = agr([rs[0]]);
-  const dois = agr(rs);
-  expect(dois.matrix).not.toEqual(so.matrix);
+
+  // ⚠ PREMISSA CONFERIDA: as duas contribuicoes orientadas na celula (B,C) DIFEREM.
+  const soA = agr([rs[0]]);
+  const soB = agr([rs[1]]);
+  expect(soA.matrix[iB][iC]).not.toBeNull();
+  expect(soB.matrix[iB][iC]).not.toBeNull();
+  expect(soA.matrix[iB][iC]).not.toBe(soB.matrix[iB][iC]);
+
+  const semPulo = agr(rs);
+
+  // O MESMO painel, com UM julgamento marcado como pulado.
+  const comPulo = copia(rs);
+  const alvo = comPulo[0].judgments.find(
+    (j: any) => j.type === 'bocr' &&
+      ((j.itemA === 'B' && j.itemB === 'C') || (j.itemA === 'C' && j.itemB === 'B'))
+  );
+  expect(alvo).toBeDefined();
+  expect(alvo.favors).not.toBe('equal'); // ⚠ o ramo `equal` ignora o valor
+  alvo.skipped = true;
+  const depois = agr(comPulo);
+
+  // A celula MUDA de valor.
+  expect(depois.matrix[iB][iC]).not.toBe(semPulo.matrix[iB][iC]);
+  // ⚠ E passa a valer a contribuicao do OUTRO respondente, sozinha.
+  expect(depois.matrix[iB][iC]).toBe(soB.matrix[iB][iC]);
+  // A matriz CONTINUA COMPLETA, porque o outro respondente preenche a celula.
+  expect(depois.isComplete).toBe(true);
+  expect(semPulo.isComplete).toBe(true);
+  // E as celulas preenchidas dos dois lados PERMANECEM.
+  expect(depois.filledCells).toBe(semPulo.filledCells);
+  expect(depois.totalCells).toBe(semPulo.totalCells);
   // ⚠ A saida NAO registra quem contribuiu: os quatro campos nao trazem identidade.
-  expect(JSON.stringify(dois)).not.toContain('x-0');
-  expect(dois.isComplete).toBe(true);
+  expect(Object.keys(depois).sort()).toEqual(['filledCells', 'isComplete', 'matrix', 'totalCells']);
+  expect(JSON.stringify(depois)).not.toContain('x-0');
+  expect(JSON.stringify(depois)).not.toContain('x-1');
+
+  // ⚠ CONTROLE de que o ensaio DISCRIMINA: pular um julgamento numa celula cujas duas
+  //   contribuicoes orientadas COINCIDEM nao muda a celula. Medido: (C,R) e essa celula.
+  const iR = ITENS.indexOf('R');
+  expect(agr([rs[0]]).matrix[iC][iR]).toBe(agr([rs[1]]).matrix[iC][iR]);
+  const puloInocuo = copia(rs);
+  const outro = puloInocuo[0].judgments.find(
+    (j: any) => j.type === 'bocr' &&
+      ((j.itemA === 'C' && j.itemB === 'R') || (j.itemA === 'R' && j.itemB === 'C'))
+  );
+  outro.skipped = true;
+  expect(agr(puloInocuo).matrix[iC][iR]).toBe(semPulo.matrix[iC][iR]);
 });
 
 // ============================================================ o artefato
