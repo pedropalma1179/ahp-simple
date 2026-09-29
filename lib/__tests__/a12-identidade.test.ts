@@ -39,6 +39,23 @@
  *
  * ⚠ **Nenhum valor esperado foi invertido no lugar, e
  * `docs/dados/a12-identidade/medicao.json` NÃO foi regravado.**
+ *
+ * ---
+ *
+ * ⚠ **A PROCEDÊNCIA DA CÓPIA CONGELADA distingue TRÊS commits, e o nome do arquivo NÃO é
+ * o commit em que ela foi preservada:**
+ *
+ * | Commit | O que é |
+ * |---|---|
+ * | `03c7d8b` | **versão de origem da cópia**, que é o que o nome do arquivo identifica |
+ * | `ec4169d` | **commit que ADICIONOU a cópia**, medido por `git log --diff-filter=A` |
+ * | `7157db89…` | **metadado histórico interno da medição**, a base da rodada que a produziu, asserido abaixo |
+ *
+ * **MEDIÇÃO, e não asserção**, porque `app/api/calculate/route.ts` mudou depois: os quatro
+ * resumos de `identificacao.arquivos` da cópia são **exatamente** os arquivos em
+ * `03c7d8b`, recomputados por `git show 03c7d8b:<arquivo>`. ⚠ **A recomputação continua
+ * possível** sobre os arquivos daquele commit; o que seria incorreto é **comparar esses
+ * resumos históricos com os arquivos atuais**.
  */
 
 export {};

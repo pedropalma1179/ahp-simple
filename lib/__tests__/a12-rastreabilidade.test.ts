@@ -146,7 +146,12 @@ const semInstanteNemExecucao = (d: any) => {
   return JSON.stringify(c);
 };
 
-let MED: any;
+/**
+ * ⚠ **O BLOCO OBSERVADO.** É preenchido pelos ensaios enquanto eles rodam, e entra no
+ * artefato separado dos campos declarativos. **Só contagens, rótulos, códigos de estado
+ * HTTP e resumos de fixtures fixas** — nada de ponto flutuante.
+ */
+const OBSERVADO: any = {};
 
 // ============================================================ 1
 test('1: paineis de identidades diferentes gravam documentos DIFERENTES, e a diferenca aparece', async () => {
@@ -170,7 +175,19 @@ test('1: paineis de identidades diferentes gravam documentos DIFERENTES, e a dif
   montarStore(a.cadastrados, a.respostas);
   const rA2 = await rodar();
   expect(semInstanteNemExecucao(rA2.gravado)).toBe(semInstanteNemExecucao(rA.gravado));
-  MED = { painelA: rA.gravado, painelB: rB.gravado, painelARepetido: rA2.gravado };
+
+  OBSERVADO.painelAlfa = {
+    incluidos: rA.gravado.metadata.includedRespondents.length,
+    identifierSourceDistintos: [...new Set(rA.gravado.metadata.includedRespondents.map((i: any) => i.identifierSource))].sort(),
+    incluidosComResumo: rA.gravado.metadata.includedRespondents.filter((i: any) => i.judgmentsSha256 !== null).length,
+    resumoDoPainel: rA.gravado.metadata.judgmentsDigest.panel,
+    serializacao: rA.gravado.metadata.judgmentsDigest.serialization,
+  };
+  OBSERVADO.doisPaineisDeIdentidadesDiferentes = {
+    documentosIguaisForaDeInstanteEExecucao: semInstanteNemExecucao(rA.gravado) === semInstanteNemExecucao(rB.gravado),
+    resumosDePainelIguais: rA.gravado.metadata.judgmentsDigest.panel === rB.gravado.metadata.judgmentsDigest.panel,
+    mesmoPainelRepetidoDaDocumentoIgual: semInstanteNemExecucao(rA2.gravado) === semInstanteNemExecucao(rA.gravado),
+  };
 });
 
 // ============================================================ 2
@@ -223,6 +240,14 @@ test('3: identificadores das quatro etapas coincidem, e divergencia PARA e nomei
   expect(div.corpo.identificadorDivergente.valoresDistintos.length).toBeGreaterThan(1);
   // ⚠ E NAO ESCREVE.
   expect(setDocSpy).not.toHaveBeenCalled();
+
+  OBSERVADO.execucaoValida = { http: ok.status, incluidos: ok.gravado.metadata.includedRespondents.length };
+  OBSERVADO.divergenciaDeIdentificador = {
+    http: div.status,
+    escreveu: setDocSpy.mock.calls.length > 0,
+    etapasNomeadas: etapas.map((e: any) => e.etapa),
+    valoresDistintos: div.corpo.identificadorDivergente.valoresDistintos.length,
+  };
 });
 
 // ============================================================ 4
@@ -355,6 +380,17 @@ test('8: -0 e 0 dao o mesmo resumo, e NaN em rawSlider suspende o resumo SEM exc
   expect(limpo.gravado.metadata.judgmentsDigest.panel).toMatch(/^[0-9a-f]{64}$/);
   expect(limpo.gravado.metadata.judgmentsDigest.serialization).toBe(SERIALIZACAO_JULGAMENTOS);
   expect(limpo.gravado.metadata.judgmentsDigest.algorithm).toBe('sha256');
+
+  OBSERVADO.falhaDeResumoComNaN = {
+    http: nan.status,
+    incluidosAntes: limpo.gravado.metadata.includedRespondents.length,
+    incluidosDepois: nan.gravado.metadata.includedRespondents.length,
+    respondenteContinuouIncluido: Boolean(item),
+    resultadoAgregadoIdentico: JSON.stringify(nan.gravado.finalScores) === JSON.stringify(limpo.gravado.finalScores),
+    resumoIndividualNulo: item.judgmentsSha256 === null,
+    resumoDoPainelNulo: nan.gravado.metadata.judgmentsDigest.panel === null,
+    motivoNomeiaOCaminho: item.judgmentsUnavailableReason.includes('rawSlider'),
+  };
 });
 
 // ============================================================ 9
@@ -543,11 +579,39 @@ test('MIGRADO: um julgamento pulado muda a celula, e a matriz continua completa'
 });
 
 // ============================================================ o artefato
+/**
+ * ⚠ **O QUE ESTE ARTEFATO É, e o que ele não é.** A única parte derivada de execução era
+ * `identificacao.codigo`; todo o resto era **declarativo**. A `natureza` anterior dizia
+ * "mede o comportamento de hoje", e **excedia o conteúdo**. Agora cada campo é marcado
+ * como **declarativo** ou **observado**, e as observações das execuções entram em bloco
+ * próprio.
+ *
+ * ⚠ **Sem ponto flutuante no bloco observado**, e a razão é medida: a comparação de
+ * resumos de conteúdo serializado já divergiu entre ambientes nesta tarefa, em `8879360`,
+ * com **causa específica não determinada** e valores divergentes não preservados. Entram
+ * apenas contagens, rótulos, códigos de estado HTTP e resumos de **fixtures fixas** —
+ * conferido que os julgamentos do fixture só têm inteiros e textos.
+ */
 test('o artefato gravado coincide com a medicao atual', () => {
   const medicao = {
     rodada: 'A.12 etapa 2, rastreabilidade da execucao atual',
     natureza:
-      'MEDE O COMPORTAMENTO DE HOJE. A medicao historica esta congelada em a12-identidade, e nao se confunde com esta.',
+      'REGISTRA CONTRATO e IDENTIDADE DO CODIGO, mais um bloco de OBSERVACOES derivadas das execucoes desta suite. ⚠ NAO e medicao de resultados observados campo a campo: classificacaoDosCampos diz o que e cada um.',
+    classificacaoDosCampos: {
+      'identificacao.codigo': 'OBSERVADO: sha256 dos arquivos, recomputado nesta execucao',
+      'identificacao.serializacao': 'DECLARATIVO',
+      camposNovos: 'DECLARATIVO',
+      ordemDeclarada: 'DECLARATIVO',
+      etapaDeOrigemDoIdentificador: 'DECLARATIVO',
+      etapasDaConcordancia: 'DECLARATIVO',
+      foraDaConcordancia: 'DECLARATIVO',
+      interrupcoesPorIdentidade: 'DECLARATIVO',
+      falhaDeResumoNaoInterrompe: 'DECLARATIVO',
+      oQueIstoNaoResolve: 'DECLARATIVO',
+      oQueOResumoDemonstra: 'DECLARATIVO',
+      observacoesDasExecucoes: 'OBSERVADO: derivado das execucoes desta suite',
+      procedenciaDasRegravacoes: 'DECLARATIVO: a lista acumulativa das regravacoes',
+    },
     identificacao: {
       codigo: Object.fromEntries([ROTA_CALCULO, MODULO_RESUMO, MODULO_IDENT].map(f => [f, shaArquivo(f)])),
       serializacao: SERIALIZACAO_JULGAMENTOS,
@@ -564,6 +628,25 @@ test('o artefato gravado coincide com a medicao atual', () => {
     etapaDeOrigemDoIdentificador: 'deduplicacao',
     etapasDaConcordancia: ['validacaoCruzada', 'deduplicacao', 'filtroDeExcluidos', 'portaoDeCompletude'],
     foraDaConcordancia: 'o log do fallback, que NAO e etapa de selecao',
+    // ⚠ D1: as DUAS interrupcoes por identidade, distintas entre si e da falha de resumo.
+    interrupcoesPorIdentidade: [
+      {
+        onde: 'app/api/calculate/route.ts:802',
+        quando: 'os identificadores das quatro etapas de selecao divergem para algum incluido',
+        http: 409,
+        escreve: false,
+        nomeia: ['responseDocId', 'etapas com o valor de cada uma', 'valoresDistintos'],
+      },
+      {
+        onde: 'app/api/calculate/route.ts:838',
+        quando: 'aparece identificador repetido na lista montada DEPOIS da deduplicacao',
+        http: 409,
+        escreve: false,
+        nomeia: ['identificadoresIncluidos'],
+      },
+    ],
+    falhaDeResumoNaoInterrompe:
+      '⚠ DISTINTA das duas acima: a falha de serializacao NAO interrompe, o respondente CONTINUA entrando no calculo, e o registro fica em judgmentsSha256 nulo com judgmentsUnavailableReason nomeando o motivo e o caminho.',
     oQueIstoNaoResolve: [
       'NAO preserva execucoes anteriores: o documento e unico por projeto e e sobrescrito',
       'NAO preserva o conteudo julgado: o resumo IDENTIFICA e nao guarda',
@@ -572,6 +655,28 @@ test('o artefato gravado coincide com a medicao atual', () => {
     ],
     oQueOResumoDemonstra:
       'O resumo identifica a representacao canonica dos julgamentos segundo a versao declarada. Sua igualdade e evidencia de igualdade dessa representacao, sob a hipotese de ausencia de colisao SHA-256; nao demonstra identidade do objeto bruto nem de toda a entrada do calculo.',
+    procedenciaDasRegravacoes: [
+      {
+        ordem: 1,
+        motivo: 'A.12 etapa 2, P1 e D4: correcao do serializador, posicao vazia de array recusada',
+        commitDaBase: '6aea77127b8e4ee6072c0677d011848b9d2911c4',
+        comando: 'A12R_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-rastreabilidade.test.ts',
+        ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+        camposRegravados: ['identificacao.codigo[lib/julgamentos-resumo.ts]'],
+        camposPerdidos: 0,
+      },
+      {
+        ordem: 2,
+        motivo: 'A.12 etapa 2, P3, D1, D2 e D3: a natureza passa a corresponder ao conteudo, os campos ficam classificados, e entra o bloco observado',
+        commitDaBase: '70773083f0977bc92c03e4050c702f238318633d',
+        comando: 'A12R_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-rastreabilidade.test.ts',
+        ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+        camposRegravados: ['natureza', 'classificacaoDosCampos', 'interrupcoesPorIdentidade', 'falhaDeResumoNaoInterrompe', 'observacoesDasExecucoes', 'procedenciaDasRegravacoes'],
+        camposPerdidos: 0,
+      },
+    ],
+    // ⚠ OBSERVADO, e derivado das execucoes desta suite. Sem ponto flutuante.
+    observacoesDasExecucoes: OBSERVADO,
   };
 
   if (GRAVAR) {
@@ -580,10 +685,19 @@ test('o artefato gravado coincide com a medicao atual', () => {
   }
   expect(fs.existsSync(ARTEFATO)).toBe(true);
   const gravado = JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
-  for (const chave of ['camposNovos', 'ordemDeclarada', 'etapaDeOrigemDoIdentificador', 'etapasDaConcordancia', 'oQueIstoNaoResolve', 'oQueOResumoDemonstra']) {
+  for (const chave of Object.keys(medicao)) {
     expect(gravado[chave]).toEqual((medicao as any)[chave]);
   }
-  expect(gravado.identificacao).toEqual(medicao.identificacao);
-  // ⚠ CONTROLE de que a medicao nao passou por vacuidade: o primeiro ensaio rodou.
-  expect(MED?.painelA?.metadata?.includedRespondents?.length).toBe(10);
+  // ⚠ CONTROLE de que o bloco observado NAO passou por vacuidade: ele so existe se os
+  //   ensaios que o alimentam tiverem rodado.
+  expect(OBSERVADO.painelAlfa.incluidos).toBe(10);
+  expect(OBSERVADO.divergenciaDeIdentificador.http).toBe(409);
+  // ⚠ E nenhum valor do bloco observado e de ponto flutuante.
+  const naoInteiros: string[] = [];
+  const andar = (o: any, p: string) => {
+    if (o && typeof o === 'object') { for (const [k, v] of Object.entries(o)) andar(v, `${p}.${k}`); }
+    else if (typeof o === 'number' && !Number.isInteger(o)) naoInteiros.push(p);
+  };
+  andar(OBSERVADO, 'observacoesDasExecucoes');
+  expect(naoInteiros).toEqual([]);
 });

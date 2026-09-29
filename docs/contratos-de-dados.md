@@ -201,8 +201,10 @@ a ser válida.
 
 #### A.12 etapa 2: rastreabilidade da execução atual
 
-**Três campos novos.** ⚠ **Rastreabilidade, e não portão:** nenhum respondente deixa de
-entrar no cálculo por causa deles.
+**Três campos novos.** ⚠ **O que NÃO é portão é o RESUMO:** nenhum respondente deixa de
+entrar no cálculo por causa de `judgmentsSha256`, e falha de serialização não interrompe.
+⚠ **A etapa ACRESCENTOU interrupções, e elas são por IDENTIDADE**, não por resumo: são as
+duas de HTTP 409 descritas abaixo, que **param a execução e não escrevem**.
 
 `executionId`, de topo, diz **qual execução** o documento é. Opaco, sem significado de
 ordem, e **não derivado de `calculatedAt`**: instante não é identidade, e duas execuções
@@ -225,9 +227,22 @@ sistema.
 
 ⚠ **A concordância entre as quatro etapas de seleção é EXIGIDA, e não suposta.** Os
 valores de `validacaoCruzada`, `deduplicacao`, `filtroDeExcluidos` e `portaoDeCompletude`
-têm de coincidir para todo incluído; divergência **para a execução** com HTTP 409,
-nomeando a resposta, as etapas e os valores, **sem escrever**. ⚠ O log do fallback fica
-**fora** da concordância, por **não ser etapa de seleção**, e a exclusão é deliberada.
+têm de coincidir para todo incluído. ⚠ O log do fallback fica **fora** da concordância, por
+**não ser etapa de seleção**, e a exclusão é deliberada.
+
+##### As DUAS interrupções por identidade, e a falha de resumo, que é outra coisa
+
+⚠ **Três casos, e eles não podem aparecer sob a mesma descrição.** Os dois primeiros são
+**por identidade**: **param a execução** e **não escrevem**. O terceiro **não interrompe**.
+
+| Caso | Onde | Quando | HTTP | Escreve? | O que nomeia |
+|---|---|---|---|---|---|
+| Divergência de identificador | `app/api/calculate/route.ts:802` | os identificadores das quatro etapas divergem para algum incluído | **409** | **não** | `responseDocId`, cada etapa com o seu valor, e `valoresDistintos` |
+| Identificador repetido | `app/api/calculate/route.ts:838` | aparece identificador repetido na lista montada **depois** da deduplicação | **409** | **não** | `identificadoresIncluidos` |
+| **Falha de resumo** | `lib/julgamentos-resumo.ts`, via a montagem | a serialização recusa o conteúdo de um respondente | — | **sim** | ⚠ **NÃO interrompe:** o respondente **continua entrando**, `judgmentsSha256` fica `null` e `judgmentsUnavailableReason` traz o motivo **com o caminho** |
+
+⚠ **A repetição depois da deduplicação é sinal de que a premissa mudou**, e por isso para
+em vez de desempatar em silêncio.
 
 `metadata.judgmentsDigest`: `{ algorithm: 'sha256', serialization, panel, unavailableReason }`.
 O resumo do painel é o `sha256` da serialização da lista de pares
