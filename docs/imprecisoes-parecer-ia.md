@@ -11494,6 +11494,98 @@ escrever.
 sobre a redação do modelo permanece NÃO TESTADA:** nenhum parecer novo foi gerado, e o que se
 mede é o que o modelo **recebe**, não o que ele escreve.
 
+## A.12 etapa 3, estágio 1: predição datada, o vínculo da avaliação de qualidade com a execução, em 29/09/2026
+
+**Base:** `799273e911d694b9d458d5d64b61ed8dddca80d6`. ⚠ **Registrada ANTES de qualquer
+edição de código**, e o commit deste registro não toca código.
+
+### O que o estágio faz, e o que decide não fazer
+
+A tela passa a ler o conjunto dos incluídos do documento de cálculo
+(`metadata.includedRespondents`), a compará-lo com o conjunto que ela mesma avalia, e a
+enviar o resultado no payload como `vinculoDaExecucao`.
+
+⚠ **O estágio REPRESENTA o vínculo, e NÃO decide o que a divergência faz com a
+classificação.** Suspender por divergência acrescentaria uma quinta causa a
+`elegivelParaClassificacao`, que é contrato da etapa 1, e essa decisão vem depois, com a
+evidência que este estágio produz.
+
+⚠ **Alternativa em aberto, e a decisão é do autor:** retirar a restrição do conjunto
+avaliado (P1) e deixar o estágio em comparar e transportar. O estágio é implementado
+**COM** P1, como foi especificado.
+
+### As medições que sustentam a predição
+
+Todas por leitura de `799273e`, com o instrumento declarado.
+
+| # | Medição | Instrumento e limite |
+|---|---|---|
+| M1 | `qualityAnalysis.overall` **não tem consumidor**. Nasce em `app/api/response-quality/route.ts:471`, é copiado pela tela em `page.tsx:1225` e é declarado em `lib/ai-reviewer/review-request.ts:117`. Nenhum outro ponto o lê | `git grep -nE "\.overall\b\|\boverall\s*[:?]\|\['overall'\]\|\"overall\""` fora de testes e docs: **3 ocorrências**, todas de produtor, cópia ou tipo. E nenhum `JSON.stringify` nem espalhamento de `qualityAnalysis` em `app`, `lib` e `components`. ⚠ **Busca por literal é apoio, e não prova de ausência**: não alcança acesso por chave dinâmica. Fica complementada pela leitura da região que monta o contexto, `route.ts:880-1110`, que interpola campos **nomeados** |
+| M2 | O contexto lista **cada** respondente de `qualityAnalysis.respondents` sob "lista EXAUSTIVA", com "TOTAL: N respondentes (esta lista é COMPLETA — não existem outros)" e "N = N em TODAS as matrizes agregadas" | leitura de `route.ts:925-933`. **Restringir o conjunto muda a lista e o N que o modelo lê** |
+| M3 | A validação pós-geração usa `respondentIds.length` **só para AVISO** (`TOTAL_INCONSISTENTE`, via `warnings.push`) | leitura de `lib/ai-reviewer/validate-review.ts:117-123`. **A restrição não pode reprovar a validação**, só emitir aviso |
+| M4 | Os respondentes que a API de qualidade devolve carregam **só `respondentId`**, sem `id` nem `visitorId`, produzido por uma **terceira cópia** da cadeia de nove elos, com o mesmo último elo `respondente_${idx + 1}` | leitura de `app/api/response-quality/route.ts:194-215` e `:386-400`. A tela descarta no carregamento toda resposta sem `respondentId` (`page.tsx:1548`), então esse último elo é **inalcançável para a entrada que a tela dá à API**. ⚠ **Leitura do código, e não medição sobre dados de produção** |
+| M5 | **Nenhum teste executa a tela.** Não há `jsdom` nem `@testing-library` no repositório, e a tela é `'use client'` com o parecer disparado por clique | `package.json` e `jest.config.js` (`testEnvironment: 'node'`). Os testes existentes **leem** a tela como texto |
+| M6 | A tela tem **duas origens** de lista avaliada — `analiseDeQualidade` e `fallbackSobreRespostas` — e as cadeias de identificador **diferem**: `r.respondentId \|\| r.id \|\| r.visitorId` de um lado, `response.visitorId \|\| response.id \|\| resp-${idx + 1}` do outro | leitura de `page.tsx:970`, `:976` e `:1152` |
+
+### Os três efeitos independentes sobre o que o modelo recebe
+
+| Efeito | Quando ocorre | Alcance esperado |
+|---|---|---|
+| **A**, bloco novo no contexto | sempre que a tela envia `vinculoDaExecucao`, nos quatro estados | sempre |
+| **B**, restrição do conjunto avaliado | só em `vinculado` e `divergente` | em `vinculado` a restrição é **identidade**, e nenhum elemento sai; **só `divergente` altera a lista e o N** |
+| **C**, omissão de `overall` | quando `enviados` difere de `avaliadosAntesDaRestricao` | ⚠ **NENHUM sobre o texto entregue**, por M1 |
+
+⚠ **Correção ao enquadramento da especificação:** ela apresenta a omissão de `overall`
+como um dos três efeitos sobre o que o modelo recebe. **Por M1 esse efeito é nulo no
+código atual.** A omissão continua correta como guarda de transporte — estatística de um
+conjunto não se apresenta como avaliação de outro —, mas **não é fonte de mudança no
+texto**, e a predição a trata assim.
+
+⚠ **Projetos existentes:** os documentos de cálculo em produção foram gravados antes da
+etapa 2, então o estado esperado é `indisponivel`, sem restrição, e o único efeito é o A.
+⚠ **É inferência sobre produção, que NÃO se consulta.**
+
+### A predição sobre o que o modelo RECEBE
+
+Determinística, e verificada por testes no commit 3. Cada item traz a observação que o
+contraria.
+
+| # | Predição | O que a contraria |
+|---|---|---|
+| R1 | Requisição **sem** `vinculoDaExecucao` gera contexto **byte a byte** o que era antes do estágio | qualquer byte diferente, medido pelas suítes existentes: `bytesDoContexto` dos quatro casos de `a12-diagnostico` e `camadas[].saidaReal` de `a33-cadeia-rule` |
+| R2 | Requisição **com** o campo gera **um** bloco, com o estado literal, **nos quatro estados** | zero blocos, dois blocos, ou estado ausente do texto |
+| R3 | Em `indisponivel` e `invalido` o bloco declara a comparação **NÃO realizada**; em `vinculado` declara as sobras como **medição vazia**; em `divergente` lista os **dois** lados | "nenhum" ou lista vazia numa comparação que não foi feita |
+| R4 | O bloco **não afirma conferência** de conteúdo, e traz a redação de limite | qualquer afirmação de que o conteúdo foi conferido, verificado, validado ou íntegro sem negação |
+| R5 | Com o **mesmo** conjunto avaliado, mudar só o estado do vínculo **não** muda elegibilidade nem rótulo | elegibilidade ou rótulo diferentes entre os quatro estados |
+| R6 | Em `divergente` com restrição, o N e a lista do contexto são os de `enviados`, e o bloco declara que o resumo do painel **não descreve** o conjunto enviado quando ele difere do documento | N ou lista do contexto diferentes de `enviados`; ou o bloco calando sobre a cobertura do resumo |
+
+### A predição sobre o TEXTO gerado — NÃO TESTADA
+
+⚠ **Nenhum parecer novo será gerado nesta etapa.** O que segue é o que se espera, com a
+observação que contrariaria cada item, para que uma observação futura não encontre
+explicação depois do fato.
+
+| # | Predição | O que a contraria |
+|---|---|---|
+| T1 | Em `indisponivel`, que é o estado esperado de todo projeto existente, o parecer **não afirmará como fato** que a avaliação de qualidade foi calculada sobre os mesmos respondentes ou versões do cálculo. Se tocar no assunto, tratará o vínculo como não disponível ou não verificado | o texto afirma, sem ressalva, que os CRs individuais correspondem aos respondentes do cálculo como fato conferido |
+| T2 | O parecer **não usará** `executionId`, o resumo do painel ou qualquer resumo como **prova de integridade** | aparecem como prova: "íntegro", "verificado", "auditável por hash" |
+| T3 | Nota e veredicto **não mudam por causa do bloco**, para o mesmo conjunto avaliado. A parte determinística é R5 | mudança de nota ou veredicto que só o estado do vínculo explique |
+| T4 | Em `divergente`, se o parecer tratar a divergência, tratará como **limite da descrição da amostra**, e **não elegerá** um dos dois conjuntos como o correto sem base | o texto declara qual conjunto "deveria" valer, ou atribui a divergência a uma causa que o bloco não informa, como "exclusão indevida" |
+
+### O caso negativo geral
+
+A predição fica **REFUTADA** se alguma das R falhar na execução dos testes, ou se, em
+observação futura de parecer, T1 ou T2 for contrariada. ⚠ **Refutação de T é registrada
+como achado, sem ajuste do critério.**
+
+### O limite, que não muda
+
+⚠ Coerência interna do pedido, **sem cobertura do universo real** e sem verificação de
+conteúdo. `vinculado` significa **correspondência de identificadores** segundo regras
+declaradas, e **não** comprova que os CRs foram calculados sobre as versões registradas.
+⚠ **A fiação na tela não é executada por teste (M5):** é verificada por leitura, `tsc` e
+`build`. ⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA.**
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
