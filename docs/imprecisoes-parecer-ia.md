@@ -13138,6 +13138,238 @@ presentes no documento de cálculo" sai de `:719-720` sempre que `restringiu` é
 `enviadosDiferemDosAvaliados`, em `:533`, diz se a lista mudou. ⚠ **O item é a distinção entre aplicação do
 filtro e alteração efetiva da lista**, e não entre filtro aplicado e não aplicado.
 
+## A.12: estatísticas por dimensão BOCR, Fase 2 (saída A): predição datada, em 30/09/2026
+
+**Base:** `35a15062a64f39085cc6702aaf0e77a600d6f542`. ⚠ **Registrada ANTES de qualquer edição de código e de
+teste**, e o commit deste registro não toca código: só este arquivo. Ambiente da medição da base: Linux x86_64,
+Node v22.22.2, npm 10.9.7, jest 30.1.3, tsc 5.9.3 (**ambiente observado, e não requisito**).
+
+⚠ **Decisão do autor, e escopo.** O autor escolheu a **saída A**: as estatísticas por dimensão BOCR deixam de ser
+apresentadas numericamente e passam a ser declaradas **não disponíveis nesta requisição**, com o motivo. A saída B
+**não** é implementada. Ficam **fora** desta rodada: a escolha da escala de categorias; o produtor
+`app/api/response-quality/route.ts` (inclusive o retorno antecipado de `:75-77`); `cobertura.restringiu`; P1; a
+unificação das cadeias de identificador; e o **envio** do `individualStats` achatado pela tela, que continua sendo
+feito (a rota é que deixa de lê-lo).
+
+### O defeito, na formulação desta rodada
+
+> O contexto não pode apresentar os quocientes do agregado como contagens medidas por dimensão nem como
+> participação nas matrizes. Na saída A, essas estatísticas deixam de ser apresentadas numericamente.
+
+⚠ **A formulação não afirma que número por dimensão seja contraditório em si:** denominadores por dimensão podem
+diferir entre dimensões, desde que nomeados corretamente, e isso é assunto da saída B, que **não** foi escolhida. O
+que a saída A corrige é o **quociente do agregado apresentado como contagem medida**, medido na Fase 1.
+
+Cinco pontos, e só estes: **(1)** sai a divisão por quatro (`route.ts:567-596`); **(2)** o bloco declara as
+estatísticas por dimensão **não disponíveis nesta requisição**, com o motivo; **(3)** o consumidor agregado
+(`route.ts:855-864`) deixa de depender do número fabricado, **sem** trocá-lo por zero nem por outra estimativa;
+**(4)** o caminho **sem** `vinculoDaExecucao` recebe a mesma correção, **nestes pontos e só nestes**; **(5)**
+cálculos, critérios de classificação e demais textos ficam como estão.
+
+### Base e reconferência
+
+| Ref | Medido em 30/09/2026 (`git ls-remote origin`; `git rev-parse` para o local) | Esperado |
+|---|---|---|
+| `HEAD` da branch de sessão | `35a15062a64f39085cc6702aaf0e77a600d6f542` | a base do pedido |
+| `refs/heads/claude/loving-shannon-661fy9` (remoto) | `35a15062a64f39085cc6702aaf0e77a600d6f542` | igual ao `HEAD` |
+| `refs/heads/main` (remoto) | `33c1fdf6500242832994a17aa15b0a686704c029` | o esperado |
+| `refs/heads/integra/a30-registros` (remoto) | `799273e911d694b9d458d5d64b61ed8dddca80d6` | o esperado |
+
+Estado do diretório antes: **nenhuma alteração rastreada preexistente** (`git status --short` vazio), sem alteração
+manual do autor a preservar; `git rev-parse --is-shallow-repository` devolve `false`. Preservados, medidos agora:
+`docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`,
+`85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes, cada um);
+`docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`,
+`a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes).
+
+**Releitura dos localizadores, em `35a1506`** (o código é o mesmo de `a07998c`: a Fase 1 só tocou documentos):
+
+| Citado | Medido | Veredito |
+|---|---|---|
+| `route.ts:567-596`, a divisão | `:564` a variável; `:567` o `if (individualStats && !individualStats.Benefits)`; `:570-595` as quatro atribuições `Math.floor(aggregated.X / 4) \|\| 0`; `:596` fecha; `:599-606` o padrão de zeros | exato |
+| `route.ts:855-864`, o consumidor | `:855` `} else if (avaliada) {`; `:856-859` a soma dos quatro `total`; `:861-864` a soma dos quatro `valid`; `:865` fecha | exato |
+| `route.ts:704-705` | `:704` `const elegivel = elegivelParaClassificacao(...)`; `:705` `const avaliada = elegivel.elegivel;` | exato |
+| `route.ts:840` | `if (avaliada && data.qualityAnalysis?.statistics?.byStatus) {`, o ramo 1 dos totais | exato |
+| `avaliacao-qualidade.ts:765-793` | `elegivelParaClassificacao`: `:765` a declaração, `:793` o fecho | exato |
+| `avaliacao-qualidade.ts:693-698` | o comentário C3 (`:693-697`) e `const aplicaveisPendentes` (`:698`) | exato |
+| `avaliacao-qualidade.ts:497-503` | `if (!by) {` que devolve `nao_determinada`, com o motivo "V3: nao concluida porque qualityAnalysis.statistics.byStatus esta ausente." | exato |
+| `response-quality/route.ts:75-77` | `if (response.responses.avgCR !== undefined)`, a atribuição e o retorno antecipado `if (crs.avgCR > 0) return crs;` | exato. **Fora do escopo, e não será tocado** |
+| `vinculo-execucao.ts:1088` | `CHAVE_DE_LEITURA_DAS_CONTAGENS` é `:1077-1090`. O item é a concatenação de **dois** literais: `:1088` ("os totais por dimensão BOCR de … alguma") e `:1089` ("(quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo)."). **A descrição da divisão está em `:1089`** | **mesmo trecho; correção de linha:** o item ocupa `:1088-1089` |
+| `vinculo-execucao-fiacao.test.ts:730` | fixa **só a primeira metade** do item (`:1088`), que **não** descreve a divisão. A descrição da divisão **não é fixada por teste algum**: `git grep` por "por quatro" e por "reparte" em `lib/__tests__` dá **0** ocorrências. A outra dependência do bloco nesse arquivo é `:724`, que conta dez linhas cobertas só pela chave, quatro delas as "Respostas totais" por dimensão | **mesmo trecho; correção de precisão:** o relato da Fase 1 dizia que `:730` "fixa" a frase da divisão, e ele fixa só a metade que não a descreve |
+
+**Nenhum localizador aponta outro trecho, e por isso não houve parada.** Duas correções, ambas da **mesma passagem**:
+o item da chave ocupa `:1088-1089`, e o teste `:730` fixa só a primeira metade dele. ⚠ **A mudança em
+`vinculo-execucao.ts` alcançará as duas linhas desse item e nenhuma outra do arquivo**, e será medida em
+`git diff -U0`.
+
+### As medições da base que sustentam a predição
+
+Marcadas **(exec.)** as medidas por execução do tratador real, com o cliente do modelo **simulado** (chave falsa,
+captura antes da geração, sem rede), **antes de qualquer edição**; **(lido)**, as que vêm da leitura do fonte.
+
+| # | Medição | Instrumento e limite |
+|---|---|---|
+| M1 | **(exec.)** A sonda da base cobre **27 cenários** (7 conjuntos de respondentes × com e sem vínculo, mais 12 variantes e uma sonda de total zero). Hoje, com o agregado da tela, o bloco imprime por dimensão: agregado **5** (2 / 1 / 2) "Respostas totais: 1" nas quatro e Taxa 40.0%; agregado **3** (1 / 1 / 1) "0" nas quatro e Taxa 33.3%; agregado **12** (0 / 1 / 11) "3" nas quatro e Taxa **0.0%**; agregado **12** (12 / 0 / 0, caminho gravado, **derivado**) "3" nas quatro e Taxa 100.0%; **5 com dois desconhecidos** (4 / 1 / 0) "1" nas quatro e Taxa 80.0%. O pedido **elegível sem `individualStats`** imprime **quatro blocos de zeros** e Taxa 40.0%; o **duplo por dimensão** (5 pessoas) imprime "5" nas quatro e Taxa 40.0% | sonda temporária, **não versionada como teste** e a ser arquivada como texto no commit de implementação. ⚠ Nos cenários de pedido real a **Taxa vem de `byStatus`** (ramo 1 de `:840`), e por isso **não** depende do `individualStats`: só o bloco depende |
+| M2 | **(exec.)** **Primeira execução do instrumento, conferida à mão no caso mais visível:** os contextos de agregado 5 e de agregado 3, com e sem vínculo, saíram **iguais byte a byte** aos quatro versionados na Fase 1 (`cmp`, 4 de 4; 70812, 75538, 70697 e 75423 bytes) | a cópia literal dos passos da tela, herdada da Fase 1, reproduz o que a Fase 1 mediu. ⚠ **Um caso correto não valida todos os ramos:** a conferência é proporcional ao risco, e os outros 23 cenários não têm oráculo prévio |
+| M3 | **(exec.)** Nas **quatro causas de não elegibilidade** (`ausente`, `incompleta`, `contradicao`, `coerencia_nao_concluida`), com e sem vínculo (8 cenários), o bloco imprime a frase existente ("⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.") e a Taxa diz "não calculada — qualidade individual não avaliada.", com nota e veredicto nulos | ⚠ Nas causas `contradicao` e `coerencia_nao_concluida` a frase do bloco diz "não foi avaliada" e o resumo diz "FORAM avaliados": **achado adjacente da Fase 1 (Seção 5, item 2), preservado e não corrigido** |
+| M4 | **(exec.)** **Pedido elegível com total zero: duas construções tentadas, e nenhuma é elegível.** (a) `estado: 'disponivel'` declarado, lista de respondentes vazia, `byStatus` zerado: causa `disponibilidade`. (b) três respondentes `cr: 0` `DESCONHECIDO`, `byStatus` só com `DESCONHECIDO: 3`: causa `contradicao` (V4 e V5) | ⚠ **Duas construções não provam a inalcançabilidade.** O que se tem é: cobertura observada de **0 de 32** combinações na Fase 1 e **0 execuções** do consumidor pela suíte, mais a **leitura** de que elegível implica `byStatus` presente (`route.ts:704-705`; `avaliacao-qualidade.ts:765-793`, `:693-698`, `:497-503`; `route.ts:840`), logo o ramo 1 |
+| M5 | **(lido)** Fora de `docs/` e de dados, "Respostas totais" ocorre em `route.ts` (4) e em `vinculo-execucao-fiacao.test.ts` (2); "Estatísticas por Dimensão" ocorre em `route.ts` (1), `vinculo-execucao.ts` (1) e `vinculo-execucao-fiacao.test.ts` (1). Os **outros** testes que alimentam o tratador real com `individualStats` por dimensão (`a12-coerencia`, `a33-montagem-contexto`, `rag-diagnostico-regressao`, `rag-semantic-states`) **não afirmam nada do bloco**, e `a33-snapshot-v2` roda a requisição r2, **não elegível** e sem `individualStats` | `git grep -o` sem filtro de extensão, contando **ocorrências**, e não linhas; e `git grep` por "Respostas totais", "Válidas", "Críticas", "Warning", "Estatísticas" e "Taxa de Validade" nesses quatro arquivos: 0 |
+| M6 | **(lido)** `a12-diagnostico`: dos quatro casos, **só `C-disponivel` é elegível**; o que o artefato registra por caso é `bytesDoContexto` e fragmentos que **não** incluem linha do bloco por dimensão (`MARCADORES_DE_PERCENTUAL` não contém "- Válidas (CR ≤ 0.10):"; `blocoDeQualidade` são as dez linhas depois do cabeçalho do resumo). `a33-cadeia-rule`: r1 e r2 **não são elegíveis** e não trazem vínculo | leitura de `a12-diagnostico.test.ts:465-540`, `:422-460` e `:640-680`. ⚠ A leitura de a33 vem de `a33-snapshot-v2.test.ts:695-701` (r2 traz "AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL"); **r1 não foi executada nesta sonda** |
+| M7 | **(lido)** Testes de fiação que **leem `route.ts` como texto** e limitam a edição: (i) a cópia `vinculoDaExecucao: rawData.vinculoDaExecucao,` ocorre **uma** vez, dentro de `normalizeRequest`, que termina no primeiro `\n}\n`; (ii) a lista **exata** de linhas da rota que casam `/vinculo/i` e não começam por `//`; (iii) **exatamente três** chamadas de `elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade)`; (iv) a região de `calculateGrade` não casa `/vinculo/i`. E, em `review-request.ts`, `vinculoDaExecucao?: VinculoDaExecucao;` **uma** vez, com o `import type` | `vinculo-execucao-fiacao.test.ts:300-311`, `:1210-1247`. ⚠ **Consequência para a edição:** nenhuma linha nova da rota, fora de comentário `//`, pode conter "vinculo"; nenhuma chamada nova de `elegivelParaClassificacao`; e `calculateGrade` **não é editada**. Sua linha `const stats = data.individualStats;` (`:345`) **não tem uso**: a única ocorrência de `stats` dentro da função (`:344-507`) é a própria declaração; e ela segue compilando com o campo opcional |
+| M8 | **(lido)** A **tela** monta `byStatus` **a partir** do `individualStats` achatado (`page.tsx:1286-1288`) e envia os dois (`:1314`). Por isso o ramo 1 dos totais tem base em todo pedido real da tela, e o achatado é só um segundo canal | leitura de `page.tsx:1051-1088`, `:1280-1290`. **A tela não é executada por teste algum** |
+| M9 | **(exec.)** Suíte completa **na base**, com o instrumento de contagem: `npx jest` sai **0**, **33 suítes, 791 testes, 0 falhas**, e **54268 asserções** | instrumento `afterEach` que soma `expect.getState().assertionCalls` por arquivo e grava numa linha por arquivo; **NÃO é versionado** (fica fora do repositório), e o total vem da soma das **33** linhas |
+
+### As três redações, e o que cada uma precisa evitar
+
+⚠ **Sem dígito.** Assim "o bloco não traz número" é verificável por padrão, sem excluir dígito legítimo de outro
+ponto do contexto.
+
+1. **Frase do bloco, pedido elegível** (`route.ts`, no lugar dos quatro blocos por dimensão):
+   `⚠️ Contagem por dimensão BOCR: não disponível nesta requisição (respostas totais, válidas, warning e críticas por dimensão). Os totais deste contexto são agregados e não identificam a dimensão: nenhuma contagem por dimensão é apresentada, e nenhuma deve ser derivada deles.`
+2. **Item da chave de leitura** (`vinculo-execucao.ts:1088-1089`, no lugar do item que descreve a divisão):
+   `  - "Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste contexto, e nenhuma deve ser derivada dos totais agregados, que NÃO são contagem por dimensão nem participação por dimensão nas matrizes.`
+3. **Frase da Taxa sem base** (só quando `avaliada` e nenhuma fonte de contagem traz total positivo):
+   `**Taxa de Validade Geral:** não calculada — nenhuma contagem de respostas com total positivo está disponível nesta requisição.`
+
+**Por que cada parte.** (a) "não disponível nesta requisição", e **não** "não existe": o que se sabe é que **este contexto** não
+a traz, e nada se afirma sobre a existência dela fora dele (a Fase 1 mediu que os CRs por dimensão **chegam** ao
+payload por respondente, 72 de 72 células, só no ramo `respondentesEnviados`). (b) **O motivo é uma propriedade do que o contexto TEM**
+(os totais são agregados e não identificam a dimensão), e **não** uma afirmação sobre o que a requisição carrega: é
+verdadeiro para o agregado achatado da tela, para o agregado ausente e para o duplo por dimensão, e não afirma mais
+do que foi medido. (c) A **frase existente** do bloco não elegível fica **byte a byte**, e não aparece na frase
+nova ("a qualidade individual não foi avaliada" seria **falso** para o pedido elegível). (d) **Colisões medidas por
+leitura:** o contexto completo não pode conter "NÃO está disponível nesta requisição" nem "contagem NÃO disponível
+nesta requisição" (`vinculo-execucao-fiacao.test.ts:555-556`), nem os fragmentos de `FRASES_ANTIGAS`; o item da chave
+não pode casar `AFIRMA` nem `NOTA` (`vinculo-execucao.test.ts:1110-1145`, `:1437-1458`); e o item **continua sendo
+um único elemento** do arranjo, para que as contagens de linhas da chave não mudem.
+
+⚠ **Decisão consciente, a declarar no contrato:** a saída A **não distingue a origem** do `individualStats`. Um
+`individualStats` **por dimensão** recebido também **não é apresentado**: a formulação diz que essas estatísticas
+"deixam de ser apresentadas numericamente", e nenhum cliente conhecido o envia (a tela envia o agregado achatado; os
+nove duplos de teste o constroem por dimensão). **Se algum outro cliente o enviar, o repositório não permite
+saber:** **não avaliado**.
+
+### A perda declarada: "sem o campo, contexto byte a byte anterior"
+
+⚠ **Deixa de valer, por decisão do autor,** a propriedade "requisição sem `vinculoDaExecucao` gera contexto byte a
+byte o anterior": **para o pedido elegível**, porque o bloco muda, mesmo sem o campo; e, **com** o campo, **para todo
+pedido**, porque o item da chave muda. **Continua valendo:** para o pedido **não elegível sem o campo**, o contexto
+completo (P2 abaixo); e, para qualquer pedido sem o campo, as âncoras absolutas da lista de respondentes e do bloco
+de exclusão de `a973c8f` (`vinculo-execucao-fiacao.test.ts:372-395`), que conferem **segmentos**, e não o contexto
+inteiro. **Integridade histórica e comportamento atual ficam separados:** os registros de `a973c8f` a `35a1506`
+descrevem o que foi medido naquelas bases e **não são reescritos**; este bloco e, no commit de implementação, o
+contrato registram o comportamento atual.
+
+### A predição sobre o que o modelo RECEBE
+
+Determinística, e verificada por testes que capturam o **contexto completo**. Cada item traz a observação que o
+contraria e o **caso negativo**, que **não** deve mudar.
+
+| # | Predição | O que a contraria | Caso negativo (não deve mudar) |
+|---|---|---|---|
+| P1 | Em **todo pedido elegível** (agregado de 12, de 5 e de 3, agregado ausente, duplo por dimensão), o trecho entre `## Estatísticas por Dimensão BOCR` e `## Pesos Finais da Hierarquia de Controle` passa a ser **exatamente** a frase do bloco, **sem nenhum dígito** | um dígito no trecho; um subtítulo de dimensão (`### Benefits`, `### Opportunities`, `### Costs`, `### Risks`); uma linha "- Respostas totais:"; uma linha "CR médio da dimensão" | os pedidos **não elegíveis** (P2) |
+| P2 | Em **todo pedido não elegível**, seja qual for a causa (as quatro de M3), o trecho do bloco e a linha da Taxa ficam **byte a byte** como hoje; **sem o campo**, o contexto **completo** é byte a byte o de hoje | um byte de diferença, em qualquer dos 4 cenários não elegíveis sem vínculo | o cenário `contradicao`, em que a frase do bloco é imprecisa (M3) e **continua sendo a mesma**: corrigir a precisão é outra tarefa |
+| P3 | **Com base medida**, a linha da Taxa fica **byte a byte** a de hoje, **inclusive `0.0%` quando o número medido de válidas é zero** (agregado de 12 com todos os CR acima de 0.10; três respondentes todos acima de 0.10) | qualquer diferença na linha; ou o `0.0%` medido trocado por "não calculada" | os dois casos de zero medido: **o zero fica** |
+| P4 | **Sem base**, e só sob **elegibilidade forçada** (duplo de teste declarado), a linha da Taxa é a frase da Taxa sem base, **nunca um percentual**. Hoje, medido na Fase 1 nesse instrumento, ela sai 0.0%, 100.0% ou 70.0% conforme o caso, **todos derivados** dos quatro valores por dimensão | um "%" na linha em qualquer dos casos forçados | com base, P3 |
+| P5 | **Com vínculo**, nos quatro estados e em formato não reconhecido, elegível ou não, a chave contém o item novo **uma vez**, e **não** contém "por quatro", "reparte" nem o item antigo; as demais linhas da chave ficam iguais | "por quatro" ou "reparte" em qualquer ponto do contexto; o item antigo presente; contagem do item diferente de 1; outra linha da chave alterada | **sem vínculo**, o contexto não contém a chave nem o item novo |
+| P6 | **Nada mais muda:** nos **quatro** contextos capturados na Fase 1 (agregado 5 e 3, com e sem vínculo), o contexto novo é igual ao antigo com **exatamente** as substituições declaradas (o trecho do bloco; e, só com vínculo, a linha do item da chave). **Estendido** aos 27 cenários da sonda, por diferença antes/depois, e o `system` (prompt de sistema) mantém o **mesmo sha256** em todos | qualquer outra diferença em qualquer cenário | os 4 cenários não elegíveis **sem** vínculo (nenhuma substituição) e os 4 **com** vínculo (só a linha do item da chave) |
+| P7 | **O corpo da resposta** (nota, veredicto, `notaSuspensa` e as chaves) fica **idêntico** nos 27 cenários: cálculos e critérios de classificação preservados | qualquer diferença em nota, veredicto, `notaSuspensa` ou nas chaves | todos os cenários |
+| P8 | O pedido **elegível sem `individualStats`** e o **duplo por dimensão** recebem a **mesma** frase do bloco: nem quatro blocos de zeros, nem os números recebidos | um "0" ou um dígito no trecho | o agregado da tela, que já cai em P1 |
+
+### A predição sobre o TEXTO gerado: NÃO TESTADA
+
+⚠ **Nenhum parecer novo será gerado**, e a redação do modelo sobre estas frases **não é testada nem predita**: o
+cliente é simulado. Fica registrada a expectativa, com a observação que a contrariaria, **sem** valor de teste:
+
+| # | Expectativa | O que a contrariaria |
+|---|---|---|
+| T1 | Se o parecer tratar das estatísticas por dimensão, dirá que **não estão disponíveis**, e **não** apresentará contagem por dimensão como fato | o texto atribui a uma dimensão um número de respondentes |
+| T2 | O parecer **não** repartirá o total agregado por dimensão por conta própria | o texto divide o total por quatro |
+| T3 | O parecer **não** tratará a indisponibilidade por dimensão como defeito dos respondentes | o texto atribui a falta à qualidade das respostas |
+
+### O caso negativo geral
+
+A predição fica **REFUTADA** se alguma das P falhar na execução dos testes, ou se qualquer teste **fora da previsão
+abaixo** reprovar, **inclusive por erro do meu próprio teste**: nesse caso é **desvio de previsão**, classificado à
+parte, e o critério **não se ajusta**. Previsão feita depois da execução é diagnóstico, e não predição.
+
+### A previsão de testes, enumerada por leitura, antes de editar
+
+**Este complemento (commit só de documento):** ZERO reprovações. Razão lida: nenhum arquivo de código é tocado; os
+testes que leem este arquivo por conteúdo exigem literais que este texto **não remove**; e este texto **não contém** o
+enunciado generalizado de R3 (a fatia de R4 vai até "## Anexo 3" e este bloco cai dentro dela), nem a frase que a
+seção 5 proíbe. ⚠ Observação, e não prova: os commits anteriores que só alteraram documentos passaram com zero. A
+suíte inteira será rodada **antes** do push.
+
+**Implementação, com os testes ANTIGOS e o código NOVO.** Reprovariam estas asserções, e só elas, em **5 testes**:
+
+| # | Asserção | Razão lida |
+|---|---|---|
+| 1 | `vinculo-execucao-fiacao.test.ts:724`, `expect(soChave.length).toBe(10)` | as quatro linhas "- Respostas totais: N" saem do bloco: **recebido 6**. `:722` (`semRotulo` vazio) e `:725` (`todas.length - soChave.length` = 11, porque as quatro saem dos dois lados) seguem verdadeiras |
+| 2 | `vinculo-execucao-fiacao.test.ts:730` | a primeira metade do item da chave sai. **Só é alcançada depois de `:724`**, no mesmo teste (`COM o campo, 5 / 4 / 4 …`), que aborta antes |
+| 3 | `a12-diagnostico.test.ts:1083`, `quatroCasos` | `C-disponivel` é o único elegível dos quatro, e o **único campo registrado** que muda nele é `bytesDoContexto` |
+| 4 | `a12-diagnostico.test.ts:1086` | `identificacao.codigo` hasheia `route.ts`. ⚠ **Não será alcançada:** o teste `o artefato gravado coincide com a medicao atual` aborta em `:1083` |
+| 5 a 7 | `a33-cadeia-rule.test.ts:1232`, `:1475` e `:1506`, em **três testes** | `identificacao.codigo` hasheia `route.ts` (`CODIGO` = `knowledge.ts` e `route.ts`); r1 e r2 não são elegíveis nem trazem o campo, então o resto do artefato não muda |
+
+Ou seja, **5 testes reprovam na primeira execução** (1 na fiação, 1 em `a12-diagnostico`, 3 em `a33-cadeia-rule`),
+**cada um numa asserção**: `:724`, `:1083`, `:1232`, `:1475` e `:1506`. As outras duas, `:730` e `:1086`,
+**reprovariam se alcançadas**, e não são alcançadas na primeira execução.
+
+**Previstas a passar, com a razão lida:** todo o resto de `vinculo-execucao-fiacao.test.ts`, inclusive as âncoras
+absolutas sem o campo (`:372-395`), `:733-741` (o inventário sem o campo: as linhas por dimensão são "cobertas" e
+não entram em `semRotulo`) e os testes de leitura de `route.ts` de M7, **desde que a edição os respeite**; **todo**
+`vinculo-execucao.test.ts`, **desde que** o item novo evite `AFIRMA`, `NOTA` e as duas frases de M7-(d);
+`vinculo-execucao-calculo.test.ts`; `a12-qualidade-ausente`, `a12-coerencia`, `a33-montagem-contexto`,
+`a33-snapshot-v2`, `rag-diagnostico-regressao` e `rag-semantic-states`, porque não afirmam nada do bloco (M5); e
+`engine-census.test.ts`, que só cita a rota para afirmar a **ausência** de um arquivo órfão.
+
+**Depois de corrigir `:724` (10 → 6) e `:730` e de regravar as duas linhas de base:** ZERO reprovações, e a
+regravação prevista tem este alcance, **a conferir campo a campo**:
+
+- `docs/dados/a12-diagnostico/medicao.json` (`A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts`): **três** caminhos mudam,
+  `identificacao.codigo["app/api/ai-reviewer/route.ts"]`, `quatroCasos[0].executadoAntesDaInterrupcao.bytesDoContexto`
+  (**diminui**: quatro blocos saem e entra uma frase) e `identificacao.procedenciaDasRegravacoes` (nova entrada,
+  `ordem` 11, sem sobrescrever as dez anteriores). **Os outros três casos ficam idênticos.**
+- `docs/dados/a33-cadeia-rule/medicao.json` (`A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts`):
+  **dois** caminhos, `identificacao.codigo["app/api/ai-reviewer/route.ts"]` e a lista de procedência (nova entrada,
+  `ordem` 9, sem sobrescrever as oito anteriores). **Nenhum comprimento de contexto muda.**
+- **Zero campos perdidos:** todo caminho presente no artefato antigo continua presente no novo. Os três preservados
+  (sha256 acima) ficam **inalterados**.
+
+**Testes NOVOS, com o código ATUAL** (contraexemplo: precisam **reprovar** onde a correção é o que testam):
+
+| Ensaio | Arquivo | Com o código atual | Com o código novo |
+|---|---|---|---|
+| 1. agregado de 12, com e sem vínculo | `a12-estatisticas-dimensao.test.ts` | **reprova** (o bloco traz "3" nas quatro) | passa |
+| 2. agregados de 5 e de 3 (e 5 com dois desconhecidos), sem zero nem 0% no lugar do dado ausente | idem | **reprova** | passa |
+| 2b. controle do zero legítimo (zero crítico medido; Taxa medida em 0%): **os zeros ficam**, e o detector que proíbe o literal no contexto todo **reprovaria** esses contextos | idem | **passa** (é controle) | passa |
+| 3. elegível sem `individualStats`: "não disponível" com motivo, e não quatro blocos de zeros; e o duplo por dimensão | idem | **reprova** | passa |
+| 4. não elegível, nas quatro causas: a frase **existente** byte a byte; contraexemplo: trocá-la é detectado | idem | **passa** (é preservação) | passa |
+| 5. Taxa com base medida, inclusive 0%: inalterada | idem | **passa** (é preservação) | passa |
+| 5b. Taxa **sem base**: "não calculada", nunca 0.0% | `a12-estatisticas-dimensao-consumidor-latente.test.ts` | **reprova** | passa |
+| 6. consumidor latente de `:855-864`, com o duplo **declarado** (elegibilidade forçada por `jest.mock`): falha se a dependência do número por dimensão for restabelecida | idem | **reprova** | passa |
+| 7. o item da chave não descreve a divisão, e o item novo ocorre uma vez | `a12-estatisticas-dimensao.test.ts` | **reprova** | passa |
+| 8. nenhum quociente do agregado apresentado como contagem por dimensão ou participação nas matrizes; o bloco sem número. Contraexemplo: o texto atual | idem | **reprova** | passa |
+| 9. o resto do contexto, byte a byte, com e sem vínculo (agregado 5 e 3, contra os quatro contextos da Fase 1) | idem | **reprova** | passa |
+
+⚠ **O ensaio 6 declara o seu instrumento e o seu limite:** a elegibilidade é **forçada** por duplo de teste, porque
+o ramo **não é alcançado hoje**; ele **não** é apresentado como a execução de um caminho alcançável. E a **correção
+em `:855-864` previne um defeito latente**, e **não** corrige um defeito ativo: a cobertura observada (0 de 32
+combinações; 0 execuções pela suíte) é **medida**, mas a afirmação geral de inalcançabilidade **depende da leitura das
+condições** (M4).
+
+**Ficam para conferência em vez de predição:** o número exato de testes e de asserções novas (**registrado depois de
+executar**, sem servir de critério de aceite); a mudança em `review-request.ts` (`individualStats` passa a opcional,
+com comentário) e os comentários de código, que **não alteram o que o modelo recebe** e se verificam contra o fonte
+(`tsc` e leitura), e não contra a saída.
+
+### O limite, que não muda
+
+⚠ Coerência interna do pedido, **sem cobertura do universo real** e sem consulta a produção. ⚠ **A fiação na tela
+segue sem execução por teste algum:** esta rodada não toca a tela. ⚠ **A predição sobre a redação do modelo permanece
+NÃO TESTADA.** ⚠ **Não avaliado:** se algum cliente além da tela envia `individualStats` por dimensão; e a
+alcançabilidade geral do ramo agregado, além das condições lidas e da cobertura observada.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
