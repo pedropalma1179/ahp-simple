@@ -12170,6 +12170,165 @@ observado em um cenário.
   (eram 67). Ambiente: Linux x86_64, Node v22.22.2, npm 10.9.7. O resultado da CI deste commit é
   reportado por commit, fora deste registro.
 
+### A.12, etapa 3, estágio 1: complemento datado da predição, R4 (a comparação usa a lista apresentada)
+
+**Data: 30/09/2026. Base:** `bfa7e81a487b4c401b2e4091298bac0210c37ccc`, cabeça de
+`claude/loving-shannon-661fy9`; `integra/a30-registros` em `799273e`, `main` em `33c1fdf`. ⚠ **Registrado
+ANTES de qualquer edição de código**, e o commit deste complemento **não toca código**. ⚠ R2 e R3
+estão conferidos e **não se reabrem**; de R1 ficam conferidos os controles 5 / 4 / 4 e 3 / 4 / 3, a
+contagem de incluídos deixando de ser participação por célula, e as linhas de exclusão. P1 permanece,
+nenhuma cadeia de identificador é unificada, e nenhuma integração.
+
+#### O defeito
+
+A frase de coincidência pode afirmar que **três respondentes correspondem, um a um, a quatro**. A
+comparação de `lerVinculoParaTexto` (`lib/ai-reviewer/vinculo-execucao.ts:897-906`) usa as **duas
+listas declaradas dentro do vínculo**, `enviados` e `incluidosNoDocumento`. A rota apresenta **outra
+lista**, `data.qualityAnalysis.respondents` (`app/api/ai-reviewer/route.ts:923`), e entrega a
+`frasesDaListaComVinculo` **só o tamanho** dela (`route.ts:961`). As identidades da lista apresentada
+**nunca são conferidas**.
+
+#### As medições que sustentam a predição
+
+Por leitura de `bfa7e81` e, onde marcado **(exec.)**, por execução do **tratador real** com o cliente
+simulado, sobre cenários construídos, com o **contexto completo capturado antes de qualquer edição**.
+
+| # | Medição | Instrumento e limite |
+|---|---|---|
+| M13 | Três sítios de texto afirmam coincidência, e os três a tiram das listas **declaradas**: a linha de relação do bloco (`vinculo-execucao.ts:949`, "COINCIDEM, um a um"), a cobertura do resumo do painel (`:745`, "O conjunto enviado coincide com o do documento") e o total da lista (`:1023`, "COINCIDE, um a um, com os N incluídos"). A ressalva de `:1051-1060` compara **contagens** (o declarado contra o tamanho da lista), e não identidades | leitura. Limite: a leitura não diz o que o contexto entrega, e por isso vem a medição seguinte |
+| M14 | **(exec.)** com declarados (enviados e incluídos) `r1,r2,r3,r4`: apresentada `r1,r2,r3,r4` afirma coincidência, **corretamente**; apresentada `r1,r2,r3` afirma coincidência de 3 com 4 **nos três sítios**, seguida da ressalva de contagem; apresentada `r1,r2,r3,r9` afirma coincidência nos três sítios e **sem** ressalva, e `r9` não aparece em nenhuma discrepância; um elemento **sem** `respondentId` nem `id`, exibido como `hash_000`, com os declarados contendo o texto `hash_000`, afirma coincidência nos três sítios; apresentada `r1,r1,r2` contra declarados `r1,r2,r2` afirma coincidência nos três sítios, com a multiplicidade ignorada. ⚠ **E o defeito inverso:** apresentada `r1,r2,r3,r4` (= incluídos) com enviados declarados `r1,r2,r3` diz "DIFERE dos 4 incluídos … 1 incluído(s) no documento e **ausente(s) desta lista**", o que é falso (a lista tem os 4), e a linha "Cobertura enviada" diz que a lista que segue é a dos 3 enviados | oito cenários no tratador real, contextos em `t/r4/antes/` do diretório de trabalho da sessão. Limite: cenários construídos, sem universo real |
+| M15 | O `displayId` de `route.ts:926-929` (`r.respondentId \|\| r.id`, senão `hash_NNN` pelo índice) **descarta de onde veio o valor**: depois da linha 929 não se distingue um `hash_000` gerado de um `hash_000` recebido. Existem **outras duas** expressões de identificador para o mesmo tipo de lista: `route.ts:740-742` (respondentes críticos, rótulo posicional "Respondente N") e `route.ts:1477-1479` (validação pós-geração, sem a checagem de "undefined" e "null") | leitura. **Não alteradas nesta rodada** (a comparação é da lista exaustiva de `:923-948`); ficam registradas |
+| M16 | Nenhum teste existente exercita a comparação das **identidades** da lista apresentada: nos testes do tratador a lista apresentada é a própria lista de `enviados` do vínculo, com uma única exceção, o teste das ressalvas de contagem, que acrescenta um `r9` a `enviados` e põe `cobertura.incluidosNoDocumento` em 7, e ali a asserção é sobre a **ressalva de contagem**, e não sobre a correspondência das identidades | leitura de `vinculo-execucao-fiacao.test.ts`, onde a lista apresentada é `preparo.respondentesEnviados` ou `lista`, a mesma de que o vínculo foi construído |
+
+#### A decisão de escopo, e o que fica igual
+
+- A conferência vale **COM** `vinculoDaExecucao` em modo `comparado` (estado `vinculado` ou `divergente`
+  com as duas listas bem formadas), **e** só quando a rota passa a lista apresentada. Em
+  `indisponivel`, `invalido`, formato não reconhecido e lista de incluídos malformada não há conjunto de
+  incluídos, **nenhuma coincidência é afirmada** e o texto fica **igual ao de antes**. **Sem** o campo o
+  contexto é byte a byte o de `bfa7e81`.
+- ⚠ **A origem é registrada na construção do `displayId`, e não inferida.** A expressão de `:926-929` passa
+  a ser escrita **uma vez**, numa função pura do módulo do vínculo que devolve o valor **e** a origem
+  (`respondentId`, `id` ou `posicional`), e a rota chama essa função onde construía o `displayId`.
+  Um `hash_000` recebido em `respondentId` ou `id` tem origem `respondentId` ou `id` e **corresponde
+  normalmente**; um `hash_000` gerado tem origem `posicional` e **nunca** corresponde, mesmo que o
+  mesmo texto conste dos conjuntos declarados.
+- A comparação é **com multiplicidade**, da lista apresentada contra os enviados declarados **e** contra
+  os incluídos, e os **três conjuntos se conservam** no contexto, cada um com a origem nomeada
+  (`qualityAnalysis.respondents`, `vinculoDaExecucao.enviados` e `vinculoDaExecucao.incluidosNoDocumento`,
+  que vem de `metadata.includedRespondents`).
+- ⚠ **Invariante de vocabulário, que o teste passa a fazer valer:** dentro da região que muda, o radical
+  "coincid" (sem distinção de caixa) ocorre **se e somente se** os três conjuntos correspondem um a um.
+  A discrepância usa "DIFERE". Assim os textos já conferidos de R1 ficam **idênticos** nos cenários
+  conferidos (5 / 4 / 4 e 3 / 4 / 3), onde a lista apresentada é a de enviados.
+- ⚠ **A regra de menção (R2) fica intacta como prefixo.** Na discrepância a rota acrescenta **uma
+  frase** depois dela, porque o bloco passa a nomear identificadores declarados e ausentes da lista, e uma
+  regra que não os cobrisse recriaria a contradição de M9. A distinção dos dois papéis não muda.
+- Não se altera `app/api/calculate/route.ts`, `lib/julgamentos-resumo.ts`,
+  `lib/identificador-respondente.ts`, `lib/aggregation.ts`, `lib/ai-reviewer/avaliacao-qualidade.ts` nem a
+  tela; não se altera a redistribuição por dimensão de `route.ts:565-593`.
+
+#### A predição sobre o que o modelo RECEBE
+
+Determinística, verificada por testes que passam pelo **tratador real** com o contexto completo. Cada
+item traz a observação que o contraria.
+
+| # | Predição | O que a contraria |
+|---|---|---|
+| R18 | Caso 1 (apresentada = declarados = `r1,r2,r3,r4`) e caso 4b (`hash_000` **recebido** em `respondentId`, declarados com `hash_000`): a coincidência é afirmada, com as frases de antes, e a linha nova da lista apresentada também a afirma | coincidência ausente, ou diferença afirmada |
+| R19 | Caso 2 (`r1,r2,r3` contra `r1,r2,r3,r4`): **nenhum** "coincid" na região (bloco, cobertura do resumo do painel e total); o total diz que a lista **DIFERE** dos 4 incluídos; a linha da lista apresentada conserva os três conjuntos com a origem e nomeia `r4` como declarado e ausente da lista; a ressalva de contagem permanece | qualquer "coincid"; conjunto sem origem; `r4` não nomeado |
+| R20 | Caso 3 (`r1,r2,r3,r9` contra `r1,r2,r3,r4`): nenhum "coincid"; `r9` nomeado como **presente na lista apresentada e ausente dos dois conjuntos declarados**, e `r4` como declarado e ausente; isso ocorre **com as contagens iguais** e sem ressalva de contagem | "coincid"; `r9` não nomeado; discrepância só por contagem |
+| R21 | Caso 4a (elemento sem `respondentId` nem `id`, `displayId` **gerado** `hash_000`, declarados com o texto `hash_000`): nenhum "coincid"; o gerado entra como **identidade por posição**, com motivo próprio, decidido pela origem registrada | "coincid"; correspondência por texto; motivo ausente |
+| R22 | Caso 4b: o `hash_000` **recebido** corresponde normalmente | tratado como posicional |
+| R23 | Controle 5 (apresentada = enviados declarados, diferente dos incluídos): o texto de 3 / 4 / 3 já conferido, **sem uma letra a mais** no total, na relação e na cobertura do painel | qualquer "coincid"; total diferente do conferido |
+| R24 | Controle 6 (apresentada = incluídos, diferente dos enviados declarados): nenhum "coincid"; o total **deixa de afirmar** "1 incluído(s) … ausente(s) desta lista" (falso) e diz que a lista tem os mesmos identificadores dos incluídos e **DIFERE** dos enviados declarados; a linha "Cobertura enviada" deixa de afirmar que a lista que segue é a dos enviados declarados | "coincid"; a afirmação falsa atual sobrevive |
+| R25 | Controle 7 (`r1,r1,r2` contra `r1,r2,r2`): nenhum "coincid"; os excedentes são nomeados por lado, e o repetido na lista apresentada também | "coincid"; multiplicidade ignorada |
+| R26 | "coincid" ocorre na região **se e somente se** os três conjuntos correspondem um a um | ocorrência com discrepância, ou ausência sem discrepância |
+| R27 | Sem o campo: contexto **byte a byte** o de `bfa7e81`; e a função nova reproduz a expressão de `:926-929` para a tabela de entradas de teste; `indisponivel`, `invalido`, formato não reconhecido e lista malformada: texto **igual ao de antes** | qualquer byte diferente |
+| R28 | Nota, veredicto, suspensão, causa e rótulo **não mudam** com a redação (ensaio 10) | decisão diferente |
+
+#### A predição sobre o TEXTO gerado — NÃO TESTADA
+
+⚠ **Nenhum parecer novo será gerado.**
+
+| # | Predição | O que a contraria |
+|---|---|---|
+| T10 | Nos casos 2 e 3, se o parecer tratar da lista, dirá que a apresentada tem 3 (ou 4) identificadores **diferentes** dos declarados, e não afirmará correspondência | afirma que a lista corresponde aos incluídos |
+| T11 | No caso 4a, o parecer não tratará `hash_000` como respondente identificado | cita `hash_000` como identificado |
+| T12 | No caso 7, o parecer não afirmará que as duas listas têm o mesmo conteúdo | afirma igualdade de conteúdo |
+
+#### O caso negativo geral
+
+A predição fica **REFUTADA** se alguma das R falhar na execução dos testes, ou se algum teste **fora da
+previsão abaixo reprovar, inclusive por erro no próprio teste**; nesse caso **para-se, classifica-se e
+relata-se, sem publicar**, e o critério não se ajusta. ⚠ **Refutação de T é registrada como achado.**
+
+#### A previsão de testes, enumerada por leitura, antes de editar
+
+⚠ **Regra, corrigida nesta rodada:** "reprovaram exatamente as previstas" descreve a execução dos
+testes **antigos** contra o código **novo**, e **não abrange as falhas posteriores**. Falha causada por
+erro no **próprio teste**, novo ou atualizado, **não é exceção à parada: é desvio de previsão**, e se
+classifica e se relata à parte. **Corrigir e obter verde não demonstra cumprimento da parada.**
+
+**Este complemento:** ZERO reprovações. Razão lida: nenhum arquivo de código é tocado. O que lê o
+registro por conteúdo (`vinculo-execucao-fiacao.test.ts`, ensaio 11, a regra da seção 7, o teste de R3,
+que se limita ao parágrafo do Achado 1) exige literais que este texto não remove, e ausência da frase que
+a seção 5 proíbe e da frase generalizada de R3, que este texto não contém. ⚠ Observação, e não prova de
+ausência de leitura: os commits anteriores que só alteraram documentos passaram com zero.
+
+**Implementação, com os testes ANTIGOS e o código NOVO.** Reprovariam estas asserções, e só elas
+(numeração de `bfa7e81`, com o nome do teste, porque a numeração de linha já falhou uma vez):
+
+| # | Asserção | Razão |
+|---|---|---|
+| 1 | `a33-cadeia-rule.test.ts:1217`, "RE2: o inventario gravado coincide com o medido agora" | `identificacao.codigo` hasheia `route.ts`, que muda |
+| 2 | `a33-cadeia-rule.test.ts:1460`, "complemento: os metadados historicos do artefato foram preservados" | idem |
+| 3 | `a33-cadeia-rule.test.ts:1491`, "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA" | idem |
+| 4 | `a12-diagnostico.test.ts:1072`, "o artefato gravado coincide com a medicao atual" | idem; ⚠ a tela **não** muda |
+| 5 | `vinculo-execucao-fiacao.test.ts:285`, `R1: em divergente a diferença …` (o quarto do `test.each`) | o teste recompõe as cinco frases **sem** a lista apresentada, e em `divergente` (a lista enviada difere dos incluídos) a regra de menção ganha uma frase; nos outros três estados a recomposição continua exata |
+| 6 | `vinculo-execucao-fiacao.test.ts:721`, o inventário, `todas.length - soChave.length` `toBe(10)` | a linha nova da lista apresentada nomeia a população e a etapa e entra no inventário: **11** |
+| 7 | `vinculo-execucao-fiacao.test.ts:809`, o `toEqual` das linhas da rota que citam o vínculo | a leitura muda: sai `const leituraDoVinculo …`, o bloco passa a ser montado **depois** da lista e a receber as identidades |
+
+**Previstas a passar, com a razão lida:** todo o resto de `vinculo-execucao-fiacao.test.ts`, em especial as
+âncoras absolutas sem o campo (R7); os controles 5 / 4 / 4 e 3 / 4 / 3, onde a lista apresentada é a de
+enviados e os textos conferidos não mudam; os quatro estados e o formato não reconhecido em modo sem
+comparação; a lista malformada; as ressalvas de contagem; as linhas de exclusão; a regra de menção
+(`REGRA_NOVA` continua contida, como prefixo); o ensaio 10; e o ensaio 11, **condicionado** a que as
+linhas novas não tragam as palavras que o detector procura (a redação foi escrita para isso, e o
+detector é o teste dessa condição). **Todo** `vinculo-execucao.test.ts` (as funções são chamadas sem a
+lista apresentada e mantêm o texto), `vinculo-execucao-calculo.test.ts`, `a12-qualidade-ausente`,
+`a33-snapshot-v2` e todo teste que roda a rota sem o campo.
+
+**Testes NOVOS e ATUALIZADOS:** a previsão é que **passem na primeira execução**. Reprovar ali é
+desvio de previsão. Depois de atualizar os testes 5 a 7 e de regravar `a33-cadeia-rule` (ordem 8) e
+`a12-diagnostico` (ordem 10): ZERO.
+
+#### Os desvios de previsão da rodada anterior (R1 e R2), classificados
+
+⚠ Sob a regra corrigida acima, estas **três falhas em testes NOVOS da rodada anterior** são **desvios de
+previsão por erro no próprio teste**, e o texto que a rodada publicou ("todas corrigidas por releitura,
+sem ajustar critério") descreve o que se fez, **mas não demonstra cumprimento da parada**.
+
+| # | O que reprovou na primeira execução | Classificação |
+|---|---|---|
+| 1 | a lista das linhas da rota que citam o vínculo (`vinculo-execucao-fiacao.test.ts`, "a rota lê o vínculo só para montar TEXTO …"): esqueci `const linhasDaExclusao = comVinculo` e troquei a ordem de `textoDoVinculo` e `blocoDoVinculo` | erro de leitura no teste; **desvio**; enumerei a lista de memória em vez de `grep -n` |
+| 2 | a contagem de "⚠️ REGRA:" no contexto completo (esperei 1, obtive 3: o prompt tem outras duas) | erro de leitura no teste; **desvio**; afirmei unicidade sem medir |
+| 3 | o lembrete "A divergência anterior à restrição" esperado em todo `divergente` (só acompanha a **coincidência**) | erro de lógica no teste; **desvio** |
+
+A rodada **seguiu adiante e publicou** (`865c9f0`) depois de corrigir os três. Sob a regra corrigida
+isso foi **descumprimento da parada**, e fica registrado como tal. A previsão de testes antigos contra
+código novo (onze asserções, e só elas) segue **confirmada** no seu escopo, que é esse.
+Achados por mutante, e não por reprovação: na rodada anterior, um mutante do rótulo de etapa sobreviveu
+até ganhar âncora absoluta, e na de R3 o mutante de "identificado DEPOIS da predição" sobreviveu até o
+teste valer para o parágrafo do Achado 1. São lacunas de teste corrigidas **antes** do commit, e
+não reprovações.
+
+#### O limite, que não muda
+
+⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem consulta a produção e sem
+verificação de conteúdo. ⚠ **A fiação na tela segue sem execução por teste:** esta rodada não toca a tela.
+⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA** (T10 a T12).
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
