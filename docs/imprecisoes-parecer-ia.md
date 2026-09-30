@@ -12527,6 +12527,617 @@ generalizada de R3 de volta. **Os catorze reprovam** (o último, por dois testes
 - ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem consulta a produção e sem
   geração de parecer.
 
+## A.12: estatísticas por dimensão BOCR, Fase 1 (medir a origem), em 30/09/2026
+
+⚠ **Esta rodada NÃO altera código.** Só a **Fase 1** está autorizada: medir, registrar e **parar**. A Fase 2
+(as saídas A e B, descritas adiante) **não foi executada, e o executor não escolheu entre elas.**
+⚠ **Este bloco é registro de MEDIÇÃO, e por isso NÃO tem predição:** a regra central exige predição escrita
+antes onde a correção altera o que o modelo recebe, e aqui **nenhum byte de produção muda**. O commit toca só
+documentos (conferido com `git status --short` antes do `git add` e `git show --stat` depois; o resultado está
+no relato). Base do código: `a07998c953d3c10ed32ef3f436054ba1c12c05a2`. Ambiente: Linux x86_64, Node
+v22.22.2, npm 10.9.7 (**ambiente observado, e não requisito**).
+
+⚠ **Origem, disponibilidade e coerência de cada informação são declaradas onde ela aparece**, e são três
+dimensões independentes. Neste bloco: **medido** é o que a execução do código real produziu; **lido** é o que
+a leitura do fonte mostra, sem execução; **derivado** é o que se calcula a partir de uma fonte com regra
+declarada; **não avaliado** não é zero, falso nem vazio.
+
+### O que a Fase 1 mostra, em resumo
+
+1. **A divisão por quatro fabrica o número por dimensão** e dispara no caminho normal (a tela envia o agregado
+   achatado). **Nenhum teste a executa:** a condição de `route.ts:567` foi avaliada 142 vezes pela suíte
+   existente, e o corpo, 0 vezes.
+2. **Nem a divisão nem o bloco dependem de `vinculoDaExecucao`:** o bloco e a Taxa saem idênticos com e sem o
+   campo. As três exigências do pedido **não valem juntas**, e a decisão do autor está registrada abaixo.
+3. **Os CRs por dimensão chegam ao payload** (72 de 72 células iguais, do produtor à lista enviada, pela cópia
+   literal dos passos da tela), **e nada os consome:** os cinco nomes só existem no produtor.
+4. **A distinção entre zero calculado, zero recuperado, ausência e substituição por zero NÃO sobrevive ao
+   transporte.** Os cinco casos executados saem com o mesmo `0`. ⚠ **A presença do campo não habilita a saída
+   B**, e a condição de admissibilidade "distinguir medição de substituição por zero" está **não atendida no
+   transporte atual**. Isso é resultado de medição, e não escolha.
+5. **No painel real, pelo caminho gravado (derivado, com confirmação independente em 3 dos 12), o achatado da
+   tela é 12 / 12 / 0 / 0, e o bloco imprimiria "3, válidas 3 (100.0%)" nas quatro dimensões**, quando a
+   contagem de pessoas com CR ≤ 0.10 em cada matriz é **8, 7, 2 e 2 de 12**.
+6. **O consumidor agregado (`:856-864`) não é alcançado hoje** (0 de 32 combinações, 0 execuções pela suíte), por
+   uma razão estrutural que depende de V3, e quando forçado o seu resultado só é certo por acidente do
+   quociente.
+7. **O clone era raso.** Uma conclusão anterior desta sessão, "o histórico começa em 12/09/2026", era
+   artefato disso; ver "Correção de instrumento" abaixo.
+
+### Instrumento, declarado
+
+Cinco testes **temporários, NÃO versionados como testes** e arquivados como **texto** em
+`docs/dados/a12-estatisticas-dimensao/instrumentos/` (`*.test.ts.txt`, mais o montador `montar_medicao.py`).
+Executados com o **tratador real** de `POST /api/ai-reviewer` e o **produtor real** de
+`POST /api/response-quality`, com o cliente do modelo **SIMULADO**: chave falsa, texto controlado, sem rede,
+captura antes da geração. **Nenhuma consulta a produção, nenhum recálculo e nenhum dado de produção.** As 35
+saídas dos cinco instrumentos saíram **idênticas byte a byte em duas execuções completas seguidas**. Dados e
+contextos: `docs/dados/a12-estatisticas-dimensao/medicao.json` e os quatro contextos completos
+(`ctx-agregado-{5,3}-{semVinculo,comVinculo}.txt`). Um sexto instrumento, **de cobertura**, é o
+`jest --coverage --collectCoverageFrom='app/api/ai-reviewer/route.ts'` sobre a suíte existente (extrato em
+`medicao.json`; os arquivos de cobertura não são versionados).
+
+⚠ **Limites do instrumento, que valem para tudo abaixo:**
+
+1. **A tela não é executada por teste algum.** O passo da tela é uma **cópia literal** de `page.tsx:1058-1088`
+   (a redução do agregado), `:1196-1201` (a lista) e `:1236-1315` (o payload). Qualquer divergência entre a
+   cópia e a tela real não seria vista.
+2. Os agregados de **5**, de **3** e de **"5 com dois desconhecidos"** são **construídos** (itens no formato do
+   produtor), e não respondentes reais. Os de **12** usam o fixture do painel real (`panel-2026.json`, só
+   julgamentos), por dois caminhos: **"calculado agora"** (o motor atual) e **"gravado"**, que é **derivado**
+   (ver (a)).
+3. A grade de 32 combinações varia só a **presença** de campos, com valores coerentes; o rótulo do ramo dos
+   totais nela é **transcrição** da cadeia de `route.ts:840-865`, e não saída do tratador.
+4. O instrumento de "ramo forçado" usa um **duplo de teste declarado** (`jest.mock` de
+   `elegivelParaClassificacao`), de modo que o código real de `:855-865` execute.
+
+### Correção de instrumento: o clone era raso
+
+⚠ Ao tentar rastrear a versão do gravador que escreveu os documentos de abril-maio de 2026, a primeira leitura
+do histórico mostrou **156 commits, a raiz aparente `aec0a0f` em 12/09/2026**, e concluí que a origem dos
+valores gravados "não era mensurável aqui". **Estava errado por causa do instrumento:**
+`git rev-parse --is-shallow-repository` devolvia **`true`**, e `.git/shallow` listava `23afe43` e `aec0a0f`
+como fronteiras. Habilitei a medição com `git fetch --unshallow origin` (4 s; só objetos e a marca de clone
+raso, sem alterar árvore nem as três refs, reconferidas depois), e o histórico passou a **321 commits, desde
+2026-01-23**. Tudo o que este bloco diz sobre o gravador de abril-maio vem do histórico completo.
+
+### Base e reconferência
+
+| Ref | Medido (`git ls-remote origin`, e `git rev-parse` para o local) | Esperado |
+|---|---|---|
+| `HEAD` da branch de sessão | `a07998c953d3c10ed32ef3f436054ba1c12c05a2` | a base do pedido |
+| `refs/heads/claude/loving-shannon-661fy9` (remoto) | `a07998c953d3c10ed32ef3f436054ba1c12c05a2` | igual ao `HEAD` |
+| `refs/heads/main` (remoto) | `33c1fdf6500242832994a17aa15b0a686704c029` | o esperado |
+| `refs/heads/integra/a30-registros` (remoto) | `799273e911d694b9d458d5d64b61ed8dddca80d6` | o esperado |
+
+⚠ O ramo **local** `main` está em `7422e87` (`git branch -vv` o mostra 18 commits atrás de `origin/main`).
+**Não foi tocado e não é a referência:** a conferência do `main` é a do remoto, medida de novo depois do
+`fetch`. Estado do diretório antes: **nenhuma alteração rastreada preexistente**; só os arquivos não
+rastreados dos próprios instrumentos, removidos de `lib/__tests__/` e de `lib/` antes do commit. Nenhuma
+alteração manual do autor a preservar.
+
+**Releitura dos localizadores, em `a07998c`:**
+
+| Citado | Medido | Veredito |
+|---|---|---|
+| `route.ts:565-593`, a divisão por quatro | `:564` a variável (`let individualStats = rawData.individualStats \|\| rawData.criteriaStats`); `:567-596` o `if (individualStats && !individualStats.Benefits)` e o corpo, com as quatro atribuições `Math.floor(aggregated.X / 4) \|\| 0` em `:570-595`; `:599-606` o padrão de zeros | **mesmo trecho; correção de linha** (o bloco é `:567-596`). Os registros anteriores citam `:559-588` em `a973c8f` e `:565-593` em `bfa7e81`: a deriva é de linhas, e a passagem é a mesma |
+| `route.ts:1139-1170`, a impressão | `:1139` a Taxa; `:1143-1177` o cabeçalho e o bloco (`:1145` a condição por `avaliada`, `:1146-1149` os padrões de zero, `:1150-1176` as quatro seções, `:1177` o fecho). O intervalo citado termina dentro da seção de Costs (`:1164-1170`), e a de Risks é `:1171-1177` | **mesmo trecho; correção de linha** |
+| `route.ts:856-864`, a soma | `:855` `} else if (avaliada) {`, `:856-859` soma dos quatro `total`, `:861-864` soma dos quatro `valid`, `:865` fecha | exato |
+| `route.ts:564`, `criteriaStats` só lido | `git grep -n criteriaStats`, em `a07998c`: **uma** ocorrência em todo o repositório rastreado, `route.ts:564` | exato |
+| `response-quality/route.ts:19-26` | `interface RespondentCRs` | exato |
+| `:34-41` | o zero inicial de `bocr`, `benefits`, `opportunities`, `costs`, `risks` e `avgCR` | exato |
+| `:44-47` | `safeNumber`: `undefined` e `null` → 0 (`:45`), não numérico → 0 (`:46-47`); a função fecha em `:48` | exato |
+| `:179-182` | `benefits`, `opportunities`, `costs`, `risks` = `result.subWeights['B'\|'O'\|'C'\|'R']?.cr \|\| 0` | exato |
+| `:393-398` | `metrics`: `avgCR`, `crBOCR`, `crBenefits`, `crOpportunities`, `crCosts`, `crRisks` (`:392` abre e `:399` fecha) | exato |
+| `vinculo-execucao.ts:527-528`, `:533`, `:562` (Anexo) | `mantidas` e `restrita`; `enviadosDiferemDosAvaliados`; `restringiu: true` | exato |
+
+**Nenhum localizador aponta outro trecho, e por isso não houve parada.** Duas correções de linha: a divisão
+(`:567-596`) e o bloco impresso (`:1143-1177`).
+
+### 1. O defeito, medido no caminho examinado
+
+Em `app/api/ai-reviewer/route.ts`, `normalizeRequest` divide o agregado por quatro e atribui o quociente a
+**cada** dimensão (`:567-596`), e o contexto imprime esses valores como estatísticas das dimensões
+(`:1143-1177`). **Medido** pelo tratador real, com o `individualStats` **achatado** que a tela monta, sem
+`vinculoDaExecucao`:
+
+| Agregado da tela (`total` / `valid` / `warning` / `critical`) | Impresso em cada dimensão (`Respostas totais` / válidas / warning / críticas) | Soma dos quatro `Respostas totais` | Diferença aritmética |
+|---|---|---|---|
+| **12** (12 / 0 / 1 / 11), painel real, caminho "calculado agora" | 3 / 0 / 0 / 2 | 12 | 0 |
+| **12** (12 / 12 / 0 / 0), painel real, caminho "gravado" (**derivado**) | 3 / 3 (100.0%) / 0 / 0 | 12 | 0 |
+| **5** (5 / 2 / 1 / 2), construído | 1 / 0 / 0 / 0 | 4 | **1** |
+| **3** (3 / 1 / 1 / 1), construído | 0 / 0 / 0 / 0 | 0 | **3** |
+| 5, dois com CR desconhecido (5 / 4 / 1 / 0), construído | 1 / 1 (100.0%) / 0 / 0 | 4 | 1 |
+
+- ⚠ **A última coluna é diferença aritmética entre o agregado e a soma dos valores fabricados, e NÃO
+  respondentes perdidos.** A soma das quatro dimensões **não é conservação válida**: o mesmo respondente pode
+  ter CR nas quatro matrizes, e no painel real tem (os doze têm CR em todas: 48 células). **Por isso a linha de
+  12 também está errada**, apesar do resto zero: se todos responderam às quatro matrizes, cada dimensão teria
+  **doze**, e não três. **Uma contagem por dimensão não é uma partição do total.**
+- Dentro de cada dimensão impressa, as categorias **não fecham no próprio `Respostas totais`**: 1 contra 0+0+0
+  (agregado 5) e 3 contra 0+0+2 (painel calculado agora). O percentual sai "0 (0.0%)" sobre um total de 1.
+- **O ramo da divisão dispara no caminho normal:** a tela monta o `individualStats` achatado
+  (`page.tsx:1051-1088`) e o envia (`:1314`), então `!individualStats.Benefits` é verdadeiro (`route.ts:567`).
+  **Nada rastreado escreve `criteriaStats`:** a única ocorrência é a leitura de `:564`.
+- **O corpo da divisão nunca foi executado pela suíte existente.** Instrumento: `jest --coverage` restrito a
+  `route.ts`, sobre os 33 suítes e 791 testes, **sem** os testes temporários. A condição de `:567` foi avaliada
+  **142** vezes, e o consequente **0** vezes (`:568-570`, 0 execuções); o padrão de zeros de `:599` correu 20
+  vezes, e as outras 122 foram pedidos com `individualStats` **por dimensão**. Todos os **9** duplos de teste que
+  constroem `individualStats` (`a12-coerencia`, `a12-diagnostico` ×3, `a12-qualidade-ausente`,
+  `a33-montagem-contexto`, `rag-diagnostico-regressao`, `rag-semantic-states`, `vinculo-execucao-fiacao`) usam o
+  formato **por dimensão** e com os **mesmos números nas quatro**, isto é, o que a tela **não** envia. O tipo
+  declarado, `ReviewRequest.individualStats` (`lib/ai-reviewer/review-request.ts:78-83`), também é por dimensão.
+- ⚠ **O contexto se contradiz, nas duas versões do texto.** **Sem** o campo (redação anterior), no agregado 5
+  (`ctx-agregado-5-semVinculo.txt:39-40`): "Portanto N = 5 em TODAS as matrizes agregadas" e "⚠ NÃO existe divisão
+  de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem
+  particionamento", e mais abaixo (`:99`, `:106`, `:113`, `:120`) quatro "Respostas totais: 1". **Com** o campo
+  (`ctx-agregado-5-comVinculo.txt:67`): "não atribua um N diferente a cada matriz", e o bloco imprime um número
+  por dimensão (`:127`, `:134`, `:141`, `:148`); a chave de leitura (`:38`, origem em
+  `vinculo-execucao.ts:1088`) diz que esses totais "NÃO medem a participação por dimensão e NÃO são o N de
+  matriz alguma (…a rota o reparte por quatro, arredondando para baixo)", **a única frase do contexto que
+  revela a divisão.**
+- ⚠ **Alcance delimitado.** A leitura e a execução acima demonstram o problema **neste caminho**, o do
+  `individualStats` achatado da tela; **não estabelecem exclusividade** sobre todos os caminhos que produzem
+  número no contexto. A tela tem um **segundo produtor** do agregado achatado, o ramo de fallback sobre as
+  respostas brutas (`page.tsx:1090-1167`), com atribuições **por suposição** (`:1116-1121`, "assumir como válido";
+  `:1137-1155`, proporções fixas a partir do CR global): **lido, e não executado.**
+
+### 2. O conflito de escopo, e a decisão que ele exige
+
+⚠ **Medido: nem a divisão (`:567-596`) nem o bloco (`:1143-1177`) nem a Taxa (`:869-874`) dependem de
+`vinculoDaExecucao`.** O bloco é condicionado por `avaliada` (`:1145`), que vem da elegibilidade
+(`:704-705`), e não pelo vínculo. Nos **quatro** pedidos agregados (12, 5, 3 e 5 com dois desconhecidos) o bloco
+e a linha da Taxa saem **idênticos byte a byte com e sem o campo**; o que o campo muda é o texto ao redor (a
+chave de leitura, as frases de N e o total da lista). Logo, as três exigências (**eliminar a divisão por
+quatro**, **corrigir a apresentação** e **não alterar o caminho sem `vinculoDaExecucao`**) **não podem valer
+juntas** para todas as requisições.
+
+**Decisão do autor, registrada para a Fase 2 e NÃO executada:** autorizar a correção **também no caminho sem
+vínculo**, exclusivamente para **estas estatísticas e seus consumidores**, preservando os demais trechos desse
+caminho. A alternativa é preservar integralmente esse caminho, e então o aceite terá de **admitir que a divisão
+permanece nele**.
+
+⚠ **Consequência, declarada e medida:** corrigir no caminho sem vínculo **muda o contexto daquele caminho**, e
+com ele as linhas de base congeladas. A propriedade "sem o campo, o contexto é byte a byte o anterior"
+**deixa de valer**, e é mudança declarada, não surpresa. Aplica-se a mesma separação entre **integridade
+histórica** (as cópias `medicao-preservada-*.json` ficam intactas) e **comportamento atual** (as linhas de base
+vivas são regravadas, campo a campo). **O que muda depende de qual texto a Fase 2 muda**, e o que a medição
+sustenta é:
+
+| Variante do bloco | Onde aparece hoje, sem o campo | Fonte |
+|---|---|---|
+| **Numérica** (o IIFE de `:1145-1177`) | `a12-diagnostico`, caso C-disponível (**1 de 4** casos; 70886 bytes); o inventário da fiação (`vinculo-execucao-fiacao.test.ts:716-724`, quatro das dez linhas "só pela chave"); todo pedido elegível **com** `individualStats` | leitura dos dois testes e de `docs/dados/a12-diagnostico/medicao.json` |
+| **Frase de indisponibilidade** ("⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.") | `a12-diagnostico`, C-ausente, C-incompleta e C-contradição (**3 de 4**; 69894, 70919 e 71986 bytes; o registro traz `contextoTrazPercentualDeQualidade` falso nos três, e a frase é a do ramo `!avaliada` de `:1145`, pela mesma condição); as requisições de referência **r1 e r2** do `a33` (**medido:** as duas imprimem a frase, com 0 respondentes na lista e sem `individualStats`, 70797 e 70878 bytes); todo pedido não avaliado | execução do tratador real sobre `docs/dados/a33-etapa4-v2/requisicao-referencia-r1.json` e `-r2.json` |
+
+Assim, uma correção **confinada ao ramo numérico** toca só o C-disponível e o inventário da fiação; uma que
+mude a **frase de indisponibilidade** toca também as linhas de base de `a12-diagnostico` (3 de 4) e as do
+`a33-cadeia-rule`, que medem contextos montados sobre a requisição de referência r2
+(`a33-cadeia-rule.test.ts:275`, `:615`, `:802`). **Não é decisão desta rodada.**
+
+### 3. As medições
+
+#### (a) A cadeia de cada CR por dimensão, valor a valor
+
+**Onde cada dimensão nasce no produtor** (`app/api/response-quality/route.ts`), por caminho de entrada:
+
+| Dimensão (matriz de 5 subcritérios do mérito) | `subConsistency` v5, chave curta | chave longa | `subConsistency` na raiz (legado) | `metrics` | motor (`\|\| 0`) |
+|---|---|---|---|---|---|
+| Benefits (B1..B5) | `:62` | `:68` | `:89` | `:100` | `:179` |
+| Opportunities (O1..O5) | `:63` | `:69` | `:90` | `:101` | `:180` |
+| Costs (C1..C5) | `:64` | `:70` | `:91` | `:102` | `:181` |
+| Risks (R1..R5) | `:65` | `:71` | `:92` | `:103` | `:182` |
+
+Todas convergem para o zero inicial de `:34-41` e para `safeNumber` (`:44-48`), e saem em `:393-398` como número
+puro. **Executado:** chave curta (S1, S2, S4, S9), raiz (S6), `metrics` (S5), motor (S7, S8 e o painel).
+**Lido e NÃO executado:** a **chave longa** (`:68-71`) e os formatos `cr` direto (`:113-116`), `consistency.cr`
+(`:118-121`) e `data.avgCR` (`:131-134`), que devolvem `avgCR` positivo a partir de um campo que **não traz** valor por
+dimensão.
+
+**As naturezas, como usadas aqui.** **Calculado:** número produzido por um motor a partir dos julgamentos, no
+produtor (`computeCRsFromJudgments`, `:162-190`) ou na coleta, no gravador. **Recuperado:** número lido de campo
+gravado (foi calculado antes, na coleta). **Ausência:** o campo não existe, e o valor fica no zero inicial.
+**Substituição por zero:** o campo existe mas não é número utilizável (`null`, texto não numérico, `NaN`), e
+`safeNumber` ou o `\|\| 0` o trocam por zero. Duas outras formas de zero aparecem e não são nenhuma das quatro:
+o **zero calculado legítimo** (consistência perfeita) e o **resíduo de ponto flutuante** (−3.97e−16).
+
+**Medido, por natureza e por dimensão** (produtor real, itens S1 a S10; `medicao.json`, `a_naturezas_pelo_produtor_real`):
+
+| Natureza | B | O | C | R |
+|---|---|---|---|---|
+| calculado, positivo | painel | painel | painel | painel |
+| calculado, **zero exato** | R09 (painel), S7 | R03 e R09 (painel), S7 | **não observado** | **não observado** |
+| recuperado, positivo | S1, S6 | S1, S6 | S1, S4 (texto numérico coagido), S6 | S1, S4, S6 |
+| recuperado, **zero** | S2, S9 | **não executado** | **não executado** | **não executado** |
+| **ausência** | S3, S8, S10 | S3, S5, S8, S9, S10 | S3, S8, S9, S10 | S3, S5, S8, S9, S10 |
+| **substituição por zero** | S4 (`null`) | S4 (`"abc"`) | **não executado** | **não executado** |
+| resíduo de ponto flutuante | R12 (calculado agora) | não observado | não observado | não observado |
+
+⚠ Para **Costs e Risks**, o zero recuperado, a substituição e o zero calculado **não foram executados**; o
+código é simétrico (`:64-65`, `:70-71`, `:91-92`, `:102-103`, `:181-182`), e isso é **leitura**, e não execução.
+
+**A distinção NÃO sobrevive ao transporte.** `:393-398` grava `crs.benefits` e os outros três como **número
+puro**. **Medido:** o mesmo `0` sai de um zero **recuperado** (S2, B), de uma **ausência** (S3, as quatro), de
+uma **substituição** (S4, B por `null` e O por `"abc"`) e de um zero **calculado** (S7, B e O); em **S9**, o zero
+recuperado e as três ausências saem **lado a lado, indistinguíveis**. **O que sobrevive:** (i) o respondente
+**inteiro** desconhecido, por `status: 'DESCONHECIDO'` e a flag `CR_DESCONHECIDO` (S8 e S10) ⚠ **mas a
+disponibilidade da avaliação diz `disponivel` para eles** (medido: S8 e S10), porque `crDoRespondente`
+(`avaliacao-qualidade.ts:55-60`) aceita o `cr: 0` finito; (ii) **nenhuma marca por dimensão**: S3, S5 e S9 saem
+`CONFIÁVEL` (`avgCR` positivo) com zeros silenciosos em uma a quatro dimensões.
+
+**O painel real, dois caminhos, valor a valor.** O produtor recupera o que o gravador guardou quando existe
+`responses.avgCR` positivo (retorno antecipado de `:75-78`, "Já temos tudo!"), e só calcula pelos julgamentos
+quando não existe. **Os dois caminhos foram exercidos sobre os julgamentos do fixture, e diferem.**
+
+- **"Calculado agora"** (medido): o motor atual (`lib/respondent-weights.ts`, autovetor principal), pelo cálculo
+  de reserva do produtor. As 72 células (BOCR, quatro dimensões e governante × 12) conferem com
+  `docs/referencia-cr-individuais.md` §2, **72 de 72, 0 divergentes**. Os 48 valores por dimensão: 44 positivos,
+  **três zeros exatos** (R03/O, R09/B, R09/O) e **um resíduo negativo** (R12/B, −3.97e−16), todos **presentes e
+  numéricos no motor** (nenhum `NaN`, nenhum ausente): **zeros calculados, e não substituídos**, e o payload não
+  os distingue de ausência.
+- **"Gravado"** (**derivado**; é o caminho que a produção percorre **se** o cache de maio ainda existe nos
+  documentos, o que **não foi consultado**, e o log da execução 7 mostra que existia em 12/09/2026). O
+  gravador vigente na coleta (`page.tsx` de `7f46e3a` a `4437b3c`, o bloco de `handleFinalizeSurvey`
+  inalterado nesse intervalo: 0 linhas de diferença nos termos `calculateAllWeights`, `responsesCalc`, `avgCR`
+  e `subConsistency`) grava `avgCR: ipcResult.avgCR` e `subConsistency.{B,O,C,R} = { cr, lambda }` calculados
+  pelo **IPC** (`lib/ahp-ipc.ts`, hoje removido em `0ac4e95`). A coleta foi de **2026-04-22 a 2026-05-06**
+  (`meta` do fixture), e o IPC **não mudou** de 2026-04-16 a 2026-06-16 (o blob
+  `e4cde7af7ec21841418f0c2b149f2d38946ec738` é o mesmo em `7f46e3a`, `4437b3c` e `9f2284c^`). Rodei esse IPC
+  sobre os julgamentos do fixture e montei documentos no formato do gravador.
+
+  ⚠ **Confirmação independente, em 3 dos 12.** O log de produção da execução 7 (Anexo 3 deste registro) mostra
+  três `avgCR` do cache de maio: `0.010504514795322372`, `0.035945896757571656` e `0.020820121915492394`. O IPC
+  derivado os reproduz **até o último dígito**, para **R01, R08 e R12** (o log não nomeia os respondentes: a
+  correspondência é por **igualdade exata**). A faixa derivada do `avgCR` é **1.0505% a 9.6438%**, contra
+  "1,05% a 9,64%" em `docs/referencia-cr-individuais.md` §3.1. E a cadeia inteira (produtor real, cópia da tela,
+  tratador real) sobre esses documentos dá `byStatus` **12 CONFIÁVEL** e **Taxa 100.0%**, a linha do log:
+  "Usando statistics.byStatus: 12✅ 0⚠️ 0❌ 0❓ → Validade: 100.0%". **Os outros nove `avgCR` não têm
+  confirmação independente.**
+
+  Os valores derivados (em %, e entre parênteses o "calculado agora" da mesma célula):
+
+| Resp | B (SUB-B) | O (SUB-O) | C (SUB-C) | R (SUB-R) | `avgCR` gravado (derivado) | CR governante calculado agora (matriz) |
+|---|---|---|---|---|---|---|
+| R01 | 8.42 (8.45) | 0.30 (0.30) | 11.19 (11.39) | 0.51 (0.51) | 1.05 | 11.39 (SUB-C) |
+| R02 | 8.94 (9.07) | 37.47 (37.47) | 37.47 (37.47) | 25.68 (26.13) | 5.74 | 37.47 (SUB-O) |
+| R03 | 7.16 (7.18) | **0** † (**0**) | 12.97 (13.11) | 16.76 (17.36) | 6.35 | 109.27 (MAGNITUDE) |
+| R04 | 7.74 (7.80) | 9.09 (9.44) | 18.38 (18.71) | 10.10 (10.35) | 5.67 | 59.03 (MAGNITUDE) |
+| R05 | 44.35 (46.58) | 26.01 (26.43) | 58.51 (63.59) | 52.61 (57.20) | 9.64 | 63.59 (SUB-C) |
+| R06 | 16.87 (17.23) | 27.78 (28.47) | 29.92 (30.08) | 27.37 (27.71) | 6.39 | 46.10 (BOCR) |
+| R07 | 19.11 (19.60) | 11.93 (12.08) | 9.51 (9.56) | 15.57 (15.85) | 3.47 | 25.19 (MAGNITUDE) |
+| R08 | 21.93 (22.09) | 5.28 (5.31) | 23.20 (23.44) | 10.23 (10.27) | 3.59 | 23.44 (SUB-C) |
+| R09 | **0** † (**0**) | **0** † (**0**) | 9.53 (9.68) | 18.21 (18.65) | 3.28 | 31.58 (MAGNITUDE) |
+| R10 | 7.30 (7.52) | 8.79 (8.80) | 24.79 (26.34) | 3.05 (3.08) | 3.20 | 26.34 (SUB-C) |
+| R11 | 5.10 (5.22) | 11.14 (11.14) | 18.77 (18.88) | 23.85 (24.02) | 3.14 | 24.02 (SUB-R) |
+| R12 | **0** † (−3.97e−16) ‡ | 3.21 (3.23) | 24.83 (25.25) | 12.97 (13.11) | 2.08 | 25.25 (SUB-C) |
+
+  † zero **calculado** (no IPC, todos os 48 grupos de subcritérios são `COMPLETE`, `EIGENVECTOR`, conectados,
+  e nenhum caiu em `emptyResult`). ‡ resíduo de ponto flutuante do motor atual, valor bruto (fração), **não** %.
+  As duas colunas diferem em **até 5.08 pp** (R05/C, 58.51 contra 63.59) e em **mais de 0.5 pp em seis células**
+  (R03/R, R05/B, R05/C, R05/R, R06/O, R10/C), porque o IPC deriva os pesos pela **média geométrica** das linhas
+  e o motor atual, pelo **autovetor principal**. **Nenhuma das 48 células muda de categoria** (≤ 0.10,
+  0.10 a 0.20, > 0.20) de um caminho para o outro, e por isso as contagens abaixo valem para os dois.
+
+**Contagem de pessoas com CR em cada matriz** (critério dos **rótulos do bloco**, `route.ts:1152-1154`; medida
+sobre os doze, **denominador 12 em cada dimensão**):
+
+| Dimensão | válidas (≤ 0.10) | warning (0.10 a 0.20) | críticas (> 0.20) | denominador |
+|---|---|---|---|---|
+| Benefits | 8 | 2 | 2 | 12 |
+| Opportunities | 7 | 2 | 3 | 12 |
+| Costs | 2 | 4 | 6 | 12 |
+| Risks | 2 | 6 | 4 | 12 |
+
+⚠ **É contagem de pessoas com CR naquela matriz, e não é o que o bloco imprime** (hoje: "3 / 3 (100.0%) / 0 / 0"
+no gravado e "3 / 0 / 0 / 2" no calculado agora). **Os quatro denominadores somam 48, e isso não é conservação
+nem partição do total de 12:** cada respondente está nas quatro. As contagens foram conferidas **à mão** contra
+a tabela de referência (§2) antes de serem aceitas, uma dimensão por vez.
+
+**Origem dos valores GRAVADOS em produção: não avaliada.** Sem consulta a produção. O repositório não tem os
+`responses` dos doze (`docs/calculations-13jul2026.json` traz `subConsistency` **agregada do grupo**, e não por
+respondente). Para o painel de 12, a derivação é **coerente** com a única evidência independente disponível
+(3 `avgCR` exatos, a faixa e o `byStatus`), e **nada mais** que isso. Para **outros projetos e respondentes**,
+o IPC tinha caminhos que o painel de 12 não exerce, e **não foram avaliados** em documentos reais: o `calcSafe`
+capturava o erro de conectividade e o gravador guardava `subWeights[merit] = res \|\| emptyResult(subs)`, isto é,
+**pesos uniformes com `cr: 0`** (`lib/ahp-ipc.ts`, e o cabeçalho de `lib/respondent-weights.ts:13-15`: "Um grupo
+defeituoso entrava no CR governante como consistência perfeita"), e o ramo LLSM estimava um CR sobre matriz
+completada. **Um `cr: 0` gravado por `emptyResult` é uma quinta forma de zero**, e é **indistinguível** no
+documento e no payload. O gravador **vigente** (`page.tsx:944-970`, desde `ab268cd`) só aceita resposta
+completa (`checkResponseCompleteness`, `:932-939`) e usa o motor, então **não produz** essa forma.
+
+⚠ **Doutrina do repositório, contrariada pelo produtor.** `docs/referencia-cr-individuais.md` §1: "Célula vazia
+para CR indefinido, nunca zero", e "usá-lo como marcador de ausência é o mesmo erro". O produtor faz o oposto
+(`:34-41`, `:44-48`, `:179-182`).
+
+**Estado medido da condição de admissibilidade da saída B** (resultado da medição pedida, **e não escolha**):
+(i) os valores por dimensão **chegam** ao payload: **atendida**; (ii) dá para **distinguir medição de
+substituição por zero** no que chega: **não atendida no transporte atual**. Descartar todos os zeros **não
+resolve**, e não é feito: os quatro zeros do painel são **calculados** (o painel perderia 3 a 4 de 48 células
+medidas, e R09 ficaria com 2 de 4 dimensões), e o resíduo −3.97e−16 **não é zero** e passaria por medido numa
+regra "valor igual a zero". **Se a Fase 2 autorizar mudar o produtor ou o transporte para que (ii) valha é
+decisão do autor**, e esta rodada não a antecipa.
+
+#### (b) Se os campos chegam ao payload
+
+| # | Ponto | O que carrega | Medição |
+|---|---|---|---|
+| 1 | `POST /api/response-quality`, `route.ts:386-402` | por respondente: `respondentId`, `isSimulated`, `status`, `overallScore`, `cr` (= `avgCR`), `metrics{avgCR, crBOCR, crBenefits, crOpportunities, crCosts, crRisks}`, `flags`, `recommendation` | **executado** (painel, S1 a S10) |
+| 2 | tela, `page.tsx:962-982` | `currentQualityAnalysis = qualityData.analysis` e `setQualityAnalysis`: o objeto inteiro; a chamada envia `projectResponses`, os documentos do Firestore | lido |
+| 3 | `:997-1007` | filtra `respondents` pelas exclusões do gestor (`activeRespondents`) | lido |
+| 4 | `:1033-1040` | `prepararVinculoDaTela(...)` devolve `respondentesEnviados`, o conjunto avaliado ou o restrito | lido; o módulo é testado |
+| 5 | `:1194-1202` | `respondentesComCR = respondentesEnviados.map(r => ({...r, cr, isSimulated}))`: o **spread leva `metrics` inteiro** | lido; **copiado literalmente** no instrumento |
+| 6 | `:1282-1306` | `qualityAnalysis.respondents: respondentesComCR`, **nos dois ramos** (avaliada e não) | lido |
+| 7 | rota, `:640-642` | `qualityAnalysis: rawData.qualityAnalysis`, a **mesma referência** | lido; **executado** |
+| 8 | consumo | só `metrics.avgCR` é lido (`route.ts:751-752` e `:932`; `avaliacao-qualidade.ts:56`). Os cinco nomes só existem no produtor: em `a07998c`, **15 ocorrências em 10 linhas**, todas em `response-quality/route.ts` (`:99-103`, a entrada, e `:394-398`, a saída), por `git grep -o` sobre todo o repositório rastreado (este registro e o contrato passam a citar os nomes) | **medido** |
+
+**Medido:** para os 12 do painel, **72 de 72 células** (12 respondentes × `crBOCR`, as quatro dimensões e
+`avgCR`) são **idênticas** (`Object.is`) do que o produtor real devolve ao que chega em
+`qualityAnalysis.respondents`; o tratador real responde 200; **os cinco nomes e a palavra `metrics` têm 0
+ocorrências** nos **15** contextos capturados. ⚠ **Só o ramo `respondentesEnviados` os leva:** o ramo de
+fallback sobre respostas brutas (`:1203-1227`) monta `metrics: { avgCR: cr }` **apenas** (lido, não
+executado). ⚠ **O passo da tela é cópia literal e não execução da tela** (limite 1).
+
+#### (c) O consumidor agregado (`route.ts:856-864`)
+
+- **O que é.** O quarto ramo da cadeia de totais (`:840-865`): depois de `byStatus` (`:840`), `summary`
+  (`:849`) e `overallStats` (`:852`), o `else if (avaliada)` de `:855` **soma** os quatro `individualStats`
+  (`total` em `:856-859`, `valid` em `:861-864`). `totalResponses` alimenta `overallValidPercent` (`:869`) e a
+  Taxa de Validade Geral (`:872-874`).
+- **Alcançado hoje? Não, e a razão é estrutural (lida, e depois medida).** `avaliada` é `elegivel.elegivel`
+  (`:704-705`), que exige conclusão **`coerente`** (`avaliacao-qualidade.ts:765-793`), que exige **nenhuma**
+  comparação aplicável `nao_determinada` (C3, `:693-698`); e **V3 é `nao_determinada` quando
+  `qualityAnalysis.statistics.byStatus` falta** (`:497-503`), o **mesmo caminho** que o primeiro ramo lê (`:840`).
+  **Elegível implica `byStatus` presente, e então o ramo 1 é o tomado.** **Medido:** (i) grade de **32**
+  combinações de presença (`byStatus`, `statistics.total`, `summary`, `overallStats`, `respondents`): **1
+  elegível** (todas presentes), que vai ao ramo 1, e **31 não elegíveis**; **0 alcançam o ramo da soma**;
+  (ii) o tratador real com **só** `individualStats` e respondentes confiáveis (os quatro agregados): elegibilidade
+  falsa, causa `coerencia_nao_concluida`, ramo P2, conjunto mínimo V4 concluído e V1, V2, V3, V5 pendentes; a
+  Taxa sai "não calculada" e o bloco, a frase de indisponibilidade; (iii) **a suíte existente:** de 142 execuções
+  de `normalizeRequest`, o ramo 1 foi tomado 89 vezes, 53 pedidos não eram avaliados, e o consequente de `:849`,
+  de `:852` e de `:855` teve **0**, com **0** execuções de `:856` e de `:861`.
+  ⚠ **A inalcançabilidade depende de V3 permanecer no conjunto aplicável.** Uma Fase 2 que mude a regra de
+  coerência ou a presença de `byStatus` pode torná-lo alcançável.
+- **O que ele calcula quando alcançado** (instrumento com **duplo de teste declarado** que força a
+  elegibilidade, de modo que o código real de `:855-865` execute):
+
+| `individualStats` enviado (com elegibilidade forçada) | Taxa impressa | Conta |
+|---|---|---|
+| achatado, 3 respondentes, todos válidos | **0.0%** | `floor(3/4)` = 0 nas quatro: 0 de 0 |
+| achatado, 5 todos válidos | 100.0% | 4 de 4 |
+| achatado, 6 todos válidos | 100.0% | 4 de 4 |
+| achatado, 12 todos válidos | 100.0% | 12 de 12 |
+| achatado, 5 com 2 válidos, 1 warning e 2 críticos | **0.0%** | 0 de 4 (a taxa por respondente seria 40.0%) |
+| **por dimensão em pessoas** (5 pessoas; válidas 5, 4, 3, 2) | **70.0%** | **14 de 20** |
+| `individualStats` ausente (o que uma saída A enviaria) | **0.0%** | 0 de 0, o padrão de zeros de `:599-606` |
+
+  "Só fecha por acidente do quociente" fica **medido:** com todos válidos, `valid` e `total` sofrem o mesmo
+  `floor` e o quociente sobrevive; em qualquer outro caso, não.
+- **O efeito de cada saída sobre este consumidor** (fatos medidos, sem escolha):
+  - **Saída A** (nenhum número por dimensão): o consumidor continua lá, **inalcançado**; se alcançado sem números
+    por dimensão, lê os zeros de `:599-606` e imprime **Taxa 0.0% como medida** (a ausência apresentada como
+    medida, a classe que A.12 tirou de outros pontos). ⚠ **E a tela deixar de enviar `individualStats` não basta:**
+    medido no tratador real, **sem forçar nada**, um pedido **elegível e sem `individualStats`** imprime a Taxa
+    100.0% (ramo 1) e **quatro blocos de zeros** ("Respostas totais: 0 … (0%)"), porque `:1146-1149` cai no
+    padrão de zeros. O texto do bloco para ausência **também** teria de mudar.
+  - **Saída B** (pessoas por dimensão): se os números por dimensão forem postos em `individualStats`, **o único
+    lugar que o consumidor lê**, a soma conta a **mesma pessoa até quatro vezes**: medido, 5 pessoas dão
+    denominador **20** e Taxa **70.0%**. Hoje é inalcançável; o efeito só se materializa se o ramo for alcançado
+    ou se outro consumidor passar a ler. **Resolver o consumidor** (retirar o ramo, ou impedi-lo de ler as quatro
+    dimensões) é o que a saída B exige, e isto confirma a exigência.
+  - **Nas duas:** `route.ts:345` (`const stats = data.individualStats;` em `calculateGrade`) é **variável sem uso**
+    (`calculateGrade` vai de `:344` a `:507`, e `stats` só aparece na declaração).
+
+#### (d) A semântica de cada CR, os critérios de categorização e a cobertura parcial
+
+**Qual matriz.** Cada um dos quatro CRs é o **CR da matriz 5×5 de comparações pareadas entre os cinco
+subcritérios do mérito** (`matrixWeights(subs, judgments, merit)`, `subs` = `${mérito}1..${mérito}5`,
+`lib/respondent-weights.ts:124-139` e `:154-158`; no gravador, `subConsistency.{B,O,C,R}.cr`, `page.tsx:967-969`),
+**um valor por respondente e por dimensão**. **Não** é o CR das matrizes de alternativas (2×2, zero por
+construção), **nem** o da BOCR (4×4, `crBOCR`, transportado mas fora do bloco), **nem** o da MAGNITUDE (4×4,
+**não transportada**: `RespondentCRs` não a tem, e ela governa 4 dos 12 no painel calculado agora). O rótulo do
+bloco, "Benefits (Benefícios)", **não diz** qual matriz, e a tela **não usa** esses valores: o agregado achatado
+que ela envia vem de `r.cr`, isto é, do `avgCR` (no gravado, a **média das 26 matrizes**, 1.05% a 9.64%; no
+calculado agora, o **máximo das seis não triviais**), **sem nenhuma informação por dimensão**.
+
+**Critérios de categorização, quatro escalas em uso** (medido nos contextos quando indicado):
+
+| Onde | Critério | Nota |
+|---|---|---|
+| rótulos do bloco (`route.ts:1152-1154` etc.) | válidas CR ≤ 0.10; warning 0.10 < CR ≤ 0.20; críticas CR > 0.20 | é o critério que o leitor vê |
+| redução da tela (`page.tsx:1058-1086`) | `critical` = status SUSPEITO ou CRÍTICO, **ou** CR > 0.20; `warning` = CR > 0.10; `valid` = o resto, **inclusive CR = 0 e DESCONHECIDO** | é o critério que **preenche** o agregado; entrada é `r.cr` |
+| `classifyRespondent` (`response-quality/route.ts:222-239`) | 0 → DESCONHECIDO; ≤ 0.10 CONFIÁVEL; ≤ 0.15 REVISAR; ≤ 0.20 SUSPEITO; senão CRÍTICO | ⚠ mesma entrada `avgCR` |
+| `INTERVALOS_DECLARADOS` (`avaliacao-qualidade.ts:285-290`) | **só CONFIÁVEL coincide** entre tela e rota | já declarado; **não é objeto desta rodada** |
+
+**Medido, agregado 5** (`ctx-agregado-5-semVinculo.txt`): a lista (`:31-35`) tem r1 5.0% CONFIÁVEL, r2 8.0% CONFIÁVEL, r3
+12.0% REVISAR, r4 18.0% SUSPEITO, r5 25.0% CRÍTICO; a distribuição derivada da lista (`:42-45`) é **2 / 1 / 1 / 1**
+e a que a tela enviou (`:81-84`) é **2 / 0 / 1 / 2**. O agregado que a divisão reparte **já** vem na escala da tela
+(três degraus, com o `critical` incluindo SUSPEITO), e o bloco o rotula com a escala dos rótulos.
+
+**Cobertura parcial, três formas, e só duas são emitidas pelo produtor real** (medido em `medicao.json`,
+`a_naturezas_pelo_produtor_real` e `e_cobertura_e_suspensao`):
+
+| Forma | Como o produtor real a emite | O que a cadeia faz | Medição |
+|---|---|---|---|
+| respondente **inteiro** sem CR | `cr: 0`, `status: 'DESCONHECIDO'`, flag `CR_DESCONHECIDO`, `metrics` todos 0 | `crDoRespondente` aceita o 0 finito, e a avaliação é **`disponivel`**; a tela o conta como **`valid`** (crValue 0) | S8, S10; **5 com dois desconhecidos:** a lista diz "CR: N/D \| Status: DESCONHECIDO" ×2 e "DESCONHECIDO (CR não disponível): 2", e a Taxa diz **80.0%** (4 de 5) |
+| **por dimensão** (uma a três dimensões ausentes) | `CONFIÁVEL`, `avgCR` positivo, zeros silenciosos | **nada:** entra como medida | S3, S5, S9 |
+| itens **sem** `cr` (forma que o produtor real **não** emite) | — | `incompleta`, **tudo ou nada**: nenhum número por dimensão, Taxa "não calculada" | **3 de 5 com CR:** o bloco diz "Não disponíveis: a qualidade individual não foi avaliada", e a linha do motivo diz "Medido: 3 de 5 respondentes com CR" |
+
+⚠ **A terceira forma existe no classificador, mas o produtor real emite `cr: 0` para o desconhecido**, então na
+cadeia real a cobertura parcial por respondente aparece como a **primeira** forma (zero tratado como válido), e
+**não** como `incompleta`. O caso "3 de 5" do instrumento exercita o classificador, e **não** o que a
+produção emite. ⚠ **A frase do bloco ("não foi avaliada") é maior que a medição**: 3 de 5 **foram** avaliados. A
+forma correta é do tipo **"3 com CR disponível entre 5 apresentados"**, e **os três não são uma população
+completa**. Nenhum número desta rodada chama subconjunto de população completa: os `3 de 5` acima são contagem
+de respondentes **com CR disponível entre os apresentados**.
+
+**Denominador por dimensão sob cobertura parcial:** o payload **não traz disponibilidade por dimensão**; a única
+disponibilidade é por respondente (e tudo ou nada). Qualquer denominador por dimensão que exclua ausências
+precisaria de marca que o transporte atual **não tem**.
+
+#### (e) Os casos pequenos, pelo tratador real: agregado 5 e agregado 3
+
+Contextos completos versionados: `ctx-agregado-5-semVinculo.txt` (70812 bytes), `ctx-agregado-5-comVinculo.txt`
+(75538), `ctx-agregado-3-semVinculo.txt` (70697) e `ctx-agregado-3-comVinculo.txt` (75423), em
+`docs/dados/a12-estatisticas-dimensao/`. **Agregado 5**, sem o campo, o que o texto diz hoje:
+
+```
+- Total: 5 especialistas                                   (:80)
+**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10   (:89)
+
+## Estatísticas por Dimensão BOCR                           (:96)
+### Benefits (Benefícios)
+- Respostas totais: 1
+- Válidas (CR ≤ 0.10): 0 (0.0%)
+- Warning (0.10 < CR ≤ 0.20): 0
+- Críticas (CR > 0.20): 0
+… (o mesmo, com "Respostas totais: 1", em Opportunities, Costs e Risks)
+```
+
+**Agregado 3**, sem o campo (`ctx-agregado-3-semVinculo.txt`): "Total: 3 especialistas" (`:78`), Taxa **33.3%**
+(`:87`), e nas quatro dimensões (`:97`, `:104`, `:111`, `:118`) "Respostas totais: 0", "Válidas (CR ≤ 0.10): 0 (0%)",
+"Warning: 0", "Críticas: 0". **Com o campo**, o bloco e a Taxa são **idênticos** (agregado 5: `:117` e `:124-148`;
+agregado 3: `:115` e `:122-146`), e o que muda é o texto ao redor: no agregado 5, a chave de leitura (`:38`), o total da
+lista ("TOTAL ENVIADO A VOCÊ: 5 respondentes … COINCIDE, um a um, com os 5 incluídos", `:64`) e a frase de R1 (`:67`).
+No agregado 3 a divisão dá **zero** para uma população de **três** que **têm** CR e **foram** listados
+("TOTAL: 3 respondentes", `:35`); o contexto diz ao mesmo tempo que os 3 responderam à totalidade e que cada
+dimensão tem 0 respostas.
+
+#### (f) Os consumidores do bloco por dimensão, e onde mais os números se repetem
+
+| Ponto | O que faz | Medição |
+|---|---|---|
+| `route.ts:564-606` | normaliza (divide, descarta `avgCR`, ou usa zeros) | lido; **executado** |
+| `:638` | devolve `individualStats` normalizado | lido |
+| `:856-864` | soma as quatro dimensões (inalcançado hoje) | **medido** (c) |
+| `:1146-1177` | imprime o bloco; **o único consumidor que imprime número por dimensão ao modelo** | **medido** (e) |
+| `:345` | `const stats = data.individualStats;` em `calculateGrade`, **sem uso** | lido; `stats` só aparece na declaração |
+| `review-request.ts:78-83` | tipo por dimensão (`Benefits`, `Opportunities`, `Costs`, `Risks`) | lido |
+| `git grep` das leituras de `individualStats.{Benefits,Opportunities,Costs,Risks}` (e `?.`) em **todo** o repositório rastreado, em `a07998c` | 13 linhas, **todas** em `route.ts` (`:567`, `:856-864`, `:1146-1149`) | **medido** |
+
+**Dependentes do texto do bloco** (o que teria de mudar junto, se a Fase 2 o alterar; ⚠ o item 1 mora em
+arquivo que a proibição desta rodada **não** deixa tocar):
+
+1. `lib/ai-reviewer/vinculo-execucao.ts:1088-1089`: a chave de leitura **descreve a divisão** ("a rota o reparte
+   por quatro, arredondando para baixo") e é a única frase do contexto que a revela; **fica falsa** se a divisão
+   sair, e o teste `vinculo-execucao-fiacao.test.ts:730` a fixa literalmente.
+2. `vinculo-execucao-fiacao.test.ts:716-724`: o inventário de dez linhas "só pela chave" inclui as quatro
+   "Respostas totais" por dimensão (`toBe(10)`).
+3. `a12-diagnostico`, C-disponível (1 de 4 casos): a única linha de base **numérica**.
+4. Os 9 duplos de teste por dimensão, que **não** exercem a divisão, mas fixam o formato que a tela não envia.
+5. `docs/contratos-de-dados.md:503-506` e `:633-635`, e este registro (M11, `:11819`): citam a divisão como
+   item enfileirado.
+
+**Onde mais os números se repetem.** **Nenhum outro ponto do contexto repete os números por dimensão:** nos **dez**
+contextos que imprimem o bloco numérico, cada rótulo do bloco ("Respostas totais", "Válidas (CR ≤ 0.10)", "Warning
+(0.10", "Críticas (CR > 0.20)") aparece **exatamente 4 vezes**, e o cabeçalho, 1. A Taxa e o "Resumo do painel"
+são **por respondente** e saem do achatado (no agregado 5: "Total: 5 especialistas", 40.0%), **e coexistem no
+mesmo contexto com "Respostas totais: 1"**, sem relação de conservação. Há **outro** número por dimensão, de
+**outra natureza**: a seção "Consistência das Matrizes Agregadas por Dimensão BOCR" (`route.ts:1108-1124`), CR e
+λmax da matriz **agregada do grupo** por dimensão, com a nota de que **não** são CRs individuais. **Lida, não
+capturada** (os casos construídos não enviam `subConsistency`); ela **não** repete as contagens de pessoas.
+
+### 4. Fase 2: descrita, NÃO autorizada, e o que a Fase 1 entrega à decisão
+
+**Saída A, não apresentar.** O bloco deixa de trazer número por dimensão e declara a estatística **não
+disponível**, com o motivo. Não depende de a medição dar positivo.
+
+**Saída B, apresentar o medido.** Números calculados a partir dos CRs por mérito **efetivamente medidos**, com o
+denominador declarado por dimensão, e **não disponível** onde faltarem dados. ⚠ Só é admissível se a Fase 1
+demonstrar que os valores chegam ao payload **e** que dá para distinguir medição de substituição por zero. ⚠ E
+exige resolver o consumidor de `:856-864`, sob pena de quadruplicar o denominador da Taxa de Validade Geral.
+
+⚠ **Vale nas duas saídas, e não é decisão:** sai a divisão por quatro; nenhum número derivado é apresentado como
+população medida por dimensão; e **nenhum respondente com medição válida é omitido do denominador da sua
+dimensão**. ⚠ **Não se exige que os quatro denominadores somem o total**, porque isso não é propriedade
+verdadeira.
+
+⚠ **O executor não escolhe entre A e B, e não escolheu.** O que a Fase 1 entrega à decisão, sem recomendação:
+
+| Pergunta | Medido |
+|---|---|
+| B (i): os valores chegam ao payload? | **Sim**, 72 de 72 células, só no ramo `respondentesEnviados`; no fallback sobre respostas brutas `metrics` só tem `avgCR` (lido) |
+| B (ii): a medição se distingue da substituição por zero no que chega? | **Não**, no transporte atual: S2, S3, S4, S7 e S9 saem com o mesmo `0`; o painel tem 3 a 4 zeros calculados que o payload não distingue de ausência; o desconhecido inteiro se distingue por `status` **mas a avaliação o considera disponível** |
+| O consumidor `:856-864` | **inalcançado hoje** (0 de 32; 0 execuções pela suíte); **latente**, e alcançável se V3 sair do conjunto aplicável; efeito de cada saída em (c) |
+| Denominador por dimensão sob cobertura parcial | o payload **não tem** disponibilidade por dimensão; a disponibilidade é por respondente, e o produtor real emite o desconhecido como `cr: 0` |
+| A saída A precisa também de | mudar o texto do bloco para ausência (hoje um pedido elegível sem `individualStats` imprime zeros) e o dependente `vinculo-execucao.ts:1088` |
+| Onde a escolha alcança o caminho sem vínculo | **em ambas** (Seção 2): a decisão do autor de autorizar também ali está registrada |
+| Dependentes de texto e de linha de base | lista em (f); o que muda depende de qual texto muda (Seção 2) |
+
+### 5. Achados adjacentes, registrados e NÃO corrigidos
+
+⚠ Nenhum é desta rodada; ficam registrados para não se perderem.
+
+1. **Zero tratado como válido no agregado por respondente** (medido): o produtor real emite o desconhecido como
+   `cr: 0`, `crDoRespondente` o aceita, a tela o conta como `valid`, e o contexto diz na mesma página "CR: N/D |
+   Status: DESCONHECIDO" e "80.0% das respostas com CR ≤ 0.10" (5 com dois desconhecidos).
+2. **A frase de indisponibilidade do bloco não distingue as causas** (medido, `suspensao-por-contradicao`):
+   numa suspensão por **contradição interna** o bloco diz "a qualidade individual não foi avaliada" e o resumo
+   diz "Os CRs individuais dos respondentes FORAM avaliados"; o rótulo próprio da contradição existe
+   (`ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO`), e o bloco de `:1145` não o usa.
+3. **Um pedido elegível sem `individualStats` imprime zeros** (medido; ver (c)).
+4. **A MAGNITUDE não é transportada** em `metrics`, e governa 4 dos 12 no painel calculado agora (R03, R04, R07,
+   R09).
+5. **Dois caminhos do produtor dão valores diferentes para o mesmo respondente** (medido, até 5.08 pp numa
+   célula): o gravado (IPC, média geométrica) e o calculado agora (autovetor principal). Sem categoria
+   diferente nas 48 células **deste** painel; para outros painéis, **não avaliado**.
+6. **A produção real do painel é uma de duas** (**não avaliado qual**): o cache de maio ainda existe (caminho
+   gravado, achatado 12 / 12 / 0 / 0 e Taxa 100.0%, como no log da execução 7) ou B.3 foi executada (caminho
+   calculado agora, achatado 12 / 0 / 1 / 11).
+   Não há consulta a produção nesta rodada.
+7. **O ramo de fallback da tela sobre respostas brutas** (`page.tsx:1090-1167`) fabrica distribuição por
+   suposição: lido, não executado.
+8. **`route.ts:1117` "(n=5)"** (**lido**, não executado): está ao lado do CR da matriz **agregada** de cada dimensão,
+   e o `5` parece ser a ordem da matriz (cinco subcritérios), e não o número de respondentes; fica registrado só
+   porque a leitura apressada o confunde com o N de respondentes.
+
+### 6. Critérios de aceite da Fase 1, conferidos
+
+| # | Critério | Estado |
+|---|---|---|
+| 1 | cadeia de cada CR por dimensão até a origem, com as quatro naturezas distinguidas ou a limitação registrada | **atendido com limitação registrada:** rastreada até o produtor, o gravador (IPC) e o motor; **a distinção não sobrevive ao transporte** (registrada); origem dos gravados de produção: **não avaliada** (derivada para o painel, com confirmação em 3 de 12) |
+| 2 | campos em `qualityAnalysis.respondents`, com a cadeia e os pontos nomeados | **atendido:** 8 pontos em (b), 72 de 72 células; limite: a tela é cópia literal |
+| 3 | consumidor `:856-864` medido, com o efeito de cada saída | **atendido:** (c); inalcançado hoje, 0 de 32, 0 execuções, aritmética forçada, efeito de A e de B |
+| 4 | semântica, categorização e cobertura parcial declaradas, sem chamar subconjunto de população completa | **atendido:** (d) |
+| 5 | agregado 5 e 3 pelo tratador real, com o contexto capturado | **atendido:** (e), quatro contextos completos versionados |
+| 6 | nenhuma contagem como conservação entre as dimensões | **atendido:** Seção 1 e (a) dizem o oposto onde a soma poderia ser lida assim |
+| 7 | o commit não toca produção; os preservados íntegros | **conferido** no relato: `git status --short` e `git show --stat`, e os três `sha256sum` |
+
+### 7. Execução, medida nesta sessão
+
+- `npx tsc --noEmit`: **saída 0**.
+- `npx jest` (suíte inteira, com os documentos desta rodada no lugar e sem os testes temporários): **33 suítes, 791 testes, 0 falhas**, o mesmo total da base `a07998c`, porque esta rodada não acrescenta nem altera teste algum. ⚠ O total de asserções **não foi medido** nesta rodada (o instrumento que o somava, na rodada anterior, não é versionado e não foi recriado).
+- Ambiente: Linux x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3, tsc 5.9.3. ⚠ É ambiente observado, e não
+  requisito. A CI usa Node 24.x, e o resultado dela é reportado por commit, fora deste registro.
+- `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`:
+  `85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes), iguais entre si e ao valor
+  de antes. `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`:
+  `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes), igual ao de antes.
+- **Não foi executado `npm run build`:** o commit não toca código, e o build é o da CI.
+
+### 8. O que NÃO foi feito
+
+- ⚠ **Nenhum código de produção foi alterado**, nenhuma saída (A ou B) foi implementada, e o executor **não
+  escolheu** entre elas.
+- ⚠ **`cobertura.restringiu` não foi corrigido** (item enfileirado; Anexo).
+- ⚠ Sem consulta a produção, sem recálculo, sem alteração de dado, sem chamada externa de inferência,
+  embedding ou recuperação, sem parecer novo; `npm run lint` não foi rodado; nenhum `--force`, rebase ou
+  `amend`; nada foi integrado.
+- ⚠ **Os valores gravados em produção para os doze não foram lidos:** o que este bloco diz deles é
+  **derivado** e tem confirmação independente em **3 de 12**.
+- ⚠ **A redação do modelo sobre estes números não foi testada**, e **a tela continua sem execução por teste**.
+
+### Anexo: o item enfileirado de `cobertura.restringiu`
+
+⚠ **Não é desta rodada, e não foi corrigido.** Redação decidida, para quando for a vez:
+
+> O filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado.
+
+**Medido, em `a07998c`:** o filtro é aplicado em `vinculo-execucao.ts:527-528` (`mantidas` e `restrita`) em
+**todo** vínculo comparado, mesmo conservando todos os elementos; `restringiu: true` é gravado em `:562` para
+todo vínculo comparado (e `false` em `:497`); a frase "o conjunto avaliado foi RESTRINGIDO aos identificadores
+presentes no documento de cálculo" sai de `:719-720` sempre que `restringiu` é `true`; e
+`enviadosDiferemDosAvaliados`, em `:533`, diz se a lista mudou. ⚠ **O item é a distinção entre aplicação do
+filtro e alteração efetiva da lista**, e não entre filtro aplicado e não aplicado.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

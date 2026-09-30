@@ -1,0 +1,44 @@
+export {};
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+import { calculateRespondentWeights } from '@/lib/respondent-weights';
+
+const RAIZ = path.resolve(__dirname, '..', '..');
+const SAIDA = process.env.SAIDA_DIM as string;
+const painel = JSON.parse(fs.readFileSync(path.join(RAIZ, 'lib/__tests__/fixtures/panel-2026.json'), 'utf8'));
+
+describe('medicao: o motor, por respondente e por dimensao, ANTES do `|| 0` do produtor', () => {
+  test('o CR de cada matriz de subcriterios como o motor o devolve (tipo, valor exato, se e zero, se e NaN)', () => {
+    const linhas: any[] = [];
+    for (const r of painel.responses) {
+      const judgments = r.judgments;
+      const altCodes = [...new Set(judgments.filter((j: any) => j.type === 'alternatives').flatMap((j: any) => [j.itemA, j.itemB]).filter(Boolean))] as string[];
+      const res = calculateRespondentWeights(judgments, altCodes);
+      const dim = (k: string) => {
+        const m = (res.subWeights as any)[k];
+        const cr = m ? m.cr : undefined;
+        return {
+          presente: m !== undefined,
+          tipo: typeof cr,
+          valor: cr,
+          ehZeroExato: cr === 0,
+          ehNaN: typeof cr === 'number' && Number.isNaN(cr),
+          apos_ou_zero: (cr as any) || 0,
+        };
+      };
+      linhas.push({
+        id: r.id,
+        bocr: res.bocrWeights.cr,
+        magnitude: res.magnitudeWeights.cr,
+        B: dim('B'), O: dim('O'), C: dim('C'), R: dim('R'),
+        maxCR: res.maxCR,
+        governingMatrix: res.governingMatrix,
+      });
+    }
+    fs.mkdirSync(SAIDA, { recursive: true });
+    fs.writeFileSync(`${SAIDA}/motor-painel-12.json`, JSON.stringify(linhas, null, 1));
+    expect(linhas.length).toBe(12);
+  });
+});

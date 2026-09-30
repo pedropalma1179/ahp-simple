@@ -1,0 +1,604 @@
+export {};
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+import { LIMITE_DO_VINCULO, MARCADOR_DO_BLOCO_DO_VINCULO, prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';
+import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
+
+const RAIZ = path.resolve(__dirname, '..', '..');
+const ler = (rel: string): string => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
+const normalizar = (t: string) => t.replace(/\s+/g, ' ').trim();
+const ocorrencias = (texto: string, agulha: string) => texto.split(agulha).length - 1;
+
+const TELA = 'app/decisor/resultados/[projectId]/page.tsx';
+const ROTA = 'app/api/ai-reviewer/route.ts';
+const CONTRATO = 'docs/contratos-de-dados.md';
+const REGISTRO = 'docs/imprecisoes-parecer-ia.md';
+const ANCORA = 'docs/objetivo-estados-caminho.md';
+
+// ---------------------------------------------------------------------------
+// Cliente do modelo SIMULADO. ⚠ Chave falsa, texto controlado, e nada de rede.
+// ---------------------------------------------------------------------------
+
+const CHAVE = 'chave-anthropic-falsa-do-processo-de-teste';
+const SEM_VEREDICTO = 'Parecer de ensaio, sem decisão editorial declarada no texto. '.repeat(3);
+process.env.ANTHROPIC_API_KEY = CHAVE;
+delete process.env.USE_RAG_SEMANTIC;
+
+const captura: { contexto: string } = { contexto: '' };
+
+jest.mock('@anthropic-ai/sdk', () => ({
+  __esModule: true,
+  default: class {
+    messages = {
+      create: async (a: { messages: Array<{ content: string }> }) => {
+        captura.contexto = a.messages.map((m) => m.content).join('\n');
+        return { content: [{ type: 'text', text: SEM_VEREDICTO }] };
+      },
+    };
+  },
+}));
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { POST } = require('@/app/api/ai-reviewer/route');
+
+let silencios: jest.SpyInstance[] = [];
+beforeAll(() => {
+  silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined));
+});
+afterAll(() => silencios.forEach((s) => s.mockRestore()));
+jest.setTimeout(60000);
+
+type Resposta = { contexto: string; corpo: any; status: number };
+
+/** Executa o handler REAL com o cliente simulado, e captura o contexto e a resposta. */
+async function executar(payload: Record<string, unknown>): Promise<Resposta> {
+  captura.contexto = '';
+  const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+  const corpo = await res.json();
+  return { contexto: captura.contexto, corpo, status: res.status ?? 200 };
+}
+
+// ---------------------------------------------------------------------------
+// Payloads com a forma que a tela monta. ⚠ São duplos de TESTE.
+// ---------------------------------------------------------------------------
+
+const respondente = (id: string, cr: number | null) => ({
+  respondentId: id,
+  id,
+  name: `Respondente ${id}`,
+  ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }),
+  status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO',
+});
+
+const balde = (total: number, valid: number, warning = 0, critical = 0) => ({ total, valid, warning, critical, avgCR: 0.05 });
+
+/** O payload da tela para os `respondentes` dados, com `overall` opcional. */
+function payloadDaTela(respondentes: any[], vinculo?: unknown, comOverall = true): Record<string, unknown> {
+  const n = respondentes.length;
+  const validos = respondentes.filter((r) => typeof r.cr === 'number' && r.cr <= 0.1).length;
+  const todosComCR = respondentes.length > 0 && respondentes.every((r) => typeof r.cr === 'number');
+  const p: Record<string, unknown> = {
+    avaliacaoDeQualidade: todosComCR
+      ? { estado: 'disponivel', motivo: null, fonte: 'análise de qualidade dos respondentes ativos' }
+      : n === 0
+        ? { estado: 'ausente', motivo: 'sem análise individual', fonte: 'tela' }
+        : { estado: 'incompleta', motivo: 'CR faltando', fonte: 'tela' },
+    projectName: 'Projeto do vinculo',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    responseCount: n,
+    finalScores: [
+      { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+      { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+    ],
+    qualityAnalysis: todosComCR
+      ? {
+          respondents: respondentes,
+          statistics: {
+            byStatus: { 'CONFIÁVEL': validos, 'REVISAR': 0, 'SUSPEITO': n - validos, 'CRÍTICO': 0 },
+            total: n,
+            avgCR: 0.05,
+          },
+          ...(comOverall ? { overall: { status: 'CONFIÁVEL', qualityScore: 91, recommendation: 'ok' } } : {}),
+          summary: { total: n, ok: validos, suspicious: n - validos, critical: 0 },
+        }
+      : { respondents: respondentes },
+    overallStats: todosComCR ? { total: n, valid: validos, warning: n - validos, critical: 0 } : undefined,
+    individualStats: todosComCR
+      ? {
+          Benefits: balde(n, validos, n - validos),
+          Opportunities: balde(n, validos, n - validos),
+          Costs: balde(n, validos, n - validos),
+          Risks: balde(n, validos, n - validos),
+        }
+      : undefined,
+  };
+  if (vinculo !== undefined) p.vinculoDaExecucao = vinculo;
+  return p;
+}
+
+const IDS = ['r1', 'r2', 'r3', 'r4'];
+const elegivel = () => IDS.map((id) => respondente(id, 0.05));
+const naoElegivel = () => [respondente('r1', 0.05), respondente('r2', null), respondente('r3', 0.05), respondente('r4', 0.05)];
+
+const HEX_PAINEL = 'b'.repeat(64);
+const shaDe = (id: string) => id.padEnd(64, '0').replace(/[^0-9a-f]/g, 'c');
+
+function calculo(ids: string[] | undefined, sobre: Record<string, unknown> = {}): any {
+  const metadata: any = {
+    judgmentsDigest: { algorithm: 'sha256', serialization: 'a12-julgamentos-v1', panel: HEX_PAINEL, unavailableReason: null },
+  };
+  if (ids !== undefined) {
+    metadata.includedRespondents = ids.map((id) => ({
+      respondentId: id,
+      responseDocId: `doc-${id}`,
+      identifierSource: 'respondentId',
+      judgmentsSha256: shaDe(id),
+      judgmentsUnavailableReason: null,
+    }));
+  }
+  return { executionId: 'exec-fiacao-0001', metadata, ...sobre };
+}
+
+const ESTADOS = ['indisponivel', 'invalido', 'vinculado', 'divergente'] as const;
+
+/** Um vínculo de cada estado, sobre a MESMA lista avaliada `lista`. ⚠ Em `divergente` a sobra é só do documento. */
+function vinculoDoEstado(estado: (typeof ESTADOS)[number], lista: any[]) {
+  const ids = lista.map((r) => r.respondentId);
+  const doc =
+    estado === 'indisponivel' ? calculo(undefined)
+    : estado === 'invalido' ? calculo([])
+    : estado === 'vinculado' ? calculo(ids)
+    : calculo([...ids, 'z-so-no-documento']);
+  const preparo = prepararVinculoDaTela({ calculo: doc, respondentesAtivos: lista, respostasAtivas: [] });
+  expect(preparo.vinculo.estado).toBe(estado);
+  expect(preparo.respondentesEnviados).toEqual(lista); // ⚠ o MESMO conjunto avaliado nos quatro estados
+  return preparo.vinculo;
+}
+
+const blocoDe = (contexto: string): string => {
+  const inicio = contexto.indexOf(MARCADOR_DO_BLOCO_DO_VINCULO);
+  if (inicio < 0) return '';
+  const fimDoLimite = contexto.indexOf(LIMITE_DO_VINCULO, inicio);
+  return contexto.slice(inicio, fimDoLimite + LIMITE_DO_VINCULO.length);
+};
+
+// ============================================================================================
+// PARTE 1: o PRODUTOR real dos CRs por dimensão (`POST /api/response-quality`), sem consulta a produção
+// ============================================================================================
+const SAIDA = process.env.SAIDA_DIM as string;
+const grava = (nome: string, valor: unknown) => {
+  fs.mkdirSync(SAIDA, { recursive: true });
+  fs.writeFileSync(`${SAIDA}/${nome}`, typeof valor === 'string' ? valor : JSON.stringify(valor, null, 1));
+};
+const { POST: POST_QUALIDADE } = require('@/app/api/response-quality/route');
+async function qualidade(responses: any[]): Promise<any> {
+  const res = await POST_QUALIDADE({ json: async () => JSON.parse(JSON.stringify({ responses, includeSimulated: true })) } as any);
+  return res.json();
+}
+const painel = JSON.parse(fs.readFileSync(path.join(RAIZ, 'lib/__tests__/fixtures/panel-2026.json'), 'utf8'));
+
+describe('medicao: o produtor dos CRs por dimensao', () => {
+  test('o painel de 12 respondentes, pelo produtor real (caminho: calculado agora a partir dos julgamentos)', async () => {
+    const corpo = await qualidade(painel.responses.map((r: any) => ({ respondentId: r.id, judgments: r.judgments })));
+    expect(corpo.success).toBe(true);
+    const linhas = corpo.analysis.respondents.map((r: any) => ({
+      id: r.respondentId, status: r.status, cr: r.cr,
+      crBOCR: r.metrics.crBOCR, crBenefits: r.metrics.crBenefits, crOpportunities: r.metrics.crOpportunities,
+      crCosts: r.metrics.crCosts, crRisks: r.metrics.crRisks, avgCR: r.metrics.avgCR,
+    }));
+    grava('painel-12-produtor.json', { estatisticas: corpo.analysis.statistics, linhas });
+  });
+});
+
+describe('medicao: as naturezas do valor por dimensao, pelo produtor real', () => {
+  const dimensoes = (r: any) => ({
+    status: r.status,
+    cr: r.cr,
+    avgCR: r.metrics.avgCR,
+    crBOCR: r.metrics.crBOCR,
+    crBenefits: r.metrics.crBenefits,
+    crOpportunities: r.metrics.crOpportunities,
+    crCosts: r.metrics.crCosts,
+    crRisks: r.metrics.crRisks,
+    flags: r.flags.map((f: any) => f.type),
+  });
+
+  const r09 = painel.responses.find((r: any) => r.id === 'R09').judgments;
+  const r01 = painel.responses.find((r: any) => r.id === 'R01').judgments;
+  // R01 sem UM par do bloco de subcriterios B: matriz incompleta, que o motor rejeita
+  const r01SemUmParDeB = (() => {
+    const copia = JSON.parse(JSON.stringify(r01));
+    const i = copia.findIndex((j: any) => j.group === 'B');
+    copia.splice(i, 1);
+    return copia;
+  })();
+
+  const CASOS: [string, string, any][] = [
+    ['S1', 'gravado na coleta (formato v5): subConsistency B,O,C,R positivos e avgCR positivo', { responses: { avgCR: 0.07, bocrConsistency: { cr: 0.06 }, subConsistency: { B: { cr: 0.05 }, O: { cr: 0.08 }, C: { cr: 0.12 }, R: { cr: 0.03 } } } }],
+    ['S2', 'gravado, com B = 0 (valor recuperado, zero)', { responses: { avgCR: 0.07, bocrConsistency: { cr: 0.06 }, subConsistency: { B: { cr: 0 }, O: { cr: 0.08 }, C: { cr: 0.12 }, R: { cr: 0.03 } } } }],
+    ['S3', 'gravado com avgCR positivo e SEM subConsistency (ausencia por dimensao)', { responses: { avgCR: 0.07, bocrConsistency: { cr: 0.06 } } }],
+    ['S4', 'gravado com B = null, O = "abc", C = "0.12" (texto numerico), R = 0.03', { responses: { avgCR: 0.07, subConsistency: { B: { cr: null }, O: { cr: 'abc' }, C: { cr: '0.12' }, R: { cr: 0.03 } } } }],
+    ['S5', 'formato metrics: so crBenefits e crCosts (Opportunities e Risks ausentes), avgCR positivo', { metrics: { crBenefits: 0.05, crCosts: 0.12, avgCR: 0.07 } }],
+    ['S6', 'legado sem avgCR em lugar algum: subConsistency positivo, avgCR calculado pela funcao', { subConsistency: { B: { cr: 0.05 }, O: { cr: 0.08 }, C: { cr: 0.12 }, R: { cr: 0.03 } } }],
+    ['S7', 'so julgamentos, COMPLETOS (R09 do painel): calculado agora pelo motor', { judgments: r09 }],
+    ['S8', 'so julgamentos INCOMPLETOS (R01 sem um par do bloco B): o motor rejeita, e nenhum CR e calculado', { judgments: r01SemUmParDeB }],
+    ['S9', 'gravado, com zero em B E ausencia em O, C e R (zero recuperado e ausencia, lado a lado)', { responses: { avgCR: 0.07, subConsistency: { B: { cr: 0 } } } }],
+    ['S10', 'sem nenhum campo de CR e sem julgamentos', { data: {} }],
+  ];
+
+  test('cada natureza, o que a funcao devolve por dimensao, e o que a disponibilidade da avaliacao diz', async () => {
+    const saida: any[] = [];
+    for (const [id, descricao, corpo] of CASOS) {
+      const resp = await qualidade([{ respondentId: id, ...corpo }]);
+      expect(resp.success).toBe(true);
+      const r = resp.analysis.respondents[0];
+      const disponibilidade = classificarAvaliacaoDaTela({ respondentesAvaliados: [r], respostasAtivas: [] });
+      saida.push({ id, descricao, saida: dimensoes(r), disponibilidadeDaAvaliacao: disponibilidade.estado });
+    }
+    grava('naturezas-produtor.json', saida);
+  });
+});
+
+// ============================================================================================
+// PARTE 2: o TRATADOR real do parecer (`POST /api/ai-reviewer`), com o payload no formato que a TELA monta
+// ============================================================================================
+
+/** Um elemento como o produtor de qualidade o devolve (`app/api/response-quality/route.ts:377-402`). */
+function itemDoProdutor(id: string, cr: number | undefined) {
+  const status =
+    cr === undefined || cr === 0 ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.15 ? 'REVISAR' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO';
+  const semCR = cr === undefined;
+  return {
+    respondentId: id,
+    isSimulated: false,
+    status,
+    overallScore: 50,
+    ...(semCR ? {} : { cr }),
+    metrics: semCR ? {} : { avgCR: cr, crBOCR: cr, crBenefits: cr, crOpportunities: cr, crCosts: cr, crRisks: cr },
+    flags: [],
+    recommendation: '',
+  };
+}
+
+/** COPIA LITERAL da redução de `page.tsx:1058-1088`. A tela não é executada por teste algum; isto reproduz o que ela faz. */
+function individualStatsDaTela(respondentesEnviados: any[]) {
+  let totalCR = 0;
+  const acc: any = respondentesEnviados.reduce(
+    (acc: any, r: any) => {
+      let crValue = 0;
+      if (typeof r.cr === 'number') crValue = r.cr;
+      else if (r.metrics && typeof r.metrics.avgCR === 'number') crValue = r.metrics.avgCR;
+      else if (r.consistency && typeof r.consistency.cr === 'number') crValue = r.consistency.cr;
+      else if (typeof r.cr_mean === 'number') crValue = r.cr_mean;
+      totalCR += crValue;
+      const isExplicitlyBad = r.status === 'SUSPEITO' || r.status === 'CRÍTICO';
+      const isMathematicallyBad = crValue > 0.2;
+      const isMathematicallySuspect = crValue > 0.1;
+      if (isExplicitlyBad || isMathematicallyBad) acc.critical++;
+      else if (isMathematicallySuspect) acc.warning++;
+      else acc.valid++;
+      acc.total++;
+      return acc;
+    },
+    { valid: 0, warning: 0, critical: 0, total: 0 }
+  );
+  acc.avgCR = acc.total > 0 ? totalCR / acc.total : 0;
+  return acc;
+}
+
+/** O payload como `page.tsx:1236-1315` o monta, para os respondentes dados. `comEstatisticas: false` retira byStatus, summary e overallStats. */
+function payloadReal(respondentes: any[], opcoes: { comVinculo: boolean; comEstatisticas?: boolean }) {
+  const stats = individualStatsDaTela(respondentes);
+  const respondentesComCR = respondentes.map((r: any) => ({
+    ...r,
+    cr: typeof r.cr === 'number' ? r.cr : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
+    isSimulated: r.isSimulated === true,
+  }));
+  const avaliacao = classificarAvaliacaoDaTela({ respondentesAvaliados: respondentes, respostasAtivas: [] });
+  const avaliada = avaliacao.estado === 'disponivel';
+  const comEstatisticas = opcoes.comEstatisticas !== false;
+  const p: any = {
+    avaliacaoDeQualidade: avaliacao,
+    projectName: 'Projeto da medicao',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    responseCount: respondentes.length,
+    finalScores: [
+      { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+      { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+    ],
+    qualityAnalysis: avaliada
+      ? {
+          respondents: respondentesComCR,
+          ...(comEstatisticas
+            ? {
+                statistics: {
+                  byStatus: { 'CONFIÁVEL': stats.valid, 'REVISAR': 0, 'SUSPEITO': stats.warning, 'CRÍTICO': stats.critical },
+                  total: stats.total,
+                  avgCR: stats.avgCR,
+                },
+                summary: { total: stats.total, ok: stats.valid, suspicious: stats.warning, critical: stats.critical },
+              }
+            : {}),
+          overall: {},
+        }
+      : { respondents: respondentesComCR },
+    overallStats: avaliada && comEstatisticas ? { total: stats.total, valid: stats.valid, warning: stats.warning, critical: stats.critical } : undefined,
+    individualStats: avaliada && stats.total > 0 ? stats : undefined,
+  };
+  if (opcoes.comVinculo) p.vinculoDaExecucao = vinculoDoEstado('vinculado', respondentesComCR);
+  return { payload: p, stats, avaliacao };
+}
+
+const extrair = (contexto: string) => {
+  const linhas = contexto.split('\n');
+  const idx = linhas.findIndex((l) => l.startsWith('## Estatísticas por Dimensão BOCR'));
+  const fim = linhas.findIndex((l, i) => i > idx && l.startsWith('## Pesos Finais da Hierarquia'));
+  return {
+    taxa: linhas.filter((l) => l.startsWith('**Taxa de Validade Geral:**')),
+    bloco: idx >= 0 ? linhas.slice(idx, fim).join('\n') : null,
+    frasesSobreN: linhas.filter((l) => /não atribua um N|NÃO existe divisão de respondentes|Portanto N =|NÃO medem a participação por dimensão|N de matriz alguma/.test(l)),
+    totalDaLista: linhas.filter((l) => l.startsWith('**TOTAL')),
+    resumoDoPainel: linhas.filter((l) => /^- Total: \d+ especialistas/.test(l)),
+    motivoAusente: linhas.filter((l) => /AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL/.test(l)),
+  };
+};
+
+describe('medicao: o tratador real, agregado 12, 5 e 3', () => {
+  const cenarios: [string, any[]][] = [
+    ['agregado-5', [0.05, 0.08, 0.12, 0.18, 0.25].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+    ['agregado-3', [0.05, 0.12, 0.25].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+    // os doze do painel, com o CR que o produtor devolve pelo caminho "calculado agora" (o governante)
+    [
+      'agregado-12',
+      [0.1139, 0.3747, 1.0927, 0.5903, 0.6359, 0.461, 0.2519, 0.2344, 0.3158, 0.2634, 0.2402, 0.2525].map((cr, i) => itemDoProdutor(`R${String(i + 1).padStart(2, '0')}`, cr)),
+    ],
+    // cinco, dois com CR DESCONHECIDO (o produtor devolve cr = 0 e status DESCONHECIDO)
+    ['agregado-5-com-2-desconhecidos', [0.05, 0.08, 0.12, 0, 0].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+  ];
+
+  test.each(cenarios.map((c) => [c[0], c[1]] as const))('%s: com e sem vinculoDaExecucao, pelo formato da tela', async (nome, respondentes) => {
+    const resumo: any = { nome, respondentes: respondentes.length };
+    for (const comVinculo of [false, true]) {
+      const { payload, stats, avaliacao } = payloadReal(respondentes as any[], { comVinculo });
+      const r = await executar(payload);
+      expect(r.status).toBe(200);
+      const chave = comVinculo ? 'comVinculo' : 'semVinculo';
+      resumo.estatisticasDaTela = stats;
+      resumo.avaliacao = avaliacao.estado;
+      resumo[chave] = extrair(r.contexto);
+      grava(`ctx-${nome}-${chave}.txt`, r.contexto);
+    }
+    grava(`resumo-${nome}.json`, resumo);
+  });
+
+  test('o ramo que SOMA as quatro dimensoes (route.ts:855-865): so com individualStats, sem byStatus, summary nem overallStats', async () => {
+    const saida: any[] = [];
+    for (const [nome, respondentes] of cenarios) {
+      const { payload, stats, avaliacao } = payloadReal(respondentes as any[], { comVinculo: false, comEstatisticas: false });
+      const r = await executar(payload);
+      expect(r.status).toBe(200);
+      saida.push({ nome, avaliacao: avaliacao.estado, estatisticasDaTela: stats, ...extrair(r.contexto) });
+      grava(`ctx-ramo4-${nome}.txt`, r.contexto);
+    }
+    grava('ramo4.json', saida);
+  });
+
+  test('cobertura parcial: 5 apresentados, 3 com CR disponivel', async () => {
+    const respondentes = [itemDoProdutor('r1', 0.05), itemDoProdutor('r2', 0.12), itemDoProdutor('r3', 0.25), itemDoProdutor('r4', undefined), itemDoProdutor('r5', undefined)];
+    const { payload, avaliacao } = payloadReal(respondentes, { comVinculo: false });
+    const r = await executar(payload);
+    expect(r.status).toBe(200);
+    grava('ctx-parcial-3-de-5.txt', r.contexto);
+    grava('parcial-3-de-5.json', { avaliacao, temIndividualStatsNoPayload: payload.individualStats !== undefined, ...extrair(r.contexto) });
+  });
+});
+
+describe('medicao: o consumidor agregado (route.ts:855-865), quando e alcancado', () => {
+  test('so individualStats, respondentes TODOS confiaveis: a soma das quatro dimensoes fecha por acidente do quociente', async () => {
+    const saida: any[] = [];
+    for (const n of [3, 4, 5, 6, 7, 12]) {
+      const respondentes = Array.from({ length: n }, (_, i) => itemDoProdutor(`r${i + 1}`, 0.05 + (i % 3) * 0.01));
+      const { payload, stats, avaliacao } = payloadReal(respondentes, { comVinculo: false, comEstatisticas: false });
+      const r = await executar(payload);
+      expect(r.status).toBe(200);
+      const somaTotal = 4 * Math.floor(stats.total / 4);
+      const somaValidas = 4 * Math.floor(stats.valid / 4);
+      saida.push({ n, avaliacao: avaliacao.estado, estatisticasDaTela: { valid: stats.valid, warning: stats.warning, critical: stats.critical, total: stats.total }, somaDasQuatroDimensoes: { total: somaTotal, validas: somaValidas }, ...extrair(r.contexto) });
+    }
+    grava('ramo4-alcancado.json', saida);
+  });
+
+  test('so individualStats POR DIMENSAO (o que uma saida B enviaria: pessoas por dimensao): o denominador da Taxa e o quadruplo', async () => {
+    const respondentes = Array.from({ length: 5 }, (_, i) => itemDoProdutor(`r${i + 1}`, 0.05));
+    const { payload } = payloadReal(respondentes, { comVinculo: false, comEstatisticas: false });
+    // 5 pessoas; cada uma tem CR nas quatro dimensoes; validas por dimensao: 5, 4, 3, 2
+    payload.individualStats = {
+      Benefits: { total: 5, valid: 5, warning: 0, critical: 0 },
+      Opportunities: { total: 5, valid: 4, warning: 1, critical: 0 },
+      Costs: { total: 5, valid: 3, warning: 1, critical: 1 },
+      Risks: { total: 5, valid: 2, warning: 2, critical: 1 },
+    };
+    const r = await executar(payload);
+    expect(r.status).toBe(200);
+    grava('ramo4-por-dimensao.json', { pessoas: 5, somaDasQuatroDimensoes: { total: 20, validas: 14 }, ...extrair(r.contexto) });
+  });
+});
+
+import { avaliarCoerencia, classificarAvaliacaoRecebida, elegivelParaClassificacao } from '@/lib/ai-reviewer/avaliacao-qualidade';
+describe('medicao: por que o ramo que soma as dimensoes nao foi alcancado', () => {
+  test('a elegibilidade do pedido com respondentes confiaveis e SO individualStats', () => {
+    const saida: any[] = [];
+    for (const [rotulo, opcoes] of [
+      ['sem estatisticas (so individualStats)', { comVinculo: false, comEstatisticas: false }],
+      ['com estatisticas (como a tela)', { comVinculo: false, comEstatisticas: true }],
+    ] as const) {
+      const respondentes = Array.from({ length: 5 }, (_, i) => itemDoProdutor(`r${i + 1}`, 0.05 + (i % 3) * 0.01));
+      const { payload } = payloadReal(respondentes, opcoes);
+      const av = classificarAvaliacaoRecebida(payload);
+      const co = avaliarCoerencia(payload);
+      const el = elegivelParaClassificacao(av, co);
+      saida.push({
+        rotulo,
+        avaliacao: av.estado,
+        ramo: co.ramo,
+        conjuntoMinimo: co.conjuntoMinimo,
+        conjuntoMinimoConcluido: co.conjuntoMinimoConcluido,
+        conclusao: co.conclusao,
+        comparacoes: co.comparacoes.map((c) => ({ id: c.id, estado: c.estado, motivo: c.motivo.slice(0, 220) })),
+        elegivel: el.elegivel,
+        causa: el.causa,
+        motivo: (el.motivo || '').slice(0, 300),
+      });
+    }
+    grava('elegibilidade-ramo4.json', saida);
+  });
+});
+
+describe('medicao: quais combinacoes de campos tornam a requisicao ELEGIVEL, e qual ramo dos totais cada uma alcanca', () => {
+  test('grade de 32 combinacoes de presenca (valores coerentes), pelas funcoes reais de A.12', () => {
+    const linhas: any[] = [];
+    for (let m = 0; m < 32; m++) {
+      const tem = { byStatus: !!(m & 1), statisticsTotal: !!(m & 2), summary: !!(m & 4), overallStats: !!(m & 8), respondentes: !!(m & 16) };
+      const respondentes = Array.from({ length: 5 }, (_, i) => itemDoProdutor(`r${i + 1}`, 0.05));
+      const qa: any = {};
+      if (tem.respondentes) qa.respondents = respondentes;
+      if (tem.byStatus || tem.statisticsTotal) {
+        qa.statistics = {};
+        if (tem.byStatus) qa.statistics.byStatus = { 'CONFIÁVEL': 5, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 0 };
+        if (tem.statisticsTotal) qa.statistics.total = 5;
+      }
+      if (tem.summary) qa.summary = { total: 5, ok: 5, suspicious: 0, critical: 0 };
+      const raw: any = {
+        avaliacaoDeQualidade: { estado: 'disponivel', motivo: null, fonte: 'declarada' },
+        qualityAnalysis: qa,
+        individualStats: { valid: 5, warning: 0, critical: 0, total: 5, avgCR: 0.05 },
+      };
+      if (tem.overallStats) raw.overallStats = { total: 5, valid: 5, warning: 0, critical: 0 };
+      const av = classificarAvaliacaoRecebida(raw);
+      const co = avaliarCoerencia(raw);
+      const el = elegivelParaClassificacao(av, co);
+      // o ramo dos totais (route.ts:840-865), para o pedido tal como a rota o recebe
+      const avaliada = el.elegivel;
+      const ramoDosTotais = !avaliada
+        ? 'nenhum (nao avaliada)'
+        : qa.statistics?.byStatus ? 1
+        : qa.summary && qa.summary.total > 0 ? 2
+        : raw.overallStats && raw.overallStats.total > 0 ? 3
+        : 4;
+      linhas.push({ ...tem, disponibilidade: av.estado, ramoDeQualidade: co.ramo, conclusao: co.conclusao, elegivel: el.elegivel, ramoDosTotais });
+    }
+    grava('grade-elegibilidade.json', linhas);
+    const elegiveis = linhas.filter((l) => l.elegivel);
+    expect(linhas.length).toBe(32);
+    // a propriedade medida: TODA combinacao elegivel tem byStatus
+    expect(elegiveis.every((l) => l.byStatus)).toBe(true);
+    expect(linhas.filter((l) => l.ramoDosTotais === 4).length).toBe(0);
+  });
+});
+
+describe('medicao: o bloco por dimensao quando individualStats falta e a requisicao e ELEGIVEL, e quando a suspensao e por contradicao', () => {
+  test('elegivel e SEM individualStats: o bloco imprime zeros; e por contradicao interna: o bloco diz "nao foi avaliada" e o resumo diz que FOI', async () => {
+    const respondentes = Array.from({ length: 5 }, (_, i) => itemDoProdutor(`r${i + 1}`, 0.05));
+    // (1) todos os campos coerentes, mas SEM individualStats
+    const a = payloadReal(respondentes, { comVinculo: false });
+    delete a.payload.individualStats;
+    const ra = await executar(a.payload);
+    expect(ra.status).toBe(200);
+    // (2) contradicao interna: statistics.total diferente da lista
+    const b = payloadReal(respondentes, { comVinculo: false });
+    b.payload.qualityAnalysis.statistics.total = 9;
+    const rb = await executar(b.payload);
+    expect(rb.status).toBe(200);
+    const linhas = (c: string, re: RegExp) => c.split('\n').filter((l) => re.test(l)).map((l) => l.slice(0, 200));
+    grava('bloco-sem-individualStats.json', {
+      taxa: extrair(ra.contexto).taxa,
+      bloco: extrair(ra.contexto).bloco,
+    });
+    grava('suspensao-por-contradicao.json', {
+      taxa: extrair(rb.contexto).taxa,
+      bloco: extrair(rb.contexto).bloco,
+      resumo: linhas(rb.contexto, /AVALIAÇÃO INDIVIDUAL DE QUALIDADE|FORAM avaliados/),
+    });
+  });
+});
+
+describe('medicao: a cadeia do produtor real ate o pedido recebido pela rota (item b)', () => {
+  test('os campos por respondente do painel de 12 chegam ao payload identicos, e o contexto NAO os traz', async () => {
+    const corpo = await qualidade(painel.responses.map((r: any) => ({ respondentId: r.id, judgments: r.judgments })));
+    const doProdutor = corpo.analysis.respondents;
+    const { payload, stats } = payloadReal(doProdutor, { comVinculo: false });
+    const enviados = payload.qualityAnalysis.respondents;
+    const campos = ['crBOCR', 'crBenefits', 'crOpportunities', 'crCosts', 'crRisks', 'avgCR'];
+    let iguais = 0;
+    let total = 0;
+    for (let i = 0; i < doProdutor.length; i++) {
+      for (const c of campos) {
+        total++;
+        if (Object.is(enviados[i].metrics[c], doProdutor[i].metrics[c])) iguais++;
+      }
+    }
+    const r = await executar(payload);
+    expect(r.status).toBe(200);
+    grava('cadeia-produtor-ate-payload.json', {
+      respondentes: doProdutor.length,
+      camposPorRespondente: campos,
+      celulas: total,
+      iguaisNoPayload: iguais,
+      avaliacao: payload.avaliacaoDeQualidade.estado,
+      estatisticasDaTela: stats,
+      nomesNoContexto: Object.fromEntries(campos.map((c) => [c, ocorrencias(r.contexto, c)])),
+      metricsNoContexto: ocorrencias(r.contexto, 'metrics'),
+      ...extrair(r.contexto),
+    });
+    grava('ctx-painel-12-cadeia-real.txt', r.contexto);
+  });
+});
+
+// ============================================================================================
+// PARTE 3: os doze pelo caminho GRAVADO. ⚠ DERIVADO: os documentos sao montados com o IPC de abril-maio de 2026
+//          (`4437b3c`, copiado para `lib/zz-ipc-4437b3c/`), sobre os julgamentos do fixture. NAO sao os documentos de producao.
+// ============================================================================================
+import { calculateAllWeights as calcularComOIPC } from '@/lib/zz-ipc-4437b3c/ahp-ipc';
+
+describe('medicao: os doze pelo caminho GRAVADO (derivado do IPC), pelo produtor real e pelo tratador real', () => {
+  test('documentos no formato do gravador de abril-maio: o produtor recupera avgCR e subConsistency, e o tratador imprime o bloco', async () => {
+    const docs = painel.responses.map((r: any) => {
+      const altCodes = [...new Set(r.judgments.filter((j: any) => j.type === 'alternatives').flatMap((j: any) => [j.itemA, j.itemB]).filter(Boolean))] as string[];
+      const ipc: any = calcularComOIPC(r.judgments as any, altCodes);
+      return {
+        respondentId: r.id,
+        judgments: r.judgments,
+        responses: {
+          avgCR: ipc.avgCR,
+          bocrConsistency: { cr: ipc.bocrWeights.cr, lambda: ipc.bocrWeights.lambdaMax },
+          magnitudeConsistency: { cr: ipc.magnitudeWeights.cr, lambda: ipc.magnitudeWeights.lambdaMax },
+          subConsistency: Object.fromEntries(Object.entries(ipc.subWeights).map(([k, v]: [string, any]) => [k, { cr: v.cr, lambda: v.lambdaMax }])),
+        },
+      };
+    });
+    const corpo = await qualidade(docs);
+    expect(corpo.success).toBe(true);
+    const doProdutor = corpo.analysis.respondents;
+    const { payload, stats } = payloadReal(doProdutor, { comVinculo: false });
+    const r = await executar(payload);
+    expect(r.status).toBe(200);
+    const semVinculo = extrair(r.contexto);
+    const { payload: payloadCom } = payloadReal(doProdutor, { comVinculo: true });
+    const rCom = await executar(payloadCom);
+    grava('painel-12-gravado-derivado.json', {
+      fonte: 'documentos MONTADOS com o IPC de 4437b3c sobre os julgamentos do fixture (derivado); o produtor real recupera avgCR e subConsistency (retorno antecipado de route.ts:77)',
+      estatisticasDoProdutor: corpo.analysis.statistics,
+      respondentes: doProdutor.map((x: any) => ({ id: x.respondentId, status: x.status, cr: x.cr, crBOCR: x.metrics.crBOCR, crBenefits: x.metrics.crBenefits, crOpportunities: x.metrics.crOpportunities, crCosts: x.metrics.crCosts, crRisks: x.metrics.crRisks })),
+      individualStatsDaTela_achatado: { total: stats.total, valid: stats.valid, warning: stats.warning, critical: stats.critical },
+      taxaSemVinculo: semVinculo.taxa,
+      taxaComVinculo: extrair(rCom.contexto).taxa,
+      blocoSemVinculo: semVinculo.bloco,
+      blocoIdenticoComESemVinculo: semVinculo.bloco === extrair(rCom.contexto).bloco,
+    });
+    grava('ctx-painel-12-gravado-derivado-semVinculo.txt', r.contexto);
+  });
+});

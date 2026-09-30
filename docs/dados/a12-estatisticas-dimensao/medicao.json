@@ -1,0 +1,3046 @@
+{
+ "_meta": {
+  "registro": "A.12: estatisticas por dimensao BOCR, Fase 1 (medir a origem)",
+  "data": "2026-09-30",
+  "base": "a07998c953d3c10ed32ef3f436054ba1c12c05a2",
+  "ambiente": {
+   "os": "Linux x86_64",
+   "node": "v22.22.2",
+   "npm": "10.9.7",
+   "jest": "30.1.3",
+   "tsc": "5.9.3"
+  },
+  "aviso": "Nenhum byte de producao foi alterado. O cliente do modelo e SIMULADO (chave falsa, texto controlado, sem rede), e a captura interrompe antes da geracao. Nenhuma consulta a producao, nenhum recalculo, nenhum dado de producao. Os instrumentos sao testes temporarios NAO versionados, arquivados como texto em instrumentos/.",
+  "instrumentos": [
+   "zz-a12-dim-medicao.test.ts",
+   "zz-a12-dim-forcado.test.ts",
+   "zz-a12-dim-motor.test.ts",
+   "zz-a12-dim-a33.test.ts",
+   "zz-a12-dim-ipc.test.ts (exige lib/zz-ipc-4437b3c/ahp-ipc.ts e graph-utils.ts, extraidos com git show 4437b3c:lib/ahp-ipc.ts e :lib/graph-utils.ts)",
+   "montar_medicao.py",
+   "cobertura-da-suite.json (extraido de `jest --coverage` sobre a suite existente; ver c_cobertura_da_suite_existente)"
+  ],
+  "reexecucao": "as 35 saidas dos cinco instrumentos sairam identicas byte a byte em duas execucoes completas seguidas (o arquivo cobertura-da-suite.json, extraido de uma execucao de cobertura a parte, nao entra na contagem)",
+  "limites": [
+   "a tela NAO e executada por teste algum: o passo da tela no instrumento e uma COPIA LITERAL de page.tsx:1058-1088 (a reducao) e de :1196-1201, :1236-1315 (o payload)",
+   "o fixture do painel de 12 traz so julgamentos. Dois caminhos foram exercidos: \"calculado agora\" (o motor atual, via o calculo de reserva do produtor) e \"gravado\" (DERIVADO: o IPC de 4437b3c sobre os mesmos julgamentos, montado em documentos no formato do gravador). Os documentos GRAVADOS em producao NAO foram consultados: tres dos doze avgCR derivados coincidem, ate o ultimo digito, com os valores que o log de producao da execucao 7 registrou; os outros nove nao tem confirmacao independente",
+   "os casos do agregado 5, 3 e 5-com-2-desconhecidos sao CONSTRUIDOS (itens no formato do produtor), e nao respondentes reais",
+   "a grade de 32 varia so a PRESENCA de campos, com valores coerentes"
+  ]
+ },
+ "a_produtor_painel_de_12": {
+  "fonte": "POST /api/response-quality (handler real), sobre lib/__tests__/fixtures/panel-2026.json, so com {respondentId, judgments}",
+  "estatisticasDoProdutor": {
+   "total": 12,
+   "byStatus": {
+    "CONFIÁVEL": 0,
+    "REVISAR": 1,
+    "SUSPEITO": 0,
+    "CRÍTICO": 11,
+    "DESCONHECIDO": 0
+   },
+   "avgCR": 0.40222137951633014,
+   "avgScore": 26.583333333333332,
+   "knownCRCount": 12,
+   "flagCounts": {
+    "CR_ALTO": 12,
+    "TUDO_IGUAL": 0,
+    "PADRAO_UNIFORME": 0,
+    "VALORES_EXTREMOS": 0,
+    "CR_DESCONHECIDO": 0
+   }
+  },
+  "linhas": [
+   {
+    "id": "R01",
+    "status": "REVISAR",
+    "cr": 0.11389290110655778,
+    "crBOCR": 0.012145712900557383,
+    "avgCR": 0.11389290110655778,
+    "maquinaGovernante": "SUB-C",
+    "crBenefits": {
+     "valorNoPayload": 0.08445146718348184,
+     "valorNoMotor": 0.08445146718348184,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.0030445908290720387,
+     "valorNoMotor": 0.0030445908290720387,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.11389290110655778,
+     "valorNoMotor": 0.11389290110655778,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.005060665747713688,
+     "valorNoMotor": 0.005060665747713688,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R02",
+    "status": "CRÍTICO",
+    "cr": 0.3746896013211824,
+    "crBOCR": 0.21693971961178432,
+    "avgCR": 0.3746896013211824,
+    "maquinaGovernante": "SUB-O",
+    "crBenefits": {
+     "valorNoPayload": 0.09068582828233683,
+     "valorNoMotor": 0.09068582828233683,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.3746896013211824,
+     "valorNoMotor": 0.3746896013211824,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.3746896013211824,
+     "valorNoMotor": 0.3746896013211824,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.26129653761785315,
+     "valorNoMotor": 0.26129653761785315,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R03",
+    "status": "CRÍTICO",
+    "cr": 1.0927403232032689,
+    "crBOCR": 0.2720896230706968,
+    "avgCR": 1.0927403232032689,
+    "maquinaGovernante": "MAGNITUDE",
+    "crBenefits": {
+     "valorNoPayload": 0.07176983484778801,
+     "valorNoMotor": 0.07176983484778801,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0,
+     "valorNoMotor": 0,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "zero_exato"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.13105261725327325,
+     "valorNoMotor": 0.13105261725327325,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.17358427820326303,
+     "valorNoMotor": 0.17358427820326303,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R04",
+    "status": "CRÍTICO",
+    "cr": 0.5902801978529448,
+    "crBOCR": 0.4802094047282779,
+    "avgCR": 0.5902801978529448,
+    "maquinaGovernante": "MAGNITUDE",
+    "crBenefits": {
+     "valorNoPayload": 0.07798790462559704,
+     "valorNoMotor": 0.07798790462559704,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.09444897390402701,
+     "valorNoMotor": 0.09444897390402701,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.18709412466347017,
+     "valorNoMotor": 0.18709412466347017,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.10347220285371149,
+     "valorNoMotor": 0.10347220285371149,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R05",
+    "status": "CRÍTICO",
+    "cr": 0.6358749895232287,
+    "crBOCR": 0.19959014400946667,
+    "avgCR": 0.6358749895232287,
+    "maquinaGovernante": "SUB-C",
+    "crBenefits": {
+     "valorNoPayload": 0.46576870558255634,
+     "valorNoMotor": 0.46576870558255634,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.2642777007916876,
+     "valorNoMotor": 0.2642777007916876,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.6358749895232287,
+     "valorNoMotor": 0.6358749895232287,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.5719625866791118,
+     "valorNoMotor": 0.5719625866791118,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R06",
+    "status": "CRÍTICO",
+    "cr": 0.461003350677979,
+    "crBOCR": 0.461003350677979,
+    "avgCR": 0.461003350677979,
+    "maquinaGovernante": "BOCR",
+    "crBenefits": {
+     "valorNoPayload": 0.1723363194872453,
+     "valorNoMotor": 0.1723363194872453,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.2846987493453182,
+     "valorNoMotor": 0.2846987493453182,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.3008284949745526,
+     "valorNoMotor": 0.3008284949745526,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.27709091209327674,
+     "valorNoMotor": 0.27709091209327674,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R07",
+    "status": "CRÍTICO",
+    "cr": 0.25193881195699946,
+    "crBOCR": 0.09361516982128491,
+    "avgCR": 0.25193881195699946,
+    "maquinaGovernante": "MAGNITUDE",
+    "crBenefits": {
+     "valorNoPayload": 0.19597005212888835,
+     "valorNoMotor": 0.19597005212888835,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.12083112586481401,
+     "valorNoMotor": 0.12083112586481401,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.09564381490813899,
+     "valorNoMotor": 0.09564381490813899,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.15853420232940327,
+     "valorNoMotor": 0.15853420232940327,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R08",
+    "status": "CRÍTICO",
+    "cr": 0.23438992453834775,
+    "crBOCR": 0.19624126256779892,
+    "avgCR": 0.23438992453834775,
+    "maquinaGovernante": "SUB-C",
+    "crBenefits": {
+     "valorNoPayload": 0.22088203494775321,
+     "valorNoMotor": 0.22088203494775321,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.05308751553150268,
+     "valorNoMotor": 0.05308751553150268,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.23438992453834775,
+     "valorNoMotor": 0.23438992453834775,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.10272559921888615,
+     "valorNoMotor": 0.10272559921888615,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R09",
+    "status": "CRÍTICO",
+    "cr": 0.31578153265740994,
+    "crBOCR": 0.25966865913459636,
+    "avgCR": 0.31578153265740994,
+    "maquinaGovernante": "MAGNITUDE",
+    "crBenefits": {
+     "valorNoPayload": 0,
+     "valorNoMotor": 0,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "zero_exato"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0,
+     "valorNoMotor": 0,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "zero_exato"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.09677521527807248,
+     "valorNoMotor": 0.09677521527807248,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.18646043783422878,
+     "valorNoMotor": 0.18646043783422878,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R10",
+    "status": "CRÍTICO",
+    "cr": 0.26344781744339585,
+    "crBOCR": 0.17996094923089365,
+    "avgCR": 0.26344781744339585,
+    "maquinaGovernante": "SUB-C",
+    "crBenefits": {
+     "valorNoPayload": 0.07523043126444155,
+     "valorNoMotor": 0.07523043126444155,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.08798081985141433,
+     "valorNoMotor": 0.08798081985141433,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.26344781744339585,
+     "valorNoMotor": 0.26344781744339585,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.030814615712512164,
+     "valorNoMotor": 0.030814615712512164,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R11",
+    "status": "CRÍTICO",
+    "cr": 0.24015008321476214,
+    "crBOCR": 0.08448564341914329,
+    "avgCR": 0.24015008321476214,
+    "maquinaGovernante": "SUB-R",
+    "crBenefits": {
+     "valorNoPayload": 0.052154551106478986,
+     "valorNoMotor": 0.052154551106478986,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.11136973309841178,
+     "valorNoMotor": 0.11136973309841178,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.1888409613221937,
+     "valorNoMotor": 0.1888409613221937,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.24015008321476214,
+     "valorNoMotor": 0.24015008321476214,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   },
+   {
+    "id": "R12",
+    "status": "CRÍTICO",
+    "cr": 0.2524670206998857,
+    "crBOCR": 0.06938764280896928,
+    "avgCR": 0.2524670206998857,
+    "maquinaGovernante": "SUB-C",
+    "crBenefits": {
+     "valorNoPayload": -3.96508223080413e-16,
+     "valorNoMotor": -3.96508223080413e-16,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "residuo_negativo_de_ponto_flutuante"
+    },
+    "crOpportunities": {
+     "valorNoPayload": 0.032344964789959255,
+     "valorNoMotor": 0.032344964789959255,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crCosts": {
+     "valorNoPayload": 0.2524670206998857,
+     "valorNoMotor": 0.2524670206998857,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    },
+    "crRisks": {
+     "valorNoPayload": 0.13105261725282677,
+     "valorNoMotor": 0.13105261725282677,
+     "motorPresenteENumerico": true,
+     "iguaisNoMotorEDepoisDoOrZero": true,
+     "natureza": "calculado agora pelo motor a partir dos julgamentos (o fixture nao traz cache gravado)",
+     "forma": "positivo"
+    }
+   }
+  ],
+  "contagemPorDimensao": {
+   "criterio": "CR <= 0.10 valida; 0.10 < CR <= 0.20 warning; CR > 0.20 critica (os ROTULOS do bloco, route.ts:1152-1154). E contagem de PESSOAS com CR naquela dimensao, medida sobre os 12; NAO e o que o bloco imprime hoje.",
+   "porDimensao": {
+    "B": {
+     "dimensao": "Benefits",
+     "validas_ate_0_10": 8,
+     "warning_0_10_a_0_20": 2,
+     "criticas_acima_de_0_20": 2,
+     "denominador": 12
+    },
+    "O": {
+     "dimensao": "Opportunities",
+     "validas_ate_0_10": 7,
+     "warning_0_10_a_0_20": 2,
+     "criticas_acima_de_0_20": 3,
+     "denominador": 12
+    },
+    "C": {
+     "dimensao": "Costs",
+     "validas_ate_0_10": 2,
+     "warning_0_10_a_0_20": 4,
+     "criticas_acima_de_0_20": 6,
+     "denominador": 12
+    },
+    "R": {
+     "dimensao": "Risks",
+     "validas_ate_0_10": 2,
+     "warning_0_10_a_0_20": 6,
+     "criticas_acima_de_0_20": 4,
+     "denominador": 12
+    },
+    "BOCR": {
+     "dimensao": "BOCR (4x4; NAO tem bloco no contexto)",
+     "validas_ate_0_10": 4,
+     "warning_0_10_a_0_20": 3,
+     "criticas_acima_de_0_20": 5,
+     "denominador": 12
+    }
+   }
+  },
+  "celulasComValorNaoPositivo": [
+   {
+    "id": "R03",
+    "dimensao": "O",
+    "valor": 0
+   },
+   {
+    "id": "R09",
+    "dimensao": "B",
+    "valor": 0
+   },
+   {
+    "id": "R09",
+    "dimensao": "O",
+    "valor": 0
+   },
+   {
+    "id": "R12",
+    "dimensao": "B",
+    "valor": -3.96508223080413e-16
+   }
+  ],
+  "todasAsCelulasDoMotorPresentesENumericas": true,
+  "todasIguaisNoMotorEDepoisDoOrZero": true,
+  "conferenciaContraReferencia": {
+   "arquivo": "docs/referencia-cr-individuais.md, secao 2",
+   "colunasComparadas": [
+    "BOCR",
+    "SUB-B",
+    "SUB-O",
+    "SUB-C",
+    "SUB-R",
+    "governante"
+   ],
+   "celulas": 72,
+   "divergentes": [],
+   "nota": "a coluna MAGN da referencia nao tem correspondente em metrics (o produtor nao a transporta)"
+  }
+ },
+ "a_painel_de_12_pelo_caminho_gravado_DERIVADO_do_IPC": {
+  "natureza": "DERIVADO: o IPC de 4437b3c (blob e4cde7af7ec21841418f0c2b149f2d38946ec738, igual em 7f46e3a e em 9f2284c^; graph-utils 02da7b069e80136edf464e814a691345aea0c71e) rodou sobre os julgamentos do fixture. NAO sao os documentos de producao.",
+  "porQueEsteEOCaminhoDaProducao": "o gravador de abril-maio (7f46e3a a 4437b3c) grava avgCR e subConsistency pelo IPC; a coleta foi de 2026-04-22 a 2026-05-06 (meta do fixture); o IPC nao mudou ate 2026-06-16 (9f2284c); o produtor recupera esses campos por retorno antecipado (route.ts:75-78), e o calculo pelos julgamentos nao dispara",
+  "confirmacaoIndependente": {
+   "fonte": "log de producao da execucao 7 (2026-09-13T01:59:11Z), transcrito em docs/imprecisoes-parecer-ia.md, Anexo 3, \"Payload, no que o log revela\"",
+   "valoresLogados": [
+    0.010504514795322372,
+    0.035945896757571656,
+    0.020820121915492394
+   ],
+   "igualdadeExataComOAvgCRDerivadoDe": {
+    "0.010504514795322372": [
+     "R01"
+    ],
+    "0.035945896757571656": [
+     "R08"
+    ],
+    "0.020820121915492394": [
+     "R12"
+    ]
+   },
+   "observacao": "o log nao nomeia os respondentes: a correspondencia e por IGUALDADE EXATA dos 17 digitos. Confirma tres dos doze; os outros nove NAO tem confirmacao independente.",
+   "linhaDoLog": "Usando statistics.byStatus: 12✅ 0⚠️ 0❌ 0❓ → Validade: 100.0%",
+   "reproduzidoPelaCadeia": {
+    "byStatus": {
+     "CONFIÁVEL": 12,
+     "REVISAR": 0,
+     "SUSPEITO": 0,
+     "CRÍTICO": 0,
+     "DESCONHECIDO": 0
+    },
+    "individualStatsDaTela_achatado": {
+     "total": 12,
+     "valid": 12,
+     "warning": 0,
+     "critical": 0
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10"
+    ]
+   },
+   "faixaDoAvgCRDerivado_pct": [
+    1.0505,
+    9.6438
+   ],
+   "faixaDeclaradaEmReferenciaCRIndividuais": "1,05% a 9,64% (docs/referencia-cr-individuais.md, secao 3.1)"
+  },
+  "metodoDoIPC": {
+   "todosEIGENVECTOR": true,
+   "todosCOMPLETE": true,
+   "algumGrupoDesconectado": false,
+   "gruposContadosNoAvgCR": [
+    26
+   ],
+   "alternativasTodasComCRZero": true,
+   "nota": "o IPC deriva os pesos pela MEDIA GEOMETRICA das linhas, e nao pelo autovetor principal do motor atual; os CRs diferem"
+  },
+  "linhas": [
+   {
+    "id": "R01",
+    "avgCRdoIPC": 0.010504514795322372,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.010504514795322372,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.012121808427857496,
+     "motor": 0.012145712900557383
+    },
+    "magnitude": {
+     "ipc": 0.05676295103470752,
+     "motor": 0.057222556030582794
+    },
+    "B": {
+     "ipc": 0.08421294518339283,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.08445146718348184
+    },
+    "O": {
+     "ipc": 0.0030391522397544514,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.0030445908290720387
+    },
+    "C": {
+     "ipc": 0.11191986204496121,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.11389290110655778
+    },
+    "R": {
+     "ipc": 0.0050606657477081365,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.005060665747713688
+    },
+    "maxCRdoMotor": 0.11389290110655778,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R02",
+    "avgCRdoIPC": 0.05739646732470945,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.05739646732470945,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.21256587271045324,
+     "motor": 0.21693971961178432
+    },
+    "magnitude": {
+     "ipc": 0.184182837284261,
+     "motor": 0.18758421887504012
+    },
+    "B": {
+     "ipc": 0.08939065518663361,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.09068582828233683
+    },
+    "O": {
+     "ipc": 0.3746896013220753,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.3746896013211824
+    },
+    "C": {
+     "ipc": 0.3746896013220753,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.3746896013211824
+    },
+    "R": {
+     "ipc": 0.25678958261694723,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.26129653761785315
+    },
+    "maxCRdoMotor": 0.3746896013211824,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R03",
+    "avgCRdoIPC": 0.06349165368217795,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.06349165368217795,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.26166581375691794,
+     "motor": 0.2720896230706968
+    },
+    "magnitude": {
+     "ipc": 1.0201474745294203,
+     "motor": 1.0927403232032689
+    },
+    "B": {
+     "ipc": 0.0715915068874592,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.07176983484778801
+    },
+    "O": {
+     "ipc": 0,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0
+    },
+    "C": {
+     "ipc": 0.12973654494855763,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.13105261725327325
+    },
+    "R": {
+     "ipc": 0.1676416556142715,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.17358427820326303
+    },
+    "maxCRdoMotor": 1.0927403232032689,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R04",
+    "avgCRdoIPC": 0.05666870020588173,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.05666870020588173,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.46733337080794574,
+     "motor": 0.4802094047282779
+    },
+    "magnitude": {
+     "ipc": 0.5529226823293236,
+     "motor": 0.5902801978529448
+    },
+    "B": {
+     "ipc": 0.07742672601577237,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.07798790462559704
+    },
+    "O": {
+     "ipc": 0.0909404579479463,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.09444897390402701
+    },
+    "C": {
+     "ipc": 0.183767753093956,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.18709412466347017
+    },
+    "R": {
+     "ipc": 0.10099521515798086,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.10347220285371149
+    },
+    "maxCRdoMotor": 0.5902801978529448,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R05",
+    "avgCRdoIPC": 0.09643816615328117,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.09643816615328117,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.19472654211591056,
+     "motor": 0.19959014400946667
+    },
+    "magnitude": {
+     "ipc": 0.49788196076747815,
+     "motor": 0.5230818582917495
+    },
+    "B": {
+     "ipc": 0.44346557332108844,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.46576870558255634
+    },
+    "O": {
+     "ipc": 0.26008641840433816,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.2642777007916876
+    },
+    "C": {
+     "ipc": 0.5851136472165799,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.6358749895232287
+    },
+    "R": {
+     "ipc": 0.5261181781599151,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.5719625866791118
+    },
+    "maxCRdoMotor": 0.6358749895232287,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R06",
+    "avgCRdoIPC": 0.06394412651711026,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.06394412651711026,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.4540666188321072,
+     "motor": 0.461003350677979
+    },
+    "magnitude": {
+     "ipc": 0.1890279125434509,
+     "motor": 0.19322381171301142
+    },
+    "B": {
+     "ipc": 0.1687046640626916,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.1723363194872453
+    },
+    "O": {
+     "ipc": 0.27784232614867904,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.2846987493453182
+    },
+    "C": {
+     "ipc": 0.2991820303110566,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.3008284949745526
+    },
+    "R": {
+     "ipc": 0.2737237375468814,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.27709091209327674
+    },
+    "maxCRdoMotor": 0.461003350677979,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R07",
+    "avgCRdoIPC": 0.03474995495487765,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.03474995495487765,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.09233021323092441,
+     "motor": 0.09361516982128491
+    },
+    "magnitude": {
+     "ipc": 0.24996160776549434,
+     "motor": 0.25193881195699946
+    },
+    "B": {
+     "ipc": 0.19111660589265458,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.19597005212888835
+    },
+    "O": {
+     "ipc": 0.11932070786021957,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.12083112586481401
+    },
+    "C": {
+     "ipc": 0.09506286638300969,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.09564381490813899
+    },
+    "R": {
+     "ipc": 0.15570682769451638,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.15853420232940327
+    },
+    "maxCRdoMotor": 0.25193881195699946,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R08",
+    "avgCRdoIPC": 0.035945896757571656,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.035945896757571656,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.19491125472515083,
+     "motor": 0.19624126256779892
+    },
+    "magnitude": {
+     "ipc": 0.1333300010867662,
+     "motor": 0.13429846770776258
+    },
+    "B": {
+     "ipc": 0.21925954968791483,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.22088203494775321
+    },
+    "O": {
+     "ipc": 0.05277043038737137,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.05308751553150268
+    },
+    "C": {
+     "ipc": 0.23200107117803342,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.23438992453834775
+    },
+    "R": {
+     "ipc": 0.10232100863162641,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.10272559921888615
+    },
+    "maxCRdoMotor": 0.23438992453834775,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R09",
+    "avgCRdoIPC": 0.032773957870994526,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.032773957870994526,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.25921221148049706,
+     "motor": 0.25966865913459636
+    },
+    "magnitude": {
+     "ipc": 0.3155577029069046,
+     "motor": 0.31578153265740994
+    },
+    "B": {
+     "ipc": 0,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0
+    },
+    "O": {
+     "ipc": 0,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0
+    },
+    "C": {
+     "ipc": 0.09526229013134684,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.09677521527807248
+    },
+    "R": {
+     "ipc": 0.1820907001271093,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.18646043783422878
+    },
+    "maxCRdoMotor": 0.31578153265740994,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R10",
+    "avgCRdoIPC": 0.03199357614057683,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.03199357614057683,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.17570530214610114,
+     "motor": 0.17996094923089365
+    },
+    "magnitude": {
+     "ipc": 0.21692048897662694,
+     "motor": 0.21991680565634864
+    },
+    "B": {
+     "ipc": 0.07296047066876812,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.07523043126444155
+    },
+    "O": {
+     "ipc": 0.08788835700930094,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.08798081985141433
+    },
+    "C": {
+     "ipc": 0.24786605173072776,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.26344781744339585
+    },
+    "R": {
+     "ipc": 0.03049230912347267,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.030814615712512164
+    },
+    "maxCRdoMotor": 0.26344781744339585,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R11",
+    "avgCRdoIPC": 0.03140033968916405,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.03140033968916405,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.08437060453748808,
+     "motor": 0.08448564341914329
+    },
+    "magnitude": {
+     "ipc": 0.14351893310111993,
+     "motor": 0.14408715558087706
+    },
+    "B": {
+     "ipc": 0.05096180565899959,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.052154551106478986
+    },
+    "O": {
+     "ipc": 0.1113697330980575,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.11136973309841178
+    },
+    "C": {
+     "ipc": 0.18769076449161154,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.1888409613221937
+    },
+    "R": {
+     "ipc": 0.23849699103098854,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.24015008321476214
+    },
+    "maxCRdoMotor": 0.24015008321476214,
+    "alternativasTodasComCRZero": true
+   },
+   {
+    "id": "R12",
+    "avgCRdoIPC": 0.020820121915492394,
+    "gruposContados": 26,
+    "mediaDosGruposRecalculada": 0.020820121915492394,
+    "temGrupoDesconectado": false,
+    "bocr": {
+     "ipc": 0.06911433152301086,
+     "motor": 0.06938764280896928
+    },
+    "magnitude": {
+     "ipc": 0.062111578862697366,
+     "motor": 0.06248370874010176
+    },
+    "B": {
+     "ipc": 0,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": -3.96508223080413e-16
+    },
+    "O": {
+     "ipc": 0.032099695497933164,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.032344964789959255
+    },
+    "C": {
+     "ipc": 0.24826101897060326,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.2524670206998857
+    },
+    "R": {
+     "ipc": 0.12973654494855763,
+     "ipcMetodo": "EIGENVECTOR",
+     "ipcCompletude": "COMPLETE",
+     "ipcConectado": true,
+     "motor": 0.13105261725282677
+    },
+    "maxCRdoMotor": 0.2524670206998857,
+    "alternativasTodasComCRZero": true
+   }
+  ],
+  "contagemPorDimensao_valoresGravadosDerivados": {
+   "B": {
+    "validas_ate_0_10": 8,
+    "warning_0_10_a_0_20": 2,
+    "criticas_acima_de_0_20": 2,
+    "denominador": 12
+   },
+   "O": {
+    "validas_ate_0_10": 7,
+    "warning_0_10_a_0_20": 2,
+    "criticas_acima_de_0_20": 3,
+    "denominador": 12
+   },
+   "C": {
+    "validas_ate_0_10": 2,
+    "warning_0_10_a_0_20": 4,
+    "criticas_acima_de_0_20": 6,
+    "denominador": 12
+   },
+   "R": {
+    "validas_ate_0_10": 2,
+    "warning_0_10_a_0_20": 6,
+    "criticas_acima_de_0_20": 4,
+    "denominador": 12
+   }
+  },
+  "celulasGravadoContraCalculadoAgora": {
+   "celulas": 48,
+   "maiorDiferencaAbsoluta": {
+    "id": "R05",
+    "dimensao": "C",
+    "gravadoDerivado": 0.5851136472165799,
+    "calculadoAgora": 0.6358749895232287,
+    "diferencaAbsoluta": 0.05076134230664886,
+    "mesmaCategoria": true
+   },
+   "celulasComDiferencaAcimaDe_0_005": [
+    {
+     "id": "R03",
+     "dimensao": "R",
+     "gravadoDerivado": 0.1676416556142715,
+     "calculadoAgora": 0.17358427820326303,
+     "diferencaAbsoluta": 0.005942622588991531,
+     "mesmaCategoria": true
+    },
+    {
+     "id": "R05",
+     "dimensao": "B",
+     "gravadoDerivado": 0.44346557332108844,
+     "calculadoAgora": 0.46576870558255634,
+     "diferencaAbsoluta": 0.022303132261467906,
+     "mesmaCategoria": true
+    },
+    {
+     "id": "R05",
+     "dimensao": "C",
+     "gravadoDerivado": 0.5851136472165799,
+     "calculadoAgora": 0.6358749895232287,
+     "diferencaAbsoluta": 0.05076134230664886,
+     "mesmaCategoria": true
+    },
+    {
+     "id": "R05",
+     "dimensao": "R",
+     "gravadoDerivado": 0.5261181781599151,
+     "calculadoAgora": 0.5719625866791118,
+     "diferencaAbsoluta": 0.04584440851919669,
+     "mesmaCategoria": true
+    },
+    {
+     "id": "R06",
+     "dimensao": "O",
+     "gravadoDerivado": 0.27784232614867904,
+     "calculadoAgora": 0.2846987493453182,
+     "diferencaAbsoluta": 0.00685642319663915,
+     "mesmaCategoria": true
+    },
+    {
+     "id": "R10",
+     "dimensao": "C",
+     "gravadoDerivado": 0.24786605173072776,
+     "calculadoAgora": 0.26344781744339585,
+     "diferencaAbsoluta": 0.015581765712668089,
+     "mesmaCategoria": true
+    }
+   ],
+   "celulasComCategoriaDiferente": [],
+   "zerosExatosNoGravadoDerivado": [
+    [
+     "R03",
+     "O"
+    ],
+    [
+     "R09",
+     "B"
+    ],
+    [
+     "R09",
+     "O"
+    ],
+    [
+     "R12",
+     "B"
+    ]
+   ],
+   "zerosExatosNoCalculadoAgora": [
+    [
+     "R03",
+     "O"
+    ],
+    [
+     "R09",
+     "B"
+    ],
+    [
+     "R09",
+     "O"
+    ]
+   ]
+  },
+  "pelaCadeiaReal": {
+   "fonte": "documentos MONTADOS com o IPC de 4437b3c sobre os julgamentos do fixture (derivado); o produtor real recupera avgCR e subConsistency (retorno antecipado de route.ts:77)",
+   "estatisticasDoProdutor": {
+    "total": 12,
+    "byStatus": {
+     "CONFIÁVEL": 12,
+     "REVISAR": 0,
+     "SUSPEITO": 0,
+     "CRÍTICO": 0,
+     "DESCONHECIDO": 0
+    },
+    "avgCR": 0.04467728966726334,
+    "avgScore": 96.83333333333333,
+    "knownCRCount": 12,
+    "flagCounts": {
+     "CR_ALTO": 0,
+     "TUDO_IGUAL": 0,
+     "PADRAO_UNIFORME": 0,
+     "VALORES_EXTREMOS": 0,
+     "CR_DESCONHECIDO": 0
+    }
+   },
+   "respondentes": [
+    {
+     "id": "R01",
+     "status": "CONFIÁVEL",
+     "cr": 0.010504514795322372,
+     "crBOCR": 0.012121808427857496,
+     "crBenefits": 0.08421294518339283,
+     "crOpportunities": 0.0030391522397544514,
+     "crCosts": 0.11191986204496121,
+     "crRisks": 0.0050606657477081365
+    },
+    {
+     "id": "R02",
+     "status": "CONFIÁVEL",
+     "cr": 0.05739646732470945,
+     "crBOCR": 0.21256587271045324,
+     "crBenefits": 0.08939065518663361,
+     "crOpportunities": 0.3746896013220753,
+     "crCosts": 0.3746896013220753,
+     "crRisks": 0.25678958261694723
+    },
+    {
+     "id": "R03",
+     "status": "CONFIÁVEL",
+     "cr": 0.06349165368217795,
+     "crBOCR": 0.26166581375691794,
+     "crBenefits": 0.0715915068874592,
+     "crOpportunities": 0,
+     "crCosts": 0.12973654494855763,
+     "crRisks": 0.1676416556142715
+    },
+    {
+     "id": "R04",
+     "status": "CONFIÁVEL",
+     "cr": 0.05666870020588173,
+     "crBOCR": 0.46733337080794574,
+     "crBenefits": 0.07742672601577237,
+     "crOpportunities": 0.0909404579479463,
+     "crCosts": 0.183767753093956,
+     "crRisks": 0.10099521515798086
+    },
+    {
+     "id": "R05",
+     "status": "CONFIÁVEL",
+     "cr": 0.09643816615328117,
+     "crBOCR": 0.19472654211591056,
+     "crBenefits": 0.44346557332108844,
+     "crOpportunities": 0.26008641840433816,
+     "crCosts": 0.5851136472165799,
+     "crRisks": 0.5261181781599151
+    },
+    {
+     "id": "R06",
+     "status": "CONFIÁVEL",
+     "cr": 0.06394412651711026,
+     "crBOCR": 0.4540666188321072,
+     "crBenefits": 0.1687046640626916,
+     "crOpportunities": 0.27784232614867904,
+     "crCosts": 0.2991820303110566,
+     "crRisks": 0.2737237375468814
+    },
+    {
+     "id": "R07",
+     "status": "CONFIÁVEL",
+     "cr": 0.03474995495487765,
+     "crBOCR": 0.09233021323092441,
+     "crBenefits": 0.19111660589265458,
+     "crOpportunities": 0.11932070786021957,
+     "crCosts": 0.09506286638300969,
+     "crRisks": 0.15570682769451638
+    },
+    {
+     "id": "R08",
+     "status": "CONFIÁVEL",
+     "cr": 0.035945896757571656,
+     "crBOCR": 0.19491125472515083,
+     "crBenefits": 0.21925954968791483,
+     "crOpportunities": 0.05277043038737137,
+     "crCosts": 0.23200107117803342,
+     "crRisks": 0.10232100863162641
+    },
+    {
+     "id": "R09",
+     "status": "CONFIÁVEL",
+     "cr": 0.032773957870994526,
+     "crBOCR": 0.25921221148049706,
+     "crBenefits": 0,
+     "crOpportunities": 0,
+     "crCosts": 0.09526229013134684,
+     "crRisks": 0.1820907001271093
+    },
+    {
+     "id": "R10",
+     "status": "CONFIÁVEL",
+     "cr": 0.03199357614057683,
+     "crBOCR": 0.17570530214610114,
+     "crBenefits": 0.07296047066876812,
+     "crOpportunities": 0.08788835700930094,
+     "crCosts": 0.24786605173072776,
+     "crRisks": 0.03049230912347267
+    },
+    {
+     "id": "R11",
+     "status": "CONFIÁVEL",
+     "cr": 0.03140033968916405,
+     "crBOCR": 0.08437060453748808,
+     "crBenefits": 0.05096180565899959,
+     "crOpportunities": 0.1113697330980575,
+     "crCosts": 0.18769076449161154,
+     "crRisks": 0.23849699103098854
+    },
+    {
+     "id": "R12",
+     "status": "CONFIÁVEL",
+     "cr": 0.020820121915492394,
+     "crBOCR": 0.06911433152301086,
+     "crBenefits": 0,
+     "crOpportunities": 0.032099695497933164,
+     "crCosts": 0.24826101897060326,
+     "crRisks": 0.12973654494855763
+    }
+   ],
+   "individualStatsDaTela_achatado": {
+    "total": 12,
+    "valid": 12,
+    "warning": 0,
+    "critical": 0
+   },
+   "taxaSemVinculo": [
+    "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10"
+   ],
+   "taxaComVinculo": [
+    "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10"
+   ],
+   "blocoSemVinculo": "## Estatísticas por Dimensão BOCR\n\n### Benefits (Benefícios)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 3 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Opportunities (Oportunidades)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 3 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Costs (Custos)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 3 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Risks (Riscos)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 3 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n",
+   "blocoIdenticoComESemVinculo": true
+  }
+ },
+ "a_naturezas_pelo_produtor_real": [
+  {
+   "id": "S1",
+   "descricao": "gravado na coleta (formato v5): subConsistency B,O,C,R positivos e avgCR positivo",
+   "saida": {
+    "status": "CONFIÁVEL",
+    "cr": 0.07,
+    "avgCR": 0.07,
+    "crBOCR": 0.06,
+    "crBenefits": 0.05,
+    "crOpportunities": 0.08,
+    "crCosts": 0.12,
+    "crRisks": 0.03,
+    "flags": []
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S2",
+   "descricao": "gravado, com B = 0 (valor recuperado, zero)",
+   "saida": {
+    "status": "CONFIÁVEL",
+    "cr": 0.07,
+    "avgCR": 0.07,
+    "crBOCR": 0.06,
+    "crBenefits": 0,
+    "crOpportunities": 0.08,
+    "crCosts": 0.12,
+    "crRisks": 0.03,
+    "flags": []
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S3",
+   "descricao": "gravado com avgCR positivo e SEM subConsistency (ausencia por dimensao)",
+   "saida": {
+    "status": "CONFIÁVEL",
+    "cr": 0.07,
+    "avgCR": 0.07,
+    "crBOCR": 0.06,
+    "crBenefits": 0,
+    "crOpportunities": 0,
+    "crCosts": 0,
+    "crRisks": 0,
+    "flags": []
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S4",
+   "descricao": "gravado com B = null, O = \"abc\", C = \"0.12\" (texto numerico), R = 0.03",
+   "saida": {
+    "status": "CONFIÁVEL",
+    "cr": 0.07,
+    "avgCR": 0.07,
+    "crBOCR": 0,
+    "crBenefits": 0,
+    "crOpportunities": 0,
+    "crCosts": 0.12,
+    "crRisks": 0.03,
+    "flags": []
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S5",
+   "descricao": "formato metrics: so crBenefits e crCosts (Opportunities e Risks ausentes), avgCR positivo",
+   "saida": {
+    "status": "CONFIÁVEL",
+    "cr": 0.07,
+    "avgCR": 0.07,
+    "crBOCR": 0,
+    "crBenefits": 0.05,
+    "crOpportunities": 0,
+    "crCosts": 0.12,
+    "crRisks": 0,
+    "flags": []
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S6",
+   "descricao": "legado sem avgCR em lugar algum: subConsistency positivo, avgCR calculado pela funcao",
+   "saida": {
+    "status": "CONFIÁVEL",
+    "cr": 0.07,
+    "avgCR": 0.07,
+    "crBOCR": 0,
+    "crBenefits": 0.05,
+    "crOpportunities": 0.08,
+    "crCosts": 0.12,
+    "crRisks": 0.03,
+    "flags": []
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S7",
+   "descricao": "so julgamentos, COMPLETOS (R09 do painel): calculado agora pelo motor",
+   "saida": {
+    "status": "CRÍTICO",
+    "cr": 0.31578153265740994,
+    "avgCR": 0.31578153265740994,
+    "crBOCR": 0.25966865913459636,
+    "crBenefits": 0,
+    "crOpportunities": 0,
+    "crCosts": 0.09677521527807248,
+    "crRisks": 0.18646043783422878,
+    "flags": [
+     "CR_ALTO"
+    ]
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S8",
+   "descricao": "so julgamentos INCOMPLETOS (R01 sem um par do bloco B): o motor rejeita, e nenhum CR e calculado",
+   "saida": {
+    "status": "DESCONHECIDO",
+    "cr": 0,
+    "avgCR": 0,
+    "crBOCR": 0,
+    "crBenefits": 0,
+    "crOpportunities": 0,
+    "crCosts": 0,
+    "crRisks": 0,
+    "flags": [
+     "CR_DESCONHECIDO"
+    ]
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S9",
+   "descricao": "gravado, com zero em B E ausencia em O, C e R (zero recuperado e ausencia, lado a lado)",
+   "saida": {
+    "status": "CONFIÁVEL",
+    "cr": 0.07,
+    "avgCR": 0.07,
+    "crBOCR": 0,
+    "crBenefits": 0,
+    "crOpportunities": 0,
+    "crCosts": 0,
+    "crRisks": 0,
+    "flags": []
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  },
+  {
+   "id": "S10",
+   "descricao": "sem nenhum campo de CR e sem julgamentos",
+   "saida": {
+    "status": "DESCONHECIDO",
+    "cr": 0,
+    "avgCR": 0,
+    "crBOCR": 0,
+    "crBenefits": 0,
+    "crOpportunities": 0,
+    "crCosts": 0,
+    "crRisks": 0,
+    "flags": [
+     "CR_DESCONHECIDO"
+    ]
+   },
+   "disponibilidadeDaAvaliacao": "disponivel"
+  }
+ ],
+ "b_cadeia_ate_o_payload": {
+  "respondentes": 12,
+  "camposPorRespondente": [
+   "crBOCR",
+   "crBenefits",
+   "crOpportunities",
+   "crCosts",
+   "crRisks",
+   "avgCR"
+  ],
+  "celulas": 72,
+  "iguaisNoPayload": 72,
+  "avaliacao": "disponivel",
+  "estatisticasDaTela": {
+   "valid": 0,
+   "warning": 1,
+   "critical": 11,
+   "total": 12,
+   "avgCR": 0.40222137951633014
+  },
+  "nomesNoContexto": {
+   "crBOCR": 0,
+   "crBenefits": 0,
+   "crOpportunities": 0,
+   "crCosts": 0,
+   "crRisks": 0,
+   "avgCR": 0
+  },
+  "metricsNoContexto": 0,
+  "taxa": [
+   "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10"
+  ],
+  "totalDaLista": [
+   "**TOTAL: 12 respondentes (esta lista é COMPLETA — não existem outros)**"
+  ],
+  "bloco": "## Estatísticas por Dimensão BOCR\n\n### Benefits (Benefícios)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n\n### Opportunities (Oportunidades)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n\n### Costs (Custos)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n\n### Risks (Riscos)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n"
+ },
+ "c_consumidor_agregado": {
+  "grade32": {
+   "o_que_varia": "presenca de statistics.byStatus, statistics.total, summary, overallStats e respondents (2^5 = 32), sempre com valores coerentes; avaliacaoDeQualidade declarada disponivel e individualStats presente",
+   "limite": "o campo ramoDosTotais vem de uma TRANSCRICAO da cadeia de route.ts:840-865 feita no instrumento, e nao do tratador; a grade nao varia VALORES, so presenca",
+   "combinacoes": 32,
+   "elegiveis": 1,
+   "elegiveisQueAlcancamORamoQueSomaAsQuatroDimensoes": 0,
+   "ramosAlcancadosPorElegiveis": [
+    "1"
+   ],
+   "elegiveisSemByStatus": 0,
+   "linhas": [
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "indeterminado",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "indeterminado",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "indeterminado",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "indeterminado",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P3",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P3",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P3",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P3",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": false,
+     "disponibilidade": "incompleta",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": false,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": false,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": false,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": false,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P2",
+     "conclusao": "nao_determinada",
+     "elegivel": false,
+     "ramoDosTotais": "nenhum (nao avaliada)"
+    },
+    {
+     "byStatus": true,
+     "statisticsTotal": true,
+     "summary": true,
+     "overallStats": true,
+     "respondentes": true,
+     "disponibilidade": "disponivel",
+     "ramoDeQualidade": "P1",
+     "conclusao": "coerente",
+     "elegivel": true,
+     "ramoDosTotais": 1
+    }
+   ]
+  },
+  "elegibilidade": [
+   {
+    "rotulo": "sem estatisticas (so individualStats)",
+    "avaliacao": "disponivel",
+    "ramo": "P2",
+    "conjuntoMinimo": [
+     "V4"
+    ],
+    "conjuntoMinimoConcluido": true,
+    "conclusao": "nao_determinada",
+    "comparacoes": [
+     {
+      "id": "V1",
+      "estado": "nao_determinada",
+      "motivo": "V1: a coincidencia das populacoes nao pode ser demonstrada nem refutada, porque summary.total ou overallStats.total esta ausente. Campo ausente NAO vale zero."
+     },
+     {
+      "id": "V2",
+      "estado": "nao_determinada",
+      "motivo": "V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero."
+     },
+     {
+      "id": "V3",
+      "estado": "nao_determinada",
+      "motivo": "V3: nao concluida porque qualityAnalysis.statistics.byStatus esta ausente."
+     },
+     {
+      "id": "V4",
+      "estado": "consistente",
+      "motivo": "V4: contagem derivada dos CRs individuais, CR <= 0.1 e status CONFIAVEL na propria lista conferem em 5."
+     },
+     {
+      "id": "V5",
+      "estado": "nao_determinada",
+      "motivo": "V5: nao concluida porque nenhuma particao declarada esta presente. Campo ausente NAO vale zero."
+     }
+    ],
+    "elegivel": false,
+    "causa": "coerencia_nao_concluida",
+    "motivo": "Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P2, conjunto minimo V4, e V1 e V2 e V3 e V5 FORA do conjunto minimo, que tambem suspende. Pendentes: V1: a coincidencia das populacoes nao pode ser demonstrada nem refutada, p"
+   },
+   {
+    "rotulo": "com estatisticas (como a tela)",
+    "avaliacao": "disponivel",
+    "ramo": "P1",
+    "conjuntoMinimo": [
+     "V2",
+     "V3"
+    ],
+    "conjuntoMinimoConcluido": true,
+    "conclusao": "coerente",
+    "comparacoes": [
+     {
+      "id": "V1",
+      "estado": "consistente",
+      "motivo": "V1: qualityAnalysis.summary.ok e overallStats.valid conferem em 5."
+     },
+     {
+      "id": "V2",
+      "estado": "consistente",
+      "motivo": "V2: qualityAnalysis.respondents.length e qualityAnalysis.statistics.total conferem em 5."
+     },
+     {
+      "id": "V3",
+      "estado": "consistente",
+      "motivo": "V3: soma de byStatus [CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO, DESCONHECIDO] e qualityAnalysis.statistics.total conferem em 5."
+     },
+     {
+      "id": "V4",
+      "estado": "consistente",
+      "motivo": "V4: contagem derivada dos CRs individuais, CR <= 0.1 e byStatus['CONFIÁVEL'] conferem em 5."
+     },
+     {
+      "id": "V5",
+      "estado": "consistente",
+      "motivo": "V5: as 2 particoes presentes fecham, qualityAnalysis.summary e overallStats."
+     }
+    ],
+    "elegivel": true,
+    "causa": null,
+    "motivo": ""
+   }
+  ],
+  "alcancadoPeloTratadorReal_soIndividualStats": [
+   {
+    "nome": "agregado-5",
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 2,
+     "warning": 1,
+     "critical": 2,
+     "total": 5,
+     "avgCR": 0.13599999999999998
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 5 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 5 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 5 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "nome": "agregado-3",
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 1,
+     "warning": 1,
+     "critical": 1,
+     "total": 3,
+     "avgCR": 0.13999999999999999
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 3 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 3 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 3 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 3 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "nome": "agregado-12",
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 0,
+     "warning": 1,
+     "critical": 11,
+     "total": 12,
+     "avgCR": 0.402225
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 12 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 12 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 12 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 12 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "nome": "agregado-5-com-2-desconhecidos",
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 4,
+     "warning": 1,
+     "critical": 0,
+     "total": 5,
+     "avgCR": 0.05
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 5 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 5 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 5 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   }
+  ],
+  "somaAcidentalComTodosConfiaveis": [
+   {
+    "n": 3,
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 3,
+     "warning": 0,
+     "critical": 0,
+     "total": 3
+    },
+    "somaDasQuatroDimensoes": {
+     "total": 0,
+     "validas": 0
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 3 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 3 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 3 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 3 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "n": 4,
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "total": 4
+    },
+    "somaDasQuatroDimensoes": {
+     "total": 4,
+     "validas": 4
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 4 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 4 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 4 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "n": 5,
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 5,
+     "warning": 0,
+     "critical": 0,
+     "total": 5
+    },
+    "somaDasQuatroDimensoes": {
+     "total": 4,
+     "validas": 4
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 5 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 5 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 5 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "n": 6,
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 6,
+     "warning": 0,
+     "critical": 0,
+     "total": 6
+    },
+    "somaDasQuatroDimensoes": {
+     "total": 4,
+     "validas": 4
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 6 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 6 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 6 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 6 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "n": 7,
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 7,
+     "warning": 0,
+     "critical": 0,
+     "total": 7
+    },
+    "somaDasQuatroDimensoes": {
+     "total": 4,
+     "validas": 4
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 7 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 7 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 7 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 7 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   },
+   {
+    "n": 12,
+    "avaliacao": "disponivel",
+    "estatisticasDaTela": {
+     "valid": 12,
+     "warning": 0,
+     "critical": 0,
+     "total": 12
+    },
+    "somaDasQuatroDimensoes": {
+     "total": 12,
+     "validas": 12
+    },
+    "taxa": [
+     "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 12 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 12 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 12 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 12 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [],
+    "motivoAusente": []
+   }
+  ],
+  "forcado": {
+   "instrumento": "jest.mock de elegivelParaClassificacao para devolver elegivel:true (DUPLO DE TESTE declarado), de modo que o codigo REAL de route.ts:855-865 execute",
+   "casos": [
+    {
+     "caso": "agregado 3, todos validos",
+     "taxa": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+     "primeiraDimensao": [
+      "### Benefits (Benefícios)",
+      "- Respostas totais: 0",
+      "- Válidas (CR ≤ 0.10): 0 (0%)",
+      "- Warning (0.10 < CR ≤ 0.20): 0"
+     ]
+    },
+    {
+     "caso": "agregado 5, todos validos",
+     "taxa": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+     "primeiraDimensao": [
+      "### Benefits (Benefícios)",
+      "- Respostas totais: 1",
+      "- Válidas (CR ≤ 0.10): 1 (100.0%)",
+      "- Warning (0.10 < CR ≤ 0.20): 0"
+     ]
+    },
+    {
+     "caso": "agregado 6, todos validos",
+     "taxa": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+     "primeiraDimensao": [
+      "### Benefits (Benefícios)",
+      "- Respostas totais: 1",
+      "- Válidas (CR ≤ 0.10): 1 (100.0%)",
+      "- Warning (0.10 < CR ≤ 0.20): 0"
+     ]
+    },
+    {
+     "caso": "agregado 12, todos validos",
+     "taxa": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+     "primeiraDimensao": [
+      "### Benefits (Benefícios)",
+      "- Respostas totais: 3",
+      "- Válidas (CR ≤ 0.10): 3 (100.0%)",
+      "- Warning (0.10 < CR ≤ 0.20): 0"
+     ]
+    },
+    {
+     "caso": "agregado 5: 2 validos, 1 warning, 2 criticos",
+     "taxa": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+     "primeiraDimensao": [
+      "### Benefits (Benefícios)",
+      "- Respostas totais: 1",
+      "- Válidas (CR ≤ 0.10): 0 (0.0%)",
+      "- Warning (0.10 < CR ≤ 0.20): 0"
+     ]
+    },
+    {
+     "caso": "por dimensao em pessoas (5 pessoas; validas 5,4,3,2)",
+     "taxa": "**Taxa de Validade Geral:** 70.0% das respostas com CR ≤ 0.10",
+     "somaDasQuatro": {
+      "total": 20,
+      "validas": 14
+     }
+    },
+    {
+     "caso": "sem individualStats (o que uma saida A enviaria)",
+     "taxa": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+     "bloco": [
+      "## Estatísticas por Dimensão BOCR",
+      "",
+      "### Benefits (Benefícios)",
+      "- Respostas totais: 0",
+      "- Válidas (CR ≤ 0.10): 0 (0%)",
+      "- Warning (0.10 < CR ≤ 0.20): 0"
+     ]
+    }
+   ]
+  },
+  "porDimensaoEmPessoas": {
+   "pessoas": 5,
+   "somaDasQuatroDimensoes": {
+    "total": 20,
+    "validas": 14
+   },
+   "taxa": [
+    "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+   ],
+   "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+   "frasesSobreN": [
+    "**AGREGAÇÃO POR MATRIZ: todos os 5 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 5 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+    "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem particionamento."
+   ],
+   "totalDaLista": [
+    "**TOTAL: 5 respondentes (esta lista é COMPLETA — não existem outros)**"
+   ],
+   "resumoDoPainel": [],
+   "motivoAusente": []
+  }
+ },
+ "e_agregados_pelo_tratador_real": {
+  "agregado-5": {
+   "respondentes": 5,
+   "individualStatsDaTela_achatado": {
+    "total": 5,
+    "valid": 2,
+    "warning": 1,
+    "critical": 2
+   },
+   "avaliacao": "disponivel",
+   "blocoImpressoPorDimensao": {
+    "Benefits": {
+     "total": 1,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Opportunities": {
+     "total": 1,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Costs": {
+     "total": 1,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Risks": {
+     "total": 1,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    }
+   },
+   "somaDosQuatroTotais": 4,
+   "diferencaAritmeticaParaOTotalDaTela": 1,
+   "aDiferencaNaoEhRespondentesPerdidosNemConservacao": true,
+   "blocoIdenticoComESemVinculo": true,
+   "taxaIdenticaComESemVinculo": true,
+   "taxa": [
+    "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10"
+   ],
+   "semVinculo": {
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 5 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 5 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 5 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 5 especialistas"
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n### Benefits (Benefícios)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Opportunities (Oportunidades)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Costs (Custos)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Risks (Riscos)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n"
+   },
+   "comVinculo": {
+    "frasesSobreN": [
+     "  - os totais por dimensão BOCR de \"Estatísticas por Dimensão\" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma (quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo).",
+     "**CÁLCULO — contagem registrada no documento de cálculo: 5 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.",
+     "⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução."
+    ],
+    "totalDaLista": [
+     "**TOTAL ENVIADO A VOCÊ: 5 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 5 incluídos no documento de cálculo.**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 5 especialistas"
+    ]
+   }
+  },
+  "agregado-3": {
+   "respondentes": 3,
+   "individualStatsDaTela_achatado": {
+    "total": 3,
+    "valid": 1,
+    "warning": 1,
+    "critical": 1
+   },
+   "avaliacao": "disponivel",
+   "blocoImpressoPorDimensao": {
+    "Benefits": {
+     "total": 0,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Opportunities": {
+     "total": 0,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Costs": {
+     "total": 0,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Risks": {
+     "total": 0,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 0
+    }
+   },
+   "somaDosQuatroTotais": 0,
+   "diferencaAritmeticaParaOTotalDaTela": 3,
+   "aDiferencaNaoEhRespondentesPerdidosNemConservacao": true,
+   "blocoIdenticoComESemVinculo": true,
+   "taxaIdenticaComESemVinculo": true,
+   "taxa": [
+    "**Taxa de Validade Geral:** 33.3% das respostas com CR ≤ 0.10"
+   ],
+   "semVinculo": {
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 3 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 3 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 3 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 3 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 3 especialistas"
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n### Benefits (Benefícios)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Opportunities (Oportunidades)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Costs (Custos)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Risks (Riscos)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n"
+   },
+   "comVinculo": {
+    "frasesSobreN": [
+     "  - os totais por dimensão BOCR de \"Estatísticas por Dimensão\" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma (quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo).",
+     "**CÁLCULO — contagem registrada no documento de cálculo: 3 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.",
+     "⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução."
+    ],
+    "totalDaLista": [
+     "**TOTAL ENVIADO A VOCÊ: 3 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 3 incluídos no documento de cálculo.**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 3 especialistas"
+    ]
+   }
+  },
+  "agregado-12": {
+   "respondentes": 12,
+   "individualStatsDaTela_achatado": {
+    "total": 12,
+    "valid": 0,
+    "warning": 1,
+    "critical": 11
+   },
+   "avaliacao": "disponivel",
+   "blocoImpressoPorDimensao": {
+    "Benefits": {
+     "total": 3,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 2
+    },
+    "Opportunities": {
+     "total": 3,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 2
+    },
+    "Costs": {
+     "total": 3,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 2
+    },
+    "Risks": {
+     "total": 3,
+     "validas": 0,
+     "warning": 0,
+     "criticas": 2
+    }
+   },
+   "somaDosQuatroTotais": 12,
+   "diferencaAritmeticaParaOTotalDaTela": 0,
+   "aDiferencaNaoEhRespondentesPerdidosNemConservacao": true,
+   "blocoIdenticoComESemVinculo": true,
+   "taxaIdenticaComESemVinculo": true,
+   "taxa": [
+    "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10"
+   ],
+   "semVinculo": {
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 12 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 12 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 12 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 12 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 12 especialistas"
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n### Benefits (Benefícios)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n\n### Opportunities (Oportunidades)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n\n### Costs (Custos)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n\n### Risks (Riscos)\n- Respostas totais: 3\n- Válidas (CR ≤ 0.10): 0 (0.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 2\n\n"
+   },
+   "comVinculo": {
+    "frasesSobreN": [
+     "  - os totais por dimensão BOCR de \"Estatísticas por Dimensão\" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma (quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo).",
+     "**CÁLCULO — contagem registrada no documento de cálculo: 12 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.",
+     "⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução."
+    ],
+    "totalDaLista": [
+     "**TOTAL ENVIADO A VOCÊ: 12 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 12 incluídos no documento de cálculo.**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 12 especialistas"
+    ]
+   }
+  },
+  "agregado-5-com-2-desconhecidos": {
+   "respondentes": 5,
+   "individualStatsDaTela_achatado": {
+    "total": 5,
+    "valid": 4,
+    "warning": 1,
+    "critical": 0
+   },
+   "avaliacao": "disponivel",
+   "blocoImpressoPorDimensao": {
+    "Benefits": {
+     "total": 1,
+     "validas": 1,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Opportunities": {
+     "total": 1,
+     "validas": 1,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Costs": {
+     "total": 1,
+     "validas": 1,
+     "warning": 0,
+     "criticas": 0
+    },
+    "Risks": {
+     "total": 1,
+     "validas": 1,
+     "warning": 0,
+     "criticas": 0
+    }
+   },
+   "somaDosQuatroTotais": 4,
+   "diferencaAritmeticaParaOTotalDaTela": 1,
+   "aDiferencaNaoEhRespondentesPerdidosNemConservacao": true,
+   "blocoIdenticoComESemVinculo": true,
+   "taxaIdenticaComESemVinculo": true,
+   "taxa": [
+    "**Taxa de Validade Geral:** 80.0% das respostas com CR ≤ 0.10"
+   ],
+   "semVinculo": {
+    "frasesSobreN": [
+     "**AGREGAÇÃO POR MATRIZ: todos os 5 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 5 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem particionamento."
+    ],
+    "totalDaLista": [
+     "**TOTAL: 5 respondentes (esta lista é COMPLETA — não existem outros)**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 5 especialistas"
+    ],
+    "bloco": "## Estatísticas por Dimensão BOCR\n\n### Benefits (Benefícios)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 1 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Opportunities (Oportunidades)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 1 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Costs (Custos)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 1 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Risks (Riscos)\n- Respostas totais: 1\n- Válidas (CR ≤ 0.10): 1 (100.0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n"
+   },
+   "comVinculo": {
+    "frasesSobreN": [
+     "  - os totais por dimensão BOCR de \"Estatísticas por Dimensão\" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma (quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo).",
+     "**CÁLCULO — contagem registrada no documento de cálculo: 5 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.",
+     "⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução."
+    ],
+    "totalDaLista": [
+     "**TOTAL ENVIADO A VOCÊ: 5 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 5 incluídos no documento de cálculo.**"
+    ],
+    "resumoDoPainel": [
+     "- Total: 5 especialistas"
+    ]
+   }
+  }
+ },
+ "e_cobertura_e_suspensao": {
+  "parcial-3-de-5": {
+   "avaliacao": {
+    "estado": "incompleta",
+    "motivo": "Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 3 de 5 respondentes com CR.",
+    "fonte": "análise de qualidade dos respondentes ativos, sem CR completo"
+   },
+   "temIndividualStatsNoPayload": false,
+   "taxa": [
+    "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+   ],
+   "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+   "frasesSobreN": [
+    "**AGREGAÇÃO POR MATRIZ: todos os 5 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 5 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+    "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 5 julgamentos, sem particionamento."
+   ],
+   "totalDaLista": [
+    "**TOTAL: 5 respondentes (esta lista é COMPLETA — não existem outros)**"
+   ],
+   "resumoDoPainel": [],
+   "motivoAusente": [
+    "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 3 de 5 respondentes com CR."
+   ]
+  },
+  "suspensaoPorContradicao": {
+   "taxa": [
+    "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+   ],
+   "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+   "resumo": [
+    "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V2: q",
+    "Os CRs individuais dos respondentes FORAM avaliados; o que não se resolveu foi a contradição entre os valores declarados na própria requisição."
+   ]
+  },
+  "elegivelSemIndividualStats": {
+   "taxa": [
+    "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10"
+   ],
+   "bloco": "## Estatísticas por Dimensão BOCR\n\n### Benefits (Benefícios)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Opportunities (Oportunidades)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Costs (Custos)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n\n### Risks (Riscos)\n- Respostas totais: 0\n- Válidas (CR ≤ 0.10): 0 (0%)\n- Warning (0.10 < CR ≤ 0.20): 0\n- Críticas (CR > 0.20): 0\n\n"
+  }
+ },
+ "a33_requisicoes_de_referencia_r1_r2": [
+  {
+   "nome": "r1",
+   "bytesDoContexto": 70797,
+   "taxa": [
+    "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+   ],
+   "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+   "totalDaLista": [],
+   "respondentes": 0,
+   "statisticsTotal": 12,
+   "byStatus": {
+    "CONFIÁVEL": 12,
+    "REVISAR": 0,
+    "SUSPEITO": 0,
+    "CRÍTICO": 0
+   }
+  },
+  {
+   "nome": "r2",
+   "bytesDoContexto": 70878,
+   "taxa": [
+    "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+   ],
+   "bloco": "## Estatísticas por Dimensão BOCR\n\n⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.\n",
+   "totalDaLista": [],
+   "respondentes": 0,
+   "statisticsTotal": 12,
+   "byStatus": {
+    "CONFIÁVEL": 12,
+    "REVISAR": 0,
+    "SUSPEITO": 0,
+    "CRÍTICO": 0
+   }
+  }
+ ],
+ "c_cobertura_da_suite_existente": {
+  "instrumento": "npx jest --coverage --collectCoverageFrom='app/api/ai-reviewer/route.ts' --coverageDirectory=<diretorio do scratchpad> --coverageReporters=json --coverageReporters=text-summary, sobre a SUITE EXISTENTE (33 suites, 791 testes, sem os testes temporarios). Os arquivos de cobertura NAO sao versionados.",
+  "total_da_execucao": {
+   "suites": 33,
+   "testes": 791,
+   "falhas": 0
+  },
+  "divisao_por_quatro": {
+   "linha_567_if": {
+    "consequente_executado": 0,
+    "alternativa_executada": 142,
+    "avaliacoes_da_condicao": 142
+   },
+   "corpo_568_569_570": {
+    "568": [
+     0
+    ],
+    "569": [
+     0
+    ],
+    "570": [
+     0
+    ]
+   }
+  },
+  "padrao_de_zeros_599": {
+   "consequente_executado": 20,
+   "alternativa_executada": 122
+  },
+  "cadeia_dos_totais": {
+   "840_byStatus": {
+    "consequente": 89,
+    "alternativa": 53
+   },
+   "849_summary": {
+    "consequente": 0,
+    "alternativa": 53
+   },
+   "852_overallStats": {
+    "consequente": 0,
+    "alternativa": 53
+   },
+   "855_soma_das_quatro_dimensoes": {
+    "consequente": 0,
+    "alternativa": 53
+   },
+   "declaracoes_856_e_861": {
+    "856": [
+     0
+    ],
+    "861": [
+     0
+    ]
+   }
+  },
+  "bloco_1145": {
+   "ramo_nao_avaliada": 53,
+   "ramo_numerico": 89
+  }
+ },
+ "contextosCompletosVersionados": [
+  {
+   "arquivo": "ctx-agregado-5-semVinculo.txt",
+   "bytes": 70812,
+   "sha256": "3679ec9459b25fd45b3209a5883d3be295a7032ee169f19f5a90082781d1db85"
+  },
+  {
+   "arquivo": "ctx-agregado-5-comVinculo.txt",
+   "bytes": 75538,
+   "sha256": "496535b6b9794f89cb8cad749d5950faba55f3a866e4b89b3b1aa5d3555ae3c0"
+  },
+  {
+   "arquivo": "ctx-agregado-3-semVinculo.txt",
+   "bytes": 70697,
+   "sha256": "c96b5ab40b8dc8212f7ae59374b6c3e558beaa8ad885524bb7d62a995e73a7ea"
+  },
+  {
+   "arquivo": "ctx-agregado-3-comVinculo.txt",
+   "bytes": 75423,
+   "sha256": "e606ec3393e2572e22fc98b87b77f5794796d64b2b2bd22b12da36d499b4887b"
+  }
+ ],
+ "contextosNaoVersionados": [
+  {
+   "arquivo": "ctx-agregado-12-comVinculo.txt",
+   "bytes": 76074,
+   "sha256": "ca075de6ea419aaade78e03386f6100218ab019ef4f765ed5b0d6d9c4a381e81",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-agregado-12-semVinculo.txt",
+   "bytes": 71336,
+   "sha256": "5da75d084bb25ce8028a5ab726e31a74f4af05e498856cbb071f1492086343da",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-agregado-5-com-2-desconhecidos-comVinculo.txt",
+   "bytes": 75524,
+   "sha256": "b5b55b1a1f01d66f7be804ee3a2c2fcc3ea92308bd379a034365614075f6ab6c",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-agregado-5-com-2-desconhecidos-semVinculo.txt",
+   "bytes": 70798,
+   "sha256": "ee7e95835688823dc1364a4d55d1af21cc667f06f859cdcdb78ba7122246cc5b",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-painel-12-cadeia-real.txt",
+   "bytes": 71336,
+   "sha256": "c475d1ae97186e61dae6f5fb7b70c36cf5eeb58c2204fd3c6baa35938d26b530",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-painel-12-gravado-derivado-semVinculo.txt",
+   "bytes": 71136,
+   "sha256": "faa0e6770dd81ddf85365542ebeb5a6d897d98078301e5c14e9a46f550cbf74e",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-parcial-3-de-5.txt",
+   "bytes": 70893,
+   "sha256": "71ba69ea883121a94d3befefcaa776de1ee79754ebad850a41d128c1d914eb58",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-ramo4-agregado-12.txt",
+   "bytes": 72565,
+   "sha256": "c8fd325d5b47a51023f40a3b6f5074d6f4c2673a95b2ee4ab933889c5005f97e",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-ramo4-agregado-3.txt",
+   "bytes": 72071,
+   "sha256": "c747473a0f10fcf5b9f7d0dc67060211e75fb062b684ff737d0515c8db7764fd",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-ramo4-agregado-5-com-2-desconhecidos.txt",
+   "bytes": 71196,
+   "sha256": "ae8ddbe138877e09ff4afeab0a224d0018224f47d04acf58007a576534059735",
+   "versionado": false
+  },
+  {
+   "arquivo": "ctx-ramo4-agregado-5.txt",
+   "bytes": 72178,
+   "sha256": "02ee050bdc5eb3ef5ab4735c18477efe4e1e1e9405807d69ad14649f97332218",
+   "versionado": false
+  }
+ ]
+}

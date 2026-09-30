@@ -632,6 +632,16 @@ redação do modelo sobre estas frases **não foi testada**: só o que ele **rec
   declarados e diz que ela tem 0 identificadores; o ramo do prompt para lista ausente não foi alterado. (4) A
   redistribuição por dimensão de `normalizeRequest` (`route.ts:565-593` em `bfa7e81`) **não foi corrigida**: é item
   enfileirado.
+- ⚠ **Estatísticas por dimensão BOCR, Fase 1 (30/09/2026): medida, e NÃO corrigida.** Em `a07998c`, a divisão por
+  quatro é `route.ts:567-596` e o bloco impresso é `:1143-1177` (as citações `:565-593` e `:1139-1170` erravam a
+  linha e nomeavam a mesma passagem). **Nem a divisão nem o bloco dependem de `vinculoDaExecucao`:** o bloco e a
+  Taxa saem idênticos com e sem o campo. A tela envia `individualStats` **achatado** (`page.tsx:1051-1088`,
+  `:1314`), e o tipo `ReviewRequest.individualStats` (`lib/ai-reviewer/review-request.ts:78-83`) declara o formato
+  **por dimensão**. Os CRs por dimensão (`metrics.crBenefits`, `crOpportunities`, `crCosts`, `crRisks`) **chegam**
+  a `qualityAnalysis.respondents` e **nada os consome**; a distinção entre zero calculado, recuperado, ausência e
+  substituição por zero **não sobrevive** a `app/api/response-quality/route.ts:393-398`. **A Fase 2 (as saídas A e
+  B) não foi executada.** Registro datado, dados e limites em `docs/imprecisoes-parecer-ia.md` e em
+  `docs/dados/a12-estatisticas-dimensao/`.
 - ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem verificação de
   conteúdo, e sem consulta a produção.
 

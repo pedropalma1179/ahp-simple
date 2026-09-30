@@ -1,0 +1,54 @@
+export {};
+
+// ⚠ INSTRUMENTO TEMPORARIO, NAO VERSIONADO. Executa o IPC (`lib/ahp-ipc.ts` e `lib/graph-utils.ts`, como estavam em `4437b3c`,
+//   a ultima versao do gravador da coleta ANTES de setembro; ambos removidos em `0ac4e95`) sobre os julgamentos do fixture,
+//   copiados para `lib/zz-ipc-4437b3c/` (tambem temporario). E DERIVACAO do que o gravador de abril-maio de 2026 teria
+//   gravado, e NAO leitura dos documentos gravados em producao (sem consulta a producao).
+const fs = require('node:fs');
+const path = require('node:path');
+
+import { calculateAllWeights } from '@/lib/zz-ipc-4437b3c/ahp-ipc';
+import { calculateRespondentWeights } from '@/lib/respondent-weights';
+
+const RAIZ = path.resolve(__dirname, '..', '..');
+const SAIDA = process.env.SAIDA_DIM as string;
+const painel = JSON.parse(fs.readFileSync(path.join(RAIZ, 'lib/__tests__/fixtures/panel-2026.json'), 'utf8'));
+
+describe('derivacao: o que o gravador de abril-maio de 2026 (IPC) teria gravado para os doze, e a comparacao com o motor atual', () => {
+  test('por respondente e por dimensao', () => {
+    const linhas: any[] = [];
+    for (const r of painel.responses) {
+      const judgments = r.judgments;
+      const altCodes = [...new Set(judgments.filter((j: any) => j.type === 'alternatives').flatMap((j: any) => [j.itemA, j.itemB]).filter(Boolean))] as string[];
+      const ipc: any = calculateAllWeights(judgments as any, altCodes);
+      const motor: any = calculateRespondentWeights(judgments, altCodes);
+      const dim = (k: string) => ({
+        ipc: ipc.subWeights[k].cr,
+        ipcMetodo: ipc.subWeights[k].method,
+        ipcCompletude: ipc.subWeights[k].completeness.classification,
+        ipcConectado: ipc.subWeights[k].isConnected,
+        motor: motor.subWeights[k].cr,
+      });
+      const crsDosVinteEQuatroGrupos = [
+        ipc.bocrWeights.cr, ipc.magnitudeWeights.cr,
+        ...['B', 'O', 'C', 'R'].map((k) => ipc.subWeights[k].cr),
+        ...Object.values(ipc.altWeights).map((w: any) => w.cr),
+      ];
+      linhas.push({
+        id: r.id,
+        avgCRdoIPC: ipc.avgCR,
+        gruposContados: crsDosVinteEQuatroGrupos.length,
+        mediaDosGruposRecalculada: crsDosVinteEQuatroGrupos.reduce((a: number, b: number) => a + b, 0) / crsDosVinteEQuatroGrupos.length,
+        temGrupoDesconectado: ipc.hasDisconnectedGroups,
+        bocr: { ipc: ipc.bocrWeights.cr, motor: motor.bocrWeights.cr },
+        magnitude: { ipc: ipc.magnitudeWeights.cr, motor: motor.magnitudeWeights.cr },
+        B: dim('B'), O: dim('O'), C: dim('C'), R: dim('R'),
+        maxCRdoMotor: motor.maxCR,
+        alternativasTodasComCRZero: Object.values(ipc.altWeights).every((w: any) => w.cr === 0),
+      });
+    }
+    fs.mkdirSync(SAIDA, { recursive: true });
+    fs.writeFileSync(`${SAIDA}/ipc-4437b3c-painel-12.json`, JSON.stringify(linhas, null, 1));
+    expect(linhas.length).toBe(12);
+  });
+});

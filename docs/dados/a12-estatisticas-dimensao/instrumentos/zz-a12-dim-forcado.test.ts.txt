@@ -1,0 +1,70 @@
+export {};
+const fs = require('node:fs');
+const path = require('node:path');
+process.env.ANTHROPIC_API_KEY = 'chave-anthropic-falsa-do-processo-de-teste';
+delete process.env.USE_RAG_SEMANTIC;
+
+// ⚠ DUPLO DE TESTE, declarado: a ELEGIBILIDADE e forcada, para que o codigo REAL dos totais (route.ts:855-865) seja executado.
+jest.mock('@/lib/ai-reviewer/avaliacao-qualidade', () => {
+  const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
+  return { ...real, elegivelParaClassificacao: () => ({ elegivel: true, causa: null, motivo: null, rotulo: null }) };
+});
+
+const captura: { contexto: string } = { contexto: '' };
+jest.mock('@anthropic-ai/sdk', () => ({
+  __esModule: true,
+  default: class {
+    messages = {
+      create: async (a: { messages: Array<{ content: string }> }) => {
+        captura.contexto = a.messages.map((m) => m.content).join('\n');
+        return { content: [{ type: 'text', text: 'Parecer de ensaio, sem decisão editorial declarada no texto. '.repeat(3) }] };
+      },
+    };
+  },
+}));
+const { POST } = require('@/app/api/ai-reviewer/route');
+let silencios: jest.SpyInstance[] = [];
+beforeAll(() => { silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined)); });
+afterAll(() => silencios.forEach((s) => s.mockRestore()));
+jest.setTimeout(60000);
+
+async function executar(payload: any) {
+  captura.contexto = '';
+  const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+  await res.json();
+  return captura.contexto;
+}
+const item = (id: string, cr: number) => ({ respondentId: id, id, name: `R ${id}`, cr, metrics: { avgCR: cr }, status: cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.15 ? 'REVISAR' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO' });
+const base = (n: number, individualStats: any) => ({
+  avaliacaoDeQualidade: { estado: 'disponivel', motivo: null, fonte: 'declarada' },
+  projectName: 'P', bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 }, bocrConsistency: { cr: 0.01, lambda: 4.03 },
+  responseCount: n, finalScores: [{ code: 'A1', name: 'A1', score: 0.6 }, { code: 'A2', name: 'A2', score: 0.4 }],
+  qualityAnalysis: { respondents: Array.from({ length: n }, (_, i) => item(`r${i + 1}`, 0.05)) },
+  individualStats,
+});
+const linhaTaxa = (c: string) => c.split('\n').find((l) => l.startsWith('**Taxa de Validade Geral:**'));
+const bloco = (c: string) => { const L = c.split('\n'); const i = L.findIndex((l) => l.startsWith('## Estatísticas por Dimensão BOCR')); const f = L.findIndex((l, k) => k > i && l.startsWith('## Pesos Finais')); return L.slice(i, f).join('\n'); };
+
+test('ramo dos totais que SOMA as quatro dimensoes, com a elegibilidade forcada', async () => {
+  const saida: any[] = [];
+  for (const n of [3, 5, 6, 12]) {
+    const c = await executar(base(n, { valid: n, warning: 0, critical: 0, total: n, avgCR: 0.05 }));
+    saida.push({ caso: `agregado ${n}, todos validos`, taxa: linhaTaxa(c), primeiraDimensao: bloco(c).split('\n').slice(2, 6) });
+  }
+  // agregado 5 com a distribuicao do exemplo (2 validos, 1 warning, 2 criticos)
+  const c5 = await executar(base(5, { valid: 2, warning: 1, critical: 2, total: 5, avgCR: 0.136 }));
+  saida.push({ caso: 'agregado 5: 2 validos, 1 warning, 2 criticos', taxa: linhaTaxa(c5), primeiraDimensao: bloco(c5).split('\n').slice(2, 6) });
+  // por dimensao, em PESSOAS (o que uma saida B enviaria): 5 pessoas, validas 5, 4, 3, 2
+  const cB = await executar(base(5, {
+    Benefits: { total: 5, valid: 5, warning: 0, critical: 0 },
+    Opportunities: { total: 5, valid: 4, warning: 1, critical: 0 },
+    Costs: { total: 5, valid: 3, warning: 1, critical: 1 },
+    Risks: { total: 5, valid: 2, warning: 2, critical: 1 },
+  }));
+  saida.push({ caso: 'por dimensao em pessoas (5 pessoas; validas 5,4,3,2)', taxa: linhaTaxa(cB), somaDasQuatro: { total: 20, validas: 14 } });
+  // sem nenhum numero por dimensao (o que uma saida A enviaria): individualStats ausente
+  const cA = await executar(base(5, undefined));
+  saida.push({ caso: 'sem individualStats (o que uma saida A enviaria)', taxa: linhaTaxa(cA), bloco: bloco(cA).split('\n').slice(0, 6) });
+  fs.mkdirSync(process.env.SAIDA_DIM as string, { recursive: true });
+  fs.writeFileSync(`${process.env.SAIDA_DIM}/ramo4-forcado.json`, JSON.stringify(saida, null, 1));
+});
