@@ -26,19 +26,24 @@ import {
   CHAVE_DE_LEITURA_DAS_CONTAGENS,
   compararEnviadosComIncluidos,
   compararIdentificadores,
+  compararListas,
+  conferirListaApresentada,
   descreverVinculoParaContexto,
   frasesDaListaComVinculo,
   idDoElementoNaAnalise,
   idDoElementoNoFallback,
   identificarNaAnalise,
   identificarNoFallback,
+  identificarParaApresentacao,
   LIMITE_DO_VINCULO,
+  LINHA_DA_LISTA_APRESENTADA,
   LINHA_DA_RELACAO,
   LINHA_DO_PORTAO_DE_COMPLETUDE,
   lerVinculoParaTexto,
   linhasDeExclusaoComVinculo,
   MARCADOR_DO_BLOCO_DO_VINCULO,
   prepararVinculoDaTela,
+  type IdentidadeApresentada,
 } from '@/lib/ai-reviewer/vinculo-execucao';
 import {
   classificarAvaliacaoDaTela,
@@ -1602,5 +1607,420 @@ describe('R1: contagem DECLARADA sem lista utilizável, contagem declarada que d
     expect(linha(cVinculado())).not.toContain('divergência anterior');
     expect(lerVinculoParaTexto(cVinculado()).estado).toBe('vinculado');
     expect(lerVinculoParaTexto(c544()).estado).toBe('divergente');
+  });
+});
+
+// ============================================================ R4: a comparação usa a lista APRESENTADA
+describe('R4: a identidade da lista APRESENTADA nasce com a origem registrada, e é ela que se compara', () => {
+  /** A lista APRESENTADA, construída como a rota a constrói: `null` é um elemento SEM identificador, cujo `displayId` é GERADO. */
+  const lista = (...itens: (string | null)[]): IdentidadeApresentada[] =>
+    itens.map((v, i) => identificarParaApresentacao(v === null ? {} : { respondentId: v }, i));
+
+  /** Um vínculo reconhecido com as listas DECLARADAS dadas, e as contagens coerentes com elas. */
+  function vinculoCom(enviados: string[], incluidos: string[]): any {
+    const base: any = vinculoDoEstado('vinculado');
+    return {
+      ...base,
+      estado: enviados.join('|') === incluidos.join('|') ? 'vinculado' : 'divergente',
+      enviados,
+      incluidosNoDocumento: incluidos,
+      cobertura: { ...base.cobertura, enviados: enviados.length, incluidosNoDocumento: incluidos.length },
+    };
+  }
+  const R1a4 = ['r1', 'r2', 'r3', 'r4'];
+
+  // ---------------------------------------------------------------- a expressão, escrita UMA vez
+  /** ⚠ A expressão ANTIGA, copiada de `route.ts:926-929` de `bfa7e81`, e não do módulo novo: é o ORÁCULO. */
+  const antiga = (r: any, idx: number): { displayId: any; gerado: boolean } => {
+    let displayId = r.respondentId || r.id;
+    let gerado = false;
+    if (!displayId || displayId === 'undefined' || displayId === 'null') {
+      displayId = `hash_${idx.toString().padStart(3, '0')}`;
+      gerado = true;
+    }
+    return { displayId, gerado };
+  };
+
+  const TABELA: [string, any, number, any, string, string][] = [
+    // descrição, elemento, índice, displayId esperado, valor esperado, origem esperada
+    ['respondentId vence id', { respondentId: 'a', id: 'b' }, 0, 'a', 'a', 'respondentId'],
+    ['só id', { id: 'b' }, 0, 'b', 'b', 'id'],
+    ['nenhum dos dois: gerado pelo índice', {}, 3, 'hash_003', 'hash_003', 'posicional'],
+    ['respondentId "undefined" (texto): substituído, e id NÃO é consultado', { respondentId: 'undefined', id: 'b' }, 2, 'hash_002', 'hash_002', 'posicional'],
+    ['respondentId "null" (texto)', { respondentId: 'null' }, 1, 'hash_001', 'hash_001', 'posicional'],
+    ['respondentId vazio cai em id', { respondentId: '', id: 'b' }, 0, 'b', 'b', 'id'],
+    ['respondentId 0 cai em id', { respondentId: 0, id: 'b' }, 0, 'b', 'b', 'id'],
+    ['respondentId numérico: o bruto continua número', { respondentId: 7 }, 0, 7, '7', 'respondentId'],
+    ['hash_000 RECEBIDO em respondentId', { respondentId: 'hash_000' }, 5, 'hash_000', 'hash_000', 'respondentId'],
+    ['hash_000 RECEBIDO em id', { id: 'hash_000' }, 5, 'hash_000', 'hash_000', 'id'],
+    ['hash_000 GERADO (índice 0, sem identificador)', {}, 0, 'hash_000', 'hash_000', 'posicional'],
+    ['id nulo e respondentId indefinido', { id: null, respondentId: undefined }, 12, 'hash_012', 'hash_012', 'posicional'],
+  ];
+
+  test.each(TABELA)('identificarParaApresentacao: %s', (_nome, elemento, indice, bruto, valor, origem) => {
+    const i = identificarParaApresentacao(elemento, indice);
+    expect(i.bruto).toBe(bruto);
+    expect(i.valor).toBe(valor);
+    expect(i.origem).toBe(origem);
+    expect(i.posicao).toBe(indice);
+  });
+
+  test('a MESMA grafia, duas origens: hash_000 recebido e hash_000 gerado têm o mesmo valor e origens DIFERENTES', () => {
+    const recebido = identificarParaApresentacao({ respondentId: 'hash_000' }, 0);
+    const gerado = identificarParaApresentacao({}, 0);
+    expect(recebido.valor).toBe(gerado.valor);
+    expect(recebido.origem).toBe('respondentId');
+    expect(gerado.origem).toBe('posicional');
+  });
+
+  test('EQUIVALÊNCIA com a expressão antiga numa grade de 192 entradas: o bruto é o mesmo, e a origem é posicional se e só se foi gerado', () => {
+    const valores: unknown[] = [undefined, null, '', 0, 'undefined', 'null', 'x', 7];
+    let n = 0;
+    for (const respondentId of valores) {
+      for (const id of valores) {
+        for (const idx of [0, 4, 12]) {
+          const elemento = { respondentId, id };
+          const esperado = antiga(elemento, idx);
+          const obtido = identificarParaApresentacao(elemento, idx);
+          expect(obtido.bruto).toBe(esperado.displayId);
+          expect(obtido.valor).toBe(String(esperado.displayId));
+          expect(obtido.origem === 'posicional').toBe(esperado.gerado);
+          if (!esperado.gerado) expect(obtido.origem).toBe(respondentId ? 'respondentId' : 'id');
+          n++;
+        }
+      }
+    }
+    expect(n).toBe(192);
+  });
+
+  // ---------------------------------------------------------------- a comparação com multiplicidade
+  test('compararListas: os nomes dos dois lados, com multiplicidade', () => {
+    const d = compararListas(['r1', 'r1', 'r2'], ['r1', 'r2', 'r2']);
+    expect(d.iguais).toBe(false);
+    expect(d.soNaApresentada).toEqual(['r1']);
+    expect(d.soNoDeclarado).toEqual(['r2']);
+    expect(d.repetidosNaApresentada).toEqual([{ identificador: 'r1', ocorrencias: 2 }]);
+    expect(compararListas(['a', 'b'], ['b', 'a']).iguais).toBe(true);
+    expect(compararListas([], []).iguais).toBe(true);
+    expect(compararListas(['a'], []).soNaApresentada).toEqual(['a']);
+  });
+
+  // ---------------------------------------------------------------- a conferência, caso a caso
+  type Caso = { nome: string; P: (string | null)[]; E: string[]; I: string[]; todos: boolean; aosEnviados: boolean; aosIncluidos: boolean };
+  const CASOS: Caso[] = [
+    { nome: 'caso 1: apresentada = enviados = incluídos', P: R1a4, E: R1a4, I: R1a4, todos: true, aosEnviados: true, aosIncluidos: true },
+    { nome: 'caso 2: apresentada r1..r3 contra r1..r4', P: ['r1', 'r2', 'r3'], E: R1a4, I: R1a4, todos: false, aosEnviados: false, aosIncluidos: false },
+    { nome: 'caso 3: r9 no lugar de r4, MESMAS contagens', P: ['r1', 'r2', 'r3', 'r9'], E: R1a4, I: R1a4, todos: false, aosEnviados: false, aosIncluidos: false },
+    { nome: 'caso 4a: hash_000 GERADO, e o texto hash_000 consta dos declarados', P: [null, 'r2', 'r3', 'r4'], E: ['hash_000', 'r2', 'r3', 'r4'], I: ['hash_000', 'r2', 'r3', 'r4'], todos: false, aosEnviados: false, aosIncluidos: false },
+    { nome: 'caso 4b: hash_000 RECEBIDO', P: ['hash_000', 'r2', 'r3', 'r4'], E: ['hash_000', 'r2', 'r3', 'r4'], I: ['hash_000', 'r2', 'r3', 'r4'], todos: true, aosEnviados: true, aosIncluidos: true },
+    { nome: 'controle 5: apresentada = enviados, diferente dos incluídos', P: ['r1', 'r2', 'r3'], E: ['r1', 'r2', 'r3'], I: R1a4, todos: false, aosEnviados: true, aosIncluidos: false },
+    { nome: 'controle 6: apresentada = incluídos, diferente dos enviados', P: R1a4, E: ['r1', 'r2', 'r3'], I: R1a4, todos: false, aosEnviados: false, aosIncluidos: true },
+    { nome: 'controle 7: mesmos identificadores, multiplicidades diferentes', P: ['r1', 'r1', 'r2'], E: ['r1', 'r2', 'r2'], I: ['r1', 'r2', 'r2'], todos: false, aosEnviados: false, aosIncluidos: false },
+    { nome: 'lista apresentada VAZIA: coincide com enviados vazios, difere dos incluídos', P: [], E: [], I: ['r7', 'r8'], todos: false, aosEnviados: true, aosIncluidos: false },
+  ];
+
+  test.each(CASOS.map((c) => [c.nome, c] as const))('conferirListaApresentada, %s', (_nome, c) => {
+    const conf = conferirListaApresentada(lista(...c.P), c.E, c.I);
+    expect(conf.todosCorrespondem).toBe(c.todos);
+    expect(conf.correspondeAosEnviados).toBe(c.aosEnviados);
+    expect(conf.correspondeAosIncluidos).toBe(c.aosIncluidos);
+    expect(conf.totalApresentado).toBe(c.P.length);
+    expect(conf.posicionais.length).toBe(c.P.filter((x) => x === null).length);
+  });
+
+  test('a conferência NOMEIA o que sobra de cada lado: r4 falta na apresentada (caso 2); r9 sobra e r4 falta (caso 3); r9 está fora dos DOIS declarados', () => {
+    const c2 = conferirListaApresentada(lista('r1', 'r2', 'r3'), R1a4, R1a4);
+    expect(c2.contraIncluidos.soNoDeclarado).toEqual(['r4']);
+    expect(c2.contraIncluidos.soNaApresentada).toEqual([]);
+    expect(c2.contraEnviados.soNoDeclarado).toEqual(['r4']);
+    expect(c2.ausentesDeAmbos).toEqual([]);
+    const c3 = conferirListaApresentada(lista('r1', 'r2', 'r3', 'r9'), R1a4, R1a4);
+    expect(c3.contraIncluidos.soNoDeclarado).toEqual(['r4']);
+    expect(c3.contraIncluidos.soNaApresentada).toEqual(['r9']);
+    expect(c3.contraEnviados.soNaApresentada).toEqual(['r9']);
+    expect(c3.ausentesDeAmbos).toEqual(['r9']);
+  });
+
+  test('a identidade GERADA fica à parte, com a posição, e o texto igual nos declarados NÃO a faz corresponder', () => {
+    const conf = conferirListaApresentada(lista(null, 'r2', 'r3', 'r4'), ['hash_000', 'r2', 'r3', 'r4'], ['hash_000', 'r2', 'r3', 'r4']);
+    expect(conf.posicionais.map((i) => [i.valor, i.posicao, i.origem])).toEqual([['hash_000', 0, 'posicional']]);
+    expect(conf.contraIncluidos.soNoDeclarado).toEqual(['hash_000']); // o texto está nos declarados, e falta na apresentada COMPARÁVEL
+    expect(conf.todosCorrespondem).toBe(false);
+    // o recebido, com a mesma grafia, corresponde
+    const recebido = conferirListaApresentada(lista('hash_000', 'r2', 'r3', 'r4'), ['hash_000', 'r2', 'r3', 'r4'], ['hash_000', 'r2', 'r3', 'r4']);
+    expect(recebido.posicionais).toEqual([]);
+    expect(recebido.todosCorrespondem).toBe(true);
+  });
+
+  test('CONTRAEXEMPLOS EXECUTADOS: cada atalho erra num caso nomeado, e a conferência acerta', () => {
+    const conjunto = (xs: string[]) => [...new Set(xs)].sort().join('|');
+    const atalhos = {
+      soContagem: (P: string[], E: string[], I: string[]) => P.length === E.length && E.length === I.length,
+      soEnviados: (P: string[], E: string[], _I: string[]) => [...P].sort().join('|') === [...E].sort().join('|'),
+      soIncluidos: (P: string[], _E: string[], I: string[]) => [...P].sort().join('|') === [...I].sort().join('|'),
+      porConjunto: (P: string[], E: string[], I: string[]) => conjunto(P) === conjunto(E) && conjunto(E) === conjunto(I),
+      porTexto: (P: string[], E: string[], I: string[]) => [...P].sort().join('|') === [...E].sort().join('|') && [...E].sort().join('|') === [...I].sort().join('|'),
+    };
+    const caso = (n: string) => CASOS.find((c) => c.nome.startsWith(n))!;
+    const textoDe = (c: Caso) => c.P.map((x, i) => (x === null ? `hash_${String(i).padStart(3, '0')}` : x));
+    const conferido = (c: Caso) => conferirListaApresentada(lista(...c.P), c.E, c.I).todosCorrespondem;
+
+    const c3 = caso('caso 3');
+    expect(atalhos.soContagem(textoDe(c3), c3.E, c3.I)).toBe(true); // contagens 4 = 4 = 4: o atalho AFIRMARIA
+    expect(conferido(c3)).toBe(false);
+    const c5 = caso('controle 5');
+    expect(atalhos.soEnviados(textoDe(c5), c5.E, c5.I)).toBe(true); // igual aos enviados: o atalho AFIRMARIA
+    expect(conferido(c5)).toBe(false);
+    const c6 = caso('controle 6');
+    expect(atalhos.soIncluidos(textoDe(c6), c6.E, c6.I)).toBe(true); // igual aos incluídos: o atalho AFIRMARIA
+    expect(conferido(c6)).toBe(false);
+    const c7 = caso('controle 7');
+    expect(atalhos.porConjunto(textoDe(c7), c7.E, c7.I)).toBe(true); // {r1, r2} = {r1, r2}: o atalho AFIRMARIA
+    expect(atalhos.soContagem(textoDe(c7), c7.E, c7.I)).toBe(true); // 3 = 3 = 3: o atalho AFIRMARIA
+    expect(conferido(c7)).toBe(false);
+    const c4a = caso('caso 4a');
+    expect(atalhos.porTexto(textoDe(c4a), c4a.E, c4a.I)).toBe(true); // o texto hash_000 é o mesmo: o atalho AFIRMARIA
+    expect(conferido(c4a)).toBe(false);
+    // e o oposto: na grafia "hash_NNN" um atalho por REGEX trataria o RECEBIDO como gerado
+    const porRegex = (v: string) => /^hash_\d{3}$/.test(v);
+    expect(porRegex('hash_000')).toBe(true);
+    expect(identificarParaApresentacao({ respondentId: 'hash_000' }, 0).origem).toBe('respondentId');
+  });
+
+  // ---------------------------------------------------------------- a leitura
+  test('lerVinculoParaTexto: a conferência só existe em modo comparado E com a lista entregue', () => {
+    const v = vinculoCom(R1a4, R1a4);
+    expect(lerVinculoParaTexto(v).conferencia).toBeNull();
+    expect(lerVinculoParaTexto(v, lista(...R1a4)).conferencia).not.toBeNull();
+    for (const nao of [vinculoDoEstado('indisponivel'), vinculoDoEstado('invalido'), { estado: 'inventado' }, { ...v, incluidosNoDocumento: 'nao-e-lista' }]) {
+      expect(lerVinculoParaTexto(nao, lista(...R1a4)).conferencia).toBeNull();
+    }
+    expect(lerVinculoParaTexto(undefined, lista('a')).modo).toBe('ausente');
+    expect(lerVinculoParaTexto(undefined, lista('a')).conferencia).toBeNull();
+  });
+
+  // ---------------------------------------------------------------- os textos
+  const LINHA_TRES_VIAS_4 =
+    '- Lista de respondentes APRESENTADA a você (4 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): COINCIDE, um a um, com os 4 enviados declarados (etapa: envio) e com os 4 incluídos no documento de cálculo (etapa: cálculo).';
+  const LINHA_CASO_2 =
+    '- Lista de respondentes APRESENTADA a você (3 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: apresentada ["r1", "r2", "r3"] (3; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); enviados declarados ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.enviados; etapa: envio); incluídos ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma). Contra os enviados declarados: 1 ocorrência(s) só nos enviados declarados ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma). Repetidos na lista apresentada: nenhum. Identidade por posição na lista apresentada: nenhuma. Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: nenhum.';
+
+  test('a linha da lista APRESENTADA: coincide nos três (literal), e na discrepância conserva os três conjuntos com a origem (literal)', () => {
+    expect(LINHA_DA_LISTA_APRESENTADA(lerVinculoParaTexto(vinculoCom(R1a4, R1a4), lista(...R1a4)))).toBe(LINHA_TRES_VIAS_4);
+    expect(LINHA_DA_LISTA_APRESENTADA(lerVinculoParaTexto(vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3')))).toBe(LINHA_CASO_2);
+    // sem a lista entregue não há linha
+    expect(LINHA_DA_LISTA_APRESENTADA(lerVinculoParaTexto(vinculoCom(R1a4, R1a4)))).toBe('');
+    // o bloco a traz, uma vez
+    const bloco = descreverVinculoParaContexto(vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3'));
+    expect(ocorrencias(bloco, LINHA_CASO_2)).toBe(1);
+    expect(descreverVinculoParaContexto(vinculoCom(R1a4, R1a4))).not.toContain('Lista de respondentes APRESENTADA');
+  });
+
+  test('a identidade por posição e o repetido têm motivo próprio na linha', () => {
+    const l = LINHA_DA_LISTA_APRESENTADA(lerVinculoParaTexto(vinculoCom(['hash_000', 'r2'], ['hash_000', 'r2']), lista(null, 'r2', 'r2')));
+    expect(l).toContain('apresentada ["hash_000" (gerado por posição), "r2", "r2"]');
+    expect(l).toContain('Identidade por posição na lista apresentada: "hash_000" (posição 0 da lista, contada a partir de 0), GERADA pelo fallback posicional: não corresponde a ninguém, mesmo que o mesmo texto conste dos conjuntos declarados.');
+    expect(l).toContain('Repetidos na lista apresentada: "r2" (2 ocorrências).');
+  });
+
+  test('a linha de relação dos DECLARADOS: iguais entre si mas a apresentada difere, não diz "coincid"; diferentes e a apresentada difere dos enviados, desambigua', () => {
+    // E = I, P difere: a relação dos declarados NÃO usa o radical, e manda para a linha seguinte
+    const eIgualI = LINHA_DA_RELACAO(lerVinculoParaTexto(vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3')));
+    expect(eIgualI).toContain('os dois conjuntos DECLARADOS têm os mesmos identificadores, um a um (4 enviados declarados, 4 incluídos)');
+    expect(eIgualI).toContain('a correspondência da lista APRESENTADA a você está na linha seguinte.');
+    expect(eIgualI).not.toMatch(/coincid/i);
+    // E = I e P também: o texto conferido de R1, sem uma letra a mais
+    expect(LINHA_DA_RELACAO(lerVinculoParaTexto(vinculoCom(R1a4, R1a4), lista(...R1a4)))).toBe(LINHA_DA_RELACAO(lerVinculoParaTexto(vinculoCom(R1a4, R1a4))));
+    // E ≠ I e P = E: o texto conferido de R1, sem uma letra a mais (controle 3 / 4 / 3)
+    const c343 = vinculoCom(['r1', 'r2', 'r3'], R1a4);
+    expect(LINHA_DA_RELACAO(lerVinculoParaTexto(c343, lista('r1', 'r2', 'r3')))).toBe(LINHA_DA_RELACAO(lerVinculoParaTexto(c343)));
+    // E ≠ I e P ≠ E: o mesmo confronto, com a desambiguação
+    const c6 = LINHA_DA_RELACAO(lerVinculoParaTexto(c343, lista(...R1a4)));
+    expect(c6).toContain('DIFEREM (3 enviados, 4 incluídos): 1 incluído(s) no documento e ausente(s) dos enviados; 0 enviado(s) ausente(s) do documento; 0 identificador(es) repetido(s) nos enviados.');
+    expect(c6).toContain(' Este é o confronto dos dois conjuntos DECLARADOS; a lista APRESENTADA a você está na linha seguinte.');
+  });
+
+  test('a cobertura do resumo do painel: coincide só nos três; difere quando a apresentada difere dos incluídos; NÃO confirma quando só difere dos enviados', () => {
+    const subLinha = (v: any, ap?: IdentidadeApresentada[]) =>
+      descreverVinculoParaContexto(v, ap).split('\n').find((l) => l.startsWith('  - Cobre o conjunto do DOCUMENTO')) ?? '';
+    const coincide = ' O conjunto enviado coincide com o do documento.';
+    const difere = ' ⚠ NÃO descreve o conjunto enviado a você, que difere do conjunto do documento.';
+    expect(subLinha(vinculoCom(R1a4, R1a4), lista(...R1a4))).toContain(coincide);
+    expect(subLinha(vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3'))).toContain(difere); // caso 2
+    expect(subLinha(vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3', 'r9'))).toContain(difere); // caso 3
+    expect(subLinha(vinculoCom(['hash_000', 'r2', 'r3', 'r4'], ['hash_000', 'r2', 'r3', 'r4']), lista(null, 'r2', 'r3', 'r4'))).toContain(difere); // caso 4a
+    expect(subLinha(vinculoCom(['r1', 'r2', 'r3'], R1a4), lista('r1', 'r2', 'r3'))).toContain(difere); // controle 5
+    expect(subLinha(vinculoCom(['r1', 'r2', 'r2'], ['r1', 'r2', 'r2']), lista('r1', 'r1', 'r2'))).toContain(difere); // controle 7
+    const c6 = subLinha(vinculoCom(['r1', 'r2', 'r3'], R1a4), lista(...R1a4)); // controle 6
+    expect(c6).toContain('Não se pode afirmar que descreve o conjunto enviado a você: a lista apresentada tem os identificadores dos incluídos, mas difere dos enviados declarados');
+    expect(c6).not.toMatch(/coincid/i);
+    expect(c6).not.toContain('NÃO descreve');
+    // sem a lista entregue, a leitura é a das duas listas declaradas (a de R1)
+    expect(subLinha(vinculoCom(R1a4, R1a4))).toContain(coincide);
+  });
+
+  test('a linha "Cobertura enviada": não afirma que a lista que segue é a dos enviados declarados quando ela difere deles', () => {
+    const cobertura = (v: any, ap?: IdentidadeApresentada[]) =>
+      descreverVinculoParaContexto(v, ap).split('\n').find((l) => l.startsWith('- Cobertura enviada')) ?? '';
+    const restringido = { ...vinculoCom(R1a4, R1a4), cobertura: { ...vinculoCom(R1a4, R1a4).cobertura, restringiu: true } };
+    const antiga = '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados.';
+    expect(cobertura(restringido, lista(...R1a4))).toBe(antiga); // corresponde: o texto de sempre
+    expect(cobertura(restringido)).toBe(antiga); // sem a lista entregue: o texto de sempre
+    const difere = cobertura(restringido, lista('r1', 'r2', 'r3'));
+    expect(difere).toContain('e o vínculo declara que a lista de respondentes que segue é a dos 4 enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).');
+    expect(difere).not.toContain('documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados.');
+  });
+
+  test('as frases: o total tem TRÊS formas quando a lista apresentada é conferida, e a de R1 quando não é', () => {
+    const f = (v: any, ap?: IdentidadeApresentada[], n?: number) => frasesDaListaComVinculo(lerVinculoParaTexto(v, ap), n ?? (ap ? ap.length : 4));
+    const abertura = (n: number) => `**TOTAL ENVIADO A VOCÊ: ${n} respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado`;
+    // (i) os três correspondem
+    expect(f(vinculoCom(R1a4, R1a4), lista(...R1a4)).total).toBe(`${abertura(4)} e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**`);
+    // (ii) a apresentada difere dos incluídos, e dos enviados declarados
+    const caso2 = f(vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3')).total;
+    expect(caso2).toBe(
+      `${abertura(3)}, mas DIFERE dos 4 incluídos no documento de cálculo: 1 incluído(s) no documento e ausente(s) desta lista, 0 enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**\n` +
+        '⚠ A lista também DIFERE dos 4 enviados declarados no vínculo: 1 enviado(s) declarado(s) ausente(s) desta lista, 0 apresentado(s) ausente(s) dos enviados declarados (identificadores no bloco do vínculo, acima).\n' +
+        '⚠ O vínculo declara 4 enviados, e esta lista traz 3: os dois valores se conservam.'
+    );
+    // (ii) só dos incluídos (controle 5): o texto de R1, sem uma letra a mais
+    const c5 = f(vinculoCom(['r1', 'r2', 'r3'], R1a4), lista('r1', 'r2', 'r3')).total;
+    expect(c5).toBe(f(vinculoCom(['r1', 'r2', 'r3'], R1a4), undefined, 3).total); // sem a lista entregue, mas com o MESMO n = 3
+    expect(c5).toBe(`${abertura(3)}, mas DIFERE dos 4 incluídos no documento de cálculo: 1 incluído(s) no documento e ausente(s) desta lista, 0 enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**`);
+    // (iii) a apresentada tem os identificadores dos incluídos, e difere dos enviados declarados (controle 6)
+    expect(f(vinculoCom(['r1', 'r2', 'r3'], R1a4), lista(...R1a4)).total).toBe(
+      `${abertura(4)}; ela tem os mesmos identificadores dos 4 incluídos no documento de cálculo, mas DIFERE dos 3 enviados declarados no vínculo: 0 enviado(s) declarado(s) ausente(s) desta lista, 1 apresentado(s) ausente(s) dos enviados declarados (identificadores no bloco do vínculo, acima).**\n` +
+        '⚠ O vínculo declara 3 enviados, e esta lista traz 4: os dois valores se conservam.'
+    );
+    // a identidade gerada conta como apresentada ausente do documento (caso 4a)
+    expect(f(vinculoCom(['hash_000', 'r2', 'r3', 'r4'], ['hash_000', 'r2', 'r3', 'r4']), lista(null, 'r2', 'r3', 'r4')).total).toContain(
+      'mas DIFERE dos 4 incluídos no documento de cálculo: 1 incluído(s) no documento e ausente(s) desta lista, 1 enviado(s) ausente(s) do documento'
+    );
+  });
+
+  test('a regra de menção: o texto de R2 fica INTACTO como prefixo, e a discrepância acrescenta UMA frase', () => {
+    const regra = (v: any, ap?: IdentidadeApresentada[]) => frasesDaListaComVinculo(lerVinculoParaTexto(v, ap), ap ? ap.length : 4).regraDeMencao;
+    const R2 = regra(vinculoCom(R1a4, R1a4));
+    expect(R2).toContain('COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA');
+    expect(R2.endsWith('nunca como quem contribuiu para os dados de qualidade.')).toBe(true);
+    expect(regra(vinculoCom(R1a4, R1a4), lista(...R1a4))).toBe(R2); // os três correspondem: sem acréscimo
+    const acrescida = regra(vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3'));
+    expect(acrescida.startsWith(R2)).toBe(true);
+    expect(acrescida).toBe(
+      `${R2} Também pode ser nomeado, SOMENTE nesse papel, um identificador que o vínculo declara (nos enviados declarados ou nos incluídos) e que está ausente da lista apresentada, como registrado na linha "Lista de respondentes APRESENTADA" do bloco do vínculo.`
+    );
+  });
+
+  // ---------------------------------------------------------------- o invariante
+  test('INVARIANTE (3150 combinações, oráculo independente): "coincid" ocorre no bloco e nas frases SE E SOMENTE SE os três conjuntos correspondem um a um', () => {
+    const alfabeto = ['a', 'b'];
+    const listas = (min: number): string[][] => {
+      const saida: string[][] = [];
+      const gerar = (atual: string[]) => {
+        if (atual.length >= min) saida.push(atual);
+        if (atual.length === 3) return;
+        for (const x of alfabeto) gerar([...atual, x]);
+      };
+      gerar([]);
+      return saida;
+    };
+    const chave = (xs: string[]) => [...xs].sort().join('|');
+    let n = 0;
+    let verdadeiros = 0;
+    for (const P of listas(0)) {
+      for (const E of listas(0)) {
+        for (const I of listas(1)) {
+          const v = vinculoCom(E, I);
+          const ap = lista(...P);
+          const f = frasesDaListaComVinculo(lerVinculoParaTexto(v, ap), P.length);
+          const texto = [descreverVinculoParaContexto(v, ap), f.total, f.agregacao, f.regraDeMencao].join('\n');
+          const esperado = chave(P) === chave(E) && chave(E) === chave(I);
+          expect(/coincid/i.test(texto)).toBe(esperado);
+          n++;
+          if (esperado) verdadeiros++;
+        }
+      }
+    }
+    expect(n).toBe(3150);
+    expect(verdadeiros).toBeGreaterThan(0); // o oráculo não é vazio: há combinações em que os três correspondem
+  });
+
+  test('INVARIANTE com identidade POSICIONAL (1560 combinações): o gerado nunca corresponde, o recebido com a mesma grafia corresponde', () => {
+    // P: a, hash_000 RECEBIDO, ou GERADO (null); E = I sobre {a, hash_000, hash_001}
+    const paraP: (string | null)[][] = [];
+    const gerarP = (atual: (string | null)[]) => {
+      paraP.push(atual);
+      if (atual.length === 3) return;
+      for (const x of ['a', 'hash_000', null]) gerarP([...atual, x]);
+    };
+    gerarP([]);
+    const paraD: string[][] = [];
+    const gerarD = (atual: string[]) => {
+      if (atual.length >= 1) paraD.push(atual);
+      if (atual.length === 3) return;
+      for (const x of ['a', 'hash_000', 'hash_001']) gerarD([...atual, x]);
+    };
+    gerarD([]);
+    let n = 0;
+    for (const P of paraP) {
+      for (const D of paraD) {
+        const v = vinculoCom(D, D);
+        const ap = lista(...P);
+        const f = frasesDaListaComVinculo(lerVinculoParaTexto(v, ap), P.length);
+        const texto = [descreverVinculoParaContexto(v, ap), f.total, f.agregacao, f.regraDeMencao].join('\n');
+        // oráculo: nenhum gerado, e os mesmos identificadores o mesmo número de vezes
+        const semGerado = P.every((x) => x !== null);
+        const esperado = semGerado && [...(P as string[])].sort().join('|') === [...D].sort().join('|');
+        expect(/coincid/i.test(texto)).toBe(esperado);
+        n++;
+      }
+    }
+    expect(n).toBe(40 * 39);
+  });
+
+  test('os modos sem comparação NÃO ganham a linha nova nem o radical, mesmo com a lista entregue', () => {
+    for (const v of [vinculoDoEstado('indisponivel'), vinculoDoEstado('invalido'), { estado: 'inventado' }, { ...vinculoCom(R1a4, R1a4), incluidosNoDocumento: 'nao-e-lista' }]) {
+      const ap = lista(...R1a4);
+      const f = frasesDaListaComVinculo(lerVinculoParaTexto(v, ap), 4);
+      const texto = [descreverVinculoParaContexto(v, ap), f.total, f.agregacao, f.regraDeMencao].join('\n');
+      expect(texto).not.toContain('Lista de respondentes APRESENTADA');
+      expect(texto).not.toMatch(/coincid/i);
+      // e o texto é o de antes, quando a lista NÃO é entregue
+      expect(texto).toBe([descreverVinculoParaContexto(v), frasesDaListaComVinculo(lerVinculoParaTexto(v), 4).total, frasesDaListaComVinculo(lerVinculoParaTexto(v), 4).agregacao, frasesDaListaComVinculo(lerVinculoParaTexto(v), 4).regraDeMencao].join('\n'));
+    }
+  });
+
+  test('nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)', () => {
+    const AFIRMA = /conferid|verificad|validad|íntegr|integr|auditáv|comprovad|autentic/i;
+    const NOTA = /\bnota\b|classifica(?:r|ção|do)|rótulo|elegibil|suspens|reprov|aprov|confiável|recomend/i;
+    const casos: [any, IdentidadeApresentada[]][] = [
+      [vinculoCom(R1a4, R1a4), lista(...R1a4)],
+      [vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3')],
+      [vinculoCom(R1a4, R1a4), lista('r1', 'r2', 'r3', 'r9')],
+      [vinculoCom(['hash_000', 'r2'], ['hash_000', 'r2']), lista(null, 'r2', 'r2')],
+      [vinculoCom(['r1', 'r2', 'r3'], R1a4), lista(...R1a4)],
+      [vinculoCom(['r1', 'r2', 'r3'], R1a4), lista('r1', 'r2', 'r3')],
+      [{ ...vinculoCom(R1a4, R1a4), cobertura: { ...vinculoCom(R1a4, R1a4).cobertura, restringiu: true } }, lista('r1', 'r2', 'r3')],
+    ];
+    const pecas: string[] = [];
+    for (const [v, ap] of casos) {
+      const l = lerVinculoParaTexto(v, ap);
+      const f = frasesDaListaComVinculo(l, ap.length);
+      const bloco = descreverVinculoParaContexto(v, ap).split('\n');
+      pecas.push(
+        LINHA_DA_LISTA_APRESENTADA(l),
+        LINHA_DA_RELACAO(l),
+        f.total,
+        f.regraDeMencao,
+        ...bloco.filter((x) => x.startsWith('- Cobertura enviada') || x.startsWith('  - Cobre o conjunto do DOCUMENTO'))
+      );
+    }
+    const texto = pecas.join('\n');
+    expect(texto.length).toBeGreaterThan(3000);
+    expect(texto).not.toMatch(AFIRMA);
+    expect(texto).not.toMatch(NOTA);
+    // CONTRAEXEMPLO: os detectores discriminam
+    expect('- Lista conferida e íntegra.').toMatch(AFIRMA);
+    expect('- A nota sobe.').toMatch(NOTA);
   });
 });

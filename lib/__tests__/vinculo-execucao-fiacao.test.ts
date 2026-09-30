@@ -30,6 +30,7 @@ const path = require('node:path');
 
 import {
   frasesDaListaComVinculo,
+  identificarParaApresentacao,
   lerVinculoParaTexto,
   LIMITE_DO_VINCULO,
   linhasDeExclusaoComVinculo,
@@ -271,7 +272,10 @@ describe('ensaio 9: vinculoDaExecucao sobrevive a normalizeRequest e aparece no 
     // ⚠ Retirado o bloco (com as quebras que o cercam) e devolvidas as cinco frases da lista à redação de
     //   `a973c8f` (as âncoras ABSOLUTAS de R7), o resto é BYTE A BYTE o contexto sem o campo. A cláusula
     //   "a única diferença é o bloco" DEIXOU DE VALER por decisão da rodada, e esta é a que a substitui.
-    const f = frasesDaListaComVinculo(lerVinculoParaTexto(v), lista.length);
+    // ⚠ R4: as frases são as da conferência com a lista APRESENTADA, como a rota as monta (a regra de menção ganha uma
+    //   frase quando a lista apresentada não corresponde aos três conjuntos, e em `divergente` os incluídos têm a sobra).
+    const apresentada = lista.map((r, i) => identificarParaApresentacao(r, i));
+    const f = frasesDaListaComVinculo(lerVinculoParaTexto(v, apresentada), lista.length);
     let reconstruido = com.contexto.replace(`\n${bloco}\n`, '');
     const devolver = (nova: string, antiga: string) => {
       expect(ocorrencias(reconstruido, nova)).toBe(1);
@@ -718,7 +722,8 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
       expect(semRotulo).toEqual([]);
       const soChave = todas.filter((l) => !rotulada(l) && coberta(l));
       expect(soChave.length).toBe(10); // Total + 4 status + Taxa + 4 "Respostas totais" por dimensão
-      expect(todas.length - soChave.length).toBe(10); // e dez nomeiam a população no próprio texto
+      expect(todas.length - soChave.length).toBe(11); // e onze nomeiam a população no próprio texto: a décima primeira é a linha da lista APRESENTADA (R4)
+      expect(ocorrencias(contexto, '- Lista de respondentes APRESENTADA a você (4 identificador(es)')).toBe(1);
       // a chave existe, UMA vez, e diz a que população cada uma dessas contagens se refere
       expect(ocorrencias(contexto, '- Chave de leitura das contagens deste contexto')).toBe(1);
       expect(contexto).toContain('a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles');
@@ -734,6 +739,414 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
       expect(semRotulo.join('\n')).toContain('APENAS aos 5 respondentes incluídos');
       expect(contexto).not.toContain('Chave de leitura das contagens');
     });
+  });
+});
+
+// ============================================================ R4 (a lista APRESENTADA, pelo tratador REAL)
+describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a coincidência só sai quando os TRÊS conjuntos correspondem um a um', () => {
+  // ---- os elementos da lista apresentada, como a tela os monta
+  /** SEM `respondentId` nem `id`: o `displayId` da rota é GERADO pela posição (`hash_NNN`). */
+  const semId = () => ({ name: 'sem identificador', cr: 0.05, metrics: { avgCR: 0.05 }, status: 'CONFIÁVEL' });
+  /** O identificador em UM só dos dois campos. */
+  const soEm = (campo: 'respondentId' | 'id', id: string) => ({
+    [campo]: id,
+    name: `Respondente ${id}`,
+    cr: 0.05,
+    metrics: { avgCR: 0.05 },
+    status: 'CONFIÁVEL',
+  });
+  const apresentar = (...ids: string[]) => ids.map((id) => respondente(id, 0.05));
+  const ids = (n: number) => Array.from({ length: n }, (_, i) => `r${i + 1}`);
+
+  /** O preparo REAL da tela: `avaliados` no conjunto avaliado, `documento` em `includedRespondents`. */
+  const preparo = (avaliados: string[], documento: string[]) =>
+    prepararVinculoDaTela({
+      calculo: calculo(documento),
+      respondentesAtivos: avaliados.map((id) => respondente(id, 0.05)),
+      respostasAtivas: [],
+    });
+
+  /** O vínculo REAL de `vinculado` sobre r1..r4, com as duas listas DECLARADAS trocadas e as contagens coerentes com elas. */
+  function vinculoCom(enviados: string[], incluidos: string[]): any {
+    const base: any = vinculoDoEstado('vinculado', elegivel());
+    return {
+      ...base,
+      estado: enviados.join('|') === incluidos.join('|') ? 'vinculado' : 'divergente',
+      enviados,
+      incluidosNoDocumento: incluidos,
+      cobertura: { ...base.cobertura, enviados: enviados.length, incluidosNoDocumento: incluidos.length },
+    };
+  }
+
+  // ---- a região: o bloco do vínculo e TODAS as frases ao redor dele
+  /** Da abertura da seção até o fim da regra de menção da lista. */
+  const regiao = (contexto: string): string => {
+    const inicio = contexto.indexOf('## Amostra e Qualidade Geral');
+    const regra = contexto.indexOf('⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista');
+    expect(inicio).toBeGreaterThan(-1);
+    expect(regra).toBeGreaterThan(inicio);
+    return contexto.slice(inicio, contexto.indexOf('\n', regra));
+  };
+  const coincidencias = (t: string): number => (t.match(/coincid/gi) ?? []).length;
+  const trocar = (texto: string, de: string, para: string): string => {
+    expect(ocorrencias(texto, de)).toBe(1);
+    return texto.replace(de, () => para);
+  };
+
+  /** Executa o tratador REAL e devolve o contexto COMPLETO e a região. */
+  async function executarR4(elementos: any[], vinculo: unknown) {
+    const { contexto, status } = await executar(payloadDaTela(elementos, vinculo));
+    expect(status).toBe(200);
+    return { contexto, r: regiao(contexto) };
+  }
+
+  // ---- o que o MODELO lê, e os atalhos que uma comparação ERRADA usaria
+  /** O `displayId` que o modelo LÊ, pela expressão da rota: o valor, sem a origem. */
+  const oModeloLe = (elementos: any[]): string[] =>
+    elementos.map((r, i) => String(r.respondentId || r.id || `hash_${i.toString().padStart(3, '0')}`));
+  const chave = (xs: string[]) => [...xs].sort().join('|');
+  const conjunto = (xs: string[]) => [...new Set(xs)].sort().join('|');
+  type Atalho = (P: string[], E: string[], I: string[]) => boolean;
+  const ATALHOS: Record<string, Atalho> = {
+    soContagem: (P, E, I) => P.length === E.length && E.length === I.length,
+    soEnviados: (P, E) => chave(P) === chave(E),
+    soIncluidos: (P, _E, I) => chave(P) === chave(I),
+    porConjunto: (P, E, I) => conjunto(P) === conjunto(E) && conjunto(E) === conjunto(I),
+    /** Compara o TEXTO dos identificadores exibidos, com multiplicidade: não sabe de onde cada um veio. */
+    porTexto: (P, E, I) => chave(P) === chave(E) && chave(E) === chave(I),
+    /** Infere a origem PELA GRAFIA: trata todo `hash_NNN` como gerado. */
+    porRegex: (P, E, I) => !P.some((t) => /^hash_\d{3}$/.test(t)) && chave(P) === chave(E) && chave(E) === chave(I),
+  };
+
+  // ---- a redação, escrita à mão
+  const LINHA_RELACAO =
+    '- Relação entre os ENVIADOS e os INCLUÍDOS no documento de cálculo (comparação dos dois conjuntos, com multiplicidade; não deduzida do estado): ';
+  const REL_COINCIDEM_4 = `${LINHA_RELACAO}COINCIDEM, um a um (4 enviados, 4 incluídos).`;
+  const REL_DECLARADOS = (n: number) =>
+    `${LINHA_RELACAO}os dois conjuntos DECLARADOS têm os mesmos identificadores, um a um (${n} enviados declarados, ${n} incluídos); a correspondência da lista APRESENTADA a você está na linha seguinte.`;
+  const REL_DIFEREM_3_4 =
+    `${LINHA_RELACAO}DIFEREM (3 enviados, 4 incluídos): 1 incluído(s) no documento e ausente(s) dos enviados; 0 enviado(s) ausente(s) do documento; 0 identificador(es) repetido(s) nos enviados.`;
+  const SUFIXO_DECLARADOS = ' Este é o confronto dos dois conjuntos DECLARADOS; a lista APRESENTADA a você está na linha seguinte.';
+
+  const PAINEL = '  - Cobre o conjunto do DOCUMENTO de cálculo; identifica, e não verifica.';
+  const PAINEL_COINCIDE = `${PAINEL} O conjunto enviado coincide com o do documento.`;
+  const PAINEL_DIFERE = `${PAINEL} ⚠ NÃO descreve o conjunto enviado a você, que difere do conjunto do documento.`;
+  const PAINEL_NAO_CONFIRMA = `${PAINEL} Não se pode afirmar que descreve o conjunto enviado a você: a lista apresentada tem os identificadores dos incluídos, mas difere dos enviados declarados (ver a linha da lista APRESENTADA, acima).`;
+
+  const COBERTURA = '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ';
+  const COBERTURA_CONFERE = (n: number) => `${COBERTURA}a lista de respondentes que segue é a dos ${n} enviados.`;
+  const COBERTURA_DIFERE = (n: number) =>
+    `${COBERTURA}o vínculo declara que a lista de respondentes que segue é a dos ${n} enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).`;
+
+  const ABERTURA = (n: number) =>
+    `**TOTAL ENVIADO A VOCÊ: ${n} respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado`;
+  const TOTAL_COINCIDE_4 = `${ABERTURA(4)} e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**`;
+  const DIFERE_DOS_INCLUIDOS = (k: number, faltam: number, sobram: number) =>
+    `, mas DIFERE dos ${k} incluídos no documento de cálculo: ${faltam} incluído(s) no documento e ausente(s) desta lista, ${sobram} enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**`;
+  const TAMBEM_DIFERE_DOS_ENVIADOS = (k: number, faltam: number, sobram: number) =>
+    `\n⚠ A lista também DIFERE dos ${k} enviados declarados no vínculo: ${faltam} enviado(s) declarado(s) ausente(s) desta lista, ${sobram} apresentado(s) ausente(s) dos enviados declarados (identificadores no bloco do vínculo, acima).`;
+  const RESSALVA = (declarados: number, n: number) =>
+    `\n⚠ O vínculo declara ${declarados} enviados, e esta lista traz ${n}: os dois valores se conservam.`;
+  const TOTAL_2 = ABERTURA(3) + DIFERE_DOS_INCLUIDOS(4, 1, 0) + TAMBEM_DIFERE_DOS_ENVIADOS(4, 1, 0) + RESSALVA(4, 3);
+  const TOTAL_3 = ABERTURA(4) + DIFERE_DOS_INCLUIDOS(4, 1, 1) + TAMBEM_DIFERE_DOS_ENVIADOS(4, 1, 1);
+  const TOTAL_5 = ABERTURA(3) + DIFERE_DOS_INCLUIDOS(4, 1, 0);
+  const TOTAL_6 =
+    `${ABERTURA(4)}; ela tem os mesmos identificadores dos 4 incluídos no documento de cálculo, mas DIFERE dos 3 enviados declarados no vínculo: 0 enviado(s) declarado(s) ausente(s) desta lista, 1 apresentado(s) ausente(s) dos enviados declarados (identificadores no bloco do vínculo, acima).**` +
+    RESSALVA(3, 4);
+  const TOTAL_7 = ABERTURA(3) + DIFERE_DOS_INCLUIDOS(3, 1, 1) + TAMBEM_DIFERE_DOS_ENVIADOS(3, 1, 1);
+
+  const REGRA_R2 =
+    '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. ' +
+    'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.';
+  const ACRESCIMO_R4 =
+    ' Também pode ser nomeado, SOMENTE nesse papel, um identificador que o vínculo declara (nos enviados declarados ou nos incluídos) e que está ausente da lista apresentada, como registrado na linha "Lista de respondentes APRESENTADA" do bloco do vínculo.';
+
+  /** Os TRÊS conjuntos, cada um com a origem: escritos aqui, à mão, e não tirados do módulo. */
+  const TRES_CONJUNTOS = (apresentada: string, nApresentada: number, enviados: string[], incluidos: string[]): string[] => {
+    const citar = (xs: string[]) => `[${xs.map((x) => `"${x}"`).join(', ')}]`;
+    return [
+      `apresentada ${apresentada} (${nApresentada}; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio)`,
+      `enviados declarados ${citar(enviados)} (${enviados.length}; vinculoDaExecucao.enviados; etapa: envio)`,
+      `incluídos ${citar(incluidos)} (${incluidos.length}; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo)`,
+    ];
+  };
+
+  /** ⚠ As linhas da lista APRESENTADA, capturadas do tratador REAL nos sete pedidos (o pedido 4b e o 4c dão a mesma do 1). */
+  const APRESENTADA = {
+    c1:
+      '- Lista de respondentes APRESENTADA a você (4 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): COINCIDE, um a um, com os 4 enviados declarados (etapa: envio) e com os 4 incluídos no documento de cálculo (etapa: cálculo).',
+    c2:
+      '- Lista de respondentes APRESENTADA a você (3 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: apresentada ["r1", "r2", "r3"] (3; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); enviados declarados ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.enviados; etapa: envio); incluídos ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma). Contra os enviados declarados: 1 ocorrência(s) só nos enviados declarados ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma). Repetidos na lista apresentada: nenhum. Identidade por posição na lista apresentada: nenhuma. Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: nenhum.',
+    c3:
+      '- Lista de respondentes APRESENTADA a você (4 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: apresentada ["r1", "r2", "r3", "r9"] (4; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); enviados declarados ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.enviados; etapa: envio); incluídos ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r4"]; 1 ocorrência(s) só na lista apresentada ["r9"]. Contra os enviados declarados: 1 ocorrência(s) só nos enviados declarados ["r4"]; 1 ocorrência(s) só na lista apresentada ["r9"]. Repetidos na lista apresentada: nenhum. Identidade por posição na lista apresentada: nenhuma. Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: ["r9"].',
+    c4a:
+      '- Lista de respondentes APRESENTADA a você (4 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: apresentada ["hash_000" (gerado por posição), "r2", "r3", "r4"] (4; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); enviados declarados ["hash_000", "r2", "r3", "r4"] (4; vinculoDaExecucao.enviados; etapa: envio); incluídos ["hash_000", "r2", "r3", "r4"] (4; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). Contra os incluídos: 1 ocorrência(s) só nos incluídos ["hash_000"]; 0 ocorrência(s) só na lista apresentada (nenhuma). Contra os enviados declarados: 1 ocorrência(s) só nos enviados declarados ["hash_000"]; 0 ocorrência(s) só na lista apresentada (nenhuma). Repetidos na lista apresentada: nenhum. Identidade por posição na lista apresentada: "hash_000" (posição 0 da lista, contada a partir de 0), GERADA pelo fallback posicional: não corresponde a ninguém, mesmo que o mesmo texto conste dos conjuntos declarados. Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: nenhum.',
+    c5:
+      '- Lista de respondentes APRESENTADA a você (3 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: apresentada ["r1", "r2", "r3"] (3; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); enviados declarados ["r1", "r2", "r3"] (3; vinculoDaExecucao.enviados; etapa: envio); incluídos ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma). Contra os enviados declarados: 0 ocorrência(s) só nos enviados declarados (nenhuma); 0 ocorrência(s) só na lista apresentada (nenhuma). Repetidos na lista apresentada: nenhum. Identidade por posição na lista apresentada: nenhuma. Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: nenhum.',
+    c6:
+      '- Lista de respondentes APRESENTADA a você (4 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: apresentada ["r1", "r2", "r3", "r4"] (4; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); enviados declarados ["r1", "r2", "r3"] (3; vinculoDaExecucao.enviados; etapa: envio); incluídos ["r1", "r2", "r3", "r4"] (4; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). Contra os incluídos: 0 ocorrência(s) só nos incluídos (nenhuma); 0 ocorrência(s) só na lista apresentada (nenhuma). Contra os enviados declarados: 0 ocorrência(s) só nos enviados declarados (nenhuma); 1 ocorrência(s) só na lista apresentada ["r4"]. Repetidos na lista apresentada: nenhum. Identidade por posição na lista apresentada: nenhuma. Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: nenhum.',
+    c7:
+      '- Lista de respondentes APRESENTADA a você (3 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: apresentada ["r1", "r1", "r2"] (3; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); enviados declarados ["r1", "r2", "r2"] (3; vinculoDaExecucao.enviados; etapa: envio); incluídos ["r1", "r2", "r2"] (3; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r2"]; 1 ocorrência(s) só na lista apresentada ["r1"]. Contra os enviados declarados: 1 ocorrência(s) só nos enviados declarados ["r2"]; 1 ocorrência(s) só na lista apresentada ["r1"]. Repetidos na lista apresentada: "r1" (2 ocorrências). Identidade por posição na lista apresentada: nenhuma. Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: nenhum.',
+  };
+
+  // ============================================================ os sete pedidos
+  test('1. apresentada r1..r4, declarados r1..r4: a coincidência é afirmada, nos QUATRO sítios, e só neles', async () => {
+    const { contexto, r } = await executarR4(apresentar(...IDS), vinculoCom(IDS, IDS));
+    expect(r).toContain(REL_COINCIDEM_4);
+    expect(r).toContain(APRESENTADA.c1);
+    expect(r).toContain(PAINEL_COINCIDE);
+    expect(r).toContain(TOTAL_COINCIDE_4);
+    expect(r).toContain(COBERTURA_CONFERE(4));
+    expect(coincidencias(r)).toBe(4); // relação, linha da lista apresentada, resumo do painel e TOTAL: e mais nenhum
+    expect(coincidencias(contexto)).toBe(4); // medido: nenhum sítio do contexto fora da região tem o radical
+    // nada da discrepância, e a regra de menção é a de R2, sem acréscimo
+    expect(r).not.toContain('DIFERE');
+    expect(r).not.toContain('Os três conjuntos se conservam');
+    expect(r).toContain(REGRA_R2);
+    expect(r).not.toContain('Também pode ser nomeado');
+    // a lista que o modelo LÊ
+    for (const id of IDS) expect(r).toContain(`- ID: ${id} | Email: Respondente ${id} | CR: 5.0% | Status: CONFIÁVEL`);
+    // CONTRAEXEMPLO: o detector discrimina — o mesmo pedido, com r4 fora da lista apresentada, não tem nenhum dos quatro sítios
+    const sem = await executarR4(apresentar('r1', 'r2', 'r3'), vinculoCom(IDS, IDS));
+    expect(coincidencias(sem.r)).toBe(0);
+  });
+
+  test('2. apresentada r1..r3, declarados r1..r4: NENHUMA coincidência em sítio algum, e os TRÊS conjuntos se conservam, cada um com a origem', async () => {
+    const elementos = apresentar('r1', 'r2', 'r3');
+    const { contexto, r } = await executarR4(elementos, vinculoCom(IDS, IDS));
+    expect(coincidencias(r)).toBe(0);
+    expect(coincidencias(contexto)).toBe(0);
+    // os três conjuntos, cada um com a origem: uma vez cada
+    for (const s of TRES_CONJUNTOS('["r1", "r2", "r3"]', 3, IDS, IDS)) expect(ocorrencias(r, s)).toBe(1);
+    expect(r).toContain(APRESENTADA.c2);
+    // a discrepância é NOMEADA: r4 só nos declarados, nos dois confrontos
+    expect(r).toContain('Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma).');
+    expect(r).toContain('Contra os enviados declarados: 1 ocorrência(s) só nos enviados declarados ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma).');
+    // as frases ao redor: a relação dos DECLARADOS sem o radical, o resumo do painel, a cobertura, o TOTAL e a regra
+    expect(r).toContain(REL_DECLARADOS(4));
+    expect(r).toContain(PAINEL_DIFERE);
+    expect(r).toContain(COBERTURA_DIFERE(4));
+    expect(r).toContain(TOTAL_2);
+    expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
+    // a lista mostra TRÊS
+    expect(ocorrencias(r, '- ID: ')).toBe(3);
+
+    // CONTRAEXEMPLO: o texto de bfa7e81, capturado do tratador real ANTES de editar, para este mesmo pedido, afirma a
+    // coincidência nos TRÊS sítios em que o texto novo não afirma; o critério deste teste (nenhum "coincid") o reprova.
+    const relacaoAtual = REL_COINCIDEM_4;
+    const painelAtual = PAINEL_COINCIDE;
+    const totalAtual = `${ABERTURA(3)} e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**${RESSALVA(4, 3)}`;
+    let doTextoAtual = trocar(r, REL_DECLARADOS(4), relacaoAtual);
+    doTextoAtual = trocar(doTextoAtual, PAINEL_DIFERE, painelAtual);
+    doTextoAtual = trocar(doTextoAtual, TOTAL_2, totalAtual);
+    expect(coincidencias(doTextoAtual)).toBe(3);
+    expect(coincidencias(r)).toBe(0);
+    // e a ressalva do texto atual NÃO corrigia a afirmação: ela convive com "COINCIDE, um a um" na mesma frase
+    expect(totalAtual).toContain('COINCIDE, um a um');
+    expect(totalAtual).toContain('os dois valores se conservam');
+  });
+
+  test('3. apresentada r1,r2,r3,r9, declarados r1..r4: NENHUMA coincidência, e r9 é nomeado como PRESENTE na lista apresentada e AUSENTE dos dois conjuntos declarados', async () => {
+    const P = ['r1', 'r2', 'r3', 'r9'];
+    const { contexto, r } = await executarR4(apresentar(...P), vinculoCom(IDS, IDS));
+    expect(coincidencias(r)).toBe(0);
+    expect(coincidencias(contexto)).toBe(0);
+    for (const s of TRES_CONJUNTOS('["r1", "r2", "r3", "r9"]', 4, IDS, IDS)) expect(ocorrencias(r, s)).toBe(1);
+    expect(r).toContain(APRESENTADA.c3);
+    // r9: presente na lista apresentada, ausente dos DOIS declarados — nomeado como tal, em cada confronto e no resumo
+    expect(r).toContain('Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: ["r9"].');
+    expect(ocorrencias(r, '1 ocorrência(s) só na lista apresentada ["r9"]')).toBe(2);
+    expect(ocorrencias(r, '"r9"')).toBe(4); // a lista apresentada, os dois confrontos e o resumo; e a linha `- ID: r9` da lista não tem aspas
+    expect(r).toContain('- ID: r9 | Email: Respondente r9 | CR: 5.0% | Status: CONFIÁVEL');
+    // r4: declarado nos dois, ausente da apresentada
+    expect(r).toContain('só nos incluídos ["r4"]');
+    expect(r).toContain('só nos enviados declarados ["r4"]');
+    expect(r).toContain(REL_DECLARADOS(4));
+    expect(r).toContain(PAINEL_DIFERE);
+    expect(r).toContain(COBERTURA_DIFERE(4));
+    expect(r).toContain(TOTAL_3);
+    expect(r).not.toContain('os dois valores se conservam'); // as contagens (4 e 4) NÃO diferem: a discrepância é de IDENTIDADE
+    expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
+
+    // CONTRAEXEMPLO: a comparação por CONTAGEM (4 = 4 = 4) passa — afirmaria a coincidência — e este teste a reprova
+    expect(ATALHOS.soContagem(oModeloLe(apresentar(...P)), IDS, IDS)).toBe(true);
+    expect(ATALHOS.porConjunto(oModeloLe(apresentar(...P)), IDS, IDS)).toBe(false);
+    // e o texto de bfa7e81 (que olhava só o tamanho) afirmava nos três sítios, sem ressalva e SEM r9 em discrepância
+    let doTextoAtual = trocar(r, REL_DECLARADOS(4), REL_COINCIDEM_4);
+    doTextoAtual = trocar(doTextoAtual, PAINEL_DIFERE, PAINEL_COINCIDE);
+    doTextoAtual = trocar(doTextoAtual, TOTAL_3, TOTAL_COINCIDE_4);
+    expect(coincidencias(doTextoAtual)).toBe(3);
+  });
+
+  describe('4. a origem decide, e a grafia não: hash_000 GERADO pela posição não corresponde; hash_000 RECEBIDO em respondentId ou em id corresponde', () => {
+    const DECLARADOS = ['hash_000', 'r2', 'r3', 'r4'];
+
+    test('4a. hash_000 GERADO (elemento sem identificador) e o texto hash_000 nos dois conjuntos declarados: NÃO corresponde, com motivo próprio', async () => {
+      const elementos = [semId(), ...apresentar('r2', 'r3', 'r4')];
+      const { contexto, r } = await executarR4(elementos, vinculoCom(DECLARADOS, DECLARADOS));
+      // o modelo LÊ hash_000 na lista, e o texto é o mesmo dos declarados
+      expect(r).toContain('- ID: hash_000 | Email: sem identificador | CR: 5.0% | Status: CONFIÁVEL');
+      expect(coincidencias(r)).toBe(0);
+      expect(coincidencias(contexto)).toBe(0);
+      for (const s of TRES_CONJUNTOS('["hash_000" (gerado por posição), "r2", "r3", "r4"]', 4, DECLARADOS, DECLARADOS)) {
+        expect(ocorrencias(r, s)).toBe(1);
+      }
+      expect(r).toContain(APRESENTADA.c4a);
+      // o MOTIVO PRÓPRIO: a origem posicional, a posição, e que não corresponde a ninguém mesmo com o mesmo texto
+      expect(r).toContain(
+        'Identidade por posição na lista apresentada: "hash_000" (posição 0 da lista, contada a partir de 0), GERADA pelo fallback posicional: não corresponde a ninguém, mesmo que o mesmo texto conste dos conjuntos declarados.'
+      );
+      expect(r).toContain(REL_DECLARADOS(4));
+      expect(r).toContain(PAINEL_DIFERE);
+      expect(r).toContain(TOTAL_3);
+      expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
+      // CONTRAEXEMPLO: comparar o TEXTO exibido afirmaria a coincidência (hash_000 = hash_000), e todos os atalhos de contagem e de texto também
+      const P = oModeloLe(elementos);
+      expect(P).toEqual(DECLARADOS);
+      for (const nome of ['soContagem', 'soEnviados', 'soIncluidos', 'porConjunto', 'porTexto']) {
+        expect([nome, ATALHOS[nome](P, DECLARADOS, DECLARADOS)]).toEqual([nome, true]);
+      }
+    });
+
+    test.each([
+      ['respondentId', (id: string) => soEm('respondentId', id)],
+      ['id', (id: string) => soEm('id', id)],
+      ['respondentId e id', (id: string) => respondente(id, 0.05)],
+    ] as const)('4b. hash_000 RECEBIDO em %s, com a mesma grafia do gerado: CORRESPONDE, e a coincidência é afirmada nos quatro sítios', async (_campo, montar) => {
+      const elementos = [montar('hash_000'), ...apresentar('r2', 'r3', 'r4')];
+      const { contexto, r } = await executarR4(elementos, vinculoCom(DECLARADOS, DECLARADOS));
+      expect(r).toContain('- ID: hash_000 | Email: Respondente hash_000 | CR: 5.0% | Status: CONFIÁVEL');
+      expect(r).toContain(REL_COINCIDEM_4);
+      expect(r).toContain(APRESENTADA.c1);
+      expect(r).toContain(PAINEL_COINCIDE);
+      expect(r).toContain(TOTAL_COINCIDE_4);
+      expect(coincidencias(r)).toBe(4);
+      expect(coincidencias(contexto)).toBe(4);
+      // nenhuma identidade por posição: o hash_000 desta lista NÃO foi gerado
+      expect(r).not.toContain('GERADA pelo fallback posicional');
+      expect(r).not.toContain('(gerado por posição)');
+      expect(r).toContain(REGRA_R2);
+      expect(r).not.toContain('Também pode ser nomeado');
+      // CONTRAEXEMPLO: inferir a origem por REGEX sobre a grafia trata este hash_000 RECEBIDO como gerado (e o reprovaria)
+      const P = oModeloLe(elementos);
+      expect(P).toEqual(DECLARADOS);
+      expect(ATALHOS.porRegex(P, DECLARADOS, DECLARADOS)).toBe(false); // a regex diria "não corresponde"
+      expect(ATALHOS.porTexto(P, DECLARADOS, DECLARADOS)).toBe(true); // e o texto, "corresponde": só a ORIGEM separa 4a de 4b
+    });
+
+    test('a MESMA grafia, duas origens, dois resultados: a diferença entre 4a e 4b está na origem, e em mais nada do pedido', async () => {
+      const gerado = await executarR4([semId(), ...apresentar('r2', 'r3', 'r4')], vinculoCom(DECLARADOS, DECLARADOS));
+      const recebido = await executarR4([soEm('id', 'hash_000'), ...apresentar('r2', 'r3', 'r4')], vinculoCom(DECLARADOS, DECLARADOS));
+      // o modelo lê o MESMO identificador nos dois...
+      expect(gerado.r).toContain('- ID: hash_000 | Email: ');
+      expect(recebido.r).toContain('- ID: hash_000 | Email: ');
+      // ...e a conferência dá resultados OPOSTOS
+      expect(coincidencias(gerado.r)).toBe(0);
+      expect(coincidencias(recebido.r)).toBe(4);
+    });
+  });
+
+  test('controle 5. apresentada = enviados declarados (r1..r3), diferente dos incluídos (r1..r4): NENHUMA coincidência, e o texto conferido de R1 fica byte a byte', async () => {
+    const p = preparo(ids(3), ids(4)); // o preparo REAL: enviados r1..r3, incluídos r1..r4, estado divergente
+    expect(p.vinculo.estado).toBe('divergente');
+    const { contexto, r } = await executarR4(p.respondentesEnviados, p.vinculo);
+    expect(coincidencias(r)).toBe(0);
+    expect(coincidencias(contexto)).toBe(0);
+    // R1, sem uma letra a mais: a relação, o TOTAL e o que vem logo depois (nenhuma frase acrescentada)
+    expect(r).toContain(REL_DIFEREM_3_4);
+    expect(r).not.toContain(SUFIXO_DECLARADOS); // apresentada = enviados: a relação dos declarados não precisa de desambiguação
+    expect(r).toContain(`${TOTAL_5}\n\n**CÁLCULO — contagem registrada no documento de cálculo: 4 respondentes INCLUÍDOS`);
+    expect(r).toContain(COBERTURA_CONFERE(3)); // apresentada = enviados: a cobertura segue o texto de sempre
+    expect(r).toContain(PAINEL_DIFERE);
+    // o que a linha da lista apresentada conserva: os três conjuntos, e que a apresentada CONFERE com os enviados declarados
+    for (const s of TRES_CONJUNTOS('["r1", "r2", "r3"]', 3, ids(3), ids(4))) expect(ocorrencias(r, s)).toBe(1);
+    expect(r).toContain(APRESENTADA.c5);
+    expect(r).toContain('Contra os enviados declarados: 0 ocorrência(s) só nos enviados declarados (nenhuma); 0 ocorrência(s) só na lista apresentada (nenhuma).');
+    expect(r).toContain('Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r4"]; 0 ocorrência(s) só na lista apresentada (nenhuma).');
+    expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
+    // CONTRAEXEMPLO: comparar SÓ com os enviados declarados afirmaria a coincidência (r1..r3 = r1..r3), e ignoraria os incluídos
+    const P = oModeloLe(p.respondentesEnviados);
+    expect(ATALHOS.soEnviados(P, ids(3), ids(4))).toBe(true);
+    expect(ATALHOS.porTexto(P, ids(3), ids(4))).toBe(false);
+  });
+
+  test('controle 6. apresentada = incluídos (r1..r4), diferente dos enviados declarados (r1..r3): NENHUMA coincidência, e a lista apresentada NÃO é dada como ausente do documento', async () => {
+    const p = preparo(ids(3), ids(4)); // o mesmo vínculo do controle 5: enviados r1..r3, incluídos r1..r4
+    const { contexto, r } = await executarR4(apresentar(...IDS), p.vinculo);
+    expect(coincidencias(r)).toBe(0);
+    expect(coincidencias(contexto)).toBe(0);
+    expect(r).toContain(REL_DIFEREM_3_4 + SUFIXO_DECLARADOS); // o confronto dos DECLARADOS, desambiguado: a apresentada está na linha seguinte
+    expect(r).toContain(COBERTURA_DIFERE(3));
+    expect(r).toContain(PAINEL_NAO_CONFIRMA); // tem os identificadores dos incluídos: NÃO se diz que "difere do documento", e NÃO se afirma que descreve os enviados
+    expect(r).not.toContain('NÃO descreve o conjunto enviado');
+    expect(r).toContain(TOTAL_6);
+    for (const s of TRES_CONJUNTOS('["r1", "r2", "r3", "r4"]', 4, ids(3), ids(4))) expect(ocorrencias(r, s)).toBe(1);
+    expect(r).toContain(APRESENTADA.c6);
+    expect(r).toContain('Contra os incluídos: 0 ocorrência(s) só nos incluídos (nenhuma); 0 ocorrência(s) só na lista apresentada (nenhuma).');
+    expect(r).toContain('Contra os enviados declarados: 0 ocorrência(s) só nos enviados declarados (nenhuma); 1 ocorrência(s) só na lista apresentada ["r4"].');
+    expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
+    // o texto de bfa7e81 dizia, para esta lista, "1 incluído(s) ausente(s) desta lista" — o que é FALSO: r4 ESTÁ na lista
+    const falso = '1 incluído(s) no documento e ausente(s) desta lista';
+    expect(r).not.toContain(falso);
+    // CONTRAEXEMPLO: comparar SÓ com os incluídos afirmaria a coincidência (r1..r4 = r1..r4), e ignoraria os enviados declarados
+    const P = oModeloLe(apresentar(...IDS));
+    expect(ATALHOS.soIncluidos(P, ids(3), ids(4))).toBe(true);
+    expect(ATALHOS.porTexto(P, ids(3), ids(4))).toBe(false);
+  });
+
+  test('controle 7. apresentada r1,r1,r2 contra declarados r1,r2,r2: NENHUMA coincidência — a multiplicidade separa o que o conjunto e o tamanho juntam', async () => {
+    const D = ['r1', 'r2', 'r2'];
+    const elementos = apresentar('r1', 'r1', 'r2');
+    const { contexto, r } = await executarR4(elementos, vinculoCom(D, D));
+    expect(coincidencias(r)).toBe(0);
+    expect(coincidencias(contexto)).toBe(0);
+    for (const s of TRES_CONJUNTOS('["r1", "r1", "r2"]', 3, D, D)) expect(ocorrencias(r, s)).toBe(1);
+    expect(r).toContain(APRESENTADA.c7);
+    expect(r).toContain('Repetidos na lista apresentada: "r1" (2 ocorrências).');
+    expect(r).toContain('Contra os incluídos: 1 ocorrência(s) só nos incluídos ["r2"]; 1 ocorrência(s) só na lista apresentada ["r1"].');
+    expect(r).toContain(REL_DECLARADOS(3));
+    expect(r).toContain(PAINEL_DIFERE);
+    expect(r).toContain(TOTAL_7);
+    expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
+    // CONTRAEXEMPLO: converter em CONJUNTO ({r1, r2} = {r1, r2}) e comparar só o TAMANHO (3 = 3 = 3) afirmariam a coincidência; a multiplicidade não
+    const P = oModeloLe(elementos);
+    expect(ATALHOS.porConjunto(P, D, D)).toBe(true);
+    expect(ATALHOS.soContagem(P, D, D)).toBe(true);
+    expect(ATALHOS.porTexto(P, D, D)).toBe(false);
+  });
+
+  test('lista apresentada VAZIA (a restrição a esvaziou): o bloco compara a lista vazia, não afirma coincidência, e diz que a lista apresentada tem 0 identificadores', async () => {
+    const p = preparo(['r1', 'r2'], ['r7', 'r8']); // nenhum avaliado está no documento
+    expect(p.respondentesEnviados).toEqual([]);
+    const { contexto, status } = await executar(payloadDaTela(p.respondentesEnviados, p.vinculo, !p.omitirOverall));
+    expect(status).toBe(200);
+    expect(contexto).toContain('⚠️ Lista individual de respondentes não disponível.');
+    expect(coincidencias(contexto)).toBe(0);
+    expect(ocorrencias(contexto, '- Lista de respondentes APRESENTADA a você (0 identificador(es)')).toBe(1);
+    expect(contexto).toContain('apresentada [] (0; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio)');
+    expect(contexto).toContain('incluídos ["r7", "r8"] (2;');
+  });
+
+  // ============================================================ a fonte
+  test('fonte: a rota registra a origem UMA vez, onde constrói o displayId da lista; as outras duas expressões de identificador não foram tocadas; o módulo não infere a origem pela grafia', () => {
+    const rota = ler(ROTA);
+    expect(ocorrencias(rota, 'identificarParaApresentacao(')).toBe(1);
+    expect(ocorrencias(rota, 'displayId = `hash_')).toBe(0);
+    // as outras duas expressões de identificador da rota, medidas e NÃO alteradas por R4
+    expect(ocorrencias(rota, 'let displayId = r.respondentId || r.id;')).toBe(1); // a lista dos respondentes críticos
+    expect(ocorrencias(rota, "r.respondentId || r.id || `hash_${idx.toString().padStart(3, '0')}`")).toBe(1); // a validação posterior à geração
+
+    const modulo = ler('lib/ai-reviewer/vinculo-execucao.ts');
+    const codigo = modulo.split('\n').filter((l) => !/^\s*(\/\/|\*|\/\*)/.test(l));
+    // o único ponto do CÓDIGO que escreve "hash_" é o que GERA o identificador; nenhum outro o lê
+    expect(codigo.filter((l) => l.includes('hash_')).map((l) => l.trim())).toEqual(["bruto = `hash_${indice.toString().padStart(3, '0')}`;"]);
+    // a função que constrói a identidade não tem regex, teste de padrão nem prefixo
+    const inicio = modulo.indexOf('export function identificarParaApresentacao(');
+    const corpo = modulo.slice(inicio, modulo.indexOf('\n}\n', inicio));
+    expect(corpo.length).toBeGreaterThan(200);
+    expect(corpo).not.toMatch(/RegExp|\.test\(|\.match\(|startsWith|endsWith|\.search\(/);
+    // CONTRAEXEMPLO: o detector enxerga uma inferência pela grafia
+    expect('if (/^hash_\\d{3}$/.test(valor)) origem = "posicional";').toMatch(/RegExp|\.test\(|\.match\(|startsWith|endsWith|\.search\(/);
   });
 });
 
@@ -804,7 +1217,7 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
     const contrato = ler('lib/ai-reviewer/avaliacao-qualidade.ts');
     expect(contrato).not.toMatch(/vinculo/i);
     const rota = ler(ROTA);
-    // toda referência do vínculo na rota, em ordem: o import, a cópia, a leitura para o TEXTO e o bloco
+    // toda referência do vínculo na rota, em ordem: o import, a cópia, a leitura para o TEXTO (a das frases da lista já recebe a lista APRESENTADA, R4) e o bloco, montado depois da lista
     const linhas = rota.split('\n').filter((l) => /vinculo/i.test(l) && !l.trim().startsWith('//'));
     expect(linhas.map((l) => l.trim())).toEqual([
       'descreverVinculoParaContexto,',
@@ -813,14 +1226,13 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
       'linhasDeExclusaoComVinculo,',
       "} from '@/lib/ai-reviewer/vinculo-execucao';",
       'vinculoDaExecucao: rawData.vinculoDaExecucao,',
-      'const leituraDoVinculo = lerVinculoParaTexto(data.vinculoDaExecucao);',
-      "const comVinculo = leituraDoVinculo.modo !== 'ausente';",
+      "const comVinculo = lerVinculoParaTexto(data.vinculoDaExecucao).modo !== 'ausente';",
       'const linhasDaExclusao = comVinculo',
       '? linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados)',
-      'const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao);',
-      "const blocoDoVinculo = textoDoVinculo === '' ? '' : `\\n${textoDoVinculo}\\n`;",
       'const frases: FrasesDaLista = comVinculo',
-      '? frasesDaListaComVinculo(leituraDoVinculo, respondents.length)',
+      '? frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length)',
+      'const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao, identidadesApresentadas);',
+      "const blocoDoVinculo = textoDoVinculo === '' ? '' : `\\n${textoDoVinculo}\\n`;",
       '${blocoDoVinculo}',
     ]);
     // ⚠ e nenhuma dessas leituras chega à decisão: as três chamadas da elegibilidade recebem só a avaliação e a coerência
@@ -1193,5 +1605,56 @@ describe('o contrato, o registro datado e o âncora dizem o mesmo', () => {
 
     // CONTRAEXEMPLO: a frase generalizada seria achada, se estivesse em algum dos três
     expect(normalizar(`o vínculo ${generalizada}, medido`)).toContain(generalizada);
+  });
+
+  test('R4: o contrato, o âncora e o registro trazem a lista APRESENTADA, a origem registrada na construção, o invariante de vocabulário e o que NÃO foi alterado', () => {
+    const c = contrato();
+    expect(c).toContain('A lista APRESENTADA, e a comparação com as duas declaradas (R4)');
+    // as regras
+    expect(c).toContain('Três conjuntos, cada um com a sua origem');
+    expect(c).toContain('comparada, um a um e com multiplicidade, com os DOIS');
+    expect(c).toContain('`r1,r1,r2` contra `r1,r2,r2` **não** coincidem');
+    expect(c).toContain('"Coincide" só sai quando os TRÊS correspondem um a um');
+    expect(c).toContain('o radical "coincid" (sem distinção de caixa) ocorre **se e somente se** os três correspondem um a um');
+    // a origem: registrada na construção, e nunca inferida pela grafia
+    expect(c).toContain('A origem da identidade é registrada na CONSTRUÇÃO do `displayId`, e nunca inferida pela grafia');
+    expect(c).toContain('mesmo que o mesmo texto conste dos conjuntos declarados');
+    expect(c).toContain('Um `hash_000` **recebido** em `respondentId` ou `id` tem essa origem e **corresponde normalmente**');
+    expect(c).toContain('Nenhum ponto do módulo lê a grafia `hash_NNN`');
+    // o que NÃO foi alterado
+    expect(c).toContain('a rota tem **outras duas** expressões de identificador para o mesmo tipo de lista');
+    expect(c).toContain('redistribuição por dimensão de `normalizeRequest` (`route.ts:565-593` em `bfa7e81`) **não foi corrigida**');
+
+    const a = ancora();
+    expect(a).toContain('R4, em 30/09/2026');
+    expect(a).toContain('nunca inferida pela grafia');
+    expect(a).toContain('a redistribuição por dimensão de `normalizeRequest` **não foi corrigida**');
+
+    // ⚠ As asserções do registro valem para a SEÇÃO de R4, e não para o arquivo inteiro
+    const registroInteiro = registro();
+    const inicio = registroInteiro.indexOf('### Implementado e medido: R4');
+    const fim = registroInteiro.indexOf('## Anexo 3', inicio);
+    expect(inicio).toBeGreaterThan(-1);
+    expect(fim).toBeGreaterThan(inicio);
+    const r = registroInteiro.slice(inicio, fim);
+    expect(r).toContain('NÃO é predição');
+    expect(r).toContain('Nenhum teste novo ou atualizado reprovou na primeira execução');
+    expect(r).toContain('Um erro meu foi achado por LEITURA, antes de qualquer execução, e corrigido antes de rodar');
+    expect(r).toContain('Vinte e seis');
+    expect(r).toContain('nenhum reprova por erro de compilação');
+    expect(r).toContain('reprovaram **sete asserções, e só elas**');
+    expect(r).toContain('T10 a T12');
+    expect(r).toContain('NÃO TESTADAS');
+    expect(r).toContain('não foram alteradas nem unificadas');
+    expect(r).toContain('não foi corrigida');
+    // e o complemento datado, que é a predição, segue no registro com a regra corrigida e os desvios da rodada anterior
+    expect(registroInteiro).toContain('A.12, etapa 3, estágio 1: complemento datado da predição, R4');
+    expect(registroInteiro).toContain('Os desvios de previsão da rodada anterior (R1 e R2), classificados');
+
+    // a frase generalizada de R3 não voltou em nenhum dos três
+    const generalizada = ['diverge', 'por', 'construção'].join(' ');
+    for (const texto of [c, a, r]) expect(texto).not.toContain(generalizada);
+    // CONTRAEXEMPLO: o detector de seção enxerga um texto sem a seção de R4
+    expect(registroInteiro.slice(0, inicio)).not.toContain('Nenhum teste novo ou atualizado reprovou na primeira execução');
   });
 });

@@ -22,9 +22,11 @@ import {
 import {
   descreverVinculoParaContexto,
   frasesDaListaComVinculo,
+  identificarParaApresentacao,
   lerVinculoParaTexto,
   linhasDeExclusaoComVinculo,
   type FrasesDaLista,
+  type IdentidadeApresentada,
 } from '@/lib/ai-reviewer/vinculo-execucao';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
 import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-contract';
@@ -876,8 +878,7 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
   //   campo, cada contagem nomeia a população e a etapa, a exaustividade é só da lista enviada, a
   //   relação com o cálculo vem da COMPARAÇÃO das listas (e nunca do estado), e a regra de
   //   menção distingue o participante da divergência registrada.
-  const leituraDoVinculo = lerVinculoParaTexto(data.vinculoDaExecucao);
-  const comVinculo = leituraDoVinculo.modo !== 'ausente';
+  const comVinculo = lerVinculoParaTexto(data.vinculoDaExecucao).modo !== 'ausente';
   const nEnviados = Array.isArray(data.qualityAnalysis?.respondents) ? data.qualityAnalysis.respondents.length : 0;
 
   // Contexto de exclusão de respondentes
@@ -905,28 +906,24 @@ ${linhasDaExclusao.qualidade}
 `;
   }
 
-  // A.12 etapa 3, estágio 1: o vínculo da avaliação de qualidade com a execução do cálculo.
-  // ⚠ Requisição SEM `vinculoDaExecucao` não ganha bloco algum: `''` deixa
-  //   `${exclusionContext}\n${blocoDoVinculo}\n${fullRespondentList}` byte a byte o texto
-  //   anterior a este estágio. ⚠ O bloco declara estado, identificador, divergência e cobertura
-  //   enviada; NÃO emite veredito, NÃO classifica e NÃO suspende.
-  const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao);
-  const blocoDoVinculo = textoDoVinculo === '' ? '' : `\n${textoDoVinculo}\n`;
-
   // ============================================================
   // ANTI-ALUCINAÇÃO: Lista completa de respondentes
   // ============================================================
   let fullRespondentList = '';
   const respondentIds: string[] = [];
+  // A.12 etapa 3, estágio 1, R4: as identidades da lista APRESENTADA, com a ORIGEM registrada na construção
+  // do `displayId`. O bloco do vínculo compara ESTA lista, e não só as declaradas dentro do vínculo.
+  const identidadesApresentadas: IdentidadeApresentada[] = [];
 
   if (data.qualityAnalysis?.respondents && data.qualityAnalysis.respondents.length > 0) {
     const respondents = data.qualityAnalysis.respondents;
     const lines = respondents.map((r: any, idx: number) => {
-      // Sanitizar ID — NUNCA usar rótulo genérico
-      let displayId = r.respondentId || r.id;
-      if (!displayId || displayId === 'undefined' || displayId === 'null') {
-        displayId = `hash_${idx.toString().padStart(3, '0')}`;
-      }
+      // Sanitizar ID — NUNCA usar rótulo genérico. ⚠ R4: a expressão mora no módulo do vínculo, escrita UMA vez,
+      // e devolve o valor E a origem (`respondentId`, `id` ou `posicional`): a origem é registrada AQUI, na
+      // construção do `displayId`, e nunca inferida depois pela grafia.
+      const identidade = identificarParaApresentacao(r, idx);
+      identidadesApresentadas.push(identidade);
+      const displayId = identidade.bruto;
       respondentIds.push(displayId);
 
       // Sanitizar CR
@@ -958,7 +955,7 @@ ${linhasDaExclusao.qualidade}
     };
 
     const frases: FrasesDaLista = comVinculo
-      ? frasesDaListaComVinculo(leituraDoVinculo, respondents.length)
+      ? frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length)
       : {
           cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',
           total: `**TOTAL: ${respondents.length} respondentes (esta lista é COMPLETA — não existem outros)**`,
@@ -995,6 +992,15 @@ ${frases.regraDeMencao}
 NUNCA invente ou deduza respondentes individuais.
 `;
   }
+
+  // A.12 etapa 3, estágio 1: o vínculo da avaliação de qualidade com a execução do cálculo.
+  // ⚠ Requisição SEM `vinculoDaExecucao` não ganha bloco algum: `''` deixa
+  //   `${exclusionContext}\n${blocoDoVinculo}\n${fullRespondentList}` byte a byte o texto
+  //   anterior a este estágio. ⚠ O bloco declara estado, identificador, divergência e cobertura
+  //   enviada; NÃO emite veredito, NÃO classifica e NÃO suspende.
+  // ⚠ R4: o bloco é montado DEPOIS da lista, porque compara a lista APRESENTADA.
+  const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao, identidadesApresentadas);
+  const blocoDoVinculo = textoDoVinculo === '' ? '' : `\n${textoDoVinculo}\n`;
 
   // ============================================================
   // ANTI-ALUCINAÇÃO: Fórmula completa com v e s

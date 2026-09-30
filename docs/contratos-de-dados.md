@@ -539,6 +539,58 @@ permite citar **somente nesse papel**, nunca como quem contribuiu para os dados 
 penalidades, limiares ou faixas, e nenhuma suspensão por divergência. ⚠ A redação do modelo sobre
 estas frases **não foi testada**: só o que ele **recebe**.
 
+##### A lista APRESENTADA, e a comparação com as duas declaradas (R4)
+
+⚠ **Escopo.** Vale **COM** `vinculoDaExecucao` em modo `comparado` (`vinculado` ou `divergente` com as duas
+listas bem formadas). Em `indisponivel`, `invalido`, formato não reconhecido e lista de incluídos malformada
+não há conjunto de incluídos: a linha nova **não existe** e nenhuma coincidência é afirmada, como antes.
+**SEM** o campo o contexto segue **byte a byte** o de `a973c8f`. P1 permanece, nenhuma cadeia de identificador
+é unificada e nenhuma causa de suspensão é acrescentada.
+
+**O defeito.** A comparação do texto usava as duas listas **declaradas** dentro do vínculo (`enviados` e
+`incluidosNoDocumento`), e a rota entregava às frases só o **tamanho** da lista que de fato apresenta ao modelo
+(`data.qualityAnalysis.respondents`). Três respondentes podiam ser afirmados "um a um" com quatro; com a mesma
+contagem e um identificador trocado (`r9` no lugar de `r4`) a coincidência era afirmada **sem ressalva**; e, no
+sentido inverso, uma lista apresentada igual aos incluídos, com enviados declarados menores, era dada como
+"1 incluído(s) … ausente(s) desta lista", o que é falso.
+
+**As regras.**
+
+1. **Três conjuntos, cada um com a sua origem**, e nenhum se descarta em silêncio: a lista **apresentada** (lida de
+   `respondentId` ou `id` de cada elemento de `qualityAnalysis.respondents`, na forma em que a lista do contexto os
+   exibe; etapa: envio), os **enviados declarados** (`vinculoDaExecucao.enviados`; etapa: envio) e os **incluídos**
+   (`vinculoDaExecucao.incluidosNoDocumento`, que vem de `metadata.includedRespondents`; etapa: cálculo).
+2. **A lista apresentada é comparada, um a um e com multiplicidade, com os DOIS**, e não só com um deles nem só pelo
+   tamanho. `r1,r1,r2` contra `r1,r2,r2` **não** coincidem, mesmo com o mesmo conjunto e o mesmo tamanho.
+3. **"Coincide" só sai quando os TRÊS correspondem um a um**, e isso vale no bloco **e** nas frases ao redor (tabela
+   abaixo). Na discrepância o contexto **conserva** os três conjuntos e nomeia o excedente de cada lado, inclusive o
+   identificador presente na lista apresentada e ausente dos **dois** conjuntos declarados. ⚠ **Invariante de
+   vocabulário**, fixado por teste: dentro da região que muda (do início da seção "Amostra e Qualidade Geral" até a
+   regra de menção da lista), o radical "coincid" (sem distinção de caixa) ocorre **se e somente se** os três
+   correspondem um a um; a discrepância usa "DIFERE".
+4. **A origem da identidade é registrada na CONSTRUÇÃO do `displayId`, e nunca inferida pela grafia.** A expressão que
+   a rota escrevia inline (`r.respondentId || r.id`, e `hash_NNN` pelo índice quando o valor falta ou é a string
+   "undefined" ou "null") passou a ser escrita **uma vez**, em `identificarParaApresentacao`
+   (`lib/ai-reviewer/vinculo-execucao.ts`), que devolve o valor **e** a origem (`respondentId`, `id` ou
+   `posicional`); a rota a chama onde construía o `displayId`. Um identificador **gerado** pelo fallback posicional
+   **nunca corresponde a ninguém**, mesmo que o mesmo texto conste dos conjuntos declarados, e a discrepância traz
+   **motivo próprio**: a posição na lista, contada a partir de 0. Um `hash_000` **recebido** em `respondentId` ou
+   `id` tem essa origem e **corresponde normalmente**. Nenhum ponto do módulo lê a grafia `hash_NNN`.
+
+| Sítio do contexto | Os três correspondem | Discrepância |
+|---|---|---|
+| relação entre os enviados e os incluídos (bloco) | `COINCIDEM, um a um (N enviados, M incluídos).` | os dois declarados iguais entre si: "os dois conjuntos DECLARADOS têm os mesmos identificadores, um a um (…); a correspondência da lista APRESENTADA a você está na linha seguinte."; os declarados diferentes: `DIFEREM (…)` e, se a apresentada também difere dos enviados declarados, "Este é o confronto dos dois conjuntos DECLARADOS; …" |
+| linha da lista APRESENTADA (bloco, **nova**) | `COINCIDE, um a um, com os N enviados declarados (etapa: envio) e com os M incluídos … (etapa: cálculo).` | `DIFERE do que o vínculo declara`, com os três conjuntos e a origem de cada um, o excedente de cada lado em cada confronto, os repetidos, a identidade por posição e os presentes na apresentada e ausentes dos dois declarados |
+| cobertura do resumo do painel (bloco) | "O conjunto enviado coincide com o do documento." | apresentada difere dos incluídos: "⚠ NÃO descreve o conjunto enviado a você, que difere do conjunto do documento."; apresentada tem os identificadores dos incluídos mas difere dos enviados declarados: "Não se pode afirmar que descreve o conjunto enviado a você: …" |
+| linha "Cobertura enviada" (bloco) | "… a lista de respondentes que segue é a dos N enviados." | se a apresentada difere dos enviados declarados: "o vínculo declara que a lista de respondentes que segue é a dos N enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista)." |
+| total da lista | `… e COINCIDE, um a um, com os M incluídos …` | três formas: "DIFERE dos M incluídos" (mais "A lista também DIFERE dos N enviados declarados" quando difere deles também), ou "ela tem os mesmos identificadores dos M incluídos, mas DIFERE dos N enviados declarados"; a identidade por posição conta como apresentada ausente do documento |
+| regra de menção da lista | o texto de R2 | o texto de R2, **intacto como prefixo**, mais uma frase que permite nomear, só nesse papel, o identificador declarado e ausente da lista apresentada |
+
+⚠ **O que isto NÃO é.** Nenhuma causa de suspensão, nenhuma alteração em `calculateGrade`, penalidades, limiares ou
+faixas, e nenhuma cadeia de identificador unificada: a rota tem **outras duas** expressões de identificador para o
+mesmo tipo de lista (os respondentes críticos e a validação posterior à geração), **medidas e não alteradas**. ⚠ A
+redação do modelo sobre estas frases **não foi testada**: só o que ele **recebe**.
+
 ##### Limites, e o que foi medido
 
 - ⚠ **A fiação na tela não é executada por teste algum.** `page.tsx` é `'use client'` e o
@@ -571,6 +623,15 @@ estas frases **não foi testada**: só o que ele **recebe**.
   contagens por status, `Taxa de Validade Geral` e `Respostas totais` por dimensão. Ficam como
   estão; rotulá-las uma a uma é decisão do autor. O ramo do prompt para lista de respondentes
   **ausente** ("Lista individual de respondentes não disponível") também não foi alterado.
+- ⚠ **R4, o que não foi alterado nem conferido.** (1) As **outras duas** expressões de identificador da
+  rota, medidas em `bfa7e81` e mantidas: a lista dos respondentes críticos (`route.ts:740-742`, rótulo
+  posicional "Respondente N") e a validação posterior à geração (`route.ts:1477-1479`, sem a checagem de
+  "undefined" e "null"). Unificá-las é decisão do autor. (2) Nos modos **sem comparação** a rota entrega a lista
+  apresentada e o módulo a **ignora**: nenhuma coincidência e nenhuma discrepância é afirmada, e o texto é o de
+  antes. (3) Com a lista apresentada **vazia** (a restrição a esvaziou) o bloco compara a lista vazia com os
+  declarados e diz que ela tem 0 identificadores; o ramo do prompt para lista ausente não foi alterado. (4) A
+  redistribuição por dimensão de `normalizeRequest` (`route.ts:565-593` em `bfa7e81`) **não foi corrigida**: é item
+  enfileirado.
 - ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem verificação de
   conteúdo, e sem consulta a produção.
 

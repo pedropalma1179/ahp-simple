@@ -12329,6 +12329,204 @@ não reprovações.
 verificação de conteúdo. ⚠ **A fiação na tela segue sem execução por teste:** esta rodada não toca a tela.
 ⚠ **A predição sobre a redação do modelo permanece NÃO TESTADA** (T10 a T12).
 
+### Implementado e medido: R4 (a comparação usa a lista apresentada), em 30/09/2026
+
+⚠ **Este bloco é escrito DEPOIS do código e dos testes, e por isso NÃO é predição:** é relato e
+medição. A predição é a do complemento acima (commit `1ffd154`, CI `success` na execução
+`36657106194`, `head_sha` igual ao do commit), e as divergências entre ela e a execução estão
+abaixo, nomeadas. Base do código: `bfa7e81a487b4c401b2e4091298bac0210c37ccc`.
+
+#### Responsabilidades que a alteração toca
+
+| Responsabilidade | Tocada? |
+|---|---|
+| Redação do contexto (o que o modelo **recebe**): a linha nova da lista apresentada, a relação entre enviados e incluídos, a cobertura do resumo do painel, a linha "Cobertura enviada", o total da lista e a regra de menção | **SIM** |
+| Construção da identidade da lista apresentada (a expressão do `displayId` da lista exaustiva, agora escrita **uma vez** no módulo do vínculo, com a origem registrada) | **SIM**, sem mudar o valor exibido |
+| Decisão do vínculo (`prepararVinculoDaTela`, os quatro estados, P1, comparação antes da restrição, valor `null` / `[]`) | não |
+| Tela (`page.tsx`), elegibilidade e nota (`avaliacao-qualidade.ts`, `calculateGrade`, penalidades, limiares, faixas) | não |
+| `app/api/calculate/route.ts`, `julgamentos-resumo.ts`, `identificador-respondente.ts`, `aggregation.ts` | não |
+| As outras duas expressões de identificador da rota, e a redistribuição por dimensão de `normalizeRequest` | não |
+
+⚠ **Mudança estrutural, não apresentada como neutra.** A expressão do `displayId` da lista exaustiva
+saiu da rota e passou a `identificarParaApresentacao`, no módulo puro do vínculo, que devolve o valor
+**e** a origem. A preservação é **medida no caminho alterado**: (1) o teste do módulo percorre uma
+grade de **192** entradas e compara o valor exibido com a expressão de `bfa7e81`, copiada no próprio
+teste como oráculo, e a origem é `posicional` se e somente se o valor foi gerado; (2) as âncoras
+absolutas sem o campo (R7) passam, e `a33-cadeia-rule` e `a12-diagnostico` mantêm camadas, montagem e
+`bytesDoContexto` idênticos; (3) um teste de **fonte** exige que a rota chame a função **uma vez**, que
+não reste `displayId = \`hash_` em linha na rota, e que o **único** ponto do código do módulo que escreve
+`hash_` seja o que gera o identificador, sem regex, `match`, `startsWith` nem `.test(` na função.
+
+#### Reconferência dos localizadores da base, em `bfa7e81`
+
+Lidos com `git show bfa7e81:…`: `route.ts:923` (`const respondents = data.qualityAnalysis.respondents;`),
+`:926-929` (o `displayId` da lista), `:961` (`frasesDaListaComVinculo(leituraDoVinculo, respondents.length)`),
+`:740-742` (os respondentes críticos, rótulo "Respondente N"), `:1477-1479` (a validação posterior à
+geração), `:565-593` (a redistribuição por dimensão); `vinculo-execucao.ts:897-906` (a comparação das
+duas listas declaradas), `:949` (`COINCIDEM, um a um`), `:745` (`O conjunto enviado coincide com o do
+documento`), `:1023` (`COINCIDE, um a um, com os N incluídos`) e `:1051-1060` (a ressalva por contagem).
+**Todos apontam para a passagem que o pedido nomeia.** Nenhuma correção de localizador foi necessária.
+
+#### A previsão de testes: confirmada pelo nome do teste
+
+Com os testes **antigos** e o código **novo**, reprovaram **sete asserções, e só elas**, nas linhas
+previstas (numeração de `bfa7e81`): `a33-cadeia-rule.test.ts:1217`, `:1460` e `:1491`,
+`a12-diagnostico.test.ts:1072`, e `vinculo-execucao-fiacao.test.ts:285`, `:721` e `:809`. Em `:285` a
+diferença é exatamente a regra de menção com a frase acrescentada (o teste antigo recompõe as cinco
+frases sem a lista apresentada), em `:721` o inventário passou de dez a **onze** e em `:809` a lista de
+linhas da rota mudou como lida. Os testes foram então atualizados, e as duas linhas de base regravadas
+(ordens 8 e 10).
+
+#### Desvios de previsão desta rodada, classificados à parte
+
+- **Nenhum teste novo ou atualizado reprovou na primeira execução:** `vinculo-execucao.test.ts` e
+  `vinculo-execucao-fiacao.test.ts`, juntos, **246 testes, 0 falhas**. ⚠ Isto **não** significa que nenhum
+  erro de teste tenha existido.
+- **Um erro meu foi achado por LEITURA, antes de qualquer execução, e corrigido antes de rodar:** no
+  teste do módulo que compara os totais, o lado "sem a lista entregue" do controle 5 usava o tamanho
+  padrão 4, e o lado com a lista usava 3; os dois textos diferem no número e na ressalva, então a
+  asserção teria reprovado. **Não é falha de execução, e por isso não é desvio pela definição da regra;**
+  fica declarado para que a primeira execução verde não seja lida como se o erro não tivesse existido.
+  A releitura foi feita **contra o código e contra as capturas do tratador real**, e não por execução dos
+  arquivos de teste. Os literais das linhas da lista apresentada nos testes do módulo foram conferidos
+  **iguais** aos capturados do tratador real (casos 1 e 2).
+- Os três desvios da rodada anterior (R1 e R2) estão classificados no complemento acima, e não se repetem.
+
+#### O que o contexto passou a dizer, nos sete pedidos (texto medido)
+
+"Coincid" (sem distinção de caixa) na região, em `bfa7e81` e agora, medido nos contextos completos do
+tratador real (o mesmo número vale para o contexto inteiro: nenhum sítio fora da região tem o radical):
+
+| Pedido | Apresentada / enviados declarados / incluídos | Antes → agora | Total da lista, agora |
+|---|---|---|---|
+| 1 | `r1..r4` / `r1..r4` / `r1..r4` | 3 → **4** | "… e COINCIDE, um a um, com os 4 incluídos no documento de cálculo." |
+| 2 | `r1,r2,r3` / `r1..r4` / `r1..r4` | 3 → **0** | "… mas DIFERE dos 4 incluídos …: 1 incluído(s) no documento e ausente(s) desta lista …", "A lista também DIFERE dos 4 enviados declarados …" e a ressalva "O vínculo declara 4 enviados, e esta lista traz 3" |
+| 3 | `r1,r2,r3,r9` / `r1..r4` / `r1..r4` | 3 → **0** | as duas primeiras frases do pedido 2, com `r9` nomeado como presente na apresentada e ausente dos dois declarados, **sem** ressalva de contagem |
+| 4a | `hash_000` **gerado**, `r2,r3,r4` / com o texto `hash_000` / idem | 3 → **0** | "DIFERE …", e a identidade por posição com motivo próprio |
+| 4b, 4c | `hash_000` **recebido** em `respondentId`, `id` ou nos dois | 3 → **4** | "… e COINCIDE …" |
+| 5 | `r1,r2,r3` / `r1,r2,r3` / `r1..r4` | 0 → 0 | o texto conferido de R1, **byte a byte** (total, relação e cobertura do painel) |
+| 6 | `r1..r4` / `r1,r2,r3` / `r1..r4` | 0 → 0 | "ela tem os mesmos identificadores dos 4 incluídos …, mas DIFERE dos 3 enviados declarados"; a afirmação falsa de `bfa7e81` ("1 incluído(s) … ausente(s) desta lista") deixa de existir |
+| 7 | `r1,r1,r2` / `r1,r2,r2` / `r1,r2,r2` | 3 → **0** | "… DIFERE dos 3 incluídos …", o repetido `r1` (2 ocorrências) nomeado |
+
+⚠ No pedido 1 o número **sobe** de 3 para 4, porque a linha nova da lista apresentada acrescenta um
+quarto sítio que afirma a coincidência quando os três correspondem. Os contextos completos dos sete
+pedidos estão no diretório de trabalho da sessão, e **não** no repositório.
+
+#### O resultado por predição (R18 a R28)
+
+| # | Resultado | Evidência |
+|---|---|---|
+| R18 | **confirmada** | pedido 1 e pedido 4b (nos três formatos): quatro sítios, "coincid" = 4 |
+| R19 | **confirmada** | pedido 2: nenhum "coincid"; os três conjuntos com a origem; `r4` nomeado; a ressalva de contagem permanece |
+| R20 | **confirmada** | pedido 3: `r9` nomeado como **presente na lista apresentada e ausente dos dois conjuntos declarados**, com as contagens iguais e sem ressalva de contagem |
+| R21 | **confirmada** | pedido 4a: o gerado entra como identidade por posição, com a posição e o motivo |
+| R22 | **confirmada** | pedido 4b: o `hash_000` recebido corresponde, em `respondentId`, em `id` e nos dois |
+| R23 | **confirmada, com uma observação** | controle 5: total, relação e cobertura do painel **idênticos** ao conferido; a regra de menção ganha a frase de R4, porque a lista apresentada não corresponde aos três conjuntos |
+| R24 | **confirmada** | controle 6: nenhum "coincid"; a afirmação falsa sumiu; a linha "Cobertura enviada" passa a dizer que é o vínculo que declara |
+| R25 | **confirmada** | controle 7: nenhum "coincid"; os excedentes por lado e o repetido nomeados |
+| R26 | **confirmada** | dois laços com oráculo independente (**3150** e **1560** combinações) e a contagem nos sete pedidos do tratador real |
+| R27 | **confirmada** | âncoras absolutas sem o campo; grade de 192; nos modos sem comparação o texto é igual com e sem a lista entregue |
+| R28 | **confirmada** | o ensaio 10 passa: a decisão (nota, veredicto, suspensão, causa e rótulo) é a mesma nos quatro estados |
+| T10 a T12 | **NÃO TESTADAS** | nenhum parecer foi gerado, como declarado |
+
+#### Mutantes executados sobre a fonte
+
+**Vinte e seis** (vinte e um no módulo e cinco na rota), cada um aplicado sobre o arquivo com os dois
+arquivos de teste do vínculo rodados em `--json`, e o arquivo restaurado depois (o `sha256` de ambos
+conferido antes e depois). **Os vinte e seis reprovam algum teste, e nenhum reprova por erro de
+compilação** (`numRuntimeErrorTestSuites` = 0 em todos). Os contraexemplos pedidos, por nome:
+
+| Contraexemplo | Mutante | Testes do tratador real que reprovam |
+|---|---|---|
+| o texto atual (`bfa7e81`) | K18, a leitura nunca confere a lista apresentada | 1, 2, 3, 4a, 4b, 5, 6 e 7 |
+| comparação só por contagem | K1 | 3, 4a e 7 |
+| só contra os enviados declarados | K2 | 5 |
+| só contra os incluídos | K3 | 6 |
+| conjunto em vez de multiplicidade | K4 | 7 |
+| origem inferida por regex sobre a grafia | K5 | 4b |
+| origem ignorada (compara o texto) | K6 | 4a |
+| a origem não vem da construção do `displayId` | R3 | 4a |
+
+Os outros dezoito: a cobertura do painel (K7) e o total (K8) lendo só as listas declaradas, a relação
+sempre "COINCIDEM" (K9), a regra de menção sem a frase (K10), a linha "Cobertura enviada" sem a
+distinção (K11), a linha nova fora do bloco (K12), o identificador ausente dos dois declarados não
+nomeado (K13), a identidade gerada não contada no total (K14), a relação sem a desambiguação (K15), o
+hash com o índice deslocado no módulo (K16) e na chamada da rota (R5), os repetidos não listados (K17),
+a origem `id` registrada como `respondentId` (K19), a identidade gerada sem marca de posição (K20), o
+excedente da apresentada perdido (K21), a lista não entregue ao bloco (R1), a lista não entregue às
+frases (R2) e as identidades não acumuladas (R4). Cada um dos oito pedidos do tratador real é
+reprovado por **pelo menos cinco** mutantes distintos. ⚠ Os mutantes rodaram contra os **dois arquivos de
+teste do vínculo**, e não contra a suíte inteira: contra `a33-cadeia-rule` e `a12-diagnostico`, qualquer
+mutante da rota reprovaria trivialmente pelo hash de `route.ts`, o que não informa.
+
+**Mais catorze mutantes sobre os três documentos** (o contrato, o âncora e o registro), com o arquivo de
+fiação rodado e os documentos restaurados depois (`sha256` conferido): a frase "Nenhum ponto do módulo lê
+a grafia `hash_NNN`"; o invariante de vocabulário trocado por "quando"; a origem que deixa de ser
+"nunca inferida pela grafia", no contrato e no âncora; a seção de R4 que perde "Nenhum teste novo ou
+atualizado reprovou na primeira execução", ou o erro achado por leitura, ou "Vinte e seis", ou "NÃO
+TESTADAS", ou "não foram alteradas nem unificadas", ou que se declara predição; a ressalva das outras duas
+expressões de identificador; a frase de R4 do âncora; o título da subseção do contrato; e a frase
+generalizada de R3 de volta. **Os catorze reprovam** (o último, por dois testes).
+
+#### Achados da implementação, DEPOIS da predição
+
+⚠ Nenhum estava na predição.
+
+1. **A relação entre enviados e incluídos enganava no controle 6.** Com enviados declarados `r1,r2,r3`,
+   incluídos `r1..r4` e apresentada `r1..r4`, a linha "DIFEREM (3 enviados, 4 incluídos): 1 incluído(s)
+   … ausente(s) dos enviados" descreve o confronto dos **declarados**, e um leitor a tomaria pela lista
+   apresentada. Passou a acrescentar "Este é o confronto dos dois conjuntos DECLARADOS; a lista
+   APRESENTADA a você está na linha seguinte." **só** quando a apresentada difere dos enviados
+   declarados.
+2. **Itemização vazia.** A primeira redação dizia "só na lista apresentada nenhum". Cada itemização
+   passou a levar o seu marcador de vazio explícito (`[]`, "(nenhuma)", "nenhum").
+3. **Lista apresentada vazia** (a restrição a esvaziou): o bloco compara a lista **vazia** com os
+   declarados e diz que ela tem **0** identificadores, em vez de omitir a linha; o ramo do prompt para
+   lista ausente não foi alterado. Há um teste do tratador real para esse caso.
+4. **`restringiu` é `true` em todo vínculo comparado**, inclusive no `vinculado` em que a restrição não
+   retirou ninguém (`prepararVinculoDaTela`, `cobertura.restringiu`). A frase "o conjunto avaliado foi
+   RESTRINGIDO …" da linha "Cobertura enviada" é, portanto, dita também quando nada saiu. É redação do
+   estágio 1, **anterior a R4 e não alterada**; fica registrada.
+
+#### Execução, medida nesta sessão
+
+- `npx tsc --noEmit`: **saída 0**.
+- `npx jest` (suíte inteira): **33 suítes, 791 testes, 0 falhas**, e **54268 asserções**.
+  ⚠ O total de asserções vem de um **instrumento NÃO versionado**, um `setupFilesAfterEnv` que soma
+  `expect.getState().assertionCalls` a cada teste e grava por suíte (33 linhas somadas); ele vive
+  no diretório de trabalho da sessão e **não está no repositório**. Nas suítes tocadas, em
+  testes: `vinculo-execucao` **165** (eram 126), `vinculo-execucao-fiacao` **82** (eram 68),
+  `a33-cadeia-rule` **41** e `a12-diagnostico` **19** (o mesmo número de antes).
+- `npm run build`: **saída 0**, "Generating static pages (17/17)". ⚠ A saída traz a mensagem "ESLint
+  must be installed in order to run during builds", que não reprova o build.
+- Ambiente: Linux x86_64, Node v22.22.2, npm 10.9.7. ⚠ É ambiente observado, e não requisito. A CI usa
+  Node 24.x, e o resultado dela é reportado por commit, fora deste registro.
+- `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`:
+  `85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes), iguais entre si e ao
+  valor de antes. `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`:
+  `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes), igual ao de antes.
+- Regravações, campo a campo: `a33-cadeia-rule` **3112 → 3122** campos (0 perdidos, 10 novos na própria
+  entrada da ordem 8, 1 mudado: o resumo de código da rota); `a12-diagnostico` **419 → 429** (0 perdidos,
+  10 novos na ordem 10, 1 mudado, o mesmo resumo). Todas as outras seções idênticas.
+
+#### O que NÃO foi feito, e o que continua aberto
+
+- ⚠ **Sem o campo `vinculoDaExecucao` a redação anterior continua**, com as afirmações que M7 e M8
+  mostram. Ampliar a correção a esse caminho é decisão do autor.
+- ⚠ **As outras duas expressões de identificador da rota** (os respondentes críticos, `route.ts:740-742`
+  em `bfa7e81`, e a validação posterior à geração, `route.ts:1477-1479`) **não foram alteradas nem
+  unificadas.** Fica registrado que a segunda não checa "undefined" nem "null".
+- ⚠ **A redistribuição por dimensão de `normalizeRequest`** (`route.ts:565-593` em `bfa7e81`) **não foi
+  corrigida:** é item enfileirado, e não desta rodada.
+- ⚠ **Nos modos sem comparação** (`indisponivel`, `invalido`, formato não reconhecido, lista de incluídos
+  malformada) a lista apresentada é entregue e **ignorada**: nenhuma coincidência e nenhuma discrepância
+  é afirmada, e o texto é o de antes. Isso é medido pelos testes, e não é uma conferência da lista nesses
+  modos.
+- ⚠ **A redação do modelo sobre estas frases não foi testada** (T10 a T12), e a fiação na tela **continua
+  sem execução por teste**: esta rodada não toca a tela.
+- ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem consulta a produção e sem
+  geração de parecer.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

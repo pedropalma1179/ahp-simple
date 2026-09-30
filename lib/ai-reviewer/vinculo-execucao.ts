@@ -646,7 +646,7 @@ const NENHUM = 'nenhum (comparação realizada)';
  * ⚠ O bloco declara estado, identificador, divergência e cobertura enviada. **Não emite
  * veredito, não classifica e não suspende.**
  */
-export function descreverVinculoParaContexto(raw: unknown): string {
+export function descreverVinculoParaContexto(raw: unknown, apresentada?: IdentidadeApresentada[]): string {
   if (raw === undefined || raw === null) return '';
 
   const v = comoRegistro(raw);
@@ -664,7 +664,7 @@ export function descreverVinculoParaContexto(raw: unknown): string {
   const linhas: string[] = [MARCADOR_DO_BLOCO_DO_VINCULO];
   // ⚠ A relação entre enviados e incluídos vem da COMPARAÇÃO DAS DUAS LISTAS, com multiplicidade,
   //   e nunca do estado nem do booleano transportado.
-  const leitura = lerVinculoParaTexto(raw);
+  const leitura = lerVinculoParaTexto(raw, apresentada);
 
   linhas.push(`- Estado do vínculo: **${v.estado}** — ${seguro(v.motivo ?? 'sem motivo informado', 700)}`);
   linhas.push(
@@ -717,10 +717,15 @@ export function descreverVinculoParaContexto(raw: unknown): string {
   // ---- a cobertura ENVIADA, que é outra coisa
   linhas.push(
     cob?.restringiu === true
-      ? `- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados.`
+      ? '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ' +
+          // ⚠ R4: se a lista APRESENTADA não corresponde aos enviados declarados, o bloco não afirma que corresponde.
+          (leitura.conferencia !== null && !leitura.conferencia.correspondeAosEnviados
+            ? `o vínculo declara que a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).`
+            : `a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados.`)
       : '- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado.'
   );
   linhas.push(LINHA_DA_RELACAO(leitura));
+  if (leitura.conferencia !== null) linhas.push(LINHA_DA_LISTA_APRESENTADA(leitura));
 
   // ---- os resumos, transportados
   const painel = comoRegistro(rc?.painel);
@@ -736,14 +741,29 @@ export function descreverVinculoParaContexto(raw: unknown): string {
         `serialização ${seguro(painel.serialization ?? 'não informada')}): ${conteudo}`
     );
     // ⚠ Da COMPARAÇÃO DAS LISTAS (`null` quando ela não se realizou), e não do booleano transportado.
-    const iguais = leitura.relacao ? leitura.relacao.iguais : null;
+    //   R4: com a lista APRESENTADA, "coincide" só sai quando os TRÊS conjuntos correspondem um a um.
+    const c = leitura.conferencia;
+    const cobertura: 'coincide' | 'difere' | 'nao-confirma' | 'nao-comparado' =
+      c !== null
+        ? c.todosCorrespondem
+          ? 'coincide'
+          : c.correspondeAosIncluidos
+            ? 'nao-confirma'
+            : 'difere'
+        : leitura.relacao
+          ? leitura.relacao.iguais
+            ? 'coincide'
+            : 'difere'
+          : 'nao-comparado';
     linhas.push(
       '  - Cobre o conjunto do DOCUMENTO de cálculo; identifica, e não verifica.' +
-        (iguais === false
+        (cobertura === 'difere'
           ? ' ⚠ NÃO descreve o conjunto enviado a você, que difere do conjunto do documento.'
-          : iguais === true
+          : cobertura === 'coincide'
             ? ' O conjunto enviado coincide com o do documento.'
-            : ' Não se sabe se descreve o conjunto enviado (comparação NÃO realizada).')
+            : cobertura === 'nao-confirma'
+              ? ' Não se pode afirmar que descreve o conjunto enviado a você: a lista apresentada tem os identificadores dos incluídos, mas difere dos enviados declarados (ver a linha da lista APRESENTADA, acima).'
+              : ' Não se sabe se descreve o conjunto enviado (comparação NÃO realizada).')
     );
   }
 
@@ -835,6 +855,12 @@ export interface LeituraDoVinculo {
    */
   incluidosDeclarados: number | null;
   enviadosDeclarados: number | null;
+  /**
+   * A conferência da lista APRESENTADA (a de `qualityAnalysis.respondents`, como a rota a exibe) contra os
+   * enviados declarados e contra os incluídos. `null` quando o chamador não entregou a lista, ou fora do
+   * modo `comparado`.
+   */
+  conferencia: ConferenciaDaListaApresentada | null;
 }
 
 const listaDeTexto = (x: unknown): string[] | null =>
@@ -872,12 +898,136 @@ export function compararEnviadosComIncluidos(enviados: string[], incluidos: stri
   };
 }
 
+// ======================================================================================
+// A.12 etapa 3, estágio 1, R4: A COMPARAÇÃO USA A LISTA APRESENTADA
+// ======================================================================================
+
+/**
+ * ⚠ **O defeito.** A comparação do texto usava as duas listas DECLARADAS dentro do vínculo
+ * (`enviados` e `incluidosNoDocumento`), e a rota entregava às frases só o TAMANHO da lista que de
+ * fato apresenta ao modelo: três respondentes podiam ser afirmados "um a um" com quatro.
+ *
+ * ⚠ **A correção compara os identificadores da lista APRESENTADA**, com multiplicidade, contra os
+ * enviados declarados e contra os incluídos. Havendo discrepância, ela se conserva e a
+ * coincidência não se afirma.
+ *
+ * ⚠ **A identidade que o modelo LÊ é o `displayId`**, e não o `respondentId` cru. Ela nasce numa
+ * função pura escrita UMA vez, e a rota a chama onde construía o `displayId`. **A origem é
+ * registrada na construção, e nunca inferida pela grafia**: um `hash_000` recebido em
+ * `respondentId` ou `id` tem origem `respondentId` ou `id` e corresponde normalmente; um `hash_000`
+ * GERADO pelo fallback posicional tem origem `posicional` e não corresponde a ninguém.
+ */
+export type OrigemDaIdentidade = 'respondentId' | 'id' | 'posicional';
+
+export interface IdentidadeApresentada {
+  /** O valor bruto de `displayId`, como a rota o interpola no contexto (pode não ser texto). */
+  bruto: any;
+  /** O que o modelo LÊ: `String(bruto)`. */
+  valor: string;
+  /** DE ONDE veio, decidido na CONSTRUÇÃO. */
+  origem: OrigemDaIdentidade;
+  /** Posição do elemento na lista apresentada, a partir de 0. */
+  posicao: number;
+}
+
+/**
+ * ⚠ **A mesma expressão que estava em `route.ts`** (`r.respondentId || r.id`, e `hash_NNN` pelo
+ * índice quando o valor falta ou é a string "undefined" ou "null"), agora com a ORIGEM registrada
+ * ao lado do valor. A rota chama esta função e não repete a expressão.
+ */
+export function identificarParaApresentacao(elemento: any, indice: number): IdentidadeApresentada {
+  let bruto = elemento.respondentId || elemento.id;
+  let origem: OrigemDaIdentidade = elemento.respondentId ? 'respondentId' : 'id';
+  if (!bruto || bruto === 'undefined' || bruto === 'null') {
+    bruto = `hash_${indice.toString().padStart(3, '0')}`;
+    origem = 'posicional';
+  }
+  return { bruto, valor: String(bruto), origem, posicao: indice };
+}
+
+export interface DiferencaDeListas {
+  /** Multiplicidade preservada: os mesmos identificadores, o mesmo número de vezes cada um. */
+  iguais: boolean;
+  /** Ocorrências a mais na lista apresentada (uma entrada por unidade de excesso). */
+  soNaApresentada: string[];
+  /** Ocorrências a mais no conjunto declarado (uma entrada por unidade de falta na apresentada). */
+  soNoDeclarado: string[];
+  /** Identificadores que se repetem na lista apresentada. */
+  repetidosNaApresentada: { identificador: string; ocorrencias: number }[];
+}
+
+/** A mesma comparação com multiplicidade de `compararEnviadosComIncluidos`, com os nomes dos dois lados. */
+export function compararListas(apresentados: string[], declarados: string[]): DiferencaDeListas {
+  const r = compararEnviadosComIncluidos(apresentados, declarados);
+  return {
+    iguais: r.iguais,
+    soNaApresentada: r.enviadosForaDoDocumento,
+    soNoDeclarado: r.incluidosForaDosEnviados,
+    repetidosNaApresentada: r.repetidosNosEnviados,
+  };
+}
+
+export interface ConferenciaDaListaApresentada {
+  /** A lista como o modelo a lê, na ordem, com a origem de cada identidade. */
+  identidades: IdentidadeApresentada[];
+  totalApresentado: number;
+  /** As identidades GERADAS pelo fallback posicional: nunca correspondem a ninguém. */
+  posicionais: IdentidadeApresentada[];
+  contraEnviados: DiferencaDeListas;
+  contraIncluidos: DiferencaDeListas;
+  correspondeAosEnviados: boolean;
+  correspondeAosIncluidos: boolean;
+  /** Os três conjuntos correspondem um a um, com multiplicidade e sem identidade posicional. */
+  todosCorrespondem: boolean;
+  /** Identificadores da lista apresentada que não estão em NENHUM dos dois conjuntos declarados. */
+  ausentesDeAmbos: string[];
+}
+
+/**
+ * Confere a lista APRESENTADA contra os enviados declarados e contra os incluídos. ⚠ A identidade
+ * de origem `posicional` sai da comparação: não corresponde a ninguém, mesmo que o mesmo texto
+ * conste dos conjuntos declarados, e fica registrada à parte com o seu motivo.
+ */
+export function conferirListaApresentada(
+  apresentada: IdentidadeApresentada[],
+  enviados: string[],
+  incluidos: string[]
+): ConferenciaDaListaApresentada {
+  const posicionais = apresentada.filter((i) => i.origem === 'posicional');
+  const comparaveis = apresentada.filter((i) => i.origem !== 'posicional').map((i) => i.valor);
+  const contraEnviados = compararListas(comparaveis, enviados);
+  const contraIncluidos = compararListas(comparaveis, incluidos);
+  const correspondeAosEnviados = posicionais.length === 0 && contraEnviados.iguais;
+  const correspondeAosIncluidos = posicionais.length === 0 && contraIncluidos.iguais;
+  const nosEnviados = new Set(enviados);
+  const nosIncluidos = new Set(incluidos);
+  return {
+    identidades: apresentada,
+    totalApresentado: apresentada.length,
+    posicionais,
+    contraEnviados,
+    contraIncluidos,
+    correspondeAosEnviados,
+    correspondeAosIncluidos,
+    todosCorrespondem: correspondeAosEnviados && correspondeAosIncluidos,
+    ausentesDeAmbos: [...new Set(comparaveis.filter((v) => !nosEnviados.has(v) && !nosIncluidos.has(v)))],
+  };
+}
+
 /**
  * Lê o que veio em `vinculoDaExecucao` para o TEXTO ao redor do bloco. Nunca lança, e nunca
  * afirma o que as listas não sustentam: sem as duas listas bem formadas não há comparação.
+ * ⚠ Com `apresentada`, confere também a lista que a rota realmente apresenta (R4).
  */
-export function lerVinculoParaTexto(raw: unknown): LeituraDoVinculo {
-  const vazio = { incluidos: null, enviados: null, relacao: null, incluidosDeclarados: null, enviadosDeclarados: null };
+export function lerVinculoParaTexto(raw: unknown, apresentada?: IdentidadeApresentada[]): LeituraDoVinculo {
+  const vazio = {
+    incluidos: null,
+    enviados: null,
+    relacao: null,
+    incluidosDeclarados: null,
+    enviadosDeclarados: null,
+    conferencia: null,
+  };
   if (raw === undefined || raw === null) {
     return { modo: 'ausente', estado: null, reconhecido: false, ...vazio };
   }
@@ -904,11 +1054,21 @@ export function lerVinculoParaTexto(raw: unknown): LeituraDoVinculo {
         incluidos,
         enviados,
         relacao: compararEnviadosComIncluidos(enviados, incluidos),
+        conferencia: apresentada === undefined ? null : conferirListaApresentada(apresentada, enviados, incluidos),
         ...declarados,
       };
     }
   }
-  return { modo: 'sem-comparacao', estado, reconhecido: true, incluidos: null, enviados: null, relacao: null, ...declarados };
+  return {
+    modo: 'sem-comparacao',
+    estado,
+    reconhecido: true,
+    incluidos: null,
+    enviados: null,
+    relacao: null,
+    conferencia: null,
+    ...declarados,
+  };
 }
 
 // ---- as linhas novas DO BLOCO
@@ -945,10 +1105,80 @@ export const LINHA_DA_RELACAO = (l: LeituraDoVinculo): string => {
   }
   // ⚠ O acréscimo sobre a divergência anterior à restrição depende de o vínculo tê-la REGISTRADO
   //   (estado `divergente`); a coincidência em si vem só da comparação das listas.
+  const lembrete = l.estado === 'divergente' ? ' A divergência anterior à restrição, acima, permanece registrada.' : '';
+  // ⚠ R4: quando a lista APRESENTADA não corresponde aos três conjuntos, o radical "coincid" não sai
+  //   daqui: os dois conjuntos DECLARADOS podem ter os mesmos identificadores sem que a lista apresentada
+  //   os tenha, e a correspondência dela está na linha seguinte.
+  const soDeclarados = l.conferencia !== null && !l.conferencia.todosCorrespondem;
+  if (r.iguais && soDeclarados) {
+    return (
+      `${PREFIXO_DA_RELACAO}os dois conjuntos DECLARADOS têm os mesmos identificadores, um a um (${r.enviados} enviados declarados, ${r.incluidos} incluídos); ` +
+      'a correspondência da lista APRESENTADA a você está na linha seguinte.' +
+      lembrete
+    );
+  }
   return r.iguais
-    ? `${PREFIXO_DA_RELACAO}COINCIDEM, um a um (${r.enviados} enviados, ${r.incluidos} incluídos).` +
-        (l.estado === 'divergente' ? ' A divergência anterior à restrição, acima, permanece registrada.' : '')
-    : `${PREFIXO_DA_RELACAO}DIFEREM (${r.enviados} enviados, ${r.incluidos} incluídos): ${r.incluidosForaDosEnviados.length} incluído(s) no documento e ausente(s) dos enviados; ${r.enviadosForaDoDocumento.length} enviado(s) ausente(s) do documento; ${r.repetidosNosEnviados.length} identificador(es) repetido(s) nos enviados.`;
+    ? `${PREFIXO_DA_RELACAO}COINCIDEM, um a um (${r.enviados} enviados, ${r.incluidos} incluídos).` + lembrete
+    : `${PREFIXO_DA_RELACAO}DIFEREM (${r.enviados} enviados, ${r.incluidos} incluídos): ${r.incluidosForaDosEnviados.length} incluído(s) no documento e ausente(s) dos enviados; ${r.enviadosForaDoDocumento.length} enviado(s) ausente(s) do documento; ${r.repetidosNosEnviados.length} identificador(es) repetido(s) nos enviados.` +
+        // ⚠ R4: quando a lista APRESENTADA não corresponde aos enviados declarados, "enviados" aqui são os DECLARADOS.
+        (l.conferencia !== null && !l.conferencia.correspondeAosEnviados
+          ? ' Este é o confronto dos dois conjuntos DECLARADOS; a lista APRESENTADA a você está na linha seguinte.'
+          : '');
+};
+
+const citar = (xs: string[], vazio: string): string =>
+  xs.length === 0 ? vazio : `[${xs.map((x) => `"${seguro(x)}"`).join(', ')}]`;
+
+const DESCRICAO_DA_LISTA_APRESENTADA = (n: number): string =>
+  `- Lista de respondentes APRESENTADA a você (${n} identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, ` +
+  'na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): ';
+
+/**
+ * ⚠ A linha da lista APRESENTADA (R4). Só existe quando a rota entregou a lista. O radical "coincid"
+ * só sai quando os TRÊS conjuntos correspondem um a um; na discrepância os três se conservam, cada um
+ * com a sua origem, e a identidade GERADA por posição tem motivo próprio.
+ */
+export const LINHA_DA_LISTA_APRESENTADA = (l: LeituraDoVinculo): string => {
+  const c = l.conferencia;
+  if (c === null || l.enviados === null || l.incluidos === null) return '';
+  const descricao = DESCRICAO_DA_LISTA_APRESENTADA(c.totalApresentado);
+  if (c.todosCorrespondem) {
+    return (
+      `${descricao}COINCIDE, um a um, com os ${l.enviados.length} enviados declarados (etapa: envio) ` +
+      `e com os ${l.incluidos.length} incluídos no documento de cálculo (etapa: cálculo).`
+    );
+  }
+  const apresentados = c.identidades.map((i) =>
+    i.origem === 'posicional' ? `"${seguro(i.valor)}" (gerado por posição)` : `"${seguro(i.valor)}"`
+  );
+  const repetidos = c.contraEnviados.repetidosNaApresentada;
+  return (
+    `${descricao}DIFERE do que o vínculo declara. Os três conjuntos se conservam, cada um com a sua origem: ` +
+    `apresentada [${apresentados.join(', ')}] (${c.totalApresentado}; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio); ` +
+    `enviados declarados ${citar(l.enviados, '[]')} (${l.enviados.length}; vinculoDaExecucao.enviados; etapa: envio); ` +
+    `incluídos ${citar(l.incluidos, '[]')} (${l.incluidos.length}; vinculoDaExecucao.incluidosNoDocumento, de metadata.includedRespondents; etapa: cálculo). ` +
+    `Contra os incluídos: ${c.contraIncluidos.soNoDeclarado.length} ocorrência(s) só nos incluídos ${citar(c.contraIncluidos.soNoDeclarado, '(nenhuma)')}; ` +
+    `${c.contraIncluidos.soNaApresentada.length} ocorrência(s) só na lista apresentada ${citar(c.contraIncluidos.soNaApresentada, '(nenhuma)')}. ` +
+    `Contra os enviados declarados: ${c.contraEnviados.soNoDeclarado.length} ocorrência(s) só nos enviados declarados ${citar(c.contraEnviados.soNoDeclarado, '(nenhuma)')}; ` +
+    `${c.contraEnviados.soNaApresentada.length} ocorrência(s) só na lista apresentada ${citar(c.contraEnviados.soNaApresentada, '(nenhuma)')}. ` +
+    `Repetidos na lista apresentada: ${
+      repetidos.length === 0
+        ? 'nenhum'
+        : repetidos.map((r) => `"${seguro(r.identificador)}" (${r.ocorrencias} ocorrências)`).join('; ')
+    }. ` +
+    `Identidade por posição na lista apresentada: ${
+      c.posicionais.length === 0
+        ? 'nenhuma'
+        : c.posicionais
+            .map(
+              (i) =>
+                `"${seguro(i.valor)}" (posição ${i.posicao} da lista, contada a partir de 0), GERADA pelo fallback posicional: ` +
+                'não corresponde a ninguém, mesmo que o mesmo texto conste dos conjuntos declarados'
+            )
+            .join('; ')
+    }. ` +
+    `Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: ${citar(c.ausentesDeAmbos, 'nenhum')}.`
+  );
 };
 
 /**
@@ -1019,9 +1249,24 @@ export function frasesDaListaComVinculo(l: LeituraDoVinculo, n: number): FrasesD
   let total: string;
   let agregacao: string;
   if (l.modo === 'comparado' && r !== null) {
-    total = r.iguais
-      ? `${abertura} e COINCIDE, um a um, com os ${r.incluidos} incluídos no documento de cálculo.**`
-      : `${abertura}, mas DIFERE dos ${r.incluidos} incluídos no documento de cálculo: ${r.incluidosForaDosEnviados.length} incluído(s) no documento e ausente(s) desta lista, ${r.enviadosForaDoDocumento.length} enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**`;
+    const c = l.conferencia;
+    if (c === null) {
+      // Sem a lista APRESENTADA (chamada direta): a comparação é a das duas listas declaradas.
+      total = r.iguais
+        ? `${abertura} e COINCIDE, um a um, com os ${r.incluidos} incluídos no documento de cálculo.**`
+        : `${abertura}, mas DIFERE dos ${r.incluidos} incluídos no documento de cálculo: ${r.incluidosForaDosEnviados.length} incluído(s) no documento e ausente(s) desta lista, ${r.enviadosForaDoDocumento.length} enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**`;
+    } else if (c.todosCorrespondem) {
+      total = `${abertura} e COINCIDE, um a um, com os ${r.incluidos} incluídos no documento de cálculo.**`;
+    } else if (!c.correspondeAosIncluidos) {
+      // ⚠ R4: a lista APRESENTADA difere dos incluídos. As identidades geradas por posição não correspondem a ninguém.
+      total = `${abertura}, mas DIFERE dos ${r.incluidos} incluídos no documento de cálculo: ${c.contraIncluidos.soNoDeclarado.length} incluído(s) no documento e ausente(s) desta lista, ${c.contraIncluidos.soNaApresentada.length + c.posicionais.length} enviado(s) ausente(s) do documento (identificadores no bloco do vínculo, acima).**`;
+      if (!c.correspondeAosEnviados) {
+        total += `\n⚠ A lista também DIFERE dos ${r.enviados} enviados declarados no vínculo: ${c.contraEnviados.soNoDeclarado.length} enviado(s) declarado(s) ausente(s) desta lista, ${c.contraEnviados.soNaApresentada.length + c.posicionais.length} apresentado(s) ausente(s) dos enviados declarados (identificadores no bloco do vínculo, acima).`;
+      }
+    } else {
+      // A lista APRESENTADA tem os identificadores dos incluídos, mas difere dos enviados declarados.
+      total = `${abertura}; ela tem os mesmos identificadores dos ${r.incluidos} incluídos no documento de cálculo, mas DIFERE dos ${r.enviados} enviados declarados no vínculo: ${c.contraEnviados.soNoDeclarado.length} enviado(s) declarado(s) ausente(s) desta lista, ${c.contraEnviados.soNaApresentada.length} apresentado(s) ausente(s) dos enviados declarados (identificadores no bloco do vínculo, acima).**`;
+    }
     agregacao =
       `**CÁLCULO — contagem registrada no documento de cálculo: ${r.incluidos} respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ` +
       `⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.\n` +
@@ -1066,6 +1311,11 @@ export function frasesDaListaComVinculo(l: LeituraDoVinculo, n: number): FrasesD
     cabecalhoDasContagens: 'Contagens por status, sobre os ENVIADOS a você (etapa: envio):\n',
     regraDeMencao:
       '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. ' +
-      'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.',
+      'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.' +
+      // ⚠ R4: o texto de R2 fica INTACTO como prefixo. Na discrepância o bloco nomeia identificadores declarados e
+      //   ausentes da lista apresentada, e uma regra que não os cobrisse recriaria a contradição entre regra e bloco.
+      (l.conferencia !== null && !l.conferencia.todosCorrespondem
+        ? ' Também pode ser nomeado, SOMENTE nesse papel, um identificador que o vínculo declara (nos enviados declarados ou nos incluídos) e que está ausente da lista apresentada, como registrado na linha "Lista de respondentes APRESENTADA" do bloco do vínculo.'
+        : ''),
   };
 }

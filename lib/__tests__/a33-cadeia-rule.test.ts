@@ -237,6 +237,21 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 8,
+    motivo: 'A.12 etapa 3, estagio 1, R4: a comparacao do bloco usa a lista APRESENTADA, e a origem da identidade e registrada onde a rota constroi o displayId (alterou route.ts)',
+    commitDaBase: '1ffd15464e5d204df39a70292945e1a015a07bc5',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 3112 campos antes e 3122 depois, ZERO perdidos,
+    //   DEZ novos (todos nesta propria entrada) e UM mudado. Nenhum texto de contexto se moveu:
+    //   camadas, montagem e as demais secoes ficaram identicas, porque as requisicoes desta
+    //   suite NAO trazem `vinculoDaExecucao`, e sem o campo o contexto e byte a byte o anterior
+    //   (R7, com as ancoras absolutas em vinculo-execucao-fiacao.test.ts).
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

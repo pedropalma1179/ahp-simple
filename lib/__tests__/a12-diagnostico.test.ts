@@ -192,6 +192,20 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 10,
+    motivo: 'A.12 etapa 3, estagio 1, R4: a comparacao do bloco usa a lista APRESENTADA, e a origem da identidade e registrada onde a rota constroi o displayId (alterou route.ts, e a tela NAO mudou)',
+    commitDaBase: '1ffd15464e5d204df39a70292945e1a015a07bc5',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 419 campos antes e 429 depois, ZERO perdidos,
+    //   DEZ novos (todos nesta propria entrada) e UM mudado, e e o resumo de codigo da rota.
+    //   bytesDoContexto NAO se moveu em nenhum dos quatro casos: nenhuma das quatro requisicoes
+    //   traz `vinculoDaExecucao`, e sem o campo o contexto e byte a byte o de antes.
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
