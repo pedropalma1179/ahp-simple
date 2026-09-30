@@ -504,6 +504,11 @@ regra de menção proibindo citar quem o bloco nomeia.
    o reparte por quatro, arredondando para baixo (`route.ts:559-588` em `a973c8f`). Isso não é objeto
    desta correção, e a chave apenas diz que esses totais não medem participação nem são o N de
    matriz alguma.
+   ⚠ **Superado em 30/09/2026 (A.12, estatísticas por dimensão, saída A):** hoje as linhas cobertas só pela chave
+   são **seis**, e não dez, porque as quatro `Respostas totais` por dimensão **saíram** do bloco;
+   `normalizeRequest` **não reparte mais** o agregado; e o item da chave **não descreve mais** a divisão. O
+   parágrafo acima descreve o comportamento de `a973c8f` e fica como registro dele; o comportamento atual está na
+   entrada "Estatísticas por dimensão BOCR, Fase 2, SAÍDA A", mais abaixo.
 
 2. **A relação entre enviados e incluídos vem da COMPARAÇÃO DAS DUAS LISTAS, com multiplicidade, e
    nunca do estado nem do booleano transportado** (`cobertura.enviadosIguaisAoDocumento`). O mesmo
@@ -642,6 +647,26 @@ redação do modelo sobre estas frases **não foi testada**: só o que ele **rec
   substituição por zero **não sobrevive** a `app/api/response-quality/route.ts:393-398`. **A Fase 2 (as saídas A e
   B) não foi executada.** Registro datado, dados e limites em `docs/imprecisoes-parecer-ia.md` e em
   `docs/dados/a12-estatisticas-dimensao/`.
+- ⚠ **Estatísticas por dimensão BOCR, Fase 2, SAÍDA A (30/09/2026): implementada.** O autor escolheu a saída A; a B
+  não foi implementada. **Comportamento atual:** `normalizeRequest` **não lê** `individualStats` nem
+  `criteriaStats`, e o bloco "Estatísticas por Dimensão BOCR" **não traz número por dimensão** em caso algum. Para o
+  pedido **elegível** o bloco diz que a contagem por dimensão está **não disponível nesta requisição**, e que os
+  totais do contexto são agregados e não identificam a dimensão (a razão diz só o que o contexto tem, e não o que a
+  requisição carrega); para o pedido **não elegível**, seja qual for a causa, a frase de indisponibilidade
+  **existente** fica **palavra por palavra**. A Taxa de Validade Geral fica a **medida**, inclusive `0.0%` quando
+  esse é o resultado medido; **sem base** (nenhuma das três fontes, `byStatus`, `summary` e `overallStats`, com
+  total positivo) ela é "não calculada", e nunca `0.0%` no lugar da ausência. O item da chave de leitura deixou de
+  descrever a divisão por quatro. ⚠ **Um `individualStats` já por dimensão também não é apresentado:** a saída A
+  não distingue a origem. ⚠ **A tela continua enviando o agregado achatado**; a rota é que não o lê.
+  ⚠ **A propriedade "requisição sem `vinculoDaExecucao` gera contexto byte a byte o anterior" DEIXOU DE VALER, por
+  decisão do autor:** para o pedido **elegível** (o bloco muda, com ou sem o campo) e, **com** o campo, para todo
+  pedido (o item da chave muda). **Continua valendo** para o pedido não elegível sem o campo. **Integridade
+  histórica e comportamento atual estão separados:** as entradas acima, de `a973c8f` a `35a1506`, descrevem
+  aquelas bases e não foram reescritas; a frase "não foi corrigida", da R4 acima, é verdadeira **para `bfa7e81`**, e
+  a redistribuição por dimensão foi corrigida agora. ⚠ **O consumidor agregado (`:855-864` em `35a1506`) era
+  inalcançado** (cobertura observada: 0 de 32 combinações e 0 execuções; leitura das condições: elegível implica
+  `byStatus` presente) e **saiu**: previne um defeito latente, e não corrige um defeito ativo. Registro datado,
+  medição e dados: `docs/imprecisoes-parecer-ia.md` e `docs/dados/a12-estatisticas-dimensao/saida-a/`.
 - ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem verificação de
   conteúdo, e sem consulta a produção.
 
@@ -681,6 +706,10 @@ Campos principais: `projectName`, `projectDescription`, `alternatives[]`,
 `finalScores[]`, `responseCount`, `sensitivityInflections`, `ipcMetadata`,
 `demographicsSummary`, `exclusionInfo`, `individualStats`, `qualityAnalysis`,
 `avaliacaoDeQualidade` (etapa 1) e `vinculoDaExecucao` (etapa 3, estágio 1, descrito acima).
+
+⚠ **`individualStats` é aceito e NÃO é lido** desde a saída A de A.12 (30/09/2026): a tela o envia achatado
+(`total`, `valid`, `warning`, `critical`), e nenhum valor dele chega ao contexto. O bloco de estatísticas por
+dimensão declara a contagem por dimensão **não disponível nesta requisição**.
 
 ⚠ **O dashboard envia `'REVISAR': 0` fixo** (`resultados/page.tsx:1167`). A
 distribuição de status que chega à IA nunca tem essa categoria preenchida.

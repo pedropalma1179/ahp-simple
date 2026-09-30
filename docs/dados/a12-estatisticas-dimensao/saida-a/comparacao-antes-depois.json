@@ -1,0 +1,532 @@
+{
+ "_meta": {
+  "natureza": "Comparacao ANTES (codigo de 35a1506, sonda corrigida) e DEPOIS (codigo da saida A), por 27 cenarios, pelo tratador real com o cliente do modelo simulado. NAO e teste versionado: e o resultado de uma comparacao temporaria, cujo instrumento esta arquivado em instrumentos/. O que e versionado como teste (a12-estatisticas-dimensao.test.ts) confere o mesmo por sha256 da base.",
+  "corpoDaResposta": "nota, veredicto, notaSuspensa e as chaves do corpo",
+  "limites": "cenarios CONSTRUIDOS; a tela nao e executada por teste algum; coerencia interna do pedido, sem cobertura do universo real"
+ },
+ "totais": {
+  "cenarios": 27,
+  "elegiveis": 18,
+  "naoElegiveis": 9,
+  "depoisIgualAoAntesComExatamenteAsSubstituicoes": 27,
+  "corpoDaRespostaIgual": 27,
+  "sha256SystemIgual": 27,
+  "linhaDaTaxaIgual": 27,
+  "comItemDaChaveSubstituido": 13
+ },
+ "cenarios": [
+  {
+   "nome": "agregado-12-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "ca075de6ea419aaade78e03386f6100218ab019ef4f765ed5b0d6d9c4a381e81",
+   "sha256ContextoDepois": "cdcc117f6556afc3d1823df67d892f4bc29c1cb1b814c6f312b51a03153ae1bf",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-12-gravado-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "672dda45ac59f2a1fa917e911d46ce6d251e8df272bbb221bca7e3f57157da24",
+   "sha256ContextoDepois": "405d62e4e0e828428a454054d2a6f3f6742371490c6693a7c9933113d10eef87",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "A",
+   "veredicto": "ACEITO",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-12-gravado-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "e83abe6ca667f8b0ad6b6c77c186b0ccfa0a760a1cdc5d6eb655380e4d6201c7",
+   "sha256ContextoDepois": "ec61e825e4516aad553b5eec1e20797c16610cc4e1ba65135cf795ba4811736e",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "A",
+   "veredicto": "ACEITO",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-12-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "5da75d084bb25ce8028a5ab726e31a74f4af05e498856cbb071f1492086343da",
+   "sha256ContextoDepois": "781515dc8108e7e7af2b4241b07f58fb82b7a2c7b632a172f9d6db4288b3cab6",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-3-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "e606ec3393e2572e22fc98b87b77f5794796d64b2b2bd22b12da36d499b4887b",
+   "sha256ContextoDepois": "38b1c59e4e49df348c66bebd54bfca74de2b7813ad44390cf61bffed651360ff",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 33.3% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 33.3% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-3-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "c96b5ab40b8dc8212f7ae59374b6c3e558beaa8ad885524bb7d62a995e73a7ea",
+   "sha256ContextoDepois": "24ae2c3f6208e0da4e72e6556876d8aa9268ad87571a19a44b90bc2299cbc23a",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 33.3% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 33.3% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-5-com-2-desconhecidos-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "b5b55b1a1f01d66f7be804ee3a2c2fcc3ea92308bd379a034365614075f6ab6c",
+   "sha256ContextoDepois": "fc62c9799236c41c6811a4bd8f0330ae843d885bb345d851d3bb1b792703598e",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 80.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 80.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "B",
+   "veredicto": "ACEITO COM REVISÕES MENORES",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-5-com-2-desconhecidos-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "ee7e95835688823dc1364a4d55d1af21cc667f06f859cdcdb78ba7122246cc5b",
+   "sha256ContextoDepois": "8c08d98a2f78ad94cbba64b1f420dbfd56f0f41583758fad10954513e4e997a7",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 80.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 80.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "B",
+   "veredicto": "ACEITO COM REVISÕES MENORES",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-5-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "496535b6b9794f89cb8cad749d5950faba55f3a866e4b89b3b1aa5d3555ae3c0",
+   "sha256ContextoDepois": "983c0405a86777c0d1d0922e5c3aa9c993c09b1f046278bc6c285fe8eb96e10e",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "agregado-5-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "3679ec9459b25fd45b3209a5883d3be295a7032ee169f19f5a90082781d1db85",
+   "sha256ContextoDepois": "fbabf60ee09d524b8826e89325a2ed66ad417938ec04d90efa5252d78cd47568",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "coerencia-nao-concluida-comVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "c067881a16248deec83a33c664ba32fdd5411ad6af1d3976fb5a44d2148e4a71",
+   "sha256ContextoDepois": "299a8120abcdbcf37868d1544d598bdf7c2bb4ed485df42f7cd7f91daa8a2c50",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "coerencia_nao_concluida"
+  },
+  {
+   "nome": "coerencia-nao-concluida-semVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "12519302f38f9125426d134757225e85ad72859f43d9fac29b300e154720b4e6",
+   "sha256ContextoDepois": "12519302f38f9125426d134757225e85ad72859f43d9fac29b300e154720b4e6",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "coerencia_nao_concluida"
+  },
+  {
+   "nome": "contradicao-comVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "10a5b8b00deb23e50e3aa6fd432aa175449eafd7341065a7b68a9ca785e674e2",
+   "sha256ContextoDepois": "a64711c828bbe6c9ffb6d7ca1461099c6b43e12b361b06318aac9f9ddecd5a79",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "contradicao"
+  },
+  {
+   "nome": "contradicao-semVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "b290f7d4781cb06740fd800a9cdf02842841beee8bfd4aa734ecaf9704d55227",
+   "sha256ContextoDepois": "b290f7d4781cb06740fd800a9cdf02842841beee8bfd4aa734ecaf9704d55227",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "contradicao"
+  },
+  {
+   "nome": "duplo-por-dimensao-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "d4c785cb1e7132e48d3d080b6f9f87f7bfd3e7c1b82233ab242259960d5cd8a6",
+   "sha256ContextoDepois": "983c0405a86777c0d1d0922e5c3aa9c993c09b1f046278bc6c285fe8eb96e10e",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "duplo-por-dimensao-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "0f98b646c6730f4c38390e986e867d07ef8ef20428ca811b127b9c20d9d5e3bd",
+   "sha256ContextoDepois": "fbabf60ee09d524b8826e89325a2ed66ad417938ec04d90efa5252d78cd47568",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "elegivel-sem-individualStats-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "2a8bdaa18544c8030b65e4935624c016d6110182986f3aae9fcb5b2ef0bee19c",
+   "sha256ContextoDepois": "983c0405a86777c0d1d0922e5c3aa9c993c09b1f046278bc6c285fe8eb96e10e",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "elegivel-sem-individualStats-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "2580b29bd914178fe25e9fdbe6ddf6cc415a0ac893930a80121f721561ff8d9a",
+   "sha256ContextoDepois": "fbabf60ee09d524b8826e89325a2ed66ad417938ec04d90efa5252d78cd47568",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "elegivel-total-zero-semVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "c26dc2b54d1f567a7dadb4a9e748d478b749eff009b5748fab33bcf2d9894d54",
+   "sha256ContextoDepois": "c26dc2b54d1f567a7dadb4a9e748d478b749eff009b5748fab33bcf2d9894d54",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "disponibilidade"
+  },
+  {
+   "nome": "nao-avaliada-ausente-comVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "59b5c5c3ae1f9c3d49c3825f7a9be54e30a3f56a677246acb66b8f2d2ab025c9",
+   "sha256ContextoDepois": "48574daf24f76203dcf58f2d408efb1d4d2293658815187b938c728e108fbe5e",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "disponibilidade"
+  },
+  {
+   "nome": "nao-avaliada-ausente-semVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "510fd08e4d0bcdbba8716d0d4d865f2f6c45403ba43aa34ebeb850232dff3365",
+   "sha256ContextoDepois": "510fd08e4d0bcdbba8716d0d4d865f2f6c45403ba43aa34ebeb850232dff3365",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "disponibilidade"
+  },
+  {
+   "nome": "nao-avaliada-incompleta-comVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "cb07a6ea82153d9ae1f72ea4bec518f01208565d93548cc008f930e4de728f2e",
+   "sha256ContextoDepois": "17a81acf311040c3a1e19ffb6161ef30f6fc0e1d6d2c37d158fd03ebd35fe7f6",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "disponibilidade"
+  },
+  {
+   "nome": "nao-avaliada-incompleta-semVinculo",
+   "elegivel": false,
+   "substituicoesDeclaradas": {
+    "bloco": false,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "c4674e7980d36a7f43f9cdd21b7d723c671fa3c7d717d88e3b12c327aa2c2daa",
+   "sha256ContextoDepois": "c4674e7980d36a7f43f9cdd21b7d723c671fa3c7d717d88e3b12c327aa2c2daa",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "linhaDaTaxaIgual": true,
+   "nota": null,
+   "veredicto": null,
+   "causaDaSuspensao": "disponibilidade"
+  },
+  {
+   "nome": "todos-acima-3-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "3a895ae8f2b1ef98d6cf90143abd03b6633f9cca8abdc97d5a7dc6df6dac9d26",
+   "sha256ContextoDepois": "663c39232c4d8db48b75705c0a661a974cb1c91a45f0a545a4783257bee41e11",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "todos-acima-3-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "214d71b0e0645a3b43a82b96a0d4db7738ea667ee55f56b51691191bb8720ae5",
+   "sha256ContextoDepois": "1e0ba90e26cc931b804dac4d0acb60530616bc2486d72edd5d89e3ca4f0c1afa",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "F",
+   "veredicto": "REJEITAR",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "todos-validos-3-comVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": true
+   },
+   "sha256ContextoAntes": "1023840166af8bb0113fb776a7fcbda5a094dc910bccb879ff587e349d10154e",
+   "sha256ContextoDepois": "fda5f45f07b9c8b1effa469376959ef940265f46a05677104f59e3041ec84174",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "A",
+   "veredicto": "ACEITO",
+   "causaDaSuspensao": null
+  },
+  {
+   "nome": "todos-validos-3-semVinculo",
+   "elegivel": true,
+   "substituicoesDeclaradas": {
+    "bloco": true,
+    "itemDaChave": false
+   },
+   "sha256ContextoAntes": "faa90fe359e5163c368d7f38efd242eee93a6a49822e7e6102992dd535622c38",
+   "sha256ContextoDepois": "c0797db8010ad0b0aea29c30f90ddc57939e948239923efc681235ac6a0d99ea",
+   "depoisIgualAoAntesComExatamenteAsSubstituicoes": true,
+   "corpoDaRespostaIgual": true,
+   "sha256SystemIgual": true,
+   "linhaDaTaxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaDepois": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "linhaDaTaxaIgual": true,
+   "nota": "A",
+   "veredicto": "ACEITO",
+   "causaDaSuspensao": null
+  }
+ ]
+}

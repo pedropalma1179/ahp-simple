@@ -712,22 +712,26 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
     const coberta = (l: string) =>
       /^- Total: \d+ especialistas$/.test(l) ||
       /^- Respostas (CONFIÁVEIS|para REVISAR|SUSPEITAS|CRÍTICAS)/.test(l) ||
-      /^\*\*Taxa de Validade Geral:\*\*/.test(l) ||
-      /^- Respostas totais: \d+$/.test(l);
+      /^\*\*Taxa de Validade Geral:\*\*/.test(l);
+    // ⚠ A.12, estatísticas por dimensão (saída A): as quatro linhas "- Respostas totais: N" por dimensão SAÍRAM do bloco, e
+    //   deixaram de estar entre as cobertas pela chave. Se voltarem, o inventário as acha SEM população, e reprova.
 
-    test('COM o campo, 5 / 4 / 4 com exclusão: nenhuma contagem fica sem população, e as cobertas só pela chave são exatamente dez', async () => {
+    test('COM o campo, 5 / 4 / 4 com exclusão: nenhuma contagem fica sem população, e as cobertas só pela chave são exatamente seis', async () => {
       const { contexto } = await executarCenario(cenario(ids(5), ids(4)), { exclusionInfo: EXCLUSAO });
       const todas = candidatas(contexto);
       const semRotulo = todas.filter((l) => !rotulada(l) && !coberta(l));
       expect(semRotulo).toEqual([]);
       const soChave = todas.filter((l) => !rotulada(l) && coberta(l));
-      expect(soChave.length).toBe(10); // Total + 4 status + Taxa + 4 "Respostas totais" por dimensão
+      expect(soChave.length).toBe(6); // Total + 4 status + Taxa (eram dez: as 4 "Respostas totais" por dimensão saíram do bloco na saída A)
       expect(todas.length - soChave.length).toBe(11); // e onze nomeiam a população no próprio texto: a décima primeira é a linha da lista APRESENTADA (R4)
       expect(ocorrencias(contexto, '- Lista de respondentes APRESENTADA a você (4 identificador(es)')).toBe(1);
       // a chave existe, UMA vez, e diz a que população cada uma dessas contagens se refere
       expect(ocorrencias(contexto, '- Chave de leitura das contagens deste contexto')).toBe(1);
       expect(contexto).toContain('a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles');
-      expect(contexto).toContain('os totais por dimensão BOCR de "Estatísticas por Dimensão" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma');
+      // A.12, estatísticas por dimensão (saída A): o item da chave deixou de descrever a divisão por quatro
+      expect(contexto).toContain('"Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste contexto, e nenhuma deve ser derivada dos totais agregados');
+      expect(contexto).not.toContain('os totais por dimensão BOCR de "Estatísticas por Dimensão"');
+      expect(contexto).not.toContain('por quatro');
     });
 
     test('CONTRAEXEMPLO: SEM o campo, o mesmo inventário acha as contagens da redação anterior SEM população e SEM chave', async () => {

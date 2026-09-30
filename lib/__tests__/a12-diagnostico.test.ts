@@ -206,6 +206,27 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 11,
+    motivo: 'A.12, estatisticas por dimensao BOCR, saida A: o bloco deixa de trazer numero por dimensao (a divisao por quatro sai), a Taxa sem base deixa de ser 0.0%, e o item da chave deixa de descrever a divisao (alterou route.ts, review-request.ts e vinculo-execucao.ts, e a tela NAO mudou)',
+    commitDaBase: '47c9ff3603babb4844ce85deb489359d61008d9f',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 429 campos antes e 440 depois, ZERO
+    //   perdidos, ONZE novos (todos nesta propria entrada) e DOIS mudados. ⚠ Desta vez
+    //   bytesDoContexto SE MOVEU, e em UM caso so: `C-disponivel` e o unico dos quatro que e
+    //   ELEGIVEL, e nele o bloco de quatro dimensoes saiu e entrou uma frase. Os outros tres
+    //   (C-ausente, C-incompleta, C-contradicao) NAO sao elegiveis, e a frase de indisponibilidade
+    //   EXISTENTE foi preservada palavra por palavra. ⚠ A propriedade "sem o campo, contexto byte
+    //   a byte o anterior" DEIXOU DE VALER para o pedido elegivel, por decisao do autor, e por isso
+    //   este caso mudou mesmo sem `vinculoDaExecucao`.
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'quatroCasos[0].executadoAntesDaInterrupcao.bytesDoContexto',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

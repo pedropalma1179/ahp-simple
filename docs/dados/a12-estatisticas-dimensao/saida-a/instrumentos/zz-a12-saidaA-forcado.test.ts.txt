@@ -1,0 +1,62 @@
+export {};
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+process.env.ANTHROPIC_API_KEY = 'chave-anthropic-falsa-do-processo-de-teste';
+delete process.env.USE_RAG_SEMANTIC;
+
+// ⚠ DUPLO DE TESTE, declarado: a ELEGIBILIDADE é forçada, para que o código REAL dos totais (route.ts, ramo agregado) execute.
+jest.mock('@/lib/ai-reviewer/avaliacao-qualidade', () => {
+  const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
+  return { ...real, elegivelParaClassificacao: () => ({ elegivel: true, causa: null, motivo: null, rotulo: null }) };
+});
+const captura: { contexto: string } = { contexto: '' };
+jest.mock('@anthropic-ai/sdk', () => ({
+  __esModule: true,
+  default: class {
+    messages = {
+      create: async (a: { messages: Array<{ content: string }> }) => {
+        captura.contexto = a.messages.map((m) => m.content).join('\n');
+        return { content: [{ type: 'text', text: 'Parecer de ensaio, sem decisão editorial declarada no texto. '.repeat(3) }] };
+      },
+    };
+  },
+}));
+const { POST } = require('@/app/api/ai-reviewer/route');
+let silencios: jest.SpyInstance[] = [];
+beforeAll(() => { silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined)); });
+afterAll(() => silencios.forEach((s) => s.mockRestore()));
+jest.setTimeout(60000);
+
+const SAIDA = process.env.SAIDA_FORCADO as string;
+const item = (id: string, cr: number) => ({ respondentId: id, id, name: `R ${id}`, cr, metrics: { avgCR: cr }, status: cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.15 ? 'REVISAR' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO' });
+const pedido = (n: number, individualStats: any) => ({
+  avaliacaoDeQualidade: { estado: 'disponivel', motivo: null, fonte: 'declarada' },
+  projectName: 'P', bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 }, bocrConsistency: { cr: 0.01, lambda: 4.03 },
+  responseCount: n, finalScores: [{ code: 'A1', name: 'A1', score: 0.6 }, { code: 'A2', name: 'A2', score: 0.4 }],
+  qualityAnalysis: { respondents: Array.from({ length: n }, (_, i) => item(`r${i + 1}`, 0.05)) },
+  individualStats,
+});
+const linhaTaxa = (c: string) => c.split('\n').find((l) => l.startsWith('**Taxa de Validade Geral:**'));
+const bloco = (c: string) => { const L = c.split('\n'); const i = L.findIndex((l) => l.startsWith('## Estatísticas por Dimensão BOCR')); const f = L.findIndex((l, k) => k > i && l.startsWith('## Pesos Finais')); return L.slice(i, f).join('\n'); };
+const resumoDaQualidade = (c: string) => { const L = c.split('\n'); const i = L.findIndex((l) => l.startsWith('**Qualidade dos Dados:**') || l.startsWith('**Distribuição de Qualidade dos Respondentes:**')); return i < 0 ? [] : L.slice(i, i + 5); };
+
+const FORMAS: Array<[string, number, any]> = [
+  ['achatado-5-2-1-2', 5, { valid: 2, warning: 1, critical: 2, total: 5, avgCR: 0.136 }],
+  ['achatado-5-todas-validas', 5, { valid: 5, warning: 0, critical: 0, total: 5, avgCR: 0.05 }],
+  ['achatado-3-todas-validas', 3, { valid: 3, warning: 0, critical: 0, total: 3, avgCR: 0.05 }],
+  ['achatado-12-todas-validas', 12, { valid: 12, warning: 0, critical: 0, total: 12, avgCR: 0.05 }],
+  ['por-dimensao-em-pessoas', 5, { Benefits: { total: 5, valid: 5, warning: 0, critical: 0 }, Opportunities: { total: 5, valid: 4, warning: 1, critical: 0 }, Costs: { total: 5, valid: 3, warning: 1, critical: 1 }, Risks: { total: 5, valid: 2, warning: 2, critical: 1 } }],
+  ['sem-individualStats', 5, undefined],
+];
+test('elegibilidade FORCADA: o ramo dos totais sem byStatus, summary nem overallStats', async () => {
+  fs.mkdirSync(SAIDA, { recursive: true });
+  const indice: any[] = [];
+  for (const [nome, n, stats] of FORMAS) {
+    captura.contexto = '';
+    const res = await POST({ json: async () => JSON.parse(JSON.stringify(pedido(n, stats))) } as any);
+    const corpo = await res.json();
+    fs.writeFileSync(`${SAIDA}/ctx-forcado-${nome}.txt`, captura.contexto);
+    indice.push({ nome, status: res.status, taxa: linhaTaxa(captura.contexto), bloco: bloco(captura.contexto).split('\n').slice(0, 8), resumoDaQualidade: resumoDaQualidade(captura.contexto), notaSuspensa: corpo.notaSuspensa ?? null, sha256: crypto.createHash('sha256').update(captura.contexto).digest('hex'), bytes: Buffer.byteLength(captura.contexto, 'utf8') });
+  }
+  fs.writeFileSync(`${SAIDA}/indice-forcado.json`, JSON.stringify(indice, null, 1));
+});

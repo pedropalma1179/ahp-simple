@@ -13370,6 +13370,214 @@ segue sem execução por teste algum:** esta rodada não toca a tela. ⚠ **A pr
 NÃO TESTADA.** ⚠ **Não avaliado:** se algum cliente além da tela envia `individualStats` por dimensão; e a
 alcançabilidade geral do ramo agregado, além das condições lidas e da cobertura observada.
 
+## A.12: estatísticas por dimensão BOCR, Fase 2 (saída A): o que foi implementado e o que foi medido, em 30/09/2026
+
+⚠ **Este bloco é escrito DEPOIS do código e dos testes, e por isso NÃO é predição:** é relato e medição. A
+predição é a do complemento acima, commit `47c9ff3603babb4844ce85deb489359d61008d9f`, publicado **antes** de
+qualquer edição de código e de teste, com CI `completed/success` na execução `36720482867` e `head_sha` igual ao do
+commit. Base do código: `35a15062a64f39085cc6702aaf0e77a600d6f542`. Ambiente: Linux x86_64, Node v22.22.2, npm
+10.9.7, jest 30.1.3, tsc 5.9.3 (**ambiente observado, e não requisito**). ⚠ **O que o modelo GERA a partir destas
+frases não foi testado:** o cliente é simulado, e T1 a T3 seguem **NÃO TESTADAS**.
+
+### O que mudou, e o que não foi tocado
+
+| Arquivo | O que mudou | Natureza |
+|---|---|---|
+| `app/api/ai-reviewer/route.ts` | `normalizeRequest` **deixa de ler** `individualStats` e `criteriaStats`: saem a divisão por quatro (`:567-596` em `35a1506`) e o padrão de zeros (`:599-606`); sai o **quarto ramo** dos totais (`:855-864` em `35a1506`); `overallValidPercent` passa a `null` sem base, e a Taxa diz "não calculada" nesse caso; o bloco por dimensão passa a ser a variável `blocoPorDimensao` | apresentação do contexto e totais |
+| `lib/ai-reviewer/review-request.ts` | `individualStats` passa a **opcional**, com comentário; o comentário de `vinculoDaExecucao` declara que "sem o campo, byte a byte" deixou de valer para o pedido elegível | tipo e comentário: o modelo não os lê |
+| `lib/ai-reviewer/vinculo-execucao.ts` | **só** o item da chave de leitura, `:1088-1089`; `git diff -U0` mostra um único hunk, `@@ -1088,2 +1088,2 @@` | apresentação do contexto |
+| `lib/__tests__/a12-estatisticas-dimensao.test.ts` (novo) | os ensaios 1 a 9, 2b, 3b e o controle de alcance, pelo tratador real, com o contexto completo capturado | teste |
+| `lib/__tests__/a12-estatisticas-dimensao-consumidor-latente.test.ts` (novo) | o controle do consumidor latente, com **instrumento declarado** | teste |
+| `lib/__tests__/vinculo-execucao-fiacao.test.ts` | `:724` (dez vira seis), `:730` (o item novo), e a guarda da função `coberta` | teste atualizado, com razão lida |
+| `lib/__tests__/a12-diagnostico.test.ts`, `a33-cadeia-rule.test.ts` | uma entrada de procedência cada (`ordem` 11 e `ordem` 9) | linha de base |
+| `docs/dados/a12-diagnostico/medicao.json`, `docs/dados/a33-cadeia-rule/medicao.json` | regravados, campo a campo (abaixo) | linha de base |
+| `docs/dados/a12-estatisticas-dimensao/saida-a/` (novo) | as linhas de base de `35a1506`, os contextos completos depois, o controle forçado, a comparação antes e depois, os instrumentos | dado |
+
+⚠ **Responsabilidades tocadas:** a redação do contexto (o bloco, a Taxa sem base e o item da chave) e a
+derivação dos totais. ⚠ **NÃO tocados** (conferido em `git diff --stat`, que não os lista):
+`app/api/response-quality/route.ts` (inclusive o retorno antecipado de `:75-77`), `app/api/calculate/route.ts`,
+`lib/julgamentos-resumo.ts`, `lib/identificador-respondente.ts`, `lib/aggregation.ts`,
+`lib/ai-reviewer/avaliacao-qualidade.ts`, a tela (`page.tsx`), as quatro causas de `elegivelParaClassificacao`,
+`calculateGrade` (que só **lê** `data.individualStats` numa variável sem uso, e segue compilando com o campo
+opcional), as penalidades, os limiares e as faixas. ⚠ **A tela continua enviando o `individualStats` achatado:** a
+rota é que deixou de lê-lo. Retirar o envio é decisão à parte, e não foi tomada.
+
+⚠ **`vinculo-execucao.ts`: a mudança alcança as duas linhas do MESMO item e nenhuma outra.** O item é a
+concatenação de dois literais (`:1088` e `:1089`), e a descrição da divisão estava na segunda. É a correção de linha
+declarada no complemento, e o critério "nenhuma outra linha" vale para o arquivo: um único hunk de duas linhas.
+
+### As redações efetivas
+
+Iguais às do complemento nos dois primeiros itens, e **corrigida** no terceiro (E3, abaixo):
+
+1. **Bloco, pedido elegível:** `⚠️ Contagem por dimensão BOCR: não disponível nesta requisição (respostas totais,
+   válidas, warning e críticas por dimensão). Os totais deste contexto são agregados e não identificam a dimensão:
+   nenhuma contagem por dimensão é apresentada, e nenhuma deve ser derivada deles.`
+2. **Item da chave:** `  - "Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste
+   contexto, e nenhuma deve ser derivada dos totais agregados, que NÃO são contagem por dimensão nem participação
+   por dimensão nas matrizes.`
+3. **Taxa sem base:** `**Taxa de Validade Geral:** não calculada — nenhuma das contagens agregadas recebidas nesta
+   requisição (por status, resumo ou totais gerais) traz total positivo.`
+
+A frase **existente** do bloco não elegível e a linha **existente** da Taxa não elegível ficam **palavra por
+palavra** (a fonte tem cada uma uma vez, com os mesmos pontos de código de `35a1506`).
+
+### Erratos e desvios ao complemento, classificados à parte
+
+⚠ **O complemento não é reescrito** (o commit `47c9ff3` fica como foi publicado). Cada item abaixo é um erro **meu**
+ou um desvio, achado por leitura ou por execução, e é a correção datada dele.
+
+| # | O que o complemento dizia | O que é | Como foi achado, e efeito |
+|---|---|---|---|
+| E1 | M1 e M3: "27 cenários" e "8 cenários não elegíveis, com e sem vínculo" | as variantes `nao-avaliada-ausente-comVinculo` e `nao-avaliada-incompleta-comVinculo` da sonda foram construídas **sem o campo**: idênticas byte a byte às "sem vínculo" (`cmp`; sha256 `510fd08e4d0b…` e `c4674e7980d3…`). Dos 8, **6** eram requisições distintas | **erro de instrumento**, achado por **leitura** ao portar as construções para o teste, e confirmado por execução. A sonda foi **corrigida** (as duas variantes agora trazem o vínculo: `indisponivel` para `ausente`, `vinculado` para `incompleta`) e **reexecutada sobre o código de base** (`git stash`, com o `git diff` restaurado idêntico, conferido por sha256): os **27 contextos são distintos**. Nenhuma predição muda; P2 e P6 para essas duas causas **com** vínculo só foram medidas depois da correção |
+| E2 | P5: "com vínculo, nos quatro estados **e em formato não reconhecido**, a chave contém o item novo uma vez" | o formato **não reconhecido** ganha só o marcador, uma linha e o limite: **não tem a chave**, nem antes nem depois (`vinculo-execucao.ts:653-659`). O item ocorre **zero** vezes | **erro de leitura na predição**, achado ao escrever o ensaio 7, **antes de executá-lo**. A predição correta para esse formato é "o contexto é o de antes, fora o bloco". O ensaio mede 1 nos quatro estados e 0 no formato não reconhecido |
+| E3 | a frase da Taxa sem base: "nenhuma contagem de respostas com total positivo está disponível nesta requisição" | **afirmava mais do que foi verificado.** As fontes da Taxa são `byStatus`, `summary` e `overallStats`; o resumo de qualidade do mesmo contexto tem uma quarta fonte, a **lista de respondentes** (a "PRIORIDADE 2" do resumo), e no contexto forçado ele diz "Total: 5 especialistas" ao lado da Taxa. A frase seria falsa ali | achado ao **ler o contexto forçado capturado**, antes do commit. Corrigida para a redação do item 3 acima, que diz só o que o código verifica. ⚠ É a regra do pedido, "afirmar a razão da indisponibilidade além do medido", aplicada à minha própria frase |
+| E4 | previsão de testes: "2b passa com o código atual" | a primeira versão dos dois testes de 2b trazia asserções sobre o **bloco novo**, que reprovariam no código anterior e tirariam deles a função de controle de preservação | achado por **leitura**, antes do contra-exemplo executado. O discriminante passou para o ensaio 2, e 2b ficou só com a preservação do zero medido |
+| E5 | (não estava na previsão) | três defeitos meus nos testes, sem efeito na previsão: uma regex de "(0%)" no contraexemplo do ensaio 2 que o texto anterior de "5 com dois desconhecidos" não satisfaz (imprime "1 (100.0%)"), um resto inútil num auxiliar e um contraexemplo confuso no ensaio 9 | achados por **leitura**, antes da primeira execução, e corrigidos antes de rodar |
+
+⚠ **Nenhum desses erros produziu uma falha de execução**: todos foram achados antes de rodar o teste afetado
+(E1 por leitura e confirmado por execução da sonda, não de teste). Sob a regra corrigida do registro, uma falha
+causada por erro no próprio teste seria **desvio de previsão**, e **não houve nenhuma** nesta rodada. Fica
+declarado, e não escondido, que a previsão teve dois erros de leitura (E2 e E3) e a medição um erro de instrumento
+(E1).
+
+### A previsão de testes, conferida
+
+**Este complemento (só documento):** previsto ZERO reprovações, e foi ZERO: com o registro no lugar, 33 suítes, 791
+testes, 54268 asserções, 0 falhas; CI `success`.
+
+**Implementação, com os testes ANTIGOS e o código NOVO:** previstos 5 testes, e reprovaram **5 testes, e só eles,
+nas asserções previstas**, medido duas vezes (a segunda, com o código final):
+
+| Asserção | Medido |
+|---|---|
+| `vinculo-execucao-fiacao.test.ts:724` | `Expected: 10, Received: 6` |
+| `a12-diagnostico.test.ts:1083` (`quatroCasos`) | o único campo que difere é `bytesDoContexto` de `C-disponivel`: **70886 gravado contra 70467 medido**, ou seja, **419 bytes a menos** (o sinal previsto) |
+| `a33-cadeia-rule.test.ts:1232`, `:1475`, `:1506` | o sha256 de `app/api/ai-reviewer/route.ts` |
+
+`:730` da fiação e `:1086` de `a12-diagnostico` **não foram alcançadas**, como previsto (o teste aborta antes).
+**Nenhum outro teste reprovou:** as 786 restantes de 791 passaram, mais os 43 novos.
+
+**Testes NOVOS, com o código ANTERIOR (`35a1506`):** dos 43, **27 reprovam** e **16 passam**. Os 16 são os
+controles e as preservações: a Taxa medida de 5 e de 3, o zero crítico medido, a Taxa medida em 0%, as quatro
+causas de não elegibilidade (frase existente byte a byte), a troca da frase (contraexemplo), a Taxa com base nos sete
+conjuntos, o contraexemplo do item antigo e do texto atual, os três controles de alcance, o pedido elegível com
+total zero e o controle "com base medida" do consumidor latente. Os 27 que reprovam são os ensaios 1, 2 (quatro dos
+cinco), 3, 3b, 7 (dois dos três), 8 (um dos dois), 9 (três) e 12 dos 13 do consumidor latente (um é controle).
+
+**Depois de atualizar e de regravar:** ZERO reprovações. ⚠ O número de testes e de asserções novos é **medido depois
+de executar**, e não é critério de aceite.
+
+### As predições sobre o que o modelo RECEBE, conferidas
+
+Instrumento: o tratador real com o cliente simulado, **27 cenários** (a sonda corrigida) por sha256 da base, mais os
+quatro contextos completos da Fase 1 como oráculo de texto, mais o controle com elegibilidade forçada.
+
+| # | Predição | Medido | Contrariada? |
+|---|---|---|---|
+| P1 | em todo pedido elegível o bloco é a frase nova, sem dígito | **18 de 18** cenários elegíveis (nove conjuntos, com e sem vínculo): o trecho é exatamente a frase, e não tem dígito | não |
+| P2 | não elegível: bloco e Taxa iguais; sem o campo, o contexto completo é byte a byte o de antes | **9 de 9** não elegíveis: os **cinco sem vínculo** (ausente, incompleta, contradição, coerência não concluída e a sonda de total zero) têm o **mesmo sha256** do contexto completo da base; os **quatro com vínculo** só diferem no item da chave | não |
+| P3 | com base medida a Taxa é a de sempre, inclusive `0.0%` medido | **14 de 14** cenários com base: a linha é a recalculada da medição; os quatro com zero medido (agregado de 12 e três respondentes acima de 0.10, com e sem vínculo) **mantêm `0.0%`** | não |
+| P4 | sem base, e só com elegibilidade forçada, "não calculada", nunca um percentual | seis formas de `individualStats`: **antes** 0.0%, 100.0%, 0.0%, 100.0%, 70.0% e 0.0% (todos derivados dos quocientes; medido nesta rodada, e igual ao da Fase 1); **depois** a frase da Taxa sem base nas seis | não |
+| P5 | com vínculo, a chave tem o item novo uma vez e nenhum texto da divisão | os **quatro estados**: 1 ocorrência, elegível ou não, sem "por quatro" nem "reparte" em nenhum ponto do contexto completo. ⚠ **No formato não reconhecido: 0**, que é o erro E2 | **parcialmente**, e a parte errada é a do formato não reconhecido (E2) |
+| P6 | nada mais muda | **27 de 27**: o contexto novo é o antigo com **exatamente** as substituições declaradas (`comparacao-antes-depois.json`); nos quatro contextos completos da Fase 1, byte a byte | não |
+| P7 | o corpo da resposta e o `system` não mudam | **27 de 27**: nota, veredicto, `notaSuspensa` e as chaves do corpo idênticos, e o **mesmo sha256 do `system`** | não |
+| P8 | elegível sem `individualStats` e o duplo por dimensão recebem a mesma frase | mais forte que o previsto: os contextos completos de `individualStats` **achatado**, **ausente** e **por dimensão**, sobre os mesmos respondentes, são **idênticos byte a byte**, com e sem vínculo (no código anterior diferiam) | não |
+
+⚠ **Achado da medição, e não predição:** com a saída A, o contexto de um pedido elegível **não depende mais do
+`individualStats`** em forma alguma (P8), e o `individualStats` deixou de ter efeito sobre o que o modelo recebe.
+
+### As linhas de base regravadas
+
+Comando: `A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts` e
+`A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts`. Comparação **campo a campo**, por folhas,
+**sem contar vetor ou objeto vazio** (a convenção das entradas anteriores; contando os vazios, os totais são 434 e
+445, e 3221 e 3231), contra os artefatos de `35a1506`:
+
+| Artefato | Campos antes | Depois | Perdidos | Novos | Mudados | Procedência |
+|---|---|---|---|---|---|---|
+| `a12-diagnostico/medicao.json` | 429 | 440 | **0** | 11 (todos na entrada nova) | **2** | `ordem` 11, sem sobrescrever as dez |
+| `a33-cadeia-rule/medicao.json` | 3122 | 3132 | **0** | 10 (todos na entrada nova) | **1** | `ordem` 9, sem sobrescrever as oito |
+
+**Mudados:** em `a12-diagnostico`, `identificacao.codigo["app/api/ai-reviewer/route.ts"]` e
+`quatroCasos[0].executadoAntesDaInterrupcao.bytesDoContexto` (70886 para 70467); em `a33-cadeia-rule`, só
+`identificacao.codigo["app/api/ai-reviewer/route.ts"]`. **É exatamente o alcance previsto**: `C-disponivel` é o único
+dos quatro casos elegível, os outros três e as requisições r1 e r2 seguem com a frase existente, e nenhum
+comprimento de contexto de a33 mudou. ⚠ Desta vez o motivo **não** é "sem `vinculoDaExecucao` o contexto é byte a
+byte o anterior", que deixou de valer para o pedido elegível: é a **preservação da frase existente**.
+
+### Contraexemplos executados sobre a fonte
+
+**14 mutantes** (12 na rota e 2 no módulo; dois deles alteram mais de um ponto), cada um aplicado, executado contra os quatro
+arquivos de teste que tocam o assunto e desfeito, com o **sha256 dos dois arquivos conferido igual ao de antes**.
+**Todos foram mortos, e nenhum por erro de compilação:** dígito no bloco (20 testes reprovam); Taxa sem base 0.0% (6);
+Taxa medida em 0% trocada por "não calculada" (4); frase existente trocada (9) ou alterada em **um caractere** (9);
+frase nova impressa no pedido não avaliado (26); quarto ramo reinstalado com o `individualStats` tal como veio (11);
+quarto ramo **e** divisão por quatro reinstalados (4); Taxa com precisão alterada (8); **um byte de outra parte do
+contexto** (7); item antigo de volta (5); item novo com dígito e "por quatro" (10); "não existe" no lugar de "não
+disponível nesta requisição" (17); base contada com total zero (6). ⚠ O mutante do **defeito completo** (quarto ramo e
+divisão) reprova 4 das 6 formas do controle, e **não** as duas em que o quociente somado dá zero (3 respondentes e
+`individualStats` ausente): nelas a Taxa fabricada coincide com a correta por acidente do quociente, e o controle
+**não** as distingue. Instrumento e resultado: `docs/dados/a12-estatisticas-dimensao/saida-a/instrumentos/`.
+
+### O consumidor latente, e o que cada evidência sustenta
+
+⚠ **A mudança em `:855-864` de `35a1506` previne um defeito LATENTE, e não corrige um defeito ativo.** As duas
+evidências não têm o mesmo alcance:
+
+| Evidência | O que é |
+|---|---|
+| 0 de 32 combinações na Fase 1, 0 execuções de `:856` e de `:861` pela suíte, e agora 3 pedidos reais com só `individualStats` que **não** são elegíveis (`coerencia_nao_concluida`) | **cobertura observada** |
+| elegível implica `byStatus` presente, e então o ramo 1 é o tomado: `route.ts:704-705`, `avaliacao-qualidade.ts:765-793`, `:693-698`, `:497-503` e `route.ts:840`, todos em `35a1506` | **leitura das condições**, que sustenta a afirmação geral |
+
+⚠ **O controle é de defeito latente, com instrumento declarado**, e **não é execução de caminho alcançável**: a
+elegibilidade é forçada por `jest.mock`. Duas construções de "elegível com total zero" foram tentadas e nenhuma é
+elegível (não prova a inalcançabilidade). ⚠ **Observação, sem correção:** no contexto forçado o resumo de qualidade
+mostra "Total: 5 especialistas" (derivado da lista de respondentes) ao lado da Taxa "não calculada": as duas cadeias
+têm fontes diferentes, e isso só aparece sob elegibilidade forçada.
+
+### Execução, medida nesta sessão
+
+- `npx tsc --noEmit`: **saída 0**.
+- `npx jest` (suíte inteira, com os documentos desta rodada no lugar): **35 suítes, 834 testes, 0 falhas, 55813
+  asserções** (antes: 33, 791, 54268; **mais 2 suítes, 43 testes e 1545 asserções**). O instrumento da contagem
+  **NÃO é versionado**: um `setupFilesAfterEnv` que soma `expect.getState().assertionCalls` por arquivo, e a soma
+  vem das 35 linhas.
+- `npm run build`: **saída 0**, "Compiled successfully" e **17 de 17 páginas** geradas, com a árvore estável (sem
+  edição de código nem `git stash` durante a execução). ⚠ Uma primeira execução coincidiu com duas janelas de
+  `git stash` dos contra-exemplos, e por isso foi **descartada** e refeita. A linha "ESLint must be installed" é a
+  incompatibilidade conhecida do ESLint com o Next 14 neste projeto, e não é falha do build.
+- Preservados, `sha256sum` antes e depois, **iguais**:
+  `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`,
+  `85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes);
+  `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`,
+  `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes).
+
+### O que NÃO foi feito, e o que permanece não avaliado
+
+- ⚠ **A redação do modelo sobre estas frases não foi testada** (T1 a T3), e **a tela continua sem execução por
+  teste**: o passo dela nos ensaios é cópia literal.
+- ⚠ **Não avaliado:** se algum cliente além da tela envia `individualStats` por dimensão. A saída A não o apresenta
+  em caso algum.
+- ⚠ **Não corrigido, por ser outra tarefa ou por estar proibido:** a linha de log `[AI-REVIEWER] Prompt: 0/0
+  respostas válidas` (não vai ao contexto); `calculateGrade` e a variável sem uso de `:345`; a imprecisão da frase de
+  indisponibilidade nas causas `contradicao` e `coerencia_nao_concluida` (achado adjacente da Fase 1, item 2); o zero
+  fixo de `'REVISAR'` que a tela envia; o zero tratado como válido no agregado por respondente.
+- ⚠ **Nenhuma implementação da saída B**, nenhuma escolha de escala de categorização, nenhuma consulta a produção,
+  nenhum recálculo, nenhuma chamada externa, nenhum `npm run lint`, `--force`, rebase ou `amend`; nada foi integrado.
+- ⚠ **O erratum documental do item (c)(ii) da Fase 1 NÃO foi executado:** exige autorização explícita, que não foi
+  dada. O texto histórico de `12892-12894` segue intacto.
+
+### A propriedade perdida, e a separação entre o histórico e o comportamento atual
+
+⚠ **Deixa de valer, por decisão do autor,** "requisição sem `vinculoDaExecucao` gera contexto byte a byte o
+anterior" **para o pedido elegível** (o bloco muda) e, **com** o campo, **para todo pedido** (o item da chave muda).
+**Continua valendo:** para o pedido **não elegível sem o campo** (P2, **9 de 9**), e as âncoras absolutas da lista
+de respondentes e do bloco de exclusão de `a973c8f` (`vinculo-execucao-fiacao.test.ts:372-395`). **Integridade
+histórica e comportamento atual ficam separados:** os registros de `a973c8f` a `35a1506` descrevem o que foi
+medido naquelas bases, com os localizadores daquelas bases, e **não são reescritos**; o comportamento atual está
+neste bloco e no contrato.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

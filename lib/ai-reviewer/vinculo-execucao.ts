@@ -1085,8 +1085,8 @@ export const CHAVE_DE_LEITURA_DAS_CONTAGENS = (l: LeituraDoVinculo): string[] =>
       : '  - incluídos no documento de cálculo (etapa: cálculo): contagem NÃO disponível nesta requisição;',
   '  - avaliados antes de qualquer restrição (etapa: avaliação de qualidade);',
   '  - enviados a você (etapa: envio): a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles;',
-  '  - os totais por dimensão BOCR de "Estatísticas por Dimensão" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma ' +
-    '(quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo).',
+  '  - "Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste contexto, e nenhuma deve ser derivada dos totais agregados, ' +
+    'que NÃO são contagem por dimensão nem participação por dimensão nas matrizes.',
 ];
 
 const PREFIXO_DA_RELACAO =

@@ -184,6 +184,23 @@
           "identificacao.codigo[app/api/ai-reviewer/route.ts]"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 11,
+        "motivo": "A.12, estatisticas por dimensao BOCR, saida A: o bloco deixa de trazer numero por dimensao (a divisao por quatro sai), a Taxa sem base deixa de ser 0.0%, e o item da chave deixa de descrever a divisao (alterou route.ts, review-request.ts e vinculo-execucao.ts, e a tela NAO mudou)",
+        "commitDaBase": "47c9ff3603babb4844ce85deb489359d61008d9f",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "quatroCasos[0].executadoAntesDaInterrupcao.bytesDoContexto"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -194,7 +211,7 @@
     },
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "244c14176794a5566c47418c91dc152d0d43dc755e63ab45c14fad1a5f62f30f",
-      "app/api/ai-reviewer/route.ts": "cb5bf7eb16911b94cc0e066cef2102c4d178f6823b62cbcecf8bf337c9096a95",
+      "app/api/ai-reviewer/route.ts": "775045fbd7c24e4d075a4bd9dcd97cb49244f84afac5ed3d9b6c958f2502dd76",
       "app/decisor/resultados/[projectId]/page.tsx": "ccbf9abc8cf76cc3a70769dbbbbbe032c746734001f4673abca59cf3f65e57be",
       "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
     }
@@ -547,7 +564,7 @@
           "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
           "- Respostas CRÍTICAS (CR > 0.20): 0 (0.0%)"
         ],
-        "bytesDoContexto": 70886
+        "bytesDoContexto": 70467
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",

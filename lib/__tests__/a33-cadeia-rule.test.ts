@@ -252,6 +252,22 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 9,
+    motivo: 'A.12, estatisticas por dimensao BOCR, saida A: o bloco deixa de trazer numero por dimensao, a Taxa sem base deixa de ser 0.0%, e o item da chave deixa de descrever a divisao (alterou route.ts)',
+    commitDaBase: '47c9ff3603babb4844ce85deb489359d61008d9f',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 3122 campos antes e 3132 depois, ZERO
+    //   perdidos, DEZ novos (todos nesta propria entrada) e UM mudado. Nenhum texto de contexto se
+    //   moveu: camadas, montagem e as demais secoes ficaram identicas. ⚠ O MOTIVO desta vez NAO e
+    //   "sem `vinculoDaExecucao` o contexto e byte a byte o anterior", que DEIXOU DE VALER para o
+    //   pedido elegivel: as requisicoes desta suite (r1 e r2) NAO sao elegiveis, e a frase de
+    //   indisponibilidade do bloco e a Taxa "nao calculada" foram PRESERVADAS palavra por palavra.
+    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

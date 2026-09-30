@@ -560,50 +560,13 @@ function normalizeRequest(rawData: any): ReviewRequest {
   // A.12 etapa 1: a coerência interna é medida sobre a requisição RECEBIDA, e é
   // dimensão independente da disponibilidade.
   const coerenciaDaQualidade = avaliarCoerencia(rawData);
-  // Detectar se individualStats está no formato agregado (sem dimensões)
-  let individualStats = rawData.individualStats || rawData.criteriaStats;
-
-  // Se individualStats não tem as dimensões BOCR, criar com valores agregados
-  if (individualStats && !individualStats.Benefits) {
-    console.log(`${LOG_PREFIX} Formato agregado detectado, distribuindo para dimensões BOCR`);
-    const aggregated = individualStats;
-    individualStats = {
-      Benefits: {
-        total: Math.floor(aggregated.total / 4) || 0,
-        valid: Math.floor(aggregated.valid / 4) || 0,
-        warning: Math.floor(aggregated.warning / 4) || 0,
-        critical: Math.floor(aggregated.critical / 4) || 0,
-      },
-      Opportunities: {
-        total: Math.floor(aggregated.total / 4) || 0,
-        valid: Math.floor(aggregated.valid / 4) || 0,
-        warning: Math.floor(aggregated.warning / 4) || 0,
-        critical: Math.floor(aggregated.critical / 4) || 0,
-      },
-      Costs: {
-        total: Math.floor(aggregated.total / 4) || 0,
-        valid: Math.floor(aggregated.valid / 4) || 0,
-        warning: Math.floor(aggregated.warning / 4) || 0,
-        critical: Math.floor(aggregated.critical / 4) || 0,
-      },
-      Risks: {
-        total: Math.floor(aggregated.total / 4) || 0,
-        valid: Math.floor(aggregated.valid / 4) || 0,
-        warning: Math.floor(aggregated.warning / 4) || 0,
-        critical: Math.floor(aggregated.critical / 4) || 0,
-      },
-    };
-  }
-
-  // Se ainda não tem, usar valores padrão
-  if (!individualStats) {
-    individualStats = {
-      Benefits: { total: 0, valid: 0, warning: 0, critical: 0 },
-      Opportunities: { total: 0, valid: 0, warning: 0, critical: 0 },
-      Costs: { total: 0, valid: 0, warning: 0, critical: 0 },
-      Risks: { total: 0, valid: 0, warning: 0, critical: 0 },
-    };
-  }
+  // A.12, estatísticas por dimensão (saída A): `individualStats` e `criteriaStats` NÃO são lidos.
+  // A tela envia o agregado ACHATADO (total, valid, warning, critical), sem separação por
+  // dimensão, e a divisão dele por quatro atribuía a cada dimensão um quociente que nenhuma
+  // medição sustenta. ⚠ Nada por dimensão é derivado do agregado, e nenhum padrão de zeros
+  // substitui a ausência: o bloco declara a estatística por dimensão NÃO DISPONÍVEL nesta
+  // requisição. Vale também para um `individualStats` já por dimensão: a saída A não distingue
+  // a origem, e nenhum cliente conhecido o envia.
 
   // Normalizar bocrWeights - converter array em objeto
   let bocrWeights = rawData.bocrWeights || rawData.weights;
@@ -635,7 +598,6 @@ function normalizeRequest(rawData: any): ReviewRequest {
     vinculoDaExecucao: rawData.vinculoDaExecucao,
     projectName: rawData.projectName || rawData.name || 'Projeto sem nome',
     projectDescription: rawData.projectDescription || rawData.description,
-    individualStats,
     bocrWeights,
     personalWeights: normalizeBOCRWeights(rawData.personalWeights, 'v') || undefined,
     rescalingWeights: normalizeBOCRWeights(rawData.rescalingWeights, 's') || undefined,
@@ -852,26 +814,34 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
   } else if (avaliada && data.overallStats && data.overallStats.total > 0) {
     totalResponses = data.overallStats.total;
     validResponses = data.overallStats.valid || 0;
-  } else if (avaliada) {
-    totalResponses = data.individualStats.Benefits.total +
-      data.individualStats.Opportunities.total +
-      data.individualStats.Costs.total +
-      data.individualStats.Risks.total;
-
-    validResponses = data.individualStats.Benefits.valid +
-      data.individualStats.Opportunities.valid +
-      data.individualStats.Costs.valid +
-      data.individualStats.Risks.valid;
   }
+  // A.12, estatísticas por dimensão (saída A): NÃO há quarto ramo. O que existia aqui SOMAVA as
+  // quatro dimensões de `individualStats`, isto é, os quocientes que a divisão por quatro
+  // fabricava. Sem nenhuma das três fontes acima a base é AUSENTE, e ausência não vira zero.
 
   console.log(`[AI-REVIEWER] Prompt: ${validResponses}/${totalResponses} respostas válidas`);
 
-  const overallValidPercent = totalResponses > 0 ? (validResponses / totalResponses) * 100 : 0;
+  // A.12, estatísticas por dimensão (saída A): `null` é ausência de base, e NÃO zero. `0` aqui só
+  // sairia de uma medição (válidas iguais a zero sobre uma base positiva), e essa fica.
+  const overallValidPercent = totalResponses > 0 ? (validResponses / totalResponses) * 100 : null;
   // A.12: sem avaliação, a taxa não é calculada; zero aqui seria ausência
-  // apresentada como medida.
+  // apresentada como medida. ⚠ O mesmo vale para a base ausente: avaliada, mas sem nenhuma das três
+  // fontes da taxa (`byStatus`, `summary`, `overallStats`) com total positivo, a taxa também não é
+  // calculada. ⚠ A frase diz SÓ isso: a lista de respondentes não é fonte da taxa, e por isso não se
+  // afirma que nenhuma contagem exista no contexto.
   const taxaDeValidadeGeral = avaliada
-    ? `**Taxa de Validade Geral:** ${overallValidPercent.toFixed(1)}% das respostas com CR ≤ 0.10`
+    ? overallValidPercent === null
+      ? '**Taxa de Validade Geral:** não calculada — nenhuma das contagens agregadas recebidas nesta requisição (por status, resumo ou totais gerais) traz total positivo.'
+      : `**Taxa de Validade Geral:** ${overallValidPercent.toFixed(1)}% das respostas com CR ≤ 0.10`
     : '**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.';
+
+  // A.12, estatísticas por dimensão (saída A): o bloco NÃO traz número por dimensão. ⚠ Sem
+  // avaliação, a frase EXISTENTE fica palavra por palavra. Avaliada, a frase é PRÓPRIA, e diz só
+  // o que o contexto TEM: os totais são agregados e não identificam a dimensão. "Não disponível
+  // nesta requisição" não é "não existe", e a razão não afirma o que a requisição carrega.
+  const blocoPorDimensao = !avaliada
+    ? '⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.'
+    : '⚠️ Contagem por dimensão BOCR: não disponível nesta requisição (respostas totais, válidas, warning e críticas por dimensão). Os totais deste contexto são agregados e não identificam a dimensão: nenhuma contagem por dimensão é apresentada, e nenhuma deve ser derivada deles.';
 
   // A.12 etapa 3, estágio 1, correções antes do aceite: as frases AO REDOR do bloco do vínculo.
   // ⚠ Requisição SEM o campo mantém a redação anterior, byte a byte (`comVinculo` falso). COM o
@@ -1142,39 +1112,7 @@ ${respondentAnalysis}
 
 ## Estatísticas por Dimensão BOCR
 
-${!avaliada ? '⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.' : (() => {
-      const bStats = data.individualStats?.Benefits || { total: 0, valid: 0, warning: 0, critical: 0 };
-      const oStats = data.individualStats?.Opportunities || { total: 0, valid: 0, warning: 0, critical: 0 };
-      const cStats = data.individualStats?.Costs || { total: 0, valid: 0, warning: 0, critical: 0 };
-      const rStats = data.individualStats?.Risks || { total: 0, valid: 0, warning: 0, critical: 0 };
-      return `### Benefits (Benefícios)
-- Respostas totais: ${bStats.total}
-- Válidas (CR ≤ 0.10): ${bStats.valid} (${bStats.total > 0 ? ((bStats.valid / bStats.total) * 100).toFixed(1) : '0'}%)
-- Warning (0.10 < CR ≤ 0.20): ${bStats.warning}
-- Críticas (CR > 0.20): ${bStats.critical}
-${bStats.avgCR ? `- CR médio da dimensão: ${safePercent(bStats.avgCR, 2)}` : ''}
-
-### Opportunities (Oportunidades)
-- Respostas totais: ${oStats.total}
-- Válidas (CR ≤ 0.10): ${oStats.valid} (${oStats.total > 0 ? ((oStats.valid / oStats.total) * 100).toFixed(1) : '0'}%)
-- Warning (0.10 < CR ≤ 0.20): ${oStats.warning}
-- Críticas (CR > 0.20): ${oStats.critical}
-${oStats.avgCR ? `- CR médio da dimensão: ${safePercent(oStats.avgCR, 2)}` : ''}
-
-### Costs (Custos)
-- Respostas totais: ${cStats.total}
-- Válidas (CR ≤ 0.10): ${cStats.valid} (${cStats.total > 0 ? ((cStats.valid / cStats.total) * 100).toFixed(1) : '0'}%)
-- Warning (0.10 < CR ≤ 0.20): ${cStats.warning}
-- Críticas (CR > 0.20): ${cStats.critical}
-${cStats.avgCR ? `- CR médio da dimensão: ${safePercent(cStats.avgCR, 2)}` : ''}
-
-### Risks (Riscos)
-- Respostas totais: ${rStats.total}
-- Válidas (CR ≤ 0.10): ${rStats.valid} (${rStats.total > 0 ? ((rStats.valid / rStats.total) * 100).toFixed(1) : '0'}%)
-- Warning (0.10 < CR ≤ 0.20): ${rStats.warning}
-- Críticas (CR > 0.20): ${rStats.critical}
-${rStats.avgCR ? `- CR médio da dimensão: ${safePercent(rStats.avgCR, 2)}` : ''}`;
-    })()}
+${blocoPorDimensao}
 
 ## Pesos Finais da Hierarquia de Controle (Méritos BOCR)
 

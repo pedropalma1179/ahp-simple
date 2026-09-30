@@ -1,0 +1,316 @@
+{
+ "_meta": {
+  "commitDoCodigo": "35a15062a64f39085cc6702aaf0e77a600d6f542",
+  "natureza": "Linhas de base HISTORICAS: sha256 e tamanho, em bytes, do contexto COMPLETO (messages) e sha256 do system, capturados pelo tratador real na base, ANTES da saida A, por 27 cenarios. Nao sao criterio de qualidade: sao o que o modelo recebia. Regravar so com procedencia, e nunca para fazer um teste passar.",
+  "instrumento": "instrumentos/zz-a12-saidaA-base.test.ts.txt (sonda temporaria, arquivada como texto), executada com SAIDA_DIM2=<diretorio> sobre o codigo de 35a1506",
+  "correcaoDoInstrumento": "Na primeira execucao da sonda as variantes nao-avaliada-ausente-comVinculo e nao-avaliada-incompleta-comVinculo eram construidas SEM o campo (identicas byte a byte as semVinculo). Corrigidas, e a sonda reexecutada sobre o codigo de base: os 27 contextos desta lista sao DISTINTOS.",
+  "limites": [
+   "a tela nao e executada por teste algum: o passo dela e copia literal de page.tsx",
+   "os cenarios sao CONSTRUIDOS; o painel de 12 usa CRs de um painel real, mas o agregado e montado pela copia da tela",
+   "sha256 do contexto, e nao o texto: os quatro contextos de agregado 5 e 3 estao versionados por inteiro na pasta acima"
+  ],
+  "ambienteDaMedicao": "Linux x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3"
+ },
+ "cenarios": [
+  {
+   "nome": "agregado-12-comVinculo",
+   "sha256Contexto": "ca075de6ea419aaade78e03386f6100218ab019ef4f765ed5b0d6d9c4a381e81",
+   "bytesDoContexto": 76074,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 0,
+    "warning": 1,
+    "critical": 11,
+    "total": 12,
+    "avgCR": 0.402225
+   }
+  },
+  {
+   "nome": "agregado-12-gravado-comVinculo",
+   "sha256Contexto": "672dda45ac59f2a1fa917e911d46ce6d251e8df272bbb221bca7e3f57157da24",
+   "bytesDoContexto": 75874,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 12,
+    "warning": 0,
+    "critical": 0,
+    "total": 12,
+    "avgCR": 0.049999999999999996
+   }
+  },
+  {
+   "nome": "agregado-12-gravado-semVinculo",
+   "sha256Contexto": "e83abe6ca667f8b0ad6b6c77c186b0ccfa0a760a1cdc5d6eb655380e4d6201c7",
+   "bytesDoContexto": 71136,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 12,
+    "warning": 0,
+    "critical": 0,
+    "total": 12,
+    "avgCR": 0.049999999999999996
+   }
+  },
+  {
+   "nome": "agregado-12-semVinculo",
+   "sha256Contexto": "5da75d084bb25ce8028a5ab726e31a74f4af05e498856cbb071f1492086343da",
+   "bytesDoContexto": 71336,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 0,
+    "warning": 1,
+    "critical": 11,
+    "total": 12,
+    "avgCR": 0.402225
+   }
+  },
+  {
+   "nome": "agregado-3-comVinculo",
+   "sha256Contexto": "e606ec3393e2572e22fc98b87b77f5794796d64b2b2bd22b12da36d499b4887b",
+   "bytesDoContexto": 75423,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 33.3% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 1,
+    "warning": 1,
+    "critical": 1,
+    "total": 3,
+    "avgCR": 0.13999999999999999
+   }
+  },
+  {
+   "nome": "agregado-3-semVinculo",
+   "sha256Contexto": "c96b5ab40b8dc8212f7ae59374b6c3e558beaa8ad885524bb7d62a995e73a7ea",
+   "bytesDoContexto": 70697,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 33.3% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 1,
+    "warning": 1,
+    "critical": 1,
+    "total": 3,
+    "avgCR": 0.13999999999999999
+   }
+  },
+  {
+   "nome": "agregado-5-com-2-desconhecidos-comVinculo",
+   "sha256Contexto": "b5b55b1a1f01d66f7be804ee3a2c2fcc3ea92308bd379a034365614075f6ab6c",
+   "bytesDoContexto": 75524,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 80.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 4,
+    "warning": 1,
+    "critical": 0,
+    "total": 5,
+    "avgCR": 0.05
+   }
+  },
+  {
+   "nome": "agregado-5-com-2-desconhecidos-semVinculo",
+   "sha256Contexto": "ee7e95835688823dc1364a4d55d1af21cc667f06f859cdcdb78ba7122246cc5b",
+   "bytesDoContexto": 70798,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 80.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 4,
+    "warning": 1,
+    "critical": 0,
+    "total": 5,
+    "avgCR": 0.05
+   }
+  },
+  {
+   "nome": "agregado-5-comVinculo",
+   "sha256Contexto": "496535b6b9794f89cb8cad749d5950faba55f3a866e4b89b3b1aa5d3555ae3c0",
+   "bytesDoContexto": 75538,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 2,
+    "warning": 1,
+    "critical": 2,
+    "total": 5,
+    "avgCR": 0.13599999999999998
+   }
+  },
+  {
+   "nome": "agregado-5-semVinculo",
+   "sha256Contexto": "3679ec9459b25fd45b3209a5883d3be295a7032ee169f19f5a90082781d1db85",
+   "bytesDoContexto": 70812,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 2,
+    "warning": 1,
+    "critical": 2,
+    "total": 5,
+    "avgCR": 0.13599999999999998
+   }
+  },
+  {
+   "nome": "coerencia-nao-concluida-comVinculo",
+   "sha256Contexto": "c067881a16248deec83a33c664ba32fdd5411ad6af1d3976fb5a44d2148e4a71",
+   "bytesDoContexto": 76370,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "coerencia-nao-concluida-semVinculo",
+   "sha256Contexto": "12519302f38f9125426d134757225e85ad72859f43d9fac29b300e154720b4e6",
+   "bytesDoContexto": 71644,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "contradicao-comVinculo",
+   "sha256Contexto": "10a5b8b00deb23e50e3aa6fd432aa175449eafd7341065a7b68a9ca785e674e2",
+   "bytesDoContexto": 75883,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "contradicao-semVinculo",
+   "sha256Contexto": "b290f7d4781cb06740fd800a9cdf02842841beee8bfd4aa734ecaf9704d55227",
+   "bytesDoContexto": 71157,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "duplo-por-dimensao-comVinculo",
+   "sha256Contexto": "d4c785cb1e7132e48d3d080b6f9f87f7bfd3e7c1b82233ab242259960d5cd8a6",
+   "bytesDoContexto": 75667,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "duplo-por-dimensao-semVinculo",
+   "sha256Contexto": "0f98b646c6730f4c38390e986e867d07ef8ef20428ca811b127b9c20d9d5e3bd",
+   "bytesDoContexto": 70941,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "elegivel-sem-individualStats-comVinculo",
+   "sha256Contexto": "2a8bdaa18544c8030b65e4935624c016d6110182986f3aae9fcb5b2ef0bee19c",
+   "bytesDoContexto": 75530,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "elegivel-sem-individualStats-semVinculo",
+   "sha256Contexto": "2580b29bd914178fe25e9fdbe6ddf6cc415a0ac893930a80121f721561ff8d9a",
+   "bytesDoContexto": 70804,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "elegivel-total-zero-semVinculo",
+   "sha256Contexto": "c26dc2b54d1f567a7dadb4a9e748d478b749eff009b5748fab33bcf2d9894d54",
+   "bytesDoContexto": 69861,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "nao-avaliada-ausente-comVinculo",
+   "sha256Contexto": "59b5c5c3ae1f9c3d49c3825f7a9be54e30a3f56a677246acb66b8f2d2ab025c9",
+   "bytesDoContexto": 72556,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "nao-avaliada-ausente-semVinculo",
+   "sha256Contexto": "510fd08e4d0bcdbba8716d0d4d865f2f6c45403ba43aa34ebeb850232dff3365",
+   "bytesDoContexto": 69873,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "nao-avaliada-incompleta-comVinculo",
+   "sha256Contexto": "cb07a6ea82153d9ae1f72ea4bec518f01208565d93548cc008f930e4de728f2e",
+   "bytesDoContexto": 75513,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "nao-avaliada-incompleta-semVinculo",
+   "sha256Contexto": "c4674e7980d36a7f43f9cdd21b7d723c671fa3c7d717d88e3b12c327aa2c2daa",
+   "bytesDoContexto": 70787,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.",
+   "estatisticasDaTelaAntes": null
+  },
+  {
+   "nome": "todos-acima-3-comVinculo",
+   "sha256Contexto": "3a895ae8f2b1ef98d6cf90143abd03b6633f9cca8abdc97d5a7dc6df6dac9d26",
+   "bytesDoContexto": 75334,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 0,
+    "warning": 3,
+    "critical": 0,
+    "total": 3,
+    "avgCR": 0.13
+   }
+  },
+  {
+   "nome": "todos-acima-3-semVinculo",
+   "sha256Contexto": "214d71b0e0645a3b43a82b96a0d4db7738ea667ee55f56b51691191bb8720ae5",
+   "bytesDoContexto": 70608,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 0,
+    "warning": 3,
+    "critical": 0,
+    "total": 3,
+    "avgCR": 0.13
+   }
+  },
+  {
+   "nome": "todos-validos-3-comVinculo",
+   "sha256Contexto": "1023840166af8bb0113fb776a7fcbda5a094dc910bccb879ff587e349d10154e",
+   "bytesDoContexto": 75341,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 3,
+    "warning": 0,
+    "critical": 0,
+    "total": 3,
+    "avgCR": 0.06
+   }
+  },
+  {
+   "nome": "todos-validos-3-semVinculo",
+   "sha256Contexto": "faa90fe359e5163c368d7f38efd242eee93a6a49822e7e6102992dd535622c38",
+   "bytesDoContexto": 70615,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "taxaAntes": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+   "estatisticasDaTelaAntes": {
+    "valid": 3,
+    "warning": 0,
+    "critical": 0,
+    "total": 3,
+    "avgCR": 0.06
+   }
+  }
+ ]
+}

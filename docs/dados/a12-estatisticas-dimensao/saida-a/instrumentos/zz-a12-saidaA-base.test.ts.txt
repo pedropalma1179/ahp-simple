@@ -1,0 +1,374 @@
+export {};
+
+const fs = require('node:fs');
+const path = require('node:path');
+
+import { LIMITE_DO_VINCULO, MARCADOR_DO_BLOCO_DO_VINCULO, prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';
+import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
+
+const RAIZ = path.resolve(__dirname, '..', '..');
+const ler = (rel: string): string => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
+const normalizar = (t: string) => t.replace(/\s+/g, ' ').trim();
+const ocorrencias = (texto: string, agulha: string) => texto.split(agulha).length - 1;
+
+const TELA = 'app/decisor/resultados/[projectId]/page.tsx';
+const ROTA = 'app/api/ai-reviewer/route.ts';
+const CONTRATO = 'docs/contratos-de-dados.md';
+const REGISTRO = 'docs/imprecisoes-parecer-ia.md';
+const ANCORA = 'docs/objetivo-estados-caminho.md';
+
+// ---------------------------------------------------------------------------
+// Cliente do modelo SIMULADO. ⚠ Chave falsa, texto controlado, e nada de rede.
+// ---------------------------------------------------------------------------
+
+const CHAVE = 'chave-anthropic-falsa-do-processo-de-teste';
+const SEM_VEREDICTO = 'Parecer de ensaio, sem decisão editorial declarada no texto. '.repeat(3);
+process.env.ANTHROPIC_API_KEY = CHAVE;
+delete process.env.USE_RAG_SEMANTIC;
+
+const captura: { contexto: string; system: string } = { contexto: '', system: '' };
+
+jest.mock('@anthropic-ai/sdk', () => ({
+  __esModule: true,
+  default: class {
+    messages = {
+      create: async (a: { system?: unknown; messages: Array<{ content: string }> }) => {
+        captura.contexto = a.messages.map((m) => m.content).join('\n');
+        captura.system = typeof a.system === 'string' ? a.system : JSON.stringify(a.system ?? '');
+        return { content: [{ type: 'text', text: SEM_VEREDICTO }] };
+      },
+    };
+  },
+}));
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { POST } = require('@/app/api/ai-reviewer/route');
+
+let silencios: jest.SpyInstance[] = [];
+beforeAll(() => {
+  silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined));
+});
+afterAll(() => silencios.forEach((s) => s.mockRestore()));
+jest.setTimeout(60000);
+
+type Resposta = { contexto: string; system: string; corpo: any; status: number };
+
+/** Executa o handler REAL com o cliente simulado, e captura o contexto e a resposta. */
+async function executar(payload: Record<string, unknown>): Promise<Resposta> {
+  captura.contexto = '';
+  captura.system = '';
+  const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+  const corpo = await res.json();
+  return { contexto: captura.contexto, system: captura.system, corpo, status: res.status ?? 200 };
+}
+
+// ---------------------------------------------------------------------------
+// Payloads com a forma que a tela monta. ⚠ São duplos de TESTE.
+// ---------------------------------------------------------------------------
+
+const respondente = (id: string, cr: number | null) => ({
+  respondentId: id,
+  id,
+  name: `Respondente ${id}`,
+  ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }),
+  status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO',
+});
+
+const balde = (total: number, valid: number, warning = 0, critical = 0) => ({ total, valid, warning, critical, avgCR: 0.05 });
+
+/** O payload da tela para os `respondentes` dados, com `overall` opcional. */
+function payloadDaTela(respondentes: any[], vinculo?: unknown, comOverall = true): Record<string, unknown> {
+  const n = respondentes.length;
+  const validos = respondentes.filter((r) => typeof r.cr === 'number' && r.cr <= 0.1).length;
+  const todosComCR = respondentes.length > 0 && respondentes.every((r) => typeof r.cr === 'number');
+  const p: Record<string, unknown> = {
+    avaliacaoDeQualidade: todosComCR
+      ? { estado: 'disponivel', motivo: null, fonte: 'análise de qualidade dos respondentes ativos' }
+      : n === 0
+        ? { estado: 'ausente', motivo: 'sem análise individual', fonte: 'tela' }
+        : { estado: 'incompleta', motivo: 'CR faltando', fonte: 'tela' },
+    projectName: 'Projeto do vinculo',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    responseCount: n,
+    finalScores: [
+      { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+      { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+    ],
+    qualityAnalysis: todosComCR
+      ? {
+          respondents: respondentes,
+          statistics: {
+            byStatus: { 'CONFIÁVEL': validos, 'REVISAR': 0, 'SUSPEITO': n - validos, 'CRÍTICO': 0 },
+            total: n,
+            avgCR: 0.05,
+          },
+          ...(comOverall ? { overall: { status: 'CONFIÁVEL', qualityScore: 91, recommendation: 'ok' } } : {}),
+          summary: { total: n, ok: validos, suspicious: n - validos, critical: 0 },
+        }
+      : { respondents: respondentes },
+    overallStats: todosComCR ? { total: n, valid: validos, warning: n - validos, critical: 0 } : undefined,
+    individualStats: todosComCR
+      ? {
+          Benefits: balde(n, validos, n - validos),
+          Opportunities: balde(n, validos, n - validos),
+          Costs: balde(n, validos, n - validos),
+          Risks: balde(n, validos, n - validos),
+        }
+      : undefined,
+  };
+  if (vinculo !== undefined) p.vinculoDaExecucao = vinculo;
+  return p;
+}
+
+const IDS = ['r1', 'r2', 'r3', 'r4'];
+const elegivel = () => IDS.map((id) => respondente(id, 0.05));
+const naoElegivel = () => [respondente('r1', 0.05), respondente('r2', null), respondente('r3', 0.05), respondente('r4', 0.05)];
+
+const HEX_PAINEL = 'b'.repeat(64);
+const shaDe = (id: string) => id.padEnd(64, '0').replace(/[^0-9a-f]/g, 'c');
+
+function calculo(ids: string[] | undefined, sobre: Record<string, unknown> = {}): any {
+  const metadata: any = {
+    judgmentsDigest: { algorithm: 'sha256', serialization: 'a12-julgamentos-v1', panel: HEX_PAINEL, unavailableReason: null },
+  };
+  if (ids !== undefined) {
+    metadata.includedRespondents = ids.map((id) => ({
+      respondentId: id,
+      responseDocId: `doc-${id}`,
+      identifierSource: 'respondentId',
+      judgmentsSha256: shaDe(id),
+      judgmentsUnavailableReason: null,
+    }));
+  }
+  return { executionId: 'exec-fiacao-0001', metadata, ...sobre };
+}
+
+const ESTADOS = ['indisponivel', 'invalido', 'vinculado', 'divergente'] as const;
+
+/** Um vínculo de cada estado, sobre a MESMA lista avaliada `lista`. ⚠ Em `divergente` a sobra é só do documento. */
+function vinculoDoEstado(estado: (typeof ESTADOS)[number], lista: any[]) {
+  const ids = lista.map((r) => r.respondentId);
+  const doc =
+    estado === 'indisponivel' ? calculo(undefined)
+    : estado === 'invalido' ? calculo([])
+    : estado === 'vinculado' ? calculo(ids)
+    : calculo([...ids, 'z-so-no-documento']);
+  const preparo = prepararVinculoDaTela({ calculo: doc, respondentesAtivos: lista, respostasAtivas: [] });
+  expect(preparo.vinculo.estado).toBe(estado);
+  expect(preparo.respondentesEnviados).toEqual(lista); // ⚠ o MESMO conjunto avaliado nos quatro estados
+  return preparo.vinculo;
+}
+
+const blocoDe = (contexto: string): string => {
+  const inicio = contexto.indexOf(MARCADOR_DO_BLOCO_DO_VINCULO);
+  if (inicio < 0) return '';
+  const fimDoLimite = contexto.indexOf(LIMITE_DO_VINCULO, inicio);
+  return contexto.slice(inicio, fimDoLimite + LIMITE_DO_VINCULO.length);
+};
+
+const SAIDA = process.env.SAIDA_DIM2 as string;
+const grava = (nome: string, valor: unknown) => { fs.mkdirSync(SAIDA, { recursive: true }); fs.writeFileSync(`${SAIDA}/${nome}`, typeof valor === 'string' ? valor : JSON.stringify(valor, null, 1)); };
+
+/** Um elemento como o produtor de qualidade o devolve (`app/api/response-quality/route.ts:377-402`). */
+function itemDoProdutor(id: string, cr: number | undefined) {
+  const status =
+    cr === undefined || cr === 0 ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.15 ? 'REVISAR' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO';
+  const semCR = cr === undefined;
+  return {
+    respondentId: id,
+    isSimulated: false,
+    status,
+    overallScore: 50,
+    ...(semCR ? {} : { cr }),
+    metrics: semCR ? {} : { avgCR: cr, crBOCR: cr, crBenefits: cr, crOpportunities: cr, crCosts: cr, crRisks: cr },
+    flags: [],
+    recommendation: '',
+  };
+}
+
+/** COPIA LITERAL da redução de `page.tsx:1058-1088`. A tela não é executada por teste algum; isto reproduz o que ela faz. */
+function individualStatsDaTela(respondentesEnviados: any[]) {
+  let totalCR = 0;
+  const acc: any = respondentesEnviados.reduce(
+    (acc: any, r: any) => {
+      let crValue = 0;
+      if (typeof r.cr === 'number') crValue = r.cr;
+      else if (r.metrics && typeof r.metrics.avgCR === 'number') crValue = r.metrics.avgCR;
+      else if (r.consistency && typeof r.consistency.cr === 'number') crValue = r.consistency.cr;
+      else if (typeof r.cr_mean === 'number') crValue = r.cr_mean;
+      totalCR += crValue;
+      const isExplicitlyBad = r.status === 'SUSPEITO' || r.status === 'CRÍTICO';
+      const isMathematicallyBad = crValue > 0.2;
+      const isMathematicallySuspect = crValue > 0.1;
+      if (isExplicitlyBad || isMathematicallyBad) acc.critical++;
+      else if (isMathematicallySuspect) acc.warning++;
+      else acc.valid++;
+      acc.total++;
+      return acc;
+    },
+    { valid: 0, warning: 0, critical: 0, total: 0 }
+  );
+  acc.avgCR = acc.total > 0 ? totalCR / acc.total : 0;
+  return acc;
+}
+
+/** O payload como `page.tsx:1236-1315` o monta, para os respondentes dados. `comEstatisticas: false` retira byStatus, summary e overallStats. */
+function payloadReal(respondentes: any[], opcoes: { comVinculo: boolean; comEstatisticas?: boolean }) {
+  const stats = individualStatsDaTela(respondentes);
+  const respondentesComCR = respondentes.map((r: any) => ({
+    ...r,
+    cr: typeof r.cr === 'number' ? r.cr : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
+    isSimulated: r.isSimulated === true,
+  }));
+  const avaliacao = classificarAvaliacaoDaTela({ respondentesAvaliados: respondentes, respostasAtivas: [] });
+  const avaliada = avaliacao.estado === 'disponivel';
+  const comEstatisticas = opcoes.comEstatisticas !== false;
+  const p: any = {
+    avaliacaoDeQualidade: avaliacao,
+    projectName: 'Projeto da medicao',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    responseCount: respondentes.length,
+    finalScores: [
+      { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+      { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+    ],
+    qualityAnalysis: avaliada
+      ? {
+          respondents: respondentesComCR,
+          ...(comEstatisticas
+            ? {
+                statistics: {
+                  byStatus: { 'CONFIÁVEL': stats.valid, 'REVISAR': 0, 'SUSPEITO': stats.warning, 'CRÍTICO': stats.critical },
+                  total: stats.total,
+                  avgCR: stats.avgCR,
+                },
+                summary: { total: stats.total, ok: stats.valid, suspicious: stats.warning, critical: stats.critical },
+              }
+            : {}),
+          overall: {},
+        }
+      : { respondents: respondentesComCR },
+    overallStats: avaliada && comEstatisticas ? { total: stats.total, valid: stats.valid, warning: stats.warning, critical: stats.critical } : undefined,
+    individualStats: avaliada && stats.total > 0 ? stats : undefined,
+  };
+  if (opcoes.comVinculo) p.vinculoDaExecucao = vinculoDoEstado('vinculado', respondentesComCR);
+  return { payload: p, stats, avaliacao };
+}
+
+const extrair = (contexto: string) => {
+  const linhas = contexto.split('\n');
+  const idx = linhas.findIndex((l) => l.startsWith('## Estatísticas por Dimensão BOCR'));
+  const fim = linhas.findIndex((l, i) => i > idx && l.startsWith('## Pesos Finais da Hierarquia'));
+  return {
+    taxa: linhas.filter((l) => l.startsWith('**Taxa de Validade Geral:**')),
+    bloco: idx >= 0 ? linhas.slice(idx, fim).join('\n') : null,
+    frasesSobreN: linhas.filter((l) => /não atribua um N|NÃO existe divisão de respondentes|Portanto N =|NÃO medem a participação por dimensão|N de matriz alguma/.test(l)),
+    totalDaLista: linhas.filter((l) => l.startsWith('**TOTAL')),
+    resumoDoPainel: linhas.filter((l) => /^- Total: \d+ especialistas/.test(l)),
+    motivoAusente: linhas.filter((l) => /AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL/.test(l)),
+  };
+};
+
+// ============================================================================================
+// SONDA DA BASE (código ANTERIOR à saída A): captura o contexto COMPLETO e o corpo de cada cenário.
+// ⚠ Instrumento TEMPORÁRIO, fora do repositório. Cliente do modelo simulado; nenhuma rede.
+// ============================================================================================
+const sha = (t: string) => require('node:crypto').createHash('sha256').update(t).digest('hex');
+const cr12 = [0.1139, 0.3747, 1.0927, 0.5903, 0.6359, 0.461, 0.2519, 0.2344, 0.3158, 0.2634, 0.2402, 0.2525];
+const CEN: [string, any[]][] = [
+  ['agregado-5', [0.05, 0.08, 0.12, 0.18, 0.25].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+  ['agregado-3', [0.05, 0.12, 0.25].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+  ['agregado-12', cr12.map((cr, i) => itemDoProdutor(`R${String(i + 1).padStart(2, '0')}`, cr))],
+  ['agregado-12-gravado', Array.from({ length: 12 }, (_, i) => itemDoProdutor(`R${String(i + 1).padStart(2, '0')}`, 0.05))],
+  ['agregado-5-com-2-desconhecidos', [0.05, 0.08, 0.12, 0, 0].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+  ['todos-validos-3', [0.05, 0.06, 0.07].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+  ['todos-acima-3', [0.12, 0.13, 0.14].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr))],
+];
+
+const resumoDaResposta = (r: Resposta) => ({
+  status: r.status,
+  nota: r.corpo.nota ?? null,
+  veredicto: r.corpo.veredicto ?? null,
+  notaSuspensa: r.corpo.notaSuspensa ?? null,
+  chavesDoCorpo: Object.keys(r.corpo).sort(),
+});
+
+async function dump(nome: string, payload: any) {
+  const r = await executar(payload);
+  expect(r.status).toBe(200);
+  grava(`ctx-${nome}.txt`, r.contexto);
+  grava(`corpo-${nome}.json`, resumoDaResposta(r));
+  return { nome, ...extrair(r.contexto), shaContexto: sha(r.contexto), shaSystem: sha(r.system), tamanho: r.contexto.length };
+}
+
+describe('sonda da base', () => {
+  const indice: any[] = [];
+  afterAll(() => grava('indice.json', indice));
+
+  test.each(CEN.map((c) => [c[0], c[1]] as const))('%s, com e sem vinculo', async (nome, respondentes) => {
+    for (const comVinculo of [false, true]) {
+      const { payload, stats, avaliacao } = payloadReal(respondentes as any[], { comVinculo });
+      const linha = await dump(`${nome}-${comVinculo ? 'comVinculo' : 'semVinculo'}`, payload);
+      indice.push({ ...linha, estatisticasDaTela: stats, avaliacao: avaliacao.estado });
+    }
+  });
+
+  test('variantes: pedido elegivel sem individualStats, duplo por dimensao, nao avaliadas, contradicao, coerencia', async () => {
+    const r5 = CEN[0][1];
+    for (const comVinculo of [false, true]) {
+      const sufixo = comVinculo ? 'comVinculo' : 'semVinculo';
+
+      const a = payloadReal(r5, { comVinculo }).payload; delete a.individualStats;
+      indice.push({ ...(await dump(`elegivel-sem-individualStats-${sufixo}`, a)) });
+
+      const b = payloadReal(r5, { comVinculo }).payload;
+      b.individualStats = { Benefits: balde(5, 5, 0, 0), Opportunities: balde(5, 4, 1, 0), Costs: balde(5, 3, 1, 1), Risks: balde(5, 2, 2, 1) };
+      indice.push({ ...(await dump(`duplo-por-dimensao-${sufixo}`, b)) });
+
+      // ⚠ CORRIGIDO: na primeira versão da sonda estas duas variantes usavam `comVinculo: false` nas DUAS
+      //   voltas do laço, e por isso a "comVinculo" saía SEM o campo (idêntica byte a byte à "semVinculo").
+      const ausente = payloadReal([], { comVinculo: false }).payload;
+      if (comVinculo) ausente.vinculoDaExecucao = vinculoDoEstado('indisponivel', []);
+      indice.push({ ...(await dump(`nao-avaliada-ausente-${sufixo}`, ausente)) });
+
+      const inc = payloadReal([itemDoProdutor('r1', 0.05), itemDoProdutor('r2', undefined), itemDoProdutor('r3', 0.06)], { comVinculo }).payload;
+      indice.push({ ...(await dump(`nao-avaliada-incompleta-${sufixo}`, inc)) });
+
+      const c = payloadReal(r5, { comVinculo }).payload; c.qualityAnalysis.summary.critical += 5;
+      indice.push({ ...(await dump(`contradicao-${sufixo}`, c)) });
+
+      const d = payloadReal(r5, { comVinculo }).payload; delete d.qualityAnalysis.statistics.total;
+      indice.push({ ...(await dump(`coerencia-nao-concluida-${sufixo}`, d)) });
+    }
+  });
+
+  test('sonda: elegivel com TOTAL zero (alcancavel pelo tratador real?)', async () => {
+    const p = payloadReal(CEN[1][1], { comVinculo: false }).payload;
+    p.qualityAnalysis = {
+      respondents: [],
+      statistics: { byStatus: { 'CONFIÁVEL': 0, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 0 }, total: 0, avgCR: 0 },
+      summary: { total: 0, ok: 0, suspicious: 0, critical: 0 },
+      overall: {},
+    };
+    p.overallStats = { total: 0, valid: 0, warning: 0, critical: 0 };
+    p.responseCount = 0;
+    p.individualStats = undefined;
+    p.avaliacaoDeQualidade = { estado: 'disponivel', motivo: null, fonte: 'declarada' };
+    indice.push({ ...(await dump('elegivel-total-zero-semVinculo', p)) });
+  });
+});
+
+describe('sonda 2: total zero com desconhecidos', () => {
+  test('todos desconhecidos (cr 0, status DESCONHECIDO): byStatus soma zero nas quatro chaves', async () => {
+    const itens = [0, 0, 0].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr));
+    const p = payloadReal(itens, { comVinculo: false }).payload;
+    p.qualityAnalysis.statistics = { byStatus: { 'CONFIÁVEL': 0, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 0, 'DESCONHECIDO': 3 }, total: 3, avgCR: 0 };
+    p.qualityAnalysis.summary = { total: 3, ok: 0, suspicious: 0, critical: 0 };
+    p.overallStats = { total: 3, valid: 0, warning: 0, critical: 0 };
+    const r = await executar(p);
+    grava('sonda2-desconhecidos-ctx.txt', r.contexto);
+    grava('sonda2-desconhecidos.json', { ...extrair(r.contexto), corpo: resumoDaResposta(r), avaliacao: payloadReal(itens, { comVinculo: false }).avaliacao.estado });
+  });
+});

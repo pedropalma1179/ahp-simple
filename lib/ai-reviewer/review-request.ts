@@ -49,7 +49,10 @@ export interface ReviewRequest {
    * ⚠ REPRESENTA o vínculo e NÃO decide o que a divergência faz com a classificação: o estado,
    * isoladamente, não acrescenta causa de suspensão nem altera a elegibilidade. Requisição sem o
    * campo gera contexto byte a byte igual ao anterior a este estágio. ⚠ Os resumos que ele leva
-   * são TRANSPORTADOS, e nunca verificados.
+   * são TRANSPORTADOS, e nunca verificados. ⚠ **A propriedade "sem o campo, contexto byte a byte
+   * igual ao anterior" DEIXOU DE VALER para o pedido ELEGÍVEL**, por decisão do autor (A.12,
+   * estatísticas por dimensão, saída A): o bloco de estatísticas por dimensão mudou, com ou sem
+   * este campo. Continua valendo para o pedido não elegível.
    */
   vinculoDaExecucao?: VinculoDaExecucao;
   projectName: string;
@@ -75,7 +78,14 @@ export interface ReviewRequest {
     excludedCount: number;
     reason: string;
   };
-  individualStats: {
+  /**
+   * A.12, estatísticas por dimensão (saída A): NÃO é lido pela rota, e por isso é opcional. ⚠ A tela
+   * envia o agregado ACHATADO (total, valid, warning, critical), sem separação por dimensão, e a
+   * rota deixou de dividi-lo por quatro: nada por dimensão é derivado dele, e o bloco de
+   * estatísticas por dimensão declara a contagem NÃO DISPONÍVEL nesta requisição. O formato por
+   * dimensão abaixo é o que este tipo declarava, e NÃO é apresentado ao modelo, nem quando recebido.
+   */
+  individualStats?: {
     Benefits: IndividualStats;
     Opportunities: IndividualStats;
     Costs: IndividualStats;

@@ -1,0 +1,583 @@
+{
+ "_meta": {
+  "natureza": "Saidas resumidas da Fase 2 (saida A). Cada secao declara o instrumento; nada aqui e consulta a producao.",
+  "baseDoCodigo": "35a15062a64f39085cc6702aaf0e77a600d6f542",
+  "complementoDatado": "47c9ff3603babb4844ce85deb489359d61008d9f"
+ },
+ "testesAntigosContraCodigoNovo": {
+  "suites": 35,
+  "suitesReprovadas": 3,
+  "testes": 834,
+  "testesReprovados": 5,
+  "reprovacoes": [
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "teste": "COM o campo, 5 / 4 / 4 com exclusão: nenhuma contagem fica sem população, e as cobertas só pela chave são exatamente dez",
+    "asserção": "vinculo-execucao-fiacao.test.ts:724"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora",
+    "asserção": "a33-cadeia-rule.test.ts:1232"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados",
+    "asserção": "a33-cadeia-rule.test.ts:1475"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA",
+    "asserção": "a33-cadeia-rule.test.ts:1506"
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual",
+    "asserção": "a12-diagnostico.test.ts:1083"
+   }
+  ]
+ },
+ "testesNovosContraCodigoAnterior": {
+  "testes": 43,
+  "reprovam": 27,
+  "passam": 16,
+  "lista": [
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "Taxa SEM base, agregado achatado de 5: 2 válidas, 1 warning, 2 críticas: \"não calculada\", nunca um percentual derivado do `individualStats`",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "Taxa SEM base, agregado achatado de 5, todas válidas: \"não calculada\", nunca um percentual derivado do `individualStats`",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "Taxa SEM base, agregado achatado de 3, todas válidas: \"não calculada\", nunca um percentual derivado do `individualStats`",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "Taxa SEM base, agregado achatado de 12, todas válidas: \"não calculada\", nunca um percentual derivado do `individualStats`",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "Taxa SEM base, por dimensão, em pessoas (5 pessoas; válidas 5, 4, 3 e 2): \"não calculada\", nunca um percentual derivado do `individualStats`",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "Taxa SEM base, sem `individualStats`: \"não calculada\", nunca um percentual derivado do `individualStats`",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "bloco por dimensão, agregado achatado de 5: 2 válidas, 1 warning, 2 críticas: a frase própria, sem dígito, e sem o `individualStats` recebido",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "bloco por dimensão, agregado achatado de 5, todas válidas: a frase própria, sem dígito, e sem o `individualStats` recebido",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "bloco por dimensão, agregado achatado de 3, todas válidas: a frase própria, sem dígito, e sem o `individualStats` recebido",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "bloco por dimensão, agregado achatado de 12, todas válidas: a frase própria, sem dígito, e sem o `individualStats` recebido",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "bloco por dimensão, por dimensão, em pessoas (5 pessoas; válidas 5, 4, 3 e 2): a frase própria, sem dígito, e sem o `individualStats` recebido",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "bloco por dimensão, sem `individualStats`: a frase própria, sem dígito, e sem o `individualStats` recebido",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao-consumidor-latente.test.ts",
+    "teste": "o mesmo pedido, com base MEDIDA (`byStatus`), volta a ter a Taxa medida: a base é o que decide, e não o `individualStats`",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-12: o bloco é a frase nova, sem dígito, e não traz \"3\" nas quatro",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-12-gravado: o bloco é a frase nova, sem dígito, e não traz \"3\" nas quatro",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-5: o bloco é a frase nova, sem dígito",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-3: o bloco é a frase nova, sem dígito",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-5-com-2-desconhecidos: o bloco é a frase nova, sem dígito",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "a Taxa dos agregados de 5 e de 3 fica a MEDIDA (40.0% e 33.3%), e não vem do bloco",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "o detector do zero que SUBSTITUI ausência discrimina: pega o texto anterior, e NÃO pega o zero medido dos mesmos pedidos",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "zero críticos MEDIDOS: a linha \"CRÍTICAS ... 0 (0.0%)\" permanece, e o bloco continua sem número",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "Taxa MEDIDA em 0%: a linha \"0.0%\" permanece, e o zero não é confundido com ausência de base",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "sem `individualStats`, com e sem vínculo",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "o `individualStats` já POR DIMENSÃO também não é apresentado: a saída A não distingue a origem",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "achatado (o da tela), ausente e por dimensão, sobre os MESMOS respondentes: o contexto completo é o MESMO, byte a byte",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "contradicao (causa contradicao): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "CONTRAEXEMPLO: trocar a frase existente pela nova é detectado, e a nova NÃO diz que a qualidade não foi avaliada",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "em todos os cenários com base, a linha é a que a medição sustenta, e é a mesma da base de `35a1506`",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "nos quatro estados e no formato não reconhecido, com pedido elegível e não elegível: o item novo ocorre UMA vez, e nenhum texto da divisão sobrevive",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "a chave, pela função do módulo: o item é UM elemento do arranjo, o último, e o arranjo mantém o tamanho",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "CONTRAEXEMPLO: o item de `35a1506` descreve a divisão, e o detector o pega",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "em todos os pedidos elegíveis, com e sem vínculo, o contexto COMPLETO não traz contagem por dimensão, e o bloco não traz número",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "CONTRAEXEMPLO: para cada um desses pedidos o texto atual seria reprovado pelo MESMO detector",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-5: contra o contexto completo da Fase 1, sem e com o campo",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-3: contra o contexto completo da Fase 1, sem e com o campo",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda",
+    "noCodigoAnterior": "reprova"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-5: sem `byStatus`, `summary` nem `overallStats`, a requisição NÃO é elegível",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-3: sem `byStatus`, `summary` nem `overallStats`, a requisição NÃO é elegível",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "agregado-12: sem `byStatus`, `summary` nem `overallStats`, a requisição NÃO é elegível",
+    "noCodigoAnterior": "passa"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "o pedido elegível com total zero, nas duas construções tentadas, NÃO é elegível (não é prova de inalcançabilidade)",
+    "noCodigoAnterior": "passa"
+   }
+  ]
+ },
+ "mutantes": [
+  {
+   "mutante": "M1 bloco elegível volta a trazer DÍGITO (um número no lugar da ausência)",
+   "estado": "MORTO",
+   "testesQueReprovam": 20,
+   "esperado": "ensaios 1, 2, 3, 8, 9",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao-consumidor-latente::bloco por dimensão, agregado achatado de 5: 2 válidas, 1 warning, 2 cr",
+    "a12-estatisticas-dimensao-consumidor-latente::bloco por dimensão, agregado achatado de 5, todas válidas: a frase pró",
+    "a12-estatisticas-dimensao-consumidor-latente::bloco por dimensão, agregado achatado de 3, todas válidas: a frase pró",
+    "a12-estatisticas-dimensao-consumidor-latente::bloco por dimensão, agregado achatado de 12, todas válidas: a frase pr",
+    "a12-estatisticas-dimensao-consumidor-latente::bloco por dimensão, por dimensão, em pessoas (5 pessoas; válidas 5, 4,",
+    "a12-estatisticas-dimensao-consumidor-latente::bloco por dimensão, sem `individualStats`: a frase própria, sem dígito"
+   ]
+  },
+  {
+   "mutante": "M2 Taxa SEM base volta a ser 0.0% (o zero no lugar da ausência)",
+   "estado": "MORTO",
+   "testesQueReprovam": 6,
+   "esperado": "controle do consumidor latente (Taxa sem base)",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5: 2 válidas, 1 warning, 2 crítica",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5, todas válidas: \"não calculada\",",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 3, todas válidas: \"não calculada\",",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 12, todas válidas: \"não calculada\"",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, por dimensão, em pessoas (5 pessoas; válidas 5, 4, 3 e ",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, sem `individualStats`: \"não calculada\", nunca um percen"
+   ]
+  },
+  {
+   "mutante": "M3 Taxa MEDIDA em 0% trocada por \"não calculada\" (base = válidas > 0)",
+   "estado": "MORTO",
+   "testesQueReprovam": 4,
+   "esperado": "ensaios 2b, 5 e o controle \"com base medida\"",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao-consumidor-latente::o mesmo pedido, com base MEDIDA (`byStatus`), volta a ter a Taxa medid",
+    "a12-estatisticas-dimensao::Taxa MEDIDA em 0%: a linha \"0.0%\" permanece, e o zero não é confundido",
+    "a12-estatisticas-dimensao::em todos os cenários com base, a linha é a que a medição sustenta, e é",
+    "a12-estatisticas-dimensao::os 27 cenários da sonda: o contexto novo, levado ao texto anterior, te"
+   ]
+  },
+  {
+   "mutante": "M4 pedido NÃO avaliado passa a imprimir a frase NOVA (a existente é trocada)",
+   "estado": "MORTO",
+   "testesQueReprovam": 9,
+   "esperado": "ensaio 4",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao::nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os ",
+    "a12-estatisticas-dimensao::nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são ",
+    "a12-estatisticas-dimensao::contradicao (causa contradicao): o bloco e a Taxa são os de antes, com",
+    "a12-estatisticas-dimensao::coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a T",
+    "a12-estatisticas-dimensao::os 27 cenários da sonda: o contexto novo, levado ao texto anterior, te",
+    "a12-estatisticas-dimensao::agregado-5: sem `byStatus`, `summary` nem `overallStats`, a requisição"
+   ]
+  },
+  {
+   "mutante": "M5 a frase EXISTENTE muda um caractere (mesma causa)",
+   "estado": "MORTO",
+   "testesQueReprovam": 9,
+   "esperado": "ensaio 4 e a linha de base por sha256",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao::nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os ",
+    "a12-estatisticas-dimensao::nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são ",
+    "a12-estatisticas-dimensao::contradicao (causa contradicao): o bloco e a Taxa são os de antes, com",
+    "a12-estatisticas-dimensao::coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a T",
+    "a12-estatisticas-dimensao::os 27 cenários da sonda: o contexto novo, levado ao texto anterior, te",
+    "a12-estatisticas-dimensao::agregado-5: sem `byStatus`, `summary` nem `overallStats`, a requisição"
+   ]
+  },
+  {
+   "mutante": "M6 pedido ELEGÍVEL passa a imprimir a frase EXISTENTE (que seria falsa)",
+   "estado": "MORTO",
+   "testesQueReprovam": 26,
+   "esperado": "ensaios 1, 2, 3, 4, 8, 9",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao::agregado-12: o bloco é a frase nova, sem dígito, e não traz \"3\" nas qu",
+    "a12-estatisticas-dimensao::agregado-12-gravado: o bloco é a frase nova, sem dígito, e não traz \"3",
+    "a12-estatisticas-dimensao::agregado-5: o bloco é a frase nova, sem dígito",
+    "a12-estatisticas-dimensao::agregado-3: o bloco é a frase nova, sem dígito",
+    "a12-estatisticas-dimensao::agregado-5-com-2-desconhecidos: o bloco é a frase nova, sem dígito",
+    "a12-estatisticas-dimensao::o detector do zero que SUBSTITUI ausência discrimina: pega o texto ant"
+   ]
+  },
+  {
+   "mutante": "M7a QUARTO RAMO reinstalado, com o `individualStats` passado tal como veio (sem divisão)",
+   "estado": "MORTO",
+   "testesQueReprovam": 11,
+   "esperado": "controle do consumidor latente",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5: 2 válidas, 1 warning, 2 crítica",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5, todas válidas: \"não calculada\",",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 3, todas válidas: \"não calculada\",",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 12, todas válidas: \"não calculada\"",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, por dimensão, em pessoas (5 pessoas; válidas 5, 4, 3 e ",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, sem `individualStats`: \"não calculada\", nunca um percen"
+   ]
+  },
+  {
+   "mutante": "M7b QUARTO RAMO reinstalado E a divisão por quatro reinstalada (o defeito completo, sem o bloco)",
+   "estado": "MORTO",
+   "testesQueReprovam": 4,
+   "esperado": "controle do consumidor latente (a Taxa volta a sair do quociente)",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5: 2 válidas, 1 warning, 2 crítica",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5, todas válidas: \"não calculada\",",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 12, todas válidas: \"não calculada\"",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, por dimensão, em pessoas (5 pessoas; válidas 5, 4, 3 e "
+   ]
+  },
+  {
+   "mutante": "M8 Taxa COM base perde precisão (toFixed(2))",
+   "estado": "MORTO",
+   "testesQueReprovam": 8,
+   "esperado": "ensaios 2, 2b, 5 e controle \"com base medida\"",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao-consumidor-latente::o mesmo pedido, com base MEDIDA (`byStatus`), volta a ter a Taxa medid",
+    "a12-estatisticas-dimensao::a Taxa dos agregados de 5 e de 3 fica a MEDIDA (40.0% e 33.3%), e não ",
+    "a12-estatisticas-dimensao::Taxa MEDIDA em 0%: a linha \"0.0%\" permanece, e o zero não é confundido",
+    "a12-estatisticas-dimensao::sem `individualStats`, com e sem vínculo",
+    "a12-estatisticas-dimensao::em todos os cenários com base, a linha é a que a medição sustenta, e é",
+    "a12-estatisticas-dimensao::agregado-5: contra o contexto completo da Fase 1, sem e com o campo"
+   ]
+  },
+  {
+   "mutante": "M9 um byte de OUTRA parte do contexto muda (fora dos cinco pontos)",
+   "estado": "MORTO",
+   "testesQueReprovam": 7,
+   "esperado": "ensaio 9 (byte a byte) e os 27 cenários",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao::nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os ",
+    "a12-estatisticas-dimensao::nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são ",
+    "a12-estatisticas-dimensao::contradicao (causa contradicao): o bloco e a Taxa são os de antes, com",
+    "a12-estatisticas-dimensao::coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a T",
+    "a12-estatisticas-dimensao::agregado-5: contra o contexto completo da Fase 1, sem e com o campo",
+    "a12-estatisticas-dimensao::agregado-3: contra o contexto completo da Fase 1, sem e com o campo"
+   ]
+  },
+  {
+   "mutante": "M10 item da chave: o item ANTIGO volta (descreve a divisão)",
+   "estado": "MORTO",
+   "testesQueReprovam": 5,
+   "esperado": "ensaios 7, 9, fiação :730",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao::nos quatro estados e no formato não reconhecido, com pedido elegível e",
+    "a12-estatisticas-dimensao::a chave, pela função do módulo: o item é UM elemento do arranjo, o últ",
+    "a12-estatisticas-dimensao::agregado-5: contra o contexto completo da Fase 1, sem e com o campo",
+    "a12-estatisticas-dimensao::agregado-3: contra o contexto completo da Fase 1, sem e com o campo",
+    "vinculo-execucao-fiacao::COM o campo, 5 / 4 / 4 com exclusão: nenhuma contagem fica sem populaç"
+   ]
+  },
+  {
+   "mutante": "M11 item da chave novo, mas com um DÍGITO e \"por quatro\"",
+   "estado": "MORTO",
+   "testesQueReprovam": 10,
+   "esperado": "ensaios 7, 9, fiação",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao::nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os ",
+    "a12-estatisticas-dimensao::nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são ",
+    "a12-estatisticas-dimensao::contradicao (causa contradicao): o bloco e a Taxa são os de antes, com",
+    "a12-estatisticas-dimensao::coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a T",
+    "a12-estatisticas-dimensao::nos quatro estados e no formato não reconhecido, com pedido elegível e",
+    "a12-estatisticas-dimensao::a chave, pela função do módulo: o item é UM elemento do arranjo, o últ"
+   ]
+  },
+  {
+   "mutante": "M12 bloco elegível volta a dizer \"não existe\" em lugar de \"não disponível nesta requisição\"",
+   "estado": "MORTO",
+   "testesQueReprovam": 17,
+   "esperado": "ensaios 1, 2, 3, 8, 9",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao::agregado-12: o bloco é a frase nova, sem dígito, e não traz \"3\" nas qu",
+    "a12-estatisticas-dimensao::agregado-12-gravado: o bloco é a frase nova, sem dígito, e não traz \"3",
+    "a12-estatisticas-dimensao::agregado-5: o bloco é a frase nova, sem dígito",
+    "a12-estatisticas-dimensao::agregado-3: o bloco é a frase nova, sem dígito",
+    "a12-estatisticas-dimensao::agregado-5-com-2-desconhecidos: o bloco é a frase nova, sem dígito",
+    "a12-estatisticas-dimensao::o detector do zero que SUBSTITUI ausência discrimina: pega o texto ant"
+   ]
+  },
+  {
+   "mutante": "M13 a Taxa sem base sobrevive, mas o base passa a valer com total ZERO (base = total >= 0)",
+   "estado": "MORTO",
+   "testesQueReprovam": 6,
+   "esperado": "controle do consumidor latente",
+   "primeirosQueReprovam": [
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5: 2 válidas, 1 warning, 2 crítica",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 5, todas válidas: \"não calculada\",",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 3, todas válidas: \"não calculada\",",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, agregado achatado de 12, todas válidas: \"não calculada\"",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, por dimensão, em pessoas (5 pessoas; válidas 5, 4, 3 e ",
+    "a12-estatisticas-dimensao-consumidor-latente::Taxa SEM base, sem `individualStats`: \"não calculada\", nunca um percen"
+   ]
+  }
+ ],
+ "controleForcado": {
+  "instrumento": "jest.mock de elegivelParaClassificacao (duplo de teste DECLARADO): a elegibilidade e forcada; o ramo NAO e alcancado hoje, e isto NAO e execucao de caminho alcancavel",
+  "antes_35a1506": [
+   {
+    "forma": "achatado-5-2-1-2",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+    "sha256Contexto": "81ff229ba57008fa742f44aa5102c9d8ebc04e53f63e99060ad04230ddb11096",
+    "bytes": 70585
+   },
+   {
+    "forma": "achatado-5-todas-validas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+    "sha256Contexto": "70f52b462df97679d9ef90bdffd6387653bbc2a86626bb2a71ad50ffb3463d47",
+    "bytes": 70595
+   },
+   {
+    "forma": "achatado-3-todas-validas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+    "sha256Contexto": "4bdac4a3daea380e10ec6f4c85e70db953c008d2d3e611ae87fc9c04703efd59",
+    "bytes": 70467
+   },
+   {
+    "forma": "achatado-12-todas-validas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10",
+    "sha256Contexto": "a61a0cb2306096e7c19ddb8ffe162e5cfb6c785af3a8ce20845ec67934295298",
+    "bytes": 70993
+   },
+   {
+    "forma": "por-dimensao-em-pessoas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** 70.0% das respostas com CR ≤ 0.10",
+    "sha256Contexto": "ed91803090cb77085fdb38a042be62bc924c693793d1e4956a07a6e757744494",
+    "bytes": 70591
+   },
+   {
+    "forma": "sem-individualStats",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10",
+    "sha256Contexto": "ddf1ff27d5a6962ec92b7d470d1ddae1ca37862a2054d7575c8eaf34e542404d",
+    "bytes": 70577
+   }
+  ],
+  "depois_saidaA": [
+   {
+    "forma": "achatado-5-2-1-2",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** não calculada — nenhuma contagem de respostas com total positivo está disponível nesta requisição.",
+    "sha256Contexto": "e3bb8e76032ab6f4c51d1882cb21d7a2f3fd8ac21fdc6cde808f0827ae9a2b41",
+    "bytes": 70369
+   },
+   {
+    "forma": "achatado-5-todas-validas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** não calculada — nenhuma contagem de respostas com total positivo está disponível nesta requisição.",
+    "sha256Contexto": "e3bb8e76032ab6f4c51d1882cb21d7a2f3fd8ac21fdc6cde808f0827ae9a2b41",
+    "bytes": 70369
+   },
+   {
+    "forma": "achatado-3-todas-validas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** não calculada — nenhuma contagem de respostas com total positivo está disponível nesta requisição.",
+    "sha256Contexto": "9a8e9e306b4937adb8b7e9796af77ac5cfaf8faf7e62b712823c13181e8299f7",
+    "bytes": 70259
+   },
+   {
+    "forma": "achatado-12-todas-validas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** não calculada — nenhuma contagem de respostas com total positivo está disponível nesta requisição.",
+    "sha256Contexto": "a5ce0bf32addbd9cb9a7bfe33481bf349a70e97a1421eb85acf2f49c4b12c685",
+    "bytes": 70767
+   },
+   {
+    "forma": "por-dimensao-em-pessoas",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** não calculada — nenhuma contagem de respostas com total positivo está disponível nesta requisição.",
+    "sha256Contexto": "e3bb8e76032ab6f4c51d1882cb21d7a2f3fd8ac21fdc6cde808f0827ae9a2b41",
+    "bytes": 70369
+   },
+   {
+    "forma": "sem-individualStats",
+    "linhaDaTaxa": "**Taxa de Validade Geral:** não calculada — nenhuma contagem de respostas com total positivo está disponível nesta requisição.",
+    "sha256Contexto": "e3bb8e76032ab6f4c51d1882cb21d7a2f3fd8ac21fdc6cde808f0827ae9a2b41",
+    "bytes": 70369
+   }
+  ]
+ },
+ "linhasDeBaseRegravadas": {
+  "convencao": "folhas; vetor ou objeto vazio conta como folha na comparacao feita aqui (434->445 e 3221->3231); a convencao das entradas de procedencia anteriores NAO conta os vazios (429->440 e 3122->3132)",
+  "a12-diagnostico": {
+   "comparacao": "campos antes: 434 | depois: 445 | perdidos: 0 | novos: 11 | mudados: 2",
+   "camposMudados": [
+    "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+    "quatroCasos[0].executadoAntesDaInterrupcao.bytesDoContexto (70886 -> 70467)"
+   ],
+   "procedencia": "ordem 11"
+  },
+  "a33-cadeia-rule": {
+   "comparacao": "campos antes: 3221 | depois: 3231 | perdidos: 0 | novos: 10 | mudados: 1",
+   "camposMudados": [
+    "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+   ],
+   "procedencia": "ordem 9"
+  }
+ },
+ "execucao": {
+  "ambiente": "Linux x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3, tsc 5.9.3",
+  "tsc": "npx tsc --noEmit: saida 0",
+  "jest": {
+   "suites": 35,
+   "testes": 834,
+   "reprovados": 0,
+   "assercoes": 55813,
+   "baseAntes": {
+    "suites": 33,
+    "testes": 791,
+    "assercoes": 54268
+   }
+  },
+  "instrumentoDeContagem": "setupFilesAfterEnv que soma expect.getState().assertionCalls por arquivo; NAO e versionado (fica fora do repositorio)",
+  "build": "npm run build: saida 0, Compiled successfully, 17 de 17 paginas, arvore estavel",
+  "preservados": {
+   "docs/dados/a12-identidade/medicao.json": [
+    "85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25",
+    17326
+   ],
+   "docs/dados/a12-identidade/medicao-preservada-03c7d8b.json": [
+    "85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25",
+    17326
+   ],
+   "docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json": [
+    "a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d",
+    223411
+   ]
+  }
+ }
+}
