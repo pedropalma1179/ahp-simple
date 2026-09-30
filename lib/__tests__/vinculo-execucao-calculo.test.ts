@@ -404,15 +404,22 @@ describe('o vínculo OBSERVADO sobre o documento que a rota grava: origem da lis
     };
   });
 
-  test('ACHADO: no ramo do FALLBACK a identidade é o id do documento da resposta, e o vínculo diverge por construção', async () => {
+  test('ACHADO, nas condições OBSERVADAS: com o id do documento diferente do `respondentId`, sem `id` nem `visitorId` gravados no dado, o ramo do FALLBACK identifica pelo id do documento e o vínculo é divergente', async () => {
     // ⚠ Em `page.tsx`, o ramo do fallback identifica cada resposta por
-    //   `response.visitorId || response.id || resp-N`. Nenhum ponto do app grava `visitorId`, e
-    //   a resposta carregada é `{ id: doc.id, ...data }`: o identificador é o ID DO DOCUMENTO
-    //   da resposta, e `respondentId` não está na cadeia. O documento de cálculo é chaveado por
-    //   `respondentId`. Medido abaixo; NÃO corrigido (unificar cadeias é proibido nesta rodada).
+    //   `response.visitorId || response.id || resp-N`, e a resposta carregada é
+    //   `{ id: doc.id, ...data }`. ⚠ AS CONDIÇÕES sob as quais o identificador é o ID DO DOCUMENTO
+    //   são TRÊS, e este teste as CONSTRÓI: (1) o id do documento não é o `respondentId`; (2) o dado
+    //   gravado não tem o campo `id`; (3) o dado gravado não tem `visitorId`. Nenhuma delas está
+    //   demonstrada para os documentos existentes, e os controles logo abaixo satisfazem cada uma
+    //   e desfazem a divergência. `respondentId` não está na cadeia, e o documento de cálculo é
+    //   chaveado por `respondentId`. Medido abaixo; NÃO corrigido (unificar cadeias é proibido).
     const n = 4;
     const base = painel(n, { consistency: { cr: 0.05 } });
     montarStore(base.cadastrados, base.respostas);
+    // as três condições, verificadas sobre o que este teste construiu
+    expect(store.responses.every(d => d.id !== d.data.respondentId)).toBe(true);
+    expect(store.responses.every(d => !('id' in d.data))).toBe(true);
+    expect(store.responses.every(d => !('visitorId' in d.data))).toBe(true);
     const { gravado } = await rodar();
     const carregadas = carregarComoATela();
     expect(carregadas.every((r: any) => r.visitorId === undefined)).toBe(true);
@@ -463,6 +470,93 @@ describe('o vínculo OBSERVADO sobre o documento que a rota grava: origem da lis
       avaliacaoComRestricao: comRestricao.estado,
       overallOmitido: r.omitirOverall,
     };
+  });
+
+  describe('R3: as três condições NÃO demonstradas para os documentos existentes — cada uma, satisfeita, DESFAZ a divergência (controles executados)', () => {
+    const n = 4;
+    /** O painel de `n` respostas com `alterar` aplicado a cada uma, o documento gravado pela rota real e o vínculo do ramo do fallback. */
+    async function fallbackCom(alterar: (e: Entrada) => Entrada) {
+      const base = painel(n, { consistency: { cr: 0.05 } });
+      montarStore(base.cadastrados, base.respostas.map(alterar));
+      const { gravado } = await rodar();
+      const carregadas = carregarComoATela();
+      const r = prepararVinculoDaTela({ calculo: gravado, respondentesAtivos: [], respostasAtivas: carregadas });
+      const semRestricao = classificarAvaliacaoDaTela({ respondentesAvaliados: [], respostasAtivas: carregadas });
+      const comRestricao = classificarAvaliacaoDaTela({ respondentesAvaliados: r.respondentesEnviados, respostasAtivas: r.respostasEnviadas });
+      return { r, carregadas, base, semRestricao, comRestricao };
+    }
+
+    test('CONTROLE 0 (as condições observadas): o mesmo painel, sem nenhuma das três, é divergente e a avaliação passa a ausente', async () => {
+      const { r, base, semRestricao, comRestricao } = await fallbackCom(e => e);
+      expect(r.vinculo.origemDaListaAvaliada).toBe('fallbackSobreRespostas');
+      expect(r.vinculo.estado).toBe('divergente');
+      expect(r.vinculo.avaliadosAntesDaRestricao.map((x: any) => x.identificador)).toEqual(base.cadastrados.map(id => `doc-${id}`));
+      expect(r.vinculo.enviados).toEqual([]);
+      expect(semRestricao.estado).toBe('disponivel');
+      expect(comRestricao.estado).toBe('ausente');
+    });
+
+    test('CONDIÇÃO 1: o id do documento COINCIDE com o `respondentId` — o identificador vira o `respondentId` e o vínculo é vinculado', async () => {
+      const { r, carregadas, base, semRestricao, comRestricao } = await fallbackCom(e => ({ ...e, docId: e.respondentId as string }));
+      expect(carregadas.map((c: any) => c.id)).toEqual(base.cadastrados);
+      expect(r.vinculo.origemDaListaAvaliada).toBe('fallbackSobreRespostas');
+      expect(r.vinculo.avaliadosAntesDaRestricao.every((x: any) => x.campo === 'id')).toBe(true);
+      expect(r.vinculo.estado).toBe('vinculado');
+      expect(r.vinculo.enviados).toHaveLength(n);
+      expect(r.omitirOverall).toBe(false);
+      expect(semRestricao.estado).toBe('disponivel');
+      expect(comRestricao.estado).toBe('disponivel'); // a lista NÃO é esvaziada, e a causa `disponibilidade` não aparece
+    });
+
+    test('CONDIÇÃO 2: um `id` gravado no dado SOBRESCREVE o id do documento no espalhamento — com `id` igual ao `respondentId` o vínculo é vinculado', async () => {
+      const { r, carregadas, base, comRestricao } = await fallbackCom(e => ({ ...e, extra: { ...e.extra, id: e.respondentId } }));
+      // `{ id: doc.id, ...data }`: o `id` do dado vem depois e vence o do documento
+      expect(carregadas.map((c: any) => c.id)).toEqual(base.cadastrados);
+      expect(store.responses.every(d => d.id !== d.data.respondentId)).toBe(true); // o id do DOCUMENTO continua diferente
+      expect(r.vinculo.avaliadosAntesDaRestricao.every((x: any) => x.campo === 'id')).toBe(true);
+      expect(r.vinculo.estado).toBe('vinculado');
+      expect(comRestricao.estado).toBe('disponivel');
+    });
+
+    test('CONDIÇÃO 3: um `visitorId` gravado no dado vem PRIMEIRO na cadeia — com `visitorId` igual ao `respondentId` o vínculo é vinculado', async () => {
+      const { r, carregadas, base, comRestricao } = await fallbackCom(e => ({ ...e, extra: { ...e.extra, visitorId: e.respondentId } }));
+      expect(carregadas.map((c: any) => c.visitorId)).toEqual(base.cadastrados);
+      expect(r.vinculo.avaliadosAntesDaRestricao.every((x: any) => x.campo === 'visitorId')).toBe(true);
+      expect(r.vinculo.estado).toBe('vinculado');
+      expect(comRestricao.estado).toBe('disponivel');
+    });
+
+    test('as condições, LIDAS nos escritores do repositório (leitura, e não medição sobre dados): dois `addDoc` de `responses`, nenhum grava `id` nem `visitorId`', () => {
+      const avaliacao = fs.readFileSync(path.join(RAIZ, 'app', 'avaliacao', '[projectId]', 'page.tsx'), 'utf8');
+      expect(ocorrencias(avaliacao, "addDoc(collection(db, 'responses'),")).toBe(2);
+      for (const marca of ['const finalData = {', 'const progressData = {']) {
+        const inicio = avaliacao.indexOf(marca);
+        expect(inicio).toBeGreaterThan(-1);
+        const corpo = avaliacao.slice(inicio, avaliacao.indexOf('};', inicio));
+        expect(corpo.length).toBeGreaterThan(50);
+        expect(corpo).not.toMatch(/(^|\n)\s*(id|visitorId)\s*[:,]/);
+      }
+      // nenhum ponto de app, lib, components ou scripts atribui ou declara `visitorId` como chave
+      const achados: string[] = [];
+      const varrer = (dir: string) => {
+        for (const e of fs.readdirSync(path.join(RAIZ, dir), { withFileTypes: true })) {
+          const rel = `${dir}/${e.name}`;
+          if (e.isDirectory()) {
+            if (['node_modules', '.next', '.git', '__tests__'].includes(e.name)) continue;
+            varrer(rel);
+          } else if (/\.(ts|tsx|js|mjs|cjs)$/.test(e.name)) {
+            if (/visitorId\??\s*[:=]/.test(fs.readFileSync(path.join(RAIZ, rel), 'utf8'))) achados.push(rel);
+          }
+        }
+      };
+      for (const dir of ['app', 'lib', 'components', 'scripts']) if (fs.existsSync(path.join(RAIZ, dir))) varrer(dir);
+      expect(achados).toEqual([]);
+      // CONTRAEXEMPLO: o detector acusaria uma gravação de `visitorId`, e um `id` em `finalData`
+      expect(/visitorId\??\s*[:=]/.test('const x = { visitorId: y };')).toBe(true);
+      expect(/(^|\n)\s*(id|visitorId)\s*[:,]/.test('const finalData = {\n  id: algo,\n};')).toBe(true);
+      // ⚠ Isto é leitura do CÓDIGO ATUAL: documentos gravados por versões anteriores, por importação ou à mão
+      //   não são alcançados, e por isso as três condições seguem NÃO demonstradas.
+    });
   });
 
   test('o snapshot versionado de 13/07/2026 (que NÃO é produção) produz indisponivel', () => {

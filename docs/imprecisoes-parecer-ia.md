@@ -11639,17 +11639,38 @@ que o modelo **recebe**.
 
 ⚠ **Nenhum destes estava na predição, e nenhum foi corrigido.** Cada um espera decisão.
 
-**Achado 1: no ramo `fallbackSobreRespostas` o vínculo diverge por construção.** A cadeia de
-`id:` em `respondentesComCR` é `visitorId || id || resp-N`, e `respondentId` **não está nela**.
-Medido por leitura: nenhum ponto do app grava `visitorId` (`git grep` só o encontra em
-leituras), e a resposta carregada pela tela é `{ id: doc.id, ...data }`. O identificador do
-ramo é, então, o id do **documento da resposta**, e o documento de cálculo é chaveado por
-`respondentId`. **Medido por execução** (`vinculo-execucao-calculo.test.ts`, sobre o documento
-que a rota real grava): quatro respostas coincidentes com o documento dão `divergente`, as
-quatro entram em `sobraNaAvaliacao` com motivo `fora-do-documento`, as quatro do documento
-entram em `sobraNoDocumento`, a restrição esvazia a lista, e a avaliação da etapa 1 passa de
-`disponivel` para `ausente`, com a causa `disponibilidade`. ⚠ **O fallback só roda quando a
-API de qualidade não devolve respondentes.** A decisão sobre **P1** e sobre a cadeia é do
+**Achado 1 (delimitado em 30/09/2026): sob as condições observadas, no ramo
+`fallbackSobreRespostas` o vínculo é `divergente`.** A cadeia de `id:` em `respondentesComCR` é
+`visitorId || id || resp-N`, e `respondentId` **não está nela**; a resposta carregada pela tela é
+`{ id: doc.id, ...data }`. Medido por leitura: nenhum ponto do app atribui ou declara `visitorId`
+como chave (`git grep -nE "visitorId\??\s*[:=]"` fora de testes: **zero**), e os dois escritores de
+`responses` do repositório (`addDoc` em `app/avaliacao/[projectId]/page.tsx:994` e `:1493`) criam o
+documento com id automático e sem os campos `id` nem `visitorId`. **Sob essas condições** o
+identificador do ramo é o id do **documento da resposta**, e o documento de cálculo é chaveado por
+`respondentId`. **Medido por execução** (`vinculo-execucao-calculo.test.ts`, sobre o documento que a
+rota real grava, com respostas **construídas** nessas condições): quatro respostas coincidentes com
+o documento dão `divergente`, as quatro entram em `sobraNaAvaliacao` com motivo `fora-do-documento`,
+as quatro do documento entram em `sobraNoDocumento`, a restrição esvazia a lista, e a avaliação da
+etapa 1 passa de `disponivel` para `ausente`, com a causa `disponibilidade`.
+
+⚠ **Três condições NÃO estão demonstradas para os documentos existentes**, e cada uma, satisfeita,
+desfaz a divergência (controles executados no mesmo arquivo de teste, que dão `vinculado` e mantêm a
+avaliação `disponivel`):
+
+1. O id do documento pode coincidir com o `respondentId`: o identificador do ramo vira o
+   `respondentId`.
+2. `{ id: doc.id, ...data }` deixa um `id` gravado no dado sobrescrever o id do documento: com `id`
+   igual ao `respondentId`, o identificador vira o `respondentId`.
+3. A ausência de gravação de `visitorId` no caminho examinado não prova a ausência em todos os
+   documentos: `visitorId` vem **primeiro** na cadeia, e com `visitorId` igual ao `respondentId` o
+   identificador vira o `respondentId`.
+
+⚠ A leitura dos escritores alcança só o **código atual**; documentos gravados por versões
+anteriores, por importação ou à mão não são alcançados, e **nada disto foi medido sobre documentos
+de produção**, que não se consulta. ⚠ **O fallback só roda quando a API de qualidade não devolve
+respondentes.** ⚠ **Como este achado foi identificado:** foi identificado DEPOIS da predição, pelo
+cenário construído, e o enunciado publicado em `a973c8f` o generalizava ao ramo inteiro; esta é a
+correção datada, e o efeito medido acima **permanece**. A decisão sobre **P1** e sobre a cadeia é do
 autor, e este estágio não unificou cadeia alguma.
 
 **Achado 2: `exclusionInfo.activeCount` e `responseCount` descrevem o conjunto ANTES da
@@ -11678,7 +11699,7 @@ ancorado a fonte por leitura. Nenhuma medição de produção.
 | painel de referência (12) | `analiseDeQualidade` | `vinculado` | 12 / 12 / 12 | **inalterado** |
 | rejeitado por incompletude (portão de A.21) | `analiseDeQualidade` | `divergente` | 5 / 4 / 4, uma sobra na avaliação | **omitido** |
 | resposta sem `respondentId`, com id de documento cadastrado | `analiseDeQualidade` | `divergente` | 1 / 2 / 1, uma sobra no documento | inalterado |
-| quatro respostas no ramo do fallback | `fallbackSobreRespostas` | `divergente` | 4 / 4 / 0 | **omitido** |
+| quatro respostas no ramo do fallback, **nas condições observadas** (achado 1) | `fallbackSobreRespostas` | `divergente` | 4 / 4 / 0 | **omitido** |
 | snapshot versionado de 13/07/2026 (**não é produção**) | nenhuma | `indisponivel` | — | inalterado |
 
 O portão de completude que origina a divergência do segundo caso é o de
@@ -12088,6 +12109,66 @@ teste** (o K15 só depois de ganhar a âncora citada acima).
   sem execução por teste**: esta rodada não toca a tela.
 - ⚠ Coerência interna do pedido, **sem cobertura do universo real**, sem consulta a produção e sem
   geração de parecer.
+
+### Implementado e medido: R3 (o achado do fallback, delimitado), em 30/09/2026
+
+⚠ **Escrito depois do código e dos testes, e por isso NÃO é predição.** A predição de R3 está no
+complemento datado acima: **zero** reprovações, porque **nenhum byte de produção muda**. R3 corrige o
+**enunciado** de um teste e o **registro** de um achado; não altera comportamento.
+
+**O que estava errado.** O teste do ramo do fallback e o registro publicados em `a973c8f` enunciavam a
+divergência como consequência necessária ("por construção") do ramo inteiro. A medição não sustenta
+isso: ela demonstra o que acontece **sob três condições que o teste constrói**, e nenhuma delas está
+demonstrada para os documentos existentes. O enunciado generalizava ao ramo inteiro o que foi
+observado em um cenário.
+
+**O que passou a valer.**
+
+- O teste se chama "ACHADO, nas condições OBSERVADAS …" e **verifica as três condições sobre o que
+  construiu**: o id do documento difere do `respondentId`, o dado gravado não tem `id`, o dado gravado
+  não tem `visitorId`. O efeito medido **permanece** e segue explícito: o vínculo é `divergente`, a
+  restrição esvazia a lista, e a avaliação da etapa 1 passa de `disponivel` para `ausente`, com a
+  causa `disponibilidade`.
+- **Quatro controles executados**, sobre o documento que a rota real grava: o controle 0 repete as
+  condições observadas (`divergente`, avaliação `disponivel` → `ausente`); a condição 1 (id do
+  documento igual ao `respondentId`), a condição 2 (`id` gravado no dado igual ao `respondentId`,
+  que o espalhamento faz vencer o id do documento) e a condição 3 (`visitorId` gravado igual ao
+  `respondentId`, que vem primeiro na cadeia) dão, cada uma, `vinculado`, lista **não** esvaziada e
+  avaliação `disponivel` também depois da restrição.
+- Um teste de **leitura** dos escritores do repositório atual: dois `addDoc` de `responses`
+  (`app/avaliacao/[projectId]/page.tsx`), cujos objetos (`finalData` e `progressData`) não têm `id`
+  nem `visitorId`, e nenhum arquivo de `app`, `lib`, `components` ou `scripts` (fora dos testes)
+  atribui `visitorId`. ⚠ É leitura do **código atual**, com contraexemplo do detector, e por isso as
+  três condições seguem **não demonstradas** para documentos anteriores, importados ou editados à mão.
+- O contrato, o âncora e o registro trazem o mesmo limite, e um teste de docs **reprova** se o
+  enunciado generalizado voltar a qualquer dos três, se o registro perder uma das três condições ou o
+  efeito medido, ou se deixar de dizer que o achado foi identificado DEPOIS da predição.
+
+**Medido.**
+
+- O novo teste de docs **reprovou** contra os três documentos ainda não corrigidos (a primeira
+  asserção acusou o enunciado generalizado no contrato) e passa depois da correção.
+- **Nove mutantes**, aplicados sobre o módulo e sobre os três documentos, com os dois arquivos de
+  teste rodados e os arquivos restaurados depois (sha256 conferido antes e depois): a cadeia do
+  fallback com `id` antes de `visitorId`; o enunciado generalizado de volta no contrato e no
+  registro; a condição 2, a condição 3, o efeito medido e a frase "identificado DEPOIS da predição"
+  retirados do parágrafo do Achado 1; "nas condições observadas" retirado do âncora; e "Três
+  condições não estão demonstradas" retirado do contrato. **Os nove reprovam algum teste.**
+- ⚠ **Dois defeitos meus, achados pelos próprios mutantes.** (1) O mutante da frase "identificado
+  DEPOIS da predição" **sobreviveu** à primeira versão do teste, porque a mesma frase aparece na
+  seção que descreve o teste, e uma busca no registro inteiro a achava lá: as asserções passaram a
+  valer para o **parágrafo do Achado 1**. (2) O meu executor de mutantes classificou o mutante do
+  âncora como "sobreviveu" por engano: ele lia a linha `Tests:` da saída do jest com uma expressão
+  regular, e a saída, que imprime o documento inteiro na falha, trazia outra linha parecida. Conferido
+  à mão, o mutante reprovava; o executor passou a ler a saída em `--json`.
+- Nenhum arquivo de produção mudou em relação a `865c9f0` (`git diff --stat` sem `app/` nem
+  `lib/ai-reviewer/`), então `a33-cadeia-rule` e `a12-diagnostico` **não precisaram de regravação**,
+  e seus hashes de código seguem os da ordem 7 e da ordem 9.
+- Execução: `npx tsc --noEmit` saída **0**; `npx jest` (suíte inteira) **33 suítes, 738 testes, 0
+  falhas** e **48426 asserções** (instrumento **não versionado**, o mesmo da seção anterior); nas
+  suítes tocadas, `vinculo-execucao-calculo` **24** (eram 19) e `vinculo-execucao-fiacao` **68**
+  (eram 67). Ambiente: Linux x86_64, Node v22.22.2, npm 10.9.7. O resultado da CI deste commit é
+  reportado por commit, fora deste registro.
 
 ---
 

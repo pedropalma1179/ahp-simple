@@ -544,12 +544,18 @@ estas frases **não foi testada**: só o que ele **recebe**.
 - ⚠ **A fiação na tela não é executada por teste algum.** `page.tsx` é `'use client'` e o
   repositório não tem `jsdom` nem `@testing-library`. A decisão mora no módulo puro, que é
   executado; a fiação é verificada por leitura da fonte, `tsc` e `build`.
-- ⚠ **Ramo `fallbackSobreRespostas`:** a cadeia do fallback não contém `respondentId`,
-  nenhum ponto do app grava `visitorId`, e a resposta carregada é `{ id: doc.id, ...data }`.
-  O identificador é, na prática, o id do **documento da resposta**, que o documento de
-  cálculo (chaveado por `respondentId`) não contém. **Medido:** o vínculo diverge por
-  construção, a restrição esvazia a lista, e a avaliação da etapa 1 passa de `disponivel`
-  para `ausente` (causa `disponibilidade`). Decisão sobre P1 e sobre a cadeia: do autor.
+- ⚠ **Ramo `fallbackSobreRespostas`, nas condições observadas:** a cadeia do fallback não contém
+  `respondentId`, nenhum ponto do app atribui `visitorId`, e a resposta carregada é
+  `{ id: doc.id, ...data }`. Com o id do documento diferente do `respondentId` e sem `id` nem
+  `visitorId` gravados no dado, o identificador é o id do **documento da resposta**, que o documento
+  de cálculo (chaveado por `respondentId`) não contém. **Medido nessas condições:** o vínculo é
+  `divergente`, a restrição esvazia a lista, e a avaliação da etapa 1 passa de `disponivel` para
+  `ausente` (causa `disponibilidade`). ⚠ **Três condições não estão demonstradas para os documentos
+  existentes:** o id do documento pode coincidir com o `respondentId`; o espalhamento
+  `{ id: doc.id, ...data }` deixa um `id` gravado no dado sobrescrever o do documento; e a ausência
+  de gravação de `visitorId` no caminho examinado não prova a ausência em todos os documentos. Cada
+  uma, satisfeita, desfaz a divergência (controles executados). Decisão sobre P1 e sobre a cadeia:
+  do autor.
 - ⚠ `exclusionInfo.activeCount` e `responseCount` seguem descrevendo o conjunto **antes** da
   restrição. Com exclusão do gestor **e** restrição que retire alguém, a redação de `a973c8f`
   ("os dados de qualidade abaixo referem-se APENAS aos N respondentes incluídos") usava a contagem

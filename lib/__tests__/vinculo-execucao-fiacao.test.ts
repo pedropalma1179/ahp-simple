@@ -1162,4 +1162,36 @@ describe('o contrato, o registro datado e o âncora dizem o mesmo', () => {
   test('o âncora aponta a etapa 3, estágio 1', () => {
     expect(ancora()).toContain('etapa 3, estágio 1');
   });
+
+  test('R3: o achado do fallback está DELIMITADO às condições observadas, com as três condições não demonstradas e o efeito medido explícito', () => {
+    // ⚠ A frase generalizada é montada de pedaços, para que este arquivo não a contenha
+    const generalizada = ['diverge', 'por', 'construção'].join(' ');
+    for (const texto of [contrato(), registro(), ancora()]) expect(texto).not.toContain(generalizada);
+
+    // ⚠ As asserções valem para o PARÁGRAFO do Achado 1, e não para o registro inteiro: a mesma frase
+    //   aparece também na seção que descreve este teste, e uma busca no arquivo todo a acharia lá.
+    const registroInteiro = registro();
+    const inicio = registroInteiro.indexOf('**Achado 1 (delimitado');
+    const fim = registroInteiro.indexOf('**Achado 2:', inicio);
+    expect(inicio).toBeGreaterThan(-1);
+    expect(fim).toBeGreaterThan(inicio);
+    const r = registroInteiro.slice(inicio, fim);
+    // as três condições, que a medição por execução NÃO demonstra para os documentos existentes
+    expect(r).toContain('O id do documento pode coincidir com o `respondentId`');
+    expect(r).toContain('`{ id: doc.id, ...data }` deixa um `id` gravado no dado sobrescrever o id do documento');
+    expect(r).toContain('A ausência de gravação de `visitorId` no caminho examinado não prova a ausência em todos os documentos');
+    // o efeito medido segue explícito, com a causa da etapa 1 nomeada
+    expect(r).toContain('a restrição esvazia a lista');
+    expect(r).toContain('passa de `disponivel` para `ausente`');
+    expect(r).toContain('com a causa `disponibilidade`');
+    // e o registro diz QUANDO o achado foi identificado, e que o enunciado anterior o generalizava
+    expect(r).toContain('identificado DEPOIS da predição');
+    expect(r).toContain('generalizava ao ramo inteiro');
+    // o contrato e o âncora carregam o mesmo limite
+    expect(contrato()).toContain('Três condições não estão demonstradas');
+    expect(ancora()).toContain('nas condições observadas');
+
+    // CONTRAEXEMPLO: a frase generalizada seria achada, se estivesse em algum dos três
+    expect(normalizar(`o vínculo ${generalizada}, medido`)).toContain(generalizada);
+  });
 });
