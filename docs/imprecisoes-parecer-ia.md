@@ -12896,6 +12896,31 @@ executado). ⚠ **O passo da tela é cópia literal e não execução da tela** 
   de `:852` e de `:855` teve **0**, com **0** execuções de `:856` e de `:861`.
   ⚠ **A inalcançabilidade depende de V3 permanecer no conjunto aplicável.** Uma Fase 2 que mude a regra de
   coerência ou a presença de `byStatus` pode torná-lo alcançável.
+  > **Erratum, 30/09/2026, ao item (c)(ii).** A expressão "respondentes confiáveis (os quatro
+  > agregados)" reúne numa só frase **duas medições distintas, de instrumentos distintos**. O
+  > texto original fica preservado. Corrige-se assim:
+  >
+  > - a **sondagem de elegibilidade** (`elegibilidade`, entrada
+  >   `sem estatisticas (so individualStats)`) usou **cinco respondentes confiáveis** e
+  >   **chamou as funções do contrato, não o `POST`**. Dela vêm elegibilidade falsa, causa
+  >   `coerencia_nao_concluida`, ramo P2, conjunto mínimo V4 concluído e V1, V2, V3 e V5
+  >   pendentes;
+  > - as **capturas pelo tratador real** são **quatro**, e se nomeiam: `agregado-5`,
+  >   `agregado-3`, `agregado-12` e `agregado-5-com-2-desconhecidos`;
+  > - os **controles com todos os respondentes confiáveis** foram ensaiados em **seis
+  >   tamanhos**, **3, 4, 5, 6, 7 e 12**, e deles também saíram a Taxa "não calculada" e a
+  >   frase de indisponibilidade.
+  >
+  > **Os quatro agregados não correspondem à sondagem com cinco respondentes confiáveis. Em
+  > particular, `agregado-12` contém 0 confiáveis, 1 warning e 11 críticos.**
+  >
+  > **A conclusão do item, de que o ramo da soma de `:855-864` não é alcançado, vale em todos
+  > esses casos e não muda.**
+  >
+  > **Evidência:** `docs/dados/a12-estatisticas-dimensao/medicao.json`, chaves
+  > `c_consumidor_agregado.elegibilidade`,
+  > `c_consumidor_agregado.alcancadoPeloTratadorReal_soIndividualStats` e
+  > `c_consumidor_agregado.somaAcidentalComTodosConfiaveis`.
 - **O que ele calcula quando alcançado** (instrumento com **duplo de teste declarado** que força a
   elegibilidade, de modo que o código real de `:855-865` execute):
 
