@@ -15822,6 +15822,46 @@ A saída inicial de `git status` da Fase 2 **não foi guardada**, e o executor d
 Nenhuma linha histórica editada; nenhum número medido alterado; nenhum artefato de medição regravado; nenhuma sonda reexecutada; nenhum byte de produção; nenhuma asserção, fixture ou código executável de teste alterado; nenhuma integração.
 A **única** alteração em arquivo de teste é o **comentário** do item C. Os 21 arquivos de `docs/dados/a12-nota-veredicto-fase1/` e os de `docs/dados/a12-nota-veredicto-fase2/` **não** foram regravados.
 
+## Erratum ao acréscimo de `c49dc7e` (item A.3 (ii)): a contagem de "quatro causas" e a sua procedência, em 01/10/2026
+
+⚠ **Acréscimo datado, por inserção pura, sobre `c49dc7e6dbc104a4052564e38772efce0802bc39`.** Nenhuma linha publicada foi editada, e o defeito é de **contagem e de procedência**, não de implementação:
+a Fase 2 segue tecnicamente aceita, e nenhum número da medição funcional muda.
+
+> **Erratum de 01/10/2026 ao item A.3 (ii) do acréscimo de `c49dc7e`.** A contagem de "quatro
+> causas" ali publicada, **45 ocorrências em 44 linhas de 12 arquivos**, é resultado **válido**
+> da busca **literal**, com espaço simples, e **não** da varredura multilinha a que o texto a
+> atribui. Medido sobre a base fixa `35a4164bf46c5ca95227df4a3f1d7e9de64d7435`, sem distinção
+> de caixa:
+>
+> - `quatro causas`, espaço literal: **45** ocorrências em **44** linhas, 12 arquivos;
+> - `quatro\s+causas`, admitindo quebra de linha: **46** ocorrências em **45** linhas de
+>   início, 12 arquivos.
+>
+> A ocorrência adicional é `docs/imprecisoes-parecer-ia.md:13501-13502`, **partida por quebra
+> de linha**. Por leitura, ela remete aos controles do ensaio 4, com ausência, incompletude,
+> contradição e coerência não concluída, que são **quatro condições sobre três causas**, e é a
+> mesma confusão de `:13253` e `:13386`. A classificação passa a **1 + 34 + 11 = 46**.
+> ⚠ A divisão entre sentido errado, outra redação e sentido correto é **leitura**, e não
+> medição.
+>
+> A formulação errada "quatro causas alcançáveis" continua sendo **uma**, em `:14462`.
+>
+> ⚠ **O texto histórico do acréscimo de `c49dc7e` fica preservado, e a mensagem daquele commit
+> continua dizendo 45, sem reescrita.**
+
+**Procedência desta conferência** (execução, sobre a base fixa `35a4164`, com `HEAD` em `c49dc7e`). Os dois números vêm de **duas técnicas**, e cada uma declara o seu escopo:
+
+- **Literal:** `git grep -n -o -i 'quatro causas' 35a4164 -- .`, saída **0**, em **toda** a árvore de `35a4164`, sem filtro de extensão: 45 ocorrências, 44 linhas, 12 arquivos.
+- **Multilinha:** varredura em Python, `re.finditer(r'quatro\s+causas', re.I)`, sobre `git show 35a4164:<arquivo>` de cada um dos **340** arquivos de `git ls-tree -r --name-only 35a4164`:
+  337 de texto, e 3 de mídia que não se decodificam como texto (`public/bg-video.mp4`, `public/unesp-logo.png`, `public/unesp-seeklogo.png`): 46 ocorrências, 45 linhas de início, 12 arquivos.
+  Todo achado literal está no conjunto multilinha, e a diferença entre os dois é **exatamente uma** ocorrência, a de `:13501-13502` (`quatro\ncausas`, com a quebra de linha entre as duas palavras).
+- **"Quatro causas alcançáveis":** `git grep -n -o -i 'quatro causas alcançáveis' 35a4164 -- .` sai **0**, com **um** achado (`:14462`). A forma em algarismo, `'4 causas alcançáveis'`, sai **1**, que é **busca sem resultado, e não falha**.
+  As duas varreduras multilinha (as duas palavras adjacentes, e com até quatro palavras no meio, com "quatro" ou "4") dão o mesmo único achado.
+
+**O teor das três passagens lidas** (linhas de `35a4164`, que seguem as mesmas neste arquivo; as citações vão sem os realces em negrito do original): `:13253`, "Nas quatro causas de não elegibilidade (`ausente`, `incompleta`, `contradicao`, `coerencia_nao_concluida`)"; `:13386`, "4. não elegível, nas quatro causas: a frase existente byte a byte";
+`:13501-13502`, "as quatro / causas de não elegibilidade (frase existente byte a byte)". A classificação é **leitura**, e o que a sustenta é **leitura de código**: o ensaio 4 de `lib/__tests__/a12-estatisticas-dimensao.test.ts` (`:677-683`) tem **quatro cenários**
+(`nao-avaliada-ausente`, `nao-avaliada-incompleta`, `contradicao`, `coerencia-nao-concluida`), cujas causas são `disponibilidade` (**duas vezes**), `contradicao` e `coerencia_nao_concluida`: **quatro condições, três causas**.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
