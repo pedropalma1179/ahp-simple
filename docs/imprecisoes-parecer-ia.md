@@ -13603,6 +13603,322 @@ histórica e comportamento atual ficam separados:** os registros de `a973c8f` a 
 medido naquelas bases, com os localizadores daquelas bases, e **não são reescritos**; o comportamento atual está
 neste bloco e no contrato.
 
+## A.12: `cobertura.restringiu`, filtro aplicado e elementos retirados: predição datada, em 01/10/2026
+
+**Base:** `8e165fb9da51133ccbe1e9d0093680ada67a7ca5`. ⚠ **Registrada ANTES de qualquer edição de código e de
+teste**, e o commit deste registro não toca código nem teste: só este arquivo. Ambiente da medição da base: Linux
+x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3, tsc 5.9.3 (**ambiente observado, e não requisito**). As sondas desta
+medição são temporárias, **não versionadas** e foram apagadas do diretório de trabalho antes deste registro; ficam
+arquivadas como texto no commit de implementação.
+
+⚠ **Escopo, decidido pelo autor.** A linha "Cobertura enviada" de `descreverVinculoParaContexto`
+(`lib/ai-reviewer/vinculo-execucao.ts`) e os testes que a exercitam. É o item enfileirado no Anexo da seção da Fase 2
+(saída A), e **não reabre** a saída A nem o erratum, que estão aceitos. Nenhuma integração: `integra/a30-registros`
+está no mesmo SHA da branch de sessão, e `main` não se move. Ficam **fora**: `LINHA_DA_RELACAO` (inclusive a outra
+cláusula de R4 em `:1123-1126`), a chave de leitura, a linha textual de contagens, o bloco do resumo do painel, as
+frases da lista, `elegivelParaClassificacao`, `calculateGrade`, penalidades, limiares, faixas, as cadeias de
+identificador, P1, a redistribuição por dimensão e o consumidor agregado, já resolvidos na saída A.
+
+### O defeito, medido em `8e165fb`
+
+A linha sai de um ternário de **duas** pernas, governado só por `cob?.restringiu` (`vinculo-execucao.ts:719`): com
+`true`, `:720` (`o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e `) mais
+a subperna de R4 (`:722-724`); caso contrário, `:725` (`nenhuma restrição foi aplicada; o conjunto enviado é o
+avaliado.`). `restringiu: true` é gravado em `:562` para **todo** vínculo comparado, e `restringiu: false` em `:497`
+**só** quando não houve comparação. O filtro está em `:527-528`; o booleano da mudança da lista, em `:533`; as três
+contagens, em `:563-565`. **A frase diz "RESTRINGIDO" também quando nenhum elemento saiu**, e o que a corrigiria já
+viaja no vínculo e **não é lido** por essa linha.
+
+⚠ **O item é a distinção entre aplicação do filtro e alteração efetiva da lista**, e não entre filtro aplicado e não
+aplicado. A conclusão é **delimitada aos campos declarados de cobertura** (`restringiu`,
+`enviadosDiferemDosAvaliados`, `avaliadosAntesDaRestricao`, `enviados`): ela **não substitui** a comparação de
+identidades de R4, **não se deduz** de `vinculado` nem de `divergente`, e **não é** afirmação sobre o conteúdo.
+
+**Ampliação medida.** O `vinculado` sem retirada não é o único caso errado: o `divergente` com a sobra só do lado do
+documento também **não retira ninguém** (controles 5 e 6, `vinculo-execucao-fiacao.test.ts:1053` e `:1077`: avaliados
+`r1..r3`, documento `r1..r4`), e a frase atual diz "RESTRINGIDO" nos dois. Na enumeração do produtor (M4), **873** dos
+**903** vínculos sem retirada são `divergente`, e só **30** são `vinculado`.
+
+### Base e reconferência
+
+| Ref | Medido em 01/10/2026 (`git ls-remote origin`; `git rev-parse` para o local) | Esperado |
+|---|---|---|
+| `HEAD` da branch de sessão | `8e165fb9da51133ccbe1e9d0093680ada67a7ca5` | a base do pedido |
+| `refs/heads/claude/loving-shannon-661fy9` (remoto) | `8e165fb9da51133ccbe1e9d0093680ada67a7ca5` | igual ao `HEAD` |
+| `refs/heads/integra/a30-registros` (remoto) | `8e165fb9da51133ccbe1e9d0093680ada67a7ca5` | **o mesmo SHA** (o avanço por fast-forward está publicado) |
+| `refs/heads/main` (remoto) | `33c1fdf6500242832994a17aa15b0a686704c029` | o esperado |
+
+Estado do diretório antes: **nenhuma alteração rastreada preexistente** (`git status --porcelain` vazio),
+`git stash list` vazio, `git rev-parse --is-shallow-repository` devolve `false`. Preservados, medidos agora:
+`docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`,
+`85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes, cada um);
+`docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`,
+`a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes).
+
+**Releitura dos localizadores, em `8e165fb`:**
+
+| Citado | Medido | Veredito |
+|---|---|---|
+| `vinculo-execucao.ts:717-726`, `:719`, `:720`, `:722-724`, `:725` | o ternário, a condição, a abertura "RESTRINGIDO", a subperna de R4 e a perna "nenhuma restrição" | exato |
+| `:562`, `:497`, `:527-528`, `:533`, `:563-565` | `restringiu: true`; `restringiu: false`; `mantidas` e `restrita`; `enviadosDiferemDosAvaliados`; as três contagens | exato |
+| `:388-425`, `:624-625`, `:677-684`, `:730-768`, `:745-767` | `compararIdentificadores`; `numero`; a linha textual de contagens; o bloco do resumo do painel e a sua subdivisão em quatro estados | exato |
+| `:1077-1090`, `:1095-1127`, `:1123-1126`; `route.ts:972-973` | a chave de leitura; `LINHA_DA_RELACAO` e a outra cláusula de R4; as duas linhas que devolvem `''` sem o campo | exato |
+| `vinculo-execucao.test.ts:1147`, `:1149`, `:1153-1154`, `:1862`, `:1865`, `:1993` | o teste R6 puro, a asserção "RESTRINGIDO", o caso `indisponivel`, o teste da linha, o fixture `restringido`, o teste `AFIRMA`/`NOTA` | exato |
+| `vinculo-execucao.test.ts:1866` | é a **constante** `antiga`; as asserções que a usam são `:1867` e `:1868` (e `:1871`, negativa) | **mesmo trecho; correção de linha** |
+| `vinculo-execucao.test.ts:2003` | uma das **sete** entradas da lista de casos, que ocupa `:1996-2004` | **mesmo trecho; correção de precisão** |
+| `vinculo-execucao-fiacao.test.ts:840-843`, `:903`, `:932`, `:970`, `:1053`, `:1063`, `:1077`, `:1083`, `:1104`, `:1122-1132` | as constantes `COBERTURA*`; as cinco asserções; os controles 5 e 6 pelo preparo real; `vinculoCom(D, D)` com `D` de três elementos; a retirada total | exato |
+| `a12-estatisticas-dimensao.test.ts:195-206`, `:621`, `:760-761`, `:787-788` | `paraOTextoAnterior`; as três comparações de contexto completo | exato |
+| `docs/imprecisoes-parecer-ia.md:12486-12487` | o achado 4 ocupa `:12486-12489` | **mesmo trecho; correção de linha** |
+| `docs/imprecisoes-parecer-ia.md:13145` | "`cobertura.restringiu` não foi corrigido (item enfileirado; Anexo)." | exato |
+| `docs/imprecisoes-parecer-ia.md:13153-13162` | o Anexo ocupa `:13153-13164` | **mesmo trecho; correção de linha** |
+| `docs/contratos-de-dados.md:423` | `cobertura{restringiu, …}` ocupa `:423-425`, e **só lista nomes de campo**, sem semântica | **mesmo trecho; correção de linha** (ver D5) |
+
+**Nenhum localizador aponta outro trecho, e por isso não houve parada.** As cinco correções são da **mesma passagem**.
+
+### As medições da base que sustentam a predição
+
+Marcadas **(exec.)** as medidas por execução do tratador real, com o cliente do modelo **simulado** (chave falsa,
+captura antes da geração, sem rede), **antes de qualquer edição**; **(lido)**, as que vêm da leitura do fonte.
+
+| # | Medição | Instrumento e limite |
+|---|---|---|
+| M1 | **(exec.)** Sonda pelo tratador real sobre **56 cenários**: os **27** da saída A (construções copiadas por fatia de linhas de `a12-estatisticas-dimensao.test.ts`) e **29** controles: 2 em (a), 4 em (b) e 5 em (c) pelo produtor real; 14 em (d), montados **à mão**; 2 sem o campo e 2 de formato. Cada cenário grava a linha de cobertura, o sha256 e o tamanho do contexto, o sha256 do `system` e o sha256 do corpo da resposta | sonda temporária, **não versionada como teste**, arquivada como texto no commit de implementação. As aberturas e a tabela dos quatro estados estão escritas **à mão na sonda**, e não importadas do módulo (que ainda não as tem) |
+| M2 | **(exec.)** **Primeira execução do instrumento, conferida à mão:** os 14 contextos de `saida-a/contextos-depois/` (agregados de 12, 5 e 3, elegível sem `individualStats`, não avaliado ausente, todos válidos 3 e todos acima 3, com e sem vínculo) saíram **iguais byte a byte** aos da sonda (`cmp`, **14 de 14**) | ⚠ **Um caso correto não valida todos os ramos:** os outros 42 cenários não têm oráculo prévio, e a conferência deles é a classificação independente (M3) e a enumeração (M4) |
+| M3 | **(exec.)** Dos 27 cenários da saída A, **14** não trazem o campo (sem linha de cobertura) e **13** o trazem: **12** estão em (b), e **os 12 dizem "RESTRINGIDO"** com nada retirado; **1** está em (a) (`nao-avaliada-ausente-comVinculo`). Nos 29 controles, **25** têm a classe **declarada pelo nome do cenário** (a, b, c ou d, e a condição nos de nome explícito) e **os 25 coincidem** com a classe que a sonda calcula sobre o vínculo que chega ao tratador (depois da ida e volta por JSON); os **14** montados à mão (d) **dizem todos "RESTRINGIDO"**: a frase ignora o booleano e as contagens | classificação pela tabela da seção 2, escrita na sonda; a coincidência é entre a **intenção do cenário** e a tabela, e **não** uma segunda tabela independente. Os outros 4 controles (2 sem o campo, 2 de formato) não têm classe declarada |
+| M4 | **(exec.)** **Enumeração do produtor real** (`prepararVinculoDaTela`): **681** configurações de lista avaliada (340 listas de 1 a 4 elementos sobre `r1`, `r2`, `r3` e "sem identificador", para cada uma das **duas origens**, mais a vazia) × **19** documentos (indisponível, três inválidos e os 15 subconjuntos de `r1..r4`) = **12939** vínculos. Pela tabela: **(a) 2724; (b) 903; (c) 9312; (d) 0**. Seis invariantes lidos do código, **0 violações** em cada um: `enviados` ≤ `avaliadosAntesDaRestricao`; o booleano é `enviados` ≠ `avaliadosAntesDaRestricao`; a lista enviada de fato tem o tamanho de `enviados`; `restringiu` é verdadeiro **se e só se** o estado é `vinculado` ou `divergente`; avaliados menos enviados é o tamanho da `sobraNaAvaliacao`; em (b) não há sobra na avaliação. Em (b): `vinculado` 30 e `divergente` 873. Em (c): 1 retirado, 2112; 2, 2856; 3, 2664; 4, 1680 | ⚠ **Espaço pequeno e construído** (quatro símbolos, listas até quatro, identificadores só de `r1..r4`, sem as duas listas não vazias ao mesmo tempo), **não amostra do universo real**: zero em (d) aí **não** é prova para fora dele, e a afirmação geral vem da leitura (M5). **Conferência independente, à mão, de dois totais, por combinatória fora do código:** (b) é 24 + 48 + 108 + 264 = **444** por origem (888, mais as 15 da lista vazia, dá 903), e `vinculado` é 3 + 6 + 6 = **15** por origem (30) |
+| M5 | **(lido)** `compararIdentificadores` (`:388-425`): cada elemento de `avaliados` entra em **exatamente uma** de `correspondem` e `sobraNaAvaliacao` (`:398-410`). Logo `enviados + sobra = avaliados`, `enviados ≤ avaliados`, e o booleano de `:533` e as contagens de `:563-565` saem **dos mesmos dois números** (`enviadosIds.length` e `avaliados.length`): **concordam por construção no produtor**. A conferência cruzada **só pode discordar em objeto recebido**, porque o campo vem do cliente | leitura de `:398-410`, `:527-528`, `:533`, `:563-565`; confirmada por M4 no espaço enumerado |
+| M6 | **(lido)** `enviadosDiferemDosAvaliados` ocorre **11 vezes** em `*.ts` e `*.tsx` (`git grep -o`): **5** no módulo (o tipo, `:501`, `:533`, `:566`, `:595`) e **6** em testes. A única leitura de produção é `:595` (`omitirOverall`); **a descrição do bloco não o lê** | `git grep -o`, contando ocorrências |
+| M7 | **(lido)** "o conjunto avaliado foi RESTRINGIDO" ocorre **14 vezes em 12 arquivos** (`git grep -o`, todas as extensões): testes **4** (`vinculo-execucao.test.ts` `:1149` e `:1866`; `vinculo-execucao-fiacao.test.ts` `:840` e `:1272`), módulo **1** (`:720`), este registro **1** e dados **8** (os seis de `saida-a/contextos-depois/` e os dois da Fase 1). "nenhuma restrição foi aplicada" ocorre **6 vezes em 3 arquivos** (módulo 3, um teste, um dado) | **Só o teste da saída A lê contextos congelados:** os dois da Fase 1 (`ctx-agregado-5-comVinculo.txt` e `ctx-agregado-3-comVinculo.txt`, por caminho montado em `:755`) e os hashes de `contextos-da-base-35a1506.json`. **Nenhum teste compara contra `saida-a/contextos-depois/`** |
+| M8 | **(exec.)** O auxiliar `vinculoCom` dos dois arquivos de teste **herda** `avaliadosAntesDaRestricao` da base (2 no módulo puro, que parte de `a, b`; 4 na fiação, que parte de `r1..r4`) e só troca `enviados` e `incluidosNoDocumento`. **Execuções do auxiliar, contadas por cópia temporária instrumentada:** no módulo puro, **4749** (por `enviados.length`: 0, 210; 1, 540; 2, 1202; 3, 2769; 4, 28), das quais **1202** são coerentes e **3547** não; na fiação, **11** (3, 1; 4, 10), das quais **10** coerentes e **1** não (`:1104`) | cópia temporária de cada arquivo com o contador no auxiliar, executada e apagada; os dois arquivos passaram (165 e 82 testes). ⚠ O prompt cita três sítios: são os em que a linha é afirmada ou capturada, e **a causa está no auxiliar** |
+| M9 | **(exec.)** Suíte completa **na base**, com o instrumento de contagem: `npx tsc --noEmit` sai **0**; `npx jest` sai **0**, **35 suítes, 834 testes, 0 falhas**, e **55813 asserções** | instrumento `afterEach` que soma `expect.getState().assertionCalls` por arquivo; **NÃO é versionado**, e o total vem da soma das **35** linhas |
+| M10 | **(lido)** As duas linhas de base: `a12-diagnostico.test.ts` e `a33-cadeia-rule.test.ts` **não enviam** `vinculoDaExecucao` (as oito menções são comentário: `a12-diagnostico.test.ts:173`, `:191`, `:205`, `:223`; `a33-cadeia-rule.test.ts:221`, `:235`, `:250`, `:265`), e o `identificacao.codigo` delas **não lista** `vinculo-execucao.ts` (`a12-diagnostico`: `avaliacao-qualidade.ts`, `route.ts`, `page.tsx` e `ParecerAISection.tsx`; `a33-cadeia-rule`: `knowledge.ts` e `route.ts`) | leitura dos dois arquivos de teste e `Object.keys(identificacao.codigo)` dos dois `medicao.json`. **Previsão por leitura: preservação, sem regravar** |
+| M11 | **(exec.)** **Dois casos vizinhos, medidos e NÃO corrigidos nesta rodada.** (i) Com a lista avaliada vazia e documento utilizável (origem `nenhuma`, **15** dos 12939), `restringiu` é `true` e a linha cairá em (b): "nenhum elemento … foi retirado" é **verdadeira e vazia**, ao lado de "dos 0 enviados". (ii) `{ estado: 'vinculado' }` **sem** `cobertura` (cenário `estado-sem-cobertura`) imprime hoje "nenhuma restrição foi aplicada", e é (a) pela tabela: a abertura (a) cobre também **cobertura ausente ou `restringiu` não booleano**, onde nada se sabe | (a) fica **byte a byte** por decisão do autor, e a tabela da seção 2 não distingue ausência de falso |
+
+### As quatro redações, literais
+
+O prefixo `- Cobertura enviada: ` é um só. A **subperna de R4 é a de `:722-724`, palavra por palavra**, e permanece
+independente da retirada: `divergeDosEnviados` continua sendo
+`leitura.conferencia !== null && !leitura.conferencia.correspondeAosEnviados`, e o número continua `numero(cob?.enviados)`.
+
+```
+CLAUSULA_R4(divergeDosEnviados) =
+  divergeDosEnviados
+    ? `o vínculo declara que a lista de respondentes que segue é a dos ${N} enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).`
+    : `a lista de respondentes que segue é a dos ${N} enviados.`
+```
+
+- **(a) não aplicado** (`cobertura.restringiu !== true`), **byte a byte o de hoje, sem cláusula de R4:**
+  `- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado.`
+- **(b) aplicado, sem retirada** (`restringiu === true`, `enviadosDiferemDosAvaliados === false`, as duas contagens
+  válidas e **iguais**):
+  `- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e <CLAUSULA_R4>`
+- **(c) aplicado, com retirada** (`restringiu === true`, `enviadosDiferemDosAvaliados === true`, as duas contagens
+  válidas e `enviados` **menor** que `avaliadosAntesDaRestricao`), **byte a byte o de hoje:**
+  `- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e <CLAUSULA_R4>`
+- **(d) aplicado, retirada não determinada** (`restringiu === true` e qualquer outro caso):
+  `- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; NÃO se pode determinar se algum elemento da lista avaliada foi retirado (<MOTIVO>), e <CLAUSULA_R4>`
+
+Uma contagem é **válida** quando é número inteiro finito e não negativo. O estado (d) **não acrescenta causa de
+suspensão**, não entra em `elegivelParaClassificacao`, não classifica e não emite veredito.
+
+```
+MOTIVO = `${CONDICAO}; lido: enviadosDiferemDosAvaliados = ${B}, avaliadosAntesDaRestricao = ${numero(cob?.avaliadosAntesDaRestricao)}, enviados = ${numero(cob?.enviados)}`
+```
+
+`B` é `true`, `false` ou `não informado` (esta terceira forma para qualquer valor que não seja booleano), e `numero`
+(`:624-625`) é reaproveitado: devolve `não informado` para o que não é número finito. **O motivo exibe os três campos
+segundo a representação definida, com `não informado` para valores não representáveis, e NÃO é preservação integral do
+recebido:** `numero("4")`, `numero(null)` e `numero(NaN)` dão a mesma saída, e um booleano inválido também perde o valor
+original. `CONDICAO` é a **primeira** que se aplicar, nesta ordem:
+
+| # | Quando | Texto |
+|---|---|---|
+| 1 | as duas contagens válidas e `enviados` **maior** que `avaliadosAntesDaRestricao` | `o vínculo declara mais enviados do que avaliados antes de qualquer restrição` |
+| 2 | `enviadosDiferemDosAvaliados` não é booleano | `o vínculo não declara se a lista mudou` |
+| 3 | alguma das duas contagens não é válida | `as contagens declaradas não permitem decidir` |
+| 4 | as duas contagens válidas e `(enviados !== avaliados) !== enviadosDiferemDosAvaliados` | `o booleano e as contagens declarados discordam` |
+
+⚠ **A ordem é escolha declarada, e não propriedade do dado.** Quando duas condições valem ao mesmo tempo, só a primeira
+é nomeada, e **isto não afirma que as demais continuem legíveis nos três campos exibidos**: com valores não
+representáveis elas podem não ser recuperáveis. O fixture que hoje declara `avaliadosAntesDaRestricao` 2 com `enviados` 4
+e o booleano falso é **exatamente** um desses casos: valem a condição 1 **e** a 4, e sai a 1. A tabela é exaustiva: a
+sonda mediu **0** vínculos, entre os 12939 e entre os 56 cenários, que escapem das quatro condições.
+
+### Divergências do prompt, medidas
+
+- **D1. "O que não existe é retirada parcial pelo handler": existe.** `vinculo-execucao-fiacao.test.ts:459-481`
+  (`CONTROLE 5 / 4 / 4`: `cenario(ids(5), ids(4))`, entregue ao `POST` por `executarCenario`, com `:469` afirmando
+  "avaliados antes de qualquer restrição: 5; enviados a você: 4") e `:1257-1278` (cinco avaliados e quatro incluídos,
+  `executar(payload)`). A sonda reexecutou o caso (`c-retirada-parcial-5-para-4`) e mediu a abertura "RESTRINGIDO".
+  **Consequência:** o controle 4 do prompt **permanece**, porque nenhum desses afirma a **linha inteira**, mas não é o
+  primeiro ensaio de retirada parcial pelo handler. A **retirada total** de `:1122-1132`, que o prompt cita, também
+  existe, e não afirma a linha.
+- **D2. Há uma asserção de "RESTRINGIDO" que a lista do prompt não traz:** `vinculo-execucao-fiacao.test.ts:1272`
+  (`expect(bloco).toContain('o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo')`),
+  no teste de `:1257`. O cenário tem **retirada** (A = 5, E = 4, B verdadeiro): é (c), e **continua verdadeira**.
+- **D3. O fixture incoerente é do auxiliar, e não de três sítios** (M8): 3547 das 4749 execuções de `vinculoCom` no
+  módulo puro e 1 das 11 na fiação. Os sítios que o prompt cita (`vinculo-execucao.test.ts:1865` e `:2003`;
+  `vinculo-execucao-fiacao.test.ts:1104`) são os em que a linha é **afirmada ou capturada**, e os outros executam a
+  descrição sem ler a linha. **A correção será no auxiliar**, com a razão de que a sua própria documentação promete
+  "as contagens coerentes com elas", e **não** porque o código novo passe a imprimir outra coisa.
+- **D4. O contrato não declara a semântica de `restringiu`:** `docs/contratos-de-dados.md:423-425` lista só os nomes dos
+  campos de `cobertura`, e a linha de `:590` cita "Cobertura enviada" com reticências **antes** da cláusula de R4, que
+  permanece. A condição do Anexo do prompt ("se a semântica declarada ali deixar de corresponder") **não se cumpre**, e
+  por isso o contrato **não será editado**.
+- **D5. Os totais de localização:** o achado 4 ocupa `:12486-12489`; o Anexo, `:13153-13164`; `:1866` é a constante.
+  Todos **a mesma passagem**, relatados nas correções acima.
+
+### A predição sobre o que o modelo RECEBE
+
+Determinística, e verificada por testes e pela sonda que capturam o **contexto completo**. Cada item traz a observação
+que o contraria e o **caso negativo**, que **não** deve mudar.
+
+| # | Predição | O que a contraria | Caso negativo (não deve mudar) |
+|---|---|---|---|
+| P1 | **(a)**: em todo vínculo com `restringiu` diferente de `true`, a linha é **exatamente** a abertura (a), e o contexto completo tem o **mesmo sha256** de hoje. No tratador real: `a-indisponivel`, `a-invalido`, `nao-avaliada-ausente-comVinculo` e `estado-sem-cobertura`; na enumeração, os **2724** | um byte de diferença na linha ou no contexto de qualquer deles | (c) |
+| P2 | **(c)**: em todo vínculo com `restringiu` verdadeiro, booleano verdadeiro, contagens válidas e `enviados` menor que os avaliados, a linha é **byte a byte a de hoje**, nas duas formas da cláusula de R4. No tratador real: `c-retirada-parcial-4-para-3`, `c-retirada-parcial-5-para-4`, `c-retirada-total`, `c-identidade-ausente` e `c-r4-declara`; na enumeração, os **9312**. As asserções de hoje que têm retirada real (`vinculo-execucao.test.ts:1149` e `vinculo-execucao-fiacao.test.ts:1272`) **seguem verdadeiras** | a linha de um (c) com outra abertura, ou a cláusula alterada; `:1149` ou `:1272` reprovando | (b) |
+| P3 | **(b)**: a abertura passa a ser a de (b), a cláusula de R4 que a segue é **byte a byte** a de hoje, e **nada mais** do contexto muda. No tratador real: `b-vinculado`, `b-divergente-sobra-no-documento`, `b-repetido-na-avaliacao`, `b-r4-declara` e os **12** cenários da saída A com vínculo; na enumeração, os **903** | "RESTRINGIDO" numa linha (b); ausência de "retirado"; qualquer outra diferença no contexto; a cláusula mudada | (c) |
+| P4 | **(d)**: **nenhuma saída do produtor real** cai em (d): **0 de 12939** na enumeração, **repetida com a descrição nova**, e 0 nos cenários pelo produtor real. (d) aparece **só em objeto recebido**, e em cada um dos 14 montados à mão a abertura é a de (d), a condição nomeada é a **primeira** que se aplica (d1: 1; d2: 2; d3: 2; d4: 3; d5: 3; d6: 3; d7: 4; d8: 4; d9: 1; d10: 2; d11: 3; d12: 1; d13: 1; d14: 4) e o motivo exibe os três campos | um vínculo do produtor real em (d); um (d) cuja condição não é a primeira aplicável; um motivo sem os três campos | (b) e (c) pelo produtor |
+| P5 | **Sem `vinculoDaExecucao`** (os **14** cenários da saída A sem o campo, mais `sem-campo` e `campo-nulo`), o contexto é **byte a byte** o de hoje, e o `system` também: `descreverVinculoParaContexto` devolve `''` (`:650`) antes de qualquer das quatro pernas. O formato não reconhecido (`formato-nao-reconhecido`, que não tem a linha) **também** | um byte de diferença em qualquer dos 16, ou no formato não reconhecido | todos eles |
+| P6 | Dos **27** cenários da saída A, **15** ficam **idênticos** (os 14 sem o campo e `nao-avaliada-ausente-comVinculo`) e **12** diferem de hoje em **exatamente uma linha**, a abertura de (b), por substituição declarada. O `system` mantém o sha256 em **27 de 27**, e o corpo da resposta (nota, veredicto, `notaSuspensa` e chaves) é idêntico em **27 de 27** | outra diferença em qualquer cenário; diferença no `system` ou no corpo | os 15 idênticos |
+| P7 | **Nenhuma palavra nova casa** com `AFIRMA` nem com `NOTA` (as duas expressões de `vinculo-execucao.test.ts:1993-1995`), nas quatro aberturas, nas quatro condições e no motivo. **Pré-medido nos literais, antes de escrever o código: 0 de 8** | qualquer casamento (**parada**, sem afrouxar a expressão) | os textos de hoje |
+| P8 | **A cláusula de R4 é independente da retirada:** nas três aberturas que a usam, a forma "o vínculo declara …" sai **exatamente** quando a lista apresentada **não corresponde aos enviados declarados** (`leitura.conferencia`), e a forma simples nos demais casos | a forma da cláusula mudar com a retirada; a cláusula presente na abertura (a) | (a), sem cláusula |
+| P9 | **As duas linhas de base são conservadas:** `docs/dados/a12-diagnostico/medicao.json` e `docs/dados/a33-cadeia-rule/medicao.json` ficam **idênticos** (`git diff --stat` vazio), e os dois testes passam **sem regravar** | qualquer diferença nos dois arquivos, ou um dos dois testes reprovando | os três preservados |
+
+### A predição sobre o TEXTO gerado: NÃO TESTADA
+
+⚠ **Nenhum parecer novo será gerado**, e a redação do modelo sobre estas frases **não é testada nem predita**: o
+cliente é simulado. Fica registrada a expectativa, **sem** valor de teste:
+
+| # | Expectativa | O que a contrariaria |
+|---|---|---|
+| T1 | Diante da abertura (b), o parecer **não** dirá que respondentes foram retirados do conjunto avaliado | o texto afirma retirada onde a linha diz que nenhum elemento foi retirado |
+| T2 | Diante da abertura (d), o parecer **não** afirmará nem negará a retirada, e tratará o campo como não determinado | o texto decide a retirada sem base |
+| T3 | O parecer **não** tratará a linha como veredito sobre a qualidade do vínculo | o texto lê a linha como nota, classificação ou suspensão |
+
+### O caso negativo geral, e o que a conferência cruzada errada mostraria
+
+A predição fica **REFUTADA** se alguma das P falhar na execução, ou se qualquer teste **fora da previsão abaixo**
+reprovar, **inclusive por erro do meu próprio teste**: nesse caso é **desvio de previsão**, classificado à parte, e o
+critério **não se ajusta**. Previsão feita depois da execução é diagnóstico, e não predição.
+
+**O que se esperaria ver se a conferência cruzada estivesse errada** (isto é, se o produtor real pudesse emitir um
+vínculo cujo booleano e cujas contagens discordassem, ou com `enviados` maior que os avaliados): **(1)** a enumeração,
+repetida com a descrição nova, acharia **pelo menos um** vínculo do produtor com a abertura (d), onde a base mede **0**
+de 12939; **(2)** os controles pelo produtor real em (b) e em (c) mostrariam a abertura (d); **(3)** as asserções que
+passam pelo produtor real e afirmam a linha, `vinculo-execucao-fiacao.test.ts:1063`, `:1083` e `:1272`, reprovariam
+**fora** da previsão. A refutação apareceria, portanto, como **falha de P2, P3 ou P4**, e não como valor ajustado.
+
+### A previsão de testes, enumerada por leitura, antes de editar
+
+**Este commit (só documento):** ZERO reprovações. Razão lida: nenhum arquivo de código ou de teste é tocado; os testes
+que leem este arquivo por conteúdo exigem literais que este texto **não remove**; e este texto **não contém** o
+enunciado generalizado de R3, nem a frase que a seção 5 proíbe. ⚠ Observação, e não prova: os commits anteriores que só
+alteraram documentos passaram com zero. A suíte inteira será rodada **antes** do push.
+
+**Implementação, com os testes ANTIGOS e o código NOVO.** Reprovariam estas asserções, e só elas, em **12 testes**:
+
+| # | Teste | Asserção (a primeira a reprovar) | Razão lida |
+|---|---|---|---|
+| 1 | `vinculo-execucao.test.ts`, `a linha "Cobertura enviada": …` (`:1862`) | `:1867`, `toBe(antiga)` | o fixture `vinculoCom(R1a4, R1a4)` tem A = 2, E = 4 e booleano falso: cai em (d), condição 1 (a 4 também vale). `:1868` reprovaria também e é mascarada; `:1870` e `:1871` seguem verdadeiras |
+| 2 | `vinculo-execucao-fiacao.test.ts`, pedido 1 (`:897`) | `:903` | `vinculoCom(IDS, IDS)`: A = 4, E = 4, booleano falso: **(b)**, e a abertura muda |
+| 3 | idem, pedido 2 (`:918`) | `:932` | idem, com a cláusula "o vínculo declara …" |
+| 4 | idem, pedido 3 (`:953`) | `:970` | idem |
+| 5 | idem, controle 5 (`:1053`) | `:1063` | produtor real, `preparo(ids(3), ids(4))`: A = 3, E = 3, booleano falso: **(b)** |
+| 6 | idem, controle 6 (`:1077`) | `:1083` | idem, com a cláusula "declara" |
+| 7 a 9 | `a12-estatisticas-dimensao.test.ts`, ensaio 4 (`:602`), as linhas `nao-avaliada-incompleta`, `contradicao` e `coerencia-nao-concluida` | `:621`, `sha256(anterior)` diferente da base | com vínculo, `vinculoDoEstado('vinculado', …)` dá A = E = n e booleano falso: **(b)**; `paraOTextoAnterior` só desfaz o bloco (se elegível) e o item da chave, **não a abertura nova**. A linha `nao-avaliada-ausente` (vínculo `indisponivel`, (a)) **passa** |
+| 10 e 11 | idem, ensaio 9 (`:753`), as linhas `agregado-5` e `agregado-3` | `:760`, comprimento | a abertura (b) tem **129** caracteres e a de hoje **114**: o contexto novo com vínculo é **15 maior** que o esperado a partir da captura da Fase 1. `:761` reprovaria também e é mascarada |
+| 12 | idem, ensaio 9 (`:773`), os 27 cenários | `:787`, no primeiro dos **12** cenários com vínculo em (b) | a reversão não desfaz a abertura. `:788` é mascarada |
+
+Ou seja, **12 testes reprovam na primeira execução e 822 passam**, de 834. ⚠ O jest relata só a **primeira** asserção
+que reprova em cada teste.
+
+**Previstas a passar, com a razão lida:**
+
+- `vinculo-execucao.test.ts`: o teste de `:1147` (`:1149` é (c); `:1150` e `:1151` leem a cláusula de R4 e a linha de contagens, que não
+  mudam; `:1152-1154` é (a)); o de `:1993`, desde que as palavras novas evitem `AFIRMA` e `NOTA` (P7) e o texto siga
+  maior que 3000 caracteres, o que o acréscimo só aumenta; os de `:1110-1126` e `:1139-1145` (os quatro estados e dois vínculos do
+  produtor); e os dois invariantes de `:1915-1946` e de `:1948-1979`, que constroem o vínculo em `:1933` e em `:1967` e
+  cujo oráculo é o radical "coincid", que **nenhuma** das redações novas contém.
+  ⚠ Essas execuções caem em (d), por causa do auxiliar (M8), e **nada as lê**.
+- `vinculo-execucao-fiacao.test.ts`: o teste de `:1257` (`:1272` é (c), com retirada real); `:459-481` e `:483-506`,
+  que afirmam contagens e totais, **não** a linha; o controle 7 (`:1101`), cujo fixture passa a (d) condição 4 e **cuja
+  linha nenhuma asserção lê**; `:1122-1132` (retirada total, (c), sem asserção da linha); o inventário
+  (`:702-746`: a linha de (c) é a mesma, e a de (b) e a de (d) seguem **rotuladas** pelo prefixo "Cobertura enviada" e
+  contêm dígito e "enviados", como a de hoje); `:1301` (os quatro estados, sem `AFIRMA`); os testes
+  `R1: em %s a diferença para o contexto sem o campo é o bloco e as CINCO frases trocadas`, que **retiram o bloco
+  inteiro** antes de comparar; e os de leitura do módulo como texto (`:1135-1154`, `:1387-1409`, `:1525-1535`), porque a
+  edição **não** acrescenta importação, não escreve `hash_` em linha de código, não usa `createHash(`, `Buffer.from(`
+  nem `TextEncoder`, e conserva as duas expressões de identificador.
+- `a12-estatisticas-dimensao.test.ts`: os ensaios 1, 2, 2b, 3, 3b, 5, 7, 8 e o controle de alcance, que afirmam bloco,
+  Taxa e item da chave, ou comparam contextos **novos entre si**; e a linha `nao-avaliada-ausente` do ensaio 4.
+- `a12-diagnostico`, `a33-cadeia-rule` (M10), `vinculo-execucao-calculo` e os demais: não enviam o campo, ou não leem a
+  linha.
+
+**Depois de corrigir os testes:** ZERO reprovações, e a regravação prevista é **nenhuma**: as duas linhas de base são
+**conservadas** (P9).
+
+**Correções de teste previstas**, cada uma com a razão, e **nenhuma "para bater com o que o código imprime":**
+
+1. **O auxiliar `vinculoCom`, nos dois arquivos** (D3): passa a declarar contagens coerentes com as listas, sem retirada
+   (`avaliadosAntesDaRestricao` igual a `enviados.length`, booleano falso), com um terceiro parâmetro opcional para o
+   cenário com retirada. A razão é a incoerência **preexistente**: antes desta rodada nada lia o booleano nem as contagens
+   para esta linha, e a incoerência era **inerte**; a regra nova as lê.
+2. `vinculo-execucao.test.ts:1862`: passa a exercitar a distinção de R4 **nas duas aberturas**, (b) e (c), em fixtures
+   coerentes; `antiga` se divide em duas linhas literais.
+3. `vinculo-execucao.test.ts:1147`: **conserva** os fixtures e as asserções, e ganha (b) e (d) pelo módulo puro.
+4. `vinculo-execucao.test.ts:1993`: a lista de casos passa a ter fixtures coerentes e ganha **os casos de (d)**.
+5. **Controles negativos próprios** para as combinações incoerentes, que afirmam o estado (d), o motivo escolhido e os
+   três campos exibidos: A = 2, E = 4, booleano falso (a que motivou a conferência cruzada); A = 4, E = 3, booleano
+   falso; e as demais condições, inclusive **os casos em que duas condições valem ao mesmo tempo** (1 e 4; 1 e 2; 2 e 3),
+   registrando **qual saiu**, como evidência da ordem, e **não** da legibilidade das demais.
+6. `vinculo-execucao-fiacao.test.ts`: as constantes de `:840-843` passam a distinguir as aberturas; `:903`, `:932`,
+   `:970`, `:1063` e `:1083` passam para (b), **depois de confirmar caso a caso** que nenhum dos cinco tem retirada (a
+   medição de P3 e a leitura de M5 dizem que não).
+7. **Os cinco controles pelo tratador real**, que afirmam a **linha inteira**: (a) `indisponivel`; (b) `vinculado`;
+   (b) `divergente` com a sobra no documento; (c) retirada parcial; (d) vínculo montado à mão. O de (a) **não existe hoje
+   pelo tratador**: será criado.
+8. `a12-estatisticas-dimensao.test.ts`: `paraOTextoAnterior` e `esperadoAPartirDoAnterior` passam a admitir
+   **exatamente uma** substituição, a da abertura de (b), e **só** onde há (b): o número de ocorrências é **afirmado**
+   em cada ponto de chamada (1 ou 0), para que a reversão não passe por vacuidade; o **restante do contexto** continua
+   comparado byte a byte; os arquivos históricos ficam intactos; e os contextos novos desta rodada vão para pasta
+   própria. ⚠ **Isto não reabre a saída A.**
+9. **Adição minha, dentro do escopo e vetável:** um teste de propriedade, compacto, em `vinculo-execucao.test.ts`, que
+   enumera vínculos do produtor real e afirma que **nenhum cai em (d)** e que a abertura é a da classe. Ele guarda a
+   premissa M5 contra uma mudança futura do produtor.
+
+**Testes NOVOS, com o código ATUAL** (precisam **reprovar** onde a correção é o que testam):
+
+| Ensaio | Com o código atual | Com o código novo |
+|---|---|---|
+| (b) pelo módulo puro, `vinculado` e `divergente` sem retirada | **reprova** | passa |
+| (c) pelo módulo puro, as duas formas da cláusula; (a) | **passa** (é preservação) | passa |
+| (d) pelo módulo puro: as quatro condições, `não informado`, e os três casos de duas condições | **reprova** | passa |
+| R4 nas duas aberturas, em fixtures coerentes | **reprova** a parte de (b); a de (c) passa | passa |
+| `AFIRMA` e `NOTA` sobre os casos de (d) | **passa**, e é **vazio** com o código atual (o texto novo ainda não existe): é guarda das palavras novas | passa |
+| propriedade do produtor (nenhum (d); abertura da classe) | **reprova** nas saídas de (b) | passa |
+| os cinco controles pelo tratador: (a) | **passa** (é preservação) | passa |
+| idem: (b) sem retirada e (b) `divergente` | **reprova** | passa |
+| idem: (c) retirada parcial | **passa** (é preservação) | passa |
+| idem: (d) à mão | **reprova** | passa |
+| reconciliação da saída A: o número de substituições afirmado em cada ponto | **reprova** (espera 1 onde há 0) | passa |
+
+**Ficam para conferência em vez de predição:** o número exato de testes e de asserções novas (**registrado depois de
+executar**, sem servir de critério de aceite); e os comentários de código, que **não alteram o que o modelo recebe** e
+se verificam contra o fonte (`tsc` e leitura), e não contra a saída.
+
+**Controles executados sobre a fonte (planejados):** mutantes da linha, cada um com a fonte restaurada e o sha256
+conferido: sempre (b); sempre (c); (b) e (c) trocadas; condição 1 omitida; condições 2 e 3 trocadas; `numero` trocado por
+conversão direta; cláusula de R4 só em (c); abertura (a) com cláusula; contagem "válida" aceitando negativo; `<`
+trocado por `<=` em (c). Cada um deve ser **morto** por pelo menos um teste. ⚠ Se algum não for executado, o relato dirá.
+
+### O limite, que não muda
+
+⚠ Coerência interna do pedido, **sem cobertura do universo real** e sem consulta a produção. ⚠ **A fiação na tela
+segue sem execução por teste algum:** esta rodada não toca a tela. ⚠ **A predição sobre a redação do modelo permanece
+NÃO TESTADA.** ⚠ **Não avaliado:** se algum cliente além da tela envia `cobertura` fora da forma que o produtor
+grava; o repositório não permite saber. ⚠ A contagem de testes e de asserções **não é critério de aceite**.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
