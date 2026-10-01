@@ -1,0 +1,113 @@
+{
+ "base": "93d2e988f3133d6f87678ec518cbe15b31343b40",
+ "trechos": [
+  {
+   "arquivo": "app/api/ai-reviewer/route.ts",
+   "id": "calculateGrade",
+   "pedido": "calculateGrade NÃO é removida (3.2); a remoção continua condicionada à separação do sinal de suspensão",
+   "ancoraDeInicio": "function calculateGrade(data: ReviewRequest): Classificacao {",
+   "ancoraDeFim": "\n}\n",
+   "fimDepoisDe": null,
+   "incluirNoFimNCaracteres": 2,
+   "linhas": "344-507",
+   "bytes": 7468,
+   "sha256": "02bf0fd9279127eb7277478069228ae1568692fc5e07e7f86d4203e9a933dbb2"
+  },
+  {
+   "arquivo": "app/api/ai-reviewer/route.ts",
+   "id": "extractGradeFromReview (com o cabeçalho de comentário)",
+   "pedido": "extractGradeFromReview permanece intacta, logs incluídos (3.3); o cabeçalho de comentário que a antecede fica com ela, e a frase \"Fallback: calculateGrade()\" dele é limite conhecido",
+   "ancoraDeInicio": "// EXTRAÇÃO DA NOTA DO TEXTO DA IA (FONTE ÚNICA AUTORITATIVA)",
+   "ancoraDeFim": "\n}\n",
+   "fimDepoisDe": "function extractGradeFromReview(",
+   "incluirNoFimNCaracteres": 2,
+   "linhas": "510-550",
+   "bytes": 1983,
+   "sha256": "0cc748db3cc5d55a3d2cfa6d3f505a6c84bfb1887994f927bda28f4bbf79c533"
+  },
+  {
+   "arquivo": "app/api/ai-reviewer/route.ts",
+   "id": "ranking das alternativas no contexto (finalScoresSection)",
+   "pedido": "os escores das alternativas, finalScores e :1046-1053 ficam intocados (3.5)",
+   "ancoraDeInicio": "  if (validScores.length > 0) {\n    finalScoresSection = `",
+   "ancoraDeFim": "\n  }\n",
+   "fimDepoisDe": null,
+   "incluirNoFimNCaracteres": 4,
+   "linhas": "1046-1054",
+   "bytes": 330,
+   "sha256": "1a324800cc7ca0d92a243cebe3eda76380cea26ae68a150a128db585a16dc28a"
+  },
+  {
+   "arquivo": "lib/ai-reviewer/avaliacao-qualidade.ts",
+   "id": "interface Elegibilidade e tipo CausaDaSuspensao",
+   "pedido": "a forma de Elegibilidade e as quatro causas mantêm o comportamento (3.4)",
+   "ancoraDeInicio": "export type CausaDaSuspensao =",
+   "ancoraDeFim": "\n}\n",
+   "fimDepoisDe": "export interface Elegibilidade {",
+   "incluirNoFimNCaracteres": 2,
+   "linhas": "751-763",
+   "bytes": 346,
+   "sha256": "c696ca4c9ba2080a00fa9c8bfdd6f9e12f8ecff2ce69ff188d1d9df4a20ca9cc"
+  },
+  {
+   "arquivo": "lib/ai-reviewer/avaliacao-qualidade.ts",
+   "id": "elegivelParaClassificacao",
+   "pedido": "elegivelParaClassificacao, as quatro causas e os ramos P1, P2 e P3 mantêm o comportamento (3.4)",
+   "ancoraDeInicio": "export function elegivelParaClassificacao(",
+   "ancoraDeFim": "\n}\n",
+   "fimDepoisDe": null,
+   "incluirNoFimNCaracteres": 2,
+   "linhas": "765-793",
+   "bytes": 1206,
+   "sha256": "bc20bb1a0314ac4fe48a111f846e006f141b7f54f6e5a9243f2cfa3d236c9a54"
+  },
+  {
+   "arquivo": "components/ParecerAISection.tsx",
+   "id": "handleCopy",
+   "pedido": "a cópia (handleCopy, :47-56) fica como está (3.1)",
+   "ancoraDeInicio": "  const handleCopy = async () => {",
+   "ancoraDeFim": "\n  };\n",
+   "fimDepoisDe": null,
+   "incluirNoFimNCaracteres": 4,
+   "linhas": "47-56",
+   "bytes": 293,
+   "sha256": "310afda61d05427de4725cca0cca45b06db1ef74cc2130b49807bc75915c32e2"
+  },
+  {
+   "arquivo": "components/ParecerAISection.tsx",
+   "id": "aviso de quarentena de A.27",
+   "pedido": "a mensagem não substitui o aviso de A.27 (:187-199)",
+   "ancoraDeInicio": "          {presentation && presentation.estado !== 'aprovado' && (",
+   "ancoraDeFim": "\n          )}\n",
+   "fimDepoisDe": null,
+   "incluirNoFimNCaracteres": 12,
+   "linhas": "187-199",
+   "bytes": 709,
+   "sha256": "c8a72105319546c7d614176fcbebad8ff3eca3533f1efc842d1a63b9cc77cfcd"
+  },
+  {
+   "arquivo": "components/ParecerAISection.tsx",
+   "id": "portão do destaque",
+   "pedido": "o portão do destaque (:225) não muda: a mensagem não autoriza destaque",
+   "ancoraDeInicio": "          {!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (",
+   "ancoraDeFim": "\n",
+   "fimDepoisDe": null,
+   "incluirNoFimNCaracteres": 0,
+   "linhas": "225-225",
+   "bytes": 128,
+   "sha256": "38000cddd97f81226412f53ea5ddf405d2c8254756f37555c2328d7ad87ae864"
+  },
+  {
+   "arquivo": "components/ParecerAISection.tsx",
+   "id": "corpo do parecer (de \"Review Text\" até antes de \"Dica de uso\")",
+   "pedido": "o corpo (:264-337) fica como está (3.1)",
+   "ancoraDeInicio": "          {/* Review Text */}",
+   "ancoraDeFim": "              {/* Dica de uso */}",
+   "fimDepoisDe": null,
+   "incluirNoFimNCaracteres": 0,
+   "linhas": "263-339",
+   "bytes": 2977,
+   "sha256": "ae5ec9b00fe5040daa9013756b9069a8ad589401a506b1729eacc863fb493e87"
+  }
+ ]
+}

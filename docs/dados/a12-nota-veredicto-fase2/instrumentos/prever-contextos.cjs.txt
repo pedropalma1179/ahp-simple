@@ -1,0 +1,77 @@
+'use strict';
+/**
+ * PREDIÇÃO da Fase 2 (nota e veredicto), ANTES de editar código: o contexto NOVO de cada uma das sete condições é o
+ * contexto ANTIGO (capturado pelo código de `93d2e98`, idêntico ao da Fase 1) com EXATAMENTE duas transformações:
+ *   T1. a retirada do bloco `route.ts:1062-1066`: as QUATRO linhas de saída (título, "Pontuação automática",
+ *       "Sugestão automática" e "IMPORTANTE"), cada uma com a sua quebra de linha, e NADA mais (as linhas em branco
+ *       vizinhas ficam, e por isso três linhas em branco seguidas quando não há descrição do projeto);
+ *   T2. nas condições de SUSPENSÃO, a troca de "SUSPENSA: Nota não calculada: " por "SUSPENSA: ", UMA vez.
+ * Uso: node prever-contextos.cjs <diretório com ctx-*.txt> <saída.json> [diretório para os contextos previstos]
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+
+const [, , dirAntigo, saida, dirPrevisto] = process.argv;
+const sha256 = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+const ocorrencias = (t, a) => t.split(a).length - 1;
+
+const TITULO = '**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n';
+const ULTIMA = '- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n';
+const PREFIXO_ANTIGO = 'SUSPENSA: Nota não calculada: ';
+const PREFIXO_NOVO = 'SUSPENSA: ';
+
+function t1(ctx) {
+  const i = ctx.indexOf(TITULO);
+  if (i < 0 || ocorrencias(ctx, TITULO) !== 1) throw new Error('título do bloco: ' + ocorrencias(ctx, TITULO) + ' ocorrências');
+  const j = ctx.indexOf(ULTIMA, i);
+  if (j < 0 || ocorrencias(ctx, ULTIMA) !== 1) throw new Error('última linha do bloco: ' + ocorrencias(ctx, ULTIMA) + ' ocorrências');
+  const fim = j + ULTIMA.length;
+  const bloco = ctx.slice(i, fim);
+  return { novo: ctx.slice(0, i) + ctx.slice(fim), bloco };
+}
+
+const condicoes = fs.readdirSync(dirAntigo).filter((f) => /^ctx-.*\.txt$/.test(f)).sort();
+const out = [];
+for (const f of condicoes) {
+  const id = f.replace(/^ctx-/, '').replace(/\.txt$/, '');
+  const antigo = fs.readFileSync(path.join(dirAntigo, f), 'utf8');
+  const { novo: semBloco, bloco } = t1(antigo);
+  const suspensa = ocorrencias(antigo, PREFIXO_ANTIGO) === 1;
+  if (ocorrencias(antigo, PREFIXO_ANTIGO) > 1) throw new Error(id + ': mais de um prefixo');
+  const previsto = suspensa ? semBloco.replace(PREFIXO_ANTIGO, PREFIXO_NOVO) : semBloco;
+  // o motivo, lido da linha "Pontuação automática: não calculada — <motivo>" do bloco antigo (só nas suspensas)
+  const m = /- Pontuação automática: não calculada — (.*)\n/.exec(bloco);
+  const motivo = m ? m[1] : null;
+  const linhasAntigas = antigo.split('\n');
+  const linhasNovas = previsto.split('\n');
+  const posicoes = (linhas, trecho) => linhas.map((l, i) => (l.includes(trecho) ? i + 1 : null)).filter(Boolean);
+  out.push({
+    condicao: id,
+    suspensa,
+    antigo: { sha256: sha256(antigo), bytes: Buffer.byteLength(antigo, 'utf8'), linhas: linhasAntigas.length },
+    blocoRetirado: { bytes: Buffer.byteLength(bloco, 'utf8'), linhasDeSaida: bloco.split('\n').length - 1, texto: bloco },
+    previsto: { sha256: sha256(previsto), bytes: Buffer.byteLength(previsto, 'utf8'), linhas: linhasNovas.length },
+    diferencaDeBytes: Buffer.byteLength(previsto, 'utf8') - Buffer.byteLength(antigo, 'utf8'),
+    trocaDoPrefixoNaSuspensa: suspensa ? { de: PREFIXO_ANTIGO, para: PREFIXO_NOVO, ocorrenciasNoAntigo: ocorrencias(antigo, PREFIXO_ANTIGO), ocorrenciasNoPrevisto: ocorrencias(previsto, PREFIXO_ANTIGO), bytesEconomizados: Buffer.byteLength('Nota não calculada: ', 'utf8') } : null,
+    motivo: motivo === null ? null : {
+      texto: motivo,
+      ocorrenciasNoAntigo: ocorrencias(antigo, motivo),
+      linhasNoAntigo: posicoes(linhasAntigas, motivo),
+      ocorrenciasNoPrevisto: ocorrencias(previsto, motivo),
+      linhasNoPrevisto: posicoes(linhasNovas, motivo),
+    },
+    ausenciasNoPrevisto: Object.fromEntries(
+      ['Referência Automatizada', 'Pontuação automática', 'Sugestão automática', 'NÃO nesta referência automática', 'Nota não calculada', 'Destaque de nota e veredito suspenso'].map((s) => [s, ocorrencias(previsto, s)])
+    ),
+    tresLinhasEmBrancoSeguidas: /\n\n\n\n---\n/.test(previsto) ? 'sim, antes de "---"' : (/\n\n\n---\n/.test(previsto) ? 'duas linhas em branco seguidas antes de "---"' : 'não'),
+  });
+  if (dirPrevisto) {
+    fs.mkdirSync(dirPrevisto, { recursive: true });
+    fs.writeFileSync(path.join(dirPrevisto, f), previsto);
+  }
+}
+fs.writeFileSync(saida, JSON.stringify(out, null, 1));
+for (const o of out) {
+  console.log(o.condicao.padEnd(36), 'antigo', String(o.antigo.bytes).padStart(6), '-> previsto', String(o.previsto.bytes).padStart(6), 'dif', o.diferencaDeBytes, 'sha', o.previsto.sha256.slice(0, 12), o.motivo ? 'motivo ' + o.motivo.ocorrenciasNoAntigo + '->' + o.motivo.ocorrenciasNoPrevisto + ' linhas ' + JSON.stringify(o.motivo.linhasNoAntigo) + '->' + JSON.stringify(o.motivo.linhasNoPrevisto) : '(elegivel)');
+}

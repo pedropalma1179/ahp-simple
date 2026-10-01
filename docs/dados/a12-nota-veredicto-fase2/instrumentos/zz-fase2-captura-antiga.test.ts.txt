@@ -1,0 +1,224 @@
+export {};
+
+/**
+ * SONDA TEMPORÁRIA da Fase 2 (nota e veredicto): captura, sobre o código ANTERIOR, dos sete contextos da Fase 1.
+ * ⚠ NÃO é teste versionado: vive em lib/__tests__/zz-fase2-captura-antiga.test.ts só durante a medição, e é apagada
+ * antes de qualquer commit. O texto fica arquivado como .txt em docs/dados/a12-nota-veredicto-fase2/instrumentos/.
+ * Modo `captura`: o cliente simulado registra o contexto e INTERROMPE antes da geração. Nenhuma chamada de rede.
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+
+
+const sha256 = (t: string): string => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+
+const CHAVE = 'chave-anthropic-falsa-do-processo-de-teste';
+const ENV_ANTES = { chave: process.env.ANTHROPIC_API_KEY, flag: process.env.USE_RAG_SEMANTIC };
+process.env.ANTHROPIC_API_KEY = CHAVE;
+delete process.env.USE_RAG_SEMANTIC;
+
+const estado: { modo: 'captura' | 'texto-fixado'; texto: string; contexto: string; system: string; chamadas: number; coerenciaNula: boolean } = {
+  modo: 'captura',
+  texto: '',
+  contexto: '',
+  system: '',
+  chamadas: 0,
+  coerenciaNula: false,
+};
+
+jest.mock('@anthropic-ai/sdk', () => ({
+  __esModule: true,
+  default: class {
+    messages = {
+      create: async (a: { system?: unknown; messages: Array<{ content: string }> }) => {
+        estado.chamadas += 1;
+        estado.contexto = a.messages.map((m) => m.content).join('\n');
+        estado.system = typeof a.system === 'string' ? a.system : JSON.stringify(a.system ?? '');
+        // ⚠ MODO `captura`: interrompe ANTES da geração. MODO `texto-fixado`: devolve o texto do instrumento.
+        if (estado.modo === 'captura') throw new Error('SONDA: captura interrompida antes da geracao');
+        return { content: [{ type: 'text', text: estado.texto }] };
+      },
+    };
+  },
+}));
+
+// ⚠ Construção DECLARADA: só para a causa `coerencia_nao_avaliada`, que o tratador real não produz.
+jest.mock('@/lib/ai-reviewer/avaliacao-qualidade', () => {
+  const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
+  return { ...real, avaliarCoerencia: (raw: any) => (estado.coerenciaNula ? null : real.avaliarCoerencia(raw)) };
+});
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { POST } = require('@/app/api/ai-reviewer/route');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
+
+let logs: string[] = [];
+let silencios: jest.SpyInstance[] = [];
+beforeAll(() => {
+  silencios = [
+    jest.spyOn(console, 'log').mockImplementation((...a: unknown[]) => {
+      logs.push(a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' '));
+    }),
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined),
+    jest.spyOn(console, 'error').mockImplementation(() => undefined),
+  ];
+});
+afterAll(() => {
+  silencios.forEach((s) => s.mockRestore());
+  if (ENV_ANTES.chave === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = ENV_ANTES.chave;
+  if (ENV_ANTES.flag === undefined) delete process.env.USE_RAG_SEMANTIC; else process.env.USE_RAG_SEMANTIC = ENV_ANTES.flag;
+});
+jest.setTimeout(300000);
+
+// ====================================================================================================================
+// REQUISIÇÕES. COPIA LITERAL de lib/__tests__/a12-coerencia.test.ts (d6fc649), linhas 28-60, e variações.
+// ====================================================================================================================
+const respondente = (i: number, cr: number | null, status?: string) => ({
+  id: `resp-${i}`,
+  name: `Respondente ${i}`,
+  ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }),
+  ...(status === undefined
+    ? { status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO' }
+    : { status }),
+});
+
+/** Requisição COERENTE: quatro respondentes com CR 0.05, e os agregados de acordo. A automática dá A, 100/100. */
+function coerente(): any {
+  const rs = [1, 2, 3, 4].map((i) => respondente(i, 0.05));
+  return {
+    projectName: 'Projeto do controle de coerencia',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    finalScores: [{ code: 'A1', name: 'Alternativa 1', score: 0.62 }],
+    responseCount: 4,
+    qualityAnalysis: {
+      respondents: rs,
+      statistics: { byStatus: { 'CONFIÁVEL': 4, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 0 }, total: 4, avgCR: 0.05 },
+      summary: { total: 4, ok: 4, suspicious: 0, critical: 0 },
+    },
+    overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
+    individualStats: {
+      Benefits: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+      Opportunities: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+      Costs: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+      Risks: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+    },
+  };
+}
+
+/** Requisição COERENTE e ELEGÍVEL com qualidade ruim: quatro CR 0.25, todos críticos. A automática dá F, 45/100. */
+function ruim(): any {
+  const rs = [1, 2, 3, 4].map((i) => respondente(i, 0.25));
+  return {
+    ...coerente(),
+    qualityAnalysis: {
+      respondents: rs,
+      statistics: { byStatus: { 'CONFIÁVEL': 0, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 4 }, total: 4, avgCR: 0.25 },
+      summary: { total: 4, ok: 0, suspicious: 0, critical: 4 },
+    },
+    overallStats: { total: 4, valid: 0, warning: 0, critical: 4 },
+    individualStats: {
+      Benefits: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+      Opportunities: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+      Costs: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+      Risks: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+    },
+  };
+}
+
+type Condicao = {
+  id: string;
+  descricao: string;
+  construida: boolean;
+  coerenciaNula: boolean;
+  fazer: () => any;
+};
+
+const CONDICOES: Condicao[] = [
+  { id: 'elegivel-auto-A', descricao: 'elegível; a classificação automática dá A, 100/100', construida: false, coerenciaNula: false, fazer: () => coerente() },
+  { id: 'elegivel-auto-F', descricao: 'elegível; a classificação automática dá F, 45/100', construida: false, coerenciaNula: false, fazer: () => ruim() },
+  {
+    id: 'disponibilidade-ausente',
+    descricao: 'causa disponibilidade, avaliação ausente (sem lista de respondentes)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); delete r.qualityAnalysis.respondents; return r; },
+  },
+  {
+    id: 'disponibilidade-incompleta',
+    descricao: 'causa disponibilidade, avaliação incompleta (um respondente sem CR)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); r.qualityAnalysis.respondents = [respondente(1, 0.05), respondente(2, null)]; return r; },
+  },
+  {
+    id: 'contradicao',
+    descricao: 'causa contradicao (V5: 4 + 4 sobre total 4)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); r.qualityAnalysis.summary.critical = 4; return r; },
+  },
+  {
+    id: 'coerencia-nao-concluida',
+    descricao: 'causa coerencia_nao_concluida (statistics.total ausente: V2 e V3 nao determinadas)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); delete r.qualityAnalysis.statistics.total; return r; },
+  },
+  {
+    id: 'coerencia-nao-avaliada-CONSTRUIDA',
+    descricao: 'causa coerencia_nao_avaliada, CONSTRUÍDA por mock de avaliarCoerencia (o tratador real não a produz)',
+    construida: true,
+    coerenciaNula: true,
+    fazer: () => coerente(),
+  },
+];
+
+type Execucao = { corpo: any; status: number; chamadas: number; contexto: string; system: string; logs: string[] };
+
+async function executar(payload: any, modo: 'captura' | 'texto-fixado', texto: string, coerenciaNula = false): Promise<Execucao> {
+  estado.modo = modo;
+  estado.texto = texto;
+  estado.contexto = '';
+  estado.system = '';
+  estado.coerenciaNula = coerenciaNula;
+  logs = [];
+  const antes = estado.chamadas;
+  const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+  const corpo = await res.json();
+  estado.coerenciaNula = false;
+  return { corpo, status: res.status ?? 200, chamadas: estado.chamadas - antes, contexto: estado.contexto, system: estado.system, logs: [...logs] };
+}
+
+const SAIDA = process.env.FASE2_SAIDA || path.join(process.cwd(), 'zz-fase2-saida');
+
+test('SONDA FASE 2: captura dos sete contextos no código ANTERIOR, e identidade com a Fase 1', async () => {
+  fs.mkdirSync(path.join(SAIDA, 'contextos-antigos'), { recursive: true });
+  const fase1 = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'docs/dados/a12-nota-veredicto-fase1/captura.json'), 'utf8'));
+  const tabela: Record<string, any> = {};
+  for (const c of (fase1.capturas || fase1)) tabela[c.condicao] = c;
+  const espiaoFetch = jest.spyOn(globalThis as any, 'fetch').mockImplementation((() => { throw new Error('SONDA: fetch proibido'); }) as any);
+  const saida: any[] = [];
+  for (const cond of CONDICOES) {
+    const exec = await executar(cond.fazer(), 'captura', 'texto qualquer', cond.coerenciaNula);
+    fs.writeFileSync(path.join(SAIDA, 'contextos-antigos', `ctx-${cond.id}.txt`), exec.contexto);
+    const ref = tabela[cond.id];
+    saida.push({
+      condicao: cond.id,
+      construida: cond.construida,
+      sha256Contexto: sha256(exec.contexto),
+      bytesContexto: Buffer.byteLength(exec.contexto, 'utf8'),
+      linhasContexto: exec.contexto.split('\n').length,
+      sha256System: sha256(exec.system),
+      sha256RequisicaoReexecucao: sha256(JSON.stringify(cond.fazer())),
+      fase1: ref ? { sha256Contexto: ref.sha256Contexto, bytesContexto: ref.bytesContexto, sha256System: ref.sha256System } : null,
+      identicoAFase1: !!ref && ref.sha256Contexto === sha256(exec.contexto) && ref.sha256System === sha256(exec.system) && ref.bytesContexto === Buffer.byteLength(exec.contexto, 'utf8'),
+    });
+  }
+  fs.writeFileSync(path.join(SAIDA, 'captura-antiga.json'), JSON.stringify({ chamadasAFetch: espiaoFetch.mock.calls.length, chamadasAoCliente: estado.chamadas, capturas: saida }, null, 1));
+  expect(espiaoFetch.mock.calls.length).toBe(0);
+  espiaoFetch.mockRestore();
+  expect(saida.every((s) => s.identicoAFase1)).toBe(true);
+});

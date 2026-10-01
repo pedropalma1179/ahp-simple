@@ -1,0 +1,108 @@
+'use strict';
+/**
+ * PREDIÇÃO da Fase 2, parte das SUÍTES que comparam contexto: aplica T1 e T2 (ver prever-contextos.cjs) aos contextos
+ * ANTIGOS que as suítes capturam, e calcula o que cada uma passaria a medir. Entradas: os despejos das cópias
+ * temporárias das suítes, rodadas sobre o código de `93d2e98`. Uso: node prever-suites.cjs <saida1> <saida.json>
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const [, , dir, saida] = process.argv;
+const sha256 = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+const ocorrencias = (t, a) => t.split(a).length - 1;
+
+const TITULO = '**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n';
+const ULTIMA = '- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n';
+const PREFIXO_ANTIGO = 'SUSPENSA: Nota não calculada: ';
+const PREFIXO_NOVO = 'SUSPENSA: ';
+
+function T(ctx) {
+  if (ocorrencias(ctx, TITULO) !== 1 || ocorrencias(ctx, ULTIMA) !== 1) throw new Error('bloco: ' + ocorrencias(ctx, TITULO) + '/' + ocorrencias(ctx, ULTIMA));
+  const i = ctx.indexOf(TITULO);
+  const fim = ctx.indexOf(ULTIMA, i) + ULTIMA.length;
+  const bloco = ctx.slice(i, fim);
+  const semBloco = ctx.slice(0, i) + ctx.slice(fim);
+  const n = ocorrencias(semBloco, PREFIXO_ANTIGO);
+  if (n > 1) throw new Error('prefixo ' + n);
+  return { bloco, previsto: n === 1 ? semBloco.replace(PREFIXO_ANTIGO, PREFIXO_NOVO) : semBloco, suspensa: n === 1 };
+}
+
+// ---------------- 27 cenários de a12-estatisticas-dimensao
+const estat = fs.readdirSync(path.join(dir, 'estat27')).sort().map((f) => JSON.parse(fs.readFileSync(path.join(dir, 'estat27', f), 'utf8')));
+const estat27 = estat.map((e) => {
+  const t = T(e.contexto);
+  return {
+    nome: e.nome,
+    elegivel: e.elegivel,
+    suspensaNaResposta: e.suspensa,
+    causa: e.causa,
+    rotuloAntigo: e.rotulo,
+    notaAntiga: e.nota, veredictoAntigo: e.veredicto, gradeSourceAntigo: e.gradeSource, automaticGradeAntigo: e.automaticGrade,
+    sha256Antigo: sha256(e.contexto), bytesAntigo: Buffer.byteLength(e.contexto, 'utf8'),
+    blocoAntigo: t.bloco,
+    prefixoTrocado: t.suspensa,
+    sha256Previsto: sha256(t.previsto), bytesPrevisto: Buffer.byteLength(t.previsto, 'utf8'),
+    coerente: t.suspensa === !e.elegivel,
+  };
+});
+
+// ---------------- quatro casos de a12-diagnostico
+const MARCA = (c) => c;
+function blocoDeQualidade(texto) {
+  const cab = ['**Distribuição de Qualidade dos Respondentes (CR Individual):**', '**Distribuição de Qualidade dos Respondentes:**', '**Qualidade dos Dados:**'].find((c) => texto.includes(c));
+  if (!cab) return [];
+  const linhas = texto.slice(texto.indexOf(cab)).split('\n');
+  const bloco = [cab];
+  for (const l of linhas.slice(1, 11)) { if (l.trim() === '') break; bloco.push(l); }
+  return bloco;
+}
+const diag4 = ['C-disponivel', 'C-ausente', 'C-incompleta', 'C-contradicao'].map((nome) => {
+  const ctx = fs.readFileSync(path.join(dir, 'diag4', nome + '.txt'), 'utf8');
+  const t = T(ctx);
+  return {
+    nome,
+    bytesAntigo: Buffer.byteLength(ctx, 'utf8'),
+    bytesPrevisto: Buffer.byteLength(t.previsto, 'utf8'),
+    blocoDeQualidadeAntigo: blocoDeQualidade(ctx),
+    blocoDeQualidadePrevisto: blocoDeQualidade(t.previsto),
+    blocoDeQualidadeMuda: JSON.stringify(blocoDeQualidade(ctx)) !== JSON.stringify(blocoDeQualidade(t.previsto)),
+    prefixoTrocado: t.suspensa,
+    blocoRetiradoBytes: Buffer.byteLength(t.bloco, 'utf8'),
+  };
+});
+
+// ---------------- quatro condições de rag-semantic-states: o hash é do JSON dos messages
+const CONSTANTES = {
+  A12_MESSAGES_COM_CHUNKS: '241117eaa1d5f12efbabc5ba1501db916adaede07878521e0ca7cc2a7158f2bf',
+  A12_MESSAGES_SEM_CHUNKS: '5b2cb948064279be81ae4488dd87dfc8b3ccc24e1c2563f2f4e684bde82243da',
+};
+const REFERENCIA_ATUAL = { comResultados: 'A12_MESSAGES_COM_CHUNKS', vazio: 'A12_MESSAGES_SEM_CHUNKS', erro: 'A12_MESSAGES_SEM_CHUNKS', misto: 'A12_MESSAGES_COM_CHUNKS' };
+const rag4 = ['comResultados', 'vazio', 'erro', 'misto'].map((nome) => {
+  const j = JSON.parse(fs.readFileSync(path.join(dir, 'rag4', nome + '.json'), 'utf8'));
+  const antigoJson = JSON.stringify(j.messages);
+  const novas = j.messages.map((m) => {
+    if (typeof m.content !== 'string' || !m.content.includes(TITULO)) return { ...m };
+    const t = T(m.content);
+    return { ...m, content: t.previsto };
+  });
+  const novoJson = JSON.stringify(novas);
+  return {
+    nome,
+    constanteDoTeste: REFERENCIA_ATUAL[nome],
+    sha256AntigoDoDespejo: sha256(antigoJson),
+    igualAConstanteDoTeste: sha256(antigoJson) === CONSTANTES[REFERENCIA_ATUAL[nome]],
+    sha256PrevistoDoJson: sha256(novoJson),
+    systemSha256: sha256(j.system),
+    mensagens: j.messages.length,
+  };
+});
+const distintos = {
+  A12_MESSAGES_COM_CHUNKS_previsto: [...new Set(rag4.filter((r) => r.constanteDoTeste === 'A12_MESSAGES_COM_CHUNKS').map((r) => r.sha256PrevistoDoJson))],
+  A12_MESSAGES_SEM_CHUNKS_previsto: [...new Set(rag4.filter((r) => r.constanteDoTeste === 'A12_MESSAGES_SEM_CHUNKS').map((r) => r.sha256PrevistoDoJson))],
+};
+
+fs.writeFileSync(saida, JSON.stringify({ estat27, diag4, rag4, rag4_hashesPrevistosDistintos: distintos }, null, 1));
+console.log('estat27:', estat27.length, 'cenários; coerentes (prefixo trocado == não elegível):', estat27.every((e) => e.coerente), '| elegíveis:', estat27.filter((e) => e.elegivel).length, '| não elegíveis:', estat27.filter((e) => !e.elegivel).length);
+console.log('diag4:'); for (const d of diag4) console.log('  ', d.nome.padEnd(14), d.bytesAntigo, '->', d.bytesPrevisto, 'bloco muda:', d.blocoDeQualidadeMuda, 'prefixo:', d.prefixoTrocado);
+console.log('rag4:'); for (const r of rag4) console.log('  ', r.nome.padEnd(14), 'antigo==constante:', r.igualAConstanteDoTeste, 'previsto', r.sha256PrevistoDoJson.slice(0, 16));
+console.log(JSON.stringify(distintos));

@@ -1,0 +1,304 @@
+[
+ {
+  "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+  "suspensa": true,
+  "antigo": {
+   "sha256": "3e24425c164f3f2bf8c7c37736ed63de5377b0b41e94ef18fe2e316a9a2d7c1b",
+   "bytes": 70979,
+   "linhas": 1160
+  },
+  "blocoRetirado": {
+   "bytes": 506,
+   "linhasDeSaida": 4,
+   "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n"
+  },
+  "previsto": {
+   "sha256": "6ef3d2b24f4fece6de6db0d78d60e14f1e8fd76705baabf0d2992fc7365ae252",
+   "bytes": 70452,
+   "linhas": 1156
+  },
+  "diferencaDeBytes": -527,
+  "trocaDoPrefixoNaSuspensa": {
+   "de": "SUSPENSA: Nota não calculada: ",
+   "para": "SUSPENSA: ",
+   "ocorrenciasNoAntigo": 1,
+   "ocorrenciasNoPrevisto": 0,
+   "bytesEconomizados": 21
+  },
+  "motivo": {
+   "texto": "Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada.",
+   "ocorrenciasNoAntigo": 2,
+   "linhasNoAntigo": [
+    8,
+    78
+   ],
+   "ocorrenciasNoPrevisto": 1,
+   "linhasNoPrevisto": [
+    74
+   ]
+  },
+  "ausenciasNoPrevisto": {
+   "Referência Automatizada": 0,
+   "Pontuação automática": 0,
+   "Sugestão automática": 0,
+   "NÃO nesta referência automática": 0,
+   "Nota não calculada": 0,
+   "Destaque de nota e veredito suspenso": 0
+  },
+  "tresLinhasEmBrancoSeguidas": "sim, antes de \"---\""
+ },
+ {
+  "condicao": "coerencia-nao-concluida",
+  "suspensa": true,
+  "antigo": {
+   "sha256": "70dda82efdc27a4ef3ac27553f2c40a0e4075a55ff84b9d5c8681b8e0d40184e",
+   "bytes": 71621,
+   "linhas": 1160
+  },
+  "blocoRetirado": {
+   "bytes": 831,
+   "linhasDeSaida": 4,
+   "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n"
+  },
+  "previsto": {
+   "sha256": "e8c89e3eaf6c48b2cc6a407b7c175a52d1176c51f60e559fcf95b0c9e71f664b",
+   "bytes": 70769,
+   "linhas": 1156
+  },
+  "diferencaDeBytes": -852,
+  "trocaDoPrefixoNaSuspensa": {
+   "de": "SUSPENSA: Nota não calculada: ",
+   "para": "SUSPENSA: ",
+   "ocorrenciasNoAntigo": 1,
+   "ocorrenciasNoPrevisto": 0,
+   "bytesEconomizados": 21
+  },
+  "motivo": {
+   "texto": "Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu.",
+   "ocorrenciasNoAntigo": 2,
+   "linhasNoAntigo": [
+    8,
+    78
+   ],
+   "ocorrenciasNoPrevisto": 1,
+   "linhasNoPrevisto": [
+    74
+   ]
+  },
+  "ausenciasNoPrevisto": {
+   "Referência Automatizada": 0,
+   "Pontuação automática": 0,
+   "Sugestão automática": 0,
+   "NÃO nesta referência automática": 0,
+   "Nota não calculada": 0,
+   "Destaque de nota e veredito suspenso": 0
+  },
+  "tresLinhasEmBrancoSeguidas": "sim, antes de \"---\""
+ },
+ {
+  "condicao": "contradicao",
+  "suspensa": true,
+  "antigo": {
+   "sha256": "eeaa1dbdb28285275b393196c0ad6103bd47dcd97ccba7f60a6dee829624f126",
+   "bytes": 71132,
+   "linhas": 1160
+  },
+  "blocoRetirado": {
+   "bytes": 597,
+   "linhasDeSaida": 4,
+   "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n"
+  },
+  "previsto": {
+   "sha256": "6c0293d8ceb05414e6b10c50a4dbd79306625e549e69e92ef99d54ffa18ab64a",
+   "bytes": 70514,
+   "linhas": 1156
+  },
+  "diferencaDeBytes": -618,
+  "trocaDoPrefixoNaSuspensa": {
+   "de": "SUSPENSA: Nota não calculada: ",
+   "para": "SUSPENSA: ",
+   "ocorrenciasNoAntigo": 1,
+   "ocorrenciasNoPrevisto": 0,
+   "bytesEconomizados": 21
+  },
+  "motivo": {
+   "texto": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.",
+   "ocorrenciasNoAntigo": 2,
+   "linhasNoAntigo": [
+    8,
+    78
+   ],
+   "ocorrenciasNoPrevisto": 1,
+   "linhasNoPrevisto": [
+    74
+   ]
+  },
+  "ausenciasNoPrevisto": {
+   "Referência Automatizada": 0,
+   "Pontuação automática": 0,
+   "Sugestão automática": 0,
+   "NÃO nesta referência automática": 0,
+   "Nota não calculada": 0,
+   "Destaque de nota e veredito suspenso": 0
+  },
+  "tresLinhasEmBrancoSeguidas": "sim, antes de \"---\""
+ },
+ {
+  "condicao": "disponibilidade-ausente",
+  "suspensa": true,
+  "antigo": {
+   "sha256": "c895086c825421884fd57bb2c07c8d8e0cef9daeaf33788c6676a37e5762af80",
+   "bytes": 69844,
+   "linhas": 1144
+  },
+  "blocoRetirado": {
+   "bytes": 429,
+   "linhasDeSaida": 4,
+   "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Qualidade individual não avaliada: a requisição não traz avaliação por respondente.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n"
+  },
+  "previsto": {
+   "sha256": "a03ef5ceb50edd1242165133cecce39302ececedfbb0dfbf588322ac8ab1d01c",
+   "bytes": 69394,
+   "linhas": 1140
+  },
+  "diferencaDeBytes": -450,
+  "trocaDoPrefixoNaSuspensa": {
+   "de": "SUSPENSA: Nota não calculada: ",
+   "para": "SUSPENSA: ",
+   "ocorrenciasNoAntigo": 1,
+   "ocorrenciasNoPrevisto": 0,
+   "bytesEconomizados": 21
+  },
+  "motivo": {
+   "texto": "Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
+   "ocorrenciasNoAntigo": 2,
+   "linhasNoAntigo": [
+    8,
+    62
+   ],
+   "ocorrenciasNoPrevisto": 1,
+   "linhasNoPrevisto": [
+    58
+   ]
+  },
+  "ausenciasNoPrevisto": {
+   "Referência Automatizada": 0,
+   "Pontuação automática": 0,
+   "Sugestão automática": 0,
+   "NÃO nesta referência automática": 0,
+   "Nota não calculada": 0,
+   "Destaque de nota e veredito suspenso": 0
+  },
+  "tresLinhasEmBrancoSeguidas": "sim, antes de \"---\""
+ },
+ {
+  "condicao": "disponibilidade-incompleta",
+  "suspensa": true,
+  "antigo": {
+   "sha256": "5ecad8ee1fbb935b5a226498baae8dcfe56ab25bb8088d65d32aad9eaf895cdc",
+   "bytes": 70732,
+   "linhas": 1158
+  },
+  "blocoRetirado": {
+   "bytes": 504,
+   "linhasDeSaida": 4,
+   "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 1 de 2 respondentes com CR.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n"
+  },
+  "previsto": {
+   "sha256": "13ef2d180f0b280898df565e134287618a7fe015ed777a39a20c4629c0c81b8e",
+   "bytes": 70207,
+   "linhas": 1154
+  },
+  "diferencaDeBytes": -525,
+  "trocaDoPrefixoNaSuspensa": {
+   "de": "SUSPENSA: Nota não calculada: ",
+   "para": "SUSPENSA: ",
+   "ocorrenciasNoAntigo": 1,
+   "ocorrenciasNoPrevisto": 0,
+   "bytesEconomizados": 21
+  },
+  "motivo": {
+   "texto": "Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 1 de 2 respondentes com CR.",
+   "ocorrenciasNoAntigo": 2,
+   "linhasNoAntigo": [
+    8,
+    76
+   ],
+   "ocorrenciasNoPrevisto": 1,
+   "linhasNoPrevisto": [
+    72
+   ]
+  },
+  "ausenciasNoPrevisto": {
+   "Referência Automatizada": 0,
+   "Pontuação automática": 0,
+   "Sugestão automática": 0,
+   "NÃO nesta referência automática": 0,
+   "Nota não calculada": 0,
+   "Destaque de nota e veredito suspenso": 0
+  },
+  "tresLinhasEmBrancoSeguidas": "sim, antes de \"---\""
+ },
+ {
+  "condicao": "elegivel-auto-A",
+  "suspensa": false,
+  "antigo": {
+   "sha256": "b5e08670c4d6e939c52b469f020336eba4ea8a94e1cc88d1699f863a82200dd0",
+   "bytes": 70417,
+   "linhas": 1162
+  },
+  "blocoRetirado": {
+   "bytes": 279,
+   "linhasDeSaida": 4,
+   "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: 100/100\n- Sugestão automática: ACEITO\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n"
+  },
+  "previsto": {
+   "sha256": "346d07ed1fe380d43d6c816119d1d041a6b2430abbeb77ccc07d3686b7a30162",
+   "bytes": 70138,
+   "linhas": 1158
+  },
+  "diferencaDeBytes": -279,
+  "trocaDoPrefixoNaSuspensa": null,
+  "motivo": null,
+  "ausenciasNoPrevisto": {
+   "Referência Automatizada": 0,
+   "Pontuação automática": 0,
+   "Sugestão automática": 0,
+   "NÃO nesta referência automática": 0,
+   "Nota não calculada": 0,
+   "Destaque de nota e veredito suspenso": 0
+  },
+  "tresLinhasEmBrancoSeguidas": "sim, antes de \"---\""
+ },
+ {
+  "condicao": "elegivel-auto-F",
+  "suspensa": false,
+  "antigo": {
+   "sha256": "a6d0b6d34713a47519d090aa9cafd2a6f770d56a279a192d38a3c0f36e59ff07",
+   "bytes": 70584,
+   "linhas": 1168
+  },
+  "blocoRetirado": {
+   "bytes": 280,
+   "linhasDeSaida": 4,
+   "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: 45/100\n- Sugestão automática: REJEITAR\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n"
+  },
+  "previsto": {
+   "sha256": "365f640d7ce4215121a5bcc14458d0aa28fc7dd85352786f29d60a654d56fe10",
+   "bytes": 70304,
+   "linhas": 1164
+  },
+  "diferencaDeBytes": -280,
+  "trocaDoPrefixoNaSuspensa": null,
+  "motivo": null,
+  "ausenciasNoPrevisto": {
+   "Referência Automatizada": 0,
+   "Pontuação automática": 0,
+   "Sugestão automática": 0,
+   "NÃO nesta referência automática": 0,
+   "Nota não calculada": 0,
+   "Destaque de nota e veredito suspenso": 0
+  },
+  "tresLinhasEmBrancoSeguidas": "sim, antes de \"---\""
+ }
+]

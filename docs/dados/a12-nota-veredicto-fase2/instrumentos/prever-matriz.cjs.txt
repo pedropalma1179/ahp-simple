@@ -1,0 +1,69 @@
+'use strict';
+/**
+ * PREDIÇÃO da Fase 2, ANTES de editar código: o estado da extração, a mensagem e a apresentação de cada célula da matriz da
+ * Fase 1 (10 textos x 7 condições, em três apresentações de A.27, mais os 12 controles adicionais), DERIVADOS por regra a
+ * partir das medições da Fase 1 (`docs/dados/a12-nota-veredicto-fase1/texto-fixado.json`), feitas sobre o código anterior.
+ * ⚠ Nada aqui é medição do código novo. É a regra aplicada ao que o código anterior fez:
+ *   - classificação suspensa            -> `nao_executada_por_suspensao`, nota e veredicto nulos, mensagem nula;
+ *   - não suspensa, extração achou (ai)  -> `padrao_reconhecido`, nota e veredicto os extraídos, mensagem nula;
+ *   - não suspensa, extração NÃO achou   -> `nenhum_padrao_reconhecido`, nota e veredicto nulos, mensagem literal.
+ * Uso: node prever-matriz.cjs <texto-fixado.json da Fase 1> <saída.json>
+ */
+const fs = require('node:fs');
+const [, , entrada, saida] = process.argv;
+const j = JSON.parse(fs.readFileSync(entrada, 'utf8'));
+
+const MENSAGEM = 'Veredito não identificado no texto do parecer simulado.';
+const PREFIXO = 'Destaque de nota e veredito suspenso: ';
+const DESCRICAO = {
+  disponibilidade: 'qualidade individual não avaliada',
+  contradicao: 'contradição interna não resolvida na avaliação de qualidade',
+  coerencia_nao_concluida: 'verificação de coerência não concluída',
+  coerencia_nao_avaliada: 'coerência interna não avaliada nesta requisição',
+};
+
+function prever(c) {
+  const r = c.resposta;
+  const suspensa = r.notaSuspensa !== null && r.notaSuspensa !== undefined;
+  const estado = suspensa ? 'nao_executada_por_suspensao' : r.gradeSource === 'ai' ? 'padrao_reconhecido' : 'nenhum_padrao_reconhecido';
+  const nota = estado === 'padrao_reconhecido' ? r.nota : null;
+  const veredicto = estado === 'padrao_reconhecido' ? r.veredicto : null;
+  const mensagem = estado === 'nenhum_padrao_reconhecido' ? MENSAGEM : null;
+  const antes = c.superficies ? c.superficies.destaque.exibido : null;
+  // O destaque só sai na apresentação aprovada, sem suspensão e com nota ou veredicto: o portão de ParecerAISection.tsx:225 NÃO muda.
+  const destaque = c.superficies ? (c.superficies.destaque.exibido && estado === 'padrao_reconhecido') : null;
+  return {
+    estadoDaExtracao: estado,
+    nota,
+    veredicto,
+    mensagemDaExtracao: mensagem,
+    gradeSourceAntes: r.gradeSource ?? null,
+    notaAntes: r.nota ?? null,
+    veredictoAntes: r.veredicto ?? null,
+    notaSuspensa: suspensa ? { causa: r.notaSuspensa.causa, rotuloAntes: r.notaSuspensa.rotulo, rotuloPrevisto: PREFIXO + DESCRICAO[r.notaSuspensa.causa], motivo: r.notaSuspensa.motivo } : null,
+    destaqueExibidoAntes: antes,
+    destaqueExibidoPrevisto: destaque,
+    mensagemExibidaPrevista: c.superficies ? mensagem !== null : null,
+    avisoDeA27ExibidoPrevisto: c.superficies ? c.superficies.aviso.exibido : null,
+    cartaoDeSuspensaoExibidoPrevisto: c.superficies ? c.superficies.cartaoDeSuspensao.exibido : null,
+    cartaoTituloPrevisto: suspensa ? '📊 ' + PREFIXO + DESCRICAO[r.notaSuspensa.causa] : null,
+    corpoECopia: 'INALTERADOS: o corpo exibido e o argumento de writeText são o texto integral recebido, como na Fase 1',
+  };
+}
+
+const celulas = j.celulas.map((c) => ({ apresentacao: c.apresentacao, condicao: c.condicao, condicaoConstruida: c.condicaoConstruida, texto: c.texto, ...prever(c) }));
+const adicionais = j.celulasAdicionais.map((c) => ({ condicao: c.condicao, texto: c.texto, ...prever({ resposta: { ...c.resposta, notaSuspensa: null }, superficies: c.superficies ? { destaque: c.superficies.destaque, aviso: c.superficies.aviso, cartaoDeSuspensao: { exibido: false } } : null }) }));
+
+const cont = (xs, f) => xs.reduce((m, x) => { const k = f(x); m[k] = (m[k] || 0) + 1; return m; }, {});
+const grupo = (x) => `${x.apresentacao} | ${/^elegivel/.test(x.condicao) ? 'elegível' : x.condicaoConstruida ? 'suspensa CONSTRUÍDA' : 'suspensa alcançável'}`;
+const resumo = {
+  celulas: celulas.length,
+  porEstado: cont(celulas, (x) => x.estadoDaExtracao),
+  porGrupoEEstado: cont(celulas, (x) => `${grupo(x)} | ${x.estadoDaExtracao}`),
+  mensagemExibida: cont(celulas.filter((x) => x.mensagemExibidaPrevista), grupo),
+  destaqueAntesEPrevisto: { antes: celulas.filter((x) => x.destaqueExibidoAntes).length, previsto: celulas.filter((x) => x.destaqueExibidoPrevisto).length },
+  destaqueQueDeixaDeSair: celulas.filter((x) => x.destaqueExibidoAntes && !x.destaqueExibidoPrevisto).map((x) => `${x.apresentacao}|${x.condicao}|${x.texto}`),
+  adicionais: { total: adicionais.length, porEstado: cont(adicionais, (x) => x.estadoDaExtracao) },
+};
+fs.writeFileSync(saida, JSON.stringify({ regra: 'ver o cabeçalho do instrumento', mensagemLiteral: MENSAGEM, resumo, celulas, adicionais }, null, 1));
+console.log(JSON.stringify(resumo, null, 1));

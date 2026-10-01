@@ -1,0 +1,47 @@
+'use strict';
+/**
+ * Cria as TRÊS cópias temporárias de suítes existentes, com UMA inserção cada, para despejar em arquivo os contextos que as
+ * suítes capturam. ⚠ As cópias NÃO são versionadas: vivem em lib/__tests__/zz-fase2-dump-*.test.ts só durante a medição, e
+ * são apagadas antes de qualquer commit. As suítes originais NÃO são tocadas.
+ * Uso (na raiz do repositório, sobre o commit 93d2e988f3133d6f87678ec518cbe15b31343b40):
+ *   node criar-copias-de-despejo.cjs.txt   (renomeie para .cjs)
+ *   FASE2_SAIDA=<diretório> npx jest lib/__tests__/zz-fase2-dump
+ * Cada inserção vai imediatamente DEPOIS de uma linha-âncora que tem de ocorrer UMA vez no original; se a âncora não ocorrer
+ * exatamente uma vez, o script para.
+ */
+const fs = require('node:fs');
+const T = 'lib/__tests__/';
+const SAIDA = "process.env.FASE2_SAIDA || '/tmp/zz-fase2-saida'";
+const alvos = [
+  {
+    de: 'a12-estatisticas-dimensao.test.ts', para: 'zz-fase2-dump-estat.test.ts',
+    ancora: "      const { payload, elegivel } = CONSTRUTORES[base](comVinculo);\n      const r = await executar(payload);\n",
+    inserir:
+      `      fs.mkdirSync(path.join(${SAIDA}, 'estat27'), { recursive: true });\n` +
+      `      fs.writeFileSync(path.join(${SAIDA}, 'estat27', nome + '.json'), JSON.stringify({ nome, elegivel, contexto: r.contexto, system: r.system, nota: r.corpo.nota, veredicto: r.corpo.veredicto, suspensa: !!r.corpo.notaSuspensa?.suspensa, causa: r.corpo.notaSuspensa?.causa ?? null, motivo: r.corpo.notaSuspensa?.motivo ?? null, rotulo: r.corpo.notaSuspensa?.rotulo ?? null, gradeSource: r.corpo.metadata?.gradeSource ?? null, automaticGrade: r.corpo.metadata?.automaticGrade ?? null }));\n`,
+  },
+  {
+    de: 'a12-diagnostico.test.ts', para: 'zz-fase2-dump-diag.test.ts',
+    ancora: "    const r = await executar(payload);\n    const classificacao = contrato.classificarAvaliacaoRecebida(payload);\n",
+    inserirAntesDe: "    const classificacao = contrato.classificarAvaliacaoRecebida(payload);\n",
+    inserir:
+      `    fs.mkdirSync(path.join(${SAIDA}, 'diag4'), { recursive: true });\n` +
+      `    fs.writeFileSync(path.join(${SAIDA}, 'diag4', c.nome + '.txt'), r.capturado.messages);\n`,
+  },
+  {
+    de: 'rag-semantic-states.test.ts', para: 'zz-fase2-dump-rag.test.ts',
+    ancora: "    for (const [nome, desfechos] of Object.entries(casos)) {\n      const r = await executar('true', false, desfechos);\n",
+    inserir:
+      `      require('node:fs').mkdirSync(require('node:path').join(${SAIDA}, 'rag4'), { recursive: true });\n` +
+      `      require('node:fs').writeFileSync(require('node:path').join(${SAIDA}, 'rag4', nome + '.json'), JSON.stringify({ nome, system: r.system, messages: r.messages }));\n`,
+  },
+];
+for (const a of alvos) {
+  const original = fs.readFileSync(T + a.de, 'utf8');
+  const n = original.split(a.ancora).length - 1;
+  if (n !== 1) { console.error(`${a.de}: a âncora ocorre ${n} vez(es), e tem de ser exatamente 1`); process.exit(2); }
+  // `inserirAntesDe`: a inserção vai antes de uma linha DENTRO da âncora, e não depois da âncora inteira
+  const i = a.inserirAntesDe ? original.indexOf(a.ancora) + a.ancora.indexOf(a.inserirAntesDe) : original.indexOf(a.ancora) + a.ancora.length;
+  fs.writeFileSync(T + a.para, original.slice(0, i) + a.inserir + original.slice(i));
+  console.log(`criado ${T}${a.para}`);
+}

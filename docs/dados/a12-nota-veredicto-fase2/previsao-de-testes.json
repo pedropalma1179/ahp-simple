@@ -1,0 +1,225 @@
+{
+ "base": "93d2e988f3133d6f87678ec518cbe15b31343b40",
+ "regra": "testes ANTIGOS, sem edição, contra o código NOVO: reprovam exatamente estes, cada um na primeira asserção indicada, e nenhum outro",
+ "totalDeTestesDaBase": 843,
+ "reprovam": 24,
+ "passam": 819,
+ "suitesQueReprovam": 7,
+ "suitesTotal": 35,
+ "porArquivo": {
+  "a12-coerencia.test.ts": 3,
+  "a12-qualidade-ausente.test.ts": 5,
+  "a12-diagnostico.test.ts": 2,
+  "a12-estatisticas-dimensao.test.ts": 7,
+  "a33-cadeia-rule.test.ts": 3,
+  "a33-snapshot-v2.test.ts": 3,
+  "rag-semantic-states.test.ts": 1
+ },
+ "falham": [
+  {
+   "arquivo": "a12-coerencia.test.ts",
+   "teste": "apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que passa a suspender",
+   "linha": 464,
+   "porque": "notaSuspensa.rotulo deixa de ser 'Nota não calculada: contradição interna não resolvida na avaliação de qualidade' e passa a ser 'Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade'",
+   "asserção": "lib/__tests__/a12-coerencia.test.ts:464"
+  },
+  {
+   "arquivo": "a12-coerencia.test.ts",
+   "teste": "apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao",
+   "linha": 498,
+   "porque": "o rótulo da verificação não concluída ganha o prefixo 'Destaque de nota e veredito suspenso: '",
+   "asserção": "lib/__tests__/a12-coerencia.test.ts:498"
+  },
+  {
+   "arquivo": "a12-coerencia.test.ts",
+   "teste": "coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradicao",
+   "linha": 519,
+   "porque": "e.rotulo da coerência não avaliada ganha o prefixo",
+   "asserção": "lib/__tests__/a12-coerencia.test.ts:519"
+  },
+  {
+   "arquivo": "a12-qualidade-ausente.test.ts",
+   "teste": "A.12: as quatro situações, pelo handler real avaliação AUSENTE: sem percentual, sem nota, sem veredicto e SEM penalização",
+   "linha": 185,
+   "porque": "o contexto deixa de trazer 'Pontuação automática: não calculada' (o bloco saiu)",
+   "asserção": "lib/__tests__/a12-qualidade-ausente.test.ts:185"
+  },
+  {
+   "arquivo": "a12-qualidade-ausente.test.ts",
+   "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com confiáveis: comportamento existente preservado",
+   "linha": 215,
+   "porque": "metadata.gradeSource deixa de existir (undefined), e não é mais 'automatic'",
+   "asserção": "lib/__tests__/a12-qualidade-ausente.test.ts:215"
+  },
+  {
+   "arquivo": "a12-qualidade-ausente.test.ts",
+   "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com ZERO confiáveis: zero é observado, e a regra existente vale",
+   "linha": 227,
+   "porque": "metadata.automaticGrade deixa de existir (undefined)",
+   "asserção": "lib/__tests__/a12-qualidade-ausente.test.ts:227"
+  },
+  {
+   "arquivo": "a12-qualidade-ausente.test.ts",
+   "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa com ACEITO na DECISÃO EDITORIAL e avaliação ausente, a nota permanece suspensa",
+   "linha": 254,
+   "porque": "metadata.gradeSource deixa de existir; o valor 'suspensa' passa a ser metadata.estadoDaExtracao === 'nao_executada_por_suspensao'",
+   "asserção": "lib/__tests__/a12-qualidade-ausente.test.ts:254"
+  },
+  {
+   "arquivo": "a12-qualidade-ausente.test.ts",
+   "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa CONTROLE: com avaliação disponível, o mesmo texto continua governando a nota",
+   "linha": 261,
+   "porque": "metadata.gradeSource deixa de existir; o valor 'ai' passa a ser 'padrao_reconhecido'",
+   "asserção": "lib/__tests__/a12-qualidade-ausente.test.ts:261"
+  },
+  {
+   "arquivo": "a12-diagnostico.test.ts",
+   "teste": "3.3: no caso disponivel E COERENTE o contexto TRAZ percentual",
+   "linha": 1042,
+   "porque": "o bloco de qualidade traz 'SUSPENSA: qualidade individual não avaliada.', e não 'SUSPENSA: Nota não calculada: qualidade individual não avaliada.'",
+   "asserção": "lib/__tests__/a12-diagnostico.test.ts:1042"
+  },
+  {
+   "arquivo": "a12-diagnostico.test.ts",
+   "teste": "o artefato gravado coincide com a medicao atual",
+   "linha": 1104,
+   "porque": "a chave quatroCasos muda (bytesDoContexto nos quatro casos; blocoDeQualidadeNoContexto nos três suspensos); a linha 1107 (identificacao.codigo, quatro arquivos) falharia em seguida",
+   "asserção": "lib/__tests__/a12-diagnostico.test.ts:1104"
+  },
+  {
+   "arquivo": "a12-estatisticas-dimensao.test.ts",
+   "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo",
+   "linha": 650,
+   "porque": "o contexto novo, levado ao texto anterior só pelas reversões que o teste conhece, não tem o sha256 da base: faltam o bloco retirado e o prefixo do rótulo",
+   "asserção": "lib/__tests__/a12-estatisticas-dimensao.test.ts:650"
+  },
+  {
+   "arquivo": "a12-estatisticas-dimensao.test.ts",
+   "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo",
+   "linha": 650,
+   "porque": "o contexto novo, levado ao texto anterior só pelas reversões que o teste conhece, não tem o sha256 da base: faltam o bloco retirado e o prefixo do rótulo",
+   "asserção": "lib/__tests__/a12-estatisticas-dimensao.test.ts:650"
+  },
+  {
+   "arquivo": "a12-estatisticas-dimensao.test.ts",
+   "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas contradicao (causa contradicao): o bloco e a Taxa são os de antes, com e sem vínculo",
+   "linha": 650,
+   "porque": "o contexto novo, levado ao texto anterior só pelas reversões que o teste conhece, não tem o sha256 da base: faltam o bloco retirado e o prefixo do rótulo",
+   "asserção": "lib/__tests__/a12-estatisticas-dimensao.test.ts:650"
+  },
+  {
+   "arquivo": "a12-estatisticas-dimensao.test.ts",
+   "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a Taxa são os de antes, com e sem vínculo",
+   "linha": 650,
+   "porque": "o contexto novo, levado ao texto anterior só pelas reversões que o teste conhece, não tem o sha256 da base: faltam o bloco retirado e o prefixo do rótulo",
+   "asserção": "lib/__tests__/a12-estatisticas-dimensao.test.ts:650"
+  },
+  {
+   "arquivo": "a12-estatisticas-dimensao.test.ts",
+   "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE agregado-5: contra o contexto completo da Fase 1, sem e com o campo",
+   "linha": 793,
+   "porque": "o comprimento do contexto novo difere do esperado (a base com SÓ a troca do bloco): o bloco do escore saiu",
+   "asserção": "lib/__tests__/a12-estatisticas-dimensao.test.ts:793"
+  },
+  {
+   "arquivo": "a12-estatisticas-dimensao.test.ts",
+   "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE agregado-3: contra o contexto completo da Fase 1, sem e com o campo",
+   "linha": 793,
+   "porque": "o comprimento do contexto novo difere do esperado (a base com SÓ a troca do bloco): o bloco do escore saiu",
+   "asserção": "lib/__tests__/a12-estatisticas-dimensao.test.ts:793"
+  },
+  {
+   "arquivo": "a12-estatisticas-dimensao.test.ts",
+   "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda",
+   "linha": 825,
+   "porque": "no primeiro cenário, o sha256 do contexto revertido não é o da base (bloco retirado, prefixo trocado nos suspensos)",
+   "asserção": "lib/__tests__/a12-estatisticas-dimensao.test.ts:825"
+  },
+  {
+   "arquivo": "a33-cadeia-rule.test.ts",
+   "teste": "RE2: o inventario gravado coincide com o medido agora",
+   "linha": 1248,
+   "porque": "identificacao.codigo['app/api/ai-reviewer/route.ts'] gravado não é o sha256 do arquivo editado",
+   "asserção": "lib/__tests__/a33-cadeia-rule.test.ts:1248"
+  },
+  {
+   "arquivo": "a33-cadeia-rule.test.ts",
+   "teste": "complemento: os metadados historicos do artefato foram preservados",
+   "linha": 1491,
+   "porque": "idem",
+   "asserção": "lib/__tests__/a33-cadeia-rule.test.ts:1491"
+  },
+  {
+   "arquivo": "a33-cadeia-rule.test.ts",
+   "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA",
+   "linha": 1522,
+   "porque": "idem",
+   "asserção": "lib/__tests__/a33-cadeia-rule.test.ts:1522"
+  },
+  {
+   "arquivo": "a33-snapshot-v2.test.ts",
+   "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C1: a montagem usa o payload de referência, e nenhum dado sintético",
+   "linha": 701,
+   "porque": "o contexto deixa de trazer 'Pontuação automática: não calculada'; a linha 699 (negativa) passa por vacuidade antes",
+   "asserção": "lib/__tests__/a33-snapshot-v2.test.ts:701"
+  },
+  {
+   "arquivo": "a33-snapshot-v2.test.ts",
+   "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C2: a montagem usa o payload de referência, e nenhum dado sintético",
+   "linha": 701,
+   "porque": "o contexto deixa de trazer 'Pontuação automática: não calculada'; a linha 699 (negativa) passa por vacuidade antes",
+   "asserção": "lib/__tests__/a33-snapshot-v2.test.ts:701"
+  },
+  {
+   "arquivo": "a33-snapshot-v2.test.ts",
+   "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C3: a montagem usa o payload de referência, e nenhum dado sintético",
+   "linha": 701,
+   "porque": "o contexto deixa de trazer 'Pontuação automática: não calculada'; a linha 699 (negativa) passa por vacuidade antes",
+   "asserção": "lib/__tests__/a33-snapshot-v2.test.ts:701"
+  },
+  {
+   "arquivo": "rag-semantic-states.test.ts",
+   "teste": "os quatro estados da recuperação semântica, pelo handler real CONTEXTO: o que A.33 moveu, e o que continua igual a d658e50",
+   "linha": 425,
+   "porque": "o sha256 do JSON dos messages já não é A12_MESSAGES_COM_CHUNKS na primeira condição (comResultados)",
+   "asserção": "lib/__tests__/rag-semantic-states.test.ts:425"
+  }
+ ],
+ "passamPorOutraRazao": [
+  {
+   "onde": "lib/__tests__/a33-snapshot-v2.test.ts:699",
+   "asserção": "not.toContain('Pontuação automática: 100/100')",
+   "executada": true,
+   "passa": true,
+   "porque": "a string não pode mais existir: o bloco inteiro saiu. Passa por OUTRA razão que a de antes (a requisição r2 passou a ser suspensa)"
+  },
+  {
+   "onde": "lib/__tests__/a12-diagnostico.test.ts:985",
+   "asserção": "bloco4 not.toContain('Nota não calculada: qualidade individual não avaliada')",
+   "executada": true,
+   "passa": true,
+   "porque": "o rótulo antigo não existe mais no contexto; a negativa deixa de discriminar"
+  },
+  {
+   "onde": "lib/__tests__/vinculo-execucao-fiacao.test.ts:1347",
+   "asserção": "bloco not.toMatch(/Nota não calculada/)",
+   "executada": true,
+   "passa": true,
+   "porque": "a frase deixou de ser rótulo; o guarda do vocabulário do vínculo precisa também do prefixo novo"
+  },
+  {
+   "onde": "lib/__tests__/vinculo-execucao-fiacao.test.ts:1297-1298",
+   "asserção": "decisao() captura metadata.gradeSource e metadata.automaticGrade",
+   "executada": true,
+   "passa": true,
+   "porque": "os dois campos viram undefined nos dois lados da comparação; deixam de discriminar. Os novos (estadoDaExtracao, mensagemDaExtracao) não são capturados"
+  }
+ ],
+ "negativasNaoAlcancadas": [
+  {
+   "onde": "lib/__tests__/a12-coerencia.test.ts:470, :477, :478, :507",
+   "asserção": "negativas do rótulo antigo (html not.toContain)",
+   "porque": "ficam depois da primeira asserção que falha (:464 e :498); se alcançadas com os textos antigos, passariam por vacuidade"
+  }
+ ]
+}

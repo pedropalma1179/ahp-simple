@@ -1,0 +1,54 @@
+'use strict';
+/**
+ * PRÉ-REGISTRO da Fase 2 (nota e veredicto), ANTES de editar código: o sha256 dos trechos que o pedido manda NÃO mudar,
+ * medidos sobre `93d2e988f3133d6f87678ec518cbe15b31343b40`. Cada trecho é localizado por ÂNCORAS DE TEXTO (e não por número de
+ * linha, que desloca com a edição): do início de `inicio` até o primeiro `fim` depois dele, com `fim` incluído ou excluído
+ * conforme `incluirFim`. Se a âncora de início não ocorrer exatamente UMA vez, ou a de fim não ocorrer, o script PARA.
+ * Uso (na raiz do repositório): node trechos-que-nao-mudam.cjs <saida.json>
+ */
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const sha256 = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+
+const TRECHOS = [
+  { arquivo: 'app/api/ai-reviewer/route.ts', id: 'calculateGrade', pedido: 'calculateGrade NÃO é removida (3.2); a remoção continua condicionada à separação do sinal de suspensão',
+    inicio: 'function calculateGrade(data: ReviewRequest): Classificacao {', fim: '\n}\n', incluirFim: 2 },
+  { arquivo: 'app/api/ai-reviewer/route.ts', id: 'extractGradeFromReview (com o cabeçalho de comentário)', pedido: 'extractGradeFromReview permanece intacta, logs incluídos (3.3); o cabeçalho de comentário que a antecede fica com ela, e a frase "Fallback: calculateGrade()" dele é limite conhecido',
+    inicio: '// EXTRAÇÃO DA NOTA DO TEXTO DA IA (FONTE ÚNICA AUTORITATIVA)', fim: '\n}\n', incluirFim: 2, fimDepoisDe: 'function extractGradeFromReview(' },
+  { arquivo: 'app/api/ai-reviewer/route.ts', id: 'ranking das alternativas no contexto (finalScoresSection)', pedido: 'os escores das alternativas, finalScores e :1046-1053 ficam intocados (3.5)',
+    inicio: '  if (validScores.length > 0) {\n    finalScoresSection = `', fim: '\n  }\n', incluirFim: 4 },
+  { arquivo: 'lib/ai-reviewer/avaliacao-qualidade.ts', id: 'interface Elegibilidade e tipo CausaDaSuspensao', pedido: 'a forma de Elegibilidade e as quatro causas mantêm o comportamento (3.4)',
+    inicio: 'export type CausaDaSuspensao =', fim: '\n}\n', incluirFim: 2, fimDepoisDe: 'export interface Elegibilidade {' },
+  { arquivo: 'lib/ai-reviewer/avaliacao-qualidade.ts', id: 'elegivelParaClassificacao', pedido: 'elegivelParaClassificacao, as quatro causas e os ramos P1, P2 e P3 mantêm o comportamento (3.4)',
+    inicio: 'export function elegivelParaClassificacao(', fim: '\n}\n', incluirFim: 2 },
+  { arquivo: 'components/ParecerAISection.tsx', id: 'handleCopy', pedido: 'a cópia (handleCopy, :47-56) fica como está (3.1)',
+    inicio: '  const handleCopy = async () => {', fim: '\n  };\n', incluirFim: 4 },
+  { arquivo: 'components/ParecerAISection.tsx', id: 'aviso de quarentena de A.27', pedido: 'a mensagem não substitui o aviso de A.27 (:187-199)',
+    inicio: "          {presentation && presentation.estado !== 'aprovado' && (", fim: '\n          )}\n', incluirFim: 12 },
+  { arquivo: 'components/ParecerAISection.tsx', id: 'portão do destaque', pedido: 'o portão do destaque (:225) não muda: a mensagem não autoriza destaque',
+    inicio: "          {!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (", fim: '\n', incluirFim: 0 },
+  { arquivo: 'components/ParecerAISection.tsx', id: 'corpo do parecer (de "Review Text" até antes de "Dica de uso")', pedido: 'o corpo (:264-337) fica como está (3.1)',
+    inicio: '          {/* Review Text */}', fim: '              {/* Dica de uso */}', incluirFim: 0 },
+];
+
+const saida = [];
+for (const t of TRECHOS) {
+  const texto = fs.readFileSync(t.arquivo, 'utf8');
+  const nIni = texto.split(t.inicio).length - 1;
+  if (nIni !== 1) { console.error(`${t.id}: a âncora de início ocorre ${nIni} vez(es); tem de ser exatamente 1`); process.exit(2); }
+  const i = texto.indexOf(t.inicio);
+  const apos = t.fimDepoisDe ? texto.indexOf(t.fimDepoisDe, i) : i;
+  if (apos < 0) { console.error(`${t.id}: âncora fimDepoisDe não achada`); process.exit(2); }
+  const j = texto.indexOf(t.fim, apos);
+  if (j < 0) { console.error(`${t.id}: âncora de fim não achada`); process.exit(2); }
+  const trecho = texto.slice(i, j + t.incluirFim);
+  const linhaIni = texto.slice(0, i).split('\n').length;
+  const linhaFim = texto.slice(0, i + trecho.length).split('\n').length;
+  saida.push({
+    arquivo: t.arquivo, id: t.id, pedido: t.pedido,
+    ancoraDeInicio: t.inicio, ancoraDeFim: t.fim, fimDepoisDe: t.fimDepoisDe || null, incluirNoFimNCaracteres: t.incluirFim,
+    linhas: `${linhaIni}-${linhaFim}`, bytes: Buffer.byteLength(trecho, 'utf8'), sha256: sha256(trecho),
+  });
+}
+fs.writeFileSync(process.argv[2], JSON.stringify({ base: '93d2e988f3133d6f87678ec518cbe15b31343b40', trechos: saida }, null, 1));
+for (const s of saida) console.log(s.id.padEnd(62), s.arquivo.padEnd(40), 'linhas', s.linhas.padEnd(10), s.bytes + ' bytes', s.sha256.slice(0, 16));
