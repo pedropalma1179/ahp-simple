@@ -1,0 +1,599 @@
+=== (g) leituras de classification em route.ts
+$ git grep -n -E \bclassification\b -- app/api/ai-reviewer/route.ts
+app/api/ai-reviewer/route.ts:625:  classification: Classificacao
+app/api/ai-reviewer/route.ts:1063:${classification.suspensa
+app/api/ai-reviewer/route.ts:1064:      ? `- Pontuação automática: não calculada — ${classification.motivo}\n- Sugestão automática: não calculada; a classificação global está suspensa`
+app/api/ai-reviewer/route.ts:1065:      : `- Pontuação automática: ${classification.score}/100\n- Sugestão automática: ${classification.veredicto}`}
+app/api/ai-reviewer/route.ts:1413:    const classification = calculateGrade(data);
+app/api/ai-reviewer/route.ts:1414:    console.log(`${LOG_PREFIX} Classificação:`, classification);
+app/api/ai-reviewer/route.ts:1417:    const { review, semanticStats } = await generateReview(data, classification);
+app/api/ai-reviewer/route.ts:1438:    const aiGrade = classification.suspensa ? null : extractGradeFromReview(review);
+app/api/ai-reviewer/route.ts:1439:    const finalNota = classification.suspensa ? null : (aiGrade?.nota ?? classification.nota);
+app/api/ai-reviewer/route.ts:1440:    const finalVeredicto = classification.suspensa ? null : (aiGrade?.veredicto ?? classification.veredicto);
+app/api/ai-reviewer/route.ts:1441:    if (classification.suspensa) {
+app/api/ai-reviewer/route.ts:1442:      console.log(`${LOG_PREFIX} Nota suspensa: ${classification.motivo}`);
+app/api/ai-reviewer/route.ts:1445:    if (aiGrade && !classification.suspensa) {
+app/api/ai-reviewer/route.ts:1447:      if (aiGrade.nota !== classification.nota) {
+app/api/ai-reviewer/route.ts:1448:        console.log(`${LOG_PREFIX} 📊 Divergência: IA=${aiGrade.nota}/${aiGrade.veredicto} vs Auto=${classification.nota}/${classification.veredicto} (${classification.score}/100)`);
+app/api/ai-reviewer/route.ts:1450:    } else if (!classification.suspensa) {
+app/api/ai-reviewer/route.ts:1451:      console.log(`${LOG_PREFIX} ⚠️ Fallback para nota automática: ${classification.nota} (${classification.score}/100)`);
+app/api/ai-reviewer/route.ts:1464:      notaSuspensa: classification.suspensa
+app/api/ai-reviewer/route.ts:1471:              motivo: classification.motivo,
+app/api/ai-reviewer/route.ts:1484:        gradeSource: classification.suspensa ? 'suspensa' : (aiGrade ? 'ai' : 'automatic'),
+app/api/ai-reviewer/route.ts:1485:        automaticGrade: classification.suspensa ? null : {
+app/api/ai-reviewer/route.ts:1486:          nota: classification.nota,
+app/api/ai-reviewer/route.ts:1487:          veredicto: classification.veredicto,
+app/api/ai-reviewer/route.ts:1488:          score: classification.score,
+
+=== (g) funções declaradas e exportadas em route.ts
+$ git grep -n -E ^(export )?(async )?function (calculateGrade|extractGradeFromReview|generateReview|normalizeRequest)\b -- app/api/ai-reviewer/route.ts
+app/api/ai-reviewer/route.ts:344:function calculateGrade(data: ReviewRequest): Classificacao {
+app/api/ai-reviewer/route.ts:515:function extractGradeFromReview(reviewText: string): { nota: string; veredicto: string } | null {
+app/api/ai-reviewer/route.ts:556:function normalizeRequest(rawData: any): ReviewRequest {
+app/api/ai-reviewer/route.ts:623:async function generateReview(
+
+$ git grep -n -E ^export  -- app/api/ai-reviewer/route.ts
+app/api/ai-reviewer/route.ts:45:export const maxDuration = 300;
+app/api/ai-reviewer/route.ts:1369:export async function GET() {
+app/api/ai-reviewer/route.ts:1395:export async function POST(request: NextRequest) {
+
+=== (g) calculateGrade, todas as menções rastreadas
+$ git grep -n -w calculateGrade -- *.ts *.tsx *.cjs *.js *.mjs
+app/api/ai-reviewer/route.ts:344:function calculateGrade(data: ReviewRequest): Classificacao {
+app/api/ai-reviewer/route.ts:512:// Fallback: calculateGrade() se parsing falhar
+app/api/ai-reviewer/route.ts:1413:    const classification = calculateGrade(data);
+app/api/ai-reviewer/route.ts:1435:    // FONTE ÚNICA: Extrair nota do texto da IA (fallback: calculateGrade)
+lib/__tests__/a12-diagnostico.test.ts:804:        { onde: `${ROTA}:333`, o_que: 'calculateGrade' },
+lib/__tests__/a12-qualidade-ausente.test.ts:296:    // CR para TODOS os respondentes, e aí `calculateGrade` já parou numa
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1378:    const inicio = rota.indexOf('function calculateGrade(');
+lib/ai-reviewer/review-request.ts:13: * `calculateGrade`, `normalizeRequest` e `generateReview`, todos na rota — e
+lib/ai-reviewer/vinculo-execucao.ts:10: * nem altera `calculateGrade`. O bloco que vai ao modelo não emite veredito.
+scripts/a33-payload-referencia.cjs:228:  'Efeito do fallback de qualidade, PRESERVADO e não corrigido: sem avaliação individual, a tela envia byStatus CONFIÁVEL e summary.ok iguais a responseCount, isto é, 12 respondentes confiáveis sem medição. Chega ao modelo, na seção de qualidade e na pontuação automática 100/100 que calculateGrade tira desses números, e pode chegar à tela: a nota e o veredicto automáticos voltam na resposta e substituem os do parecer quando ele não traz nota, e são exibidos no estado aprovado. A Tabela 4 contradiz a classificação. Terreno de A.12, em rodada própria, com predição registrada antes.';
+
+=== (g) leitores de produção das chaves produzidas e não lidas (esperado: sem resultado)
+$ git grep -n -E metadata\??\.(avaliacaoDeQualidade|automaticGrade|gradeSource)|notaSuspensa\??\.(causa|avaliacaoDeQualidade) -- app components lib :!lib/__tests__
+(sem resultado; o comando executou, saída 1)
+
+=== (g) o campo causa, em produção e por arquivo de teste (ocorrências)
+$ git grep -n -E \.causa\b|\bcausa: -- app components lib :!lib/__tests__
+app/api/ai-reviewer/route.ts:760:  else if (elegivel.causa === 'contradicao') {
+app/api/ai-reviewer/route.ts:773:  else if (elegivel.causa === 'coerencia_nao_concluida' || elegivel.causa === 'coerencia_nao_avaliada') {
+app/api/ai-reviewer/route.ts:1469:              causa: e.causa,
+lib/ai-reviewer/avaliacao-qualidade.ts:759:  causa: CausaDaSuspensao | null;
+lib/ai-reviewer/avaliacao-qualidade.ts:771:    return { elegivel: false, causa: 'disponibilidade', motivo: motivoDaSuspensao(avaliacao), rotulo: ROTULO_NOTA_SUSPENSA };
+lib/ai-reviewer/avaliacao-qualidade.ts:776:      causa: 'coerencia_nao_avaliada',
+lib/ai-reviewer/avaliacao-qualidade.ts:782:    return { elegivel: false, causa: 'contradicao', motivo: coerencia.motivo, rotulo: ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO };
+lib/ai-reviewer/avaliacao-qualidade.ts:787:      causa: 'coerencia_nao_concluida',
+lib/ai-reviewer/avaliacao-qualidade.ts:792:  return { elegivel: true, causa: null, motivo: null, rotulo: null };
+
+$ git grep -o -E '\.causa\b|\bcausa:' -- lib/__tests__ | por arquivo
+9 lib/__tests__/a12-coerencia.test.ts
+5 lib/__tests__/vinculo-execucao.test.ts
+4 lib/__tests__/vinculo-execucao-fiacao.test.ts
+4 lib/__tests__/a12-estatisticas-dimensao.test.ts
+2 lib/__tests__/a33-conferencia-c1.test.ts
+1 lib/__tests__/a12-estatisticas-dimensao-consumidor-latente.test.ts
+
+=== (g)/(j) as frases do bloco de :1062-1066, ocorrências e arquivos
+--- [Sugestão automática]
+$ git grep -o -i -F -- Sugestão automática | wc -l
+37
+
+app/api/ai-reviewer/route.ts:2
+arquivos sob docs/dados com a frase: 25
+
+--- [Pontuação automática]
+$ git grep -o -i -F -- Pontuação automática | wc -l
+54
+
+app/api/ai-reviewer/route.ts:2
+lib/__tests__/a12-qualidade-ausente.test.ts:1
+lib/__tests__/a33-snapshot-v2.test.ts:2
+lib/__tests__/rag-semantic-states.test.ts:1
+scripts/a33-payload-referencia.cjs:1
+scripts/a33-snapshot-v2.cjs:1
+arquivos sob docs/dados com a frase: 28
+
+--- [Referência Automatizada]
+$ git grep -o -i -F -- Referência Automatizada | wc -l
+29
+
+app/api/ai-reviewer/route.ts:1
+arquivos sob docs/dados com a frase: 25
+
+--- 'Pontuação automática' em testes e scripts
+$ git grep -n -i -F Pontuação automática -- lib/__tests__ scripts
+lib/__tests__/a12-qualidade-ausente.test.ts:185:    expect(c.contextoAoModelo).toContain('Pontuação automática: não calculada');
+lib/__tests__/a33-snapshot-v2.test.ts:699:    expect(m).not.toContain('Pontuação automática: 100/100');
+lib/__tests__/a33-snapshot-v2.test.ts:701:    expect(m).toContain('Pontuação automática: não calculada');
+lib/__tests__/rag-semantic-states.test.ts:384:    // percentuais e sem pontuação automática. Os valores de A.16 ficam nomeados
+scripts/a33-payload-referencia.cjs:228:  'Efeito do fallback de qualidade, PRESERVADO e não corrigido: sem avaliação individual, a tela envia byStatus CONFIÁVEL e summary.ok iguais a responseCount, isto é, 12 respondentes confiáveis sem medição. Chega ao modelo, na seção de qualidade e na pontuação automática 100/100 que calculateGrade tira desses números, e pode chegar à tela: a nota e o veredicto automáticos voltam na resposta e substituem os do parecer quando ele não traz nota, e são exibidos no estado aprovado. A Tabela 4 contradiz a classificação. Terreno de A.12, em rodada própria, com predição registrada antes.';
+scripts/a33-snapshot-v2.cjs:75:  'A.12, antes de gerar: a requisição de referência preserva o fallback de qualidade da tela, que declara os 12 respondentes confiáveis sem medição e leva a pontuação automática a 100/100. Ver requisicao-referencia-r2.json, pendenciaA12. Correção em rodada própria, com predição registrada antes.';
+
+=== (h) o aparato de elegibilidade em produção
+$ git grep -n -E elegivelParaClassificacao|ramoDeQualidade|CONJUNTO_MINIMO|avaliarCoerencia|coerenciaDaQualidade|qualidadeDisponivel -- app/api/ai-reviewer/route.ts lib/ai-reviewer/avaliacao-qualidade.ts
+app/api/ai-reviewer/route.ts:14:  qualidadeDisponivel,
+app/api/ai-reviewer/route.ts:15:  avaliarCoerencia,
+app/api/ai-reviewer/route.ts:16:  elegivelParaClassificacao,
+app/api/ai-reviewer/route.ts:351:  const elegibilidade = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);
+app/api/ai-reviewer/route.ts:562:  const coerenciaDaQualidade = avaliarCoerencia(rawData);
+app/api/ai-reviewer/route.ts:595:    coerenciaDaQualidade,
+app/api/ai-reviewer/route.ts:665:  //   suspensa. `qualidadeDisponivel` continua descrevendo só disponibilidade.
+app/api/ai-reviewer/route.ts:666:  const elegivel = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);
+app/api/ai-reviewer/route.ts:1466:            const e = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);
+lib/ai-reviewer/avaliacao-qualidade.ts:28: * ⚠ **`qualidadeDisponivel` continua descrevendo APENAS disponibilidade.** A
+lib/ai-reviewer/avaliacao-qualidade.ts:29: * elegibilidade para classificar é função própria, `elegivelParaClassificacao`, e
+lib/ai-reviewer/avaliacao-qualidade.ts:152:export function qualidadeDisponivel(avaliacao?: AvaliacaoQualidade | null): boolean {
+lib/ai-reviewer/avaliacao-qualidade.ts:266:export const CONJUNTO_MINIMO: Record<RamoDeQualidade, IdComparacao[]> = {
+lib/ai-reviewer/avaliacao-qualidade.ts:314:export const MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO =
+lib/ai-reviewer/avaliacao-qualidade.ts:348:export function ramoDeQualidade(raw: any): RamoDeQualidade {
+lib/ai-reviewer/avaliacao-qualidade.ts:392:export function avaliarCoerencia(raw: any): Coerencia {
+lib/ai-reviewer/avaliacao-qualidade.ts:684:  const ramo = ramoDeQualidade(raw);
+lib/ai-reviewer/avaliacao-qualidade.ts:685:  const conjuntoMinimo = CONJUNTO_MINIMO[ramo];
+lib/ai-reviewer/avaliacao-qualidade.ts:707:    motivo = `${MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO} Nenhum dos ramos P1, P2 ou P3 se aplica ao formato recebido.`;
+lib/ai-reviewer/avaliacao-qualidade.ts:717:    motivo = `${MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO} Ramo ${ramo}, conjunto minimo ${conjuntoMinimo.join(' e ')}, e nenhuma delas foi concluida: ${minimoPendentes.map((id) => porId(id).motivo).join(' ')}`;
+lib/ai-reviewer/avaliacao-qualidade.ts:765:export function elegivelParaClassificacao(
+lib/ai-reviewer/avaliacao-qualidade.ts:770:  if (!qualidadeDisponivel(avaliacao)) {
+
+$ grep -n -E PRIORIDADE [0-9] app/api/ai-reviewer/route.ts
+371:  // PRIORIDADE 1: Usar qualityAnalysis.statistics.byStatus (da API response-quality)
+381:  // PRIORIDADE 2: Contar dos respondents array
+393:  // PRIORIDADE 3: Usar overallStats
+401:  // PRIORIDADE 4: Usar qualityAnalysis.summary
+528:  // PRIORIDADE 1: Buscar na seção DECISÃO EDITORIAL (mais confiável)
+540:  // PRIORIDADE 2: Buscar no texto completo (fallback)
+673:  // PRIORIDADE 1: Usar statistics.byStatus (formato correto da API response-quality)
+726:  // PRIORIDADE 2: Usar respondents array
+745:  // PRIORIDADE 3: Usar overallStats
+
+=== (h) ocorrências por arquivo de teste
+--- elegivelParaClassificacao
+  5 lib/__tests__/vinculo-execucao.test.ts
+  3 lib/__tests__/a12-coerencia.test.ts
+  2 lib/__tests__/vinculo-execucao-fiacao.test.ts
+  2 lib/__tests__/a12-estatisticas-dimensao-consumidor-latente.test.ts
+--- avaliarCoerencia
+  11 lib/__tests__/a12-coerencia.test.ts
+--- ramoDeQualidade
+  3 lib/__tests__/a12-coerencia.test.ts
+--- CONJUNTO_MINIMO
+  4 lib/__tests__/a12-coerencia.test.ts
+--- qualidadeDisponivel
+  3 lib/__tests__/a12-qualidade-ausente.test.ts
+  2 lib/__tests__/a12-diagnostico.test.ts
+--- classificarAvaliacaoRecebida
+  7 lib/__tests__/a12-qualidade-ausente.test.ts
+  5 lib/__tests__/a12-coerencia.test.ts
+  3 lib/__tests__/a12-diagnostico.test.ts
+--- classificarAvaliacaoDaTela
+  6 lib/__tests__/a12-qualidade-ausente.test.ts
+  5 lib/__tests__/vinculo-execucao-calculo.test.ts
+  4 lib/__tests__/vinculo-execucao.test.ts
+  2 lib/__tests__/vinculo-execucao-fiacao.test.ts
+  2 lib/__tests__/a12-estatisticas-dimensao.test.ts
+  1 lib/__tests__/a12-diagnostico.test.ts
+
+=== (h) a restrição de edição gravada (fiação)
+  test('a rota lê o vínculo só para montar TEXTO, e nunca para decidir: a elegibilidade e a nota não o recebem', () => {
+    const contrato = ler('lib/ai-reviewer/avaliacao-qualidade.ts');
+    expect(contrato).not.toMatch(/vinculo/i);
+    const rota = ler(ROTA);
+    // toda referência do vínculo na rota, em ordem: o import, a cópia, a leitura para o TEXTO (a das frases da lista já recebe a lista APRESENTADA, R4) e o bloco, montado depois da lista
+    const linhas = rota.split('\n').filter((l) => /vinculo/i.test(l) && !l.trim().startsWith('//'));
+    expect(linhas.map((l) => l.trim())).toEqual([
+      'descreverVinculoParaContexto,',
+      'frasesDaListaComVinculo,',
+      'lerVinculoParaTexto,',
+      'linhasDeExclusaoComVinculo,',
+      "} from '@/lib/ai-reviewer/vinculo-execucao';",
+      'vinculoDaExecucao: rawData.vinculoDaExecucao,',
+      "const comVinculo = lerVinculoParaTexto(data.vinculoDaExecucao).modo !== 'ausente';",
+      'const linhasDaExclusao = comVinculo',
+      '? linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados)',
+      'const frases: FrasesDaLista = comVinculo',
+      '? frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length)',
+      'const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao, identidadesApresentadas);',
+      "const blocoDoVinculo = textoDoVinculo === '' ? '' : `\\n${textoDoVinculo}\\n`;",
+      '${blocoDoVinculo}',
+    ]);
+    // ⚠ e nenhuma dessas leituras chega à decisão: as três chamadas da elegibilidade recebem só a avaliação e a coerência
+    const chamadas = rota.match(/elegivelParaClassificacao\([^)]*\)/g) ?? [];
+    expect(chamadas.length).toBe(3);
+    for (const c of chamadas) expect(c).toBe('elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade)');
+    const inicio = rota.indexOf('function calculateGrade(');
+    const nota = rota.slice(inicio, rota.indexOf('\n}\n', inicio));
+    expect(nota.length).toBeGreaterThan(100);
+    expect(nota).not.toMatch(/vinculo/i);
+=== (i) os quatro rótulos e o prefixo, ocorrências sem filtro de extensão
+--- [Nota não calculada: qualidade individual não avaliada]
+$ git grep -o -F -- Nota não calculada: qualidade individual não avaliada | wc -l
+15
+
+docs/dados/a12-diagnostico/medicao.json:2
+docs/dados/a12-estatisticas-dimensao/saida-a/contextos-depois/ctx-nao-avaliada-ausente-comVinculo.txt:1
+docs/dados/a12-estatisticas-dimensao/saida-a/contextos-depois/ctx-nao-avaliada-ausente-semVinculo.txt:1
+docs/imprecisoes-parecer-ia.md:5
+lib/__tests__/a12-coerencia.test.ts:3
+lib/__tests__/a12-diagnostico.test.ts:2
+lib/ai-reviewer/avaliacao-qualidade.ts:1
+
+--- [Nota não calculada: contradição interna não resolvida na avaliação de qualidade]
+$ git grep -o -F -- Nota não calculada: contradição interna não resolvida na avaliação de qualidade | wc -l
+7
+
+docs/dados/a12-diagnostico/medicao.json:1
+docs/imprecisoes-parecer-ia.md:2
+lib/__tests__/a12-coerencia.test.ts:3
+lib/ai-reviewer/avaliacao-qualidade.ts:1
+
+--- [Nota não calculada: verificação de coerência não concluída]
+$ git grep -o -F -- Nota não calculada: verificação de coerência não concluída | wc -l
+5
+
+docs/imprecisoes-parecer-ia.md:2
+lib/__tests__/a12-coerencia.test.ts:2
+lib/ai-reviewer/avaliacao-qualidade.ts:1
+
+--- [Nota não calculada: coerência interna não avaliada nesta requisição]
+$ git grep -o -F -- Nota não calculada: coerência interna não avaliada nesta requisição | wc -l
+4
+
+docs/imprecisoes-parecer-ia.md:2
+lib/__tests__/a12-coerencia.test.ts:1
+lib/ai-reviewer/avaliacao-qualidade.ts:1
+
+--- [Nota não calculada]
+$ git grep -o -F -- Nota não calculada | wc -l
+39
+
+docs/dados/a12-diagnostico/medicao.json:3
+docs/dados/a12-estatisticas-dimensao/saida-a/contextos-depois/ctx-nao-avaliada-ausente-comVinculo.txt:1
+docs/dados/a12-estatisticas-dimensao/saida-a/contextos-depois/ctx-nao-avaliada-ausente-semVinculo.txt:1
+docs/imprecisoes-parecer-ia.md:18
+lib/__tests__/a12-coerencia.test.ts:9
+lib/__tests__/a12-diagnostico.test.ts:2
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1
+lib/ai-reviewer/avaliacao-qualidade.ts:4
+
+=== (i) as constantes dos rótulos
+$ git grep -n -w -- ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA
+lib/ai-reviewer/avaliacao-qualidade.ts:196:export const ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA =
+lib/ai-reviewer/avaliacao-qualidade.ts:778:      rotulo: ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA,
+
+$ git grep -n -w -- ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA
+lib/ai-reviewer/avaliacao-qualidade.ts:188:export const ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA =
+lib/ai-reviewer/avaliacao-qualidade.ts:789:      rotulo: ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA,
+
+$ git grep -n -w -- ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO
+app/api/ai-reviewer/route.ts:19:  ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO,
+app/api/ai-reviewer/route.ts:765:Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO}.
+docs/imprecisoes-parecer-ia.md:13105:   (`ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO`), e o bloco de `:1145` não o usa.
+lib/ai-reviewer/avaliacao-qualidade.ts:177:export const ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO =
+lib/ai-reviewer/avaliacao-qualidade.ts:782:    return { elegivel: false, causa: 'contradicao', motivo: coerencia.motivo, rotulo: ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO };
+
+$ git grep -n -w -- ROTULO_NOTA_SUSPENSA
+app/api/ai-reviewer/route.ts:18:  ROTULO_NOTA_SUSPENSA,
+app/api/ai-reviewer/route.ts:791:Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA}.
+app/api/ai-reviewer/route.ts:1470:              rotulo: e.rotulo || ROTULO_NOTA_SUSPENSA,
+docs/imprecisoes-parecer-ia.md:11258:| `Nota não calculada: qualidade individual não avaliada`, em `ROTULO_NOTA_SUSPENSA` | `avaliacao-qualidade.ts:163` | a qualidade **foi** avaliada; o que há é contradição entre agregados |
+docs/imprecisoes-parecer-ia.md:11277:- o rótulo apresentado ao gestor é **próprio**, e não `ROTULO_NOTA_SUSPENSA`;
+lib/__tests__/a12-qualidade-ausente.test.ts:22:  ROTULO_NOTA_SUSPENSA,
+lib/__tests__/a12-qualidade-ausente.test.ts:193:    expect(c.respostaDaApi.notaSuspensa).toMatchObject({ suspensa: true, rotulo: ROTULO_NOTA_SUSPENSA, motivo: MOTIVO_AUSENTE });
+lib/__tests__/a12-qualidade-ausente.test.ts:197:    expect(c.apresentacaoAoGestor.rotuloExibido).toBe(ROTULO_NOTA_SUSPENSA);
+lib/__tests__/a12-qualidade-ausente.test.ts:255:    expect(c.apresentacaoAoGestor.rotuloExibido).toBe(ROTULO_NOTA_SUSPENSA);
+lib/ai-reviewer/avaliacao-qualidade.ts:168:export const ROTULO_NOTA_SUSPENSA = 'Nota não calculada: qualidade individual não avaliada';
+lib/ai-reviewer/avaliacao-qualidade.ts:771:    return { elegivel: false, causa: 'disponibilidade', motivo: motivoDaSuspensao(avaliacao), rotulo: ROTULO_NOTA_SUSPENSA };
+
+=== (i) as frases que nomeiam a classificação suspensa, em produção
+$ git grep -n -i -E classificação global|classificação fica suspensa|classificação está suspensa|classificação suspensa|CLASSIFICAÇÃO SUSPENSA -- app components lib :!lib/__tests__
+app/api/ai-reviewer/route.ts:333: * A.12: a classificação global só existe quando há avaliação de qualidade.
+app/api/ai-reviewer/route.ts:336: * mérito nem penalização: a classificação fica SUSPENSA, com o motivo. Com
+app/api/ai-reviewer/route.ts:354:    console.log(`${LOG_PREFIX} Classificação SUSPENSA: ${motivo}`);
+app/api/ai-reviewer/route.ts:414:    console.log(`${LOG_PREFIX} Classificação SUSPENSA: ${motivo}`);
+app/api/ai-reviewer/route.ts:756:  // A.12 etapa 1, C5: a avaliação EXISTE e a classificação está suspensa por CONTRADIÇÃO
+app/api/ai-reviewer/route.ts:763:⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — ${elegivel.motivo}
+app/api/ai-reviewer/route.ts:765:Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO}.
+app/api/ai-reviewer/route.ts:776:⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — ${elegivel.motivo}
+app/api/ai-reviewer/route.ts:778:Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${elegivel.rotulo}.
+app/api/ai-reviewer/route.ts:791:Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA}.
+app/api/ai-reviewer/route.ts:1064:      ? `- Pontuação automática: não calculada — ${classification.motivo}\n- Sugestão automática: não calculada; a classificação global está suspensa`
+app/api/ai-reviewer/route.ts:1436:    // ⚠ A.12: com a classificação SUSPENSA, a extração NÃO restabelece nota nem
+app/decisor/resultados/[projectId]/page.tsx:1234:      // fazer com isso é a rota, que suspende a classificação global.
+components/ParecerAISection.tsx:15:     * A.12: sem avaliação de qualidade, a classificação global fica suspensa, e a
+components/ParecerAISection.tsx:212:          {/* A.12: classificação suspensa por falta de avaliação de qualidade. */}
+lib/ai-reviewer/avaliacao-qualidade.ts:12: * que fazer com cada estado é quem consome: a rota suspende a classificação global
+lib/ai-reviewer/avaliacao-qualidade.ts:151:/** Só `disponivel` autoriza classificação global. */
+lib/ai-reviewer/avaliacao-qualidade.ts:156:/** O motivo a exibir e a registrar quando a classificação fica suspensa. */
+lib/ai-reviewer/avaliacao-qualidade.ts:311:  'Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la.';
+lib/ai-reviewer/avaliacao-qualidade.ts:313:  'Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa.';
+lib/ai-reviewer/avaliacao-qualidade.ts:315:  'Conjunto mínimo de verificações não estabelecido para o formato recebido: a classificação fica suspensa.';
+lib/ai-reviewer/avaliacao-qualidade.ts:318:  'Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr.';
+lib/ai-reviewer/review-request.ts:43:   * por fallback. ⚠ Só `disponivel` autoriza classificação global. Requisição sem
+
+=== (i) o cartão
+$ grep -n -E notaSuspensa|A ausência de avaliação|disponíveis seguem components/ParecerAISection.tsx
+19:    notaSuspensa?: { suspensa: boolean; rotulo: string; motivo: string } | null;
+213:          {aiReview.notaSuspensa?.suspensa && (
+215:              <h4 className="font-semibold text-slate-900">📊 {aiReview.notaSuspensa.rotulo}</h4>
+216:              <p className="mt-1 text-sm text-slate-700">{aiReview.notaSuspensa.motivo}</p>
+218:                A ausência de avaliação não é aprovação nem reprovação. Os cálculos AHP-BOCR
+219:                disponíveis seguem visíveis nas demais seções.
+225:          {!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (
+
+=== (j) as linhas citadas dos testes (arquivo:linha: texto)
+lib/__tests__/a12-estatisticas-dimensao.test.ts:54: const PASTA_FASE1 = 'docs/dados/a12-estatisticas-dimensao';
+lib/__tests__/a12-estatisticas-dimensao.test.ts:55: const PASTA_SAIDA_A = `${PASTA_FASE1}/saida-a`;
+lib/__tests__/a12-estatisticas-dimensao.test.ts:417:   'elegivel-total-zero': () => {
+lib/__tests__/a12-estatisticas-dimensao.test.ts:650:       expect(sha256(anterior)).toBe(base35a1506.sha256Contexto);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:651:       expect(sha256(r.system)).toBe(base35a1506.sha256System);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:652:       if (!comVinculo) expect(sha256(r.contexto)).toBe(base35a1506.sha256Contexto);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:786:   test.each([['agregado-5'], ['agregado-3']])('%s: contra o contexto completo da Fase 1, sem e com o campo', async (base) => {
+lib/__tests__/a12-estatisticas-dimensao.test.ts:793:       expect(r.contexto.length).toBe(esperado.length);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:794:       expect(r.contexto === esperado).toBe(true);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:809:     expect(new Set(nomes).size).toBe(27);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:810:     expect(new Set(LINHAS_DE_BASE.cenarios.map((c: any) => c.sha256Contexto)).size).toBe(27); // 27 contextos DISTINTOS na base
+lib/__tests__/a12-estatisticas-dimensao.test.ts:825:       expect([nome, sha256(anterior)]).toEqual([nome, linha.sha256Contexto]);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:826:       expect([nome, Buffer.byteLength(anterior, 'utf8')]).toEqual([nome, linha.bytesDoContexto]);
+lib/__tests__/a12-estatisticas-dimensao.test.ts:829:       if (!elegivel && !comVinculo) expect([nome, sha256(r.contexto)]).toEqual([nome, linha.sha256Contexto]);
+lib/__tests__/a12-diagnostico.test.ts:804:         { onde: `${ROTA}:333`, o_que: 'calculateGrade' },
+lib/__tests__/a12-diagnostico.test.ts:807:         { onde: `${ROTA}:1519`, o_que: 'gradeSource vira suspensa' },
+lib/__tests__/a12-diagnostico.test.ts:985:   expect(bloco4).not.toContain('Nota não calculada: qualidade individual não avaliada');
+lib/__tests__/a12-diagnostico.test.ts:989:   expect(bloco4).toContain('contradição interna não resolvida na avaliação de qualidade');
+lib/__tests__/a12-diagnostico.test.ts:1040:     expect(bloco).toContain('⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
+lib/__tests__/a12-diagnostico.test.ts:1041:     expect(bloco).toContain('O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.');
+lib/__tests__/a12-diagnostico.test.ts:1042:     expect(bloco).toContain('SUSPENSA: Nota não calculada: qualidade individual não avaliada.');
+lib/__tests__/a12-diagnostico.test.ts:1085: test('cada regravacao registra procedencia PROPRIA, e a lista ACUMULA', () => {
+lib/__tests__/a12-diagnostico.test.ts:1104:     expect(gravado[chave]).toEqual(M[chave]);
+lib/__tests__/a12-diagnostico.test.ts:1106:   expect(gravado.identificacao.artefatos).toEqual(M.identificacao.artefatos);
+lib/__tests__/a12-diagnostico.test.ts:1107:   expect(gravado.identificacao.codigo).toEqual(M.identificacao.codigo);
+lib/__tests__/a33-cadeia-rule.test.ts:862:       bytesSystem: Buffer.byteLength(cap.system, 'utf8'), bytesMessages: Buffer.byteLength(cap.messages, 'utf8'),
+lib/__tests__/a33-cadeia-rule.test.ts:1248:   expect(gravado.identificacao.codigo).toEqual(M.identificacao.codigo);
+lib/__tests__/a33-cadeia-rule.test.ts:1253: test('RE2: a montagem gravada coincide, exceto o que e do ambiente', () => {
+lib/__tests__/a33-cadeia-rule.test.ts:1491:   expect(gravado.identificacao.codigo).toEqual(M.identificacao.codigo);
+lib/__tests__/a33-cadeia-rule.test.ts:1522:   expect(gravado.identificacao.codigo['app/api/ai-reviewer/route.ts']).toBe(
+lib/__tests__/a33-cadeia-rule.test.ts:1523:     shaArquivo('app/api/ai-reviewer/route.ts')
+lib/__tests__/a33-snapshot-v2.test.ts:695:     // ⚠ SUPERADO pela correção de A.12: o byStatus fabricado que a r2 carrega NÃO
+lib/__tests__/a33-snapshot-v2.test.ts:696:     // vale mais como avaliação. A requisição r2 segue preservada; o que mudou é a
+lib/__tests__/a33-snapshot-v2.test.ts:697:     // montagem, e é isto que se mede agora.
+lib/__tests__/a33-snapshot-v2.test.ts:698:     expect(m).not.toContain(`Respostas CONFIÁVEIS (CR ≤ 0.10): ${CALCULO.responseCount} (100.0%)`);
+lib/__tests__/a33-snapshot-v2.test.ts:699:     expect(m).not.toContain('Pontuação automática: 100/100');
+lib/__tests__/a33-snapshot-v2.test.ts:701:     expect(m).toContain('Pontuação automática: não calculada');
+lib/__tests__/a12-qualidade-ausente.test.ts:27: const SEM_VEREDICTO = 'Parecer de ensaio, sem decisão editorial declarada no texto. '.repeat(3);
+lib/__tests__/a12-qualidade-ausente.test.ts:28: const COM_ACEITO = '## 🎯 DECISÃO EDITORIAL\nACEITO\n\nTexto de ensaio com veredicto explícito, usado como controle.';
+lib/__tests__/a12-qualidade-ausente.test.ts:131:         mostraNotaEVeredicto: !suspensa && apresentacao?.estado === 'aprovado' && Boolean(corpo.nota || corpo.veredicto),
+lib/__tests__/a12-qualidade-ausente.test.ts:185:     expect(c.contextoAoModelo).toContain('Pontuação automática: não calculada');
+lib/__tests__/a12-qualidade-ausente.test.ts:191:     expect(c.respostaDaApi.metadata.automaticGrade).toBeNull();
+lib/__tests__/a12-qualidade-ausente.test.ts:192:     expect(c.respostaDaApi.metadata.gradeSource).toBe('suspensa');
+lib/__tests__/a12-qualidade-ausente.test.ts:193:     expect(c.respostaDaApi.notaSuspensa).toMatchObject({ suspensa: true, rotulo: ROTULO_NOTA_SUSPENSA, motivo: MOTIVO_AUSENTE });
+lib/__tests__/a12-qualidade-ausente.test.ts:197:     expect(c.apresentacaoAoGestor.rotuloExibido).toBe(ROTULO_NOTA_SUSPENSA);
+lib/__tests__/a12-qualidade-ausente.test.ts:215:     expect(c.respostaDaApi.metadata.gradeSource).toBe('automatic');
+lib/__tests__/a12-qualidade-ausente.test.ts:216:     expect(c.respostaDaApi.metadata.automaticGrade).toEqual({ nota: 'A', veredicto: 'ACEITO', score: 100 });
+lib/__tests__/a12-qualidade-ausente.test.ts:217:     expect([c.respostaDaApi.nota, c.respostaDaApi.veredicto]).toEqual(['A', 'ACEITO']);
+lib/__tests__/a12-qualidade-ausente.test.ts:220:     expect(c.apresentacaoAoGestor.mostraNotaEVeredicto).toBe(true);
+lib/__tests__/a12-qualidade-ausente.test.ts:227:     expect(c.respostaDaApi.metadata.automaticGrade).toEqual({ nota: 'F', veredicto: 'REJEITAR', score: 45 });
+lib/__tests__/a12-qualidade-ausente.test.ts:230:     expect(c.apresentacaoAoGestor.mostraNotaEVeredicto).toBe(true);
+lib/__tests__/a12-qualidade-ausente.test.ts:249:   test('com ACEITO na DECISÃO EDITORIAL e avaliação ausente, a nota permanece suspensa', async () => {
+lib/__tests__/a12-qualidade-ausente.test.ts:254:     expect(c.respostaDaApi.metadata.gradeSource).toBe('suspensa');
+lib/__tests__/a12-qualidade-ausente.test.ts:255:     expect(c.apresentacaoAoGestor.rotuloExibido).toBe(ROTULO_NOTA_SUSPENSA);
+lib/__tests__/a12-qualidade-ausente.test.ts:261:     expect(c.respostaDaApi.metadata.gradeSource).toBe('ai');
+lib/__tests__/a12-qualidade-ausente.test.ts:263:     expect(c.respostaDaApi.metadata.automaticGrade.score).toBe(45);
+lib/__tests__/a12-qualidade-ausente.test.ts:286:     expect(componente).toContain('{aiReview.notaSuspensa?.suspensa && (');
+lib/__tests__/a12-qualidade-ausente.test.ts:287:     expect(componente).toContain('{aiReview.notaSuspensa.rotulo}');
+lib/__tests__/a12-qualidade-ausente.test.ts:288:     expect(componente).toContain('{aiReview.notaSuspensa.motivo}');
+lib/__tests__/a12-qualidade-ausente.test.ts:289:     expect(componente).toContain("{!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado'");
+lib/__tests__/a12-qualidade-ausente.test.ts:296:     // CR para TODOS os respondentes, e aí `calculateGrade` já parou numa
+lib/__tests__/a12-coerencia.test.ts:464:   expect(corpo.notaSuspensa.rotulo).toBe('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
+lib/__tests__/a12-coerencia.test.ts:469:   expect(html).toContain('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
+lib/__tests__/a12-coerencia.test.ts:470:   expect(html).not.toContain('Nota não calculada: qualidade individual não avaliada');
+lib/__tests__/a12-coerencia.test.ts:477:   expect(htmlOk).not.toContain('Nota não calculada: qualidade individual não avaliada');
+lib/__tests__/a12-coerencia.test.ts:478:   expect(htmlOk).not.toContain('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
+lib/__tests__/a12-coerencia.test.ts:481:   expect(html).not.toContain('verificação de coerência não concluída');
+lib/__tests__/a12-coerencia.test.ts:498:   expect(corpo.notaSuspensa.rotulo).toBe('Nota não calculada: verificação de coerência não concluída');
+lib/__tests__/a12-coerencia.test.ts:504:   expect(html).toContain('Nota não calculada: verificação de coerência não concluída');
+lib/__tests__/a12-coerencia.test.ts:506:   expect(html).not.toContain('contradição interna não resolvida');
+lib/__tests__/a12-coerencia.test.ts:507:   expect(html).not.toContain('Nota não calculada: qualidade individual não avaliada');
+lib/__tests__/a12-coerencia.test.ts:519:   expect(e.rotulo).toBe('Nota não calculada: coerência interna não avaliada nesta requisição');
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1297:     gradeSource: r.corpo.metadata.gradeSource,
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1298:     automaticGrade: r.corpo.metadata.automaticGrade,
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1347:       expect(bloco).not.toMatch(/Nota não calculada/);
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1352:   test('a rota lê o vínculo só para montar TEXTO, e nunca para decidir: a elegibilidade e a nota não o recebem', () => {
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1378:     const inicio = rota.indexOf('function calculateGrade(');
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1380:     expect(nota.length).toBeGreaterThan(100);
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1381:     expect(nota).not.toMatch(/vinculo/i);
+lib/__tests__/vinculo-execucao.test.ts:1136:     expect(LIMITE_DO_VINCULO).toMatch(/não é critério de nota e não suspende a classificação/);
+--- ordem da última regravação
+$ grep -n -E ^\s+ordem: [0-9]+ lib/__tests__/a12-diagnostico.test.ts
+47:    ordem: 1,
+61:    ordem: 2,
+73:    ordem: 3,
+86:    ordem: 4,
+109:    ordem: 5,
+129:    ordem: 6,
+146:    ordem: 7,
+164:    ordem: 8,
+182:    ordem: 9,
+196:    ordem: 10,
+210:    ordem: 11,
+
+$ grep -n -E ^\s+ordem: [0-9]+ lib/__tests__/a33-cadeia-rule.test.ts
+156:    ordem: 2,
+174:    ordem: 3,
+187:    ordem: 4,
+199:    ordem: 5,
+212:    ordem: 6,
+226:    ordem: 7,
+241:    ordem: 8,
+256:    ordem: 9,
+
+--- diretórios de dados lidos por testes e scripts
+$ git grep -l -F -- a12-cobertura-restringiu -- lib/__tests__ scripts
+(sem resultado; o comando executou, saída 1)
+
+$ git grep -l -F -- a12-estatisticas-dimensao -- lib/__tests__ scripts
+lib/__tests__/a12-estatisticas-dimensao.test.ts
+
+$ git grep -l -F -- a33-etapa4-v2 -- lib/__tests__ scripts
+lib/__tests__/a12-diagnostico.test.ts
+lib/__tests__/a33-cadeia-rule.test.ts
+lib/__tests__/a33-snapshot-v2.test.ts
+scripts/a33-snapshot-v2.cjs
+
+=== (k) a tela
+$ grep -n -E \{ id: '(executive|results|quality|robustness|review|export)' app/decisor/resultados/[projectId]/page.tsx
+2829:              { id: 'executive', label: '📊 Dashboard Executivo', description: 'Visão geral e KPIs' },
+2830:              { id: 'results', label: '📈 Resultados & Análise', description: 'Pesos e rankings' },
+2831:              { id: 'quality', label: '✓ Qualidade & Consistência', description: 'CR individual e validação' },
+2832:              { id: 'robustness', label: '🔬 Robustez & Validação', description: 'Sensibilidade e confiabilidade' },
+2833:              { id: 'review', label: '🤖 Revisão & Documentação', description: 'IA e texto acadêmico' },
+2834:              { id: 'export', label: '📥 Exportar & Relatórios', description: 'Downloads e relatórios' }
+
+$ grep -n -E Sumário de Validação|Interpretação Automática|Validação cruzada|Dominância clara|Empate técnico|Implicações Práticas da Sensibilidade|Recomendação de Desempate|Tabela de Rankings por Método|Parecer não disponível|Verificações Automáticas|Detalhamento das Validações|Relatório Técnico Completo|Parecer AI Estilizado|runAiReview app/decisor/resultados/[projectId]/page.tsx
+946:  const runAiReview = async () => {
+4081:            {/* Implicações Práticas da Sensibilidade */}
+4104:                    Implicações Práticas da Sensibilidade
+4245:                    <h4 className="font-semibold text-indigo-800 mb-2">💡 Recomendação de Desempate</h4>
+4261:                SUMÁRIO DE VALIDAÇÃO - Interpretação Automática
+4265:                <span className="text-2xl">🎯</span> Sumário de Validação
+4410:                        <span>📝</span> Interpretação Automática
+4419:                            <span className="text-emerald-600"> Dominância clara com gap de {(gapAnalysis?.gap || 0).toFixed(1)}% sobre o segundo colocado.</span>
+4422:                            <span className="text-amber-600"> ⚠️ Empate técnico - considerar análise qualitativa adicional.</span>
+4436:                          <strong>Validação cruzada:</strong> {(methodAgreement?.percentage || 0).toFixed(0)}% dos métodos
+4667:                      {/* Tabela de Rankings por Método */}
+4769:                    <h3 className="text-xl font-bold text-gray-800">🔬 Verificações Automáticas</h3>
+4844:                    <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Detalhamento das Validações</h3>
+4916:                {/* Relatório Técnico Completo */}
+4920:                      <h3 className="text-lg font-semibold text-gray-800">📄 Relatório Técnico Completo</h3>
+4948:                <h3 className="text-lg font-semibold text-gray-800 mb-2">Parecer não disponível</h3>
+4958:            {/* ⭐ NOVO - Parecer AI Estilizado */}
+4962:              onExecute={runAiReview}
+
+$ grep -n -E <ParecerAISection|onExecute= app/decisor/resultados/[projectId]/page.tsx
+4959:            <ParecerAISection
+4962:              onExecute={runAiReview}
+
+$ git grep -n -E Veredicto|ACEITO|Nota Científica -- components app/decisor
+app/decisor/resultados/[projectId]/page.tsx:1361:        console.log('✅ [AI-REVIEW] Sucesso! Nota:', data.nota, 'Veredicto:', data.veredicto);
+components/ParecerAISection.tsx:69:  const getVeredictoStyle = (veredicto: string) => {
+components/ParecerAISection.tsx:71:    if (v.includes('ACEITO') && !v.includes('REVIS')) {
+components/ParecerAISection.tsx:234:                        Nota Científica
+components/ParecerAISection.tsx:245:                const s = getVeredictoStyle(aiReview.veredicto!);
+components/ParecerAISection.tsx:251:                        Veredicto
+
+investiment    grep -i -c em ParecerAISection.tsx: 0
+alternativa    grep -i -c em ParecerAISection.tsx: 0
+recomend       grep -i -c em ParecerAISection.tsx: 0
+ranking        grep -i -c em ParecerAISection.tsx: 0
+estudo         grep -i -c em ParecerAISection.tsx: 0
+método        grep -i -c em ParecerAISection.tsx: 0
+metodolog      grep -i -c em ParecerAISection.tsx: 0
+revisor        grep -i -c em ParecerAISection.tsx: 0
+$ grep -n -E periódic|A1/Q1 components/ParecerAISection.tsx
+357:                    • A análise qualitativa segue protocolo de periódicos A1/Q1
+382:            <span>🎯 Protocolo A1/Q1</span>
+
+$ git grep -n -E Recomendação|Score Final -- components/BentoGridDashboard.tsx
+components/BentoGridDashboard.tsx:243:              Recomendação
+components/BentoGridDashboard.tsx:270:              Score Final
+
+--- WinnerCard (BentoGridDashboard.tsx:227-294): palavras de força da recomendação (grep -c por palavra)
+vantagem   0
+margem     0
+diferen    0
+confian    0
+robust     0
+clara      0
+empate     0
+dominân   0
+gap (todas)  1
+gap-N (css)  1
+$ grep -n -E ^const (WinnerCard|RankingList|StatsCard)|^}; components/BentoGridDashboard.tsx
+55:};
+90:};
+142:};
+221:};
+227:const WinnerCard: React.FC<{
+294:};
+370:};
+376:const RankingList: React.FC<{
+465:};
+471:const StatsCard: React.FC<{
+535:};
+
+--- knowledge.ts: limiares e funções de interpretação
+$ grep -n -E QUALITY_THRESHOLDS = |^export function (interpretConsistencyRatio|interpretSensitivity|interpretMethodAgreement|interpretDominanceGap) lib/knowledge.ts
+326:export const QUALITY_THRESHOLDS = {
+361:export function interpretConsistencyRatio(cr: number): {
+406:export function interpretSensitivity(
+472:export function interpretMethodAgreement(rankingsOrPercent: number | Record<string, string[]>): {
+576:export function interpretDominanceGap(winnerScore: number, secondScore?: number): {
+
+  sensitivity: {
+    robust: 50,
+    moderate: 20,
+    sensitive: 10,
+    critical: 0
+  }
+
+--- o campo unit entra no contexto na forma de knowledge.ts:285
+    `- **${t.value} ${t.unit}** (${t.operator}): ${t.context}
+
+--- a recepção na tela e a repassagem do metadata
+app/decisor/resultados/[projectId]/page.tsx:1361:         console.log('✅ [AI-REVIEW] Sucesso! Nota:', data.nota, 'Veredicto:', data.veredicto);
+app/decisor/resultados/[projectId]/page.tsx:1366:           notaSuspensa: data.notaSuspensa ?? null,
+app/decisor/resultados/[projectId]/page.tsx:1369:           metadata: data.metadata
+app/decisor/resultados/[projectId]/page.tsx:1484:         const auditResponse = await fetch('/api/audit-decision', {
+app/decisor/resultados/[projectId]/page.tsx:1545:             const auditResponse = await fetch('/api/audit-decision', {
+app/decisor/resultados/[projectId]/page.tsx:4415:                           <strong>Resultado:</strong> A alternativa <strong className="text-emerald-700">"{winner?.name}"</strong> é
+app/decisor/resultados/[projectId]/page.tsx:4416:                           a recomendação pelo método Subtrativo (consenso na literatura), com score
+app/decisor/resultados/[projectId]/page.tsx:4417:                           normalizado de <strong>{(winnerScore * 100).toFixed(1)}%</strong>.
+app/decisor/resultados/[projectId]/page.tsx:4440:                             <span className="text-emerald-600"> Alta confiança na decisão.</span>
+app/decisor/resultados/[projectId]/page.tsx:4704:                             'Todos os métodos convergem para a mesma recomendação. Alta confiança na decisão.' :
+app/decisor/resultados/[projectId]/page.tsx:4948:                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Parecer não disponível</h3>
+app/decisor/resultados/[projectId]/page.tsx:4959:             <ParecerAISection
+app/decisor/resultados/[projectId]/page.tsx:4962:               onExecute={runAiReview}
+--- o git show --stat de 5837d0d (a classificação categórica de sensibilidade)
+5837d0d chore(sensibilidade): remover classificacao categorica do motor e do painel
+
+ app/api/calculate/route.ts                  | 43 +--------------
+ app/decisor/resultados/[projectId]/page.tsx |  5 +-
+ components/SensitivityAnalysisPanel.tsx     | 37 ++-----------
+ components/q1-features/index.ts             | 83 -----------------------------
+ 4 files changed, 7 insertions(+), 161 deletions(-)
+--- A.2 e A.29 no âncora
+| A.2 | Remover a classificação categórica de sensibilidade (Robusto / Moderadamente Sensível / Sensível / Crítico, limiares 50/20/10). ⚠ **Não é "sem fonte": é fonte que não sustenta.** O
+| A.29 | **Remover o `lib/knowledge.ts` legado.** Era escopo de A.6 antes dela encolher para só o `knowledge-ipc.ts`, e **ficou sem responsável**. ⚠ **Contém o `interpretSensitivity`**, que é um
+| `lib/knowledge.ts`, `interpretSensitivity` | raiz do card e da interpretação textual da aba executiva ("❌ Crítico", "⚠️ Sensível", "ATENÇÃO: N de 4 méritos") via `sensitivityResults`, `
+--- nas abas 1 a 4 (page.tsx:2857-4761), as palavras parecer e IA
+4760:             TAB: PARECER IA
+(fim)
+
+=== (l) audit-decision
+avaliacaoDeQualidade   grep -c em audit-decision/route.ts: 0
+qualityAnalysis        grep -c em audit-decision/route.ts: 0
+respondent             grep -c em audit-decision/route.ts: 0
+individualStats        grep -c em audit-decision/route.ts: 0
+ai-reviewer            grep -c em audit-decision/route.ts: 0
+nota                   grep -c em audit-decision/route.ts: 0
+veredicto              grep -c em audit-decision/route.ts: 0
+$ grep -n -E ^function validate|^export async function|validacoes app/api/audit-decision/route.ts
+28:function validateConsistency(data: any): ValidationResult {
+64:function validateSampleSize(data: any): ValidationResult {
+103:function validateMethodsAgreement(data: any): ValidationResult {
+196:function validateDiscrimination(data: any): ValidationResult {
+253:function validateDataQuality(data: any): ValidationResult {
+301:function validateLogic(data: any): {
+447:export async function POST(request: NextRequest) {
+530:      validacoes: validations,
+550:export async function GET() {
+
+$ git grep -n -E audit-decision -- app lib components scripts *.ts *.tsx
+app/api/audit-decision/route.ts:1:// app/api/audit-decision/route.ts
+app/decisor/resultados/[projectId]/page.tsx:1484:        const auditResponse = await fetch('/api/audit-decision', {
+app/decisor/resultados/[projectId]/page.tsx:1545:            const auditResponse = await fetch('/api/audit-decision', {
+lib/rag/README.md:62:*   app/api/audit-decision/route.ts
+
+$ git grep -l audit-decision -- lib/__tests__
+(sem resultado; o comando executou, saída 1)
+
+--- o payload do parecer (page.tsx:1230-1345), a palavra audit
+(fim; nenhuma linha acima = sem resultado)

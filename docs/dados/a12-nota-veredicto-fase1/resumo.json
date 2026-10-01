@@ -1,0 +1,1407 @@
+{
+ "c": [
+  {
+   "texto": "T5a-negacao-nota-B",
+   "textoIntegral": "## 📋 RESUMO EXECUTIVO\nTexto de ensaio do instrumento de medição, escrito apenas para ter extensão suficiente e nenhum termo de resultado.\n\n## 🔍 ANÁLISE\nParágrafo de preenchimento, sem números, sem referências e sem qualquer termo que o extrator reconheça.\n\n## 🎯 DECISÃO EDITORIAL\nNota B. ACEITO COM REVISÕES MENORES\n",
+   "anatomia": {
+    "extensaoEmCaracteres": 319,
+    "extensaoEmPontosDeCodigo": 316,
+    "bytesUtf8": 335,
+    "guardaDe50Satisfeita": true,
+    "posicaoDoTituloDaSecaoEditorial": 265,
+    "secaoEditorialCapturadaPelaRegex": true,
+    "inicioDaJanelaDe500": 283,
+    "janelaCapturada": "Nota B. ACEITO COM REVISÕES MENORES\n",
+    "janelaExtensao": 36,
+    "padroesQueCasamNaJanela": [
+     0,
+     1,
+     5
+    ],
+    "padroesQueCasamNoTextoInteiro": [
+     0,
+     1,
+     5
+    ]
+   },
+   "padraoReconhecido": {
+    "indiceNaLista": 0,
+    "caminho": "editorial",
+    "veredicto": "ACEITO COM REVISÕES MENORES"
+   },
+   "letraAtribuida": "A",
+   "gradeSource": "ai",
+   "apresentacao": {
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO COM REVISÕES MENORES"
+    },
+    "aviso": {
+     "exibido": false,
+     "titulo": null,
+     "motivos": []
+    },
+    "corpo": {
+     "exibido": true,
+     "estiloDeQuarentena": false
+    },
+    "copiadoIgualAoTexto": true
+   },
+   "relatadoPeloAutor": {
+    "nota": "A",
+    "veredicto": "ACEITO COM REVISÕES MENORES"
+   },
+   "medicaoConfereComAutor": true
+  },
+  {
+   "texto": "T5b-negacao-nao-deve-ser-aceito",
+   "textoIntegral": "## 📋 RESUMO EXECUTIVO\nTexto de ensaio do instrumento de medição, escrito apenas para ter extensão suficiente e nenhum termo de resultado.\n\n## 🔍 ANÁLISE\nParágrafo de preenchimento, sem números, sem referências e sem qualquer termo que o extrator reconheça.\n\n## 🎯 DECISÃO EDITORIAL\nO estudo NÃO deve ser ACEITO nesta forma.\n",
+   "anatomia": {
+    "extensaoEmCaracteres": 325,
+    "extensaoEmPontosDeCodigo": 322,
+    "bytesUtf8": 341,
+    "guardaDe50Satisfeita": true,
+    "posicaoDoTituloDaSecaoEditorial": 265,
+    "secaoEditorialCapturadaPelaRegex": true,
+    "inicioDaJanelaDe500": 283,
+    "janelaCapturada": "O estudo NÃO deve ser ACEITO nesta forma.\n",
+    "janelaExtensao": 42,
+    "padroesQueCasamNaJanela": [
+     5
+    ],
+    "padroesQueCasamNoTextoInteiro": [
+     5
+    ]
+   },
+   "padraoReconhecido": {
+    "indiceNaLista": 5,
+    "caminho": "editorial",
+    "veredicto": "ACEITO"
+   },
+   "letraAtribuida": "A",
+   "gradeSource": "ai",
+   "apresentacao": {
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "aviso": {
+     "exibido": false,
+     "titulo": null,
+     "motivos": []
+    },
+    "corpo": {
+     "exibido": true,
+     "estiloDeQuarentena": false
+    },
+    "copiadoIgualAoTexto": true
+   },
+   "relatadoPeloAutor": {
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "medicaoConfereComAutor": true
+  },
+  {
+   "texto": "T5c-mencao-exemplo-anterior",
+   "textoIntegral": "## 📋 RESUMO EXECUTIVO\nTexto de ensaio do instrumento de medição, escrito apenas para ter extensão suficiente e nenhum termo de resultado.\n\n## 🔍 ANÁLISE\nParágrafo de preenchimento, sem números, sem referências e sem qualquer termo que o extrator reconheça.\n\nEm revisões anteriores, o rótulo ACEITO foi usado apenas como exemplo de formato, e este manuscrito não recebe decisão própria neste texto.\n",
+   "anatomia": {
+    "extensaoEmCaracteres": 399,
+    "extensaoEmPontosDeCodigo": 397,
+    "bytesUtf8": 416,
+    "guardaDe50Satisfeita": true,
+    "posicaoDoTituloDaSecaoEditorial": -1,
+    "secaoEditorialCapturadaPelaRegex": false,
+    "inicioDaJanelaDe500": null,
+    "janelaCapturada": null,
+    "janelaExtensao": null,
+    "padroesQueCasamNaJanela": [],
+    "padroesQueCasamNoTextoInteiro": [
+     5
+    ]
+   },
+   "padraoReconhecido": {
+    "indiceNaLista": 5,
+    "caminho": "texto-completo",
+    "veredicto": "ACEITO"
+   },
+   "letraAtribuida": "A",
+   "gradeSource": "ai",
+   "apresentacao": {
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "aviso": {
+     "exibido": false,
+     "titulo": null,
+     "motivos": []
+    },
+    "corpo": {
+     "exibido": true,
+     "estiloDeQuarentena": false
+    },
+    "copiadoIgualAoTexto": true
+   },
+   "relatadoPeloAutor": {
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "medicaoConfereComAutor": true
+  }
+ ],
+ "d": {
+  "condicoes": [
+   "elegivel-auto-A",
+   "elegivel-auto-F",
+   "disponibilidade-ausente",
+   "disponibilidade-incompleta",
+   "contradicao",
+   "coerencia-nao-concluida",
+   "coerencia-nao-avaliada-CONSTRUIDA"
+  ],
+  "linhas": [
+   {
+    "texto": "T1-editorial-simples",
+    "celulas": {
+     "elegivel-auto-A": "C/REVISÕES MAIORES (ai)",
+     "elegivel-auto-F": "C/REVISÕES MAIORES (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T2a-ausencia-sem-secao",
+    "celulas": {
+     "elegivel-auto-A": "A/ACEITO (automatic)",
+     "elegivel-auto-F": "F/REJEITAR (automatic)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T2b-ausencia-secao-sem-padrao",
+    "celulas": {
+     "elegivel-auto-A": "A/ACEITO (automatic)",
+     "elegivel-auto-F": "F/REJEITAR (automatic)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T3a-formato-sem-secao-com-padrao",
+    "celulas": {
+     "elegivel-auto-A": "F/REJEITAR (ai)",
+     "elegivel-auto-F": "F/REJEITAR (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T3b-formato-titulo-na-mesma-linha",
+    "celulas": {
+     "elegivel-auto-A": "C/REVISÕES MAIORES (ai)",
+     "elegivel-auto-F": "C/REVISÕES MAIORES (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T4a-ambiguo-na-secao",
+    "celulas": {
+     "elegivel-auto-A": "A/ACEITO COM REVISÕES MENORES (ai)",
+     "elegivel-auto-F": "A/ACEITO COM REVISÕES MENORES (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T4b-ambiguo-sem-secao",
+    "celulas": {
+     "elegivel-auto-A": "A/ACEITO COM REVISÕES MENORES (ai)",
+     "elegivel-auto-F": "A/ACEITO COM REVISÕES MENORES (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T5a-negacao-nota-B",
+    "celulas": {
+     "elegivel-auto-A": "A/ACEITO COM REVISÕES MENORES (ai)",
+     "elegivel-auto-F": "A/ACEITO COM REVISÕES MENORES (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T5b-negacao-nao-deve-ser-aceito",
+    "celulas": {
+     "elegivel-auto-A": "A/ACEITO (ai)",
+     "elegivel-auto-F": "A/ACEITO (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   },
+   {
+    "texto": "T5c-mencao-exemplo-anterior",
+    "celulas": {
+     "elegivel-auto-A": "A/ACEITO (ai)",
+     "elegivel-auto-F": "A/ACEITO (ai)",
+     "disponibilidade-ausente": "— (suspensa; disponibilidade)",
+     "disponibilidade-incompleta": "— (suspensa; disponibilidade)",
+     "contradicao": "— (suspensa; contradicao)",
+     "coerencia-nao-concluida": "— (suspensa; coerencia_nao_concluida)",
+     "coerencia-nao-avaliada-CONSTRUIDA": "— (suspensa; coerencia_nao_avaliada)"
+    }
+   }
+  ],
+  "gradeSourcePorCondicao": {
+   "elegivel-auto-A": {
+    "denominador": 10,
+    "ai": 8,
+    "automatic": 2
+   },
+   "elegivel-auto-F": {
+    "denominador": 10,
+    "ai": 8,
+    "automatic": 2
+   },
+   "disponibilidade-ausente": {
+    "denominador": 10,
+    "suspensa": 10
+   },
+   "disponibilidade-incompleta": {
+    "denominador": 10,
+    "suspensa": 10
+   },
+   "contradicao": {
+    "denominador": 10,
+    "suspensa": 10
+   },
+   "coerencia-nao-concluida": {
+    "denominador": 10,
+    "suspensa": 10
+   },
+   "coerencia-nao-avaliada-CONSTRUIDA": {
+    "denominador": 10,
+    "suspensa": 10
+   }
+  }
+ },
+ "e": {
+  "tally": {
+   "aprovada | elegivel": {
+    "denominador": 20,
+    "destaqueExibido": 20,
+    "avisoExibido": 0,
+    "avisosDaVerificacaoExibido": 0,
+    "cartaoDeSuspensaoExibido": 0,
+    "corpoExibido": 20,
+    "corpoEmQuarentena": 0,
+    "botaoDeCopiaExibido": 20,
+    "copiaIgualAoTextoIntegral": 20,
+    "manipuladorAcionado": 20
+   },
+   "aprovada | suspensa-alcancavel": {
+    "denominador": 40,
+    "destaqueExibido": 0,
+    "avisoExibido": 0,
+    "avisosDaVerificacaoExibido": 0,
+    "cartaoDeSuspensaoExibido": 40,
+    "corpoExibido": 40,
+    "corpoEmQuarentena": 0,
+    "botaoDeCopiaExibido": 40,
+    "copiaIgualAoTextoIntegral": 40,
+    "manipuladorAcionado": 40
+   },
+   "aprovada | suspensa-construida": {
+    "denominador": 10,
+    "destaqueExibido": 0,
+    "avisoExibido": 0,
+    "avisosDaVerificacaoExibido": 0,
+    "cartaoDeSuspensaoExibido": 10,
+    "corpoExibido": 10,
+    "corpoEmQuarentena": 0,
+    "botaoDeCopiaExibido": 10,
+    "copiaIgualAoTextoIntegral": 10,
+    "manipuladorAcionado": 10
+   },
+   "reprovada | elegivel": {
+    "denominador": 20,
+    "destaqueExibido": 0,
+    "avisoExibido": 20,
+    "avisosDaVerificacaoExibido": 0,
+    "cartaoDeSuspensaoExibido": 0,
+    "corpoExibido": 20,
+    "corpoEmQuarentena": 20,
+    "botaoDeCopiaExibido": 20,
+    "copiaIgualAoTextoIntegral": 20,
+    "manipuladorAcionado": 20
+   },
+   "reprovada | suspensa-alcancavel": {
+    "denominador": 40,
+    "destaqueExibido": 0,
+    "avisoExibido": 40,
+    "avisosDaVerificacaoExibido": 0,
+    "cartaoDeSuspensaoExibido": 40,
+    "corpoExibido": 40,
+    "corpoEmQuarentena": 40,
+    "botaoDeCopiaExibido": 40,
+    "copiaIgualAoTextoIntegral": 40,
+    "manipuladorAcionado": 40
+   },
+   "reprovada | suspensa-construida": {
+    "denominador": 10,
+    "destaqueExibido": 0,
+    "avisoExibido": 10,
+    "avisosDaVerificacaoExibido": 0,
+    "cartaoDeSuspensaoExibido": 10,
+    "corpoExibido": 10,
+    "corpoEmQuarentena": 10,
+    "botaoDeCopiaExibido": 10,
+    "copiaIgualAoTextoIntegral": 10,
+    "manipuladorAcionado": 10
+   },
+   "inconclusiva | elegivel": {
+    "denominador": 10,
+    "destaqueExibido": 0,
+    "avisoExibido": 10,
+    "avisosDaVerificacaoExibido": 10,
+    "cartaoDeSuspensaoExibido": 0,
+    "corpoExibido": 10,
+    "corpoEmQuarentena": 10,
+    "botaoDeCopiaExibido": 10,
+    "copiaIgualAoTextoIntegral": 10,
+    "manipuladorAcionado": 10
+   }
+  }
+ },
+ "contradicoes": {
+  "regra": "destaque exibido E (leitura do corpo sem decisão, ou veredicto diferente, ou nota diferente)",
+  "denominadorDestaquesExibidos": 20,
+  "total": 14,
+  "porTexto": {
+   "T2a-ausencia-sem-secao": 2,
+   "T2b-ausencia-secao-sem-padrao": 2,
+   "T4a-ambiguo-na-secao": 2,
+   "T4b-ambiguo-sem-secao": 2,
+   "T5a-negacao-nota-B": 2,
+   "T5b-negacao-nao-deve-ser-aceito": 2,
+   "T5c-mencao-exemplo-anterior": 2
+  },
+  "casos": [
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-A",
+    "texto": "T2a-ausencia-sem-secao",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "automatic"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-A",
+    "texto": "T2b-ausencia-secao-sem-padrao",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "automatic"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-A",
+    "texto": "T4a-ambiguo-na-secao",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO COM REVISÕES MENORES"
+    },
+    "leituraDoCorpo": {
+     "veredicto": "REJEITAR",
+     "nota": null
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-A",
+    "texto": "T4b-ambiguo-sem-secao",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO COM REVISÕES MENORES"
+    },
+    "leituraDoCorpo": {
+     "veredicto": "REJEITAR",
+     "nota": null
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-A",
+    "texto": "T5a-negacao-nota-B",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO COM REVISÕES MENORES"
+    },
+    "leituraDoCorpo": {
+     "veredicto": "ACEITO COM REVISÕES MENORES",
+     "nota": "B"
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-A",
+    "texto": "T5b-negacao-nao-deve-ser-aceito",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-A",
+    "texto": "T5c-mencao-exemplo-anterior",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-F",
+    "texto": "T2a-ausencia-sem-secao",
+    "destaque": {
+     "exibido": true,
+     "nota": "F",
+     "veredicto": "REJEITAR"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "automatic"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-F",
+    "texto": "T2b-ausencia-secao-sem-padrao",
+    "destaque": {
+     "exibido": true,
+     "nota": "F",
+     "veredicto": "REJEITAR"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "automatic"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-F",
+    "texto": "T4a-ambiguo-na-secao",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO COM REVISÕES MENORES"
+    },
+    "leituraDoCorpo": {
+     "veredicto": "REJEITAR",
+     "nota": null
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-F",
+    "texto": "T4b-ambiguo-sem-secao",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO COM REVISÕES MENORES"
+    },
+    "leituraDoCorpo": {
+     "veredicto": "REJEITAR",
+     "nota": null
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-F",
+    "texto": "T5a-negacao-nota-B",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO COM REVISÕES MENORES"
+    },
+    "leituraDoCorpo": {
+     "veredicto": "ACEITO COM REVISÕES MENORES",
+     "nota": "B"
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-F",
+    "texto": "T5b-negacao-nao-deve-ser-aceito",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "ai"
+   },
+   {
+    "apresentacao": "aprovada",
+    "condicao": "elegivel-auto-F",
+    "texto": "T5c-mencao-exemplo-anterior",
+    "destaque": {
+     "exibido": true,
+     "nota": "A",
+     "veredicto": "ACEITO"
+    },
+    "leituraDoCorpo": {
+     "veredicto": null,
+     "nota": null
+    },
+    "gradeSource": "ai"
+   }
+  ]
+ },
+ "copiaCarregaOQueODestaqueEsconde": {
+  "regra": "destaque NÃO exibido E o corpo exibido traz um padrão do extrator E o argumento de writeText é o texto integral",
+  "denominadorDestaquesNaoExibidos": 130,
+  "total": 104,
+  "porApresentacaoEGrupo": {
+   "aprovada | suspensa-alcancavel": 32,
+   "aprovada | suspensa-construida": 8,
+   "reprovada | elegivel": 16,
+   "reprovada | suspensa-alcancavel": 32,
+   "reprovada | suspensa-construida": 8,
+   "inconclusiva | elegivel": 8
+  }
+ },
+ "notaNaRespostaSemDestaque": {
+  "total": 30,
+  "porApresentacao": {
+   "reprovada": 20,
+   "inconclusiva": 10
+  }
+ },
+ "conferencias": {
+  "celulas": 150,
+  "replicaConfereComTratadorReal": 150,
+  "arvoreConfereComHtml": 150,
+  "reviewIgualAoTextoFixado": 150,
+  "chamadasAoClienteIguaisAUm": 150,
+  "status200": 150
+ },
+ "f": [
+  {
+   "condicao": "elegivel-auto-A",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "sha256Contexto": "b5e08670c4d6e939c52b469f020336eba4ea8a94e1cc88d1699f863a82200dd0",
+   "caracteres": 69830,
+   "bytes": 70417,
+   "linhas": 1162,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "blocoLinhas": [
+    7,
+    10
+   ],
+   "ocorrenciasPorLinha": {
+    "Pontuação automática": [
+     8
+    ],
+    "Sugestão automática": [
+     9
+    ],
+    "Referência Automatizada": [
+     7
+    ],
+    "Score = ": [
+     70
+    ]
+   }
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "sha256Contexto": "a6d0b6d34713a47519d090aa9cafd2a6f770d56a279a192d38a3c0f36e59ff07",
+   "caracteres": 69991,
+   "bytes": 70584,
+   "linhas": 1168,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "blocoLinhas": [
+    7,
+    10
+   ],
+   "ocorrenciasPorLinha": {
+    "Pontuação automática": [
+     8
+    ],
+    "Sugestão automática": [
+     9
+    ],
+    "Referência Automatizada": [
+     7
+    ],
+    "Score = ": [
+     70
+    ]
+   }
+  },
+  {
+   "condicao": "disponibilidade-ausente",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "sha256Contexto": "c895086c825421884fd57bb2c07c8d8e0cef9daeaf33788c6676a37e5762af80",
+   "caracteres": 69251,
+   "bytes": 69844,
+   "linhas": 1144,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "blocoLinhas": [
+    7,
+    10
+   ],
+   "ocorrenciasPorLinha": {
+    "Pontuação automática": [
+     8
+    ],
+    "Sugestão automática": [
+     9
+    ],
+    "Referência Automatizada": [
+     7
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [
+     64
+    ],
+    "classificação global está SUSPENSA": [
+     64
+    ],
+    "Score = ": [
+     54
+    ]
+   }
+  },
+  {
+   "condicao": "disponibilidade-incompleta",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "sha256Contexto": "5ecad8ee1fbb935b5a226498baae8dcfe56ab25bb8088d65d32aad9eaf895cdc",
+   "caracteres": 70110,
+   "bytes": 70732,
+   "linhas": 1158,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "blocoLinhas": [
+    7,
+    10
+   ],
+   "ocorrenciasPorLinha": {
+    "Pontuação automática": [
+     8
+    ],
+    "Sugestão automática": [
+     9
+    ],
+    "Referência Automatizada": [
+     7
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [
+     78
+    ],
+    "classificação global está SUSPENSA": [
+     78
+    ],
+    "Score = ": [
+     68
+    ]
+   }
+  },
+  {
+   "condicao": "contradicao",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "sha256Contexto": "eeaa1dbdb28285275b393196c0ad6103bd47dcd97ccba7f60a6dee829624f126",
+   "caracteres": 70498,
+   "bytes": 71132,
+   "linhas": 1160,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "blocoLinhas": [
+    7,
+    10
+   ],
+   "ocorrenciasPorLinha": {
+    "Pontuação automática": [
+     8
+    ],
+    "Sugestão automática": [
+     9
+    ],
+    "Referência Automatizada": [
+     7
+    ],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [
+     80
+    ],
+    "classificação global está SUSPENSA": [
+     80
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [
+     78
+    ],
+    "Score = ": [
+     70
+    ]
+   }
+  },
+  {
+   "condicao": "coerencia-nao-concluida",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "sha256Contexto": "70dda82efdc27a4ef3ac27553f2c40a0e4075a55ff84b9d5c8681b8e0d40184e",
+   "caracteres": 70971,
+   "bytes": 71621,
+   "linhas": 1160,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "blocoLinhas": [
+    7,
+    10
+   ],
+   "ocorrenciasPorLinha": {
+    "Pontuação automática": [
+     8
+    ],
+    "Sugestão automática": [
+     9
+    ],
+    "Referência Automatizada": [
+     7
+    ],
+    "Nota não calculada: verificação de coerência não concluída": [
+     80
+    ],
+    "classificação global está SUSPENSA": [
+     80
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [
+     78
+    ],
+    "Score = ": [
+     70
+    ]
+   }
+  },
+  {
+   "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+   "construida": true,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "sha256Contexto": "3e24425c164f3f2bf8c7c37736ed63de5377b0b41e94ef18fe2e316a9a2d7c1b",
+   "caracteres": 70336,
+   "bytes": 70979,
+   "linhas": 1160,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "blocoLinhas": [
+    7,
+    10
+   ],
+   "ocorrenciasPorLinha": {
+    "Pontuação automática": [
+     8
+    ],
+    "Sugestão automática": [
+     9
+    ],
+    "Referência Automatizada": [
+     7
+    ],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [
+     80
+    ],
+    "classificação global está SUSPENSA": [
+     80
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [
+     78
+    ],
+    "Score = ": [
+     70
+    ]
+   }
+  }
+ ],
+ "adicionais": [
+  {
+   "condicao": "elegivel-auto-A",
+   "texto": "AD1-curta-5a",
+   "extensao": 35,
+   "guardaDe50": false,
+   "resposta": "A/ACEITO (automatic)",
+   "caminho": "nulo-sem-log (guarda de 50)",
+   "replica": {
+    "caminho": "curto",
+    "indice": null,
+    "nota": null,
+    "veredicto": null
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "leituraHumana": "Nota B, ACEITO COM REVISÕES MENORES"
+  },
+  {
+   "condicao": "elegivel-auto-A",
+   "texto": "AD2-curta-5b",
+   "extensao": 28,
+   "guardaDe50": false,
+   "resposta": "A/ACEITO (automatic)",
+   "caminho": "nulo-sem-log (guarda de 50)",
+   "replica": {
+    "caminho": "curto",
+    "indice": null,
+    "nota": null,
+    "veredicto": null
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "leituraHumana": "NÃO aceito (negação)"
+  },
+  {
+   "condicao": "elegivel-auto-A",
+   "texto": "AD3-curta-5c",
+   "extensao": 34,
+   "guardaDe50": false,
+   "resposta": "A/ACEITO (automatic)",
+   "caminho": "nulo-sem-log (guarda de 50)",
+   "replica": {
+    "caminho": "curto",
+    "indice": null,
+    "nota": null,
+    "veredicto": null
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "leituraHumana": "nenhuma decisão própria (menção a exemplo)"
+  },
+  {
+   "condicao": "elegivel-auto-A",
+   "texto": "AD4-participio-aceito",
+   "extensao": 327,
+   "guardaDe50": true,
+   "resposta": "A/ACEITO (ai)",
+   "caminho": "texto-completo",
+   "replica": {
+    "caminho": "texto-completo",
+    "indice": 5,
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "leituraHumana": "nenhuma decisão declarada"
+  },
+  {
+   "condicao": "elegivel-auto-A",
+   "texto": "AD5-rejeitar-hipotese-nula",
+   "extensao": 331,
+   "guardaDe50": true,
+   "resposta": "F/REJEITAR (ai)",
+   "caminho": "texto-completo",
+   "replica": {
+    "caminho": "texto-completo",
+    "indice": 4,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "leituraHumana": "nenhuma decisão declarada"
+  },
+  {
+   "condicao": "elegivel-auto-A",
+   "texto": "AD6-titulo-citado-antes-da-secao",
+   "extensao": 783,
+   "guardaDe50": true,
+   "resposta": "F/REJEITAR (ai)",
+   "caminho": "editorial",
+   "replica": {
+    "caminho": "editorial",
+    "indice": 4,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "leituraHumana": "ACEITO"
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "texto": "AD1-curta-5a",
+   "extensao": 35,
+   "guardaDe50": false,
+   "resposta": "F/REJEITAR (automatic)",
+   "caminho": "nulo-sem-log (guarda de 50)",
+   "replica": {
+    "caminho": "curto",
+    "indice": null,
+    "nota": null,
+    "veredicto": null
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "leituraHumana": "Nota B, ACEITO COM REVISÕES MENORES"
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "texto": "AD2-curta-5b",
+   "extensao": 28,
+   "guardaDe50": false,
+   "resposta": "F/REJEITAR (automatic)",
+   "caminho": "nulo-sem-log (guarda de 50)",
+   "replica": {
+    "caminho": "curto",
+    "indice": null,
+    "nota": null,
+    "veredicto": null
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "leituraHumana": "NÃO aceito (negação)"
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "texto": "AD3-curta-5c",
+   "extensao": 34,
+   "guardaDe50": false,
+   "resposta": "F/REJEITAR (automatic)",
+   "caminho": "nulo-sem-log (guarda de 50)",
+   "replica": {
+    "caminho": "curto",
+    "indice": null,
+    "nota": null,
+    "veredicto": null
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "leituraHumana": "nenhuma decisão própria (menção a exemplo)"
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "texto": "AD4-participio-aceito",
+   "extensao": 327,
+   "guardaDe50": true,
+   "resposta": "A/ACEITO (ai)",
+   "caminho": "texto-completo",
+   "replica": {
+    "caminho": "texto-completo",
+    "indice": 5,
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "A",
+    "veredicto": "ACEITO"
+   },
+   "leituraHumana": "nenhuma decisão declarada"
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "texto": "AD5-rejeitar-hipotese-nula",
+   "extensao": 331,
+   "guardaDe50": true,
+   "resposta": "F/REJEITAR (ai)",
+   "caminho": "texto-completo",
+   "replica": {
+    "caminho": "texto-completo",
+    "indice": 4,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "leituraHumana": "nenhuma decisão declarada"
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "texto": "AD6-titulo-citado-antes-da-secao",
+   "extensao": 783,
+   "guardaDe50": true,
+   "resposta": "F/REJEITAR (ai)",
+   "caminho": "editorial",
+   "replica": {
+    "caminho": "editorial",
+    "indice": 4,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "destaque": {
+    "exibido": true,
+    "nota": "F",
+    "veredicto": "REJEITAR"
+   },
+   "leituraHumana": "ACEITO"
+  }
+ ],
+ "construidasSemValidation": [
+  {
+   "texto": "T1-editorial-simples",
+   "destaque": {
+    "exibido": false,
+    "nota": null,
+    "veredicto": null
+   },
+   "aviso": {
+    "exibido": true,
+    "titulo": "⚠️ Verificação não confirmada",
+    "motivos": [
+     "Não foi possível confirmar a verificação deste parecer. O texto não deve ser tratado como aprovado."
+    ]
+   },
+   "corpoEmQuarentena": true,
+   "copiaIgualAoTexto": true
+  },
+  {
+   "texto": "T5a-negacao-nota-B",
+   "destaque": {
+    "exibido": false,
+    "nota": null,
+    "veredicto": null
+   },
+   "aviso": {
+    "exibido": true,
+    "titulo": "⚠️ Verificação não confirmada",
+    "motivos": [
+     "Não foi possível confirmar a verificação deste parecer. O texto não deve ser tratado como aprovado."
+    ]
+   },
+   "corpoEmQuarentena": true,
+   "copiaIgualAoTexto": true
+  }
+ ],
+ "f_diferencas": {
+  "elegivel-auto-F": {
+   "linhasDivergentes": 28,
+   "hunks": [
+    "8,9c8,9",
+    "31,34c31,34",
+    "41c41",
+    "44c44",
+    "79c79",
+    "82c82",
+    "87c87",
+    "88a89,94"
+   ]
+  },
+  "disponibilidade-ausente": {
+   "linhasDivergentes": 44,
+   "hunks": [
+    "8,9c8,9",
+    "29,47c29,31",
+    "77,84c61,66",
+    "87c69",
+    "93c75"
+   ]
+  },
+  "disponibilidade-incompleta": {
+   "linhasDivergentes": 36,
+   "hunks": [
+    "8,9c8,9",
+    "32,34c32",
+    "36c34",
+    "38,39c36,37",
+    "41c39",
+    "45c43",
+    "77,84c75,80",
+    "87c83",
+    "93c89"
+   ]
+  },
+  "contradicao": {
+   "linhasDivergentes": 22,
+   "hunks": [
+    "8,9c8,9",
+    "77,82c77,82",
+    "84d83",
+    "86,87c85",
+    "93c91"
+   ]
+  },
+  "coerencia-nao-concluida": {
+   "linhasDivergentes": 22,
+   "hunks": [
+    "8,9c8,9",
+    "77,82c77,82",
+    "84d83",
+    "86,87c85",
+    "93c91"
+   ]
+  },
+  "coerencia-nao-avaliada-CONSTRUIDA": {
+   "linhasDivergentes": 22,
+   "hunks": [
+    "8,9c8,9",
+    "77,82c77,82",
+    "84d83",
+    "86,87c85",
+    "93c91"
+   ]
+  }
+ },
+ "i_rotulosEMotivos": [
+  {
+   "condicao": "disponibilidade-ausente",
+   "construida": false,
+   "causa": "disponibilidade",
+   "rotulo": "Nota não calculada: qualidade individual não avaliada",
+   "rotuloNoContextoLinhas": [
+    64
+   ],
+   "motivoPrimeiros60": "Qualidade individual não avaliada: a requisição não traz ava",
+   "motivoNoContextoLinhas": [
+    8,
+    62
+   ],
+   "cartaoNaTela": "📊 Nota não calculada: qualidade individual não avaliada",
+   "motivoDoCartaoIgualAoDaResposta": true
+  },
+  {
+   "condicao": "disponibilidade-incompleta",
+   "construida": false,
+   "causa": "disponibilidade",
+   "rotulo": "Nota não calculada: qualidade individual não avaliada",
+   "rotuloNoContextoLinhas": [
+    78
+   ],
+   "motivoPrimeiros60": "Avaliação de qualidade incompleta: há respondentes sem CR in",
+   "motivoNoContextoLinhas": [
+    8,
+    76
+   ],
+   "cartaoNaTela": "📊 Nota não calculada: qualidade individual não avaliada",
+   "motivoDoCartaoIgualAoDaResposta": true
+  },
+  {
+   "condicao": "contradicao",
+   "construida": false,
+   "causa": "contradicao",
+   "rotulo": "Nota não calculada: contradição interna não resolvida na avaliação de qualidade",
+   "rotuloNoContextoLinhas": [
+    80
+   ],
+   "motivoPrimeiros60": "Contradição interna não resolvida entre os dados da requisiç",
+   "motivoNoContextoLinhas": [
+    8,
+    78
+   ],
+   "cartaoNaTela": "📊 Nota não calculada: contradição interna não resolvida na avaliação de qualidade",
+   "motivoDoCartaoIgualAoDaResposta": true
+  },
+  {
+   "condicao": "coerencia-nao-concluida",
+   "construida": false,
+   "causa": "coerencia_nao_concluida",
+   "rotulo": "Nota não calculada: verificação de coerência não concluída",
+   "rotuloNoContextoLinhas": [
+    80
+   ],
+   "motivoPrimeiros60": "Verificação obrigatória de coerência não determinada: a clas",
+   "motivoNoContextoLinhas": [
+    8,
+    78
+   ],
+   "cartaoNaTela": "📊 Nota não calculada: verificação de coerência não concluída",
+   "motivoDoCartaoIgualAoDaResposta": true
+  },
+  {
+   "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+   "construida": true,
+   "causa": "coerencia_nao_avaliada",
+   "rotulo": "Nota não calculada: coerência interna não avaliada nesta requisição",
+   "rotuloNoContextoLinhas": [
+    80
+   ],
+   "motivoPrimeiros60": "Coerência interna não avaliada nesta requisição: a classific",
+   "motivoNoContextoLinhas": [
+    8,
+    78
+   ],
+   "cartaoNaTela": "📊 Nota não calculada: coerência interna não avaliada nesta requisição",
+   "motivoDoCartaoIgualAoDaResposta": true
+  }
+ ],
+ "i_frasesQueSeContradizemNoMesmoContexto": [
+  {
+   "condicao": "contradicao",
+   "dizemQueAAvaliacaoExiste": [
+    {
+     "linha": 78,
+     "texto": "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — Contradição interna "
+    },
+    {
+     "linha": 79,
+     "texto": "Os CRs individuais dos respondentes FORAM avaliados; o que não se resolveu foi a contradição entre os valores declarados"
+    }
+   ],
+   "dizemQueNaoFoiAvaliada": [
+    {
+     "linha": 85,
+     "texto": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    },
+    {
+     "linha": 91,
+     "texto": "⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado."
+    }
+   ]
+  },
+  {
+   "condicao": "coerencia-nao-concluida",
+   "dizemQueAAvaliacaoExiste": [
+    {
+     "linha": 78,
+     "texto": "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — V"
+    },
+    {
+     "linha": 79,
+     "texto": "Os CRs individuais dos respondentes FORAM avaliados; a verificação de coerência não foi concluída, pelo motivo informado"
+    }
+   ],
+   "dizemQueNaoFoiAvaliada": [
+    {
+     "linha": 85,
+     "texto": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    },
+    {
+     "linha": 91,
+     "texto": "⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado."
+    }
+   ]
+  },
+  {
+   "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+   "dizemQueAAvaliacaoExiste": [
+    {
+     "linha": 78,
+     "texto": "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — C"
+    },
+    {
+     "linha": 79,
+     "texto": "Os CRs individuais dos respondentes FORAM avaliados; a verificação de coerência não foi concluída, pelo motivo informado"
+    }
+   ],
+   "dizemQueNaoFoiAvaliada": [
+    {
+     "linha": 85,
+     "texto": "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada."
+    },
+    {
+     "linha": 91,
+     "texto": "⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado."
+    }
+   ]
+  }
+ ]
+}

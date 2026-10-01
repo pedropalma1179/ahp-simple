@@ -1,0 +1,419 @@
+[
+ {
+  "id": "finalNota",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "finalVeredicto",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "aiGrade",
+  "producao": 10,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 10
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "calculateGrade",
+  "producao": 6,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 4,
+   "lib/ai-reviewer/review-request.ts": 1,
+   "lib/ai-reviewer/vinculo-execucao.ts": 1
+  },
+  "teste": 3,
+  "arquivosDeTeste": 3,
+  "scripts": 1
+ },
+ {
+  "id": "extractGradeFromReview",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "Classificacao",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 3
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "classification",
+  "producao": 57,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 30,
+   "app/api/calculate/route.ts": 1,
+   "app/decisor/resultados/[projectId]/page.tsx": 15,
+   "lib/knowledge.ts": 9,
+   "lib/rag/articles/goepel2018_ahpos.ts": 1,
+   "lib/rag/types.ts": 1
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "elegivelParaClassificacao",
+  "producao": 8,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 4,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2,
+   "lib/ai-reviewer/review-request.ts": 1,
+   "lib/ai-reviewer/vinculo-execucao.ts": 1
+  },
+  "teste": 12,
+  "arquivosDeTeste": 4,
+  "scripts": 0
+ },
+ {
+  "id": "motivoDaSuspensao",
+  "producao": 5,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 3,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "ROTULO_NOTA_SUSPENSA",
+  "producao": 5,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 3,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 4,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO",
+  "producao": 4,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "getValidFinalScores",
+  "producao": 5,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2,
+   "lib/ai-reviewer/review-request.ts": 1,
+   "lib/ai-reviewer/validate-review.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "finalScores",
+  "producao": 78,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 6,
+   "app/api/audit-decision/route.ts": 5,
+   "app/api/calculate/route.ts": 12,
+   "app/api/test-claude/route.ts": 1,
+   "app/decisor/resultados/[projectId]/components/ExportReports.tsx": 5,
+   "app/decisor/resultados/[projectId]/page.tsx": 31,
+   "components/BentoGridDashboard.tsx": 9,
+   "lib/ai-reviewer/review-request.ts": 7,
+   "lib/knowledge.ts": 2
+  },
+  "teste": 20,
+  "arquivosDeTeste": 14,
+  "scripts": 8
+ },
+ {
+  "id": "validScores",
+  "producao": 7,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 7
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "overallScore",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "app/api/response-quality/route.ts": 2
+  },
+  "teste": 1,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "qualityScore",
+  "producao": 11,
+  "arquivosDeProducao": {
+   "app/api/audit-decision/route.ts": 9,
+   "app/api/response-quality/route.ts": 1,
+   "lib/ai-reviewer/review-request.ts": 1
+  },
+  "teste": 2,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "decideReviewPresentation",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "components/ParecerAISection.tsx": 2,
+   "lib/ai-reviewer/review-validation-contract.ts": 1
+  },
+  "teste": 7,
+  "arquivosDeTeste": 2,
+  "scripts": 0
+ },
+ {
+  "id": "toReviewValidationContract",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2,
+   "lib/ai-reviewer/review-validation-contract.ts": 1
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "LIMITE_DO_VINCULO",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/vinculo-execucao.ts": 3
+  },
+  "teste": 14,
+  "arquivosDeTeste": 2,
+  "scripts": 0
+ },
+ {
+  "id": "classificarAvaliacaoRecebida",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 1
+  },
+  "teste": 15,
+  "arquivosDeTeste": 3,
+  "scripts": 0
+ },
+ {
+  "id": "classificarAvaliacaoDaTela",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "app/decisor/resultados/[projectId]/page.tsx": 2,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 1
+  },
+  "teste": 20,
+  "arquivosDeTeste": 6,
+  "scripts": 0
+ },
+ {
+  "id": "avaliarCoerencia",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 1
+  },
+  "teste": 11,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "ramoDeQualidade",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 3,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "CONJUNTO_MINIMO",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 4,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "qualidadeDisponivel",
+  "producao": 5,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 2,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 3
+  },
+  "teste": 5,
+  "arquivosDeTeste": 2,
+  "scripts": 0
+ },
+ {
+  "id": "coerenciaDaQualidade",
+  "producao": 6,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 5,
+   "lib/ai-reviewer/review-request.ts": 1
+  },
+  "teste": 1,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "avaliacaoDeQualidade",
+  "producao": 23,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 13,
+   "app/decisor/resultados/[projectId]/page.tsx": 6,
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 1,
+   "lib/ai-reviewer/review-request.ts": 3
+  },
+  "teste": 19,
+  "arquivosDeTeste": 4,
+  "scripts": 0
+ },
+ {
+  "id": "CausaDaSuspensao",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "MOTIVO_AUSENTE",
+  "producao": 7,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 7
+  },
+  "teste": 8,
+  "arquivosDeTeste": 2,
+  "scripts": 0
+ },
+ {
+  "id": "MOTIVO_INCOMPLETA",
+  "producao": 6,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 6
+  },
+  "teste": 2,
+  "arquivosDeTeste": 1,
+  "scripts": 0
+ },
+ {
+  "id": "MOTIVO_DECLARADA_SEM_DADOS",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "MOTIVO_COERENCIA_NAO_DETERMINADA",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "MOTIVO_COERENCIA_CONTRADICAO",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO",
+  "producao": 3,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 3
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "MOTIVO_COERENCIA_NAO_AVALIADA",
+  "producao": 2,
+  "arquivosDeProducao": {
+   "lib/ai-reviewer/avaliacao-qualidade.ts": 2
+  },
+  "teste": 0,
+  "arquivosDeTeste": 0,
+  "scripts": 0
+ },
+ {
+  "id": "notaSuspensa",
+  "producao": 8,
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": 1,
+   "app/decisor/resultados/[projectId]/page.tsx": 2,
+   "components/ParecerAISection.tsx": 5
+  },
+  "teste": 51,
+  "arquivosDeTeste": 5,
+  "scripts": 0
+ }
+]

@@ -14155,6 +14155,750 @@ vazia e documento utilizável (os 15 casos da predição). **Nenhum dos dois foi
   recuperação, sem parecer novo; `npm run lint` não foi rodado; nenhum `--force`, rebase ou `amend`; **nada foi integrado**:
   `integra/a30-registros` segue em `8e165fb`, e `main`, em `33c1fdf6500242832994a17aa15b0a686704c029`.
 
+## Nota e veredicto do Parecer IA, Fase 1 (medir o alcance): o que foi medido, em 01/10/2026
+
+⚠ **Fase 1: mede, diagnostica e para.** Nenhuma linha de código nem de teste foi alterada, **nenhuma das duas decisões foi
+implementada**, e **nenhuma predição é exigida**: nada do que o modelo recebe muda. **Base:**
+`d6fc649ace1fe1c2c8fb3f9677cb0b706c11fcb8`. Ambiente observado: Linux x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3, ts-jest
+29.4.6, React 18.3.1 (**ambiente observado, e não requisito**). Dados, textos fixados, contextos e instrumentos:
+`docs/dados/a12-nota-veredicto-fase1/`. ⚠ **Sem chamada de rede** (um `fetch` simulado que lança registrou **0 chamadas**; o
+cliente do modelo simulado foi chamado **169 vezes**: 150 da matriz, 12 dos controles adicionais e 7 das capturas), **sem
+geração real, sem consulta a produção, sem recálculo, sem alteração de dado.**
+
+### O objeto, decidido pelo autor em 30/09/2026, e os modos do instrumento
+
+Direção da próxima rodada, **NÃO implementada aqui**: (1) o número do escore automático de `calculateGrade` sai do contexto do
+modelo (`route.ts:1062-1066`); ⚠ a decisão é sobre o **número**, e o destino da "Sugestão automática", que imprime
+`classification.veredicto`, **não está decidido**; (2) quando a extração não encontrar resultado válido, apresentar "veredito
+não identificado" em vez do escore automático (`:1439-1440` faz `aiGrade?.nota ?? classification.nota`).
+
+| Modo | O que faz | O que mede | O que NÃO alcança |
+|---|---|---|---|
+| **captura** | o cliente simulado registra o contexto e **interrompe antes da geração** (erro sentinela; o `POST` responde 500) | o que **seria enviado** ao modelo | a extração, a resposta e a apresentação |
+| **texto fixado** | o cliente simulado registra o contexto e **devolve um texto fixado pelo instrumento**; o `POST` conclui | o processamento da resposta: `extractGradeFromReview`, o corpo da resposta e a apresentação | o texto que o modelo geraria |
+| **leitura** | `git grep`, varredura dos arquivos rastreados e leitura do fonte | consumidores, papéis, localizadores | execução do código medido |
+
+⚠ **Nenhum modo mede o efeito de retirar o escore sobre o texto GERADO pelo modelo**, e **uma única dupla de respostas não
+demonstraria efeito causal da retirada**. Cada número abaixo traz o modo que o produziu, entre parênteses: **(captura)**,
+**(texto fixado)** ou **(leitura)**.
+
+### 1. Base e reconferência
+
+| Ref | Medido em 01/10/2026 (`git ls-remote origin`; `git rev-parse` para o local) | Esperado |
+|---|---|---|
+| `HEAD` e `refs/heads/claude/loving-shannon-661fy9` | `d6fc649ace1fe1c2c8fb3f9677cb0b706c11fcb8` | a base do pedido |
+| `refs/heads/integra/a30-registros` | `8e165fb9da51133ccbe1e9d0093680ada67a7ca5` | o esperado |
+| `refs/heads/main` | `33c1fdf6500242832994a17aa15b0a686704c029` | o esperado |
+
+Estado do diretório antes: `git status --porcelain` vazio, `git stash list` vazio, `git rev-parse --is-shallow-repository`
+devolve `false`. Preservados, medidos agora: `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`,
+`85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes, cada um);
+`docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`,
+`a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes).
+⚠ `d6fc649` **não tocou** `app/api/ai-reviewer/route.ts`, `components/ParecerAISection.tsx` nem
+`lib/__tests__/a12-coerencia.test.ts`: `git diff --name-only 8e165fb d6fc649` devolve **0** arquivo em `app/`, `components/`
+e nesse teste.
+
+**Releitura dos localizadores, em `d6fc649`** (a coluna "Medido" diz o que o fonte traz nas linhas citadas):
+
+| Citado | Medido | Veredicto |
+|---|---|---|
+| `route.ts:335-342` | a regra de ausência está no comentário de `:333-338`, e o tipo `Classificacao` em `:340-342` | exato |
+| `:344-506`, `:348-356`, `:358` | a função termina em `:507` (o `return` é `:506`); a elegibilidade ocupa `:348-356`, e `score = 100` está em `:358` | mesmo trecho; correção de linha (`:344-507`) |
+| `:431-443`, `:447-456`, `:461-471`, `:487-502` | os cortes em 30/50/70/85, em 30/20/10, a razão entre pesos e as faixas de letra em 90/80/70/60 | exato |
+| `:474-477` | o comentário "pode indicar viés" está em `:473`, e o `if` ocupa `:474-477` | mesmo trecho; correção de linha (`:473-477`) |
+| `:515-546`, `:518-526`, `:528-538`, `:540-546`, `:516`, `:529` | a lista de padrões, a seção editorial com janela de 500, o texto inteiro, a guarda de 50 e a janela; a função termina em `:550` | exato |
+| `:765` e `:791` | os dois rótulos como constantes. ⚠ **Há uma terceira inserção de rótulo em `:778`** (`${elegivel.rotulo}`), que traz os outros dois (ver D1) | mesmo trecho; **correção de conteúdo** |
+| `:1046-1053`, `:1050` | o ranking das alternativas no contexto, com `Score = ` em `:1050` | exato |
+| `:1056-1066` | `:1056` abre o `userPrompt`; o bloco "Referência Automatizada" ocupa `:1062-1066` | mesmo trecho; correção de precisão |
+| `:1413`, `:1438-1440`, `:1446-1451`, `:1454-1475`, `:1484-1489` | a chamada de `calculateGrade`, a extração e o `??`, os logs, a resposta e `metadata.gradeSource`/`automaticGrade` | exato |
+| `avaliacao-qualidade.ts:168`, `:177-178`, `:188-189`, `:196-197` | os quatro rótulos, todos começando por "Nota não calculada:" | exato |
+| `page.tsx:1361-1366` | a recepção; o `setAiReview` vai a `:1370` (`metadata: data.metadata` em `:1369`) | exato |
+| `ParecerAISection.tsx:187-199`, `:225` | o aviso de quarentena e o portão do destaque | exato |
+| `:264-274` | o bloco do corpo começa em `:264` e termina em `:337`; a "dica de uso" vai a `:363` | mesmo trecho; correção de precisão |
+| `:46-54` | o manipulador `handleCopy` ocupa `:47-56` (`:46` é o comentário; `writeText` em `:50`); a seção (e) do próprio pedido já diz `:47-56` | mesmo trecho; correção de linha |
+| `a12-coerencia.test.ts:441-450`, `:464`, `:498`, `:519` | `renderizar`, e os três rótulos fixados | exato |
+| `audit-decision/route.ts:256-286` | `qualityScore` em `:256`, o veredito PASS/ALERT/FAIL em `:285-286`; o comentário de `:255` diz "não exposto na resposta" | exato |
+
+**Nenhum localizador aponta outro trecho, e por isso não houve parada.** As correções são da **mesma passagem**; a única de
+conteúdo é a de `:765` e `:791`, abaixo.
+
+### 2. Divergências do pedido, medidas e relatadas
+
+- **D1. Os QUATRO rótulos alcançam o contexto, e não dois (captura).** O pedido diz que dois deles entram em `:765` e `:791`.
+  Os dois são constantes, mas o ramo de `:773` insere `${elegivel.rotulo}` em `:778`, e esse ramo cobre as causas
+  `coerencia_nao_concluida` e `coerencia_nao_avaliada`. Medido nas cinco condições de suspensão: cada rótulo aparece **uma vez**
+  no contexto da sua causa (tabela de (f)).
+- **D2. `coerencia_nao_avaliada` NÃO é produzível pelo tratador real (leitura, e construída na medição).** `normalizeRequest`
+  calcula `coerenciaDaQualidade` sempre (`route.ts:562`), e `avaliarCoerencia` devolve objeto não anulável, de modo que o ramo
+  `!coerencia` de `avaliacao-qualidade.ts:773` só se alcança chamando `elegivelParaClassificacao(av, null)` direto. **Já estava
+  registrado** em `a12-coerencia.test.ts`, no comentário que antecede o teste "E1" ("não tem caminho por esta API"). Aqui a
+  causa é **CONSTRUÍDA**, por um simulado de `avaliarCoerencia` que devolve `null`, e fica marcada assim em todo o relato; **as
+  três causas alcançáveis e a construída nunca se somam como se fossem a mesma origem.**
+- **D3. O `-w` do `git grep` é ASCII.** "nota" casa em "notação" (4 ocorrências: `a16-correcao-trechos-c1.test.ts:48` e `:49`,
+  `a33-conferencia-c1.test.ts:332`, `scripts/a33-snapshot-v2.cjs:789`): **145** contra **141**. A varredura desta rodada usa
+  limite de palavra **Unicode**, e as duas contagens foram conferidas **linha a linha**: as únicas 4 linhas em que diferem são
+  essas quatro.
+- **D4. O contrato descreve o `audit-decision` de modo que o código não sustenta (leitura).**
+  `docs/contratos-de-dados.md`, na seção da rota, diz "**sete** resultados de validação" e "**Nenhum chamador na interface
+  hoje**". Medido: a rota devolve **cinco** validações (`route.ts:459-471`, e a lista de `GET`), e a tela a **chama** em
+  `page.tsx:1484` e `:1545`, e consome a saída em `:4781-4937`. A linha do contrato sobre `/api/ai-reviewer` diz "análise de
+  viés, chunks do RAG" na saída, e a resposta que o código monta (`route.ts:1454-1498`) traz `success`, `nota`, `veredicto`,
+  `notaSuspensa`, `review`, `validation` e `metadata`. **Não editei o contrato**: o pedido não o autoriza, e é achado a
+  registrar.
+
+### 3. (a) O inventário: escopo, padrões, ocorrências, sentidos e transportes (leitura)
+
+**Escopo declarado.** Arquivos **rastreados** `*.ts`, `*.tsx`, `*.js`, `*.mjs` e `*.cjs` em `app/`, `components/`, `lib/` (inclui
+`lib/__tests__/` e `lib/rag/articles/`), `scripts/` e a raiz: **151** arquivos varridos, de **280** rastreados. Ficam **fora**
+os documentos, os JSON e os `.md` (contagens à parte, abaixo). **Padrões** (sensíveis a maiúsculas, flags `g` e `u`, uma
+expressão por identificador): `(?<![\p{L}\p{N}_$])ID(?![\p{L}\p{N}_$])`, para `nota`, `veredicto`, `score`, `notaSuspensa`,
+`gradeSource`, `automaticGrade` e `classificacaoAutomatica`. Conta-se **ocorrência**, e não linha.
+
+| Identificador | Ocorrências | Produção | Testes | Scripts | Fora do escopo (documentos, JSON) |
+|---|---|---|---|---|---|
+| `score` | **242** | 182 | 41 | 19 | 602 em 51 arquivos |
+| `nota` | **141** | 60 | 72 | 9 | 196 em 35 |
+| `veredicto` | **71** | 51 | 19 | 1 | 82 em 10 |
+| `notaSuspensa` | **59** | 8 | 51 | 0 | 13 em 5 |
+| `gradeSource` | **8** | 1 | 7 | 0 | 10 em 2 |
+| `automaticGrade` | **7** | 1 | 6 | 0 | 8 em 1 |
+| `classificacaoAutomatica` | **0** | 0 | 0 | 0 | 0 |
+| **Total** | **528** | 303 | 196 | 29 | |
+
+⚠ **`classificacaoAutomatica`: busca sem resultado, e não comando que falhou.** `git grep -w` e `git grep -i` sobre o
+repositório rastreado inteiro, sem filtro de extensão, saem **1** (nenhuma correspondência; o comando executou), e a varredura
+Unicode dá **0**. O nome **não existe** no código. ⚠ Os totais por grupo somam 303 + 196 + 29 = 528; a linha "Total" é a soma
+das colunas, e **não** a de uma única expressão.
+
+**O objeto de cada ocorrência.** As 528 ocorrências foram classificadas por **regra escrita depois de ler o código**
+(`inventario.json`, uma linha por ocorrência, com objeto, papel, transporte e o texto da linha): o script **falha** se uma
+ocorrência ficar sem regra, e nenhuma foi forçada numa categoria que não a descreve.
+
+| Objeto (o que o identificador designa) | Total | Produção | Testes | Scripts |
+|---|---|---|---|---|
+| `PARECER:nota`, a letra do parecer (`classification.nota`, `aiGrade.nota`, `finalNota`, `resposta.nota`) | 97 | 59 | 38 | 0 |
+| `PARECER:veredicto` | 70 | 51 | 19 | 0 |
+| `PARECER:score`, o escore do parecer (`classification.score`; sentido 1) | 34 | 27 | 7 | 0 |
+| `PARECER:notaSuspensa` | 59 | 8 | 51 | 0 |
+| `PARECER:gradeSource` | 8 | 1 | 7 | 0 |
+| `PARECER:automaticGrade` | 7 | 1 | 6 | 0 |
+| **A família do parecer, soma** | **275** | **147** | **128** | **0** |
+| `ALTERNATIVAS:score`, os escores das alternativas (`finalScores`, `scoreSubtractive`; sentido 2) | 119 | 98 | 21 | 0 |
+| `CHUNK:score`, a similaridade do chunk semântico (sentido 3) | 45 | 13 | 13 | 19 |
+| `RESPONDENTE:score`, `overallScore` por respondente de `response-quality` | 9 | 9 | 0 | 0 |
+| `ARTIGOS:score`, a palavra no TEXTO dos artigos do RAG | 34 | 34 | 0 | 0 |
+| `VALIDADOR:score`, a palavra no regex que lê o texto GERADO (`validate-review.ts:86`) | 1 | 1 | 0 | 0 |
+| `ANOTACAO:nota` e `ANOTACAO:veredicto`, o homônimo "anotação" (**não** é a nota do parecer) | 45 | 1 | 34 | 10 |
+| **Total** | **528** | | | |
+
+⚠ **Os três sentidos de `score` do pedido existem, e há mais três** (a lista era ponto de partida): o **sentido 4**, o escore
+de qualidade por respondente, `overallScore` (`response-quality/route.ts:222-237`, `:390`), que a tela repassa por espalhamento
+em `qualityAnalysis.respondents[]` e que a rota de revisão **não lê** (em produção, `overallScore` tem 2 ocorrências, ambas em
+`response-quality/route.ts`, e há 1 em fixture de teste); o **sentido 5**, a palavra "score" no **texto** dos artigos do RAG (34 ocorrências em 9
+arquivos); o **sentido 6**, a palavra no regex de `validate-review.ts:86`, que lê o texto gerado. Fora dos seis identificadores,
+`qualityScore` (10 pontos) em `audit-decision` é o item (l). ⚠ **`notaSuspensa` não é um sentido de `score`**, e o homônimo
+"nota" como anotação (45 ocorrências) **não** foi forçado em nenhum dos objetos do parecer.
+
+**Os três transportes, separados** (`score` e a família do parecer):
+
+| # | Transporte | O que carrega, **medido ou lido** |
+|---|---|---|
+| 1 | a **requisição** da tela para a rota (`page.tsx:1244-1342`) | **nenhum** campo da família do parecer (nota, veredicto, escore do parecer, `notaSuspensa`, `gradeSource`, `automaticGrade`). Vai `finalScores` (sentido 2) e, por espalhamento, `qualityAnalysis.respondents[].overallScore` (sentido 4). (leitura) |
+| 2 | o **contexto** enviado ao modelo | **(captura)** `- Pontuação automática: X/100` e `- Sugestão automática: <veredicto>` (`:1065`), ou as duas variantes "não calculada" (`:1064`); os **quatro rótulos** (`:765`, `:778`, `:791`); `Score = ` do ranking das alternativas (`:1050`, sentido 2); **16 de 34** ocorrências de `ARTIGOS:score` (medido contra a captura `elegivel-auto-A`; as outras **18** não chegam àquela captura). **(leitura)** a frase "O bloco não é critério de nota e não suspende a classificação" (`vinculo-execucao.ts:614`, só com o campo do vínculo); `score:` do chunk (`:231`, sentido 3, **só com `USE_RAG_SEMANTIC`**, que a rodada não liga: exercitado por `a33-snapshot-v2.test.ts:709` e `rag-semantic-states.test.ts`, com cliente simulado, **não reexecutado aqui**). **A letra `nota`, `gradeSource` e `automaticGrade` NÃO vão ao contexto.** |
+| 3 | a **resposta** da API para a tela | `nota`, `veredicto`, `notaSuspensa{suspensa, causa, rotulo, motivo, avaliacaoDeQualidade}`, `metadata.gradeSource`, `metadata.automaticGrade{nota, veredicto, score}` e `validation` (`route.ts:1454-1498`). (texto fixado) |
+
+**Consumidores em PRODUÇÃO da família do parecer** (147 ocorrências; objeto e papel por linha em `inventario.json`):
+
+| Arquivo | Papel | Ocorrências | Linhas | Transporte |
+|---|---|---|---|---|
+| `route.ts` | tipo (`Classificacao`, assinatura e tabela do extrator) | 10 | `:341-342`, `:515`, `:518` | |
+| `route.ts` | cálculo interno de `calculateGrade` (escore, penalidades, faixas) e o `??` do fallback | 31 | `:358-502`, `:1439-1440` | |
+| `route.ts` | construção do resultado (`return` de `calculateGrade`, suspensões) | 9 | `:355`, `:415`, `:506` | |
+| `route.ts` | extração (tabela de padrões e retornos) | 20 | `:520-544` | |
+| `route.ts` | log | 18 | `:479`, `:504`, `:534`, `:543`, `:1446`, `:1448`, `:1451` | |
+| `route.ts` | condição só para log | 2 | `:1447` | |
+| `route.ts` | comentário | 5 | `:335`, `:1435-1437` | |
+| `route.ts` | **contexto ao modelo** | 2 | `:1065` (`classification.score` e `.veredicto`) | **2** |
+| `route.ts` | **resposta da API** | 11 | `:1456`, `:1457`, `:1464`, `:1484`, `:1485-1488` | **3** |
+| `page.tsx` | recepção na tela (`setAiReview`), log e comentário | 10 | `:1361-1366` | 3 |
+| `ParecerAISection.tsx` | tipo das props, estilo por letra e por veredicto, cartão de suspensão, portão do destaque, destaque | 23 | `:12-254` | 3 |
+| `avaliacao-qualidade.ts` | comentário dos rótulos e da regra | 5 | `:163`, `:171`, `:181`, `:728` | |
+| `vinculo-execucao.ts` | **contexto ao modelo** (`LIMITE_DO_VINCULO`) | 1 | `:614` | **2** |
+
+⚠ **O que a tela LÊ da resposta:** `nota`, `veredicto`, `notaSuspensa.suspensa`, `.rotulo` e `.motivo`, `validation`, `review`,
+`metadata.model` e `metadata.knowledgeBase.{refsUsed, uniqueArticles}`. ⚠ **Produzidos e NÃO lidos por código algum de
+produção:** `metadata.gradeSource` e `metadata.automaticGrade` (**1 ocorrência cada em produção**, a do produtor, em
+`route.ts:1484-1488`), `notaSuspensa.causa` e `notaSuspensa.avaliacaoDeQualidade`, `metadata.avaliacaoDeQualidade`. O
+`metadata` inteiro chega ao estado da tela (`page.tsx:1369`), e **ninguém** lê as chaves acima. Os consumidores de
+`gradeSource` e `automaticGrade` são **testes** (7 e 6 ocorrências). ⚠ **O que esta busca não alcança:** clientes externos da
+rota e o log de produção, que o autor lê (o Anexo 3 deste registro cita a linha "Veredicto emitido: A (100/100) - ACEITO"
+do log): **desconhecido**, e não zero.
+
+**Identificadores relacionados descobertos na leitura** (`relacionados.json`, mesma varredura): `calculateGrade` (produção 6,
+das quais **1 chamada**, em `route.ts:1413`; testes 3, scripts 1), `extractGradeFromReview` (2: declaração e chamada, **0 em
+teste**), `aiGrade` (10, só a rota), `finalNota` e `finalVeredicto` (2 cada, só a rota), `elegivelParaClassificacao` (8 em
+produção, 12 em testes), `finalScores` (78 em produção e 20 em testes), `qualityScore` (11 em produção).
+
+### 4. (b) O documento persistido (leitura)
+
+**Nenhum código rastreado grava nota, veredicto, escore do parecer, `gradeSource` ou `automaticGrade` em documento algum.**
+
+| Fato | Evidência |
+|---|---|
+| `/api/ai-reviewer` não importa Firestore e não escreve | os importadores de `firebase` são `backup`, `calculate`, `export-demographics`, as páginas `avaliacao`, `decisor/projetos`, `decisor/resultados`, `perfil` e `lib/firebase.ts`; a rota de revisão **não** está entre eles (`git grep`) |
+| a tela só **lê** o Firestore na página de resultados | `getDoc`/`getDocs` em `page.tsx:1521`, `:1532`, `:1568`, `:1607`; nenhum `setDoc`, `addDoc`, `updateDoc`, `deleteDoc` ou `writeBatch` nesse arquivo |
+| `aiReview` é **estado React** | `useState` em `page.tsx:650`; zerado em `:956` (ao executar de novo) e em `:1493` (depois de recalcular) |
+| a **única** escrita de produção no fluxo é a do cálculo | `calculate/route.ts:1227`, `setDoc(doc(db, 'calculations', projectId), calculationResult)`; o documento traz escores das **alternativas** (sentido 2: `finalScores[].score*`, `altScores`, `altMeritScores`, `alerts.negativeAlternatives[].score` em `:1166`) |
+| as outras escritas são de **outros** documentos | `responses` e `respondents` (`avaliacao/page.tsx`: `:992`, `:994`, `:997`, `:1001`, `:1275`, `:1354`, `:1442`, `:1484`, `:1493`, `:1497`, `:1995`), `projects` e `respondents` (`decisor/projetos/page.tsx`), `respondents` (`perfil/page.tsx:261`); nenhum desses três arquivos traz **nenhum** dos seis identificadores (0 ocorrências na varredura) |
+| o documento de cálculo **versionado** não tem as chaves | `docs/calculations-13jul2026.json`: das 274 chaves, as que casam `nota`, `veredicto`, `score`, `grade`, `review`, `parecer` ou `automatic` são só as de `score` das alternativas (`finalScores[].score*`, `altMeritScores`, `altScores`, `sensitivityTrajectories.*[].scores`) |
+| o que **persiste fora de documento** | o **log** da plataforma retém `Resultado: A (100/100) - ACEITO`, `Nota IA (autoritativa)`, `Divergência` e `Fallback para nota automática` (`route.ts:504`, `:1446-1451`) |
+
+⚠ **Origem, disponibilidade e coerência.** O snapshot é **recebido** (um arquivo versionado, uma data, 13/07/2026), e **não** o
+estado atual do Firestore, que **não foi consultado, por regra**: desconhecido. A leitura do código e o snapshot são
+**consistentes** entre si. **Não presumi que não são gravados:** a conclusão vem da lista completa dos pontos de escrita.
+
+### 5. (c) O que o regex reconhece, e o que isso NÃO demonstra (texto fixado)
+
+⚠ **Os três contraexemplos do autor foram reproduzidos pelo TRATADOR REAL, no modo de texto fixado, e os três coincidem com o
+relato dele (3 de 3; nenhuma divergência a relatar).** Requisição `elegivel-auto-A` (elegível; a automática dá A, 100/100),
+apresentação aprovada. O texto de cada entrada é o **integral**, com um corpo neutro que **não** traz nenhum termo que o extrator
+reconheça (conferido pelos padrões que casam no texto inteiro, abaixo); o arquivo `texto-fixado.json` traz as entradas, a extensão
+e a posição de cada uma.
+
+```
+## 📋 RESUMO EXECUTIVO
+Texto de ensaio do instrumento de medição, escrito apenas para ter extensão suficiente e nenhum termo de resultado.
+
+## 🔍 ANÁLISE
+Parágrafo de preenchimento, sem números, sem referências e sem qualquer termo que o extrator reconheça.
+
+```
+
+Fecho de cada caso (a entrada integral é o corpo acima mais o fecho; a quebra de linha final faz parte do texto):
+
+```
+caso 1 (T5a):  ## 🎯 DECISÃO EDITORIAL⏎Nota B. ACEITO COM REVISÕES MENORES⏎
+caso 2 (T5b):  ## 🎯 DECISÃO EDITORIAL⏎O estudo NÃO deve ser ACEITO nesta forma.⏎
+caso 3 (T5c):  Em revisões anteriores, o rótulo ACEITO foi usado apenas como exemplo de formato, e este manuscrito não recebe decisão própria neste texto.⏎
+```
+
+| | **Caso 1** | **Caso 2** | **Caso 3** |
+|---|---|---|---|
+| Descrição | "Nota B. ACEITO COM REVISÕES MENORES", na decisão editorial | "O estudo NÃO deve ser ACEITO", na decisão editorial | menção a ACEITO como exemplo anterior, **sem** decisão editorial própria |
+| **Texto recebido**: extensão | **319** caracteres (unidades UTF-16, a medida da guarda de `:516`); 316 pontos de código; 335 bytes UTF-8 | **325**; 322; 341 | **399**; 397; 416 |
+| Posição do título da seção (base 0, UTF-16) | **265**; a janela de 500 começa em **283** e traz 36 | **265**; **283**; 42 | **não há** seção: a regex não casa (o texto diz "decisão própria", e não "decisão editorial") |
+| Padrões que casam na janela, pela ordem de `:518-526` | índices 0, 1 e 5 | índice 5 | nenhuma janela |
+| Padrões que casam no texto inteiro | 0, 1 e 5 | 5 | 5 |
+| Caminho, pelo log da rota | seção de decisão editorial | seção de decisão editorial | **texto completo (fallback)** |
+| **Padrão reconhecido** | o de índice 0: `ACEITO COM REVISÕES MENORES` | o de índice 5: `ACEITO` | o de índice 5: `ACEITO` |
+| **Letra atribuída**, `veredicto` | **A**, `ACEITO COM REVISÕES MENORES` | **A**, `ACEITO` | **A**, `ACEITO` |
+| `metadata.gradeSource` | `ai` | `ai` | `ai` |
+| Relato do autor | A, "ACEITO COM REVISÕES MENORES" | A, "ACEITO" | A, "ACEITO" |
+| **Apresentação** (renderização do componente) | destaque "Nota Científica **A**" e "Veredicto **ACEITO COM REVISÕES MENORES**"; o corpo e a cópia dizem "Nota B" | destaque **A** e **ACEITO**; o corpo e a cópia trazem a negação | destaque **A** e **ACEITO**; o corpo e a cópia **não trazem decisão** |
+
+⚠ **Registrados separadamente, como pedido:** texto recebido, padrão reconhecido, letra atribuída e apresentação. A medição
+**confere** com a do autor nos três; o que ela acrescenta é a posição da seção e a janela.
+
+**As frases abreviadas, sozinhas, NÃO reproduzem (texto fixado, controle do executor).** A guarda de `:516` devolve `null` para
+texto com menos de 50 caracteres: "Nota B. ACEITO COM REVISÕES MENORES" tem **35**, "O estudo NÃO deve ser ACEITO", **28**, e
+"Exemplo anterior: o rótulo ACEITO.", **34**. Nos **6 de 6** casos (as três frases em `elegivel-auto-A` e em `elegivel-auto-F`) a
+extração dá `null`, **sem log** (a guarda sai antes de qualquer log), `metadata.gradeSource` é `automatic`, e a resposta e o
+destaque trazem a **automática**: A/ACEITO em `elegivel-auto-A`, F/REJEITAR em `elegivel-auto-F`. **É o que o pedido previa**
+("podem não reproduzir"), e a medição da seção acima usou as entradas completas.
+
+**O que mais a medição mostra do extrator (texto fixado; entradas CONSTRUÍDAS, e a frequência de cada formato em gerações
+reais NÃO está medida):**
+
+- **A ordem da lista decide, e não a posição nem o sentido.** "REJEITAR, ou ACEITO COM REVISÕES MENORES se as limitações forem
+  mitigadas." (T4a, na seção, e T4b, sem seção) casa os índices 0, 1, 4 e 5, e o 0 vence: **A**, `ACEITO COM REVISÕES MENORES`,
+  embora a primeira decisão escrita seja REJEITAR.
+- **O padrão é insensível a maiúsculas** (`/i`): "O limiar adotado já foi **aceito** pelos autores em estudos anteriores", sem
+  seção e sem decisão (AD4), dá **A/ACEITO** pelo texto completo; "não há evidência suficiente para **rejeitar** a hipótese nula",
+  idem (AD5), dá **F/REJEITAR**. São palavras comuns de um texto estatístico.
+- **A janela ancora na PRIMEIRA ocorrência do título.** Um texto em que "decisão editorial" é citado em prosa **antes** da seção
+  real (AD6) ancora a janela de 500 na citação, e a janela traz uma frase com "rejeitar": o resultado é **F/REJEITAR**, pelo
+  caminho da seção, e a decisão real do texto, ACEITO, fica fora da janela.
+- **Título e decisão na mesma linha** (T3b, "## 🎯 DECISÃO EDITORIAL: REVISÕES MAIORES", sem quebra depois) **não casam a seção**
+  (a regex exige `\n` depois do título), e a busca cai no texto inteiro: C/REVISÕES MAIORES, pelo **fallback**.
+- **A mesma string de veredicto tem letras diferentes nas duas tabelas do mesmo arquivo:** `ACEITO COM REVISÕES MENORES` é **A**
+  no extrator (`route.ts:520`) e **B** em `calculateGrade` (`:491-492`). O extrator só atribui B à expressão curta
+  `REVISÕES MENORES` (`:521`).
+- ⚠ **O regex encontrar uma expressão NÃO demonstra que identificou o veredito do parecerista:** é o que as três linhas da
+  tabela acima mostram, e o que o item (d), abaixo, cruza com a elegibilidade. **Nenhuma correção do extrator.**
+
+### 6. (d) Os estados da EXTRAÇÃO, cruzados com a elegibilidade (texto fixado)
+
+Cada célula é uma execução do `POST` real: **10 textos × 7 condições = 70 células** na apresentação aprovada (60 pelo tratador
+real e 10 da causa CONSTRUÍDA). Cada texto traz, nas linhas, o estado da extração; as condições são: `elegivel-auto-A` e
+`elegivel-auto-F` (elegíveis, com a automática em A/100 e em F/45, para que o fallback apareça como letra diferente), e as de
+suspensão (`disponibilidade` por ausência e por incompleta, `contradicao`, `coerencia_nao_concluida`, e
+`coerencia_nao_avaliada` **CONSTRUÍDA**). Resultado, em `nota/veredicto (gradeSource)`:
+
+| # | Extração | Texto | Elegível, automática A | Elegível, automática F | Não elegível, nas cinco condições |
+|---|---|---|---|---|---|
+| 1 | encontra na seção | T1 | C / REVISÕES MAIORES (`ai`) | idem | nulos |
+| 2 | **ausência**: nenhum padrão casa | T2a (sem seção), T2b (seção sem padrão) | **A / ACEITO (`automatic`)** | **F / REJEITAR (`automatic`)** | nulos |
+| 3 | **formato inesperado**, cai no texto inteiro | T3a (sem seção, com padrão) | F / REJEITAR (`ai`) | idem | nulos |
+| | | T3b (título e decisão na mesma linha) | C / REVISÕES MAIORES (`ai`) | idem | nulos |
+| 4 | **ambíguo**, a ordem decide | T4a (na seção), T4b (sem seção) | **A / ACEITO COM REVISÕES MENORES (`ai`)** | idem | nulos |
+| 5 | **negação ou menção** (os três de (c)) | T5a | A / ACEITO COM REVISÕES MENORES (`ai`) | idem | nulos |
+| | | T5b | A / ACEITO (`ai`) | idem | nulos |
+| | | T5c | A / ACEITO (`ai`) | idem | nulos |
+| 6 | qualquer das anteriores | todos | | | **50 de 50**: `nota` e `veredicto` nulos, `gradeSource` = `suspensa`, `automaticGrade` nulo, `notaSuspensa` com a causa |
+
+**Por `gradeSource`, com o denominador de cada condição (10 textos):** `elegivel-auto-A`: `ai` 8, `automatic` 2; `elegivel-auto-F`:
+`ai` 8, `automatic` 2; cada uma das cinco condições de suspensão: `suspensa` 10 de 10.
+
+⚠ **O que a matriz mostra, e o que cabe à decisão 2:**
+
+- **Em 4 das 20 células elegíveis aprovadas (T2a e T2b, nas duas condições), a extração não encontra resultado válido e o
+  destaque mostra a nota AUTOMÁTICA** (A/ACEITO ou F/REJEITAR) sob o rótulo "Nota Científica", com `gradeSource` `automatic`,
+  embora o corpo do parecer **não declare decisão alguma**. É o `??` de `:1439-1440`. **Não existe hoje estado algum de "veredito
+  não identificado"** em nenhuma das 150 células: a resposta, o destaque e o aviso não o distinguem.
+- **Com a classificação suspensa a extração NÃO corre** (`:1438`), em todas as 50 células: o texto do modelo, com ou sem decisão,
+  **não restabelece nota nem veredicto**, e é isso que `a12-qualidade-ausente.test.ts` afirma. Mas o corpo e a cópia **carregam a
+  decisão do modelo** (item (e)).
+- ⚠ **As quatro causas alcançáveis dão o mesmo resultado nesta matriz**, porque a extração não corre em nenhuma; a **construída**
+  (`coerencia_nao_avaliada`) é idêntica nos campos medidos, e **fica separada** nas somas.
+
+### 7. (e) A apresentação INTEIRA, em quatro superfícies (texto fixado; renderização do componente)
+
+⚠ **O que o instrumento é, e o que NÃO é.** O componente **real** `ParecerAISection` é **renderizado** por `renderToStaticMarkup`
+(**renderização do componente, e não execução da página no navegador**; a tela inteira continua não exercitada), e a **mesma**
+função é chamada com `React.useState` simulado para obter a árvore de elementos, de onde saem os textos de cada superfície. As
+duas leituras (a árvore e o HTML) concordam em **150 de 150** células. ⚠ **`renderToStaticMarkup` NÃO executa a ação de
+copiar.** O **manipulador real** (`handleCopy`, `:47-56`) foi **acionado**: o `onClick` do botão "Copiar parecer em markdown" foi
+extraído da árvore do componente e **invocado diretamente**, com `navigator.clipboard.writeText` **SIMULADO**, e o **argumento
+recebido foi registrado**. ⚠ **Isto NÃO é clique no navegador e NÃO é cópia para a área de transferência**: é o conteúdo que o
+manipulador real entrega a `writeText`. O botão só existe quando há `review` (`:116`).
+
+**As quatro superfícies, registradas separadamente, com o denominador de cada grupo.** A apresentação de A.27 **aprovada** vem do
+tratador real; a **não aprovada** foi induzida por um **sufixo** no texto fixado (um nome de ferramenta de IA como fonte, que
+**reprova**, ou um escore sem referência com `finalScores` vazio, que fica **inconclusivo**), e o sufixo **não muda a extração**
+(0 de 80 comparações com a célula aprovada correspondente).
+
+| Estado | Grupo (células) | 1. Destaque | 2. Aviso (`:187-199`) | Cartão de suspensão | 3. Corpo exibido | 4. Cópia: botão / argumento = texto integral |
+|---|---|---|---|---|---|---|
+| A.27 **aprovada** | elegível (20) | **20** | 0 | 0 | 20, estilo normal | 20 / 20 |
+| | suspensa alcançável (40) | **0** | 0 | **40** | 40, estilo normal | 40 / 40 |
+| | suspensa CONSTRUÍDA (10) | 0 | 0 | 10 | 10, estilo normal | 10 / 10 |
+| A.27 **reprovada** | elegível (20) | **0** | **20** | 0 | 20, **em quarentena** | 20 / 20 |
+| | suspensa alcançável (40) | 0 | 40 | 40 | 40, em quarentena | 40 / 40 |
+| | suspensa CONSTRUÍDA (10) | 0 | 10 | 10 | 10, em quarentena | 10 / 10 |
+| A.27 **inconclusiva** | elegível, automática A (10) | 0 | 10, mais o bloco "Avisos da verificação" | 0 | 10, em quarentena | 10 / 10 |
+| `nao_confirmado` (**montado pelo instrumento**, sem `validation`) | 2 payloads | 0 | 2 | 0 | 2, em quarentena | 2 / 2 |
+
+O aviso traz **título e motivos**: "⚠️ Parecer reprovado na verificação" com `REFERENCIA_IA_PROIBIDA: Ferramenta de IA citada como
+referência: "ChatGPT"`; "⚠️ Verificação inconclusiva" com `SCORE_SEM_REFERENCIA: ...`; "⚠️ Verificação não confirmada" com "Não
+foi possível confirmar a verificação deste parecer. O texto não deve ser tratado como aprovado." O estado `nao_confirmado` **nenhuma
+das 150 células produziu** (a resposta sempre traz `validation` consistente, por `toReviewValidationContract`; leitura).
+
+⚠ **A quarentena é visual.** O aviso diz "o conteúdo abaixo está em quarentena e não deve ser tratado como parecer aprovado"
+(`:191`), o corpo recebe o estilo âmbar (`:266-270`), **e o botão de cópia continua ativo e entrega o texto INTEGRAL nas 80
+células de A.27 não aprovada** (e em 2 de 2 do estado montado); no total, a cópia entrega o texto integral em **150 de 150**
+células com `review`. O portão de `:225` condiciona **só o destaque**.
+
+**Em quais casos o corpo contradiz o destaque (leitura do executor sobre os textos construídos; o oráculo foi escrito antes da
+comparação).** Dos **20** destaques exibidos (todos na apresentação aprovada, elegível), **14 contradizem o corpo** e **6** não:
+
+| Texto | O que o corpo diz | O que o destaque mostra | Células |
+|---|---|---|---|
+| T2a, T2b (ausência) | **nenhuma decisão** | a **automática**: A/ACEITO ou F/REJEITAR | 4 |
+| T4a, T4b (ambíguo) | REJEITAR em primeiro lugar, ACEITO COM REVISÕES MENORES só se mitigado (⚠ leitura do executor; o texto é ambíguo) | A / ACEITO COM REVISÕES MENORES | 4 |
+| T5a | "Nota B. ACEITO COM REVISÕES MENORES" | nota **A** | 2 |
+| T5b | "NÃO deve ser ACEITO" | **A / ACEITO** | 2 |
+| T5c | **nenhuma decisão própria** (menção a exemplo) | **A / ACEITO** | 2 |
+| T1, T3a, T3b | a mesma decisão que o destaque | | 6 (**sem** contradição) |
+
+**Em quais casos o conteúdo copiado carrega o que o destaque esconde.** Das **130** células **sem** destaque, em **104** o corpo
+exibido traz redação de decisão (um padrão do extrator) e o argumento de `writeText` é o texto integral: aprovada com suspensão,
+**40** (32 alcançáveis, 8 construídas); reprovada, **56** (16 elegíveis, 32 alcançáveis, 8 construídas); inconclusiva, **8**. Nas
+outras 26, o texto não traz decisão (T2a e T2b). ⚠ **Em 30 células a RESPOSTA carrega `nota` e `veredicto` que o destaque
+esconde** (20 reprovadas e 10 inconclusivas), e em **todas** as 50 suspensas (aprovada) o destaque é substituído pelo cartão
+"Nota não calculada: ...", **enquanto, em 40 dessas 50, o corpo e a cópia trazem redação de decisão do modelo** (as outras 10 são
+os textos sem decisão).
+
+### 8. (f) Os contextos capturados no estado atual (captura)
+
+Sete capturas, pela rota real, com o cliente simulado **interrompendo antes da geração** (a resposta de cada uma é um 500 com
+`details: "SONDA: captura interrompida antes da geracao"`; **1** chamada ao cliente em cada). O `system` é **o mesmo** nas sete
+(`f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98`, 34170 bytes). **Identidade de cada captura:**
+
+| Condição | sha256 do contexto | bytes | caracteres | linhas | requisição (sha256, 16) |
+|---|---|---|---|---|---|
+| `elegivel-auto-A` | `b5e08670c4d6e939c52b469f020336eba4ea8a94e1cc88d1699f863a82200dd0` | 70417 | 69830 | 1162 | `437e96f2085e8d5f` |
+| `elegivel-auto-F` | `a6d0b6d34713a47519d090aa9cafd2a6f770d56a279a192d38a3c0f36e59ff07` | 70584 | 69991 | 1168 | `0fc1a10639231b29` |
+| `disponibilidade-ausente` | `c895086c825421884fd57bb2c07c8d8e0cef9daeaf33788c6676a37e5762af80` | 69844 | 69251 | 1144 | `7e6b2ddaf084d8ad` |
+| `disponibilidade-incompleta` | `5ecad8ee1fbb935b5a226498baae8dcfe56ab25bb8088d65d32aad9eaf895cdc` | 70732 | 70110 | 1158 | `7bfdd900f0228dd9` |
+| `contradicao` | `eeaa1dbdb28285275b393196c0ad6103bd47dcd97ccba7f60a6dee829624f126` | 71132 | 70498 | 1160 | `e397f6fd3e82e9d2` |
+| `coerencia-nao-concluida` | `70dda82efdc27a4ef3ac27553f2c40a0e4075a55ff84b9d5c8681b8e0d40184e` | 71621 | 70971 | 1160 | `6f38a19833f8b4bb` |
+| `coerencia-nao-avaliada-CONSTRUIDA` | `3e24425c164f3f2bf8c7c37736ed63de5377b0b41e94ef18fe2e316a9a2d7c1b` | 70979 | 70336 | 1160 | `437e96f2085e8d5f` |
+
+⚠ A **construída** usa a **mesma** requisição de `elegivel-auto-A` (mesmo sha256), com `avaliarCoerencia` simulado para devolver
+`null`. Os contextos completos estão em `contextos-capturados/`.
+
+**O bloco de `:1062-1066` (linhas 7 a 10 do contexto) em cada captura.** As linhas 7 ("**Referência Automatizada (apenas
+contexto — NÃO use como sua decisão):**") e 10 ("- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA
+análise dos dados, NÃO nesta referência automática.") são **iguais** nas sete; mudam as linhas 8 e 9:
+
+| Condição | Linha 8 | Linha 9 |
+|---|---|---|
+| `elegivel-auto-A` | `- Pontuação automática: 100/100` | `- Sugestão automática: ACEITO` |
+| `elegivel-auto-F` | `- Pontuação automática: 45/100` | `- Sugestão automática: REJEITAR` |
+| as cinco de suspensão | `- Pontuação automática: não calculada — <o motivo, por inteiro>` | `- Sugestão automática: não calculada; a classificação global está suspensa` |
+
+⚠ **A variante suspensa também escreve "Pontuação automática"** (com o motivo), e é por isso que o destino dessa linha
+na decisão 1 **não é evidente**: a decisão é sobre o **número**, e a linha suspensa **não traz número**.
+
+**Onde os contextos diferem do baseline (`elegivel-auto-A`), pelo `diff` do sistema, em linhas divergentes (soma de `<` e `>`):**
+`elegivel-auto-F` **28**, `disponibilidade-ausente` **44**, `disponibilidade-incompleta` **36**, e **22** em cada uma das três de
+suspensão por coerência (`contradicao`, `coerencia-nao-concluida` e a construída), **nos mesmos cinco trechos** (linhas `8-9`,
+`77-82`, `84`, `86-87` e `93`): o bloco do escore, o resumo de qualidade, a linha "**Nota:** Conforme Saaty" (que é uma
+**observação**, e não a nota do parecer), a Taxa de Validade e a frase do bloco por dimensão.
+
+**Os rótulos de suspensão, destacados (captura):**
+
+| Condição | Causa | Rótulo, e a linha em que aparece no contexto | Onde o motivo aparece no contexto |
+|---|---|---|---|
+| `disponibilidade-ausente` | `disponibilidade` | `Nota não calculada: qualidade individual não avaliada`, linha **64** (`:791`, constante) | linhas 8 e 62 |
+| `disponibilidade-incompleta` | `disponibilidade` | o **mesmo** rótulo, linha **78** (`:791`) | linhas 8 e 76 |
+| `contradicao` | `contradicao` | `Nota não calculada: contradição interna não resolvida na avaliação de qualidade`, linha **80** (`:765`, constante) | linhas 8 e 78 |
+| `coerencia-nao-concluida` | `coerencia_nao_concluida` | `Nota não calculada: verificação de coerência não concluída`, linha **80** (`:778`, `elegivel.rotulo`) | linhas 8 e 78 |
+| `coerencia-nao-avaliada-CONSTRUIDA` | `coerencia_nao_avaliada` | `Nota não calculada: coerência interna não avaliada nesta requisição`, linha **80** (`:778`) | linhas 8 e 78 |
+
+**Os quatro rótulos chegam ao contexto, e o mesmo rótulo e o mesmo motivo chegam à resposta e ao cartão da tela** (o título do
+cartão é "📊 " mais o rótulo, e o parágrafo é o motivo, iguais aos da resposta nas cinco condições).
+
+⚠ **Achado já registrado, reconfirmado com linha (captura).** Nos três contextos de suspensão por coerência, o **mesmo** contexto
+diz, ao mesmo tempo, que a avaliação **existe** e que **não foi feita**: nas linhas **78** e **79**, "AVALIAÇÃO INDIVIDUAL DE
+QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR ..." e "Os CRs individuais dos respondentes FORAM avaliados"; e nas linhas
+**85** e **91**, "**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada." e "Não disponíveis: a qualidade
+individual não foi avaliada" (`route.ts:836` e `:843`, que dependem de `avaliada`, isto é, de `elegivel.elegivel`, e **não** de a
+avaliação existir). O registro já tinha o achado ("achado adjacente da Fase 1 ... preservado e não corrigido"), e a
+suíte da saída A **enrijece** as duas frases nas quatro causas (`a12-estatisticas-dimensao.test.ts`, ensaio 4). **Não corrigi.**
+
+### 9. (g) Candidatos a "sem consumidor": os consumidores encontrados e o que cada decisão elimina (leitura)
+
+⚠ **A ausência de consumidor é hipótese a demonstrar com a lista, e não afirmação.** Nenhuma linha abaixo diz que algo "pode
+ser removido": a lista de consumidores é o que a próxima rodada precisa para decidir. **Onde se procurou:** os 151 arquivos
+rastreados de (a) (`*.ts`, `*.tsx`, `*.js`, `*.mjs` e `*.cjs`, em `app/`, `components/`, `lib/`, `scripts/` e na raiz) e, para
+o que está fora deles, `git grep` sem filtro de extensão. Conta-se ocorrência, e não linha. **O que a busca não alcança:**
+clientes externos de `/api/ai-reviewer`, o log de produção e a leitura que o autor faz dele (**desconhecido**, e não zero).
+⚠ `calculateGrade` (`:344`), `extractGradeFromReview` (`:515`), `normalizeRequest` (`:556`) e `generateReview` (`:623`) **não
+são exportadas**: o arquivo exporta só `maxDuration`, `GET` e `POST`, e por isso nenhum outro módulo as importa e o tratador
+real é o único caminho até elas.
+
+⚠ **D1\*.** O pedido decide o **número** (`classification.score`, em `:1065`). A variante suspensa da mesma linha, "Pontuação
+automática: não calculada — <motivo>" (`:1064`), **não traz número**, e o pedido não diz se ela muda. Onde importa, separo
+**D1** (só o número sai) de **D1\*** (a linha suspensa também muda).
+
+**g.1 As leituras de cada campo do resultado de `calculateGrade`** (`route.ts`, fora do cálculo da própria função):
+
+| Campo | Leituras em produção (linha) | Total | D1 elimina | D2 elimina | Restam depois de D1 e D2 |
+|---|---|---|---|---|---|
+| `classification.score` | `:1065` (**contexto**, transporte 2), `:1448` e `:1451` (log), `:1488` (`metadata.automaticGrade.score`, transporte 3) | 4 | a de `:1065` | nenhuma | **3**: dois logs e um campo da resposta que nenhum código de produção lê |
+| `classification.veredicto` | `:1065` ("Sugestão automática"), `:1440` (o `??` do fallback), `:1448` (log), `:1487` (`metadata`) | 4 | nenhuma ⚠ (a decisão é sobre o **número**) | a de `:1440` | **3**: `:1065`, `:1448`, `:1487` |
+| `classification.nota` | `:1439` (o `??`), `:1447` (condição só para log), `:1448` e `:1451` (log), `:1486` (`metadata`) | 5 | nenhuma | a de `:1439` | **4**: `:1447`, `:1448`, `:1451` e `:1486`; ⚠ a letra **não vai ao contexto** (captura) |
+| `classification.suspensa` | `:1063`, `:1438`, `:1439`, `:1440`, `:1441`, `:1445`, `:1450`, `:1464`, `:1484`, `:1485` | 10 | nenhuma | nenhuma | todas |
+| `classification.motivo` | `:1064`, `:1442`, `:1471` | 3 | nenhuma | nenhuma | todas |
+
+**g.2 Os outros candidatos:**
+
+| Elemento | Consumidores em produção | Em teste ou script | O que D1 e D2 fazem com ele |
+|---|---|---|---|
+| `calculateGrade` | **1 chamada** (`:1413`) e 4 menções em comentário (`:512`, `:1435`, `review-request.ts:13`, `vinculo-execucao.ts:10`). ⚠ **O resultado tem dois papéis:** (a) a classificação automática (`score`, `nota`, `veredicto`) e (b) o **sinal de suspensão** (`suspensa`, `motivo`), com 13 leituras de campo (g.1) | `vinculo-execucao-fiacao.test.ts:1378-1381` lê o fonte (`indexOf('function calculateGrade(')`; exige corpo com mais de 100 caracteres e sem "vinculo"); `a12-diagnostico.test.ts:804` (dado descritivo); `a12-qualidade-ausente.test.ts:296` (comentário); `scripts/a33-payload-referencia.cjs:228` (texto) | D1 e D2 tocam o papel (a), **em parte** (g.1), e **não** tocam o papel (b). **Não fica sem consumidor** |
+| `extractGradeFromReview` | 1 chamada (`:1438`) | 0 diretos; exercida pela rota, nos textos fixados de (c) | é o que D2 usa; não é candidato |
+| `metadata.automaticGrade` (`:1485-1489`) | **nenhum** leitor além do produtor (1 ocorrência do nome em produção). A tela repassa o `metadata` inteiro a `setAiReview` (`page.tsx:1369`), e nenhum código lê a chave | 6 ocorrências em 2 arquivos: `a12-qualidade-ausente.test.ts:191`, `:216`, `:227`, `:263`; `vinculo-execucao-fiacao.test.ts:1298` (2 na linha) | ⚠ **Consumidor que as decisões NÃO eliminam**, nomeado pelo pedido. D1 tira o número do **contexto**, e não do `metadata`; D2 muda de onde vem a nota apresentada, e não o que o `metadata` carrega. Leitores fora da busca: **desconhecidos** |
+| `metadata.gradeSource` (`:1484`) | nenhum leitor além do produtor | 7 ocorrências em 3 arquivos: `a12-qualidade-ausente.test.ts:192`, `:215`, `:254`, `:261`; `vinculo-execucao-fiacao.test.ts:1297` (2 na linha); `a12-diagnostico.test.ts:807` (texto descritivo) | o valor `'automatic'` é **o que D2 muda** no caso sem resultado; `'ai'` e `'suspensa'`, não |
+| "Sugestão automática" (`route.ts:1065`) | é o **consumidor** de `classification.veredicto` no contexto | 0 asserções: o texto aparece em 2 linhas de `route.ts` (`:1064`, `:1065`) e em 25 arquivos de contexto gravados em `docs/dados/` **em `d6fc649`** (esta rodada acrescenta os seus) | ⚠ **Consumidor que as decisões NÃO eliminam**, nomeado pelo pedido; o destino **não está decidido** |
+| `notaSuspensa.causa` (`:1469`), `notaSuspensa.avaliacaoDeQualidade` (`:1472`), `metadata.avaliacaoDeQualidade` (`:1490`) | produzidos, e **sem leitor** em `app/`, `components/` e `lib/` fora de `__tests__` (busca sem resultado; o comando executou) | `.causa`: 23 ocorrências em 5 arquivos. ⚠ O `git grep -o` por `.causa` e por `causa:` em `lib/__tests__` dá **25** ocorrências em **6** arquivos; as 2 de `a33-conferencia-c1.test.ts` são de **outro objeto** (`p.causa`, uma pendência técnica) e ficaram fora | nenhuma das decisões os toca |
+
+**Resultado de (g):** **nenhum** dos candidatos fica **sem consumidor** depois de D1 e D2: `score` mantém 3 leituras,
+`veredicto` 3, `nota` 4, e `calculateGrade` mantém 1 chamada com dois papéis. O que **já hoje** não tem leitor de produção, e
+as decisões não alteram, é `metadata.automaticGrade`, `metadata.gradeSource`, `notaSuspensa.causa`,
+`notaSuspensa.avaliacaoDeQualidade` e `metadata.avaliacaoDeQualidade`. ⚠ **Isso é ausência de leitor no código rastreado**, e
+não prova que nenhum cliente externo ou log os use.
+
+**g.3 Penalidades da classificação automática: endereço e texto, sem conferência bibliográfica.** A conferência das
+penalidades (a de `:429`, atribuída a Saaty, 1977) **é do analista, e não foi feita**: registro só o endereço e o texto
+(⚠ "sem citação no código" **não** é "sem fonte"):
+
+| Bloco | Endereço | O que o código escreve | Citação no código |
+|---|---|---|---|
+| qualidade dos dados (40 pontos) | `:360-363`, `:429-443` | cortes de validade em 30, 50, 70 e 85 por cento, com −40, −30, −20 e −10; `:362` "Baseado em Saaty (1977, 1980): CR individual é crítico"; `:429` "Penalizações por qualidade individual (Saaty, 1977)" e "Escala proporcional: penalização reflete a gravidade real" | Saaty, 1977 e 1980 |
+| respondentes críticos (CR > 0,20) | `:445-456` | cortes em 30, 20 e 10 por cento, com −15, −10 e −5 | nenhuma |
+| homogeneidade BOCR (20 pontos) | `:458-471` | razão entre o maior e o menor peso: acima de 10, −20; acima de 5, −10 | nenhuma |
+| Riscos baixos | `:473-477` | `weights.Risks < 0.10`, −5, comentário "pode indicar viés" | nenhuma |
+| faixas de letra | `:487-502` | 90 A/ACEITO; 80 B/ACEITO COM REVISÕES MENORES; 70 C/REVISÕES MAIORES NECESSÁRIAS; 60 D/RECONSIDERAR APÓS REVISÃO SUBSTANCIAL; abaixo, F/REJEITAR | nenhuma |
+
+### 10. (h) O aparato de elegibilidade que sobrevive: dependências, consumidores e duas famílias (leitura)
+
+⚠ **Nenhuma remoção se conclui de uma mudança de rótulo.** Mudar o objeto da nota, ou o texto de um rótulo, não retira a
+causa, o motivo, o ramo nem a função de elegibilidade: cada um tem consumidor **independente** do texto do rótulo (tabela).
+**Onde se procurou:** o mesmo escopo de (g). **Duas famílias**, pelo que cada elemento **governa hoje** (leitura do código, e
+as capturas de (f) e (e) para o efeito): a **família A** governa o que o **revisor simulado recebe** e **se o seu veredito é
+apresentado**; a **família B** depende **só** da classificação automática.
+
+| # | Elemento | Onde está | Quem o lê em produção | Em teste | Família |
+|---|---|---|---|---|---|
+| 1 | `elegivelParaClassificacao` | `avaliacao-qualidade.ts:765-793` | **3 chamadas** em `route.ts`, todas com `(data.avaliacaoDeQualidade, data.coerenciaDaQualidade)`: `:351` (dentro de `calculateGrade`), `:666` (monta o contexto: `avaliada = elegivel.elegivel`) e `:1466` (resposta `notaSuspensa`) | 12 ocorrências em 4 arquivos (`vinculo-execucao.test.ts` 5, `a12-coerencia.test.ts` 3, `vinculo-execucao-fiacao.test.ts` 2, `a12-estatisticas-dimensao-consumidor-latente.test.ts` 2) | **as duas, por chamada:** `:351` é **B**; `:666` e `:1466` são **A** |
+| 2 | as quatro causas (`disponibilidade`, `contradicao`, `coerencia_nao_concluida`, `coerencia_nao_avaliada`) | produzidas em `:771`, `:776`, `:782`, `:787` | `elegivel.causa` em `route.ts:760` e `:773` (**ramos do contexto**); `causa: e.causa` em `:1469` (resposta), que **nenhum código de produção lê** | 23 ocorrências do campo em 5 arquivos | **A** |
+| 3 | os quatro rótulos e os motivos | `avaliacao-qualidade.ts:168`, `:177-178`, `:188-189`, `:196-197`; constantes `MOTIVO_*` | contexto (`route.ts:763-791`, `:1064`), resposta (`:1470-1471`), cartão (`ParecerAISection.tsx:215-216`) | item (i) | **A** |
+| 4 | o ramo `P1`/`P2`/`P3` e o conjunto mínimo | `ramoDeQualidade` (`:348-354`), `CONJUNTO_MINIMO` (`:266-276`: P1 exige V2 e V3, P2 exige V4, P3 exige V5); `avaliarCoerencia` (`:392`), chamada em `route.ts:562` | decidem `contradicao` e `coerencia_nao_concluida`; os mesmos três ramos aparecem no **resumo de qualidade que o modelo lê** (`route.ts:673`, `:726`, `:745`: PRIORIDADE 1, 2 e 3) | `a12-coerencia.test.ts` (`avaliarCoerencia` 11, `ramoDeQualidade` 3, `CONJUNTO_MINIMO` 4) | **A** |
+| 5 | o portão da extração | `route.ts:1438-1440` (`classification.suspensa ? null : ...`) | decide se o veredito do revisor simulado vira `nota` e `veredicto` | `a12-qualidade-ausente.test.ts:249-264` | **A** (o **carregador** do sinal é `classification.suspensa`, de `calculateGrade`: ver abaixo) |
+| 6 | `notaSuspensa` na resposta e o cartão | `route.ts:1464-1472`; `ParecerAISection.tsx:213-222` | a tela lê `.suspensa`, `.rotulo` e `.motivo` (`ParecerAISection.tsx:213`, `:215`, `:216`, `:225`); não lê `.causa` nem `.avaliacaoDeQualidade` | `notaSuspensa`: 51 ocorrências em 5 arquivos | **A** |
+| 7 | o portão do destaque | `ParecerAISection.tsx:225` | `!notaSuspensa?.suspensa && estado === 'aprovado' && (nota ou veredicto)` | `a12-qualidade-ausente.test.ts:289` (lê o literal do JSX) | **A** |
+| 8 | o corpo de `calculateGrade` depois de `:358`: penalidades, faixas e as **quatro** prioridades de dados (`:371`, `:381`, `:393`, `:401`) | `route.ts:358-506` | só alimenta `score`, `nota` e `veredicto` | nenhum teste lê o corpo (só a verificação de fonte de `:1378-1381`) | **B** |
+| 9 | `metadata.automaticGrade` e o valor `'automatic'` de `gradeSource` | `route.ts:1484-1489` | nenhum leitor de produção (g.2) | 6 e 7 ocorrências | **B** |
+| 10 | `extractGradeFromReview` | `route.ts:515-550` | 1 chamada (`:1438`) | 0 diretos | **nem A nem B:** é o caminho do veredito **do próprio texto**; sofre o portão do item 5 |
+
+⚠ **O acoplamento que esta leitura expõe.** O sinal de suspensão (itens 5 e 6) **viaja no objeto da família B**:
+`calculateGrade` devolve `suspensa` e `motivo` (`:355`, `:415`), mas **não** `causa` nem `rotulo`, e por isso a resposta chama
+a elegibilidade **de novo** em `:1466`. Quem retirasse a classificação automática teria de **re-obter** `suspensa` de outra
+fonte; a função de elegibilidade já está disponível para isso, e **nenhuma conclusão sai daqui**.
+
+⚠ **O que o item 8 não resolve (não avaliado).** `calculateGrade` tem **quatro** prioridades de dados (a quarta, `:401`, lê
+`qualityAnalysis.summary`), e `ramoDeQualidade` distingue **três** ramos mais `indeterminado`. **Não medi** se um pedido que
+só traga `summary` chega à quarta prioridade, nem o que `avaliarCoerencia` devolve para ele.
+
+**Restrições de edição já gravadas em teste** (leitura): `vinculo-execucao-fiacao.test.ts:1352-1381` exige **exatamente 3**
+chamadas de `elegivelParaClassificacao`, com a mesma lista de argumentos, e que o corpo de `calculateGrade` não contenha
+"vinculo"; os testes `a12-diagnostico` e `a33-cadeia-rule` fixam o sha256 de `route.ts` (item (j)).
+
+### 11. (i) Os quatro rótulos "Nota não calculada: …" e os motivos: onde aparecem, e onde a redação mudaria de valor (captura e leitura)
+
+⚠ **Não reescrevi nenhum rótulo, causa ou motivo.** O que segue é **interpretação do executor**, e a decisão é do autor.
+
+**i.1 Onde cada texto aparece** (a coluna do contexto é **medida por captura**, na tabela de (f); a da resposta e a do
+cartão, **por texto fixado**):
+
+| Causa | Rótulo (`avaliacao-qualidade.ts`) | Contexto do modelo | Resposta e cartão | Testes que afirmam o literal |
+|---|---|---|---|---|
+| `disponibilidade` (ausente, incompleta) | `:168` "Nota não calculada: qualidade individual não avaliada" | `route.ts:791`, linha 64 (ausente) e 78 (incompleta) | `notaSuspensa.rotulo`; título do cartão | `a12-qualidade-ausente.test.ts:193`, `:197`, `:255` (pela constante); `a12-coerencia.test.ts:470`, `:477`, `:507` e `a12-diagnostico.test.ts:985` (**negativas**); `a12-diagnostico.test.ts:1042` (frase do contexto) |
+| `contradicao` | `:177-178` "Nota não calculada: contradição interna não resolvida na avaliação de qualidade" | `route.ts:765`, linha 80 | idem | `a12-coerencia.test.ts:464`, `:469`, `:478` (**negativa**); `a12-diagnostico.test.ts:989` (só o fragmento depois dos dois-pontos) |
+| `coerencia_nao_concluida` | `:188-189` "Nota não calculada: verificação de coerência não concluída" | `route.ts:778`, linha 80 | idem | `a12-coerencia.test.ts:498`, `:504` |
+| `coerencia_nao_avaliada` (**CONSTRUÍDA**; sem caminho pelo tratador real) | `:196-197` "Nota não calculada: coerência interna não avaliada nesta requisição" | `route.ts:778`, linha 80 (captura construída) | idem (construída) | `a12-coerencia.test.ts:519` (teste de unidade da função) |
+
+| Motivo | Texto | Quando sai | Nomeia a nota ou a classificação? |
+|---|---|---|---|
+| `MOTIVO_AUSENTE` (`:47`) | "Qualidade individual não avaliada: a requisição não traz avaliação por respondente." | `disponibilidade` | **não** |
+| `MOTIVO_INCOMPLETA` (`:49`) | "Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa." (mais "Medido: N de M" em `:97`, `:125`, `:138`) | `disponibilidade` | **não** |
+| `MOTIVO_DECLARADA_SEM_DADOS` (`:51`) | "Avaliação declarada disponível, mas a requisição não traz CR por respondente." | `disponibilidade` | **não** |
+| `MOTIVO_COERENCIA_CONTRADICAO` (`:312`) | "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa." | `contradicao` (`:704`) | **sim**: "a classificação fica suspensa" |
+| `MOTIVO_COERENCIA_NAO_DETERMINADA` (`:310`) | "Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la." | `coerencia_nao_concluida` (`:712`) | **sim** |
+| `MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO` (`:314`) | "Conjunto mínimo de verificações não estabelecido para o formato recebido: a classificação fica suspensa." | `coerencia_nao_concluida` (`:707`, `:717`) | **sim** |
+| `MOTIVO_COERENCIA_NAO_AVALIADA` (`:317`) | "Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr." | `coerencia_nao_avaliada` (`:777`) | **sim** |
+
+**Outras frases que nomeiam a classificação suspensa** (`git grep` em produção, fora de `__tests__`): **ao modelo**,
+`route.ts:763` e `:776` ("… E CLASSIFICAÇÃO SUSPENSA POR …"), `:765`, `:778` e `:791` ("a classificação global está
+SUSPENSA: <rótulo>") e `:1064` ("Sugestão automática: não calculada; a classificação global está suspensa"); **ao gestor**, o
+parágrafo fixo do cartão, "A ausência de avaliação não é aprovação nem reprovação. Os cálculos AHP-BOCR disponíveis seguem
+visíveis nas demais seções." (`ParecerAISection.tsx:218-219`), que **não** nomeia a nota.
+
+**i.2 A anatomia de cada texto, em três partes:** (1) o **estado dos dados** ("qualidade individual não avaliada", "contradição
+interna não resolvida", "verificação de coerência não concluída", "coerência interna não avaliada"); (2) o **objeto nomeado**
+("Nota não calculada"; "a classificação fica suspensa"; "a classificação global está SUSPENSA"); (3) o **vínculo causal**
+(a nota não é calculada **por causa** do estado). O objeto atual, em (2), é a **classificação automática**.
+
+**i.3 Onde a redação muda de valor sob o objeto novo (o veredito do revisor simulado), em duas leituras que a decisão do
+autor separa.** **R1:** a suspensão **continua** a impedir que o veredito do revisor vire `nota` e `veredicto` (o portão de
+`:1438`). **R2:** o veredito do revisor **é apresentado** mesmo com a avaliação ausente ou contraditória.
+
+| Parte | Textos | R1 | R2 |
+|---|---|---|---|
+| (1) estado dos dados | os quatro rótulos depois dos dois-pontos; `MOTIVO_AUSENTE`, `MOTIVO_INCOMPLETA`, `MOTIVO_DECLARADA_SEM_DADOS` | verdadeiros | verdadeiros |
+| (2) objeto: "Nota não calculada" | o prefixo dos quatro rótulos | **inexato no verbo**: a nota do objeto novo é **extraída** do texto, e não calculada; o efeito (nenhuma nota apresentada) é verdadeiro | **falso**: há veredito, e ele aparece |
+| (2) objeto: "a classificação fica suspensa" | os quatro motivos de coerência | "a classificação" fica **ambígua** (a automática, ou o veredito?) | **falso** onde diz que a classificação fica suspensa |
+| (3) vínculo causal | "por causa de" implícito nos quatro rótulos | verdadeiro como **razão do portão** | **falso**: o estado dos dados deixa de ser razão de suprimir |
+| instrução ao modelo | `:765`, `:778`, `:791`, `:1064` | **não medido** como o modelo as lê (não houve geração) | idem |
+| parágrafo do cartão | "A ausência de avaliação não é aprovação nem reprovação." | verdadeiro | verdadeiro; ⚠ conviveria com um veredito visível: **não avaliado** |
+
+⚠ **A tensão já existe hoje (texto fixado).** Em **40 das 50** células de suspensão na apresentação aprovada, o corpo e a cópia
+**trazem a redação de uma decisão do modelo** enquanto o cartão diz "Nota não calculada" (item (e)): hoje a frase é verdadeira
+para a nota **automática**; sob o objeto novo e R2 ela passaria a **contradizer** o texto. ⚠ **Não avaliado:** se cada estado
+descreve com exatidão **todos** os formatos de dados que o produzem (o rótulo de `disponibilidade` serve a `ausente` e a
+`incompleta`, e esta última tem respondentes avaliados); e a falsidade **anterior e independente** das frases de `:836` e
+`:843` ("qualidade individual não avaliada", em causas em que a avaliação existe), que **já estava registrada** e não depende
+do objeto da nota.
+
+### 12. (j) As asserções que mudariam sob cada decisão (previsão por LEITURA, NÃO executada)
+
+⚠ **Não implementei D1 nem D2 para contar falhas.** Isso implementaria as decisões, e contaminaria a predição que a Fase 2
+precisa registrar **antes**. Cada linha vem da leitura do corpo do teste, **confirmada por busca própria**: por
+identificador (as 128 ocorrências da família do parecer em testes, da tabela de (a), distribuídas por **7** arquivos), **por
+texto** das linhas do bloco (`Pontuação automática`: 4 ocorrências em testes, em 3 arquivos, das quais 1 é comentário,
+`rag-semantic-states.test.ts:384`; `Sugestão automática` e `Referência Automatizada`: 0 em testes e scripts) e **pelos testes
+que comparam hash**. ⚠ A busca por identificador **não alcançou** as asserções sobre a linha
+"Pontuação automática", que não contém nenhum dos identificadores: foi a busca por texto que as achou. **Conta-se linha de
+asserção**, e **não** teste do jest nem execução: um laço conta uma falha por bloco `test(`.
+
+**Os conjuntos, e como se sobrepõem.** **H** são as quatro linhas que fixam o sha256 de `route.ts` e mudam com **qualquer**
+edição dele (portanto com D1 e com D2): `a12-diagnostico.test.ts:1107`; `a33-cadeia-rule.test.ts:1248`, `:1491`, `:1522-1523`.
+⚠ **H é compartilhado**, e não se soma duas vezes.
+
+| Conjunto | Linhas | O que fixam |
+|---|---|---|
+| **H** (D1 e D2) | `a12-diagnostico.test.ts:1107`; `a33-cadeia-rule.test.ts:1248`, `:1491`, `:1522-1523` | `identificacao.codigo`: o sha256 de `route.ts` (e, em `a12-diagnostico`, também de `avaliacao-qualidade.ts`, de `page.tsx` e de `ParecerAISection.tsx`) |
+| **D1 apenas** | `a12-estatisticas-dimensao.test.ts:793`, `:794` (4 execuções: `agregado-5` e `agregado-3`, sem e com vínculo), `:825`, `:826` (27 iterações, das quais **18** de pedidos elegíveis); `a12-diagnostico.test.ts:1104` (a chave `quatroCasos`: `quatroCasos[0]`, `C-disponivel`, o **único** elegível, muda `bytesDoContexto`) | o contexto completo contra o gravado, por sha256, tamanho e igualdade |
+| **D1\* a mais** | `a12-qualidade-ausente.test.ts:185`; `a33-snapshot-v2.test.ts:701`; `a12-estatisticas-dimensao.test.ts:650`, `:652`, `:829`; e as outras 9 iterações de `:825-826` e os outros 3 casos de `:1104` | a linha suspensa "Pontuação automática: não calculada" |
+| **D2 apenas, certas** | `a12-qualidade-ausente.test.ts:215` (`gradeSource` `'automatic'`), `:217` (`nota` e `veredicto` iguais a `A` e `ACEITO`), `:220` e `:230` (`mostraNotaEVeredicto`, **réplica da condição do componente** no teste) | o fallback automático sem veredito no texto |
+| **D2 apenas, condicionais** | `a12-qualidade-ausente.test.ts:216`, `:227`, `:263` (valores de `automaticGrade`: só se o campo mudar); `:289` (o literal do portão do destaque: só se `ParecerAISection.tsx:225` mudar) | `metadata.automaticGrade` e o portão |
+
+⚠ **Contagem por conjunto, sem somar o que se sobrepõe:** D1 = H (4) + D1 apenas (5) = **9 linhas**, mais **1** que continua
+verde por outra razão (abaixo); D1\* = D1 + 5 = **14**; D2 = H (4) + 4 certas = **8**, mais **4** condicionais; **D1 e D2
+juntos** = H (4) + 5 + 4 = **13** certas, mais as 4 condicionais e as 5 de D1\*. ⚠ São **previsões por leitura**, e uma
+contagem de linhas **não é critério de aceite**: o critério da Fase 2 são os comportamentos que precisam passar.
+
+⚠ **Uma asserção que continua verde, e deixa de provar o que provava.** `a33-snapshot-v2.test.ts:699`
+(`not.toContain('Pontuação automática: 100/100')`) vale hoje porque a requisição `r2` **passou a ser suspensa** (o comentário
+de `:695-698` diz que o `byStatus` fabricado deixou de valer como avaliação). Com D1 o número sai de **todos** os contextos, e
+a asserção passa **por outra razão**, sem sinal de falha. Um contraexemplo que reintroduzisse a fabricação **não** a
+reprovaria.
+
+**O que NÃO muda (leitura):** `vinculo-execucao-fiacao.test.ts:1352-1381`, **se** as três chamadas de elegibilidade e o corpo
+de `calculateGrade` ficarem como estão; o ensaio 10 (`:1289-1341`), que compara a decisão **entre execuções**; as asserções
+de `a12-coerencia.test.ts` sobre os rótulos (`:464-519`), porque nenhum rótulo muda em D1 nem em D2; `a12-estatisticas-dimensao.test.ts:810`,
+que lê o JSON gravado, e não o código.
+
+⚠ **O custo de regravar, já gravado em teste.** Os dois artefatos são **regravados** com uma variável de ambiente
+(`A12_GRAVAR=1`, `A33_GRAVAR=1`) e **acumulam uma entrada de procedência por regravação**: a lista de `a12-diagnostico` vai
+até a **ordem 11** (`:210`) e a de `a33-cadeia-rule`, até a **ordem 9** (`:256`), de modo que a próxima seria a **12** e a
+**10**. ⚠ **`a33-cadeia-rule` grava `bytesSystem` e `bytesMessages` (`:862`), mas não os compara** com o gravado: o teste
+`RE2` (`:1253-1261`) compara só as seções e as ocorrências de fundamento. O custo de D1\* ali é, portanto, o sha256 de
+`route.ts` (H), e **não** os bytes. (Uma leitura anterior, nas minhas notas de trabalho, supunha que os bytes eram
+comparados; a releitura do corpo do teste a **corrigiu** antes do registro.)
+
+⚠ **Os arquivos de dados são consumidores.** Os contextos gravados em `docs/dados/a12-estatisticas-dimensao/` são **lidos** por
+`a12-estatisticas-dimensao.test.ts` (`:54-55`), e os de `docs/dados/a33-etapa4-v2/`, por `a12-diagnostico`,
+`a33-cadeia-rule`, `a33-snapshot-v2` e `scripts/a33-snapshot-v2.cjs`; os de `docs/dados/a12-cobertura-restringiu/` **não são
+lidos por nenhum teste nem script** (busca por nome de diretório, sem resultado). ⚠ **Nomes enganam:** o cenário
+`elegivel-total-zero` tem `elegivel: false` (`a12-estatisticas-dimensao.test.ts:417-430`); dos **27** cenários, **18** são
+elegíveis e **9** não.
+
+### 13. (k) Como a tela separa hoje o parecer simulado, o ranking das alternativas e a força da recomendação (leitura)
+
+⚠ **Levantamento, e não redesenho.** Medido no código, e **não** na página em execução (a tela segue não exercitada; (e) mediu
+só o componente). A hipótese de que o gestor confunde a letra ou o veredito com aprovação de investimento **não é achado**: não
+foi medida com ninguém.
+
+| Objeto | Onde fica (ordem da barra de abas, `page.tsx:2829-2834`) | Componente e linhas | Rótulos que o gestor lê |
+|---|---|---|---|
+| **parecer simulado** | aba **5**, "🤖 Revisão & Documentação" (`:4762-4968`); é o **último bloco** da aba, depois do bloco de auditoria; só existe **depois do clique** em "🤖 Executar Revisão IA" (`runAiReview`, definido em `:946`, com o `fetch` em `:1350`); é zerado ao reexecutar (`:956`) e ao recalcular (`:1493`) | `ParecerAISection` (`:4959-4963`) | título "🔬 Parecer Científico IA"; "Análise por {modelo} • Arquitetura RAG com base científica em MCDM"; "✓ Valores numéricos do sistema \| ✓ Análise qualitativa por IA"; destaque **"Nota Científica"** (letra) e **"Veredicto"** (texto); ao fim, "💡 Sobre esta Análise" |
+| **auditoria** (outro bloco da mesma aba) | aba 5, **antes** do parecer; carregada **ao abrir a página** (`:1545`) e depois de recalcular (`:1484`) | `:4769-4937`: "🔬 Verificações Automáticas", "📊 Detalhamento das Validações" (PASS, ALERT, FAIL por teste), "✅ Pontos Fortes", "💡 Recomendações", "📄 Relatório Técnico Completo" | ⚠ quando a auditoria falta, o cartão diz **"Parecer não disponível"** (`:4948`) e "A análise automática não pôde ser gerada para este projeto": o **nome "Parecer"** designa ali a auditoria, e não o parecer simulado que vem logo abaixo |
+| **ranking das alternativas** | aba **1**, "📊 Dashboard Executivo" (`:2857`); e aba **4**, "🔬 Robustez & Validação" | `BentoGridDashboard`: `WinnerCard` (rótulo **"Recomendação"**, nome, código e **"Score Final"**, `BentoGridDashboard.tsx:243`, `:270-275`) e `RankingList` (`:376-465`); na aba 4, "Tabela de Rankings por Método" (`page.tsx:4667`) e "💡 Recomendação de Desempate" (`:4245`) | "Recomendação"; "Score Final"; "Análise de N alternativas" |
+| **força da recomendação** | aba **4** (`:4055-4761`); **não** há na aba 1 (o `WinnerCard` (`BentoGridDashboard.tsx:227-294`) não traz nenhuma frase de força: 0 ocorrências de "vantagem", "margem", "diferen", "confian", "robust", "clara", "empate" e "dominân", e "gap" ocorre 1 vez, como classe CSS `gap-N`) | "Sumário de Validação" (`:4260-4503`): "Resultado: A alternativa … é a recomendação pelo método Subtrativo" (`:4415-4417`), "Dominância clara com gap de …" ou "⚠️ Empate técnico" (`:4419`, `:4422`), "Validação cruzada … Alta confiança na decisão" (`:4436-4440`); "Implicações Práticas da Sensibilidade" (`:4081-4140`); e, na tabela de métodos, "Todos os métodos convergem … Alta confiança na decisão" (`:4704`) | "Alta confiança na decisão"; "O ranking é robusto"; "CRÍTICO: … podem inverter a recomendação" |
+
+**O que a leitura mostra sobre a separação:**
+
+- **Separam-se por aba e por clique:** o ranking e a recomendação existem ao carregar; o parecer simulado, só depois do
+  clique, em **outra aba**, depois do bloco de auditoria. O componente do parecer **não** contém "ranking", "recomend" nem
+  "alternativ" (0 ocorrências de cada), e nas abas 1 a 4 (`page.tsx:2857-4761`) a busca por "parecer" e por "IA" acha **1**
+  ocorrência, um comentário de código em `:4760`: **nenhum texto exibido** de um lado remete ao outro.
+- **A palavra "recomendação" tem pelo menos quatro referentes** na página: a alternativa (`WinnerCard`; `:4416`), o desempate
+  (`:4245`), o método ("Recomendado", `:4539`) e a lista da auditoria (`:4901`). **O veredito `ACEITO` pertence só ao cartão
+  do parecer**: fora dele, a busca por `Veredicto`, `ACEITO` e `Nota Científica` em `components/` e `app/decisor` acha **só**
+  um `console.log` (`page.tsx:1361`).
+- ⚠ **O que o cartão do parecer NÃO diz no destaque:** o **objeto** da letra e do veredito. Em `ParecerAISection.tsx`, as
+  palavras "investimento", "alternativa", "recomend", "estudo", "método", "metodolog" e "revisor" ocorrem **0 vezes**; a
+  referência ao protocolo de periódicos é "• A análise qualitativa segue protocolo de periódicos A1/Q1 em MCDM" (`:357`, no
+  rodapé "Sobre esta Análise", **depois** do corpo) e "🎯 Protocolo A1/Q1" (`:382`, no estado vazio, **antes** da primeira
+  execução). Isto é o que o texto exibe, e **não** o que o gestor entende.
+- **A força da recomendação** vem de `lib/knowledge.ts` (`interpretDominanceGap`, `:576`; `interpretMethodAgreement`, `:472`;
+  `interpretSensitivity`, `:406`, limiares em `:344-349`). ⚠ **A classificação categórica de sensibilidade** que a tela ainda
+  exibe nessa aba (`page.tsx:4293`, `:4457-4469`, `:4098-4140`) **já está registrada como tarefa aberta** (A.2 e A.29 do âncora,
+  `docs/objetivo-estados-caminho.md:801`, `:828`, `:985`), e `5837d0d` não a removeu de `lib/knowledge.ts`: **nada foi alterado
+  aqui**. A linha `:985` do âncora diz "aba executiva", e no código desta base o trecho está na aba `robustness`.
+
+### 14. (l) Coleta informativa: `audit-decision`, `qualityScore` e PASS, ALERT, FAIL (leitura)
+
+- **O que é.** `qualityScore` é um **contador interno** de `validateDataQuality` (`audit-decision/route.ts:253-296`; o
+  comentário de `:255` diz "não exposto na resposta"): começa em 10 e perde 3 (`bocrWeights` ausente ou com comprimento
+  diferente de 4), 2 (pesos que não somam 1, com tolerância de 0,01), 3 (`finalScores` ausente ou vazio) e 2 (`bocrConsistency`
+  ausente); `Math.max(0, …)` em `:283`; **PASS** com 8 ou mais, **ALERT** com 5 ou mais, **FAIL** abaixo (`:285-286`).
+  ⚠ **Mede presença e formato de campos do cálculo.** `avaliacaoDeQualidade`, `qualityAnalysis`, `respondent`,
+  `individualStats`, `ai-reviewer`, `nota` e `veredicto` ocorrem **0 vezes** no arquivo (contagem por `grep -c`): **não** lê a
+  qualidade individual dos respondentes, **não** é a nota do parecer e **não** a alimenta.
+- **O endpoint é alcançado: sim.** `page.tsx:1545` (ao carregar a página) e `:1484` (depois de recalcular); a saída vai a
+  `setAudit` e é lida na aba 5 (`:4769-4937`): `v.test`, `v.status` (ícone e cor), `v.message` e `v.action` de cada uma das
+  validações (a lista sai em `route.ts:530`, `validacoes: validations`).
+- **Quem consome a saída:** a tela, e **mais ninguém** no código rastreado. **Testes: 0** (`git grep -l audit-decision` em
+  `lib/__tests__`, sem resultado; o comando executou). **A rota do parecer não a lê:** o corpo montado para `/api/ai-reviewer`
+  (`page.tsx:1244-1342`) não referencia `audit` (busca sem resultado nessas linhas).
+- **Divergência com o contrato**, já registrada em D4 (seção 2): o contrato diz "sete resultados" e "nenhum chamador"; o código
+  devolve cinco validações e a tela o chama em dois pontos. **Não editei o contrato.**
+- **O que fica por decidir:** se o gestor lê "Qualidade dos Dados: PASS" como a qualidade do parecer ou dos respondentes é
+  **hipótese não medida**; o teste chama-se "Qualidade dos Dados" e mede **campos presentes**.
+
+### 15. Erros do instrumento, o que NÃO foi medido e a execução
+
+**Erros do instrumento, achados antes de aceitar o agregado e corrigidos:**
+
+- **Transporte 2 dos textos de artigo do RAG: o primeiro agregado estava errado.** O teste por inclusão de substring deu
+  **24 de 34**, e conferi **as linhas individuais** antes de aceitar o número: `unit: "score"` é uma palavra curta contida em
+  **qualquer** contexto, e inflava a contagem. Corrigi com um teste da forma em que o campo `unit` entra no contexto
+  (`app/api/ai-reviewer/knowledge.ts:285`) e exigindo valores de pelo menos 10 caracteres, e o que o teste não decide fica **"o instrumento não
+  decide"**. Resultado, **medido contra a captura `elegivel-auto-A`**: **16 de 34** chegam, e **18** não. O primeiro número
+  **não** foi publicado.
+- **Expressão de conferência de precedência ambígua** (réplica contra tratador), reescrita com o ramo `suspensa` explícito antes
+  de aceitar; **`logCaminho`** passou a rotular a saída `null` da guarda de 50 caracteres; foram acrescentados os controles
+  das frases abreviadas e o **espião de rede**. Entre a terceira e a quarta execução da sonda, os resultados coincidem em todos
+  os campos comuns, e diferem **só** nos dois campos acrescentados (controles da guarda e contagem de `fetch`).
+- **Verificado à mão no caso mais visível**, como o repositório exige para instrumento novo: a célula `T5a` em `elegivel-auto-A`
+  ("Nota B. ACEITO COM REVISÕES MENORES" dá `A`), `T2a` em `elegivel-auto-F` (a ausência dá a **automática** `F`), `T1` em
+  `contradicao` (suspensa, `nota` nula) e `T1` na apresentação reprovada (sem destaque); e a **diferença linha a linha** de cada
+  contexto contra o baseline.
+
+**O que NÃO foi feito, ou não foi medido (todos: "não avaliado", e não zero):**
+
+- **Nenhuma geração real.** O efeito de retirar o escore sobre o texto **GERADO** pelo modelo **não está medido** por nenhum
+  dos modos, e **uma dupla de respostas não demonstraria efeito causal**: a comparação de gerações é etapa **separada, não
+  autorizada**.
+- **A frequência de cada formato de texto em gerações reais** (decisão na seção, ausente, ambígua, com negação) **não está
+  medida**: os dez textos são **construídos**. O regex achar uma expressão **não demonstra** que identificou o veredito.
+- **A tela não foi executada no navegador:** o componente foi **renderizado**; o manipulador de cópia foi **acionado** com o
+  `writeText` **simulado**, e **nenhum clique nem cópia para a área de transferência** ocorreu.
+- **O `score:` do chunk semântico (`:231`)**, com `USE_RAG_SEMANTIC` desligado, **não foi reexecutado**.
+- **Clientes externos da rota, log de produção e Firestore de produção:** **desconhecidos**; nada foi consultado.
+- **Os julgamentos de (i)** são **interpretação do executor**; **a contagem de (j)** é **previsão por leitura**; a conferência
+  bibliográfica das penalidades (g.3) é **do analista**.
+- **Fora do escopo desta rodada, e não tocado:** o extrator (`extractGradeFromReview`), os quatro rótulos, as causas, P1, P2 e
+  P3, o bloco do vínculo, a linha de cobertura, os escores das alternativas e `finalScores`.
+
+**Decisões que ficam com o autor** (esta rodada não as toma): o destino da "Sugestão automática" (`:1065`); se a suspensão de
+A.12 continua a impedir que o veredito do revisor vire `nota` (**R1**) ou deixa de impedir (**R2**); se `metadata.automaticGrade`
+e `gradeSource` ficam, mudam ou saem; o texto e o lugar do estado "veredito não identificado" (destaque, aviso, cópia); a
+redação de rótulos e motivos; e o papel que `calculateGrade` conserva.
+
+**Execução (ambiente observado: Linux x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3, ts-jest 29.4.6):**
+
+- **Árvore.** `HEAD` em `d6fc649ace1fe1c2c8fb3f9677cb0b706c11fcb8`. `git status --short`: ` M docs/imprecisoes-parecer-ia.md` e
+  `?? docs/dados/a12-nota-veredicto-fase1/`; `git diff --name-only HEAD`: **só** o registro. **Zero byte de produção:**
+  `git diff --name-only d6fc649` sobre `app/`, `components/`, `lib/`, `scripts/` e os `*.ts`, `*.tsx`, `*.js`, `*.mjs`, `*.cjs` e
+  `*.json` da raiz, fora de `docs/`, não devolve linha. O teste temporário `lib/__tests__/zz-nota-sonda.test.ts` **foi apagado**
+  (`ls lib/__tests__` com prefixo `zz-` dá 0) e está arquivado como **texto** em `docs/dados/a12-nota-veredicto-fase1/instrumentos/`.
+- **Este registro: só inserção.** `git diff --numstat` dá **744 inserções e 0 remoções**; retirar a seção devolve o arquivo
+  anterior byte a byte (sha256 do anterior, `13de816df9dcc5dcb6c7b639154c5ff0f4f646da09e10386f663914cbfe67d77`).
+- **`npx tsc --noEmit`:** sai **0**.
+- **`npm test`:** sai **0**, **35 suítes, 843 testes, 0 falhas** (6,2 s), medido **com a seção no lugar**. O total coincide com o
+  que o registro anterior anotou (35 e 843), **porque esta rodada só acrescenta documentos**. ⚠ Isso é o que se observou, e
+  **não** critério de aceite: a variação da suíte não o é. O teste `vinculo-execucao-fiacao`, que **fatia este registro** (da
+  seção de R4 até o Anexo 3) e proíbe uma frase, passa com a seção dentro da fatia. O texto **desta** subseção foi preenchido
+  **depois** da medição, e `npm test` foi repetido sobre o texto final (resultado no relato da entrega, e não aqui).
+- **Preservados, depois** (`sha256sum` e `wc -c`): `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`,
+  `85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes cada); `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`,
+  `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes). **Iguais aos de antes.**
+- **O commit e a execução de CI desta rodada** não cabem aqui: o identificador de um commit não pode estar escrito no arquivo
+  que ele introduz. Vão no relato da entrega, com o `head_sha`, o `head_branch` e o estado da execução.
+- Sem consulta a produção, sem recálculo, sem alteração de dado, sem chamada externa de inferência, embedding ou
+  recuperação (`fetch` simulado: **0** chamadas), sem parecer novo; `npm run lint` e `scripts/ingest-rag.ts` **não** foram
+  rodados; nenhum `--force`, rebase ou `amend`; **nada foi integrado**: `integra/a30-registros` segue em `8e165fb9da51133ccbe1e9d0093680ada67a7ca5`,
+  e `main`, em `33c1fdf6500242832994a17aa15b0a686704c029`.
+
+**Onde está cada item do pedido:** (a) seção 3; (b) seção 4; (c) seção 5; (d) seção 6; (e) seção 7; (f) seção 8; (g) seção 9;
+(h) seção 10; (i) seção 11; (j) seção 12; (k) seção 13; (l) seção 14. Os dados e os instrumentos estão em
+`docs/dados/a12-nota-veredicto-fase1/`.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

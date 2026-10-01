@@ -1,0 +1,53 @@
+'use strict';
+/**
+ * Varredura das ocorrências dos identificadores (Parecer IA, Fase 1 "nota e veredicto", item (a)).
+ * ⚠ Instrumento TEMPORÁRIO; arquivado como texto. Lê os arquivos RASTREADOS (git ls-files) e conta ocorrências
+ * (NÃO linhas) com limite de palavra UNICODE (um `-w` do git grep é ASCII: "nota" casa em "notação").
+ *
+ * Uso: node varredura.cjs <saida.json>
+ */
+const cp = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+const ROOT = process.cwd();
+
+const IDS = ['nota', 'veredicto', 'score', 'notaSuspensa', 'gradeSource', 'automaticGrade', 'classificacaoAutomatica'];
+const ESCOPO_DIRS = ['app/', 'components/', 'lib/', 'scripts/'];
+const EXT = /\.(ts|tsx|js|mjs|cjs)$/;
+
+const tracked = cp.execSync('git ls-files -z', { cwd: ROOT, maxBuffer: 1 << 28 }).toString('utf8').split('\0').filter(Boolean);
+const emEscopo = tracked.filter((f) => EXT.test(f) && (ESCOPO_DIRS.some((d) => f.startsWith(d)) || !f.includes('/')));
+const outras = tracked.filter((f) => !emEscopo.includes(f));
+
+const rx = (id) => new RegExp(`(?<![\\p{L}\\p{N}_$])${id}(?![\\p{L}\\p{N}_$])`, 'gu');
+const linhas = {};
+const ocorrencias = [];
+for (const f of emEscopo) {
+  const txt = fs.readFileSync(path.join(ROOT, f), 'utf8').split('\n');
+  linhas[f] = txt;
+  txt.forEach((l, i) => {
+    for (const id of IDS) {
+      let m;
+      const r = rx(id);
+      while ((m = r.exec(l)) !== null) ocorrencias.push({ arquivo: f, linha: i + 1, coluna: m.index + 1, id, texto: l.trim().slice(0, 240) });
+    }
+  });
+}
+
+// contagem em arquivos FORA do escopo (docs, json, md, etc.): só para declarar a diferença
+const foraDoEscopo = {};
+for (const f of outras) {
+  let t;
+  try { t = fs.readFileSync(path.join(ROOT, f), 'utf8'); } catch { continue; }
+  if (t.includes('\u0000')) continue;
+  for (const id of IDS) {
+    const m = t.match(rx(id));
+    if (m) { foraDoEscopo[id] = foraDoEscopo[id] || { ocorrencias: 0, arquivos: 0 }; foraDoEscopo[id].ocorrencias += m.length; foraDoEscopo[id].arquivos += 1; }
+  }
+}
+
+const porId = {};
+for (const o of ocorrencias) porId[o.id] = (porId[o.id] || 0) + 1;
+const out = { escopo: { diretorios: ESCOPO_DIRS, extensoes: String(EXT), arquivosVarridos: emEscopo.length, arquivosRastreadosNoTotal: tracked.length }, padroes: IDS.map((id) => `(?<![\\p{L}\\p{N}_$])${id}(?![\\p{L}\\p{N}_$]) (flags g,u; sensível a maiúsculas)`), contagemPorIdentificador: porId, foraDoEscopo, ocorrencias };
+fs.writeFileSync(process.argv[2], JSON.stringify(out, null, 1));
+console.log(JSON.stringify({ escopo: out.escopo, contagemPorIdentificador: porId, foraDoEscopo }, null, 1));

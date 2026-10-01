@@ -1,0 +1,254 @@
+'use strict';
+/**
+ * Classificação das ocorrências (Parecer IA, Fase 1 "nota e veredicto", item (a)): OBJETO, PAPEL e TRANSPORTE.
+ * ⚠ Instrumento TEMPORÁRIO, arquivado como texto. Entrada: `varredura.json` (varredura.cjs). Saída: `inventario.json`.
+ *
+ * ⚠ As classificações são LEITURA do executor, escritas como regras por arquivo e por faixa de linhas DEPOIS de ler o
+ *   código; o script só as aplica, e FALHA se uma ocorrência ficar sem regra (nenhuma é forçada numa categoria).
+ *
+ * OBJETOS (o que o identificador designa):
+ *   PARECER:score          escore do parecer, `classification.score` e a variável `score` de `calculateGrade` (sentido 1)
+ *   PARECER:nota           a nota (letra) do parecer: `classification.nota`, `aiGrade.nota`, `finalNota`, `resposta.nota`
+ *   PARECER:veredicto      o veredicto do parecer, idem
+ *   PARECER:notaSuspensa   `notaSuspensa` (causa, rótulo, motivo)
+ *   PARECER:gradeSource    `metadata.gradeSource`
+ *   PARECER:automaticGrade `metadata.automaticGrade` ({nota, veredicto, score})
+ *   ALTERNATIVAS:score     escore das ALTERNATIVAS: `finalScores`, `scoreSubtractive`, ... (sentido 2)
+ *   CHUNK:score            similaridade do chunk semântico do RAG (sentido 3)
+ *   RESPONDENTE:score      escore de qualidade por respondente, `overallScore` (sentido 4, achado)
+ *   ARTIGOS:score          a palavra "score" no TEXTO dos artigos do RAG, conteúdo da literatura (sentido 5, achado)
+ *   VALIDADOR:score        a palavra "score" no padrão que lê o texto GERADO pelo modelo (sentido 6, achado)
+ *   AUDITORIA:score        `qualityScore` e afins de `audit-decision` (item (l); fora da lista de sentidos)
+ *   ANOTACAO:nota          "nota" como anotação/observação (homônimo): NÃO é a nota do parecer
+ * PAPÉIS: tipo | cálculo interno | extração | construção do resultado | condição/guarda | contexto ao modelo | resposta da API |
+ *   recepção na tela | apresentação | log | comentário | texto fixo | requisição | teste: asserção | teste: fixture |
+ *   teste: título | teste: comentário | teste: leitura do fonte | teste: réplica da condição | teste: dado/descrição |
+ *   script | conteúdo RAG
+ * TRANSPORTES: 1 requisição (tela para a rota) | 2 contexto (ao modelo) | 3 resposta (da API para a tela) | — nenhum
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const dir = process.argv[2];
+const V = JSON.parse(fs.readFileSync(path.join(dir, 'varredura.json'), 'utf8'));
+
+const eComentario = (t) => /^(\/\/|\*|\/\*|\{\/\*)/.test(t.trim());
+
+// ---- regras: [de, ate, objeto, papel, transporte, nota]
+const F = {};
+const arq = (f, regras) => { F[f] = regras; };
+
+arq('app/api/ai-reviewer/route.ts', [
+  [168, 181, 'CHUNK:score', 'cálculo interno', '—', 'dedupe e ordenação dos chunks por similaridade'],
+  [205, 205, 'CHUNK:score', 'cálculo interno', '—', 'topScore da recuperação semântica (estatística)'],
+  [231, 231, 'CHUNK:score', 'contexto ao modelo', 2, 'a similaridade do chunk é impressa no contexto'],
+  [335, 335, 'PARECER:nota', 'comentário', '—', 'regra de ausência no tipo Classificacao'],
+  [341, 342, 'PARECER:nota', 'tipo', '—', 'declaração do tipo Classificacao (nota, veredicto, score)'],
+  [355, 355, 'PARECER:nota', 'construção do resultado', '—', 'retorno suspenso, nota/veredicto/score nulos'],
+  [358, 358, 'PARECER:score', 'cálculo interno', '—', 'inicializa o escore em 100'],
+  [415, 415, 'PARECER:nota', 'construção do resultado', '—', 'retorno suspenso (avaliação declarada sem dados)'],
+  [432, 475, 'PARECER:score', 'cálculo interno', '—', 'penalidades sobre o escore'],
+  [479, 479, 'PARECER:score', 'log', '—', ''],
+  [484, 485, 'PARECER:nota', 'cálculo interno', '—', 'declaração das variáveis nota e veredicto'],
+  [487, 502, 'PARECER:nota', 'cálculo interno', '—', 'faixas de letra por escore'],
+  [504, 504, 'PARECER:nota', 'log', '—', ''],
+  [506, 506, 'PARECER:nota', 'construção do resultado', '—', 'retorno de calculateGrade'],
+  [515, 515, 'PARECER:nota', 'tipo', '—', 'assinatura de extractGradeFromReview'],
+  [518, 518, 'PARECER:nota', 'tipo', '—', 'tipo da lista de padrões'],
+  [520, 525, 'PARECER:nota', 'extração', '—', 'tabela de padrões: nota e veredicto atribuídos ao padrão'],
+  [532, 532, 'PARECER:nota', 'extração', '—', 'desestruturação do padrão'],
+  [534, 534, 'PARECER:nota', 'log', '—', ''],
+  [535, 535, 'PARECER:nota', 'extração', '—', 'retorno da extração'],
+  [541, 541, 'PARECER:nota', 'extração', '—', ''],
+  [543, 543, 'PARECER:nota', 'log', '—', ''],
+  [544, 544, 'PARECER:nota', 'extração', '—', 'retorno da extração'],
+  [655, 655, 'CHUNK:score', 'log', '—', ''],
+  [1043, 1043, 'ALTERNATIVAS:score', 'log', '—', 'diagnóstico de finalScores'],
+  [1050, 1050, 'ALTERNATIVAS:score', 'contexto ao modelo', 2, 'ranking final impresso no contexto'],
+  [1065, 1065, 'PARECER:score', 'contexto ao modelo', 2, 'Pontuação automática e Sugestão automática no contexto'],
+  [1435, 1437, 'PARECER:nota', 'comentário', '—', ''],
+  [1439, 1440, 'PARECER:nota', 'cálculo interno', '—', 'FALLBACK: aiGrade?.nota ?? classification.nota (e o veredicto)'],
+  [1446, 1446, 'PARECER:nota', 'log', '—', 'nota IA (autoritativa)'],
+  [1447, 1447, 'PARECER:nota', 'condição/guarda', '—', 'compara a nota extraída com a automática, só para decidir se registra a divergência'],
+  [1448, 1451, 'PARECER:nota', 'log', '—', 'divergência e fallback'],
+  [1456, 1457, 'PARECER:nota', 'resposta da API', 3, 'campos nota e veredicto da resposta'],
+  [1464, 1464, 'PARECER:notaSuspensa', 'resposta da API', 3, ''],
+  [1484, 1484, 'PARECER:gradeSource', 'resposta da API', 3, 'metadata.gradeSource'],
+  [1485, 1488, 'PARECER:automaticGrade', 'resposta da API', 3, 'metadata.automaticGrade: nota, veredicto e score da classificação automática'],
+]);
+
+arq('app/api/audit-decision/route.ts', [[331, 364, 'ALTERNATIVAS:score', 'cálculo interno', '—', 'validação lógica do score subtrativo das alternativas (comentário e texto de problema)']]);
+arq('app/api/calculate/route.ts', [[1166, 1167, 'ALTERNATIVAS:score', 'resposta da API', '—', 'alerts.negativeAlternatives[].score, GRAVADO em calculations/{projectId} (setDoc :1227) e devolvido pela rota de cálculo']]);
+arq('app/api/response-quality/route.ts', [[222, 237, 'RESPONDENTE:score', 'cálculo interno', '—', 'classifyRespondent: status e escore 0-100 por CR médio'], [367, 367, 'RESPONDENTE:score', 'cálculo interno', '—', ''], [390, 390, 'RESPONDENTE:score', 'resposta da API', '—', 'overallScore por respondente, na resposta de /api/response-quality']]);
+arq('app/api/test-claude/route.ts', [[90, 91, 'ALTERNATIVAS:score', 'texto fixo', '—', 'dados de teste da rota de teste do Claude']]);
+
+arq('app/decisor/resultados/[projectId]/page.tsx', [
+  [214, 214, 'ALTERNATIVAS:score', 'tipo', '—', 'interface NegativeAlternative'],
+  [322, 323, 'ALTERNATIVAS:score', 'cálculo interno', '—', 'escore ponderado por subcritério'],
+  [901, 928, 'ALTERNATIVAS:score', 'cálculo interno', '—', 'escore subtrativo por alternativa nas trajetórias de sensibilidade'],
+  [1361, 1362, 'PARECER:nota', 'log', 3, 'log da recepção da resposta (nota e veredicto)'],
+  [1364, 1365, 'PARECER:nota', 'recepção na tela', 3, 'setAiReview recebe nota e veredicto da resposta'],
+  [1366, 1366, 'PARECER:notaSuspensa', 'recepção na tela', 3, 'setAiReview recebe notaSuspensa da resposta'],
+  [4323, 4323, 'ALTERNATIVAS:score', 'comentário', '—', ''],
+  [4416, 4416, 'ALTERNATIVAS:score', 'apresentação', '—', 'texto da recomendação: score normalizado da alternativa'],
+  [4478, 4478, 'ALTERNATIVAS:score', 'apresentação', '—', 'alerta de score subtrativo negativo'],
+  [4626, 4626, 'ALTERNATIVAS:score', 'comentário', '—', ''],
+]);
+
+arq('components/BentoGridDashboard.tsx', [[26, 26, 'ALTERNATIVAS:score', 'tipo', '—', ''], [44, 49, 'ALTERNATIVAS:score', 'cálculo interno', '—', 'getValidScore: escolhe o campo de escore da alternativa'], [51, 52, 'ALTERNATIVAS:score', 'cálculo interno', '—', ''], [231, 554, 'ALTERNATIVAS:score', 'apresentação', '—', 'painel do vencedor e ranking']]);
+arq('components/NegativePriorityAlert.tsx', [[15, 15, 'ALTERNATIVAS:score', 'comentário', '—', ''], [29, 29, 'ALTERNATIVAS:score', 'tipo', '—', ''], [76, 157, 'ALTERNATIVAS:score', 'apresentação', '—', 'alerta de prioridade negativa']]);
+arq('components/charts/BOCRRadarChart.tsx', [[4, 4, 'ALTERNATIVAS:score', 'comentário', '—', ''], [15, 15, 'ALTERNATIVAS:score', 'tipo', '—', ''], [29, 32, 'ALTERNATIVAS:score', 'cálculo interno', '—', 'getScore'], [125, 255, 'ALTERNATIVAS:score', 'apresentação', '—', 'gráfico radar']]);
+arq('components/charts/BOCRWaterfallChart.tsx', [[3, 3, 'ALTERNATIVAS:score', 'comentário', '—', ''], [15, 15, 'ALTERNATIVAS:score', 'tipo', '—', '']]);
+
+arq('components/ParecerAISection.tsx', [
+  [12, 13, 'PARECER:nota', 'tipo', 3, 'props: nota e veredicto'],
+  [16, 16, 'PARECER:nota', 'comentário', '—', ''],
+  [19, 19, 'PARECER:notaSuspensa', 'tipo', 3, 'props: notaSuspensa'],
+  [57, 59, 'PARECER:nota', 'apresentação', '—', 'getNotaStyle: cor por letra'],
+  [69, 70, 'PARECER:veredicto', 'apresentação', '—', 'getVeredictoStyle: cor por texto do veredicto'],
+  [213, 216, 'PARECER:notaSuspensa', 'apresentação', 3, 'cartão de suspensão: rótulo e motivo'],
+  [224, 224, 'PARECER:nota', 'comentário', '—', ''],
+  [225, 225, 'PARECER:nota', 'condição/guarda', '—', 'portão do destaque: !suspensa, apresentação aprovada, nota ou veredicto'],
+  [227, 237, 'PARECER:nota', 'apresentação', '—', 'destaque Nota Científica'],
+  [244, 254, 'PARECER:veredicto', 'apresentação', '—', 'destaque Veredicto'],
+]);
+
+arq('lib/ai-reviewer/avaliacao-qualidade.ts', [[163, 728, 'PARECER:nota', 'comentário', '—', 'doc-comments dos rótulos e da regra de elegibilidade']]);
+arq('lib/ai-reviewer/review-request.ts', [
+  [62, 62, 'ALTERNATIVAS:score', 'tipo', 1, 'ReviewRequest.finalScores'],
+  [167, 178, 'ALTERNATIVAS:score', 'comentário', '—', 'doc-comment de getValidFinalScores'],
+  [185, 202, 'ALTERNATIVAS:score', 'cálculo interno', 1, 'getValidFinalScores: normaliza e ordena os escores recebidos na requisição'],
+]);
+arq('lib/ai-reviewer/validate-review.ts', [
+  [86, 86, 'VALIDADOR:score', 'condição/guarda', '—', 'a palavra "score" no TEXTO gerado indica menção à fórmula'],
+  [136, 137, 'ALTERNATIVAS:score', 'cálculo interno', '—', 'escores conhecidos, para conferir o que o texto afirma'],
+]);
+arq('lib/ai-reviewer/vinculo-execucao.ts', [[614, 614, 'PARECER:nota', 'contexto ao modelo', 2, 'LIMITE_DO_VINCULO: "O bloco não é critério de nota e não suspende a classificação."']]);
+arq('lib/knowledge.ts', [[132, 132, 'ALTERNATIVAS:score', 'texto fixo', '—', ''], [637, 770, 'ALTERNATIVAS:score', 'cálculo interno', '—', 'alertas e resumo textual de alternativas (consumido por page.tsx:38)']]);
+arq('lib/rag/upstash-client.ts', [[217, 300, 'CHUNK:score', 'tipo', '—', 'resultado de querySimilar: score de similaridade (0..1, COSINE)']]);
+
+for (const f of ['alizadeh2020_energy', 'demirtas2008_integrated', 'dodevska2023when', 'goepel2018_ahpos', 'kabak2014_prioritization', 'lee2009_wind', 'lee2024_project', 'ossadnik2016_group_aggregation', 'saatyOzdemir2003_negative']) {
+  arq(`lib/rag/articles/${f}.ts`, [[1, 99999, 'ARTIGOS:score', 'conteúdo RAG', '?', 'a palavra "score" no texto da literatura indexada; o transporte 2 é medido contra a captura elegivel-auto-A']]);
+}
+arq('lib/rag/articles/saaty1987_whatitis.ts', [[111, 111, 'ANOTACAO:nota', 'conteúdo RAG', '—', 'campo `notes` do artigo: "a nota 3" é nota de rodapé do artigo']]);
+
+arq('scripts/a33-payload-referencia.cjs', [[228, 228, 'ANOTACAO:nota', 'script', '—', 'texto descritivo ("nota"/"veredito" do script de medição, NÃO o parecer)'], [283, 347, 'ANOTACAO:nota', 'script', '—', 'chave `nota:` de objeto de medição']]);
+arq('scripts/a33-snapshot-v2.cjs', [[659, 951, 'ANOTACAO:nota', 'script', '—', 'chave `nota:` de objeto de medição']]);
+arq('scripts/ingest-rag.ts', [[372, 372, 'CHUNK:score', 'log', '—', '']]);
+arq('scripts/measure-a33-identity-v2.cjs', [[119, 119, 'CHUNK:score', 'script', '—', 'controle: chunk com score alterado'], [179, 179, 'ANOTACAO:nota', 'script', '—', '']]);
+arq('scripts/measure-a33-identity.cjs', [[128, 131, 'CHUNK:score', 'script', 2, 'replica a linha de route.ts:231 (similaridade impressa no contexto)']]);
+arq('scripts/test-rag-semantic.ts', [[51, 56, 'CHUNK:score', 'script', '—', '']]);
+arq('scripts/test-rag-upstash.ts', [[9, 89, 'CHUNK:score', 'script', '—', '']]);
+
+// ------------------------------------------------------------------ TESTES (lib/__tests__)
+const T = 'lib/__tests__/';
+arq(T + 'a12-coerencia.test.ts', [
+  [42, 42, 'ALTERNATIVAS:score', 'teste: fixture', 1, ''],
+  [415, 415, 'PARECER:nota', 'teste: fixture', '—', 'texto do modelo simulado ("sem nota")'],
+  [564, 564, 'PARECER:nota', 'teste: fixture', '—', 'texto do modelo simulado ("sem nota")'],
+  [461, 462, 'PARECER:nota', 'teste: asserção', 3, 'corpo.nota e corpo.veredicto nulos'],
+  [493, 494, 'PARECER:nota', 'teste: asserção', 3, 'corpo.nota e corpo.veredicto nulos'],
+  [463, 616, 'PARECER:notaSuspensa', 'teste: asserção', 3, 'corpo.notaSuspensa: suspensa, causa, rótulo, motivo'],
+]);
+arq(T + 'a12-diagnostico.test.ts', [
+  [87, 87, 'PARECER:nota', 'teste: dado/descrição', '—', 'motivo textual da linha de base'],
+  [406, 407, 'ALTERNATIVAS:score', 'teste: fixture', 1, ''],
+  [683, 683, 'ANOTACAO:nota', 'teste: dado/descrição', '—', 'campo `nota` da medição (anotação)'],
+  [686, 686, 'PARECER:notaSuspensa', 'teste: dado/descrição', 3, 'mede a presença da chave notaSuspensa no corpo da resposta'],
+  [805, 812, 'PARECER:nota', 'teste: dado/descrição', '—', 'descrição, na linha de base, de onde a rota, a tela e o componente tratam a suspensão (localizadores textuais)'],
+  [947, 947, 'ANOTACAO:nota', 'teste: asserção', '—', 'asserção sobre o campo `nota` (anotação) da medição'],
+]);
+arq(T + 'a12-estatisticas-dimensao-consumidor-latente.test.ts', [[98, 98, 'ALTERNATIVAS:score', 'teste: fixture', 1, '']]);
+arq(T + 'a12-estatisticas-dimensao.test.ts', [
+  [335, 336, 'ALTERNATIVAS:score', 'teste: fixture', 1, ''],
+  [577, 864, 'PARECER:notaSuspensa', 'teste: asserção', 3, 'corpo.notaSuspensa e corpo.nota'],
+]);
+arq(T + 'a12-qualidade-ausente.test.ts', [
+  [28, 28, 'PARECER:veredicto', 'teste: fixture', '—', 'texto do modelo simulado ("veredicto explícito")'],
+  [46, 47, 'ALTERNATIVAS:score', 'teste: fixture', 1, ''],
+  [124, 133, 'PARECER:nota', 'teste: réplica da condição', 3, 'reescreve, no teste, a condição do portão do destaque (NÃO executa o componente)'],
+  [180, 180, 'PARECER:nota', 'teste: título', '—', ''],
+  [189, 193, 'PARECER:nota', 'teste: asserção', 3, 'resposta: nota, veredicto, automaticGrade, gradeSource, notaSuspensa nos casos suspensos'],
+  [208, 263, 'PARECER:nota', 'teste: asserção', 3, 'resposta: nota, veredicto, gradeSource, automaticGrade, notaSuspensa'],
+  [246, 249, 'PARECER:nota', 'teste: título', '—', ''],
+  [282, 282, 'PARECER:notaSuspensa', 'teste: título', '—', ''],
+  [286, 289, 'PARECER:notaSuspensa', 'teste: leitura do fonte', '—', 'asserções sobre o TEXTO de components/ParecerAISection.tsx'],
+  [294, 294, 'PARECER:score', 'teste: comentário', '—', ''],
+  [331, 332, 'PARECER:score', 'teste: leitura do fonte', '—', 'asserções sobre o TEXTO de route.ts: o retorno literal de suspensão e a ausência de `score -=`'],
+  [343, 344, 'PARECER:notaSuspensa', 'teste: asserção', 3, ''],
+]);
+arq(T + 'a33-cadeia-rule.test.ts', [[157, 157, 'PARECER:nota', 'teste: dado/descrição', '—', 'motivo textual da linha de base'], [506, 1629, 'ANOTACAO:nota', 'teste: asserção', '—', 'campo `nota` (anotação) de objetos de medição e variável local homônima']]);
+arq(T + 'a33-conferencia-c1.test.ts', [[105, 347, 'ANOTACAO:nota', 'teste: asserção', '—', 'campo `nota` (anotação) dos localizadores']]);
+arq(T + 'a33-montagem-contexto.test.ts', [[35, 47, 'CHUNK:score', 'teste: fixture', 2, ''], [73, 74, 'ALTERNATIVAS:score', 'teste: fixture', 1, '']]);
+arq(T + 'a33-snapshot-v2.test.ts', [[379, 379, 'CHUNK:score', 'teste: asserção', 2, 'chaves do chunk'], [578, 578, 'ANOTACAO:nota', 'teste: asserção', '—', ''], [709, 709, 'CHUNK:score', 'teste: réplica da condição', 2, 'reconstrói a linha do contexto, cópia de route.ts:231'], [848, 848, 'ANOTACAO:nota', 'teste: asserção', '—', '']]);
+arq(T + 'rag-diagnostico-regressao.test.ts', [[551, 552, 'ALTERNATIVAS:score', 'teste: fixture', 1, '']]);
+arq(T + 'rag-semantic-states.test.ts', [[41, 66, 'CHUNK:score', 'teste: fixture', '—', ''], [93, 94, 'ALTERNATIVAS:score', 'teste: fixture', 1, '']]);
+arq(T + 'rag-transport.test.ts', [[68, 68, 'CHUNK:score', 'teste: fixture', '—', '']]);
+arq(T + 'rag-transporte-comparacao.test.ts', [[59, 113, 'CHUNK:score', 'teste: fixture', '—', '']]);
+arq(T + 'respondent-weights.test.ts', [[98, 98, 'ANOTACAO:nota', 'teste: comentário', '—', '"a nota correspondente": observação, não o parecer']]);
+arq(T + 'validate-review.test.ts', [[18, 39, 'ALTERNATIVAS:score', 'teste: fixture', 1, '']]);
+arq(T + 'vinculo-execucao-fiacao.test.ts', [
+  [125, 126, 'ALTERNATIVAS:score', 'teste: fixture', 1, ''],
+  [1258, 1258, 'PARECER:nota', 'teste: comentário', '—', ''],
+  [1291, 1291, 'PARECER:nota', 'teste: comentário', '—', ''],
+  [1294, 1298, 'PARECER:nota', 'teste: captura de campos', 3, 'o auxiliar recolhe nota, veredicto, notaSuspensa, gradeSource, automaticGrade da resposta (as asserções vêm depois)'],
+  [1307, 1339, 'PARECER:notaSuspensa', 'teste: asserção', 3, ''],
+  [1342, 1342, 'PARECER:nota', 'teste: título', 2, '"o bloco não empresta critério de nota"'],
+  [1352, 1352, 'PARECER:nota', 'teste: título', '—', ''],
+  [1379, 1381, 'ANOTACAO:nota', 'teste: leitura do fonte', '—', 'variável local `nota` guarda o TEXTO de calculateGrade (homônima)'],
+]);
+arq(T + 'vinculo-execucao.test.ts', [
+  [1128, 1128, 'PARECER:nota', 'teste: título', 2, ''],
+  [1136, 1136, 'PARECER:nota', 'teste: asserção', 2, 'LIMITE_DO_VINCULO casa /não é critério de nota e não suspende a classificação/'],
+  [1139, 1139, 'PARECER:nota', 'teste: título', 2, ''],
+  [1451, 1451, 'PARECER:nota', 'teste: título', 2, ''],
+  [2037, 2037, 'PARECER:nota', 'teste: título', 2, ''],
+  [2092, 2092, 'PARECER:nota', 'teste: asserção', 2, 'a palavra "nota" é VOCABULÁRIO do teste de palavras proibidas (NOTA)'],
+]);
+
+// ------------------------------------------------------------------ aplicação
+const linhas = {};
+const lerLinha = (f, n) => (linhas[f] = linhas[f] || fs.readFileSync(path.join(process.cwd(), f), 'utf8').split('\n'))[n - 1];
+const CTX = (() => { try { return fs.readFileSync(process.env.NOTA_CTX_A, 'utf8'); } catch { return null; } })();
+const semRegra = [];
+const out = [];
+for (const o of V.ocorrencias) {
+  const regras = F[o.arquivo];
+  let r = null;
+  if (regras) r = regras.find(([de, ate]) => o.linha >= de && o.linha <= ate);
+  if (!r) { semRegra.push(`${o.arquivo}:${o.linha}:${o.id}`); continue; }
+  let [, , obj, papel, tr, nota] = r;
+  // O OBJETO sai do identificador dentro da família da regra: `PARECER:` e `ANOTACAO:` seguem o identificador lido.
+  if (obj.startsWith('PARECER:')) obj = 'PARECER:' + o.id;
+  else if (obj.startsWith('ANOTACAO:')) obj = 'ANOTACAO:' + o.id;
+  // refinamento por texto: um comentário de linha inteira é "comentário", qualquer que seja a faixa
+  const texto = lerLinha(o.arquivo, o.linha) || '';
+  let refinado = false;
+  if (eComentario(texto) && !papel.startsWith('teste') && papel !== 'comentário' && papel !== 'conteúdo RAG' && !String(papel).startsWith('script')) { papel = 'comentário'; refinado = true; }
+  if (eComentario(texto) && papel.startsWith('teste') && papel !== 'teste: título') { papel = 'teste: comentário'; refinado = true; }
+  if (o.arquivo.startsWith('lib/__tests__/') && /^\s*(test|it|describe)(\.\w+)?\(/.test(texto) && papel.startsWith('teste')) { papel = 'teste: título'; refinado = true; }
+  // ARTIGOS: o transporte 2 é MEDIDO, não suposto: o valor entre aspas da linha aparece (ou não) no contexto capturado (elegivel-auto-A)?
+  let chegaAoContexto;
+  if (obj === 'ARTIGOS:score' && CTX) {
+    // ⚠ Um valor curto e sem espaço (por exemplo, `unit: "score"`) está contido em QUALQUER contexto, e a inclusão não o
+    //   discrimina: o campo `unit` é impresso por knowledge.ts:285 como `- **<valor> <unidade>** (<operador>): ...`, e é
+    //   essa forma que se procura. Para os demais, o valor entre aspas precisa ter espaço e 10 caracteres ou mais.
+    const valores = [...texto.matchAll(/"([^"]*score[^"]*)"/g)].map((m) => m[1]);
+    if (/^\s*unit:\s*"score"/.test(texto)) chegaAoContexto = /\*\*[^*\n]*\sscore\*\* \(/.test(CTX);
+    else if (valores.length && valores.every((v) => v.includes(' ') && v.length >= 10)) chegaAoContexto = valores.every((v) => CTX.includes(v));
+    else chegaAoContexto = null;
+    tr = chegaAoContexto === true ? 2 : chegaAoContexto === false ? 'não chega (nesta captura)' : '? (instrumento não decide)';
+  }
+  out.push({ arquivo: o.arquivo, linha: o.linha, id: o.id, objeto: obj, papel, transporte: tr, chegaAoContextoNaCapturaElegivelA: chegaAoContexto ?? null, nota, refinadoPorComentario: refinado, texto: texto.trim().slice(0, 200) });
+}
+if (semRegra.length) { console.error('SEM REGRA:', semRegra.length, semRegra.slice(0, 40).join(' ')); process.exit(1); }
+
+const chave = (o) => `${o.objeto} | ${o.papel} | T${o.transporte}`;
+const grupos = {};
+for (const o of out) { const g = (grupos[chave(o)] = grupos[chave(o)] || { n: 0, arquivos: new Set() }); g.n++; g.arquivos.add(o.arquivo); }
+const resumo = Object.entries(grupos).map(([k, g]) => ({ chave: k, ocorrencias: g.n, arquivos: g.arquivos.size })).sort((a, b) => a.chave.localeCompare(b.chave));
+const porObjeto = {};
+for (const o of out) { porObjeto[o.objeto] = porObjeto[o.objeto] || { total: 0, producao: 0, teste: 0 }; porObjeto[o.objeto].total++; if (o.arquivo.startsWith('lib/__tests__/')) porObjeto[o.objeto].teste++; else porObjeto[o.objeto].producao++; }
+fs.writeFileSync(path.join(dir, 'inventario.json'), JSON.stringify({ escopo: V.escopo, padroes: V.padroes, contagemPorIdentificador: V.contagemPorIdentificador, foraDoEscopo: V.foraDoEscopo, totalOcorrencias: out.length, porObjeto, resumo, ocorrencias: out }, null, 1));
+console.log('total classificado:', out.length, 'de', V.ocorrencias.length);
+console.log(JSON.stringify(porObjeto, null, 1));
+console.log(resumo.map((r) => `${String(r.ocorrencias).padStart(4)}  ${r.chave}  (${r.arquivos} arq.)`).join('\n'));

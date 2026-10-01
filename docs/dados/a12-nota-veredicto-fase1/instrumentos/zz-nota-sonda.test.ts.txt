@@ -1,0 +1,698 @@
+export {};
+
+/**
+ * SONDA TEMPORÁRIA, Parecer IA: "Nota e veredicto, Fase 1, medir o alcance".
+ *
+ * ⚠ **NÃO é teste versionado.** Vive em `lib/__tests__/zz-nota-sonda.test.ts` só durante a medição, e é APAGADA
+ * antes de qualquer commit; o texto fica arquivado como `.txt` em `docs/dados/a12-nota-veredicto-fase1/instrumentos/`.
+ *
+ * ⚠ **Dois modos do instrumento, e o relato diz qual produziu cada número:**
+ *   - `captura`: o cliente simulado REGISTRA o contexto e INTERROMPE antes da geração (lança um erro sentinela).
+ *     Mede o que SERIA enviado ao modelo. NÃO alcança a extração, a resposta nem a apresentação.
+ *   - `texto-fixado`: o cliente simulado REGISTRA o contexto e DEVOLVE um texto fixado pelo instrumento, e o `POST`
+ *     conclui: extração, resposta da API e apresentação.
+ *   NENHUM dos dois mede o efeito de retirar o escore sobre o texto GERADO pelo modelo. Nenhuma chamada de rede.
+ *
+ * ⚠ Passa pelo TRATADOR REAL de `POST /api/ai-reviewer`. A única exceção declarada é a causa `coerencia_nao_avaliada`,
+ *   que o tratador real NÃO produz (`normalizeRequest` sempre calcula a coerência): ela é CONSTRUÍDA por um mock de
+ *   `avaliarCoerencia` que devolve `null`, e fica marcada como construída em todo o relato.
+ *
+ * ⚠ A apresentação é a do COMPONENTE REAL `components/ParecerAISection.tsx`:
+ *   - `renderToStaticMarkup`: renderização do componente (NÃO é a página no navegador, e NÃO executa a cópia);
+ *   - o manipulador `handleCopy` é o REAL: a função do componente é chamada com `React.useState` simulado, o botão
+ *     "Copiar parecer em markdown" é localizado na árvore de elementos devolvida, e o seu `onClick` é INVOCADO
+ *     diretamente, com `navigator.clipboard.writeText` SIMULADO e o argumento REGISTRADO. NÃO é clique no navegador
+ *     e NÃO é cópia para a área de transferência.
+ *
+ * Variáveis de ambiente: `NOTA_SAIDA` (diretório de saída).
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import ParecerAISection from '@/components/ParecerAISection';
+
+const sha256 = (t: string): string => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+
+const CHAVE = 'chave-anthropic-falsa-do-processo-de-teste';
+const ENV_ANTES = { chave: process.env.ANTHROPIC_API_KEY, flag: process.env.USE_RAG_SEMANTIC };
+process.env.ANTHROPIC_API_KEY = CHAVE;
+delete process.env.USE_RAG_SEMANTIC;
+
+const estado: { modo: 'captura' | 'texto-fixado'; texto: string; contexto: string; system: string; chamadas: number; coerenciaNula: boolean } = {
+  modo: 'captura',
+  texto: '',
+  contexto: '',
+  system: '',
+  chamadas: 0,
+  coerenciaNula: false,
+};
+
+jest.mock('@anthropic-ai/sdk', () => ({
+  __esModule: true,
+  default: class {
+    messages = {
+      create: async (a: { system?: unknown; messages: Array<{ content: string }> }) => {
+        estado.chamadas += 1;
+        estado.contexto = a.messages.map((m) => m.content).join('\n');
+        estado.system = typeof a.system === 'string' ? a.system : JSON.stringify(a.system ?? '');
+        // ⚠ MODO `captura`: interrompe ANTES da geração. MODO `texto-fixado`: devolve o texto do instrumento.
+        if (estado.modo === 'captura') throw new Error('SONDA: captura interrompida antes da geracao');
+        return { content: [{ type: 'text', text: estado.texto }] };
+      },
+    };
+  },
+}));
+
+// ⚠ Construção DECLARADA: só para a causa `coerencia_nao_avaliada`, que o tratador real não produz.
+jest.mock('@/lib/ai-reviewer/avaliacao-qualidade', () => {
+  const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
+  return { ...real, avaliarCoerencia: (raw: any) => (estado.coerenciaNula ? null : real.avaliarCoerencia(raw)) };
+});
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { POST } = require('@/app/api/ai-reviewer/route');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
+
+let logs: string[] = [];
+let silencios: jest.SpyInstance[] = [];
+beforeAll(() => {
+  silencios = [
+    jest.spyOn(console, 'log').mockImplementation((...a: unknown[]) => {
+      logs.push(a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' '));
+    }),
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined),
+    jest.spyOn(console, 'error').mockImplementation(() => undefined),
+  ];
+});
+afterAll(() => {
+  silencios.forEach((s) => s.mockRestore());
+  if (ENV_ANTES.chave === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = ENV_ANTES.chave;
+  if (ENV_ANTES.flag === undefined) delete process.env.USE_RAG_SEMANTIC; else process.env.USE_RAG_SEMANTIC = ENV_ANTES.flag;
+});
+jest.setTimeout(300000);
+
+// ====================================================================================================================
+// REQUISIÇÕES. COPIA LITERAL de lib/__tests__/a12-coerencia.test.ts (d6fc649), linhas 28-60, e variações.
+// ====================================================================================================================
+const respondente = (i: number, cr: number | null, status?: string) => ({
+  id: `resp-${i}`,
+  name: `Respondente ${i}`,
+  ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }),
+  ...(status === undefined
+    ? { status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO' }
+    : { status }),
+});
+
+/** Requisição COERENTE: quatro respondentes com CR 0.05, e os agregados de acordo. A automática dá A, 100/100. */
+function coerente(): any {
+  const rs = [1, 2, 3, 4].map((i) => respondente(i, 0.05));
+  return {
+    projectName: 'Projeto do controle de coerencia',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    finalScores: [{ code: 'A1', name: 'Alternativa 1', score: 0.62 }],
+    responseCount: 4,
+    qualityAnalysis: {
+      respondents: rs,
+      statistics: { byStatus: { 'CONFIÁVEL': 4, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 0 }, total: 4, avgCR: 0.05 },
+      summary: { total: 4, ok: 4, suspicious: 0, critical: 0 },
+    },
+    overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
+    individualStats: {
+      Benefits: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+      Opportunities: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+      Costs: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+      Risks: { total: 4, valid: 4, warning: 0, critical: 0, avgCR: 0.05 },
+    },
+  };
+}
+
+/** Requisição COERENTE e ELEGÍVEL com qualidade ruim: quatro CR 0.25, todos críticos. A automática dá F, 45/100. */
+function ruim(): any {
+  const rs = [1, 2, 3, 4].map((i) => respondente(i, 0.25));
+  return {
+    ...coerente(),
+    qualityAnalysis: {
+      respondents: rs,
+      statistics: { byStatus: { 'CONFIÁVEL': 0, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 4 }, total: 4, avgCR: 0.25 },
+      summary: { total: 4, ok: 0, suspicious: 0, critical: 4 },
+    },
+    overallStats: { total: 4, valid: 0, warning: 0, critical: 4 },
+    individualStats: {
+      Benefits: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+      Opportunities: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+      Costs: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+      Risks: { total: 4, valid: 0, warning: 0, critical: 4, avgCR: 0.25 },
+    },
+  };
+}
+
+type Condicao = {
+  id: string;
+  descricao: string;
+  construida: boolean;
+  coerenciaNula: boolean;
+  fazer: () => any;
+};
+
+const CONDICOES: Condicao[] = [
+  { id: 'elegivel-auto-A', descricao: 'elegível; a classificação automática dá A, 100/100', construida: false, coerenciaNula: false, fazer: () => coerente() },
+  { id: 'elegivel-auto-F', descricao: 'elegível; a classificação automática dá F, 45/100', construida: false, coerenciaNula: false, fazer: () => ruim() },
+  {
+    id: 'disponibilidade-ausente',
+    descricao: 'causa disponibilidade, avaliação ausente (sem lista de respondentes)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); delete r.qualityAnalysis.respondents; return r; },
+  },
+  {
+    id: 'disponibilidade-incompleta',
+    descricao: 'causa disponibilidade, avaliação incompleta (um respondente sem CR)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); r.qualityAnalysis.respondents = [respondente(1, 0.05), respondente(2, null)]; return r; },
+  },
+  {
+    id: 'contradicao',
+    descricao: 'causa contradicao (V5: 4 + 4 sobre total 4)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); r.qualityAnalysis.summary.critical = 4; return r; },
+  },
+  {
+    id: 'coerencia-nao-concluida',
+    descricao: 'causa coerencia_nao_concluida (statistics.total ausente: V2 e V3 nao determinadas)',
+    construida: false,
+    coerenciaNula: false,
+    fazer: () => { const r = coerente(); delete r.qualityAnalysis.statistics.total; return r; },
+  },
+  {
+    id: 'coerencia-nao-avaliada-CONSTRUIDA',
+    descricao: 'causa coerencia_nao_avaliada, CONSTRUÍDA por mock de avaliarCoerencia (o tratador real não a produz)',
+    construida: true,
+    coerenciaNula: true,
+    fazer: () => coerente(),
+  },
+];
+
+// ====================================================================================================================
+// TEXTOS FIXADOS. Cada um é a entrada INTEGRAL. ⚠ O corpo neutro não traz nenhum termo que o extrator reconheça.
+// ====================================================================================================================
+const CORPO_NEUTRO = [
+  '## 📋 RESUMO EXECUTIVO',
+  'Texto de ensaio do instrumento de medição, escrito apenas para ter extensão suficiente e nenhum termo de resultado.',
+  '',
+  '## 🔍 ANÁLISE',
+  'Parágrafo de preenchimento, sem números, sem referências e sem qualquer termo que o extrator reconheça.',
+  '',
+  '',
+].join('\n');
+
+type TextoFixado = { id: string; descricao: string; texto: string; leituraHumana: string };
+
+const TEXTOS: TextoFixado[] = [
+  {
+    id: 'T1-editorial-simples',
+    descricao: 'estado 1: a seção de decisão editorial traz um único padrão',
+    texto: `${CORPO_NEUTRO}## 🎯 DECISÃO EDITORIAL\nREVISÕES MAIORES\n\nTexto final de ensaio, sem outros termos de resultado.\n`,
+    leituraHumana: 'REVISÕES MAIORES',
+  },
+  {
+    id: 'T2a-ausencia-sem-secao',
+    descricao: 'estado 2: ausência; nenhum padrão casa e não há seção de decisão editorial',
+    texto: `${CORPO_NEUTRO}Conclusão de ensaio: o texto não declara categoria de resultado alguma.\n`,
+    leituraHumana: 'nenhuma decisão declarada',
+  },
+  {
+    id: 'T2b-ausencia-secao-sem-padrao',
+    descricao: 'estado 2: ausência; a seção existe, mas nenhum padrão casa',
+    texto: `${CORPO_NEUTRO}## 🎯 DECISÃO EDITORIAL\nA categoria fica a critério do comitê, sem rótulo declarado.\n`,
+    leituraHumana: 'nenhuma decisão declarada',
+  },
+  {
+    id: 'T3a-formato-sem-secao-com-padrao',
+    descricao: 'estado 3: formato inesperado; não há seção, e a busca cai no texto inteiro',
+    texto: `${CORPO_NEUTRO}Conclusão de ensaio: REJEITAR, com convite para nova submissão.\n`,
+    leituraHumana: 'REJEITAR',
+  },
+  {
+    id: 'T3b-formato-titulo-na-mesma-linha',
+    descricao: 'estado 3: formato inesperado; o título e a decisão estão na mesma linha, sem quebra depois',
+    texto: `${CORPO_NEUTRO}## 🎯 DECISÃO EDITORIAL: REVISÕES MAIORES`,
+    leituraHumana: 'REVISÕES MAIORES',
+  },
+  {
+    id: 'T4a-ambiguo-na-secao',
+    descricao: 'estado 4: ambíguo na seção; dois padrões casam, e a ordem da lista decide',
+    texto: `${CORPO_NEUTRO}## 🎯 DECISÃO EDITORIAL\nREJEITAR, ou ACEITO COM REVISÕES MENORES se as limitações forem mitigadas.\n`,
+    leituraHumana: 'REJEITAR, condicionado a mitigação (ou ACEITO COM REVISÕES MENORES se mitigado): a decisão principal é REJEITAR',
+  },
+  {
+    id: 'T4b-ambiguo-sem-secao',
+    descricao: 'estado 4: ambíguo no texto inteiro; dois padrões casam, e a ordem da lista decide',
+    texto: `${CORPO_NEUTRO}Conclusão de ensaio: REJEITAR, ou ACEITO COM REVISÕES MENORES se as limitações forem mitigadas.\n`,
+    leituraHumana: 'REJEITAR, condicionado a mitigação (ou ACEITO COM REVISÕES MENORES se mitigado): a decisão principal é REJEITAR',
+  },
+  {
+    id: 'T5a-negacao-nota-B',
+    descricao: 'estado 5, caso 1 de (c): "Nota B. ACEITO COM REVISÕES MENORES", na decisão editorial',
+    texto: `${CORPO_NEUTRO}## 🎯 DECISÃO EDITORIAL\nNota B. ACEITO COM REVISÕES MENORES\n`,
+    leituraHumana: 'Nota B, ACEITO COM REVISÕES MENORES',
+  },
+  {
+    id: 'T5b-negacao-nao-deve-ser-aceito',
+    descricao: 'estado 5, caso 2 de (c): "O estudo NÃO deve ser ACEITO", na decisão editorial',
+    texto: `${CORPO_NEUTRO}## 🎯 DECISÃO EDITORIAL\nO estudo NÃO deve ser ACEITO nesta forma.\n`,
+    leituraHumana: 'NÃO aceito (negação)',
+  },
+  {
+    id: 'T5c-mencao-exemplo-anterior',
+    descricao: 'estado 5, caso 3 de (c): menção a ACEITO como exemplo anterior, sem decisão editorial própria',
+    texto: `${CORPO_NEUTRO}Em revisões anteriores, o rótulo ACEITO foi usado apenas como exemplo de formato, e este manuscrito não recebe decisão própria neste texto.\n`,
+    leituraHumana: 'nenhuma decisão própria (menção a exemplo)',
+  },
+];
+
+// ====================================================================================================================
+// CONTROLES ADICIONAIS DO EXECUTOR (NÃO pedidos): as frases abreviadas, sozinhas (a guarda de 50 caracteres), e três
+// falsos positivos por vocabulário comum. Rodam só em `elegivel-auto-A`, apresentação `aprovada`, e são relatados à parte.
+// ====================================================================================================================
+const FILLER_LONGO = 'Parágrafo de preenchimento, sem números e sem qualquer termo que o extrator reconheça. '.repeat(7);
+const ADICIONAIS: TextoFixado[] = [
+  { id: 'AD1-curta-5a', descricao: 'a frase do caso 1, sozinha: 35 caracteres, abaixo da guarda de 50', texto: 'Nota B. ACEITO COM REVISÕES MENORES', leituraHumana: 'Nota B, ACEITO COM REVISÕES MENORES' },
+  { id: 'AD2-curta-5b', descricao: 'a frase do caso 2, sozinha: abaixo da guarda de 50', texto: 'O estudo NÃO deve ser ACEITO', leituraHumana: 'NÃO aceito (negação)' },
+  { id: 'AD3-curta-5c', descricao: 'a menção do caso 3, sozinha: abaixo da guarda de 50', texto: 'Exemplo anterior: o rótulo ACEITO.', leituraHumana: 'nenhuma decisão própria (menção a exemplo)' },
+  {
+    id: 'AD4-participio-aceito',
+    descricao: 'vocabulário comum: "aceito" (particípio, minúsculo) em prosa, sem decisão alguma, sem seção',
+    texto: `${CORPO_NEUTRO}O limiar adotado já foi aceito pelos autores em estudos anteriores.\n`,
+    leituraHumana: 'nenhuma decisão declarada',
+  },
+  {
+    id: 'AD5-rejeitar-hipotese-nula',
+    descricao: 'vocabulário comum: "rejeitar a hipótese nula" em prosa, sem decisão alguma, sem seção',
+    texto: `${CORPO_NEUTRO}Não há evidência suficiente para rejeitar a hipótese nula neste ensaio.\n`,
+    leituraHumana: 'nenhuma decisão declarada',
+  },
+  {
+    id: 'AD6-titulo-citado-antes-da-secao',
+    descricao: 'o título é citado em prosa ANTES da seção real: a primeira ocorrência ancora a janela de 500, que traz prosa com "rejeitar"; a decisão real, ACEITO, fica fora da janela',
+    texto: `## 📋 RESUMO EXECUTIVO\nA decisão editorial consta ao final do texto.\nNão há evidência suficiente para rejeitar a hipótese nula neste ensaio. ${FILLER_LONGO}\n\n## 🎯 DECISÃO EDITORIAL\nACEITO\n`,
+    leituraHumana: 'ACEITO',
+  },
+];
+
+// ====================================================================================================================
+// A RÉPLICA DO EXTRATOR, do instrumento, COPIADA de app/api/ai-reviewer/route.ts:518-546 (d6fc649).
+// ⚠ Serve para DECLARAR a previsão e para CONFERIR o tratador real; NÃO é o código de produção.
+// ====================================================================================================================
+const PADROES: Array<{ pattern: RegExp; nota: string; veredicto: string }> = [
+  { pattern: /\bACEITO\s+COM\s+REVIS(?:Õ|O)ES\s+MENORES\b/i, nota: 'A', veredicto: 'ACEITO COM REVISÕES MENORES' },
+  { pattern: /\bREVIS(?:Õ|O)ES\s+MENORES\b/i, nota: 'B', veredicto: 'REVISÕES MENORES' },
+  { pattern: /\bREVIS(?:Õ|O)ES\s+MAIORES\b/i, nota: 'C', veredicto: 'REVISÕES MAIORES' },
+  { pattern: /\bRECONSIDERAR\b/i, nota: 'D', veredicto: 'RECONSIDERAR APÓS REVISÃO SUBSTANCIAL' },
+  { pattern: /\bREJEITAR\b/i, nota: 'F', veredicto: 'REJEITAR' },
+  { pattern: /\bACEITO\b/i, nota: 'A', veredicto: 'ACEITO' },
+];
+const REGEX_EDITORIAL = /DECIS(?:Ã|A)O\s+EDITORIAL[^\n]*\n([\s\S]{0,500})/i;
+
+function replica(reviewText: string) {
+  if (!reviewText || reviewText.length < 50) return { caminho: 'curto', indice: null as number | null, nota: null as string | null, veredicto: null as string | null };
+  const m = reviewText.match(REGEX_EDITORIAL);
+  if (m) {
+    for (let i = 0; i < PADROES.length; i++) {
+      if (PADROES[i].pattern.test(m[1])) return { caminho: 'editorial', indice: i, nota: PADROES[i].nota, veredicto: PADROES[i].veredicto };
+    }
+  }
+  for (let i = 0; i < PADROES.length; i++) {
+    if (PADROES[i].pattern.test(reviewText)) return { caminho: 'texto-completo', indice: i, nota: PADROES[i].nota, veredicto: PADROES[i].veredicto };
+  }
+  return { caminho: 'nenhum', indice: null as number | null, nota: null as string | null, veredicto: null as string | null };
+}
+
+function anatomia(texto: string) {
+  const idxTitulo = texto.search(/DECIS(?:Ã|A)O\s+EDITORIAL/i);
+  const m = texto.match(REGEX_EDITORIAL);
+  const janela = m ? m[1] : null;
+  const inicioDaJanela = m && m.index !== undefined ? m.index + m[0].length - m[1].length : null;
+  return {
+    extensaoEmCaracteres: texto.length,
+    extensaoEmPontosDeCodigo: Array.from(texto).length,
+    bytesUtf8: Buffer.byteLength(texto, 'utf8'),
+    guardaDe50Satisfeita: texto.length >= 50,
+    posicaoDoTituloDaSecaoEditorial: idxTitulo,
+    secaoEditorialCapturadaPelaRegex: m !== null,
+    inicioDaJanelaDe500: inicioDaJanela,
+    janelaCapturada: janela,
+    janelaExtensao: janela === null ? null : janela.length,
+    padroesQueCasamNaJanela: janela === null ? [] : PADROES.map((p, i) => (p.pattern.test(janela) ? i : -1)).filter((i) => i >= 0),
+    padroesQueCasamNoTextoInteiro: PADROES.map((p, i) => (p.pattern.test(texto) ? i : -1)).filter((i) => i >= 0),
+  };
+}
+
+// ====================================================================================================================
+// EXECUÇÃO DO TRATADOR REAL
+// ====================================================================================================================
+type Execucao = { corpo: any; status: number; chamadas: number; contexto: string; system: string; logs: string[] };
+
+async function executar(payload: any, modo: 'captura' | 'texto-fixado', texto: string, coerenciaNula = false): Promise<Execucao> {
+  estado.modo = modo;
+  estado.texto = texto;
+  estado.contexto = '';
+  estado.system = '';
+  estado.coerenciaNula = coerenciaNula;
+  logs = [];
+  const antes = estado.chamadas;
+  const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+  const corpo = await res.json();
+  estado.coerenciaNula = false;
+  return { corpo, status: res.status ?? 200, chamadas: estado.chamadas - antes, contexto: estado.contexto, system: estado.system, logs: [...logs] };
+}
+
+// ====================================================================================================================
+// A APRESENTAÇÃO: componente REAL. Árvore de elementos (função chamada com useState simulado) e HTML (renderToStaticMarkup).
+// ====================================================================================================================
+type No = any;
+const filhos = (no: No): No[] => {
+  const c = no?.props?.children;
+  return c === undefined || c === null ? [] : Array.isArray(c) ? (c as any[]).flat(Infinity) : [c];
+};
+function achar(no: No, pred: (n: No) => boolean, acc: No[] = []): No[] {
+  if (no && typeof no === 'object' && !Array.isArray(no)) {
+    if (pred(no)) acc.push(no);
+    for (const f of filhos(no)) achar(f, pred, acc);
+  } else if (Array.isArray(no)) {
+    for (const f of (no as any[]).flat(Infinity)) achar(f, pred, acc);
+  }
+  return acc;
+}
+function textoDe(no: No): string {
+  if (no === null || no === undefined || typeof no === 'boolean') return '';
+  if (typeof no === 'string' || typeof no === 'number') return String(no);
+  if (Array.isArray(no)) return (no as any[]).map(textoDe).join('');
+  return filhos(no).map(textoDe).join('');
+}
+const classe = (n: No): string => (typeof n?.props?.className === 'string' ? n.props.className : '');
+const normalizar = (s: string) => s.replace(/[#*]/g, '').replace(/\s+/g, ' ').trim();
+
+function arvoreDoComponente(aiReview: any): No {
+  const setCopied = jest.fn();
+  const espiao = jest.spyOn(React, 'useState').mockReturnValue([false, setCopied] as any);
+  try {
+    return { arvore: (ParecerAISection as any)({ aiReview, loading: false, onExecute: () => undefined }), setCopied };
+  } finally {
+    espiao.mockRestore();
+  }
+}
+
+async function acionarCopia(arvore: No, setCopied: jest.Mock) {
+  const botoes = achar(arvore, (n) => n.type === 'button' && n.props?.title === 'Copiar parecer em markdown');
+  if (botoes.length === 0) return { botaoExibido: false, manipuladorAcionado: false, argumento: null as string | null, chamadasDeWriteText: 0, setCopiedChamadoCom: [] as unknown[] };
+  const chamadas: string[] = [];
+  const antes = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  Object.defineProperty(globalThis, 'navigator', {
+    value: { clipboard: { writeText: async (t: string) => { chamadas.push(t); } } },
+    configurable: true,
+    writable: true,
+  });
+  const espiaoTimeout = jest.spyOn(globalThis, 'setTimeout').mockImplementation(((fn: any) => 0 as any) as any);
+  try {
+    await botoes[0].props.onClick();
+  } finally {
+    espiaoTimeout.mockRestore();
+    if (antes) Object.defineProperty(globalThis, 'navigator', antes); else delete (globalThis as any).navigator;
+  }
+  return {
+    botaoExibido: true,
+    manipuladorAcionado: true,
+    argumento: chamadas.length > 0 ? chamadas[0] : null,
+    chamadasDeWriteText: chamadas.length,
+    setCopiedChamadoCom: setCopied.mock.calls.map((c) => c[0]),
+  };
+}
+
+async function superficies(aiReview: any) {
+  const { arvore, setCopied } = arvoreDoComponente(aiReview);
+  const html: string = renderToStaticMarkup(React.createElement(ParecerAISection as any, { aiReview, loading: false, onExecute: () => undefined }));
+
+  // 1. DESTAQUE
+  const caixaDestaque = achar(arvore, (n) => classe(n).includes('flex gap-3 mb-6 flex-wrap'));
+  const paragrafos = caixaDestaque.length ? achar(caixaDestaque[0], (n) => n.type === 'p').map((n) => textoDe(n)) : [];
+  const idxNota = paragrafos.indexOf('Nota Científica');
+  const idxVered = paragrafos.indexOf('Veredicto');
+  const destaque = {
+    exibido: caixaDestaque.length > 0,
+    nota: idxNota >= 0 ? paragrafos[idxNota + 1] ?? null : null,
+    veredicto: idxVered >= 0 ? paragrafos[idxVered + 1] ?? null : null,
+  };
+
+  // 2. AVISO (quarentena) e avisos da verificação
+  const alertas = achar(arvore, (n) => n.props?.role === 'alert');
+  const aviso = {
+    exibido: alertas.length > 0,
+    titulo: alertas.length ? textoDe(achar(alertas[0], (n) => n.type === 'h4')[0]) : null,
+    motivos: alertas.length ? achar(alertas[0], (n) => n.type === 'li').map((n) => textoDe(n)) : [],
+  };
+  const statusBlocos = achar(arvore, (n) => n.props?.role === 'status');
+  const blocoAvisos = statusBlocos.find((n) => textoDe(achar(n, (m) => m.type === 'h4')[0]) === 'Avisos da verificação');
+  const avisosDaVerificacao = {
+    exibido: !!blocoAvisos,
+    itens: blocoAvisos ? achar(blocoAvisos, (n) => n.type === 'li').map((n) => textoDe(n)) : [],
+  };
+  const blocoSusp = statusBlocos.find((n) => textoDe(achar(n, (m) => m.type === 'h4')[0]).startsWith('📊'));
+  const cartaoDeSuspensao = {
+    exibido: !!blocoSusp,
+    titulo: blocoSusp ? textoDe(achar(blocoSusp, (n) => n.type === 'h4')[0]) : null,
+    motivo: blocoSusp ? textoDe(achar(blocoSusp, (n) => n.type === 'p')[0]) : null,
+  };
+
+  // 3. CORPO
+  const recipiente = achar(arvore, (n) => classe(n).includes('whitespace-pre-wrap'));
+  const caixaCorpo = achar(arvore, (n) => classe(n).includes('rounded-lg border p-6'));
+  const linhasExibidas = recipiente.length ? filhos(recipiente[0]).map((l) => textoDe(l)) : [];
+  const textoExibido = linhasExibidas.join('\n');
+  const corpo = {
+    exibido: recipiente.length > 0,
+    estiloDeQuarentena: caixaCorpo.length ? classe(caixaCorpo[0]).includes('border-amber-400') : null,
+    linhasExibidas: linhasExibidas.length,
+    mesmoConteudoQueOTextoRecebido: recipiente.length > 0 && normalizar(textoExibido) === normalizar(aiReview?.review ?? ''),
+    padroesDoExtratorNoCorpoExibido: PADROES.map((p, i) => (p.pattern.test(textoExibido) ? i : -1)).filter((i) => i >= 0),
+  };
+
+  // 4. CÓPIA (manipulador real, writeText simulado)
+  const copia = await acionarCopia(arvore, setCopied);
+  const copiado = {
+    ...copia,
+    argumentoIgualAoTextoRecebidoIntegral: copia.argumento !== null && copia.argumento === aiReview?.review,
+    argumentoComprimento: copia.argumento === null ? null : copia.argumento.length,
+    argumentoSha256: copia.argumento === null ? null : sha256(copia.argumento),
+  };
+
+  // Conferência cruzada árvore x HTML
+  const htmlTem = (s: string) => html.includes(s);
+  const confere = {
+    destaque: htmlTem('Nota Científica') === destaque.exibido,
+    aviso: htmlTem('role="alert"') === aviso.exibido,
+    avisosDaVerificacao: htmlTem('Avisos da verificação') === avisosDaVerificacao.exibido,
+    cartaoDeSuspensao: htmlTem('📊 ') === cartaoDeSuspensao.exibido,
+    corpo: htmlTem('whitespace-pre-wrap') === corpo.exibido,
+    botaoDeCopia: htmlTem('Copiar parecer em markdown') === copiado.botaoExibido,
+  };
+  return { destaque, aviso, avisosDaVerificacao, cartaoDeSuspensao, corpo, copiado, arvoreConfereComHtml: Object.values(confere).every(Boolean), confereDetalhe: confere, htmlBytes: html.length };
+}
+
+const logCaminho = (ls: string[]): string => {
+  if (ls.some((l) => l.includes('Grade extraída da DECISÃO EDITORIAL'))) return 'editorial';
+  if (ls.some((l) => l.includes('Grade extraída do texto completo (fallback)'))) return 'texto-completo';
+  if (ls.some((l) => l.includes('Não foi possível extrair grade'))) return 'nenhum';
+  // A guarda de 50 caracteres devolve `null` SEM log; a rota registra apenas o fallback para a nota automática.
+  if (ls.some((l) => l.includes('Fallback para nota automática'))) return 'nulo-sem-log (guarda de 50)';
+  return 'nao-executado';
+};
+const logsDeNota = (ls: string[]) =>
+  ls.filter((l) => /Grade extraída|Não foi possível extrair grade|Nota IA|Divergência|Fallback para nota automática|Nota suspensa|Classificação SUSPENSA|Resultado:|Score final/.test(l));
+
+// ====================================================================================================================
+// A MEDIÇÃO
+// ====================================================================================================================
+const SAIDA = process.env.NOTA_SAIDA || path.join(process.cwd(), 'zz-nota-saida');
+
+const APRESENTACOES = [
+  { id: 'aprovada', sufixo: '', ajustar: (r: any) => r, aplicaA: 'todas' },
+  { id: 'reprovada', sufixo: '\nObservação final: a ferramenta ChatGPT foi consultada na redação deste trecho.\n', ajustar: (r: any) => r, aplicaA: 'todas' },
+  { id: 'inconclusiva', sufixo: '\nObservação final: o Score = 0.5 foi mencionado sem referência.\n', ajustar: (r: any) => ({ ...r, finalScores: [] }), aplicaA: 'elegivel-auto-A' },
+];
+
+test('SONDA: modo texto fixado (matriz extração x elegibilidade x apresentação) e modo captura (contextos)', async () => {
+  fs.mkdirSync(SAIDA, { recursive: true });
+  fs.mkdirSync(path.join(SAIDA, 'contextos'), { recursive: true });
+
+  // ⚠ CONTROLE de rede: `fetch` simulado, que LANÇA e conta. Nenhuma célula pode tocá-lo (`USE_RAG_SEMANTIC` desligado).
+  const espiaoFetch = jest.spyOn(globalThis as any, 'fetch').mockImplementation((() => { throw new Error('SONDA: fetch proibido'); }) as any);
+
+  // ---- sanidade das condições, pelas funções REAIS (módulo real, fora do mock)
+  const sanidade = CONDICOES.map((c) => {
+    const raw = c.fazer();
+    const av = real.classificarAvaliacaoRecebida(raw);
+    const co = real.avaliarCoerencia(raw);
+    const el = real.elegivelParaClassificacao(av, c.coerenciaNula ? null : co);
+    return { id: c.id, avaliacao: av.estado, coerencia: co.conclusao, elegivel: el.elegivel, causa: el.causa, rotulo: el.rotulo };
+  });
+
+  // ================= MODO TEXTO FIXADO =================
+  const celulas: any[] = [];
+  for (const ap of APRESENTACOES) {
+    for (const cond of CONDICOES) {
+      if (ap.aplicaA !== 'todas' && ap.aplicaA !== cond.id) continue;
+      for (const t of TEXTOS) {
+        const texto = t.texto + ap.sufixo;
+        const rep = replica(texto);
+        const exec = await executar(ap.ajustar(cond.fazer()), 'texto-fixado', texto, cond.coerenciaNula);
+        const c = exec.corpo;
+        const aiReview = { nota: c.nota, veredicto: c.veredicto, notaSuspensa: c.notaSuspensa ?? null, review: c.review, validation: c.validation, metadata: c.metadata };
+        const sup = c.success && c.review ? await superficies(aiReview) : null;
+        const caminho = logCaminho(exec.logs);
+        const gs = c.metadata?.gradeSource;
+        const suspensa = c.notaSuspensa !== null && c.notaSuspensa !== undefined;
+        // Classificação NÃO suspensa: a extração corre, e a réplica deve prever o caminho e a letra.
+        // Classificação suspensa: a extração NÃO corre (route.ts:1438), e `gradeSource` é 'suspensa'.
+        const confereReplica = suspensa
+          ? caminho === 'nao-executado' && gs === 'suspensa'
+          : (rep.caminho === caminho || (rep.caminho === 'curto' && caminho === 'nenhum')) &&
+            (gs === 'ai' ? c.nota === rep.nota && c.veredicto === rep.veredicto : rep.nota === null && gs === 'automatic');
+        celulas.push({
+          apresentacao: ap.id,
+          condicao: cond.id,
+          condicaoConstruida: cond.construida,
+          texto: t.id,
+          textoExtensao: texto.length,
+          chamadasAoCliente: exec.chamadas,
+          status: exec.status,
+          resposta: {
+            success: c.success,
+            nota: c.nota ?? null,
+            veredicto: c.veredicto ?? null,
+            gradeSource: gs ?? null,
+            automaticGrade: c.metadata?.automaticGrade ?? null,
+            notaSuspensa: c.notaSuspensa ? { suspensa: c.notaSuspensa.suspensa, causa: c.notaSuspensa.causa, rotulo: c.notaSuspensa.rotulo, motivo: c.notaSuspensa.motivo } : null,
+            validationEstado: c.validation?.estado ?? null,
+            validationIssues: c.validation?.issues ?? null,
+            validationInconclusivos: c.validation?.inconclusivos ?? null,
+            validationWarnings: c.validation?.warnings ?? null,
+            reviewIgualAoTextoFixado: c.review === texto,
+          },
+          extracao: { replica: rep, caminhoObservadoNoLog: caminho, confereReplicaComTratador: confereReplica },
+          logsDeNota: logsDeNota(exec.logs),
+          superficies: sup,
+        });
+      }
+    }
+  }
+
+  // ---- estado A.27 CONSTRUÍDO: sem `validation` (o tratador real SEMPRE devolve `validation`)
+  const construidasSemValidation: any[] = [];
+  for (const t of TEXTOS.filter((x) => ['T1-editorial-simples', 'T5a-negacao-nota-B'].includes(x.id))) {
+    const aiReview = { nota: 'A', veredicto: 'ACEITO', notaSuspensa: null, review: t.texto, validation: undefined, metadata: { model: 'construido-pelo-instrumento' } };
+    construidasSemValidation.push({ texto: t.id, construido: 'payload montado pelo instrumento, SEM validation; nota e veredicto arbitrários (A, ACEITO)', superficies: await superficies(aiReview) });
+  }
+
+  // ---- controles adicionais (modo texto fixado), só elegivel-auto-A, apresentação aprovada
+  const celulasAdicionais: any[] = [];
+  for (const condAd of CONDICOES.filter((c) => c.id.startsWith('elegivel'))) {
+   for (const t of ADICIONAIS) {
+    const rep = replica(t.texto);
+    const exec = await executar(condAd.fazer(), 'texto-fixado', t.texto);
+    const c = exec.corpo;
+    const aiReview = { nota: c.nota, veredicto: c.veredicto, notaSuspensa: c.notaSuspensa ?? null, review: c.review, validation: c.validation, metadata: c.metadata };
+    const sup = c.success && c.review ? await superficies(aiReview) : null;
+    celulasAdicionais.push({
+      condicao: condAd.id,
+      texto: t.id,
+      descricao: t.descricao,
+      leituraHumana: t.leituraHumana,
+      textoIntegral: t.texto,
+      anatomia: anatomia(t.texto),
+      resposta: { success: c.success, nota: c.nota ?? null, veredicto: c.veredicto ?? null, gradeSource: c.metadata?.gradeSource ?? null, automaticGrade: c.metadata?.automaticGrade ?? null, validationEstado: c.validation?.estado ?? null },
+      extracao: { replica: rep, caminhoObservadoNoLog: logCaminho(exec.logs) },
+      superficies: sup ? { destaque: sup.destaque, aviso: sup.aviso, corpo: { exibido: sup.corpo.exibido, estiloDeQuarentena: sup.corpo.estiloDeQuarentena }, copiadoIgualAoTexto: sup.copiado.argumentoIgualAoTextoRecebidoIntegral } : null,
+    });
+   }
+  }
+
+  // ================= MODO CAPTURA =================
+  const capturas: any[] = [];
+  const textoQualquer = TEXTOS[0].texto;
+  for (const cond of CONDICOES) {
+    const exec = await executar(cond.fazer(), 'captura', textoQualquer, cond.coerenciaNula);
+    fs.writeFileSync(path.join(SAIDA, 'contextos', `ctx-${cond.id}.txt`), exec.contexto);
+    const linhas = exec.contexto.split('\n');
+    const nLinha = (i: number) => i + 1;
+    const alvos = [
+      'Pontuação automática',
+      'Sugestão automática',
+      'Referência Automatizada',
+      'Nota não calculada: qualidade individual não avaliada',
+      'Nota não calculada: contradição interna não resolvida na avaliação de qualidade',
+      'Nota não calculada: verificação de coerência não concluída',
+      'Nota não calculada: coerência interna não avaliada nesta requisição',
+      'classificação global está SUSPENSA',
+      'CLASSIFICAÇÃO SUSPENSA',
+      'Score = ',
+    ];
+    const ocorrencias: Record<string, Array<{ linha: number; texto: string }>> = {};
+    for (const a of alvos) {
+      ocorrencias[a] = linhas.map((l, i) => (l.includes(a) ? { linha: nLinha(i), texto: l } : null)).filter(Boolean) as any;
+    }
+    const iRef = linhas.findIndex((l) => l.includes('**Referência Automatizada'));
+    const iImp = linhas.findIndex((l) => l.startsWith('- IMPORTANTE: Sua DECISÃO EDITORIAL'));
+    capturas.push({
+      condicao: cond.id,
+      construida: cond.construida,
+      modo: 'captura',
+      statusDaResposta: exec.status,
+      respostaDeInterrupcao: { error: exec.corpo?.error ?? null, details: exec.corpo?.details ?? null },
+      chamadasAoCliente: exec.chamadas,
+      sha256Contexto: sha256(exec.contexto),
+      caracteresContexto: exec.contexto.length,
+      bytesContexto: Buffer.byteLength(exec.contexto, 'utf8'),
+      linhasContexto: linhas.length,
+      sha256Requisicao: sha256(JSON.stringify(cond.fazer())),
+      coerenciaForcadaNula: cond.coerenciaNula,
+      sha256System: sha256(exec.system),
+      bytesSystem: Buffer.byteLength(exec.system, 'utf8'),
+      blocoDoEscoreDoParecer: iRef >= 0 && iImp >= 0 ? { linhaInicial: nLinha(iRef), linhaFinal: nLinha(iImp), texto: linhas.slice(iRef, iImp + 1).join('\n') } : null,
+      ocorrencias,
+    });
+  }
+
+  fs.writeFileSync(
+    path.join(SAIDA, 'sonda.json'),
+    JSON.stringify(
+      {
+        gerado: 'sonda temporária; ver instrumentos/',
+        ambiente: { node: process.version, plataforma: process.platform + '/' + process.arch },
+        chamadasAFetch: espiaoFetch.mock.calls.length,
+        chamadasAoClienteDoModeloNoTotal: estado.chamadas,
+        sanidadeDasCondicoes: sanidade,
+        textos: TEXTOS.map((t) => ({ id: t.id, descricao: t.descricao, leituraHumana: t.leituraHumana, texto: t.texto, anatomia: anatomia(t.texto), previsaoDaReplica: replica(t.texto) })),
+        condicoes: CONDICOES.map((c) => ({ id: c.id, descricao: c.descricao, construida: c.construida })),
+        apresentacoes: APRESENTACOES.map((a) => ({ id: a.id, sufixoAcrescentado: a.sufixo, aplicaA: a.aplicaA })),
+        celulas,
+        construidasSemValidation,
+        capturas,
+        celulasAdicionais,
+        requisicoes: Object.fromEntries(CONDICOES.map((c) => [c.id, c.fazer()])),
+      },
+      null,
+      1
+    )
+  );
+  expect(celulas.length).toBeGreaterThan(0);
+  expect(espiaoFetch.mock.calls.length).toBe(0);
+  espiaoFetch.mockRestore();
+});

@@ -1,0 +1,735 @@
+{
+ "nota": "as requisições de cada condição, tal como entram no tratador real; a condição coerencia-nao-avaliada-CONSTRUIDA usa a MESMA requisição de elegivel-auto-A, com avaliarCoerencia simulada para devolver null",
+ "requisicoes": {
+  "elegivel-auto-A": {
+   "projectName": "Projeto do controle de coerencia",
+   "bocrWeights": {
+    "Benefits": 0.37,
+    "Opportunities": 0.15,
+    "Costs": 0.2,
+    "Risks": 0.28
+   },
+   "bocrConsistency": {
+    "cr": 0.0106,
+    "lambda": 4.03
+   },
+   "finalScores": [
+    {
+     "code": "A1",
+     "name": "Alternativa 1",
+     "score": 0.62
+    }
+   ],
+   "responseCount": 4,
+   "qualityAnalysis": {
+    "respondents": [
+     {
+      "id": "resp-1",
+      "name": "Respondente 1",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-2",
+      "name": "Respondente 2",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-3",
+      "name": "Respondente 3",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-4",
+      "name": "Respondente 4",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     }
+    ],
+    "statistics": {
+     "byStatus": {
+      "CONFIÁVEL": 4,
+      "REVISAR": 0,
+      "SUSPEITO": 0,
+      "CRÍTICO": 0
+     },
+     "total": 4,
+     "avgCR": 0.05
+    },
+    "summary": {
+     "total": 4,
+     "ok": 4,
+     "suspicious": 0,
+     "critical": 0
+    }
+   },
+   "overallStats": {
+    "total": 4,
+    "valid": 4,
+    "warning": 0,
+    "critical": 0
+   },
+   "individualStats": {
+    "Benefits": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Opportunities": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Costs": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Risks": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    }
+   }
+  },
+  "elegivel-auto-F": {
+   "projectName": "Projeto do controle de coerencia",
+   "bocrWeights": {
+    "Benefits": 0.37,
+    "Opportunities": 0.15,
+    "Costs": 0.2,
+    "Risks": 0.28
+   },
+   "bocrConsistency": {
+    "cr": 0.0106,
+    "lambda": 4.03
+   },
+   "finalScores": [
+    {
+     "code": "A1",
+     "name": "Alternativa 1",
+     "score": 0.62
+    }
+   ],
+   "responseCount": 4,
+   "qualityAnalysis": {
+    "respondents": [
+     {
+      "id": "resp-1",
+      "name": "Respondente 1",
+      "cr": 0.25,
+      "metrics": {
+       "avgCR": 0.25
+      },
+      "status": "CRÍTICO"
+     },
+     {
+      "id": "resp-2",
+      "name": "Respondente 2",
+      "cr": 0.25,
+      "metrics": {
+       "avgCR": 0.25
+      },
+      "status": "CRÍTICO"
+     },
+     {
+      "id": "resp-3",
+      "name": "Respondente 3",
+      "cr": 0.25,
+      "metrics": {
+       "avgCR": 0.25
+      },
+      "status": "CRÍTICO"
+     },
+     {
+      "id": "resp-4",
+      "name": "Respondente 4",
+      "cr": 0.25,
+      "metrics": {
+       "avgCR": 0.25
+      },
+      "status": "CRÍTICO"
+     }
+    ],
+    "statistics": {
+     "byStatus": {
+      "CONFIÁVEL": 0,
+      "REVISAR": 0,
+      "SUSPEITO": 0,
+      "CRÍTICO": 4
+     },
+     "total": 4,
+     "avgCR": 0.25
+    },
+    "summary": {
+     "total": 4,
+     "ok": 0,
+     "suspicious": 0,
+     "critical": 4
+    }
+   },
+   "overallStats": {
+    "total": 4,
+    "valid": 0,
+    "warning": 0,
+    "critical": 4
+   },
+   "individualStats": {
+    "Benefits": {
+     "total": 4,
+     "valid": 0,
+     "warning": 0,
+     "critical": 4,
+     "avgCR": 0.25
+    },
+    "Opportunities": {
+     "total": 4,
+     "valid": 0,
+     "warning": 0,
+     "critical": 4,
+     "avgCR": 0.25
+    },
+    "Costs": {
+     "total": 4,
+     "valid": 0,
+     "warning": 0,
+     "critical": 4,
+     "avgCR": 0.25
+    },
+    "Risks": {
+     "total": 4,
+     "valid": 0,
+     "warning": 0,
+     "critical": 4,
+     "avgCR": 0.25
+    }
+   }
+  },
+  "disponibilidade-ausente": {
+   "projectName": "Projeto do controle de coerencia",
+   "bocrWeights": {
+    "Benefits": 0.37,
+    "Opportunities": 0.15,
+    "Costs": 0.2,
+    "Risks": 0.28
+   },
+   "bocrConsistency": {
+    "cr": 0.0106,
+    "lambda": 4.03
+   },
+   "finalScores": [
+    {
+     "code": "A1",
+     "name": "Alternativa 1",
+     "score": 0.62
+    }
+   ],
+   "responseCount": 4,
+   "qualityAnalysis": {
+    "statistics": {
+     "byStatus": {
+      "CONFIÁVEL": 4,
+      "REVISAR": 0,
+      "SUSPEITO": 0,
+      "CRÍTICO": 0
+     },
+     "total": 4,
+     "avgCR": 0.05
+    },
+    "summary": {
+     "total": 4,
+     "ok": 4,
+     "suspicious": 0,
+     "critical": 0
+    }
+   },
+   "overallStats": {
+    "total": 4,
+    "valid": 4,
+    "warning": 0,
+    "critical": 0
+   },
+   "individualStats": {
+    "Benefits": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Opportunities": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Costs": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Risks": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    }
+   }
+  },
+  "disponibilidade-incompleta": {
+   "projectName": "Projeto do controle de coerencia",
+   "bocrWeights": {
+    "Benefits": 0.37,
+    "Opportunities": 0.15,
+    "Costs": 0.2,
+    "Risks": 0.28
+   },
+   "bocrConsistency": {
+    "cr": 0.0106,
+    "lambda": 4.03
+   },
+   "finalScores": [
+    {
+     "code": "A1",
+     "name": "Alternativa 1",
+     "score": 0.62
+    }
+   ],
+   "responseCount": 4,
+   "qualityAnalysis": {
+    "respondents": [
+     {
+      "id": "resp-1",
+      "name": "Respondente 1",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-2",
+      "name": "Respondente 2",
+      "status": "DESCONHECIDO"
+     }
+    ],
+    "statistics": {
+     "byStatus": {
+      "CONFIÁVEL": 4,
+      "REVISAR": 0,
+      "SUSPEITO": 0,
+      "CRÍTICO": 0
+     },
+     "total": 4,
+     "avgCR": 0.05
+    },
+    "summary": {
+     "total": 4,
+     "ok": 4,
+     "suspicious": 0,
+     "critical": 0
+    }
+   },
+   "overallStats": {
+    "total": 4,
+    "valid": 4,
+    "warning": 0,
+    "critical": 0
+   },
+   "individualStats": {
+    "Benefits": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Opportunities": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Costs": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Risks": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    }
+   }
+  },
+  "contradicao": {
+   "projectName": "Projeto do controle de coerencia",
+   "bocrWeights": {
+    "Benefits": 0.37,
+    "Opportunities": 0.15,
+    "Costs": 0.2,
+    "Risks": 0.28
+   },
+   "bocrConsistency": {
+    "cr": 0.0106,
+    "lambda": 4.03
+   },
+   "finalScores": [
+    {
+     "code": "A1",
+     "name": "Alternativa 1",
+     "score": 0.62
+    }
+   ],
+   "responseCount": 4,
+   "qualityAnalysis": {
+    "respondents": [
+     {
+      "id": "resp-1",
+      "name": "Respondente 1",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-2",
+      "name": "Respondente 2",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-3",
+      "name": "Respondente 3",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-4",
+      "name": "Respondente 4",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     }
+    ],
+    "statistics": {
+     "byStatus": {
+      "CONFIÁVEL": 4,
+      "REVISAR": 0,
+      "SUSPEITO": 0,
+      "CRÍTICO": 0
+     },
+     "total": 4,
+     "avgCR": 0.05
+    },
+    "summary": {
+     "total": 4,
+     "ok": 4,
+     "suspicious": 0,
+     "critical": 4
+    }
+   },
+   "overallStats": {
+    "total": 4,
+    "valid": 4,
+    "warning": 0,
+    "critical": 0
+   },
+   "individualStats": {
+    "Benefits": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Opportunities": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Costs": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Risks": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    }
+   }
+  },
+  "coerencia-nao-concluida": {
+   "projectName": "Projeto do controle de coerencia",
+   "bocrWeights": {
+    "Benefits": 0.37,
+    "Opportunities": 0.15,
+    "Costs": 0.2,
+    "Risks": 0.28
+   },
+   "bocrConsistency": {
+    "cr": 0.0106,
+    "lambda": 4.03
+   },
+   "finalScores": [
+    {
+     "code": "A1",
+     "name": "Alternativa 1",
+     "score": 0.62
+    }
+   ],
+   "responseCount": 4,
+   "qualityAnalysis": {
+    "respondents": [
+     {
+      "id": "resp-1",
+      "name": "Respondente 1",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-2",
+      "name": "Respondente 2",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-3",
+      "name": "Respondente 3",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-4",
+      "name": "Respondente 4",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     }
+    ],
+    "statistics": {
+     "byStatus": {
+      "CONFIÁVEL": 4,
+      "REVISAR": 0,
+      "SUSPEITO": 0,
+      "CRÍTICO": 0
+     },
+     "avgCR": 0.05
+    },
+    "summary": {
+     "total": 4,
+     "ok": 4,
+     "suspicious": 0,
+     "critical": 0
+    }
+   },
+   "overallStats": {
+    "total": 4,
+    "valid": 4,
+    "warning": 0,
+    "critical": 0
+   },
+   "individualStats": {
+    "Benefits": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Opportunities": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Costs": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Risks": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    }
+   }
+  },
+  "coerencia-nao-avaliada-CONSTRUIDA": {
+   "projectName": "Projeto do controle de coerencia",
+   "bocrWeights": {
+    "Benefits": 0.37,
+    "Opportunities": 0.15,
+    "Costs": 0.2,
+    "Risks": 0.28
+   },
+   "bocrConsistency": {
+    "cr": 0.0106,
+    "lambda": 4.03
+   },
+   "finalScores": [
+    {
+     "code": "A1",
+     "name": "Alternativa 1",
+     "score": 0.62
+    }
+   ],
+   "responseCount": 4,
+   "qualityAnalysis": {
+    "respondents": [
+     {
+      "id": "resp-1",
+      "name": "Respondente 1",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-2",
+      "name": "Respondente 2",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-3",
+      "name": "Respondente 3",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     },
+     {
+      "id": "resp-4",
+      "name": "Respondente 4",
+      "cr": 0.05,
+      "metrics": {
+       "avgCR": 0.05
+      },
+      "status": "CONFIÁVEL"
+     }
+    ],
+    "statistics": {
+     "byStatus": {
+      "CONFIÁVEL": 4,
+      "REVISAR": 0,
+      "SUSPEITO": 0,
+      "CRÍTICO": 0
+     },
+     "total": 4,
+     "avgCR": 0.05
+    },
+    "summary": {
+     "total": 4,
+     "ok": 4,
+     "suspicious": 0,
+     "critical": 0
+    }
+   },
+   "overallStats": {
+    "total": 4,
+    "valid": 4,
+    "warning": 0,
+    "critical": 0
+   },
+   "individualStats": {
+    "Benefits": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Opportunities": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Costs": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    },
+    "Risks": {
+     "total": 4,
+     "valid": 4,
+     "warning": 0,
+     "critical": 0,
+     "avgCR": 0.05
+    }
+   }
+  }
+ }
+}

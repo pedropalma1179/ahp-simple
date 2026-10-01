@@ -1,0 +1,467 @@
+{
+ "modo": "CAPTURA: o cliente simulado registra o contexto e INTERROMPE antes da geração (erro sentinela); o POST responde 500 e nada é extraído",
+ "ambiente": {
+  "node": "v22.22.2",
+  "plataforma": "linux/x64"
+ },
+ "chamadasAFetch": 0,
+ "capturas": [
+  {
+   "condicao": "elegivel-auto-A",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "respostaDeInterrupcao": {
+    "error": "Erro ao gerar revisão acadêmica",
+    "details": "SONDA: captura interrompida antes da geracao"
+   },
+   "chamadasAoCliente": 1,
+   "sha256Contexto": "b5e08670c4d6e939c52b469f020336eba4ea8a94e1cc88d1699f863a82200dd0",
+   "caracteresContexto": 69830,
+   "bytesContexto": 70417,
+   "linhasContexto": 1162,
+   "sha256Requisicao": "437e96f2085e8d5fcc2f012ee02780be449e331a53912b9c6ec6a086a4aa4542",
+   "coerenciaForcadaNula": false,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "bytesSystem": 34170,
+   "blocoDoEscoreDoParecer": {
+    "linhaInicial": 7,
+    "linhaFinal": 10,
+    "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: 100/100\n- Sugestão automática: ACEITO\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática."
+   },
+   "ocorrencias": {
+    "Pontuação automática": [
+     {
+      "linha": 8,
+      "texto": "- Pontuação automática: 100/100"
+     }
+    ],
+    "Sugestão automática": [
+     {
+      "linha": 9,
+      "texto": "- Sugestão automática: ACEITO"
+     }
+    ],
+    "Referência Automatizada": [
+     {
+      "linha": 7,
+      "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**"
+     }
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [],
+    "Nota não calculada: verificação de coerência não concluída": [],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [],
+    "classificação global está SUSPENSA": [],
+    "CLASSIFICAÇÃO SUSPENSA": [],
+    "Score = ": [
+     {
+      "linha": 70,
+      "texto": "1º A1 — Alternativa 1: Score = 0.620000"
+     }
+    ]
+   }
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "respostaDeInterrupcao": {
+    "error": "Erro ao gerar revisão acadêmica",
+    "details": "SONDA: captura interrompida antes da geracao"
+   },
+   "chamadasAoCliente": 1,
+   "sha256Contexto": "a6d0b6d34713a47519d090aa9cafd2a6f770d56a279a192d38a3c0f36e59ff07",
+   "caracteresContexto": 69991,
+   "bytesContexto": 70584,
+   "linhasContexto": 1168,
+   "sha256Requisicao": "0fc1a10639231b29a40c94cba26847b1eed08805b7b119dc9be5ac8516f04a6d",
+   "coerenciaForcadaNula": false,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "bytesSystem": 34170,
+   "blocoDoEscoreDoParecer": {
+    "linhaInicial": 7,
+    "linhaFinal": 10,
+    "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: 45/100\n- Sugestão automática: REJEITAR\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática."
+   },
+   "ocorrencias": {
+    "Pontuação automática": [
+     {
+      "linha": 8,
+      "texto": "- Pontuação automática: 45/100"
+     }
+    ],
+    "Sugestão automática": [
+     {
+      "linha": 9,
+      "texto": "- Sugestão automática: REJEITAR"
+     }
+    ],
+    "Referência Automatizada": [
+     {
+      "linha": 7,
+      "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**"
+     }
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [],
+    "Nota não calculada: verificação de coerência não concluída": [],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [],
+    "classificação global está SUSPENSA": [],
+    "CLASSIFICAÇÃO SUSPENSA": [],
+    "Score = ": [
+     {
+      "linha": 70,
+      "texto": "1º A1 — Alternativa 1: Score = 0.620000"
+     }
+    ]
+   }
+  },
+  {
+   "condicao": "disponibilidade-ausente",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "respostaDeInterrupcao": {
+    "error": "Erro ao gerar revisão acadêmica",
+    "details": "SONDA: captura interrompida antes da geracao"
+   },
+   "chamadasAoCliente": 1,
+   "sha256Contexto": "c895086c825421884fd57bb2c07c8d8e0cef9daeaf33788c6676a37e5762af80",
+   "caracteresContexto": 69251,
+   "bytesContexto": 69844,
+   "linhasContexto": 1144,
+   "sha256Requisicao": "7e6b2ddaf084d8ad0db6bcd5cba275f770b6a28c70eb94bb57e9e7d5831e8c1a",
+   "coerenciaForcadaNula": false,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "bytesSystem": 34170,
+   "blocoDoEscoreDoParecer": {
+    "linhaInicial": 7,
+    "linhaFinal": 10,
+    "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Qualidade individual não avaliada: a requisição não traz avaliação por respondente.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática."
+   },
+   "ocorrencias": {
+    "Pontuação automática": [
+     {
+      "linha": 8,
+      "texto": "- Pontuação automática: não calculada — Qualidade individual não avaliada: a requisição não traz avaliação por respondente."
+     }
+    ],
+    "Sugestão automática": [
+     {
+      "linha": 9,
+      "texto": "- Sugestão automática: não calculada; a classificação global está suspensa"
+     }
+    ],
+    "Referência Automatizada": [
+     {
+      "linha": 7,
+      "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**"
+     }
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [
+     {
+      "linha": 64,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada."
+     }
+    ],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [],
+    "Nota não calculada: verificação de coerência não concluída": [],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [],
+    "classificação global está SUSPENSA": [
+     {
+      "linha": 64,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada."
+     }
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [],
+    "Score = ": [
+     {
+      "linha": 54,
+      "texto": "1º A1 — Alternativa 1: Score = 0.620000"
+     }
+    ]
+   }
+  },
+  {
+   "condicao": "disponibilidade-incompleta",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "respostaDeInterrupcao": {
+    "error": "Erro ao gerar revisão acadêmica",
+    "details": "SONDA: captura interrompida antes da geracao"
+   },
+   "chamadasAoCliente": 1,
+   "sha256Contexto": "5ecad8ee1fbb935b5a226498baae8dcfe56ab25bb8088d65d32aad9eaf895cdc",
+   "caracteresContexto": 70110,
+   "bytesContexto": 70732,
+   "linhasContexto": 1158,
+   "sha256Requisicao": "7bfdd900f0228dd9e26edb92e1c22bc5f7e6493b8202996544c588ff858bd7ee",
+   "coerenciaForcadaNula": false,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "bytesSystem": 34170,
+   "blocoDoEscoreDoParecer": {
+    "linhaInicial": 7,
+    "linhaFinal": 10,
+    "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 1 de 2 respondentes com CR.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática."
+   },
+   "ocorrencias": {
+    "Pontuação automática": [
+     {
+      "linha": 8,
+      "texto": "- Pontuação automática: não calculada — Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 1 de 2 respondentes com CR."
+     }
+    ],
+    "Sugestão automática": [
+     {
+      "linha": 9,
+      "texto": "- Sugestão automática: não calculada; a classificação global está suspensa"
+     }
+    ],
+    "Referência Automatizada": [
+     {
+      "linha": 7,
+      "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**"
+     }
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [
+     {
+      "linha": 78,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada."
+     }
+    ],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [],
+    "Nota não calculada: verificação de coerência não concluída": [],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [],
+    "classificação global está SUSPENSA": [
+     {
+      "linha": 78,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada."
+     }
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [],
+    "Score = ": [
+     {
+      "linha": 68,
+      "texto": "1º A1 — Alternativa 1: Score = 0.620000"
+     }
+    ]
+   }
+  },
+  {
+   "condicao": "contradicao",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "respostaDeInterrupcao": {
+    "error": "Erro ao gerar revisão acadêmica",
+    "details": "SONDA: captura interrompida antes da geracao"
+   },
+   "chamadasAoCliente": 1,
+   "sha256Contexto": "eeaa1dbdb28285275b393196c0ad6103bd47dcd97ccba7f60a6dee829624f126",
+   "caracteresContexto": 70498,
+   "bytesContexto": 71132,
+   "linhasContexto": 1160,
+   "sha256Requisicao": "e397f6fd3e82e9d2bb4cedc6e654244cb946505030542beb37f69e769c706c14",
+   "coerenciaForcadaNula": false,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "bytesSystem": 34170,
+   "blocoDoEscoreDoParecer": {
+    "linhaInicial": 7,
+    "linhaFinal": 10,
+    "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática."
+   },
+   "ocorrencias": {
+    "Pontuação automática": [
+     {
+      "linha": 8,
+      "texto": "- Pontuação automática: não calculada — Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+     }
+    ],
+    "Sugestão automática": [
+     {
+      "linha": 9,
+      "texto": "- Sugestão automática: não calculada; a classificação global está suspensa"
+     }
+    ],
+    "Referência Automatizada": [
+     {
+      "linha": 7,
+      "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**"
+     }
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [
+     {
+      "linha": 80,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: contradição interna não resolvida na avaliação de qualidade."
+     }
+    ],
+    "Nota não calculada: verificação de coerência não concluída": [],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [],
+    "classificação global está SUSPENSA": [
+     {
+      "linha": 80,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: contradição interna não resolvida na avaliação de qualidade."
+     }
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [
+     {
+      "linha": 78,
+      "texto": "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+     }
+    ],
+    "Score = ": [
+     {
+      "linha": 70,
+      "texto": "1º A1 — Alternativa 1: Score = 0.620000"
+     }
+    ]
+   }
+  },
+  {
+   "condicao": "coerencia-nao-concluida",
+   "construida": false,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "respostaDeInterrupcao": {
+    "error": "Erro ao gerar revisão acadêmica",
+    "details": "SONDA: captura interrompida antes da geracao"
+   },
+   "chamadasAoCliente": 1,
+   "sha256Contexto": "70dda82efdc27a4ef3ac27553f2c40a0e4075a55ff84b9d5c8681b8e0d40184e",
+   "caracteresContexto": 70971,
+   "bytesContexto": 71621,
+   "linhasContexto": 1160,
+   "sha256Requisicao": "6f38a19833f8b4bb281546c392833ded3e1bbf5b5fb69fb1e74e8ffcb4ddbd52",
+   "coerenciaForcadaNula": false,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "bytesSystem": 34170,
+   "blocoDoEscoreDoParecer": {
+    "linhaInicial": 7,
+    "linhaFinal": 10,
+    "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática."
+   },
+   "ocorrencias": {
+    "Pontuação automática": [
+     {
+      "linha": 8,
+      "texto": "- Pontuação automática: não calculada — Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu."
+     }
+    ],
+    "Sugestão automática": [
+     {
+      "linha": 9,
+      "texto": "- Sugestão automática: não calculada; a classificação global está suspensa"
+     }
+    ],
+    "Referência Automatizada": [
+     {
+      "linha": 7,
+      "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**"
+     }
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [],
+    "Nota não calculada: verificação de coerência não concluída": [
+     {
+      "linha": 80,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: verificação de coerência não concluída."
+     }
+    ],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [],
+    "classificação global está SUSPENSA": [
+     {
+      "linha": 80,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: verificação de coerência não concluída."
+     }
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [
+     {
+      "linha": 78,
+      "texto": "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu."
+     }
+    ],
+    "Score = ": [
+     {
+      "linha": 70,
+      "texto": "1º A1 — Alternativa 1: Score = 0.620000"
+     }
+    ]
+   }
+  },
+  {
+   "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+   "construida": true,
+   "modo": "captura",
+   "statusDaResposta": 500,
+   "respostaDeInterrupcao": {
+    "error": "Erro ao gerar revisão acadêmica",
+    "details": "SONDA: captura interrompida antes da geracao"
+   },
+   "chamadasAoCliente": 1,
+   "sha256Contexto": "3e24425c164f3f2bf8c7c37736ed63de5377b0b41e94ef18fe2e316a9a2d7c1b",
+   "caracteresContexto": 70336,
+   "bytesContexto": 70979,
+   "linhasContexto": 1160,
+   "sha256Requisicao": "437e96f2085e8d5fcc2f012ee02780be449e331a53912b9c6ec6a086a4aa4542",
+   "coerenciaForcadaNula": true,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "bytesSystem": 34170,
+   "blocoDoEscoreDoParecer": {
+    "linhaInicial": 7,
+    "linhaFinal": 10,
+    "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n- Pontuação automática: não calculada — Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada.\n- Sugestão automática: não calculada; a classificação global está suspensa\n- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática."
+   },
+   "ocorrencias": {
+    "Pontuação automática": [
+     {
+      "linha": 8,
+      "texto": "- Pontuação automática: não calculada — Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada."
+     }
+    ],
+    "Sugestão automática": [
+     {
+      "linha": 9,
+      "texto": "- Sugestão automática: não calculada; a classificação global está suspensa"
+     }
+    ],
+    "Referência Automatizada": [
+     {
+      "linha": 7,
+      "texto": "**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**"
+     }
+    ],
+    "Nota não calculada: qualidade individual não avaliada": [],
+    "Nota não calculada: contradição interna não resolvida na avaliação de qualidade": [],
+    "Nota não calculada: verificação de coerência não concluída": [],
+    "Nota não calculada: coerência interna não avaliada nesta requisição": [
+     {
+      "linha": 80,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: coerência interna não avaliada nesta requisição."
+     }
+    ],
+    "classificação global está SUSPENSA": [
+     {
+      "linha": 80,
+      "texto": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: coerência interna não avaliada nesta requisição."
+     }
+    ],
+    "CLASSIFICAÇÃO SUSPENSA": [
+     {
+      "linha": 78,
+      "texto": "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada."
+     }
+    ],
+    "Score = ": [
+     {
+      "linha": 70,
+      "texto": "1º A1 — Alternativa 1: Score = 0.620000"
+     }
+    ]
+   }
+  }
+ ]
+}

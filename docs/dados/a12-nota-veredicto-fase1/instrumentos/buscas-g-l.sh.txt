@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# Buscas de LEITURA das seções (g) a (l): só git grep, grep e sed. Não executa o código medido. Rodar na raiz do repositório.
+# Uma busca SEM RESULTADO sai com 1 e imprime nada; o script marca "(sem resultado)" e distingue de falha de comando (saída >= 2).
+set -u
+r() { # roda um comando, imprime o resultado e o código de saída
+  echo "\$ $*"
+  out=$("$@" 2>&1); code=$?
+  [ -n "$out" ] && printf '%s\n' "$out"
+  if [ $code -eq 0 ]; then :; elif [ $code -eq 1 ]; then echo "(sem resultado; o comando executou, saída 1)"; else echo "(FALHA DO COMANDO, saída $code)"; fi
+  echo
+}
+n() { echo "\$ $* | wc -l"; "$@" 2>/dev/null | wc -l; echo; }
+T=lib/__tests__
+R=app/api/ai-reviewer/route.ts
+Q=lib/ai-reviewer/avaliacao-qualidade.ts
+P='app/decisor/resultados/[projectId]/page.tsx'
+C=components/ParecerAISection.tsx
+
+echo "=== (g) leituras de classification em route.ts"
+r git grep -n -E '\bclassification\b' -- $R
+echo "=== (g) funções declaradas e exportadas em route.ts"
+r git grep -n -E '^(export )?(async )?function (calculateGrade|extractGradeFromReview|generateReview|normalizeRequest)\b' -- $R
+r git grep -n -E '^export ' -- $R
+echo "=== (g) calculateGrade, todas as menções rastreadas"
+r git grep -n -w calculateGrade -- '*.ts' '*.tsx' '*.cjs' '*.js' '*.mjs'
+echo "=== (g) leitores de produção das chaves produzidas e não lidas (esperado: sem resultado)"
+r git grep -n -E 'metadata\??\.(avaliacaoDeQualidade|automaticGrade|gradeSource)|notaSuspensa\??\.(causa|avaliacaoDeQualidade)' -- app components lib ':!lib/__tests__'
+echo "=== (g) o campo causa, em produção e por arquivo de teste (ocorrências)"
+r git grep -n -E '\.causa\b|\bcausa:' -- app components lib ':!lib/__tests__'
+echo "\$ git grep -o -E '\\.causa\\b|\\bcausa:' -- $T | por arquivo"
+git grep -o -E '\.causa\b|\bcausa:' -- $T | awk -F: '{c[$1]++} END{for(k in c) print c[k], k}' | sort -rn; echo
+echo "=== (g)/(j) as frases do bloco de :1062-1066, ocorrências e arquivos"
+for s in 'Sugestão automática' 'Pontuação automática' 'Referência Automatizada'; do echo "--- [$s]"; n git grep -o -i -F -- "$s"; git grep -c -i -F -- "$s" | grep -v '^docs/' ; echo -n "arquivos sob docs/dados com a frase: "; git grep -l -i -F -- "$s" -- docs/dados | wc -l; echo; done
+echo "--- 'Pontuação automática' em testes e scripts"
+r git grep -n -i -F 'Pontuação automática' -- $T scripts
+
+echo "=== (h) o aparato de elegibilidade em produção"
+r git grep -n -E 'elegivelParaClassificacao|ramoDeQualidade|CONJUNTO_MINIMO|avaliarCoerencia|coerenciaDaQualidade|qualidadeDisponivel' -- $R $Q
+r grep -n -E 'PRIORIDADE [0-9]' $R
+echo "=== (h) ocorrências por arquivo de teste"
+for id in elegivelParaClassificacao avaliarCoerencia ramoDeQualidade CONJUNTO_MINIMO qualidadeDisponivel classificarAvaliacaoRecebida classificarAvaliacaoDaTela; do echo "--- $id"; git grep -o -w -- "$id" -- $T | awk -F: '{c[$1]++} END{for(k in c) print "  " c[k], k}' | sort -rn; done; echo
+echo "=== (h) a restrição de edição gravada (fiação)"
+sed -n 1352,1381p $T/vinculo-execucao-fiacao.test.ts
+
+echo "=== (i) os quatro rótulos e o prefixo, ocorrências sem filtro de extensão"
+for s in 'Nota não calculada: qualidade individual não avaliada' 'Nota não calculada: contradição interna não resolvida na avaliação de qualidade' 'Nota não calculada: verificação de coerência não concluída' 'Nota não calculada: coerência interna não avaliada nesta requisição' 'Nota não calculada'; do echo "--- [$s]"; n git grep -o -F -- "$s"; git grep -c -F -- "$s"; echo; done
+echo "=== (i) as constantes dos rótulos"
+for id in ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO ROTULO_NOTA_SUSPENSA; do r git grep -n -w -- "$id"; done
+echo "=== (i) as frases que nomeiam a classificação suspensa, em produção"
+r git grep -n -i -E 'classificação global|classificação fica suspensa|classificação está suspensa|classificação suspensa|CLASSIFICAÇÃO SUSPENSA' -- app components lib ':!lib/__tests__'
+echo "=== (i) o cartão"
+r grep -n -E 'notaSuspensa|A ausência de avaliação|disponíveis seguem' $C
+
+echo "=== (j) as linhas citadas dos testes (arquivo:linha: texto)"
+cita() { f="$1"; shift; for l in "$@"; do printf '%s:%s: ' "$f" "$l"; sed -n "${l}p" "$f" | cut -c1-170; done; }
+cita $T/a12-estatisticas-dimensao.test.ts 54 55 417 650 651 652 786 793 794 809 810 825 826 829
+cita $T/a12-diagnostico.test.ts 804 807 985 989 1040 1041 1042 1085 1104 1106 1107
+cita $T/a33-cadeia-rule.test.ts 862 1248 1253 1491 1522 1523
+cita $T/a33-snapshot-v2.test.ts 695 696 697 698 699 701
+cita $T/a12-qualidade-ausente.test.ts 27 28 131 185 191 192 193 197 215 216 217 220 227 230 249 254 255 261 263 286 287 288 289 296
+cita $T/a12-coerencia.test.ts 464 469 470 477 478 481 498 504 506 507 519
+cita $T/vinculo-execucao-fiacao.test.ts 1297 1298 1347 1352 1378 1380 1381
+cita $T/vinculo-execucao.test.ts 1136
+echo "--- ordem da última regravação"
+r grep -n -E '^\s+ordem: [0-9]+' $T/a12-diagnostico.test.ts
+r grep -n -E '^\s+ordem: [0-9]+' $T/a33-cadeia-rule.test.ts
+echo "--- diretórios de dados lidos por testes e scripts"
+for d in a12-cobertura-restringiu a12-estatisticas-dimensao a33-etapa4-v2; do r git grep -l -F -- "$d" -- $T scripts; done
+
+echo "=== (k) a tela"
+r grep -n -E "\{ id: '(executive|results|quality|robustness|review|export)'" "$P"
+r grep -n -E "Sumário de Validação|Interpretação Automática|Validação cruzada|Dominância clara|Empate técnico|Implicações Práticas da Sensibilidade|Recomendação de Desempate|Tabela de Rankings por Método|Parecer não disponível|Verificações Automáticas|Detalhamento das Validações|Relatório Técnico Completo|Parecer AI Estilizado|runAiReview" "$P"
+r grep -n -E "<ParecerAISection|onExecute=" "$P"
+r git grep -n -E 'Veredicto|ACEITO|Nota Científica' -- components app/decisor
+for p in investiment alternativa recomend ranking estudo método metodolog revisor; do printf '%-14s grep -i -c em ParecerAISection.tsx: ' "$p"; grep -i -c -- "$p" $C; done
+r grep -n -E 'periódic|A1/Q1' $C
+r git grep -n -E 'Recomendação|Score Final' -- components/BentoGridDashboard.tsx
+echo "--- WinnerCard (BentoGridDashboard.tsx:227-294): palavras de força da recomendação (grep -c por palavra)"
+for p in vantagem margem diferen confian robust clara empate dominân; do printf '%-10s ' "$p"; sed -n 227,294p components/BentoGridDashboard.tsx | grep -i -c -- "$p"; done
+printf '%-12s ' 'gap (todas)'; sed -n 227,294p components/BentoGridDashboard.tsx | grep -c -w 'gap'
+printf '%-12s ' 'gap-N (css)'; sed -n 227,294p components/BentoGridDashboard.tsx | grep -c -E 'gap-[0-9]'
+r grep -n -E '^const (WinnerCard|RankingList|StatsCard)|^};' components/BentoGridDashboard.tsx
+echo "--- knowledge.ts: limiares e funções de interpretação"
+r grep -n -E "QUALITY_THRESHOLDS = |^export function (interpretConsistencyRatio|interpretSensitivity|interpretMethodAgreement|interpretDominanceGap)" lib/knowledge.ts
+sed -n 344,349p lib/knowledge.ts; echo
+echo "--- o campo unit entra no contexto na forma de knowledge.ts:285"
+sed -n 285p app/api/ai-reviewer/knowledge.ts; echo
+echo "--- a recepção na tela e a repassagem do metadata"
+cita "$P" 1361 1366 1369 1484 1545 4415 4416 4417 4440 4704 4948 4959 4962
+echo "--- o git show --stat de 5837d0d (a classificação categórica de sensibilidade)"
+git show --stat --format='%h %s' 5837d0d
+echo "--- A.2 e A.29 no âncora"
+sed -n '801p;828p;985p' docs/objetivo-estados-caminho.md | cut -c1-200
+echo "--- nas abas 1 a 4 (page.tsx:2857-4761), as palavras parecer e IA"
+awk 'NR>=2857 && NR<=4761 && (tolower($0) ~ /parecer/ || $0 ~ /Revisão IA|Parecer AI|[^A-Za-z]IA[^A-Za-z]/) {print NR": "substr($0,1,150)}' "$P"; echo "(fim)"; echo
+
+echo "=== (l) audit-decision"
+for p in avaliacaoDeQualidade qualityAnalysis respondent individualStats ai-reviewer nota veredicto; do printf '%-22s grep -c em audit-decision/route.ts: ' "$p"; grep -c -- "$p" app/api/audit-decision/route.ts; done
+r grep -n -E '^function validate|^export async function|validacoes' app/api/audit-decision/route.ts
+r git grep -n -E 'audit-decision' -- app lib components scripts '*.ts' '*.tsx'
+r git grep -l 'audit-decision' -- $T
+echo "--- o payload do parecer (page.tsx:1230-1345), a palavra audit"
+awk 'NR>=1230 && NR<=1345 && /audit|Audit/ {print NR": "substr($0,1,150)}' "$P"; echo "(fim; nenhuma linha acima = sem resultado)"

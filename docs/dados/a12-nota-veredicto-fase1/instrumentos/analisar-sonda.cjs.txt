@@ -1,0 +1,164 @@
+'use strict';
+/**
+ * Analisador da saída da sonda (`sonda.json`), Parecer IA, Fase 1 "nota e veredicto".
+ * ⚠ Instrumento TEMPORÁRIO de agregação; arquivado como texto. Lê `sonda.json` e imprime/grava os agregados.
+ * Uso: node analisar-sonda.cjs <diretório-da-saída>
+ *
+ * Modos: as células (c), (d), (e) vêm do modo TEXTO FIXADO; os contextos de (f) vêm do modo CAPTURA.
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const dir = process.argv[2];
+const j = JSON.parse(fs.readFileSync(path.join(dir, 'sonda.json'), 'utf8'));
+
+// ⚠ ORÁCULO MANUAL: o que um leitor entende como decisão, por texto. Declarado à mão, antes da comparação.
+const LEITURA = {
+  'T1-editorial-simples': { veredicto: 'REVISÕES MAIORES', nota: null },
+  'T2a-ausencia-sem-secao': { veredicto: null, nota: null },
+  'T2b-ausencia-secao-sem-padrao': { veredicto: null, nota: null },
+  'T3a-formato-sem-secao-com-padrao': { veredicto: 'REJEITAR', nota: null },
+  'T3b-formato-titulo-na-mesma-linha': { veredicto: 'REVISÕES MAIORES', nota: null },
+  'T4a-ambiguo-na-secao': { veredicto: 'REJEITAR', nota: null },
+  'T4b-ambiguo-sem-secao': { veredicto: 'REJEITAR', nota: null },
+  'T5a-negacao-nota-B': { veredicto: 'ACEITO COM REVISÕES MENORES', nota: 'B' },
+  'T5b-negacao-nao-deve-ser-aceito': { veredicto: null, nota: null },
+  'T5c-mencao-exemplo-anterior': { veredicto: null, nota: null },
+};
+const ELEGIVEIS = ['elegivel-auto-A', 'elegivel-auto-F'];
+const SUSPENSAS_ALCANCAVEIS = ['disponibilidade-ausente', 'disponibilidade-incompleta', 'contradicao', 'coerencia-nao-concluida'];
+const SUSPENSAS_CONSTRUIDAS = ['coerencia-nao-avaliada-CONSTRUIDA'];
+const grupoDe = (cond) => (ELEGIVEIS.includes(cond) ? 'elegivel' : SUSPENSAS_ALCANCAVEIS.includes(cond) ? 'suspensa-alcancavel' : 'suspensa-construida');
+
+const saida = {};
+
+// ---------------- (c)
+const textoPorId = Object.fromEntries(j.textos.map((t) => [t.id, t]));
+const AUTOR = {
+  'T5a-negacao-nota-B': { nota: 'A', veredicto: 'ACEITO COM REVISÕES MENORES' },
+  'T5b-negacao-nao-deve-ser-aceito': { nota: 'A', veredicto: 'ACEITO' },
+  'T5c-mencao-exemplo-anterior': { nota: 'A', veredicto: 'ACEITO' },
+};
+saida.c = Object.keys(AUTOR).map((id) => {
+  const cel = j.celulas.find((c) => c.apresentacao === 'aprovada' && c.condicao === 'elegivel-auto-A' && c.texto === id);
+  const t = textoPorId[id];
+  const s = cel.superficies;
+  return {
+    texto: id,
+    textoIntegral: t.texto,
+    anatomia: t.anatomia,
+    padraoReconhecido: { indiceNaLista: cel.extracao.replica.indice, caminho: cel.extracao.caminhoObservadoNoLog, veredicto: cel.resposta.veredicto },
+    letraAtribuida: cel.resposta.nota,
+    gradeSource: cel.resposta.gradeSource,
+    apresentacao: { destaque: s.destaque, aviso: s.aviso, corpo: { exibido: s.corpo.exibido, estiloDeQuarentena: s.corpo.estiloDeQuarentena }, copiadoIgualAoTexto: s.copiado.argumentoIgualAoTextoRecebidoIntegral },
+    relatadoPeloAutor: AUTOR[id],
+    medicaoConfereComAutor: cel.resposta.nota === AUTOR[id].nota && cel.resposta.veredicto === AUTOR[id].veredicto,
+  };
+});
+
+// ---------------- (d): matriz, modo texto fixado, apresentação aprovada
+const textosIds = j.textos.map((t) => t.id);
+const condIds = j.condicoes.map((c) => c.id);
+saida.d = { condicoes: condIds, linhas: textosIds.map((id) => ({ texto: id, celulas: Object.fromEntries(condIds.map((cd) => { const c = j.celulas.find((x) => x.apresentacao === 'aprovada' && x.condicao === cd && x.texto === id); return [cd, c.resposta.nota === null ? `— (${c.resposta.gradeSource}; ${c.resposta.notaSuspensa.causa})` : `${c.resposta.nota}/${c.resposta.veredicto} (${c.resposta.gradeSource})`]; })) })) };
+// totais por gradeSource, por condição, na apresentação aprovada
+saida.d.gradeSourcePorCondicao = Object.fromEntries(condIds.map((cd) => { const cs = j.celulas.filter((x) => x.apresentacao === 'aprovada' && x.condicao === cd); const o = {}; cs.forEach((c) => { o[c.resposta.gradeSource] = (o[c.resposta.gradeSource] || 0) + 1; }); return [cd, { denominador: cs.length, ...o }]; }));
+
+// ---------------- (e): as quatro superfícies, por apresentação x grupo
+const tally = {};
+for (const c of j.celulas) {
+  const k = `${c.apresentacao} | ${grupoDe(c.condicao)}`;
+  const t = (tally[k] = tally[k] || { denominador: 0, destaqueExibido: 0, avisoExibido: 0, avisosDaVerificacaoExibido: 0, cartaoDeSuspensaoExibido: 0, corpoExibido: 0, corpoEmQuarentena: 0, botaoDeCopiaExibido: 0, copiaIgualAoTextoIntegral: 0, manipuladorAcionado: 0 });
+  const s = c.superficies;
+  t.denominador++;
+  if (s.destaque.exibido) t.destaqueExibido++;
+  if (s.aviso.exibido) t.avisoExibido++;
+  if (s.avisosDaVerificacao.exibido) t.avisosDaVerificacaoExibido++;
+  if (s.cartaoDeSuspensao.exibido) t.cartaoDeSuspensaoExibido++;
+  if (s.corpo.exibido) t.corpoExibido++;
+  if (s.corpo.estiloDeQuarentena) t.corpoEmQuarentena++;
+  if (s.copiado.botaoExibido) t.botaoDeCopiaExibido++;
+  if (s.copiado.argumentoIgualAoTextoRecebidoIntegral) t.copiaIgualAoTextoIntegral++;
+  if (s.copiado.manipuladorAcionado) t.manipuladorAcionado++;
+}
+saida.e = { tally };
+
+// ---------------- contradições entre o corpo e o destaque, e o que a cópia carrega que o destaque esconde
+const contra = [];
+const escondeu = [];
+for (const c of j.celulas) {
+  const s = c.superficies;
+  const L = LEITURA[c.texto];
+  if (s.destaque.exibido) {
+    const difVered = L.veredicto === null || s.destaque.veredicto !== L.veredicto;
+    const difNota = L.nota !== null && s.destaque.nota !== L.nota;
+    if (difVered || difNota) contra.push({ apresentacao: c.apresentacao, condicao: c.condicao, texto: c.texto, destaque: s.destaque, leituraDoCorpo: L, gradeSource: c.resposta.gradeSource });
+  } else if (s.corpo.padroesDoExtratorNoCorpoExibido.length > 0 && s.copiado.argumentoIgualAoTextoRecebidoIntegral) {
+    escondeu.push({ apresentacao: c.apresentacao, condicao: c.condicao, grupo: grupoDe(c.condicao), texto: c.texto, valorDaRespostaEscondido: { nota: c.resposta.nota, veredicto: c.resposta.veredicto }, destaqueNoCartaoOuAviso: s.cartaoDeSuspensao.exibido ? 'cartão de suspensão' : s.aviso.exibido ? 'aviso de quarentena' : 'nenhum' });
+  }
+}
+const contraPorTexto = {};
+contra.forEach((x) => { contraPorTexto[x.texto] = (contraPorTexto[x.texto] || 0) + 1; });
+saida.contradicoes = { regra: 'destaque exibido E (leitura do corpo sem decisão, ou veredicto diferente, ou nota diferente)', denominadorDestaquesExibidos: j.celulas.filter((c) => c.superficies.destaque.exibido).length, total: contra.length, porTexto: contraPorTexto, casos: contra };
+const escPorGrupo = {};
+escondeu.forEach((x) => { const k = `${x.apresentacao} | ${x.grupo}`; escPorGrupo[k] = (escPorGrupo[k] || 0) + 1; });
+saida.copiaCarregaOQueODestaqueEsconde = { regra: 'destaque NÃO exibido E o corpo exibido traz um padrão do extrator E o argumento de writeText é o texto integral', denominadorDestaquesNaoExibidos: j.celulas.filter((c) => !c.superficies.destaque.exibido).length, total: escondeu.length, porApresentacaoEGrupo: escPorGrupo };
+
+// ---------------- o que o destaque esconde na resposta: nota presente na resposta, destaque ausente
+const respostaComNotaDestaqueAusente = j.celulas.filter((c) => c.resposta.nota !== null && !c.superficies.destaque.exibido);
+saida.notaNaRespostaSemDestaque = { total: respostaComNotaDestaqueAusente.length, porApresentacao: respostaComNotaDestaqueAusente.reduce((a, c) => { a[c.apresentacao] = (a[c.apresentacao] || 0) + 1; return a; }, {}) };
+
+// ---------------- conferências do instrumento
+saida.conferencias = {
+  celulas: j.celulas.length,
+  replicaConfereComTratadorReal: j.celulas.filter((c) => c.extracao.confereReplicaComTratador).length,
+  arvoreConfereComHtml: j.celulas.filter((c) => c.superficies.arvoreConfereComHtml).length,
+  reviewIgualAoTextoFixado: j.celulas.filter((c) => c.resposta.reviewIgualAoTextoFixado).length,
+  chamadasAoClienteIguaisAUm: j.celulas.filter((c) => c.chamadasAoCliente === 1).length,
+  status200: j.celulas.filter((c) => c.status === 200).length,
+};
+
+// ---------------- (f): capturas
+saida.f = j.capturas.map((c) => ({ condicao: c.condicao, construida: c.construida, modo: c.modo, statusDaResposta: c.statusDaResposta, sha256Contexto: c.sha256Contexto, caracteres: c.caracteresContexto, bytes: c.bytesContexto, linhas: c.linhasContexto, sha256System: c.sha256System, blocoLinhas: c.blocoDoEscoreDoParecer ? [c.blocoDoEscoreDoParecer.linhaInicial, c.blocoDoEscoreDoParecer.linhaFinal] : null, ocorrenciasPorLinha: Object.fromEntries(Object.entries(c.ocorrencias).filter(([, v]) => v.length).map(([k, v]) => [k, v.map((x) => x.linha)])) }));
+
+// ---------------- controles adicionais do executor (fora das linhas pedidas)
+saida.adicionais = (j.celulasAdicionais || []).map((c) => ({ condicao: c.condicao, texto: c.texto, extensao: c.anatomia.extensaoEmCaracteres, guardaDe50: c.anatomia.guardaDe50Satisfeita, resposta: `${c.resposta.nota}/${c.resposta.veredicto} (${c.resposta.gradeSource})`, caminho: c.extracao.caminhoObservadoNoLog, replica: c.extracao.replica, destaque: c.superficies && c.superficies.destaque, leituraHumana: c.leituraHumana }));
+
+// ---------------- o estado A.27 construído (sem `validation`), que o tratador real não produz
+saida.construidasSemValidation = (j.construidasSemValidation || []).map((c) => ({ texto: c.texto, destaque: c.superficies.destaque, aviso: c.superficies.aviso, corpoEmQuarentena: c.superficies.corpo.estiloDeQuarentena, copiaIgualAoTexto: c.superficies.copiado.argumentoIgualAoTextoRecebidoIntegral }));
+
+// ---------------- (f): onde os contextos diferem do baseline (elegivel-auto-A), pelo `diff` do sistema
+const cp = require('node:child_process');
+const base = path.join(dir, 'contextos', 'ctx-elegivel-auto-A.txt');
+saida.f_diferencas = {};
+for (const c of j.capturas.filter((x) => x.condicao !== 'elegivel-auto-A')) {
+  const alvo = path.join(dir, 'contextos', `ctx-${c.condicao}.txt`);
+  let out = '';
+  try { out = cp.execSync(`diff "${base}" "${alvo}"`, { maxBuffer: 1 << 26 }).toString('utf8'); } catch (e) { out = (e.stdout || '').toString('utf8'); }
+  const linhasDivergentes = out.split('\n').filter((l) => /^[<>] /.test(l)).length;
+  const hunks = out.split('\n').filter((l) => /^\d/.test(l));
+  saida.f_diferencas[c.condicao] = { linhasDivergentes, hunks };
+}
+
+// ---------------- (i): onde cada rótulo e cada motivo aparece (contexto por linha; resposta; cartão na tela)
+saida.i_rotulosEMotivos = ['disponibilidade-ausente', 'disponibilidade-incompleta', 'contradicao', 'coerencia-nao-concluida', 'coerencia-nao-avaliada-CONSTRUIDA'].map((cond) => {
+  const cel = j.celulas.find((x) => x.apresentacao === 'aprovada' && x.condicao === cond && x.texto === 'T1-editorial-simples');
+  const ns = cel.resposta.notaSuspensa;
+  const ctx = fs.readFileSync(path.join(dir, 'contextos', `ctx-${cond}.txt`), 'utf8').split('\n');
+  const linhasCom = (str) => ctx.map((l, i) => (l.includes(str) ? i + 1 : null)).filter(Boolean);
+  const mot = ns.motivo.slice(0, 60);
+  return { condicao: cond, construida: /CONSTRUIDA/.test(cond), causa: ns.causa, rotulo: ns.rotulo, rotuloNoContextoLinhas: linhasCom(ns.rotulo), motivoPrimeiros60: mot, motivoNoContextoLinhas: linhasCom(mot), cartaoNaTela: cel.superficies.cartaoDeSuspensao.titulo, motivoDoCartaoIgualAoDaResposta: cel.superficies.cartaoDeSuspensao.motivo === ns.motivo };
+});
+
+// ---------------- frases do contexto que dizem "qualidade individual não avaliada" onde a avaliação EXISTE
+saida.i_frasesQueSeContradizemNoMesmoContexto = ['contradicao', 'coerencia-nao-concluida', 'coerencia-nao-avaliada-CONSTRUIDA'].map((cond) => {
+  const ctx = fs.readFileSync(path.join(dir, 'contextos', `ctx-${cond}.txt`), 'utf8').split('\n');
+  const acha = (re) => ctx.map((l, i) => (re.test(l) ? { linha: i + 1, texto: l.slice(0, 120) } : null)).filter(Boolean);
+  return { condicao: cond, dizemQueAAvaliacaoExiste: acha(/AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL|FORAM avaliados/), dizemQueNaoFoiAvaliada: acha(/qualidade individual não avaliada|qualidade individual não foi avaliada/) };
+});
+
+fs.writeFileSync(path.join(dir, 'resumo.json'), JSON.stringify(saida, null, 1));
+console.log(JSON.stringify({ conferencias: saida.conferencias, d_gradeSourcePorCondicao: saida.d.gradeSourcePorCondicao, e_tally: saida.e.tally, contradicoes: { regra: saida.contradicoes.regra, denominadorDestaquesExibidos: saida.contradicoes.denominadorDestaquesExibidos, total: saida.contradicoes.total, porTexto: saida.contradicoes.porTexto }, copiaCarrega: saida.copiaCarregaOQueODestaqueEsconde, notaNaRespostaSemDestaque: saida.notaNaRespostaSemDestaque }, null, 1));
+console.log('\n(c):');
+saida.c.forEach((x) => console.log(' ', x.texto, '| ext', x.anatomia.extensaoEmCaracteres, '| titulo@', x.anatomia.posicaoDoTituloDaSecaoEditorial, '| janela@', x.anatomia.inicioDaJanelaDe500, '| padrao', JSON.stringify(x.padraoReconhecido), '| letra', x.letraAtribuida, '| autor', JSON.stringify(x.relatadoPeloAutor), '| confere', x.medicaoConfereComAutor));
+console.log('\n(d) matriz (apresentação aprovada):');
+console.log('texto'.padEnd(36) + condIds.map((c) => c.slice(0, 22).padEnd(24)).join(''));
+saida.d.linhas.forEach((l) => console.log(l.texto.padEnd(36) + condIds.map((c) => l.celulas[c].slice(0, 24).padEnd(24)).join('')));

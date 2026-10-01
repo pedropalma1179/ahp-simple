@@ -1,0 +1,19 @@
+'use strict';
+/** Identificadores RELACIONADOS descobertos na leitura (não estão na lista do pedido). Instrumento temporário. */
+const cp = require('node:child_process'); const fs = require('node:fs'); const path = require('node:path');
+const ROOT = process.cwd();
+const IDS = ['finalNota','finalVeredicto','aiGrade','calculateGrade','extractGradeFromReview','Classificacao','classification','elegivelParaClassificacao','motivoDaSuspensao','ROTULO_NOTA_SUSPENSA','ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO','ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA','ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA','getValidFinalScores','finalScores','validScores','overallScore','qualityScore','decideReviewPresentation','toReviewValidationContract','LIMITE_DO_VINCULO','classificarAvaliacaoRecebida','classificarAvaliacaoDaTela','avaliarCoerencia','ramoDeQualidade','CONJUNTO_MINIMO','qualidadeDisponivel','coerenciaDaQualidade','avaliacaoDeQualidade','CausaDaSuspensao','MOTIVO_AUSENTE','MOTIVO_INCOMPLETA','MOTIVO_DECLARADA_SEM_DADOS','MOTIVO_COERENCIA_NAO_DETERMINADA','MOTIVO_COERENCIA_CONTRADICAO','MOTIVO_CONJUNTO_MINIMO_NAO_ESTABELECIDO','MOTIVO_COERENCIA_NAO_AVALIADA','notaSuspensa'];
+const tracked = cp.execSync('git ls-files -z', { cwd: ROOT, maxBuffer: 1 << 28 }).toString('utf8').split('\0').filter(Boolean);
+const em = tracked.filter((f) => /\.(ts|tsx|js|mjs|cjs)$/.test(f) && (/^(app|components|lib|scripts)\//.test(f) || !f.includes('/')));
+const res = {};
+for (const id of IDS) res[id] = { producao: {}, teste: {}, scripts: {} };
+for (const f of em) {
+  const t = fs.readFileSync(path.join(ROOT, f), 'utf8');
+  for (const id of IDS) {
+    const m = t.match(new RegExp(`(?<![\\p{L}\\p{N}_$])${id}(?![\\p{L}\\p{N}_$])`, 'gu'));
+    if (m) { const g = f.startsWith('lib/__tests__/') ? 'teste' : f.startsWith('scripts/') ? 'scripts' : 'producao'; res[id][g][f] = m.length; }
+  }
+}
+const resumo = IDS.map((id) => { const r = res[id]; const soma = (o) => Object.values(o).reduce((a, b) => a + b, 0); return { id, producao: soma(r.producao), arquivosDeProducao: r.producao, teste: soma(r.teste), arquivosDeTeste: Object.keys(r.teste).length, scripts: soma(r.scripts) }; });
+fs.writeFileSync(process.argv[2], JSON.stringify(resumo, null, 1));
+for (const r of resumo) console.log(r.id.padEnd(52), 'prod', String(r.producao).padStart(3), JSON.stringify(r.arquivosDeProducao), '| testes', r.teste, 'em', r.arquivosDeTeste, 'arq. | scripts', r.scripts);
