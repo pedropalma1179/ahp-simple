@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Contraexemplos EXECUTADOS sobre a fonte (Fase 2, nota e veredicto): cada mutante altera UM trecho de produção, roda a suíte
+inteira, registra quais testes reprovam (e se houve erro de compilação) e RESTAURA a fonte, conferindo o sha256.
+Uso (na raiz do repositório): python3 mutantes.py <saida.json>"""
+import json, hashlib, subprocess, sys, os, re
+
+RAIZ = os.getcwd()  # a raiz do repositório: rode o roteiro dali
+os.chdir(RAIZ)
+SAIDA = sys.argv[1]
+TMP = os.path.dirname(os.path.abspath(SAIDA))
+
+def sha(path):
+    return hashlib.sha256(open(path, 'rb').read()).hexdigest()
+
+R = 'app/api/ai-reviewer/route.ts'
+Q = 'lib/ai-reviewer/avaliacao-qualidade.ts'
+C = 'components/ParecerAISection.tsx'
+P = 'app/decisor/resultados/[projectId]/page.tsx'
+
+MUTANTES = [
+    ('M1', 'o bloco "Referência Automatizada" volta ao contexto (o título)', R,
+     '# MANUSCRITO SUBMETIDO\n\n**Título do Projeto:**',
+     '# MANUSCRITO SUBMETIDO\n**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n\n**Título do Projeto:**'),
+    ('M2', 'o prefixo da TELA entra no contexto (a frase de disponibilidade lê o rótulo)', R,
+     'SUSPENSA: ${DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE}.',
+     'SUSPENSA: ${ROTULO_NOTA_SUSPENSA}.'),
+    ('M3', 'a descrição escolhida pelo VALOR do campo `causa`, e não pelo texto da causa (ponto dinâmico)', R,
+     'SUSPENSA: ${DESCRICAO_DA_SUSPENSAO[elegivel.causa]}.',
+     'SUSPENSA: ${elegivel.causa}.'),
+    ('M4a', 'o sufixo obtido CORTANDO o rótulo por posição (comportamento IDÊNTICO: só a guarda de fonte pode matá-lo)', R,
+     'SUSPENSA: ${DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE}.',
+     'SUSPENSA: ${ROTULO_NOTA_SUSPENSA.slice(38)}.'),
+    ('M4b', 'o sufixo obtido por EXPRESSÃO REGULAR sobre o rótulo (comportamento idêntico: só a guarda de fonte)', R,
+     'SUSPENSA: ${DESCRICAO_DA_SUSPENSAO[elegivel.causa]}.',
+     "SUSPENSA: ${elegivel.rotulo.replace(/^Destaque de nota e veredito suspenso: /, '')}."),
+    ('M5', '`metadata.automaticGrade` volta à resposta', R,
+     '        estadoDaExtracao,\n        avaliacaoDeQualidade: data.avaliacaoDeQualidade,',
+     '        estadoDaExtracao,\n        automaticGrade: null,\n        avaliacaoDeQualidade: data.avaliacaoDeQualidade,'),
+    ('M6', 'o fallback para o valor automático volta (sem padrão, nota e veredicto automáticos)', R,
+     'const finalNota = aiGrade ? aiGrade.nota : null;\n    const finalVeredicto = aiGrade ? aiGrade.veredicto : null;',
+     'const finalNota = aiGrade ? aiGrade.nota : classification.nota;\n    const finalVeredicto = aiGrade ? aiGrade.veredicto : classification.veredicto;'),
+    ('M7', 'a mensagem CONDICIONADA ao estado de A.27 (só com a validação aprovada)', R,
+     "const mensagemDaExtracao = estadoDaExtracao === 'nenhum_padrao_reconhecido' ? MENSAGEM_DA_EXTRACAO_SEM_PADRAO : null;",
+     "const mensagemDaExtracao = estadoDaExtracao === 'nenhum_padrao_reconhecido' && validation.estado === 'aprovado' ? MENSAGEM_DA_EXTRACAO_SEM_PADRAO : null;"),
+    ('M8', 'a mensagem NÃO nula sob suspensão', R,
+     "const mensagemDaExtracao = estadoDaExtracao === 'nenhum_padrao_reconhecido' ? MENSAGEM_DA_EXTRACAO_SEM_PADRAO : null;",
+     "const mensagemDaExtracao = estadoDaExtracao !== 'padrao_reconhecido' ? MENSAGEM_DA_EXTRACAO_SEM_PADRAO : null;"),
+    ('M9', 'a extração EXECUTADA também sob suspensão (R1 quebrada)', R,
+     'const aiGrade = classification.suspensa ? null : extractGradeFromReview(review);',
+     'const aiGrade = extractGradeFromReview(review);'),
+    ('M10', 'o portão do destaque afrouxado para aceitar a mensagem', C,
+     "(aiReview.nota || aiReview.veredicto) && (",
+     "(aiReview.nota || aiReview.veredicto || aiReview.mensagemDaExtracao) && ("),
+    ('M11', 'o MOTIVO se perde no ramo da contradição (a informação não chega ao contexto)', R,
+     'CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — ${elegivel.motivo}',
+     'CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA'),
+    ('M12', 'a frase da mensagem alterada (o ponto final some)', R,
+     "const MENSAGEM_DA_EXTRACAO_SEM_PADRAO = 'Veredito não identificado no texto do parecer simulado.';",
+     "const MENSAGEM_DA_EXTRACAO_SEM_PADRAO = 'Veredito não identificado no texto do parecer simulado';"),
+    ('M13', 'o estado sob suspensão trocado por `nenhum_padrao_reconhecido`', R,
+     "? 'nao_executada_por_suspensao'",
+     "? 'nenhum_padrao_reconhecido'"),
+    ('M14', 'o prefixo da tela sem os dois pontos', Q,
+     "export const PREFIXO_DESTAQUE_SUSPENSO = 'Destaque de nota e veredito suspenso: ';",
+     "export const PREFIXO_DESTAQUE_SUSPENSO = 'Destaque de nota e veredito suspenso ';"),
+    ('M15', 'uma descrição trocada pela de outra causa (verificação não concluída lê "não avaliada")', Q,
+     "'verificação de coerência não concluída';",
+     "'verificação de coerência não avaliada';"),
+    ('M16', 'a página deixa de repassar `mensagemDaExtracao` (a página NÃO é executada: só a guarda de fonte)', P,
+     '          mensagemDaExtracao: data.mensagemDaExtracao ?? null,\n',
+     ''),
+    ('M17', 'o extrator alterado (um padrão: ACEITO vira REJEITADO)', R,
+     "{ pattern: /\\bACEITO\\b/i, nota: 'A', veredicto: 'ACEITO' }",
+     "{ pattern: /\\bACEITO\\b/i, nota: 'B', veredicto: 'ACEITO' }"),
+    ('M18', 'a cópia alterada (writeText recebe o texto aparado)', C,
+     'await navigator.clipboard.writeText(aiReview.review);',
+     'await navigator.clipboard.writeText(aiReview.review.trim());'),
+    ('M19', 'o corpo ESCONDIDO sob suspensão (alteraria o corpo, que o pedido manda NÃO alterar)', C,
+     '{aiReview.review && (\n            <div className="mt-6">',
+     '{aiReview.review && !aiReview.notaSuspensa?.suspensa && (\n            <div className="mt-6">'),
+    ('M20', '`calculateGrade` deixa de ser a fonte do sinal de suspensão (remoção prematura: retorna sempre não suspensa)', R,
+     'const classification = calculateGrade(data);',
+     'const classification = { ...calculateGrade(data), suspensa: false, motivo: null };'),
+]
+
+resultados = []
+for mid, descr, arq, velho, novo in MUTANTES:
+    original = open(arq, encoding='utf8').read()
+    sha_antes = hashlib.sha256(original.encode('utf8')).hexdigest()
+    n = original.count(velho)
+    if n != 1:
+        resultados.append({'id': mid, 'descricao': descr, 'arquivo': arq, 'erro': f'o trecho ocorre {n} vez(es), e tem de ser exatamente 1'})
+        print(mid, 'ERRO: trecho ocorre', n, 'vez(es)')
+        continue
+    try:
+        open(arq, 'w', encoding='utf8').write(original.replace(velho, novo))
+        saida_json = os.path.join(TMP, f'mutante-{mid}.json')
+        p = subprocess.run(['npx', 'jest', '--silent', '--json', f'--outputFile={saida_json}'], capture_output=True, text=True, timeout=900)
+        texto = p.stdout + p.stderr
+        compilacao = len(re.findall(r'error TS\d+|TS\d{4}:', texto))
+        try:
+            r = json.load(open(saida_json))
+            falhas = [(tr['name'].split('/lib/__tests__/')[-1], t['fullName']) for tr in r['testResults'] for t in tr['assertionResults'] if t['status'] == 'failed']
+            suites_com_erro = [tr['name'].split('/lib/__tests__/')[-1] for tr in r['testResults'] if tr['status'] == 'failed' and not any(t['status'] == 'failed' for t in tr['assertionResults'])]
+            total = r['numTotalTests']; reprovados = r['numFailedTests']
+        except Exception as e:
+            falhas = []; suites_com_erro = ['(sem json)']; total = None; reprovados = None
+        arquivos_que_matam = sorted(set(a for a, _ in falhas))
+        resultados.append({
+            'id': mid, 'descricao': descr, 'arquivo': arq,
+            'morto': (len(falhas) > 0 or len(suites_com_erro) > 0),
+            'testesReprovados': reprovados, 'totalDeTestes': total,
+            'arquivosDeTesteQueReprovam': arquivos_que_matam,
+            'primeirosTestes': [f'{a}: {n[:140]}' for a, n in falhas[:3]],
+            'suitesQueNaoCompilaram': suites_com_erro, 'errosDeCompilacao': compilacao,
+        })
+        print(mid, 'MORTO' if (falhas or suites_com_erro) else 'SOBREVIVEU', '|', reprovados, 'reprovados |', arquivos_que_matam, '| compilação:', compilacao)
+    finally:
+        open(arq, 'w', encoding='utf8').write(original)
+        ok = hashlib.sha256(open(arq, 'rb').read()).hexdigest() == sha_antes
+        resultados[-1]['fonteRestauradaComSha256Igual'] = ok
+        if not ok:
+            print('!!! FONTE NÃO RESTAURADA:', arq); sys.exit(3)
+
+json.dump(resultados, open(SAIDA, 'w'), ensure_ascii=False, indent=1)
+print('mortos:', sum(1 for r in resultados if r.get('morto')), 'de', len(resultados), '| sobreviventes:', [r['id'] for r in resultados if not r.get('morto')], '| erros de compilação (soma):', sum(r.get('errosDeCompilacao', 0) for r in resultados))

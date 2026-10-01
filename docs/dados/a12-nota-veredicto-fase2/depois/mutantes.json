@@ -1,0 +1,1881 @@
+[
+ {
+  "id": "M1",
+  "descricao": "o bloco \"Referência Automatizada\" volta ao contexto (o título)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 35,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-estatisticas-dimensao.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts",
+   "a33-snapshot-v2.test.ts",
+   "rag-semantic-states.test.ts"
+  ],
+  "primeirosTestes": [
+   "a33-snapshot-v2.test.ts: A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C1: a montagem usa o payload de referência, e nenhum dado sintét",
+   "a33-snapshot-v2.test.ts: A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C2: a montagem usa o payload de referência, e nenhum dado sintét",
+   "a33-snapshot-v2.test.ts: A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C3: a montagem usa o payload de referência, e nenhum dado sintét"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C1: a montagem usa o payload de referência, e nenhum dado sintético"
+   },
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C2: a montagem usa o payload de referência, e nenhum dado sintético"
+   },
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C3: a montagem usa o payload de referência, e nenhum dado sintético"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas contradicao (causa contradicao): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam agregado-5: contra o contexto completo da Fase 1, sem e com o campo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam agregado-3: contra o contexto completo da Fase 1, sem e com o campo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código elegivel-auto-A: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código elegivel-auto-F: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-ausente: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-incompleta: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código contradicao: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-concluida: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-avaliada-CONSTRUIDA: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código elegivel-auto-A: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código elegivel-auto-F: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-ausente: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-incompleta: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código contradicao: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-concluida: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-avaliada-CONSTRUIDA: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-ausente: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-incompleta: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código contradicao: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-concluida: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-avaliada-CONSTRUIDA: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação AUSENTE: sem percentual, sem nota, sem veredicto e SEM penalização"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "rag-semantic-states.test.ts",
+    "teste": "os quatro estados da recuperação semântica, pelo handler real CONTEXTO: o que A.33 moveu, e o que continua igual a d658e50"
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   }
+  ]
+ },
+ {
+  "id": "M2",
+  "descricao": "o prefixo da TELA entra no contexto (a frase de disponibilidade lê o rótulo)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 19,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-estatisticas-dimensao.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a33-cadeia-rule.test.ts",
+   "a33-snapshot-v2.test.ts",
+   "rag-semantic-states.test.ts"
+  ],
+  "primeirosTestes": [
+   "a33-snapshot-v2.test.ts: A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C1: a montagem usa o payload de referência, e nenhum dado sintét",
+   "a33-snapshot-v2.test.ts: A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C2: a montagem usa o payload de referência, e nenhum dado sintét",
+   "a33-snapshot-v2.test.ts: A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C3: a montagem usa o payload de referência, e nenhum dado sintét"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C1: a montagem usa o payload de referência, e nenhum dado sintético"
+   },
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C2: a montagem usa o payload de referência, e nenhum dado sintético"
+   },
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C3: a montagem usa o payload de referência, e nenhum dado sintético"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-ausente: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-incompleta: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-ausente: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-incompleta: o bloco inteiro saiu, e nenhum termo dele nem o rótulo antigo nem o prefixo da tela chegam ao contexto"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) disponibilidade-ausente: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) disponibilidade-incompleta: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) a rota monta as TRÊS frases do contexto a partir das descrições, e nunca do rótulo (leitura do fonte)"
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "3.3: no caso disponivel E COERENTE o contexto TRAZ percentual"
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "rag-semantic-states.test.ts",
+    "teste": "os quatro estados da recuperação semântica, pelo handler real CONTEXTO: o que A.33 moveu, e o que continua igual a d658e50"
+   }
+  ]
+ },
+ {
+  "id": "M3",
+  "descricao": "a descrição escolhida pelo VALOR do campo `causa`, e não pelo texto da causa (ponto dinâmico)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 11,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-estatisticas-dimensao.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados",
+   "a33-cadeia-rule.test.ts: complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-concluida: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-avaliada-CONSTRUIDA: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) coerencia-nao-concluida: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) coerencia-nao-avaliada-CONSTRUIDA: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) a rota monta as TRÊS frases do contexto a partir das descrições, e nunca do rótulo (leitura do fonte)"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda"
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   }
+  ]
+ },
+ {
+  "id": "M4a",
+  "descricao": "o sufixo obtido CORTANDO o rótulo por posição (comportamento IDÊNTICO: só a guarda de fonte pode matá-lo)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 6,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados",
+   "a33-cadeia-rule.test.ts: complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) a composição é a partir de TEXTOS COMPARTILHADOS: nenhum sufixo sai de um rótulo cortado por posição ou por expressão regular (leitura do fonte)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) a rota monta as TRÊS frases do contexto a partir das descrições, e nunca do rótulo (leitura do fonte)"
+   }
+  ]
+ },
+ {
+  "id": "M4b",
+  "descricao": "o sufixo obtido por EXPRESSÃO REGULAR sobre o rótulo (comportamento idêntico: só a guarda de fonte)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 6,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) a composição é a partir de TEXTOS COMPARTILHADOS: nenhum sufixo sai de um rótulo cortado por posição ou por expressão regular (leitura do fonte)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) a rota monta as TRÊS frases do contexto a partir das descrições, e nunca do rótulo (leitura do fonte)"
+   }
+  ]
+ },
+ {
+  "id": "M5",
+  "descricao": "`metadata.automaticGrade` volta à resposta",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 15,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-A: a resposta traz estadoDaExtracao em metadata e mensagemDaExtracao no NÍVEL PRINCIPAL; automaticGrade e gradeSource saíram"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-F: a resposta traz estadoDaExtracao em metadata e mensagemDaExtracao no NÍVEL PRINCIPAL; automaticGrade e gradeSource saíram"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente: a resposta traz estadoDaExtracao em metadata e mensagemDaExtracao no NÍVEL PRINCIPAL; automaticGrade e gradeSource saíram"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta: a resposta traz estadoDaExtracao em metadata e mensagemDaExtracao no NÍVEL PRINCIPAL; automaticGrade e gradeSource saíram"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao: a resposta traz estadoDaExtracao em metadata e mensagemDaExtracao no NÍVEL PRINCIPAL; automaticGrade e gradeSource saíram"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida: a resposta traz estadoDaExtracao em metadata e mensagemDaExtracao no NÍVEL PRINCIPAL; automaticGrade e gradeSource saíram"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA: a resposta traz estadoDaExtracao em metadata e mensagemDaExtracao no NÍVEL PRINCIPAL; automaticGrade e gradeSource saíram"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram a fonte: automaticGrade e gradeSource saíram de route.ts, da página e do componente; mensagemDaExtracao tem o MESMO nome nos três pontos"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação AUSENTE: sem percentual, sem nota, sem veredicto e SEM penalização"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com confiáveis: a elegibilidade e o contexto de qualidade preservados; sem padrão no texto, nota e veredicto NULOS"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com ZERO confiáveis: zero é observado, e a regra existente vale"
+   }
+  ]
+ },
+ {
+  "id": "M6",
+  "descricao": "o fallback para o valor automático volta (sem padrão, nota e veredicto automáticos)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 14,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-A texto SEM padrão (T2a): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-A texto SEM padrão (T2b): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-A texto SEM padrão (AD1 (guarda de 50)): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-F texto SEM padrão (T2a): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-F texto SEM padrão (T2b): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-F texto SEM padrão (AD1 (guarda de 50)): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram o valor da mensagem depende SÓ do estado da extração, e independe do estado de A.27 (tratador real: aprovado, reprovado, inconclusivo)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque aprovado: a mensagem aparece UMA vez, com role=\"status\", sem aviso de A.27 e SEM destaque; o corpo e a cópia são o texto integral"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com confiáveis: a elegibilidade e o contexto de qualidade preservados; sem padrão no texto, nota e veredicto NULOS"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com ZERO confiáveis: zero é observado, e a regra existente vale"
+   }
+  ]
+ },
+ {
+  "id": "M7",
+  "descricao": "a mensagem CONDICIONADA ao estado de A.27 (só com a validação aprovada)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 7,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram o valor da mensagem depende SÓ do estado da extração, e independe do estado de A.27 (tratador real: aprovado, reprovado, inconclusivo)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque reprovado (tratador real): a mensagem COEXISTE com a quarentena de A.27, não a substitui, e não autoriza destaque"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque inconclusivo (tratador real): a mensagem COEXISTE com a quarentena de A.27, não a substitui, e não autoriza destaque"
+   }
+  ]
+ },
+ {
+  "id": "M8",
+  "descricao": "a mensagem NÃO nula sob suspensão",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 36,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-incompleta: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral contradicao: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-concluida: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-avaliada-CONSTRUIDA: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação AUSENTE: sem percentual, sem nota, sem veredicto e SEM penalização"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa com ACEITO na DECISÃO EDITORIAL e avaliação ausente, a nota permanece suspensa"
+   }
+  ]
+ },
+ {
+  "id": "M9",
+  "descricao": "a extração EXECUTADA também sob suspensão (R1 quebrada)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 16,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram o MESMO texto: sob suspensão a extração não corre (R1), e sem suspensão é reconhecido (a diferença é a suspensão, e não o texto)"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa com ACEITO na DECISÃO EDITORIAL e avaliação ausente, a nota permanece suspensa"
+   }
+  ]
+ },
+ {
+  "id": "M10",
+  "descricao": "o portão do destaque afrouxado para aceitar a mensagem",
+  "arquivo": "components/ParecerAISection.tsx",
+  "morto": true,
+  "testesReprovados": 5,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque aprovado: a mensagem aparece UMA vez, com rol",
+   "a12-nota-veredicto-fase2.test.ts: D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque sem mensagem (null): nenhum bloco de mensagem"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque aprovado: a mensagem aparece UMA vez, com role=\"status\", sem aviso de A.27 e SEM destaque; o corpo e a cópia são o texto integral"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque sem mensagem (null): nenhum bloco de mensagem, e o destaque segue condicionado ao portão de sempre (controle de que a asserção discrimina)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque o aviso de A.27 e o portão do destaque NÃO foram alterados (o hash do trecho é o pré-registrado; ver o ensaio E)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral os trechos que o pedido manda NÃO mudar têm o sha256 PRÉ-REGISTRADO no commit da predição"
+   }
+  ]
+ },
+ {
+  "id": "M11",
+  "descricao": "o MOTIVO se perde no ramo da contradição (a informação não chega ao contexto)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 9,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-estatisticas-dimensao.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: 3.3: o quarto caso continua disponivel e passa a SUSPENDER por contradicao",
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código contradicao: o contexto novo é o ANTIGO "
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "3.3: o quarto caso continua disponivel e passa a SUSPENDER por contradicao"
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código contradicao: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código contradicao: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas contradicao (causa contradicao): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda"
+   }
+  ]
+ },
+ {
+  "id": "M12",
+  "descricao": "a frase da mensagem alterada (o ponto final some)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 18,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram os três valores do estado (lidos do TIPO em route.ts) e o nome do campo da mensagem NÃO afirmam identificação semântica, e a constante da mensagem é a frase do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-A texto SEM padrão (T2a): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-A texto SEM padrão (T2b): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-A texto SEM padrão (AD1 (guarda de 50)): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-F texto SEM padrão (T2a): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-F texto SEM padrão (T2b): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram elegivel-auto-F texto SEM padrão (AD1 (guarda de 50)): nota e veredicto NULOS (sem valor automático), estado nenhum_padrao_reconhecido e a mensagem do pedido"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram o valor da mensagem depende SÓ do estado da extração, e independe do estado de A.27 (tratador real: aprovado, reprovado, inconclusivo)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque aprovado: a mensagem aparece UMA vez, com role=\"status\", sem aviso de A.27 e SEM destaque; o corpo e a cópia são o texto integral"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque reprovado (tratador real): a mensagem COEXISTE com a quarentena de A.27, não a substitui, e não autoriza destaque"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque inconclusivo (tratador real): a mensagem COEXISTE com a quarentena de A.27, não a substitui, e não autoriza destaque"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque nao_confirmado, CONSTRUÍDO (validation-retirada): a partir de uma resposta REAL sem padrão, com validation alterada SÓ no instrumento, os dois avisos coexistem e não há destaque"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque nao_confirmado, CONSTRUÍDO (validation-invalidada): a partir de uma resposta REAL sem padrão, com validation alterada SÓ no instrumento, os dois avisos coexistem e não há destaque"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com confiáveis: a elegibilidade e o contexto de qualidade preservados; sem padrão no texto, nota e veredicto NULOS"
+   }
+  ]
+ },
+ {
+  "id": "M13",
+  "descricao": "o estado sob suspensão trocado por `nenhum_padrao_reconhecido`",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 37,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a33-cadeia-rule.test.ts: RE2: o inventario gravado coincide com o medido agora",
+   "a33-cadeia-rule.test.ts: complemento: os metadados historicos do artefato foram preservados"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação AUSENTE: sem percentual, sem nota, sem veredicto e SEM penalização"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa com ACEITO na DECISÃO EDITORIAL e avaliação ausente, a nota permanece suspensa"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram o MESMO texto: sob suspensão a extração não corre (R1), e sem suspensão é reconhecido (a diferença é a suspensão, e não o texto)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-incompleta: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral contradicao: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-concluida: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-avaliada-CONSTRUIDA: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   }
+  ]
+ },
+ {
+  "id": "M14",
+  "descricao": "o prefixo da tela sem os dois pontos",
+  "arquivo": "lib/ai-reviewer/avaliacao-qualidade.ts",
+  "morto": true,
+  "testesReprovados": 15,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-coerencia.test.ts",
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) os quatro rótulos têm a redação do pedid",
+   "a12-nota-veredicto-fase2.test.ts: B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) disponibilidade-ausente: o contexto traz"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) os quatro rótulos têm a redação do pedido, são distintos entre si, e as quatro descrições também"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) disponibilidade-ausente: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) disponibilidade-incompleta: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) contradicao: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) coerencia-nao-concluida: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) coerencia-nao-avaliada-CONSTRUIDA: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-incompleta: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral contradicao: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-concluida: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-avaliada-CONSTRUIDA: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que passa a suspender"
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao"
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradicao"
+   }
+  ]
+ },
+ {
+  "id": "M15",
+  "descricao": "uma descrição trocada pela de outra causa (verificação não concluída lê \"não avaliada\")",
+  "arquivo": "lib/ai-reviewer/avaliacao-qualidade.ts",
+  "morto": true,
+  "testesReprovados": 8,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-coerencia.test.ts",
+   "a12-diagnostico.test.ts",
+   "a12-estatisticas-dimensao.test.ts",
+   "a12-nota-veredicto-fase2.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-coerencia.test.ts: apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao",
+   "a12-nota-veredicto-fase2.test.ts: A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-concluida: o contexto novo"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-concluida: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) os quatro rótulos têm a redação do pedido, são distintos entre si, e as quatro descrições também"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) coerencia-nao-concluida: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-concluida: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda"
+   }
+  ]
+ },
+ {
+  "id": "M16",
+  "descricao": "a página deixa de repassar `mensagemDaExtracao` (a página NÃO é executada: só a guarda de fonte)",
+  "arquivo": "app/decisor/resultados/[projectId]/page.tsx",
+  "morto": true,
+  "testesReprovados": 2,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram a fonte: automaticGrade e gradeSource saíram de route"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram a fonte: automaticGrade e gradeSource saíram de route.ts, da página e do componente; mensagemDaExtracao tem o MESMO nome nos três pontos"
+   }
+  ]
+ },
+ {
+  "id": "M17",
+  "descricao": "o extrator alterado (um padrão: ACEITO vira REJEITADO)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 6,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral os trechos que o pedido manda NÃO ",
+   "a12-qualidade-ausente.test.ts: A.12: a nota extraída do texto NÃO restabelece nota suspensa CONTROLE: com avaliação disponível, o mesmo texto continua governando a nota"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral os trechos que o pedido manda NÃO mudar têm o sha256 PRÉ-REGISTRADO no commit da predição"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa CONTROLE: com avaliação disponível, o mesmo texto continua governando a nota"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   }
+  ]
+ },
+ {
+  "id": "M18",
+  "descricao": "a cópia alterada (writeText recebe o texto aparado)",
+  "arquivo": "components/ParecerAISection.tsx",
+  "morto": true,
+  "testesReprovados": 8,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque aprovado: a mensagem aparece UMA vez, com rol",
+   "a12-nota-veredicto-fase2.test.ts: E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão "
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque aprovado: a mensagem aparece UMA vez, com role=\"status\", sem aviso de A.27 e SEM destaque; o corpo e a cópia são o texto integral"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-incompleta: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral contradicao: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-concluida: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-avaliada-CONSTRUIDA: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral os trechos que o pedido manda NÃO mudar têm o sha256 PRÉ-REGISTRADO no commit da predição"
+   }
+  ]
+ },
+ {
+  "id": "M19",
+  "descricao": "o corpo ESCONDIDO sob suspensão (alteraria o corpo, que o pedido manda NÃO alterar)",
+  "arquivo": "components/ParecerAISection.tsx",
+  "morto": true,
+  "testesReprovados": 7,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-diagnostico.test.ts",
+   "a12-nota-veredicto-fase2.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão ",
+   "a12-nota-veredicto-fase2.test.ts: E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-incompleta: o cart"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-incompleta: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral contradicao: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-concluida: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-avaliada-CONSTRUIDA: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral os trechos que o pedido manda NÃO mudar têm o sha256 PRÉ-REGISTRADO no commit da predição"
+   }
+  ]
+ },
+ {
+  "id": "M20",
+  "descricao": "`calculateGrade` deixa de ser a fonte do sinal de suspensão (remoção prematura: retorna sempre não suspensa)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "morto": true,
+  "testesReprovados": 65,
+  "totalDeTestes": 940,
+  "arquivosDeTesteQueReprovam": [
+   "a12-coerencia.test.ts",
+   "a12-diagnostico.test.ts",
+   "a12-estatisticas-dimensao.test.ts",
+   "a12-nota-veredicto-fase2.test.ts",
+   "a12-qualidade-ausente.test.ts",
+   "a33-cadeia-rule.test.ts",
+   "vinculo-execucao-fiacao.test.ts"
+  ],
+  "primeirosTestes": [
+   "a12-diagnostico.test.ts: o artefato gravado coincide com a medicao atual",
+   "a12-nota-veredicto-fase2.test.ts: A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-ausente: o MOTIVO contin",
+   "a12-nota-veredicto-fase2.test.ts: A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-incompleta: o MOTIVO con"
+  ],
+  "suitesQueNaoCompilaram": [],
+  "errosDeCompilacao": 0,
+  "fonteRestauradaComSha256Igual": true,
+  "testesQueReprovam": [
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-ausente: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código disponibilidade-incompleta: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código contradicao: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-concluida: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código coerencia-nao-avaliada-CONSTRUIDA: o MOTIVO continua chegando ao contexto, UMA vez (duas no antigo), na linha prevista (P3: critério de bloqueio)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) disponibilidade-ausente: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) disponibilidade-incompleta: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) contradicao: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) coerencia-nao-concluida: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mesma descrição na tela (seção 2.4) coerencia-nao-avaliada-CONSTRUIDA: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-ausente texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram disponibilidade-incompleta texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram contradicao texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-concluida texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T1): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto COM padrão (T3a): R1: sob suspensão nota e veredicto são NULOS e a extração NÃO corre"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (T2a): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (T2b): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram coerencia-nao-avaliada-CONSTRUIDA texto SEM padrão (AD1 (guarda de 50)): estado nao_executada_por_suspensao e mensagem nula"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram o MESMO texto: sob suspensão a extração não corre (R1), e sem suspensão é reconhecido (a diferença é a suspensão, e não o texto)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "C. A resposta: o estado da extração, a mensagem, R1 e a ausência dos campos que saíram a fonte: automaticGrade e gradeSource saíram de route.ts, da página e do componente; mensagemDaExtracao tem o MESMO nome nos três pontos"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-ausente: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral disponibilidade-incompleta: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral contradicao: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-concluida: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "a12-nota-veredicto-fase2.test.ts",
+    "teste": "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral coerencia-nao-avaliada-CONSTRUIDA: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)"
+   },
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "teste": "ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do vínculo NÃO muda elegibilidade nem rótulo conjunto NÃO elegível: a causa e o rótulo da etapa 1 são os mesmos nos quatro estados"
+   },
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "teste": "ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do vínculo NÃO muda elegibilidade nem rótulo CONTRAEXEMPLO: o NOVO conjunto muda a elegibilidade pela regra da etapa 1, e a causa é nomeada"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas contradicao (causa contradicao): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a Taxa são os de antes, com e sem vínculo"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "controle de alcance: o pedido real com SÓ `individualStats` NÃO chega ao ramo agregado (cobertura observada) agregado-5: sem `byStatus`, `summary` nem `overallStats`, a requisição NÃO é elegível"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "controle de alcance: o pedido real com SÓ `individualStats` NÃO chega ao ramo agregado (cobertura observada) agregado-3: sem `byStatus`, `summary` nem `overallStats`, a requisição NÃO é elegível"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "controle de alcance: o pedido real com SÓ `individualStats` NÃO chega ao ramo agregado (cobertura observada) agregado-12: sem `byStatus`, `summary` nem `overallStats`, a requisição NÃO é elegível"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "controle de alcance: o pedido real com SÓ `individualStats` NÃO chega ao ramo agregado (cobertura observada) o pedido elegível com total zero, nas duas construções tentadas, NÃO é elegível (não é prova de inalcançabilidade)"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação AUSENTE: sem percentual, sem nota, sem veredicto e SEM penalização"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real byStatus fabricado pela tela antiga também NÃO vale como avaliação"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação INCOMPLETA: insuficiência explícita e classificação global suspensa"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa com ACEITO na DECISÃO EDITORIAL e avaliação ausente, a nota permanece suspensa"
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a origem, e o que A.27 continua sendo A.27 permanece distinta: a validação do parecer não muda com a suspensão"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados"
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA"
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que passa a suspender"
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao"
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "E1: o texto entregue nao promete nome de verificacao, e o motivo segue nomeando"
+   }
+  ]
+ }
+]

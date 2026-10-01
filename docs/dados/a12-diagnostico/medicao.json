@@ -201,6 +201,27 @@
           "quatroCasos[0].executadoAntesDaInterrupcao.bytesDoContexto"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 12,
+        "motivo": "Nota e veredicto do Parecer IA, Fase 2: sai o bloco \"Referencia Automatizada\" do contexto, a frase de suspensao passa a trazer so a DESCRICAO da causa (o prefixo \"Destaque de nota e veredito suspenso: \" e da tela), e a resposta troca gradeSource e automaticGrade por estadoDaExtracao e mensagemDaExtracao (alterou avaliacao-qualidade.ts, route.ts, page.tsx e ParecerAISection.tsx)",
+        "commitDaBase": "848d5a484510d6988c564ba0e1ae3cfdf4c99506",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]",
+          "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]",
+          "identificacao.codigo[components/ParecerAISection.tsx]",
+          "quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto",
+          "quatroCasos[1..3].executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -210,10 +231,10 @@
       "docs/calculations-13jul2026.json": "00d1d8a1b70e4cd79d33b267ac8c31cfbf38f71fd9e08d9baf9c278d0db1fa9d"
     },
     "codigo": {
-      "lib/ai-reviewer/avaliacao-qualidade.ts": "244c14176794a5566c47418c91dc152d0d43dc755e63ab45c14fad1a5f62f30f",
-      "app/api/ai-reviewer/route.ts": "775045fbd7c24e4d075a4bd9dcd97cb49244f84afac5ed3d9b6c958f2502dd76",
-      "app/decisor/resultados/[projectId]/page.tsx": "ccbf9abc8cf76cc3a70769dbbbbbe032c746734001f4673abca59cf3f65e57be",
-      "components/ParecerAISection.tsx": "d120b3fd607b8822db35d4c68d842434dc9f9b71412aaec9b91618be29439e1f"
+      "lib/ai-reviewer/avaliacao-qualidade.ts": "511ca1a0ca2cf42380e5c6f08ebf03d1ca6cccfc2fbf1eecf2f31e1ce19700a0",
+      "app/api/ai-reviewer/route.ts": "cdfeff68e64bdfbd1bbdc93bb78149570da4c18bd7d451a332a8e217e11b6eab",
+      "app/decisor/resultados/[projectId]/page.tsx": "02d28066f1cd6a098594e43fbeebe168fd8286bd2df911479f5e1e583867f65b",
+      "components/ParecerAISection.tsx": "5082e5134bb0f370a255411b5845497ffb497c1b7b486c9f393cfd32772d457a"
     }
   },
   "universo": {
@@ -564,7 +585,7 @@
           "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
           "- Respostas CRÍTICAS (CR > 0.20): 0 (0.0%)"
         ],
-        "bytesDoContexto": 70467
+        "bytesDoContexto": 70188
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -602,11 +623,11 @@
           "**Qualidade dos Dados:**",
           "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
           "O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.",
-          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada.",
+          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: qualidade individual não avaliada.",
           "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 69894
+        "bytesDoContexto": 69444
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -644,11 +665,11 @@
           "**Qualidade dos Dados:**",
           "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 2 de 4 respondentes com CR.",
           "O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.",
-          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: qualidade individual não avaliada.",
+          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: qualidade individual não avaliada.",
           "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 70919
+        "bytesDoContexto": 70394
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -687,11 +708,11 @@
           "**Qualidade dos Dados:**",
           "⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V1: qualityAnalysis.summary.ok = 4 contra overallStats.valid = 0. Os dois valores e as suas fontes ficam conservados. V2: qualityAnalysis.respondents.length = 4 contra qualityAnalysis.statistics.total = 9. Os dois valores e as suas fontes ficam conservados. V4: contagem derivada dos CRs individuais, CR <= 0.1 = 4 contra byStatus['CONFIÁVEL'] = 0. Os dois valores e as suas fontes ficam conservados. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.",
           "Os CRs individuais dos respondentes FORAM avaliados; o que não se resolveu foi a contradição entre os valores declarados na própria requisição.",
-          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: Nota não calculada: contradição interna não resolvida na avaliação de qualidade.",
+          "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: contradição interna não resolvida na avaliação de qualidade.",
           "⚠️ A contradição NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum dos valores em conflito como o correto.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 71986
+        "bytesDoContexto": 70966
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",

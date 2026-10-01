@@ -37,6 +37,17 @@ export {};
  * troca (`ABERTURA_COBERTURA_*`), CONTADA em cada cenário, e o restante do contexto segue comparado byte a byte. Os
  * arquivos históricos (`docs/dados/a12-estatisticas-dimensao/` e `saida-a/contextos-depois/`) ficam INTACTOS. Isto
  * NÃO reabre a saída A: as decisões e as capturas dela são as mesmas.
+ *
+ * ⚠ **Reconciliação de 01/10/2026 (nota e veredicto, Fase 2).** O contexto de TODA requisição mudou em DUAS coisas, e só
+ * nelas: (T1) saiu o bloco "Referência Automatizada" (as quatro linhas de saída), e (T2) nas requisições SUSPENSAS o prefixo
+ * "Nota não calculada: " saiu da frase de suspensão, que passou a trazer só a DESCRIÇÃO da causa. A reversão ao texto
+ * anterior (`paraOTextoAnterior`) e o esperado a partir da Fase 1 (`esperadoAPartirDoAnterior`) passaram a admitir
+ * EXATAMENTE essas duas trocas, cada uma CONTADA em cada ponto de chamada e SOMADA ao fim (27 blocos e 9 prefixos nos 27
+ * cenários; 8 e 8 no ensaio 4; 4 blocos retirados no ensaio 9). O bloco reinserido vem do texto REGISTRADO na base
+ * (`docs/dados/a12-nota-veredicto-fase2/predicao-suites.json`, chave `estat27`, commit 848d5a4, medido sobre o código ANTERIOR),
+ * e NUNCA do que o código novo imprime; o restante do contexto segue comparado BYTE A BYTE, sem afrouxar. Os arquivos
+ * históricos ficam INTACTOS. Uma consequência declarada: a propriedade "o pedido NÃO elegível, sem o campo, é byte a byte o da
+ * base" DEIXOU DE VALER, e passou a ser "é o da base com EXATAMENTE T1 e T2", que é o que a reversão confere.
  */
 
 const fs = require('node:fs');
@@ -141,6 +152,34 @@ const ABERTURA_COBERTURA_ANTIGA = '- Cobertura enviada: o conjunto avaliado foi 
 const ABERTURA_COBERTURA_SEM_RETIRADA =
   '- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e ';
 
+/**
+ * NOTA E VEREDICTO, Fase 2: as DUAS trocas novas do contexto. ⚠ As redações e os blocos são do código ANTERIOR, REGISTRADOS na
+ * base, e NÃO importados da rota: o teste não aprende o texto do que o código novo imprime.
+ */
+const TITULO_DA_REFERENCIA_ANTIGA = '**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n';
+const ULTIMA_LINHA_DA_REFERENCIA_ANTIGA =
+  '- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n';
+/** O ponto onde o bloco estava: imediatamente ANTES desta âncora, que ocorre UMA vez no contexto. */
+const ANCORA_DO_BLOCO_DA_REFERENCIA = '\n---\n\n# DADOS METODOLÓGICOS COLETADOS';
+const FRASE_DE_SUSPENSAO = 'a classificação global está SUSPENSA: ';
+const PREFIXO_ANTIGO_DO_ROTULO = 'Nota não calculada: ';
+/** As descrições das causas, do PEDIDO (seção 2.4). */
+const DESCRICAO_DA_CAUSA: Record<string, string> = {
+  disponibilidade: 'qualidade individual não avaliada',
+  contradicao: 'contradição interna não resolvida na avaliação de qualidade',
+  coerencia_nao_concluida: 'verificação de coerência não concluída',
+  coerencia_nao_avaliada: 'coerência interna não avaliada nesta requisição',
+};
+/** O que a base REGISTROU de cada cenário: o bloco de saída, a elegibilidade e a causa (medidos sobre `93d2e98`). */
+const DA_BASE_DA_FASE_2: Record<string, { bloco: string; causa: string | null; elegivel: boolean }> = Object.fromEntries(
+  JSON.parse(ler('docs/dados/a12-nota-veredicto-fase2/predicao-suites.json')).estat27.map((c: any) => [
+    c.nome,
+    { bloco: c.blocoAntigo, causa: c.causa, elegivel: c.elegivel },
+  ])
+);
+/** O contador das duas trocas, por ponto de chamada, SOMADO ao fim: a reversão não pode passar por vacuidade. */
+type Trocas = { blocos: number; prefixos: number };
+
 const CABECALHO_DO_BLOCO = '## Estatísticas por Dimensão BOCR';
 const CABECALHO_SEGUINTE = '## Pesos Finais da Hierarquia de Controle';
 
@@ -211,7 +250,7 @@ function blocoDoTextoAnterior(individualStats: any): string {
  * O contexto NOVO, levado de volta ao texto anterior: o bloco (se elegível), o item da chave (se houver) e, A.12
  * `cobertura.restringiu`, a abertura da linha de cobertura do vínculo sem retirada (se houver). ⚠ NADA além disso.
  */
-function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolean): string {
+function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolean, nome: string, trocas: Trocas): string {
   let c = novo;
   if (elegivel) {
     expect(trechoDoBloco(c)).toBe(FRASE_DO_BLOCO_AVALIADA);
@@ -226,6 +265,25 @@ function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolea
   if (c.includes(ABERTURA_COBERTURA_SEM_RETIRADA)) {
     expect(ocorrencias(c, ABERTURA_COBERTURA_SEM_RETIRADA)).toBe(1);
     c = c.replace(ABERTURA_COBERTURA_SEM_RETIRADA, ABERTURA_COBERTURA_ANTIGA);
+  }
+  // ⚠ NOTA E VEREDICTO, Fase 2: as DUAS trocas novas, e SÓ elas, contadas.
+  const registrado = DA_BASE_DA_FASE_2[nome];
+  expect([nome, registrado !== undefined]).toEqual([nome, true]);
+  expect([nome, registrado.elegivel]).toEqual([nome, elegivel]); // a base e o cenário concordam sobre a elegibilidade
+  // (T1) o bloco, reinserido a partir do texto REGISTRADO na base, imediatamente antes da âncora (uma só)
+  expect([nome, ocorrencias(c, ANCORA_DO_BLOCO_DA_REFERENCIA)]).toEqual([nome, 1]);
+  expect(c).not.toContain('Referência Automatizada');
+  c = c.replace(ANCORA_DO_BLOCO_DA_REFERENCIA, () => registrado.bloco + ANCORA_DO_BLOCO_DA_REFERENCIA);
+  trocas.blocos += 1;
+  // (T2) o prefixo, restaurado só nas SUSPENSAS, onde a frase de suspensão traz a descrição da causa REGISTRADA na base
+  if (elegivel) {
+    expect([nome, ocorrencias(c, FRASE_DE_SUSPENSAO)]).toEqual([nome, 0]); // elegível: nenhum prefixo a restaurar
+  } else {
+    const d = DESCRICAO_DA_CAUSA[registrado.causa as string];
+    expect([nome, d !== undefined]).toEqual([nome, true]);
+    expect([nome, ocorrencias(c, `${FRASE_DE_SUSPENSAO}${d}.`)]).toEqual([nome, 1]);
+    c = c.replace(`${FRASE_DE_SUSPENSAO}${d}.`, () => `${FRASE_DE_SUSPENSAO}${PREFIXO_ANTIGO_DO_ROTULO}${d}.`);
+    trocas.prefixos += 1;
   }
   return c;
 }
@@ -625,6 +683,7 @@ describe('ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE
   ];
 
   test.each(CAUSAS)('%s (causa %s): o bloco e a Taxa são os de antes, com e sem vínculo', async (base, causa) => {
+    const trocas: Trocas = { blocos: 0, prefixos: 0 };
     for (const comVinculo of [false, true]) {
       const nome = nomeDoCenario(base, comVinculo);
       const { payload, elegivel } = CONSTRUTORES[base](comVinculo);
@@ -646,11 +705,16 @@ describe('ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE
       expect([nome, ocorrencias(r.contexto, ABERTURA_COBERTURA_SEM_RETIRADA)]).toEqual([nome, esperadasSemRetirada]);
       // byte a byte: sem o campo, o contexto COMPLETO tem o sha256 da base; com o campo, só o item da chave e a abertura da cobertura diferem
       const base35a1506 = daBase(nome);
-      const anterior = paraOTextoAnterior(r.contexto, payload.individualStats, false);
+      const anterior = paraOTextoAnterior(r.contexto, payload.individualStats, false, nome, trocas);
       expect(sha256(anterior)).toBe(base35a1506.sha256Contexto);
       expect(sha256(r.system)).toBe(base35a1506.sha256System);
-      if (!comVinculo) expect(sha256(r.contexto)).toBe(base35a1506.sha256Contexto);
+      // ⚠ Fase 2: sem o campo, o pedido NÃO elegível deixou de ser byte a byte o da base, porque saíram o bloco da referência e o
+      //   prefixo do rótulo; a propriedade vale COM essas duas trocas (a reversão acima confere), e a negativa abaixo mostra que a
+      //   reversão NÃO passou por vacuidade: se as duas trocas não tivessem acontecido, o contexto seria o da base.
+      if (!comVinculo) expect(sha256(r.contexto)).not.toBe(base35a1506.sha256Contexto);
     }
+    // as duas trocas, CONTADAS: uma por cenário (sem e com vínculo), e nas quatro causas o pedido é sempre NÃO elegível
+    expect(trocas).toEqual({ blocos: 2, prefixos: 2 });
   });
 
   test('CONTRAEXEMPLO: trocar a frase existente pela nova é detectado, e a nova NÃO diz que a qualidade não foi avaliada', async () => {
@@ -761,6 +825,20 @@ describe('ensaio 8: nenhum quociente do agregado é apresentado como contagem me
 
 // ============================================================ ensaio 9
 describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam', () => {
+  /**
+   * NOTA E VEREDICTO, Fase 2 (T1): o contexto da Fase 1, versionado, sem as QUATRO linhas de saída do bloco "Referência Automatizada",
+   * localizadas pelas duas âncoras (o título e a última linha, uma vez cada). Os dois cenários desta rodada são ELEGÍVEIS: não há
+   * prefixo de suspensão a trocar (e o número de ocorrências é afirmado).
+   */
+  const semOBlocoDaReferencia = (anterior: string, trocas: Trocas): string => {
+    expect(ocorrencias(anterior, TITULO_DA_REFERENCIA_ANTIGA)).toBe(1);
+    expect(ocorrencias(anterior, ULTIMA_LINHA_DA_REFERENCIA_ANTIGA)).toBe(1);
+    expect(ocorrencias(anterior, FRASE_DE_SUSPENSAO)).toBe(0); // elegível: nenhum prefixo de suspensão a trocar
+    const i = anterior.indexOf(TITULO_DA_REFERENCIA_ANTIGA);
+    const fim = anterior.indexOf(ULTIMA_LINHA_DA_REFERENCIA_ANTIGA, i) + ULTIMA_LINHA_DA_REFERENCIA_ANTIGA.length;
+    trocas.blocos += 1;
+    return anterior.slice(0, i) + anterior.slice(fim);
+  };
   /** O contexto de `35a1506`, capturado na Fase 1 e versionado, com SÓ a substituição do bloco. */
   const comSoOBloco = (anterior: string): string => {
     const inicio = anterior.indexOf(CABECALHO_DO_BLOCO + '\n\n') + (CABECALHO_DO_BLOCO + '\n\n').length;
@@ -769,8 +847,8 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
     return anterior.slice(0, inicio) + FRASE_DO_BLOCO_AVALIADA + anterior.slice(fim);
   };
   /** E o que se ESPERA do contexto novo: o bloco substituído e, COM o campo, o item da chave substituído. */
-  const esperadoAPartirDoAnterior = (anterior: string, comVinculo: boolean): string => {
-    const soOBloco = comSoOBloco(anterior);
+  const esperadoAPartirDoAnterior = (anterior: string, comVinculo: boolean, trocas: Trocas): string => {
+    const soOBloco = comSoOBloco(semOBlocoDaReferencia(anterior, trocas));
     if (!comVinculo) {
       expect(soOBloco).not.toContain(ITEM_ANTIGO);
       expect(ocorrencias(soOBloco, '- Cobertura enviada')).toBe(0); // sem o campo não há linha de cobertura
@@ -784,11 +862,12 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
   };
 
   test.each([['agregado-5'], ['agregado-3']])('%s: contra o contexto completo da Fase 1, sem e com o campo', async (base) => {
+    const trocas: Trocas = { blocos: 0, prefixos: 0 };
     for (const comVinculo of [false, true]) {
       const anterior = ler(`${PASTA_FASE1}/ctx-${base}-${comVinculo ? 'comVinculo' : 'semVinculo'}.txt`);
       const { payload } = CONSTRUTORES[base](comVinculo);
       const r = await executar(payload);
-      const esperado = esperadoAPartirDoAnterior(anterior, comVinculo);
+      const esperado = esperadoAPartirDoAnterior(anterior, comVinculo, trocas);
       // ⚠ o contexto COMPLETO, e não só o bloco: qualquer outro byte diferente reprova
       expect(r.contexto.length).toBe(esperado.length);
       expect(r.contexto === esperado).toBe(true);
@@ -798,9 +877,11 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
         expect(ocorrencias(r.contexto, ITEM_NOVO)).toBe(0);
         expect(r.contexto).not.toContain('Chave de leitura das contagens');
       }
-      // CONTRAEXEMPLO: sem a substituição do item da chave, o contexto COM o campo NÃO coincide
-      if (comVinculo) expect(r.contexto === comSoOBloco(anterior)).toBe(false);
+      // CONTRAEXEMPLO: sem a substituição do item da chave, o contexto COM o campo NÃO coincide (nem com a retirada do bloco da referência)
+      if (comVinculo) expect(r.contexto === comSoOBloco(semOBlocoDaReferencia(anterior, { blocos: 0, prefixos: 0 }))).toBe(false);
     }
+    // a retirada do bloco antigo, CONTADA: uma por contexto (sem e com o campo), e nenhum prefixo (os dois cenários são elegíveis)
+    expect(trocas).toEqual({ blocos: 2, prefixos: 0 });
   });
 
   test('os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda', async () => {
@@ -809,6 +890,7 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
     expect(new Set(nomes).size).toBe(27);
     expect(new Set(LINHAS_DE_BASE.cenarios.map((c: any) => c.sha256Contexto)).size).toBe(27); // 27 contextos DISTINTOS na base
     let totalComAberturaNova = 0;
+    const trocas: Trocas = { blocos: 0, prefixos: 0 };
     for (const nome of nomes) {
       const comVinculo = nome.endsWith('-comVinculo');
       const base = nome.replace(/-(comVinculo|semVinculo)$/, '');
@@ -821,15 +903,21 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
       const esperadasSemRetirada = comVinculo && base !== 'nao-avaliada-ausente' ? 1 : 0;
       expect([nome, ocorrencias(r.contexto, ABERTURA_COBERTURA_SEM_RETIRADA)]).toEqual([nome, esperadasSemRetirada]);
       totalComAberturaNova += esperadasSemRetirada;
-      const anterior = paraOTextoAnterior(r.contexto, JSON.parse(JSON.stringify(payload)).individualStats, elegivel);
+      // a causa da suspensão é a que a base registrou: T2 troca só o PREFIXO, e a causa não mudou
+      if (!elegivel) expect([nome, r.corpo.notaSuspensa.causa]).toEqual([nome, DA_BASE_DA_FASE_2[nome].causa]);
+      const anterior = paraOTextoAnterior(r.contexto, JSON.parse(JSON.stringify(payload)).individualStats, elegivel, nome, trocas);
       expect([nome, sha256(anterior)]).toEqual([nome, linha.sha256Contexto]);
       expect([nome, Buffer.byteLength(anterior, 'utf8')]).toEqual([nome, linha.bytesDoContexto]);
       expect([nome, sha256(r.system)]).toEqual([nome, linha.sha256System]);
-      // e o pedido NÃO elegível, sem o campo, é byte a byte o de antes
-      if (!elegivel && !comVinculo) expect([nome, sha256(r.contexto)]).toEqual([nome, linha.sha256Contexto]);
+      // ⚠ Fase 2: o pedido NÃO elegível, sem o campo, deixou de ser byte a byte o de antes (saem o bloco e o prefixo); a reversão
+      //   acima confere que a ÚNICA diferença são as duas trocas, e a negativa abaixo mostra que a reversão não passou por vacuidade
+      if (!elegivel && !comVinculo) expect([nome, sha256(r.contexto)]).not.toEqual([nome, linha.sha256Contexto]);
     }
     // ⚠ a reversão da abertura aconteceu em 12 dos 27 cenários, e em nenhum outro: não passou por vacuidade, nem a estendeu
     expect(totalComAberturaNova).toBe(12);
+    // ⚠ Fase 2: as DUAS trocas novas, SOMADAS: o bloco foi reinserido nos 27 cenários, e o prefixo, restaurado nos 9 NÃO elegíveis
+    //   (18 elegíveis, que não têm frase de suspensão), e em nenhum outro: não passaram por vacuidade, nem se estenderam
+    expect(trocas).toEqual({ blocos: 27, prefixos: 9 });
   });
 });
 

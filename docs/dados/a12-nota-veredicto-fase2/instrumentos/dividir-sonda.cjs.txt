@@ -1,0 +1,22 @@
+'use strict';
+/**
+ * Divide a saída da sonda "depois" (`sonda.json` e `contextos/`) nos arquivos de dados de `docs/dados/a12-nota-veredicto-fase2/depois/`:
+ * `captura-depois.json` (as 7 capturas, modo captura), `texto-fixado-depois.json` (a matriz de 150 células, os 12 controles e os 8 controles
+ * `nao_confirmado` CONSTRUÍDOS, modo texto fixado) e `contextos-depois/` (os 7 contextos como texto). Não calcula nada: só divide.
+ * Uso: node dividir-sonda.cjs <diretório da sonda com sonda.json e contextos/> <diretório de saída>
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const [, , dirSonda, dirSaida] = process.argv;
+const s = JSON.parse(fs.readFileSync(path.join(dirSonda, 'sonda.json'), 'utf8'));
+const captura = { modo: 'captura', gerado: s.gerado, ambiente: s.ambiente, chamadasAFetch: s.chamadasAFetch, capturas: s.capturas };
+const texto = {
+  gerado: s.gerado, ambiente: s.ambiente, chamadasAFetch: s.chamadasAFetch, chamadasAoClienteDoModeloNoTotal: s.chamadasAoClienteDoModeloNoTotal,
+  sanidadeDasCondicoes: s.sanidadeDasCondicoes, textos: s.textos, condicoes: s.condicoes, apresentacoes: s.apresentacoes, celulas: s.celulas,
+  naoConfirmadoConstruido: s.naoConfirmadoConstruido, celulasAdicionais: s.celulasAdicionais, modo: 'texto-fixado',
+};
+fs.mkdirSync(path.join(dirSaida, 'contextos-depois'), { recursive: true });
+fs.writeFileSync(path.join(dirSaida, 'captura-depois.json'), JSON.stringify(captura, null, 1));
+fs.writeFileSync(path.join(dirSaida, 'texto-fixado-depois.json'), JSON.stringify(texto, null, 1));
+for (const f of fs.readdirSync(path.join(dirSonda, 'contextos'))) fs.copyFileSync(path.join(dirSonda, 'contextos', f), path.join(dirSaida, 'contextos-depois', f));
+console.log('dividido:', s.capturas.length, 'capturas,', s.celulas.length, 'células,', s.celulasAdicionais.length, 'controles,', s.naoConfirmadoConstruido.length, 'nao_confirmado construídos');

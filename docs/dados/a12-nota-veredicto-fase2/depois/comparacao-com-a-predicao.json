@@ -1,0 +1,494 @@
+{
+ "contextos": [
+  {
+   "condicao": "elegivel-auto-A",
+   "construida": false,
+   "suspensa": false,
+   "bytesAntigo": 70417,
+   "bytesNovo": 70138,
+   "sha256Novo": "346d07ed1fe380d43d6c816119d1d041a6b2430abbeb77ccc07d3686b7a30162",
+   "shaIgualAoPrevistoPreRegistrado": true,
+   "bytesIguaisAoPrevisto": true,
+   "identicoAoAntigoMenosT1EMenosT2": true,
+   "systemIgual": true,
+   "termosFora": {
+    "Referência Automatizada": 0,
+    "Pontuação automática": 0,
+    "Sugestão automática": 0,
+    "referência automática": 0,
+    "Nota não calculada": 0,
+    "Destaque de nota e veredito suspenso": 0
+   },
+   "termosForaTodosZero": true,
+   "motivo": null,
+   "linhaDeSuspensao": null
+  },
+  {
+   "condicao": "elegivel-auto-F",
+   "construida": false,
+   "suspensa": false,
+   "bytesAntigo": 70584,
+   "bytesNovo": 70304,
+   "sha256Novo": "365f640d7ce4215121a5bcc14458d0aa28fc7dd85352786f29d60a654d56fe10",
+   "shaIgualAoPrevistoPreRegistrado": true,
+   "bytesIguaisAoPrevisto": true,
+   "identicoAoAntigoMenosT1EMenosT2": true,
+   "systemIgual": true,
+   "termosFora": {
+    "Referência Automatizada": 0,
+    "Pontuação automática": 0,
+    "Sugestão automática": 0,
+    "referência automática": 0,
+    "Nota não calculada": 0,
+    "Destaque de nota e veredito suspenso": 0
+   },
+   "termosForaTodosZero": true,
+   "motivo": null,
+   "linhaDeSuspensao": null
+  },
+  {
+   "condicao": "disponibilidade-ausente",
+   "construida": false,
+   "suspensa": true,
+   "bytesAntigo": 69844,
+   "bytesNovo": 69394,
+   "sha256Novo": "a03ef5ceb50edd1242165133cecce39302ececedfbb0dfbf588322ac8ab1d01c",
+   "shaIgualAoPrevistoPreRegistrado": true,
+   "bytesIguaisAoPrevisto": true,
+   "identicoAoAntigoMenosT1EMenosT2": true,
+   "systemIgual": true,
+   "termosFora": {
+    "Referência Automatizada": 0,
+    "Pontuação automática": 0,
+    "Sugestão automática": 0,
+    "referência automática": 0,
+    "Nota não calculada": 0,
+    "Destaque de nota e veredito suspenso": 0
+   },
+   "termosForaTodosZero": true,
+   "motivo": {
+    "ocorrenciasNoAntigo": 2,
+    "ocorrenciasNoNovo": 1,
+    "linhasNoNovo": [
+     58
+    ],
+    "linhasPrevistas": [
+     58
+    ],
+    "igualAoPrevisto": true
+   },
+   "linhaDeSuspensao": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: qualidade individual não avaliada."
+  },
+  {
+   "condicao": "disponibilidade-incompleta",
+   "construida": false,
+   "suspensa": true,
+   "bytesAntigo": 70732,
+   "bytesNovo": 70207,
+   "sha256Novo": "13ef2d180f0b280898df565e134287618a7fe015ed777a39a20c4629c0c81b8e",
+   "shaIgualAoPrevistoPreRegistrado": true,
+   "bytesIguaisAoPrevisto": true,
+   "identicoAoAntigoMenosT1EMenosT2": true,
+   "systemIgual": true,
+   "termosFora": {
+    "Referência Automatizada": 0,
+    "Pontuação automática": 0,
+    "Sugestão automática": 0,
+    "referência automática": 0,
+    "Nota não calculada": 0,
+    "Destaque de nota e veredito suspenso": 0
+   },
+   "termosForaTodosZero": true,
+   "motivo": {
+    "ocorrenciasNoAntigo": 2,
+    "ocorrenciasNoNovo": 1,
+    "linhasNoNovo": [
+     72
+    ],
+    "linhasPrevistas": [
+     72
+    ],
+    "igualAoPrevisto": true
+   },
+   "linhaDeSuspensao": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: qualidade individual não avaliada."
+  },
+  {
+   "condicao": "contradicao",
+   "construida": false,
+   "suspensa": true,
+   "bytesAntigo": 71132,
+   "bytesNovo": 70514,
+   "sha256Novo": "6c0293d8ceb05414e6b10c50a4dbd79306625e549e69e92ef99d54ffa18ab64a",
+   "shaIgualAoPrevistoPreRegistrado": true,
+   "bytesIguaisAoPrevisto": true,
+   "identicoAoAntigoMenosT1EMenosT2": true,
+   "systemIgual": true,
+   "termosFora": {
+    "Referência Automatizada": 0,
+    "Pontuação automática": 0,
+    "Sugestão automática": 0,
+    "referência automática": 0,
+    "Nota não calculada": 0,
+    "Destaque de nota e veredito suspenso": 0
+   },
+   "termosForaTodosZero": true,
+   "motivo": {
+    "ocorrenciasNoAntigo": 2,
+    "ocorrenciasNoNovo": 1,
+    "linhasNoNovo": [
+     74
+    ],
+    "linhasPrevistas": [
+     74
+    ],
+    "igualAoPrevisto": true
+   },
+   "linhaDeSuspensao": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: contradição interna não resolvida na avaliação de qualidade."
+  },
+  {
+   "condicao": "coerencia-nao-concluida",
+   "construida": false,
+   "suspensa": true,
+   "bytesAntigo": 71621,
+   "bytesNovo": 70769,
+   "sha256Novo": "e8c89e3eaf6c48b2cc6a407b7c175a52d1176c51f60e559fcf95b0c9e71f664b",
+   "shaIgualAoPrevistoPreRegistrado": true,
+   "bytesIguaisAoPrevisto": true,
+   "identicoAoAntigoMenosT1EMenosT2": true,
+   "systemIgual": true,
+   "termosFora": {
+    "Referência Automatizada": 0,
+    "Pontuação automática": 0,
+    "Sugestão automática": 0,
+    "referência automática": 0,
+    "Nota não calculada": 0,
+    "Destaque de nota e veredito suspenso": 0
+   },
+   "termosForaTodosZero": true,
+   "motivo": {
+    "ocorrenciasNoAntigo": 2,
+    "ocorrenciasNoNovo": 1,
+    "linhasNoNovo": [
+     74
+    ],
+    "linhasPrevistas": [
+     74
+    ],
+    "igualAoPrevisto": true
+   },
+   "linhaDeSuspensao": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: verificação de coerência não concluída."
+  },
+  {
+   "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+   "construida": true,
+   "suspensa": true,
+   "bytesAntigo": 70979,
+   "bytesNovo": 70452,
+   "sha256Novo": "6ef3d2b24f4fece6de6db0d78d60e14f1e8fd76705baabf0d2992fc7365ae252",
+   "shaIgualAoPrevistoPreRegistrado": true,
+   "bytesIguaisAoPrevisto": true,
+   "identicoAoAntigoMenosT1EMenosT2": true,
+   "systemIgual": true,
+   "termosFora": {
+    "Referência Automatizada": 0,
+    "Pontuação automática": 0,
+    "Sugestão automática": 0,
+    "referência automática": 0,
+    "Nota não calculada": 0,
+    "Destaque de nota e veredito suspenso": 0
+   },
+   "termosForaTodosZero": true,
+   "motivo": {
+    "ocorrenciasNoAntigo": 2,
+    "ocorrenciasNoNovo": 1,
+    "linhasNoNovo": [
+     74
+    ],
+    "linhasPrevistas": [
+     74
+    ],
+    "igualAoPrevisto": true
+   },
+   "linhaDeSuspensao": "Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: coerência interna não avaliada nesta requisição."
+  }
+ ],
+ "matriz": {
+  "observadas": 150,
+  "previstas": 150,
+  "mesmasChaves": true,
+  "divergenciasPorCampo": {},
+  "divergencias": {},
+  "estados": {
+   "padrao_reconhecido": 40,
+   "nenhum_padrao_reconhecido": 10,
+   "nao_executada_por_suspensao": 100
+  },
+  "destaqueExibido": 16,
+  "mensagemExibida": 10,
+  "cartaoExibido": 100,
+  "mensagemCoexisteComAvisoDeA27": {
+   "reprovada": 4,
+   "inconclusiva": 2
+  },
+  "mensagemSemAvisoDeA27": 4,
+  "corpoIgualAoTextoRecebido": 150,
+  "copiaIgualAoTextoRecebido": 150,
+  "notaOuVeredictoComValorSobSuspensao": 0,
+  "extratorExecutadoSobSuspensao": 0
+ },
+ "adicionais": {
+  "observados": 12,
+  "divergenciasPorCampo": {},
+  "estados": {
+   "nenhum_padrao_reconhecido": 6,
+   "padrao_reconhecido": 6
+  },
+  "destaqueExibido": 6,
+  "mensagemExibida": 6
+ },
+ "naoConfirmadoConstruido": {
+  "controles": 8,
+  "procedencia": "CONSTRUÍDO: resposta real do tratador, sem padrão reconhecido, com validation retirada ou invalidada SÓ no instrumento",
+  "porVariante": {
+   "validation-retirada": 4,
+   "validation-invalidada": 4
+  },
+  "mensagemExibida": 8,
+  "avisoDeA27Exibido": 8,
+  "tituloDoAviso": [
+   "⚠️ Verificação não confirmada"
+  ],
+  "destaqueExibido": 0,
+  "ordemNoMarkup": [
+   "[\"aviso-A27\",\"mensagem\",\"corpo\"]"
+  ],
+  "validationDaRespostaReal": [
+   "aprovado"
+  ]
+ },
+ "pares": {
+  "celulas": 50,
+  "cartaoExibido": 50,
+  "destaqueExibido": 0,
+  "corpoComExpressaoQueOExtratorReconheceria": 40,
+  "porCondicao": {
+   "disponibilidade-ausente": {
+    "construida": false,
+    "celulas": 10,
+    "corpoComExpressao": 8
+   },
+   "disponibilidade-incompleta": {
+    "construida": false,
+    "celulas": 10,
+    "corpoComExpressao": 8
+   },
+   "contradicao": {
+    "construida": false,
+    "celulas": 10,
+    "corpoComExpressao": 8
+   },
+   "coerencia-nao-concluida": {
+    "construida": false,
+    "celulas": 10,
+    "corpoComExpressao": 8
+   },
+   "coerencia-nao-avaliada-CONSTRUIDA": {
+    "construida": true,
+    "celulas": 10,
+    "corpoComExpressao": 8
+   }
+  },
+  "exemplos": [
+   {
+    "texto": "T1-editorial-simples",
+    "pares": [
+     {
+      "condicao": "disponibilidade-ausente",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada",
+      "motivoDoCartao": "Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       2
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "disponibilidade-incompleta",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada",
+      "motivoDoCartao": "Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 1 de 2 respondentes com CR.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       2
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "contradicao",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+      "motivoDoCartao": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       2
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "coerencia-nao-concluida",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: verificação de coerência não concluída",
+      "motivoDoCartao": "Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       2
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+      "construida": true,
+      "cartao": "📊 Destaque de nota e veredito suspenso: coerência interna não avaliada nesta requisição",
+      "motivoDoCartao": "Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       2
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     }
+    ]
+   },
+   {
+    "texto": "T3a-formato-sem-secao-com-padrao",
+    "pares": [
+     {
+      "condicao": "disponibilidade-ausente",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada",
+      "motivoDoCartao": "Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       4
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "disponibilidade-incompleta",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada",
+      "motivoDoCartao": "Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 1 de 2 respondentes com CR.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       4
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "contradicao",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+      "motivoDoCartao": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       4
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "coerencia-nao-concluida",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: verificação de coerência não concluída",
+      "motivoDoCartao": "Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       4
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+      "construida": true,
+      "cartao": "📊 Destaque de nota e veredito suspenso: coerência interna não avaliada nesta requisição",
+      "motivoDoCartao": "Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [
+       4
+      ],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     }
+    ]
+   },
+   {
+    "texto": "T2a-ausencia-sem-secao",
+    "pares": [
+     {
+      "condicao": "disponibilidade-ausente",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada",
+      "motivoDoCartao": "Qualidade individual não avaliada: a requisição não traz avaliação por respondente.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "disponibilidade-incompleta",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada",
+      "motivoDoCartao": "Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa. Medido: 1 de 2 respondentes com CR.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "contradicao",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+      "motivoDoCartao": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "coerencia-nao-concluida",
+      "construida": false,
+      "cartao": "📊 Destaque de nota e veredito suspenso: verificação de coerência não concluída",
+      "motivoDoCartao": "Verificação obrigatória de coerência não determinada: a classificação fica suspensa porque não foi possível concluí-la. Ramo P1, conjunto minimo V2 e V3. Pendentes: V2: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. V3: nao concluida porque qualityAnalysis.statistics.total esta ausente ou nao e numero finito. Campo ausente NAO vale zero. ⚠ NENHUMA contradicao foi demonstrada: a verificacao nao concluiu.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     },
+     {
+      "condicao": "coerencia-nao-avaliada-CONSTRUIDA",
+      "construida": true,
+      "cartao": "📊 Destaque de nota e veredito suspenso: coerência interna não avaliada nesta requisição",
+      "motivoDoCartao": "Coerência interna não avaliada nesta requisição: a classificação fica suspensa porque a verificação não chegou a correr. NENHUMA contradicao foi demonstrada.",
+      "corpoExibidoIgualAoTexto": true,
+      "padroesDoExtratorNoCorpo": [],
+      "destaque": false,
+      "copiaIgualAoTexto": true
+     }
+    ]
+   }
+  ]
+ },
+ "contextos_todosConferem": true,
+ "matriz_todasConferem": true,
+ "adicionais_todosConferem": true,
+ "fetchChamado": 0,
+ "chamadasAoClienteSimulado": 173
+}

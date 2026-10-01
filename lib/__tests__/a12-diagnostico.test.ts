@@ -227,6 +227,29 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 12,
+    motivo: 'Nota e veredicto do Parecer IA, Fase 2: sai o bloco "Referencia Automatizada" do contexto, a frase de suspensao passa a trazer so a DESCRICAO da causa (o prefixo "Destaque de nota e veredito suspenso: " e da tela), e a resposta troca gradeSource e automaticGrade por estadoDaExtracao e mensagemDaExtracao (alterou avaliacao-qualidade.ts, route.ts, page.tsx e ParecerAISection.tsx)',
+    commitDaBase: '848d5a484510d6988c564ba0e1ae3cfdf4c99506',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ Os bytes de cada um dos QUATRO casos foram PREVISTOS ANTES do codigo (commit 848d5a4, docs/dados/a12-nota-veredicto-fase2/
+    //   predicao-suites.json, chave diag4: 70467->70188, 69894->69444, 70919->70394 e 71986->70966) e CONFERIDOS antes de aceitar
+    //   a regravacao. O que muda no bloco de qualidade e UMA linha em cada um dos TRES casos suspensos (a frase
+    //   "SUSPENSA: Nota nao calculada: X." vira "SUSPENSA: X."); `C-disponivel` e elegivel, e o seu bloco NAO muda.
+    //   ⚠ MEDIDO por comparacao campo a campo: 440 campos antes e 455 depois, ZERO perdidos, QUINZE novos (todos nesta propria
+    //   entrada) e ONZE mudados: os quatro resumos de codigo, os quatro bytesDoContexto e as tres linhas da frase de suspensao.
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'identificacao.codigo[lib/ai-reviewer/avaliacao-qualidade.ts]',
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]',
+      'identificacao.codigo[components/ParecerAISection.tsx]',
+      'quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto',
+      'quatroCasos[1..3].executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
@@ -982,7 +1005,9 @@ test('3.3: o quarto caso continua disponivel e passa a SUSPENDER por contradicao
   // ⚠ C5: as TRÊS afirmações falsas NÃO aparecem neste caso.
   expect(bloco4).not.toContain('AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
   expect(bloco4).not.toContain('os CRs individuais dos respondentes NÃO foram avaliados');
-  expect(bloco4).not.toContain('Nota não calculada: qualidade individual não avaliada');
+  // (Fase 2: o rótulo antigo deixou de existir no contexto, e a negativa nomeia a DESCRIÇÃO de disponibilidade, que é o que a
+  //  frase de suspensão passou a trazer: sem isto a negativa passaria por vacuidade.)
+  expect(bloco4).not.toContain('SUSPENSA: qualidade individual não avaliada');
   // ⚠ E o que fica dito é o que FOI medido.
   expect(bloco4).toContain('AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA');
   expect(bloco4).toContain('Os CRs individuais dos respondentes FORAM avaliados');
@@ -1039,7 +1064,10 @@ test('3.3: no caso disponivel E COERENTE o contexto TRAZ percentual', () => {
     const bloco = por(n).executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto.join('\n');
     expect(bloco).toContain('⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
     expect(bloco).toContain('O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.');
-    expect(bloco).toContain('SUSPENSA: Nota não calculada: qualidade individual não avaliada.');
+    expect(bloco).toContain('SUSPENSA: qualidade individual não avaliada.');
+    // ⚠ O prefixo da TELA ("Destaque de nota e veredito suspenso: ") NÃO entra no contexto do modelo.
+    expect(bloco).not.toContain('Destaque de nota e veredito suspenso');
+    expect(bloco).not.toContain('Nota não calculada');
     expect(bloco).toContain('⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.');
     expect(bloco).toContain('Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.');
     expect(bloco).not.toContain('CONTRADIÇÃO INTERNA');

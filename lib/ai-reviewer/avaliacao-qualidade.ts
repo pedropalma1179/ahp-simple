@@ -159,42 +159,88 @@ export function motivoDaSuspensao(avaliacao?: AvaliacaoQualidade | null): string
   return avaliacao.motivo || (avaliacao.estado === 'ausente' ? MOTIVO_AUSENTE : MOTIVO_INCOMPLETA);
 }
 
-/**
- * O rótulo da apresentação quando a nota não é calculada **por falta de avaliação**.
- *
- * ⚠ **Só serve aos casos `ausente` e `incompleta`**, em que a afirmação "qualidade
- * individual não avaliada" é **verdadeira**.
- */
-export const ROTULO_NOTA_SUSPENSA = 'Nota não calculada: qualidade individual não avaliada';
+// ----------------------------------------------------------------------------
+// O TEXTO DA CAUSA e o RÓTULO DA TELA vêm dos MESMOS textos compartilhados (nota e veredicto, Fase 2).
+//
+// ⚠ O contexto do modelo recebe só a DESCRIÇÃO da causa ("… a classificação global está SUSPENSA:
+// <descrição>."). A tela recebe o PREFIXO mais a MESMA descrição. O prefixo diz o que a INTERFACE faz
+// (o destaque de nota e veredito fica suspenso), e por isso NÃO entra no contexto: sem a separação, o
+// modelo leria "SUSPENSA: Destaque de nota e veredito suspenso: …", uma noção de tela descrevendo o
+// estado no texto enviado a ele.
+//
+// ⚠ O rótulo é COMPOSTO a partir da descrição. PROIBIDO obter a descrição cortando o rótulo por
+// posição ou por expressão regular: a direção é sempre descrição → rótulo, e nunca o contrário.
+// ----------------------------------------------------------------------------
+
+/** O prefixo do rótulo da tela. ⚠ **NÃO entra no contexto do modelo.** */
+export const PREFIXO_DESTAQUE_SUSPENSO = 'Destaque de nota e veredito suspenso: ';
 
 /**
- * O rótulo quando a nota não é calculada **por contradição interna**.
+ * A descrição da suspensão **por falta de avaliação** (causa `disponibilidade`: avaliação
+ * `ausente` ou `incompleta`).
+ *
+ * ⚠ **Só serve a esses dois casos**, em que a afirmação "qualidade individual não avaliada" é
+ * **verdadeira**.
+ */
+export const DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE = 'qualidade individual não avaliada';
+
+/**
+ * A descrição da suspensão **por contradição interna**.
  *
  * ⚠ **C5: a avaliação EXISTE nesse caso**, e dizer "qualidade individual não avaliada"
  * seria afirmar ao gestor algo que não foi medido. **É a classe de defeito que A.12
  * existe para corrigir.**
  */
-export const ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO =
-  'Nota não calculada: contradição interna não resolvida na avaliação de qualidade';
+export const DESCRICAO_SUSPENSAO_POR_CONTRADICAO =
+  'contradição interna não resolvida na avaliação de qualidade';
 
 /**
- * O rótulo quando a nota não é calculada porque uma verificação de coerência **não foi
- * concluída**.
+ * A descrição da suspensão porque uma verificação de coerência **não foi concluída**.
  *
- * ⚠ **D1: não concluir NÃO é contradizer.** Usar aqui o rótulo da contradição anuncia ao
+ * ⚠ **D1: não concluir NÃO é contradizer.** Usar aqui a descrição da contradição anuncia ao
  * gestor uma contradição que **não foi demonstrada** — a mesma classe de defeito de C5, no
  * eixo da causa.
  */
-export const ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA =
-  'Nota não calculada: verificação de coerência não concluída';
+export const DESCRICAO_SUSPENSAO_POR_VERIFICACAO_NAO_CONCLUIDA =
+  'verificação de coerência não concluída';
 
 /**
- * O rótulo quando a coerência **não foi avaliada** nesta requisição.
+ * A descrição da suspensão porque a coerência **não foi avaliada** nesta requisição.
  *
  * ⚠ **Distinto de "avaliada e não concluída"**: aqui a verificação nem chegou a correr.
  */
+export const DESCRICAO_SUSPENSAO_POR_COERENCIA_NAO_AVALIADA =
+  'coerência interna não avaliada nesta requisição';
+
+/**
+ * A descrição de cada causa, indexada pela **causa declarada** em `Elegibilidade.causa`.
+ *
+ * ⚠ **A descrição é o TEXTO da causa, e NÃO o valor do campo `causa`**, que é um identificador
+ * (`coerencia_nao_avaliada`) e não pode chegar ao contexto do modelo como se fosse texto.
+ */
+export const DESCRICAO_DA_SUSPENSAO: Readonly<Record<CausaDaSuspensao, string>> = {
+  disponibilidade: DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE,
+  contradicao: DESCRICAO_SUSPENSAO_POR_CONTRADICAO,
+  coerencia_nao_concluida: DESCRICAO_SUSPENSAO_POR_VERIFICACAO_NAO_CONCLUIDA,
+  coerencia_nao_avaliada: DESCRICAO_SUSPENSAO_POR_COERENCIA_NAO_AVALIADA,
+};
+
+/**
+ * O rótulo da apresentação quando o destaque de nota e veredito fica suspenso **por falta de
+ * avaliação**: o prefixo da tela mais a descrição da causa.
+ */
+export const ROTULO_NOTA_SUSPENSA = `${PREFIXO_DESTAQUE_SUSPENSO}${DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE}`;
+
+/** O rótulo quando o destaque fica suspenso **por contradição interna**. */
+export const ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO = `${PREFIXO_DESTAQUE_SUSPENSO}${DESCRICAO_SUSPENSAO_POR_CONTRADICAO}`;
+
+/** O rótulo quando o destaque fica suspenso porque uma verificação de coerência **não foi concluída**. */
+export const ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA =
+  `${PREFIXO_DESTAQUE_SUSPENSO}${DESCRICAO_SUSPENSAO_POR_VERIFICACAO_NAO_CONCLUIDA}`;
+
+/** O rótulo quando o destaque fica suspenso porque a coerência **não foi avaliada** nesta requisição. */
 export const ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA =
-  'Nota não calculada: coerência interna não avaliada nesta requisição';
+  `${PREFIXO_DESTAQUE_SUSPENSO}${DESCRICAO_SUSPENSAO_POR_COERENCIA_NAO_AVALIADA}`;
 
 // ============================================================================
 // A.12 etapa 1: COERÊNCIA INTERNA

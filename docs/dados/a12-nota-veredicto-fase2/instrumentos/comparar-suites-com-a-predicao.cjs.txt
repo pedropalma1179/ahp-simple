@@ -1,0 +1,50 @@
+'use strict';
+/**
+ * COMPARAÇÃO da Fase 2: os contextos que as TRÊS suítes capturam (despejados das cópias temporárias, sobre o código NOVO) contra a
+ * predição pré-registrada em `docs/dados/a12-nota-veredicto-fase2/predicao-suites.json` (commit 848d5a4). Nada é ajustado.
+ * Uso (na raiz do repositório): node comparar-suites-com-a-predicao.cjs <diretório do despejo com estat27/, diag4/ e rag4/> <saida.json>
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const [, , dir, saida] = process.argv;
+const sha256 = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+const pred = JSON.parse(fs.readFileSync('docs/dados/a12-nota-veredicto-fase2/predicao-suites.json', 'utf8'));
+
+// ---- 27 cenários de a12-estatisticas-dimensao
+const estat = pred.estat27.map((p) => {
+  const o = JSON.parse(fs.readFileSync(path.join(dir, 'estat27', p.nome + '.json'), 'utf8'));
+  return { nome: p.nome, elegivel: p.elegivel, shaPrevistoIgual: sha256(o.contexto) === p.sha256Previsto, bytesPrevistosIguais: Buffer.byteLength(o.contexto, 'utf8') === p.bytesPrevisto, sha256: sha256(o.contexto), systemSha256: sha256(o.system) };
+});
+const distintos = new Set(estat.map((e) => e.sha256)).size;
+const distintosPrevistos = new Set(pred.estat27.map((p) => p.sha256Previsto)).size;
+
+// ---- 4 casos de a12-diagnostico
+const bloco = (texto) => {
+  const cab = ['**Distribuição de Qualidade dos Respondentes (CR Individual):**', '**Distribuição de Qualidade dos Respondentes:**', '**Qualidade dos Dados:**'].find((c) => texto.includes(c));
+  if (!cab) return [];
+  const linhas = texto.slice(texto.indexOf(cab)).split('\n');
+  const b = [cab];
+  for (const l of linhas.slice(1, 11)) { if (l.trim() === '') break; b.push(l); }
+  return b;
+};
+const diag = pred.diag4.map((p) => {
+  const ctx = fs.readFileSync(path.join(dir, 'diag4', p.nome + '.txt'), 'utf8');
+  return { nome: p.nome, bytesPrevistosIguais: Buffer.byteLength(ctx, 'utf8') === p.bytesPrevisto, blocoDeQualidadePrevistoIgual: JSON.stringify(bloco(ctx)) === JSON.stringify(p.blocoDeQualidadePrevisto), bytesNovos: Buffer.byteLength(ctx, 'utf8') };
+});
+
+// ---- 4 condições de rag-semantic-states
+const rag = pred.rag4.map((p) => {
+  const o = JSON.parse(fs.readFileSync(path.join(dir, 'rag4', p.nome + '.json'), 'utf8'));
+  return { nome: p.nome, shaPrevistoIgual: sha256(JSON.stringify(o.messages)) === p.sha256PrevistoDoJson, systemIgual: sha256(o.system) === p.systemSha256 };
+});
+
+const out = {
+  estat27: { cenarios: estat.length, elegiveis: estat.filter((e) => e.elegivel).length, naoElegiveis: estat.filter((e) => !e.elegivel).length, shaPrevistoIguais: estat.filter((e) => e.shaPrevistoIgual).length, bytesPrevistosIguais: estat.filter((e) => e.bytesPrevistosIguais).length, systemSha256Distintos: [...new Set(estat.map((e) => e.systemSha256))], contextosDistintosNovos: distintos, contextosDistintosPrevistos: distintosPrevistos, detalhe: estat },
+  diag4: { casos: diag.length, bytesPrevistosIguais: diag.filter((d) => d.bytesPrevistosIguais).length, blocoDeQualidadePrevistoIgual: diag.filter((d) => d.blocoDeQualidadePrevistoIgual).length, detalhe: diag },
+  rag4: { condicoes: rag.length, shaPrevistoIguais: rag.filter((r) => r.shaPrevistoIgual).length, systemIguais: rag.filter((r) => r.systemIgual).length, detalhe: rag },
+};
+fs.writeFileSync(saida, JSON.stringify(out, null, 1));
+console.log('estat27:', out.estat27.shaPrevistoIguais + '/' + out.estat27.cenarios, 'sha previstos iguais;', out.estat27.bytesPrevistosIguais + '/' + out.estat27.cenarios, 'bytes; distintos novos', distintos, 'previstos', distintosPrevistos, '| system sha256 distintos:', out.estat27.systemSha256Distintos.length);
+console.log('diag4:', out.diag4.bytesPrevistosIguais + '/4 bytes; bloco de qualidade previsto', out.diag4.blocoDeQualidadePrevistoIgual + '/4');
+console.log('rag4:', out.rag4.shaPrevistoIguais + '/4 sha previstos iguais; system', out.rag4.systemIguais + '/4');

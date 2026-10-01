@@ -696,9 +696,20 @@ describe('A.33 v2: a montagem real corresponde à nova preparação, sem chamada
     // vale mais como avaliação. A requisição r2 segue preservada; o que mudou é a
     // montagem, e é isto que se mede agora.
     expect(m).not.toContain(`Respostas CONFIÁVEIS (CR ≤ 0.10): ${CALCULO.responseCount} (100.0%)`);
-    expect(m).not.toContain('Pontuação automática: 100/100');
+    // ⚠ NOTA E VEREDICTO, Fase 2: o bloco "Referência Automatizada" saiu do contexto, e este par de linhas TEM TRATAMENTO DECLARADO.
+    //   O que `Pontuação automática: 100/100` (negativa) provava era que a r2 NÃO era lida como 100 de 100 pela classificação
+    //   automática; com o bloco fora, essa string não pode mais existir, e a negativa passaria por vacuidade. Esse papel segue na
+    //   asserção anterior (`Respostas CONFIÁVEIS … (100.0%)`), que continua discriminando. O que a negativa passa a provar é OUTRA
+    //   coisa, e é isto que ela declara: NENHUM escore automático chega ao contexto montado a partir da r2.
+    expect(m).not.toContain('Pontuação automática');
+    expect(m).not.toContain('Referência Automatizada');
+    // CONTRAEXEMPLO: o detector enxerga o bloco antigo, se ele voltasse a ser enviado.
+    expect(`${m}\n- Pontuação automática: não calculada — x\n`).toContain('Pontuação automática');
     expect(m).toContain('AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
-    expect(m).toContain('Pontuação automática: não calculada');
+    // A linha "Pontuação automática: não calculada" saiu com o bloco. A suspensão da r2 passa a ser afirmada pela frase do bloco de
+    // qualidade, que traz só a DESCRIÇÃO da causa (o prefixo da tela não entra no contexto), UMA vez.
+    expect(contar(m, 'a classificação global está SUSPENSA: qualidade individual não avaliada.')).toBe(1);
+    expect(m).not.toContain('Destaque de nota e veredito suspenso');
     for (const f of CALCULO.finalScores) expect(contar(m, `${f.code} — ${f.name}: Score = ${f.scoreSubtractive.toFixed(6)}`)).toBe(1);
     for (const sintetico of ['Projeto de ensaio', 'Alternativa 1', 'B=37.0%']) expect(m).not.toContain(sintetico);
   });

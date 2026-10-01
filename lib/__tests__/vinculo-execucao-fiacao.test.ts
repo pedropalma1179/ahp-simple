@@ -1294,8 +1294,10 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
     nota: r.corpo.nota,
     veredicto: r.corpo.veredicto,
     notaSuspensa: r.corpo.notaSuspensa,
-    gradeSource: r.corpo.metadata.gradeSource,
-    automaticGrade: r.corpo.metadata.automaticGrade,
+    // Nota e veredicto, Fase 2: `gradeSource` e `automaticGrade` saíram da resposta (capturá-los daria `undefined` dos dois lados e
+    // não discriminaria nada); o estado da extração e a mensagem entraram, e o vínculo também não pode mudá-los.
+    estadoDaExtracao: r.corpo.metadata.estadoDaExtracao,
+    mensagemDaExtracao: r.corpo.mensagemDaExtracao,
     avaliacaoDeQualidade: r.corpo.metadata.avaliacaoDeQualidade,
     validacao: r.corpo.validation?.estado ?? null,
   });
@@ -1344,7 +1346,9 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
     for (const estado of ESTADOS) {
       const { contexto } = await executar(payloadDaTela(lista, vinculoDoEstado(estado, lista)));
       const bloco = blocoDe(contexto);
+      // ⚠ O vocabulário de suspensão da nota NÃO entra no bloco do vínculo: o rótulo antigo e o da tela (Fase 2), que é o prefixo novo.
       expect(bloco).not.toMatch(/Nota não calculada/);
+      expect(bloco).not.toMatch(/Destaque de nota e veredito suspenso/);
       expect(bloco).not.toMatch(/suspens(?!a a classificação)/i); // só a negação do limite: "não suspende a classificação"
     }
   });

@@ -1,0 +1,59 @@
+{
+ "route": {
+  "generateReview (assinatura)": 625,
+  "motivo, contradição (abertura do bloco de qualidade)": 764,
+  "descrição, contradição": 766,
+  "motivo, coerência não concluída e não avaliada": 777,
+  "descrição, dinâmica (causa declarada)": 779,
+  "motivo, disponibilidade": 790,
+  "descrição, disponibilidade": 792,
+  "userPrompt (início)": 1057,
+  "type EstadoDaExtracao": 1403,
+  "MENSAGEM_DA_EXTRACAO_SEM_PADRAO": 1410,
+  "POST": 1412,
+  "calculateGrade (chamada)": 1430,
+  "log Classificação (objeto)": 1431,
+  "generateReview (chamada)": 1434,
+  "aiGrade (extração)": 1456,
+  "estadoDaExtracao (cálculo)": 1459,
+  "mensagemDaExtracao (cálculo)": 1465,
+  "log Nota suspensa": 1467,
+  "log Nota IA (autoritativa)": 1471,
+  "log Divergência": 1473,
+  "log novo (nenhum padrão reconhecido)": 1476,
+  "resposta: mensagemDaExtracao (nível principal)": 1504,
+  "resposta: metadata.estadoDaExtracao": 1513,
+  "calculateGrade (função)": 346,
+  "calculateGrade: log Resultado": 506,
+  "extractGradeFromReview (cabeçalho de comentário, 1ª linha)": 511,
+  "extractGradeFromReview (função)": 517,
+  "extrator: log Grade extraída (editorial)": 536,
+  "extrator: log Grade extraída (fallback)": 545,
+  "ranking das alternativas": 1048
+ },
+ "avaliacao-qualidade": {
+  "prefixo": 176,
+  "descrição, disponibilidade": 185,
+  "descrição, contradição": 194,
+  "descrição, verificação não concluída": 204,
+  "descrição, coerência não avaliada": 212,
+  "mapa por causa": 221,
+  "rótulo, disponibilidade": 232,
+  "rótulo, contradição": 235,
+  "rótulo, verificação não concluída": 238,
+  "rótulo, coerência não avaliada": 242,
+  "elegivelParaClassificacao": 811
+ },
+ "componente": {
+  "propriedade mensagemDaExtracao": 25,
+  "handleCopy": 53,
+  "aviso de A.27": 193,
+  "cartão de suspensão": 219,
+  "bloco da mensagem": 233,
+  "portão do destaque": 240,
+  "corpo (Review Text)": 278
+ },
+ "pagina": {
+  "setAiReview com mensagemDaExtracao": 1368
+ }
+}

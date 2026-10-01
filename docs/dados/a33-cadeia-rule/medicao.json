@@ -5,7 +5,7 @@
     "commitMedido": "ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d",
     "codigo": {
       "app/api/ai-reviewer/knowledge.ts": "7d76ce6e92103edf8d6d5106cb5a592e6328800f4c5045bc046b1eb51fed3d34",
-      "app/api/ai-reviewer/route.ts": "775045fbd7c24e4d075a4bd9dcd97cb49244f84afac5ed3d9b6c958f2502dd76"
+      "app/api/ai-reviewer/route.ts": "cdfeff68e64bdfbd1bbdc93bb78149570da4c18bd7d451a332a8e217e11b6eab"
     },
     "dados": {
       "docs/dados/a33-etapa4-v2/casos.json": "49b6c5ad94ef461c8973511b765e35b58f3de2958d76ca16642c7c0c6217afc7",
@@ -171,6 +171,25 @@
         "artefato": "docs/dados/a33-cadeia-rule/medicao.json",
         "camposRegravados": [
           "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+        ],
+        "camposPerdidos": 0
+      },
+      {
+        "ordem": 10,
+        "motivo": "Nota e veredicto do Parecer IA, Fase 2: sai o bloco \"Referencia Automatizada\" do contexto e a frase de suspensao passa a trazer so a DESCRICAO da causa (alterou route.ts; a tela e avaliacao-qualidade.ts nao entram nesta linha de base)",
+        "commitDaBase": "848d5a484510d6988c564ba0e1ae3cfdf4c99506",
+        "comando": "A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a33-cadeia-rule/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "montagem.casos.C1.bytesMessages",
+          "montagem.casos.C2.bytesMessages",
+          "montagem.casos.C3.bytesMessages"
         ],
         "camposPerdidos": 0
       }
@@ -387,7 +406,7 @@
         "consultasAoIndice": 5,
         "superficie": "messages",
         "bytesSystem": 34170,
-        "bytesMessages": 72444,
+        "bytesMessages": 71994,
         "presencaPorSecao": {
           "consistencia": {
             "esperados": 93,
@@ -419,7 +438,7 @@
         "consultasAoIndice": 0,
         "superficie": "messages",
         "bytesSystem": 34170,
-        "bytesMessages": 70878,
+        "bytesMessages": 70428,
         "presencaPorSecao": {
           "consistencia": {
             "esperados": 93,
@@ -451,7 +470,7 @@
         "consultasAoIndice": 5,
         "superficie": "messages",
         "bytesSystem": 34170,
-        "bytesMessages": 70878,
+        "bytesMessages": 70428,
         "presencaPorSecao": {
           "consistencia": {
             "esperados": 93,

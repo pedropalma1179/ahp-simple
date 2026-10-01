@@ -15282,6 +15282,389 @@ asserções **não é critério de aceite**.
   integrado**: `integra/a30-registros` segue em `8e165fb9da51133ccbe1e9d0093680ada67a7ca5`, e `main`, em
   `33c1fdf6500242832994a17aa15b0a686704c029`.
 
+## Nota e veredicto do Parecer IA, Fase 2 (implementar as decisões): o que foi implementado e o que foi medido, em 01/10/2026
+
+⚠ **Implementa o que o commit `848d5a484510d6988c564ba0e1ae3cfdf4c99506` previu** (só documento), sobre a base de código
+`93d2e988f3133d6f87678ec518cbe15b31343b40`. Esse commit tem CI **`completed/success`**: execução `36863100144` (número 147, evento
+`push`), `head_sha` `848d5a484510d6988c564ba0e1ae3cfdf4c99506` e `head_branch` `claude/loving-shannon-661fy9`, **conferidos antes** de
+qualquer push deste. ⚠ **A Fase 1 e as suas correções documentais estão aceitas e não se reabrem:** os 21 arquivos de
+`docs/dados/a12-nota-veredicto-fase1/` **não foram regravados**. ⚠ **Nada foi integrado:** `integra/a30-registros` segue em
+`8e165fb9da51133ccbe1e9d0093680ada67a7ca5` e `main`, em `33c1fdf6500242832994a17aa15b0a686704c029`. Ambiente observado: Linux x86_64,
+Node v22.22.2, npm 10.9.7; `npx jest --version` imprime 30.1.3 e o pacote `jest` instalado é 30.2.0 (**ambiente observado, e não
+requisito**). ⚠ **Nenhuma chamada externa** de inferência, embedding ou recuperação: o cliente do modelo é simulado em todas as
+medições (chave falsa), e a sonda e a suíte nova terminam com um `fetch` simulado que lança e conta, em **0** chamadas. Dados, rastros
+e instrumentos: `docs/dados/a12-nota-veredicto-fase2/` (a pasta `depois/` é nova neste commit).
+
+### O que mudou, e o que NÃO foi tocado
+
+| Responsabilidade | Tocada? | Onde, e o diff medido (`git diff --numstat`) |
+|---|---|---|
+| **Textos compartilhados dos rótulos** | sim | `lib/ai-reviewer/avaliacao-qualidade.ts` (+60 −14): o prefixo da tela, as quatro descrições, o mapa por causa, e os quatro rótulos **compostos** por prefixo mais descrição |
+| **Montagem do contexto** | sim | `app/api/ai-reviewer/route.ts` (+48 −24): sai o bloco (5 linhas de fonte, 4 de saída); as três frases de suspensão leem a **descrição**; sai o parâmetro `classification` de `generateReview` |
+| **Contrato da resposta da API** | sim | `route.ts`: sai `metadata.automaticGrade`; `gradeSource` dá lugar a `metadata.estadoDaExtracao`; entra `mensagemDaExtracao` no nível principal; nota e veredicto nulos sem padrão |
+| **Apresentação e transporte** | sim | `components/ParecerAISection.tsx` (+15 −0): a propriedade e o bloco da mensagem; `app/decisor/resultados/[projectId]/page.tsx` (+2 −0): repassa `mensagemDaExtracao` |
+| **Classificação e elegibilidade** (`calculateGrade`, `elegivelParaClassificacao`, `Elegibilidade`, as quatro causas, P1 a P3) | **não**, só a **redação** dos rótulos | sha256 dos trechos **igual ao pré-registrado**, em **9 de 9** (tabela da seção 12) |
+| **Extrator** (`extractGradeFromReview`, com o seu cabeçalho de comentário e os logs "Grade extraída") | **não** | idem |
+| **Corpo e cópia** (`ParecerAISection.tsx`, o corpo e `handleCopy`) | **não** | idem; o aviso de A.27 e o portão do destaque também |
+| **Escores das alternativas** (`finalScoresSection`) e linhas do vínculo e da cobertura | **não** | idem (o ranking); as linhas do vínculo seguem comparadas byte a byte pela reconciliação |
+
+⚠ **A fronteira.** R1 governa os **campos** e o **destaque**. **Não** impede, por si, que o **corpo** e a **cópia** contenham uma
+decisão: o corpo (`ParecerAISection.tsx`, hoje `:278`) e a cópia (`handleCopy`, hoje `:53`) **ficam como estão**, e alterá-los exige
+decisão própria, que **não foi tomada**. ⚠ **Nem este registro, nem o código, nem os comentários, nem o relato prometem que o veredito
+deixe de ser apresentado ao gestor:** enquanto só o destaque está bloqueado, o corpo e a cópia seguem exibindo e copiando o texto
+integral, e a seção 9 **mede** isso (o corpo traz um trecho que algum padrão do extrator reconhece em **40 das 50** células
+`aprovada` com cartão de suspensão). ⚠ **O estado `nenhum_padrao_reconhecido` descreve o resultado do RECONHECIMENTO TEXTUAL**, e não
+afirma que o texto não traga decisão.
+
+⚠ **Limite conhecido, registrado e não corrigido aqui:** a redação histórica do extrator. Os logs `:536` e
+`:545` dizem "Grade extraída" (e o cabeçalho de comentário `:511-515` ainda diz "Fallback: calculateGrade() se
+parsing falhar"). A função **permanece intacta por decisão**, e por isso a redação **não** é defeito a corrigir nesta rodada. A
+proibição de afirmar identificação semântica vale para os nomes, valores e textos **criados ou alterados** aqui (a mensagem é uma
+**negação**: "não identificado"), e **não** alcança essa redação histórica: **uma redação não pode ser simultaneamente proibida e
+intocável**.
+
+### 1. Base e estado do diretório, antes e depois
+
+| Ref | Antes (início desta implementação) | Depois |
+|---|---|---|
+| `HEAD` e `refs/heads/claude/loving-shannon-661fy9` | `848d5a484510d6988c564ba0e1ae3cfdf4c99506` (o commit da predição) | o commit desta implementação: o identificador de um commit não pode estar escrito no arquivo que ele introduz, e **vai no relato**, com o CI |
+| `refs/heads/integra/a30-registros` | `8e165fb9da51133ccbe1e9d0093680ada67a7ca5` | **igual** |
+| `refs/heads/main` | `33c1fdf6500242832994a17aa15b0a686704c029` | **igual** |
+
+**O estado ao fim, medido imediatamente antes do commit** (a saída de `git status` do início da implementação não foi guardada, e por isso **não** é afirmada aqui): `git status --short` lista **só** os arquivos desta implementação (a lista está no `git show --stat` do relato), `git stash list` está **vazio**, e `git worktree list` traz **uma** linha. Durante a
+medição existiram sondas temporárias não rastreadas (`lib/__tests__/zz-fase2-*.test.ts`, arquivadas como texto em `instrumentos/` e **apagadas antes do commit**: nenhum `zz-*` em `lib/__tests__`, conferido) e um worktree
+temporário (no scratchpad, fora do repositório) usado para rodar a suíte nova contra o código antigo, **removido** antes do commit.
+Preservados, medidos antes **e** depois (`sha256sum`), **iguais**: `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`,
+`85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes, cada um);
+`docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`, `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d`
+(223411 bytes).
+
+### 2. Releitura dos localizadores, reancorados
+
+A releitura em `93d2e98` está na seção 1 da predição, **sem parada**. Depois da edição, os mesmos pontos ficam em:
+
+| Citado no pedido (em `93d2e98`) | Hoje | Observação |
+|---|---|---|
+| `route.ts:1062-1066`, o bloco | **removido** | o `userPrompt` começa em `:1057`; as cinco linhas de fonte saíram, e as linhas em branco vizinhas ficaram |
+| `:763`, `:776`, `:789` (os **motivos**) | `:764`, `:777`, `:790` | +1, medido no diff: a importação soma **+2** (entram três linhas, sai uma) e a assinatura de `generateReview` soma **−1** (o parâmetro `classification` sai) |
+| `:765`, `:778`, `:791` (os **rótulos**) | `:766`, `:779`, `:792` | agora trazem a **descrição** |
+| `:1484-1489` (`gradeSource`, `automaticGrade`) | `metadata.estadoDaExtracao` em `:1513` | `mensagemDaExtracao` no nível principal, em `:1504` |
+| `:1451` (o log do fallback) | `:1476` | **substituído** (seção 10) |
+| `:1446-1448` | `:1471-1473` | inalterados (seção 10) |
+| `:504` (log "Resultado") | `:506` | dentro de `calculateGrade`, inalterado |
+| `:534`, `:543` (logs "Grade extraída") | `:536`, `:545` | inalterados |
+| `route.ts` `calculateGrade` `:344-507` | `:346-509` | inalterada (+2, só pelas linhas de importação acima dela) |
+| `route.ts` extrator `:510-550` | `:512-552` | inalterado |
+| `route.ts` ranking `:1046-1053` | `:1047-1055` | inalterado |
+| `avaliacao-qualidade.ts:168`, `:177-178`, `:188-189`, `:196-197` (os quatro rótulos) | `:232`, `:235`, `:238`, `:242` | **compostos** por `PREFIXO_DESTAQUE_SUSPENSO` (`:176`) mais as descrições (`:185`, `:194`, `:204`, `:212`) e o mapa `DESCRICAO_DA_SUSPENSAO` (`:221`) |
+| `avaliacao-qualidade.ts` `elegivelParaClassificacao` `:765-793` | `:811-839` | inalterada (+46, pelas constantes novas acima dela) |
+| `page.tsx:1361-1366` (recepção) | `:1368` | `mensagemDaExtracao: data.mensagemDaExtracao ?? null` |
+| `ParecerAISection.tsx:12-19` (o tipo) | `:25` | `mensagemDaExtracao?: string \| null;` |
+| `:187-199` (aviso de A.27), `:225` (portão), `:264-337` (corpo), `:47-56` (`handleCopy`) | `:193-205`, `:240`, `:278-354`, `:53-62` | **inalterados** (o **texto**; as linhas moveram-se: **+6** no aviso de A.27 e em `handleCopy`, pela propriedade nova em `:25`, que está acima de ambos, e **+15** no portão e no corpo, também pelo bloco da mensagem em `:233`, que está entre o aviso e o portão) |
+
+### 3. A previsão enumerada de testes, conferida: 24 de 24
+
+Com os testes **ANTIGOS, sem nenhuma edição**, contra o código **NOVO** (antes de tocar em qualquer teste): **24 testes reprovam e 819
+passam**, de 843, em **7 das 35** suítes. ⚠ **O conjunto (arquivo, linha da primeira asserção) é IGUAL ao previsto, nas 24 linhas**
+(`previsao-de-testes.json`, comparado por multiconjunto), e a contagem por arquivo também: `a12-coerencia` 3, `a12-qualidade-ausente` 5, `a12-diagnostico` 2, `a12-estatisticas-dimensao` 7, `a33-cadeia-rule` 3, `a33-snapshot-v2` 3, `rag-semantic-states` 1.
+**Nenhum teste reprovou fora da previsão, e nenhuma falha foi corrigida de passagem:** os testes só foram editados **depois** desta conferência.
+As **quatro** asserções que a previsão disse que **passariam por OUTRA razão** (`passamPorOutraRazao`, todas `executada: true` e `passa: true`) passaram: nenhuma é a linha de uma das 24 falhas medidas (conferido linha a linha), e cada uma recebeu **tratamento declarado**: `a33-snapshot-v2:699` (seção 14); `a12-diagnostico:985`, `vinculo-execucao-fiacao:1347` e `vinculo-execucao-fiacao:1297-1298` (seção 13). As quatro negativas de `a12-coerencia` que a previsão disse **não alcançadas** (`:470`, `:477`, `:478` e `:507`, depois da primeira asserção que falha) passaram a ser alcançadas com a troca dos rótulos, e **nomeiam o rótulo novo** (seção 13).
+
+### 4. As predições P1 a P11, conferidas
+
+| # | Predição (seção 3 da predição) | Medido |
+|---|---|---|
+| P1 | o bloco sai inteiro, e só ele: 7 de 7, sem os quatro termos, três linhas em branco antes do `---` | **confirmada**: os 7 contextos são **byte a byte** o antigo menos as quatro linhas (e o prefixo), recompostos por um script independente da predição, e o sha256 e os bytes são os **previstos** (tabela da seção 5); os quatro termos têm **0** ocorrências em 7 de 7 |
+| P2 | o prefixo sai do contexto nas 5 suspensas, uma vez, e só nelas | **confirmada**: 5 de 5 (tabela da seção 5); `Nota não calculada` e `Destaque de nota e veredito suspenso` têm **0** ocorrências no contexto, nas 7 |
+| P3 | os motivos continuam chegando ao contexto, **uma** vez (duas no antigo), nas linhas previstas | **confirmada em 5 de 5** (**o critério de bloqueio não disparou**): 2 → 1, nas linhas 58, 72, 74, 74, 74 do contexto, as previstas |
+| P4 | o `system` não muda | **confirmada**: `f3f2410c…` em **7 de 7** capturas (`depois/captura-depois.json`, `sha256System`, 34170 bytes); nos 27 cenários e nas 4 condições de `rag-semantic-states`, pelas **suítes permanentes**, cujas asserções sobre o `system` **não foram alteradas** e passam |
+| P5 | 27 cenários: 18 elegíveis e 9 suspensas; o sha256 e os bytes previstos; 23 contextos distintos | **confirmada**: **27 de 27** com o sha256 previsto e **27 de 27** com os bytes previstos (18 elegíveis, 9 não elegíveis); **23** contextos distintos, como previsto (23); as trocas, contadas pela suíte: **27** blocos e **9** prefixos |
+| P6 | `a12-diagnostico`: os bytes dos quatro casos e uma linha mudada em 3 de 4 | **confirmada**: bytes **4 de 4**, bloco de qualidade previsto **4 de 4**; na regravação, `blocoDeQualidadeNoContexto[3]` mudou nos 3 suspensos e em nenhum outro |
+| P7 | `rag-semantic-states`: os dois sha256 previstos | **confirmada**: **4 de 4**; as constantes foram atualizadas **para os valores previstos** e a suíte passou sem outro ajuste |
+| P8 | a resposta: `automaticGrade` e `gradeSource` ausentes, `estadoDaExtracao` com um dos três valores, `mensagemDaExtracao` no nível principal | **confirmada nos 162 casos** (150 células e 12 controles): campos com divergência, **0** na matriz e **0** nos controles; estados (`padrao_reconhecido` / `nenhum_padrao_reconhecido` / `nao_executada_por_suspensao`) **46** / **16** / **100** |
+| P9 | a mensagem literal nos 16 casos sem padrão, `null` nos outros 146, independente de A.27 | **confirmada** (seção 7 e seção 8) |
+| P10 | R1: em 100 de 100 células suspensas, nota e veredicto nulos e extração não executada | **confirmada**: **0** das 100 células suspensas com nota ou veredicto, e **0** com o extrator executado (nenhum log "Grade extraída") |
+| P11 | o rótulo da tela é o prefixo mais a descrição, em 100 de 100 suspensas | **confirmada**: o título do cartão é o previsto em **100 de 100** |
+
+**Nenhuma predição foi refutada, e nenhum desvio de previsão ocorreu.** ⚠ A predição sobre o **texto gerado** segue **NÃO TESTADA**.
+
+### 5. Os contextos capturados, antes e depois (`captura`)
+
+⚠ **As quatro primeiras são as quatro condições ALCANÇÁVEIS de suspensão, que correspondem a TRÊS causas.** ⚠ **A quinta,
+`coerencia_nao_avaliada`, é CONSTRUÍDA** (um simulado de `avaliarCoerencia` que devolve `null`; o tratador real não a produz, e a
+produção **não** foi alterada para torná-la alcançável), e fica marcada assim em todo o relato. As sete requisições são **as da Fase 1**
+(`sha256Requisicao` igual ao de `a12-nota-veredicto-fase1/captura.json`, **7 de 7**, conferido condição a condição). Cada contexto novo foi comparado, **byte a byte**, com o antigo da Fase 1
+menos T1 e T2, **recomposto pelo próprio script de comparação**, e com o sha256 **previsto** em `848d5a4`:
+
+| Condição | Procedência | Bytes antes | Bytes depois | sha256 depois | = previsto | = antigo − T1 − T2 | Motivo: ocorrências, antes → depois |
+|---|---|---|---|---|---|---|---|
+| `elegivel-auto-A` | tratador real | 70417 | **70138** (−279) | `346d07ed1fe380d4` | sim | sim | (sem motivo) |
+| `elegivel-auto-F` | tratador real | 70584 | **70304** (−280) | `365f640d7ce42151` | sim | sim | (sem motivo) |
+| `disponibilidade-ausente` | tratador real | 69844 | **69394** (−450) | `a03ef5ceb50edd12` | sim | sim | 2 → 1, linha 58 |
+| `disponibilidade-incompleta` | tratador real | 70732 | **70207** (−525) | `13ef2d180f0b2808` | sim | sim | 2 → 1, linha 72 |
+| `contradicao` | tratador real | 71132 | **70514** (−618) | `6c0293d8ceb05414` | sim | sim | 2 → 1, linha 74 |
+| `coerencia-nao-concluida` | tratador real | 71621 | **70769** (−852) | `e8c89e3eaf6c48b2` | sim | sim | 2 → 1, linha 74 |
+| `coerencia-nao-avaliada` | **CONSTRUÍDA** | 70979 | **70452** (−527) | `6ef3d2b24f4fece6` | sim | sim | 2 → 1, linha 74 |
+
+A frase de suspensão do contexto, antes e depois (o prefixo da **tela** não entra no contexto):
+
+| Condição | Antes | Depois |
+|---|---|---|
+| `disponibilidade-ausente` | `…SUSPENSA: Nota não calculada: qualidade individual não avaliada.` | `…SUSPENSA: qualidade individual não avaliada.` |
+| `disponibilidade-incompleta` | `…SUSPENSA: Nota não calculada: qualidade individual não avaliada.` | `…SUSPENSA: qualidade individual não avaliada.` |
+| `contradicao` | `…SUSPENSA: Nota não calculada: contradição interna não resolvida na avaliação de qualidade.` | `…SUSPENSA: contradição interna não resolvida na avaliação de qualidade.` |
+| `coerencia-nao-concluida` | `…SUSPENSA: Nota não calculada: verificação de coerência não concluída.` | `…SUSPENSA: verificação de coerência não concluída.` |
+| `coerencia-nao-avaliada` (**CONSTRUÍDA**) | `…SUSPENSA: Nota não calculada: coerência interna não avaliada nesta requisição.` | `…SUSPENSA: coerência interna não avaliada nesta requisição.` |
+
+### 6. Os motivos continuam chegando ao contexto (critério de bloqueio)
+
+**Medido, nas quatro condições alcançáveis e na construída: o motivo aparece UMA vez no contexto novo, na linha de abertura do bloco de
+qualidade (`:764`, `:777` e `:790`), e DUAS no antigo (no bloco e no bloco de qualidade).**
+Nenhum motivo se perdeu, e por isso não houve parada. ⚠ O `:777` serve a **duas** causas, pelo ramo aberto em `:774` (a não concluída e a construída), e o ponto dinâmico da descrição está em `:779`.
+O teste `a12-nota-veredicto-fase2` afirma, para cada uma das cinco, a contagem **1**, a linha prevista, e a contagem **2** no contexto antigo da Fase 1.
+
+### 7. O estado da extração, em cada célula, e a apresentação
+
+⚠ **Medido pela sonda no modo `texto fixado`** (`depois/texto-fixado-depois.json`, com a célula a célula) e **comparado com a predição de `848d5a4` campo a campo**: **150 células e 12 controles, 0 campos com divergência.**
+Cada total com o seu denominador:
+
+| Grupo | Células | `padrao_reconhecido` | `nenhum_padrao_reconhecido` | `nao_executada_por_suspensao` |
+|---|---|---|---|---|
+| matriz, `aprovada`, 2 condições elegíveis × 10 textos | 20 | 16 | 4 | 0 |
+| matriz, `aprovada`, 4 condições suspensas alcançáveis × 10 | 40 | 0 | 0 | 40 |
+| matriz, `aprovada`, 1 condição suspensa **CONSTRUÍDA** × 10 | 10 | 0 | 0 | 10 |
+| matriz, `reprovada`, 2 elegíveis × 10 | 20 | 16 | 4 | 0 |
+| matriz, `reprovada`, 4 suspensas alcançáveis × 10 | 40 | 0 | 0 | 40 |
+| matriz, `reprovada`, 1 suspensa **CONSTRUÍDA** × 10 | 10 | 0 | 0 | 10 |
+| matriz, `inconclusiva`, 1 elegível × 10 | 10 | 8 | 2 | 0 |
+| **Subtotal da matriz** | **150** | **40** | **10** | **100** |
+| controles adicionais, 2 elegíveis × 6 textos | 12 | 6 | 6 | 0 |
+| **Total** | **162** | **46** | **16** | **100** |
+
+**Apresentação** (renderização do componente, **nunca** execução da página): o **destaque** sai em **16** das 150 células (eram **20**) e em **6** dos 12
+controles (eram **12**), onde o antes é o **medido na Fase 1 com o código antigo** (`a12-nota-veredicto-fase1/texto-fixado.json`, `superficies.destaque.exibido`) e o depois é o desta execução; a **mensagem** sai em **10** células e **6** controles, **uma** vez cada, e em nenhuma outra; o **cartão de suspensão** sai nas **100** suspensas (o título é
+`📊 Destaque de nota e veredito suspenso: <descrição>`); o **corpo** e a **cópia** são o texto integral recebido em **150** e **150** das 150.
+**Quem perde o destaque**, por junção célula a célula das duas medições (`apresentacao`, `condicao`, `texto`; nenhuma célula **ganha** destaque): **4** na matriz, `aprovada` × `elegivel-auto-A` × `T2a-ausencia-sem-secao`; `aprovada` × `elegivel-auto-A` × `T2b-ausencia-secao-sem-padrao`; `aprovada` × `elegivel-auto-F` × `T2a-ausencia-sem-secao`; `aprovada` × `elegivel-auto-F` × `T2b-ausencia-secao-sem-padrao`; e **6** nos controles, `elegivel-auto-A` × `AD1-curta-5a`; `elegivel-auto-A` × `AD2-curta-5b`; `elegivel-auto-A` × `AD3-curta-5c`; `elegivel-auto-F` × `AD1-curta-5a`; `elegivel-auto-F` × `AD2-curta-5b`; `elegivel-auto-F` × `AD3-curta-5c`. Nas **10**, a Fase 1 mediu `gradeSource` = `automatic` (a letra era a da classificação automática, `A` ou `F`), e hoje nota e veredicto são nulos, com `nenhum_padrao_reconhecido` e a mensagem (conferido célula a célula).
+⚠ **A mensagem e o corpo podem divergir, nos dois sentidos.** `AD1` (`Nota B. ACEITO COM REVISÕES MENORES`, 35 caracteres) traz uma decisão legível por pessoa que o extrator **não reconhece**, porque `extractGradeFromReview` (**intacta**) recusa texto com menos de 50 caracteres (`reviewText.length < 50`): o estado é `nenhum_padrao_reconhecido`, e a mensagem é a do pedido. **No sentido inverso**, em `AD4` e `AD5` (4 dos 12 controles) **um padrão é reconhecido**, e a anotação do instrumento sobre o texto (`leituraHumana`, **anotação minha, e não medição do extrator**) é "nenhuma decisão declarada". ⚠ **Por isso os nomes dos estados descrevem o resultado do RECONHECIMENTO TEXTUAL, e nenhum deles afirma que o texto traga ou não traga decisão.**
+
+### 8. Os quatro estados de A.27 cruzados com a não identificação, com a procedência de cada um
+
+| Estado de A.27 | Procedência | Casos (extração sem padrão) | Mensagem | Aviso de A.27 | Destaque | Ordem no markup |
+|---|---|---|---|---|---|---|
+| `aprovado` | **resposta do tratador real** | 4 da matriz + 6 controles | exibida, 1 vez | não | **não** | mensagem, corpo |
+| `reprovado` | **resposta do tratador real** | 4 | exibida, 1 vez | **sim** (`⚠️ Parecer reprovado na verificação`) | não | aviso, mensagem, corpo |
+| `inconclusivo` | **resposta do tratador real** | 2 | exibida, 1 vez | **sim** (`⚠️ Verificação inconclusiva`) | não | aviso, mensagem, corpo |
+| `nao_confirmado` | **controle CONSTRUÍDO**: resposta real sem padrão, com `validation` **retirada** ou **invalidada** só no instrumento | 8 (2 condições × 2 textos × 2 variantes) | exibida em 8 de 8 | **sim** em 8 de 8 (`⚠️ Verificação não confirmada`) | **não** (0 de 8) | aviso, mensagem, corpo |
+
+⚠ **`nao_confirmado` não é produzido pelo tratador:** a resposta real de cada um dos 8 controles tinha `validation` **aprovado**, e a construção aconteceu **só no instrumento**
+(a produção **não** foi alterada para tornar o estado alcançável). O controle verifica a **coexistência dos avisos**, e **não** atribui à API uma
+resposta que ela não produziu. Contagem: a mensagem coexiste com o aviso de A.27 em **6** das 10 células da matriz
+(`reprovada` 4, `inconclusiva` 2) e **não** o substitui; nas 4 `aprovada` não há aviso. O **valor** de `mensagemDaExtracao` é o mesmo nos três
+estados do tratador real (testado), e o aviso diagnóstico **não autoriza destaque** (o portão, hoje em `:240`, tem o **mesmo texto** do pré-registrado: seção 12).
+
+### 9. Os pares cartão e corpo, nas quatro condições alcançáveis e na construída (medidos)
+
+⚠ **A quinta condição é CONSTRUÍDA, e fica marcada assim no contexto, no cartão e no corpo.** Pares de `aprovada` com **três** dos dez textos da matriz: **T1** (a seção editorial traz `REVISÕES MAIORES`), **T3a** (`REJEITAR`, sem seção editorial) e **T2a** (nenhuma decisão). **O cartão** é o mesmo nos três textos, por condição (conferido, e não presumido):
+
+| Condição | O cartão diz |
+|---|---|
+| `disponibilidade-ausente` | `📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada` |
+| `disponibilidade-incompleta` | `📊 Destaque de nota e veredito suspenso: qualidade individual não avaliada` |
+| `contradicao` | `📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade` |
+| `coerencia-nao-concluida` | `📊 Destaque de nota e veredito suspenso: verificação de coerência não concluída` |
+| `coerencia-nao-avaliada` (**CONSTRUÍDA**) | `📊 Destaque de nota e veredito suspenso: coerência interna não avaliada nesta requisição` |
+
+**O corpo, o destaque e a cópia**, medidos nos mesmos 15 pares (3 textos × 5 condições). A coluna das expressões lista os **padrões da lista do extrator** que casam com o texto exibido (índice na ordem em que o extrator os testa), **sem** dizer qual deles o extrator devolveria:
+
+| Texto | Condição | O corpo é o texto recebido | Padrões que casam com o corpo | Destaque | A cópia (manipulador real, `writeText` simulado) é o texto recebido |
+|---|---|---|---|---|---|
+| `T1-editorial-simples` | `disponibilidade-ausente` | sim | `REVISÕES MAIORES` (índice 2) | não | sim |
+| `T1-editorial-simples` | `disponibilidade-incompleta` | sim | `REVISÕES MAIORES` (índice 2) | não | sim |
+| `T1-editorial-simples` | `contradicao` | sim | `REVISÕES MAIORES` (índice 2) | não | sim |
+| `T1-editorial-simples` | `coerencia-nao-concluida` | sim | `REVISÕES MAIORES` (índice 2) | não | sim |
+| `T1-editorial-simples` | `coerencia-nao-avaliada` (**CONSTRUÍDA**) | sim | `REVISÕES MAIORES` (índice 2) | não | sim |
+| `T3a-formato-sem-secao-com-padrao` | `disponibilidade-ausente` | sim | `REJEITAR` (índice 4) | não | sim |
+| `T3a-formato-sem-secao-com-padrao` | `disponibilidade-incompleta` | sim | `REJEITAR` (índice 4) | não | sim |
+| `T3a-formato-sem-secao-com-padrao` | `contradicao` | sim | `REJEITAR` (índice 4) | não | sim |
+| `T3a-formato-sem-secao-com-padrao` | `coerencia-nao-concluida` | sim | `REJEITAR` (índice 4) | não | sim |
+| `T3a-formato-sem-secao-com-padrao` | `coerencia-nao-avaliada` (**CONSTRUÍDA**) | sim | `REJEITAR` (índice 4) | não | sim |
+| `T2a-ausencia-sem-secao` | `disponibilidade-ausente` | sim | nenhum | não | sim |
+| `T2a-ausencia-sem-secao` | `disponibilidade-incompleta` | sim | nenhum | não | sim |
+| `T2a-ausencia-sem-secao` | `contradicao` | sim | nenhum | não | sim |
+| `T2a-ausencia-sem-secao` | `coerencia-nao-concluida` | sim | nenhum | não | sim |
+| `T2a-ausencia-sem-secao` | `coerencia-nao-avaliada` (**CONSTRUÍDA**) | sim | nenhum | não | sim |
+
+Do total, **40 das 50** células `aprovada` com cartão (5 condições × 10 textos) têm, no corpo, um trecho que algum padrão do extrator reconhece (disponibilidade-ausente: 8 de 10, disponibilidade-incompleta: 8 de 10, contradicao: 8 de 10, coerencia-nao-concluida: 8 de 10, coerencia-nao-avaliada (CONSTRUÍDA): 8 de 10), com **destaque exibido em 0** e **cartão em 50**.
+⚠ **Isto é a fronteira, medida e não escondida:** o cartão diz que o destaque de nota e veredito está suspenso, e o corpo e a cópia seguem
+com o texto integral, **inclusive a decisão**. Alterar essas superfícies exige decisão própria. A cópia foi apurada **acionando o manipulador
+real com `writeText` simulado** (e **não** como clique).
+
+### 10. Os logs, e a razão de cada mudança (ou da ausência dela)
+
+| Log | Hoje | Mudou? | Razão |
+|---|---|---|---|
+| `⚠️ Fallback para nota automática: …` (antes `:1451`) | `:1476`: `Nenhum padrão de nota ou veredicto reconhecido no texto do parecer simulado: nota e veredicto ficam nulos, sem valor automático substituto` | **substituído (autorizado)** | a frase antiga seria **falsa**: já não há fallback. A nova fala da **ausência de padrão reconhecido** e **não** afirma identificação |
+| `✅ Nota IA (autoritativa): …` e `📊 Divergência: IA=… vs Auto=… (…/100)` (antes `:1446-1448`) | `:1471`, `:1473` | **não** | não leem `gradeSource` nem `automaticGrade`: a retirada dos campos **não exigiu** a mudança. O log de divergência segue comparando o reconhecido com a classificação automática, que `calculateGrade` ainda calcula |
+| `Resultado: …` (antes `:504`) | `:506` | **não** | dentro de `calculateGrade`, que permanece intacta |
+| `Nota suspensa: <motivo>` e `Classificação:` (o objeto) | `:1467`, `:1431` | **não** | consomem o sinal de suspensão e o objeto de `calculateGrade`; nenhum campo retirado |
+| `Grade extraída …` (antes `:534` e `:543`) | `:536`, `:545` | **não** | o extrator permanece intacto, **logs incluídos** (limite conhecido da redação histórica) |
+
+Mudou também **um comentário** (não um log), o do `POST` que dizia "fallback: calculateGrade": passou a dizer que **não há valor automático substituto**,
+porque a frase antiga ficou falsa. O comentário-cabeçalho do extrator, que ainda cita o fallback, **não foi tocado** (ele fica com a função).
+
+### 11. A reconciliação das suítes que comparam contexto
+
+⚠ **Nenhuma comparação foi afrouxada, e nenhum teste foi adaptado ao que o código imprime.** A reconciliação admite **exatamente** as duas
+trocas autorizadas, **contadas em cada ponto de chamada e somadas**, e o **restante do contexto segue comparado byte a byte**; os arquivos
+históricos ficam **intactos**.
+
+| Suíte | O que a reconciliação admite | Contagem afirmada |
+|---|---|---|
+| `a12-estatisticas-dimensao`, os 27 cenários | o bloco **reinserido** a partir do texto **registrado na base** (`predicao-suites.json`, medido sobre o código anterior, e nunca do que o código novo imprime) e o prefixo **restaurado** nas suspensas | **27** blocos e **9** prefixos, somados ao fim; o sha256 revertido é o da base, nos 27 |
+| idem, ensaio 4 (quatro causas, sem e com vínculo) | as mesmas duas trocas | **2** blocos e **2** prefixos **em cada uma das quatro causas** (8 e 8) |
+| idem, ensaio 9 (`agregado-5`, `agregado-3`, contra os contextos da Fase 1) | a **retirada** do bloco antigo, localizada pelas duas âncoras (título e última linha, uma vez cada) | **2** blocos retirados e **0** prefixos em cada um (os cenários são elegíveis) |
+| `rag-semantic-states` | as duas constantes passam aos sha256 **previstos** (P7) | só se o código imprimisse esses valores: **imprimiu** |
+| `a12-diagnostico` | regravação (`A12_GRAVAR=1`), conferida contra os bytes previstos **antes** de aceitar | 440 → **455** campos, **0** perdidos, **15** novos (todos na procedência nº 12), **11** mudados |
+| `a33-cadeia-rule` | regravação (`A33_GRAVAR=1`) | 3132 → **3145** campos, **0** perdidos, **13** novos (todos na procedência nº 10), **4** mudados: o resumo de `route.ts` e os bytes das mensagens de C1, C2 e C3 (−450 cada) |
+
+⚠ Uma consequência **declarada**: a propriedade "o pedido NÃO elegível, sem o campo, é byte a byte o da base" **deixou de valer**
+(saem o bloco e o prefixo), e passou a ser "é o da base com **exatamente** T1 e T2", que a reversão confere; a negativa que a acompanha
+mostra que a reversão **não passa por vacuidade**.
+
+### 12. Os nove trechos que o pedido manda não mudar
+
+Conferidos contra o sha256 **pré-registrado em `848d5a4`** (`trechos-que-nao-mudam.json`), localizados por âncoras de texto (as linhas moveram-se, o texto **não**): **9 de 9 iguais**,
+medidos pelo script arquivado e **de novo** pelo teste permanente (`a12-nota-veredicto-fase2`, ensaio E).
+
+| Trecho | Arquivo | Linhas antes | Linhas hoje | Bytes (antes → hoje) | sha256 igual ao pré-registrado |
+|---|---|---|---|---|---|
+| calculateGrade | `app/api/ai-reviewer/route.ts` | `:344-507` | `:346-509` | 7468 → 7468 | sim |
+| extractGradeFromReview (com o cabeçalho de comentário) | `app/api/ai-reviewer/route.ts` | `:510-550` | `:512-552` | 1983 → 1983 | sim |
+| ranking das alternativas no contexto (finalScoresSection) | `app/api/ai-reviewer/route.ts` | `:1046-1054` | `:1047-1055` | 330 → 330 | sim |
+| interface Elegibilidade e tipo CausaDaSuspensao | `lib/ai-reviewer/avaliacao-qualidade.ts` | `:751-763` | `:797-809` | 346 → 346 | sim |
+| elegivelParaClassificacao | `lib/ai-reviewer/avaliacao-qualidade.ts` | `:765-793` | `:811-839` | 1206 → 1206 | sim |
+| handleCopy | `components/ParecerAISection.tsx` | `:47-56` | `:53-62` | 293 → 293 | sim |
+| aviso de quarentena de A.27 | `components/ParecerAISection.tsx` | `:187-199` | `:193-205` | 709 → 709 | sim |
+| portão do destaque | `components/ParecerAISection.tsx` | `:225` | `:240` | 128 → 128 | sim |
+| corpo do parecer (de "Review Text" até antes de "Dica de uso") | `components/ParecerAISection.tsx` | `:263-339` | `:278-354` | 2977 → 2977 | sim |
+
+As linhas de **hoje** foram **lidas pelas mesmas âncoras** (`depois/trechos-hoje.json`, `instrumentos/trechos-hoje.cjs.txt`), e não digitadas.
+
+### 13. Testes alterados ou substituídos, e a razão
+
+⚠ **Nenhum teste foi removido.** Cada alteração abaixo tem a **razão declarada**, e os literais novos vêm **do pedido** ou **do que a predição registrou antes**.
+
+| Arquivo | O que mudou | Razão |
+|---|---|---|
+| `a12-coerencia.test.ts` (+9 −9) | **9 linhas**, trocadas uma a uma (as linhas são as mesmas na base e hoje): os três rótulos (`:464`, `:498`, `:519`), as duas asserções positivas de HTML (`:469`, `:504`, que a previsão listou como **mascaradas** pela primeira falha do mesmo teste) e as **quatro negativas** (`:470`, `:477`, `:478`, `:507`) | os rótulos são os do pedido; as **negativas passaram a nomear o rótulo NOVO** que não pode aparecer, para que **continuem discriminando**: com o literal antigo passariam por vacuidade, porque o rótulo antigo já não existe em lugar nenhum |
+| `a12-qualidade-ausente.test.ts` (+56 −15) | o comentário de abertura; o auxiliar `executar` **captura os `console.log` do handler** (`logsDoHandler`); o literal `MENSAGEM_DA_EXTRACAO` (**do pedido**, e não aprendido do código) e o auxiliar `ocorrencias`; o caso `ausente` afirma a **ausência** dos termos do bloco e a **presença única do motivo**; `gradeSource` e `automaticGrade` viram `estadoDaExtracao` e `mensagemDaExtracao` (com a **ausência** dos dois campos antigos); nos dois casos de avaliação válida **sem padrão** (com confiáveis e com zero confiáveis) nota e veredicto passam a **nulos**, com `nenhum_padrao_reconhecido` e, no primeiro, a mensagem; sob suspensão a extração **não corre** (nenhum log "Grade extraída"); com padrão, `padrao_reconhecido` e mensagem `null` | decisão (5) do pedido. A regra de `calculateGrade` (A, 100/100; F, 45/100) segue **observada pelo log "Resultado"**, o único canal em que ela ainda existe, e a divergência pelo log "Divergência". `mostraNotaEVeredicto` passa de `true` a `false` nos dois casos sem padrão: **sem nota nem veredicto, não há destaque**. **Um** título foi reescrito (`… comportamento existente preservado`), porque deixou de ser verdade |
+| `a12-diagnostico.test.ts` (+30 −2) | as linhas **da base** `:985` (passou a `not.toContain('SUSPENSA: qualidade individual não avaliada')`) e `:1042` (passou a `toContain('SUSPENSA: qualidade individual não avaliada.')`), esta com duas negativas acrescentadas (`Destaque de nota e veredito suspenso` e `Nota não calculada`); e a **procedência nº 12** (23 linhas) | `:985` **passaria por vacuidade** com o literal antigo: agora nomeia a descrição de disponibilidade, que não pode aparecer no bloco da contradição |
+| `a12-estatisticas-dimensao.test.ts` (+99 −11) | as duas trocas, **contadas e somadas** (seção 11); e duas igualdades do contexto com o da base (no ensaio 4 e nos 27 cenários) viraram **desigualdade** | sem o campo, o pedido não elegível **deixou de ser** byte a byte o da base (saem o bloco e o prefixo); a reversão, **exata**, confere que a única diferença são as duas trocas, e a desigualdade mostra que ela não passa por vacuidade |
+| `a33-snapshot-v2.test.ts` (+13 −2) | `:699` (negativa de `Pontuação automática: 100/100`) e `:701` (positiva de `Pontuação automática: não calculada`) | **tratamento declarado** (seção 14) |
+| `a33-cadeia-rule.test.ts` (+20 −0) | a **procedência nº 10** (entrada nova) e o artefato regravado (`A33_GRAVAR=1`) | o resumo de `route.ts` mudou |
+| `rag-semantic-states.test.ts` (+7 −2) | as duas constantes dos `messages`, para os valores **previstos** | P7 |
+| `vinculo-execucao-fiacao.test.ts` (+6 −2) | `decisao()` (`:1297-1298` da base) captura `estadoDaExtracao` e `mensagemDaExtracao` no lugar dos dois campos que saíram; o guarda do vocabulário do vínculo (`:1347` da base) recusa **também** o prefixo novo | os campos antigos virariam `undefined` **dos dois lados** e deixariam de discriminar; o guarda precisa do vocabulário novo |
+
+### 14. O tratamento de `a33-snapshot-v2.test.ts:699`
+
+(`:699` e `:701` são as linhas **da base**.) **Antes:** `expect(m).not.toContain('Pontuação automática: 100/100')` provava que a requisição `r2` **não** era lida como 100 de 100 pela classificação
+automática. **Com o bloco fora, essa string não pode mais existir**, e a negativa passaria **por vacuidade** (verde por desaparecimento da string). ⚠ **O que ela deixou de provar:**
+que a `r2` não é lida como 100 de 100. Esse papel **segue na asserção imediatamente anterior** (`not.toContain('Respostas CONFIÁVEIS (CR ≤ 0.10): … (100.0%)')`), que **lê o resumo de qualidade, e não o bloco removido**, e **ficou como estava**:
+a mesma forma de frase aparece no contexto de uma avaliação válida com todos confiáveis (`a12-qualidade-ausente`: `CONFIÁVEIS (CR ≤ 0.10): 4 (100.0%)`), o que mostra que a asserção **detecta** a leitura como 100%.
+⚠ **O que a negativa de `:699` passa a provar:** **nenhum escore automático chega ao contexto montado a partir da `r2`** (`not.toContain('Pontuação automática')` e `not.toContain('Referência Automatizada')`), com o
+**contraexemplo** na mesma asserção (um contexto com a linha antiga acrescentada é pego pelo mesmo detector). A linha `:701`
+(`toContain('Pontuação automática: não calculada')`) deixou de existir com o bloco, e a suspensão da `r2` passa a ser afirmada pela **frase do bloco de qualidade**, **uma** vez, com a
+descrição (`a classificação global está SUSPENSA: qualidade individual não avaliada.`), mais a negativa de que o **prefixo da tela** (`Destaque de nota e veredito suspenso`) **não** entra no contexto.
+
+### 15. A suíte nova, `a12-nota-veredicto-fase2.test.ts`
+
+**97 testes**, em seis blocos: (A) os sete contextos contra a predição e os motivos; (B) os quatro rótulos e a composição por textos compartilhados (com a guarda de fonte contra corte por posição ou por expressão regular);
+(C) a resposta, os três estados, R1 e a mensagem; (D) a apresentação e os quatro estados de A.27 (o `nao_confirmado` **construído**); (E) a fronteira, os pares e os 9 trechos; (F) as guardas de redação.
+Contra o código **ANTIGO** (worktree em `848d5a4`, fora do repositório), a suíte nova faz **84 testes reprovarem e 13 passarem** (97). Os 13 que passam, **um a um**, **não testam a correção**:
+**5** são **preservação ou estrutura** do que o pedido manda não mudar (os contextos históricos e as requisições da Fase 1 conferem com o sha256 da predição; os elegíveis seguem sem motivo e sem frase de suspensão, com o ranking, o vínculo e a cobertura; o aviso de A.27 e o portão do destaque; os pares existem para as cinco condições, e a quinta é marcada CONSTRUÍDA; o sha256 dos nove trechos); **6** são a guarda de promessa nos seis arquivos, **vazias** no código antigo, que não contém o texto proibido;
+**1** é o autoteste do detector (os contraexemplos) e **1** é a guarda dos nomes e valores novos (vazia no código antigo, onde eles não existem).
+
+### 16. O que ainda consome `calculateGrade`
+
+⚠ **`calculateGrade` NÃO foi removida** (e o sinal de suspensão **não** foi separado): a remoção continua condicionada às duas coisas. O que a consome, **medido por `git grep` e por leitura da cadeia de chamadas, e não pelas importações** (uma única chamada, `route.ts:1430`; nenhum outro arquivo de produção a chama):
+
+**O resultado, `classification`, no `POST`, ocorrência a ocorrência** (contam-se ocorrências, e não linhas; o papel de cada uma foi conferido contra o texto da linha):
+
+| Campo | Onde | O papel |
+|---|---|---|
+| `.suspensa` | `:1456` | porta da extração (R1): sob suspensão a extração não corre |
+| `.suspensa` | `:1459` | o estado da extração |
+| `.suspensa` | `:1466` | a condição do log `Nota suspensa` |
+| `.suspensa` | `:1470` | o ramo dos logs com padrão reconhecido |
+| `.suspensa` | `:1475` | o ramo do log de ausência de padrão |
+| `.suspensa` | `:1489` | a resposta `notaSuspensa` |
+| `.motivo` | `:1467` | o log `Nota suspensa` |
+| `.motivo` | `:1496` | a resposta `notaSuspensa.motivo` |
+| `.nota` | `:1472` | só o log `Divergência` (a condição) |
+| `.nota`, `.veredicto` e `.score` | `:1473` | só o log `Divergência` (o texto) |
+| o objeto inteiro | `:1430` | a declaração (`const classification = calculateGrade(data)`) |
+| o objeto inteiro | `:1431` | o log `Classificação:`, com `nota`, `veredicto`, `score`, `suspensa` e `motivo` |
+
+Fora do `POST`, `classification` não existe: era o parâmetro de `generateReview`, que **saiu**. ⚠ Os valores **automáticos** `nota`, `veredicto` e `score` aparecem **só** na condição e no texto do log `Divergência` e no log `Classificação:`: **já não chegam ao contexto, à resposta nem à tela**. O **sinal de suspensão** e o **motivo** seguem em produção (porta da extração, estado e `notaSuspensa`).
+**Os logs próprios de `calculateGrade`:** 19 `console.log` dentro da função (`Classificação SUSPENSA`, `Usando …`, `Validade`, `Penalidade: …`, `Score final` e `Resultado:`, este em `:506`), que seguem como estavam.
+**Testes que a consomem pelo log:** `a12-qualidade-ausente` lê o `Resultado:` e o `Divergência:` (linhas `:245`, `:258`, `:303`, `:304` do arquivo), o único canal em que a regra (A, 100/100; F, 45/100) ainda é observável; `a12-nota-veredicto-fase2` lê os logs `Grade extraída` e o log novo.
+
+### 17. Contraexemplos executados sobre a fonte (mutantes)
+
+21 mutantes, cada um alterando **um** trecho de produção, com a **suíte inteira** rodada e a fonte **restaurada** com o sha256 conferido (**21 de 21** restauradas, iguais). **Planejados na predição: 10** (M1 a M10), **todos executados**, com o M4 em **duas** formas (M4a, o corte por posição, e M4b, o corte por expressão regular); **acrescentados depois, e que a predição NÃO listava: 10** (M11 a M20: o motivo perdido, a frase da mensagem, o estado sob suspensão, o prefixo e uma descrição trocados, a página, o extrator, a cópia, o corpo e a remoção prematura de `calculateGrade`). ⚠ Como os testes de linha de base por
+hash (`a12-diagnostico` e `a33-cadeia-rule`) matam **qualquer** mutante de um arquivo hasheado, a tabela traz **os dois números**: o total, e o que sobra **fora desses testes**.
+
+| # | Mutante | Arquivo | Resultado | Testes que reprovam | Suítes que o matam (fora das linhas de base por hash) |
+|---|---|---|---|---|---|
+| M1 | o bloco "Referência Automatizada" volta ao contexto (o título) | `app/api/ai-reviewer/route.ts` | **morto** | 35 (31 fora das linhas de base por hash) | `a12-estatisticas-dimensao`, `a12-nota-veredicto-fase2`, `a12-qualidade-ausente`, `a33-snapshot-v2`, `rag-semantic-states` |
+| M2 | o prefixo da TELA entra no contexto (a frase de disponibilidade lê o rótulo) | `app/api/ai-reviewer/route.ts` | **morto** | 19 (15 fora das linhas de base por hash) | `a12-diagnostico`, `a12-estatisticas-dimensao`, `a12-nota-veredicto-fase2`, `a33-snapshot-v2`, `rag-semantic-states` |
+| M3 | a descrição escolhida pelo VALOR do campo `causa`, e não pelo texto da causa (ponto dinâmico) | `app/api/ai-reviewer/route.ts` | **morto** | 11 (7 fora das linhas de base por hash) | `a12-estatisticas-dimensao`, `a12-nota-veredicto-fase2` |
+| M4a | o sufixo obtido CORTANDO o rótulo por posição (comportamento IDÊNTICO: só a guarda de fonte pode matá-lo) | `app/api/ai-reviewer/route.ts` | **morto** | 6 (2 fora das linhas de base por hash) | `a12-nota-veredicto-fase2` |
+| M4b | o sufixo obtido por EXPRESSÃO REGULAR sobre o rótulo (comportamento idêntico: só a guarda de fonte) | `app/api/ai-reviewer/route.ts` | **morto** | 6 (2 fora das linhas de base por hash) | `a12-nota-veredicto-fase2` |
+| M5 | `metadata.automaticGrade` volta à resposta | `app/api/ai-reviewer/route.ts` | **morto** | 15 (11 fora das linhas de base por hash) | `a12-nota-veredicto-fase2`, `a12-qualidade-ausente` |
+| M6 | o fallback para o valor automático volta (sem padrão, nota e veredicto automáticos) | `app/api/ai-reviewer/route.ts` | **morto** | 14 (10 fora das linhas de base por hash) | `a12-nota-veredicto-fase2`, `a12-qualidade-ausente` |
+| M7 | a mensagem CONDICIONADA ao estado de A.27 (só com a validação aprovada) | `app/api/ai-reviewer/route.ts` | **morto** | 7 (3 fora das linhas de base por hash) | `a12-nota-veredicto-fase2` |
+| M8 | a mensagem NÃO nula sob suspensão | `app/api/ai-reviewer/route.ts` | **morto** | 36 (32 fora das linhas de base por hash) | `a12-nota-veredicto-fase2`, `a12-qualidade-ausente` |
+| M9 | a extração EXECUTADA também sob suspensão (R1 quebrada) | `app/api/ai-reviewer/route.ts` | **morto** | 16 (12 fora das linhas de base por hash) | `a12-nota-veredicto-fase2`, `a12-qualidade-ausente` |
+| M10 | o portão do destaque afrouxado para aceitar a mensagem | `components/ParecerAISection.tsx` | **morto** | 5 (4 fora das linhas de base por hash) | `a12-nota-veredicto-fase2` |
+| M11 | o MOTIVO se perde no ramo da contradição (a informação não chega ao contexto) | `app/api/ai-reviewer/route.ts` | **morto** | 9 (5 fora das linhas de base por hash) | `a12-diagnostico`, `a12-estatisticas-dimensao`, `a12-nota-veredicto-fase2` |
+| M12 | a frase da mensagem alterada (o ponto final some) | `app/api/ai-reviewer/route.ts` | **morto** | 18 (14 fora das linhas de base por hash) | `a12-nota-veredicto-fase2`, `a12-qualidade-ausente` |
+| M13 | o estado sob suspensão trocado por `nenhum_padrao_reconhecido` | `app/api/ai-reviewer/route.ts` | **morto** | 37 (33 fora das linhas de base por hash) | `a12-nota-veredicto-fase2`, `a12-qualidade-ausente` |
+| M14 | o prefixo da tela sem os dois pontos | `lib/ai-reviewer/avaliacao-qualidade.ts` | **morto** | 15 (14 fora das linhas de base por hash) | `a12-coerencia`, `a12-nota-veredicto-fase2` |
+| M15 | uma descrição trocada pela de outra causa (verificação não concluída lê "não avaliada") | `lib/ai-reviewer/avaliacao-qualidade.ts` | **morto** | 8 (7 fora das linhas de base por hash) | `a12-coerencia`, `a12-estatisticas-dimensao`, `a12-nota-veredicto-fase2` |
+| M16 | a página deixa de repassar `mensagemDaExtracao` (a página NÃO é executada: só a guarda de fonte) | `app/decisor/resultados/[projectId]/page.tsx` | **morto** | 2 (1 fora das linhas de base por hash) | `a12-nota-veredicto-fase2` |
+| M17 | o extrator alterado (um padrão: ACEITO vira REJEITADO) | `app/api/ai-reviewer/route.ts` | **morto** | 6 (2 fora das linhas de base por hash) | `a12-nota-veredicto-fase2`, `a12-qualidade-ausente` |
+| M18 | a cópia alterada (writeText recebe o texto aparado) | `components/ParecerAISection.tsx` | **morto** | 8 (7 fora das linhas de base por hash) | `a12-nota-veredicto-fase2` |
+| M19 | o corpo ESCONDIDO sob suspensão (alteraria o corpo, que o pedido manda NÃO alterar) | `components/ParecerAISection.tsx` | **morto** | 7 (6 fora das linhas de base por hash) | `a12-nota-veredicto-fase2` |
+| M20 | `calculateGrade` deixa de ser a fonte do sinal de suspensão (remoção prematura: retorna sempre não suspensa) | `app/api/ai-reviewer/route.ts` | **morto** | 65 (61 fora das linhas de base por hash) | `a12-coerencia`, `a12-estatisticas-dimensao`, `a12-nota-veredicto-fase2`, `a12-qualidade-ausente`, `vinculo-execucao-fiacao` |
+
+**21 de 21 mortos; 21 de 21 mortos fora das linhas de base por hash; sobreviventes fora delas: nenhum; erros de compilação: 0.**
+⚠ Os mutantes **M4a** e **M4b** têm **comportamento idêntico** ao do código (cortar o rótulo produz o **mesmo** texto): só a **guarda de fonte** os mata, e é por isso que ela existe.
+⚠ **M16** só é morto por **leitura de fonte**: a página **não é executada** por teste algum.
+
+### 18. Erros e desvios, classificados à parte
+
+- **Nenhum desvio de previsão** (seções 3 e 4).
+- **Erros meus, achados ANTES de qualquer publicação** (e por isso nenhum chegou ao commit da predição publicado): o script de criação das cópias de despejo errou **duas âncoras** na primeira versão (achado por `cmp` contra as cópias realmente usadas);
+  a primeira versão do registro de predição trazia **um prefixo de sha256 digitado errado** (`a6d0b6d34713a47a` por `a6d0b6d34713a475`), achado pela **conferência programática** do texto contra os dados; trazia ainda
+  **duas numerações de asserção mascarada** erradas (`:468` e `:505` por `:469` e `:504`), uma afirmação **falsa** ("27 contextos distintos" por 23, três pares idênticos por construção) e uma descrição imprecisa de `AD1` a `AD3`, todas achadas por leitura e medição antes do commit.
+- **Erros meus no rascunho DESTE registro, achados ao conferi-lo contra os dados e contra a fonte, antes de publicá-lo:** o gerador leu o arquivo de mutantes **sem** a lista de testes (`KeyError`); a coluna "hoje" dos trechos que não mudam repetia as linhas de **antes** (`:344-507`, `:510-550`, `:1046-1054`, `:765-793`, `:187-199`, `:225-225`, `:263-339`, `:47-56`), e foi trocada por linhas **lidas pelas mesmas âncoras**; a explicação do deslocamento de +1 nos motivos dizia "a importação ganhou duas linhas e perdeu uma" (o diff mostra **+2** pela importação e **−1** pela assinatura de `generateReview`); o ramo de coerência foi citado em `:777` (ele abre em `:774`); a nota dos testes dizia que **dois** títulos de `a12-qualidade-ausente` foram reescritos (foi **um**); o antes do destaque, 20 e 12, estava digitado (hoje vem da Fase 1, célula a célula); a lista de linhas do `a12-coerencia` nomeava sete das **nove** linhas trocadas, e as outras duas só como "mascaradas"; e a frase "a mensagem diz que o veredito não foi identificado no reconhecimento" **atribuía à mensagem uma redação que ela não tem** (a mensagem é a do pedido, sem a palavra "reconhecimento"). Todos corrigidos neste texto.
+- **Desvio de instrumento, sem efeito no resultado:** um pipeline `tsc … | head` **mascarou** o código de saída do `tsc` (o `head` devolve o seu), e o `tsc` foi repetido **sozinho**; sai **0**.
+- **Desvio de comentário, corrigido:** a contagem de campos de `a33-cadeia-rule` no comentário da procedência saiu 3142 na primeira regravação provisória e **3145** na final; o comentário foi corrigido para o valor medido (a regravação foi feita em duas passagens: a segunda só para gravar a lista medida de campos na própria entrada).
+- ⚠ **Limite do meu instrumento:** a sonda "depois" e a suíte nova **copiam** as sete requisições da Fase 1; a identidade delas com as da Fase 1 foi **conferida** (sha256, 7 de 7), e não presumida.
+
+### 19. Execução, medida nesta sessão
+
+`npx tsc --noEmit` sai **0**. `npm test` sai **0** com **36 suítes e 940 testes** (a base: 35 suítes e 843 testes; **a diferença é a suíte nova, de 97 testes**; **a contagem de testes e de asserções não é critério de aceite**). `npm run build` sai **0**, **17 de 17** páginas.
+Os preservados (seção 1) e os 21 arquivos da Fase 1 estão íntegros. O CI do commit da predição está na abertura deste registro; o CI **deste** commit vai no relato da entrega, com o `head_sha` e o `head_branch`.
+
+### 20. O que NÃO foi feito, e o que permanece não avaliado
+
+- ⚠ **A redação do modelo** diante do contexto sem o bloco **não foi testada nem predita**; a **frequência** de textos sem padrão reconhecível em gerações reais é **desconhecida** (e não zero).
+- ⚠ **A tela não é executada:** o componente é **renderizado**, a cópia é apurada pelo manipulador real com `writeText` simulado, e a **página** (o repasse de `mensagemDaExtracao`) só é verificada por **leitura de fonte**. Nada é clique no navegador.
+- **Não foram feitos, por decisão ou por escopo:** a remoção de `calculateGrade` e a separação do sinal de suspensão; qualquer alteração do corpo, da cópia ou do extrator; qualquer alteração de produção para tornar a quinta causa ou `nao_confirmado` alcançáveis; qualquer alteração dos escores das alternativas.
+- Sem consulta a produção, sem recálculo, sem alteração de dado, sem chamada externa de inferência, embedding ou recuperação, sem parecer novo; `npm run lint` e `scripts/ingest-rag.ts` **não** foram rodados; nenhum `--force`, rebase ou `amend`; **nada foi integrado**.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

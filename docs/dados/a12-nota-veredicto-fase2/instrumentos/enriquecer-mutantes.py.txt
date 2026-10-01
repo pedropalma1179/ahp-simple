@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""Acrescenta a cada mutante de `mutantes.json` a lista COMPLETA de testes que reprovam (`testesQueReprovam`: arquivo e nome completo),
+lida do `--json` do jest de cada mutante (`mutante-<id>.json`, gravado por `mutantes.py` ao lado da saída). Não muda nenhum outro campo.
+Uso: python3 enriquecer-mutantes.py <diretório com mutantes.json e mutante-*.json> <saida.json>"""
+import json, sys, os
+d, saida = sys.argv[1], sys.argv[2]
+res = json.load(open(os.path.join(d, 'mutantes.json'), encoding='utf8'))
+for m in res:
+    r = json.load(open(os.path.join(d, f"mutante-{m['id']}.json"), encoding='utf8'))
+    m['testesQueReprovam'] = [
+        {'arquivo': tr['name'].split('/lib/__tests__/')[-1], 'teste': t['fullName']}
+        for tr in r['testResults'] for t in tr['assertionResults'] if t['status'] == 'failed'
+    ]
+json.dump(res, open(saida, 'w', encoding='utf8'), ensure_ascii=False, indent=1)
+print('enriquecido:', len(res), 'mutantes;', sum(len(m['testesQueReprovam']) for m in res), 'testes reprovados no total')

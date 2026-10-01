@@ -10,6 +10,13 @@
  * ⚠ **Isto não é a validação do parecer, de A.27**, que julga o TEXTO gerado e
  * permanece distinta: o bloco final mede as duas juntas para mostrar que não se
  * confundem.
+ *
+ * ⚠ **Nota e veredicto, Fase 2:** o bloco "Referência Automatizada" saiu do contexto do modelo;
+ * `metadata.automaticGrade` saiu da resposta; `metadata.gradeSource` deu lugar a
+ * `metadata.estadoDaExtracao`; e a mensagem de não identificação vai em `mensagemDaExtracao`, no
+ * nível principal. Sem padrão reconhecido no texto, `nota` e `veredicto` ficam NULOS: não há mais
+ * valor automático substituto. A regra de `calculateGrade` segue sendo calculada (e registrada no
+ * log "Resultado"), e é por esse log que esta suíte a observa.
  */
 export {};
 const fs = require('node:fs');
@@ -90,6 +97,8 @@ function comAvaliacao(crs: Array<number | null>) {
 
 type Captura = {
   contextoAoModelo: string;
+  /** Os `console.log` do handler, em ordem (o canal em que a regra de `calculateGrade` segue observável). */
+  logsDoHandler: string[];
   respostaDaApi: any;
   apresentacaoAoGestor: { estado: string | null; mostraNotaEVeredicto: boolean; rotuloExibido: string | null; motivoExibido: string | null };
 };
@@ -112,7 +121,12 @@ async function executar(payload: Record<string, unknown>, textoDoModelo: string)
       };
     },
   }));
-  const silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined));
+  const logsDoHandler: string[] = [];
+  const silencios = ['log', 'warn', 'error'].map((m) =>
+    jest.spyOn(console, m as 'log').mockImplementation((...a: unknown[]) => {
+      if (m === 'log') logsDoHandler.push(a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' '));
+    })
+  );
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { POST } = require('@/app/api/ai-reviewer/route');
@@ -124,6 +138,7 @@ async function executar(payload: Record<string, unknown>, textoDoModelo: string)
     const suspensa = corpo.notaSuspensa?.suspensa === true;
     return {
       contextoAoModelo: contexto,
+      logsDoHandler,
       respostaDaApi: { ...corpo, status: res.status },
       apresentacaoAoGestor: {
         estado: apresentacao?.estado ?? null,
@@ -141,6 +156,9 @@ async function executar(payload: Record<string, unknown>, textoDoModelo: string)
 }
 
 const PERCENTUAIS = /\(\d+\.\d%\)|Taxa de Validade Geral:\*\* \d/;
+const ocorrencias = (texto: string, agulha: string) => texto.split(agulha).length - 1;
+/** O literal do PEDIDO (nota e veredicto, Fase 2): o instrumento não aprende a frase do que o código imprime. */
+const MENSAGEM_DA_EXTRACAO = 'Veredito não identificado no texto do parecer simulado.';
 
 describe('A.12: o contrato distingue avaliação disponível de valor de fallback', () => {
   test('a presença de byStatus NÃO é critério: sem respondente com CR, a avaliação está ausente', () => {
@@ -182,14 +200,19 @@ describe('A.12: as quatro situações, pelo handler real', () => {
     // Contexto ao modelo.
     expect(c.contextoAoModelo).toContain('AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL');
     expect(c.contextoAoModelo).toContain('Taxa de Validade Geral:** não calculada');
-    expect(c.contextoAoModelo).toContain('Pontuação automática: não calculada');
+    // ⚠ O bloco "Referência Automatizada" saiu, e o MOTIVO continua chegando ao contexto, UMA vez (no bloco de qualidade).
+    expect(c.contextoAoModelo).not.toContain('Pontuação automática');
+    expect(c.contextoAoModelo).not.toContain('Referência Automatizada');
+    expect(ocorrencias(c.contextoAoModelo, MOTIVO_AUSENTE)).toBe(1);
     expect(c.contextoAoModelo).not.toMatch(PERCENTUAIS);
     expect(c.contextoAoModelo).not.toContain('Distribuição de Qualidade');
     // Resposta da API.
     expect(c.respostaDaApi.nota).toBeNull();
     expect(c.respostaDaApi.veredicto).toBeNull();
-    expect(c.respostaDaApi.metadata.automaticGrade).toBeNull();
-    expect(c.respostaDaApi.metadata.gradeSource).toBe('suspensa');
+    expect(c.respostaDaApi.metadata).not.toHaveProperty('automaticGrade');
+    expect(c.respostaDaApi.metadata).not.toHaveProperty('gradeSource');
+    expect(c.respostaDaApi.metadata.estadoDaExtracao).toBe('nao_executada_por_suspensao');
+    expect(c.respostaDaApi.mensagemDaExtracao).toBeNull();
     expect(c.respostaDaApi.notaSuspensa).toMatchObject({ suspensa: true, rotulo: ROTULO_NOTA_SUSPENSA, motivo: MOTIVO_AUSENTE });
     expect(c.respostaDaApi.metadata.avaliacaoDeQualidade.estado).toBe('ausente');
     // Apresentação ao gestor.
@@ -209,25 +232,37 @@ describe('A.12: as quatro situações, pelo handler real', () => {
     expect(c.respostaDaApi.notaSuspensa.suspensa).toBe(true);
   });
 
-  test('avaliação VÁLIDA com confiáveis: comportamento existente preservado', async () => {
+  test('avaliação VÁLIDA com confiáveis: a elegibilidade e o contexto de qualidade preservados; sem padrão no texto, nota e veredicto NULOS', async () => {
     const c = await executar(comAvaliacao([0.05, 0.06, 0.04, 0.07]), SEM_VEREDICTO);
     expect(c.respostaDaApi.notaSuspensa).toBeNull();
-    expect(c.respostaDaApi.metadata.gradeSource).toBe('automatic');
-    expect(c.respostaDaApi.metadata.automaticGrade).toEqual({ nota: 'A', veredicto: 'ACEITO', score: 100 });
-    expect([c.respostaDaApi.nota, c.respostaDaApi.veredicto]).toEqual(['A', 'ACEITO']);
+    // ⚠ Sem padrão reconhecido, NÃO há valor automático substituto: nota e veredicto nulos, e a mensagem do pedido.
+    expect(c.respostaDaApi.metadata.estadoDaExtracao).toBe('nenhum_padrao_reconhecido');
+    expect(c.respostaDaApi.metadata).not.toHaveProperty('automaticGrade');
+    expect(c.respostaDaApi.metadata).not.toHaveProperty('gradeSource');
+    expect([c.respostaDaApi.nota, c.respostaDaApi.veredicto]).toEqual([null, null]);
+    expect(c.respostaDaApi.mensagemDaExtracao).toBe(MENSAGEM_DA_EXTRACAO);
+    // A regra de `calculateGrade` segue valendo e segue sendo CALCULADA: ela se observa no log, e já não chega à resposta.
+    expect(c.logsDoHandler.some((l) => /Resultado: A \(100\/100\) - ACEITO$/.test(l))).toBe(true);
     expect(c.contextoAoModelo).toContain('CONFIÁVEIS (CR ≤ 0.10): 4 (100.0%)');
     expect(c.contextoAoModelo).toContain('Taxa de Validade Geral:** 100.0%');
-    expect(c.apresentacaoAoGestor.mostraNotaEVeredicto).toBe(true);
+    expect(c.contextoAoModelo).not.toContain('Pontuação automática');
+    // Sem nota nem veredicto, não há destaque.
+    expect(c.apresentacaoAoGestor.mostraNotaEVeredicto).toBe(false);
   });
 
   test('avaliação VÁLIDA com ZERO confiáveis: zero é observado, e a regra existente vale', async () => {
     const c = await executar(comAvaliacao([0.30, 0.35, 0.40, 0.25]), SEM_VEREDICTO);
     expect(c.respostaDaApi.notaSuspensa).toBeNull();
-    // 100 − 40 (validPercent 0) − 15 (criticalPercent 100) = 45, a regra de antes.
-    expect(c.respostaDaApi.metadata.automaticGrade).toEqual({ nota: 'F', veredicto: 'REJEITAR', score: 45 });
+    // 100 − 40 (validPercent 0) − 15 (criticalPercent 100) = 45, a regra de antes: ela segue CALCULADA e registrada no log
+    // "Resultado", e já não chega à resposta (sem `automaticGrade`) nem ao contexto (sem o bloco).
+    expect(c.logsDoHandler.some((l) => /Resultado: F \(45\/100\) - REJEITAR$/.test(l))).toBe(true);
+    expect(c.respostaDaApi.metadata).not.toHaveProperty('automaticGrade');
+    expect([c.respostaDaApi.nota, c.respostaDaApi.veredicto]).toEqual([null, null]);
+    expect(c.respostaDaApi.metadata.estadoDaExtracao).toBe('nenhum_padrao_reconhecido');
     expect(c.contextoAoModelo).toContain('CONFIÁVEIS (CR ≤ 0.10): 0 (0.0%)');
     expect(c.contextoAoModelo).toContain('Taxa de Validade Geral:** 0.0%');
-    expect(c.apresentacaoAoGestor.mostraNotaEVeredicto).toBe(true);
+    expect(c.contextoAoModelo).not.toContain('45/100');
+    expect(c.apresentacaoAoGestor.mostraNotaEVeredicto).toBe(false);
   });
 
   test('avaliação INCOMPLETA: insuficiência explícita e classificação global suspensa', async () => {
@@ -251,16 +286,22 @@ describe('A.12: a nota extraída do texto NÃO restabelece nota suspensa', () =>
     expect(c.respostaDaApi.review).toContain('ACEITO');
     expect(c.respostaDaApi.nota).toBeNull();
     expect(c.respostaDaApi.veredicto).toBeNull();
-    expect(c.respostaDaApi.metadata.gradeSource).toBe('suspensa');
+    // ⚠ R1: a extração NÃO corre sob suspensão, e o estado diz isso.
+    expect(c.respostaDaApi.metadata.estadoDaExtracao).toBe('nao_executada_por_suspensao');
+    expect(c.respostaDaApi.mensagemDaExtracao).toBeNull();
+    expect(c.logsDoHandler.filter((l) => /Grade extraída/.test(l))).toEqual([]);
     expect(c.apresentacaoAoGestor.rotuloExibido).toBe(ROTULO_NOTA_SUSPENSA);
     expect(c.apresentacaoAoGestor.motivoExibido).toBe(MOTIVO_AUSENTE);
   });
 
   test('CONTROLE: com avaliação disponível, o mesmo texto continua governando a nota', async () => {
     const c = await executar(comAvaliacao([0.30, 0.35, 0.40, 0.25]), COM_ACEITO);
-    expect(c.respostaDaApi.metadata.gradeSource).toBe('ai');
+    expect(c.respostaDaApi.metadata.estadoDaExtracao).toBe('padrao_reconhecido');
+    expect(c.respostaDaApi.mensagemDaExtracao).toBeNull();
     expect([c.respostaDaApi.nota, c.respostaDaApi.veredicto]).toEqual(['A', 'ACEITO']);
-    expect(c.respostaDaApi.metadata.automaticGrade.score).toBe(45);
+    // A classificação automática daria F (45/100) com estes CRs: o texto governa, e a divergência fica no log.
+    expect(c.logsDoHandler.some((l) => /Resultado: F \(45\/100\) - REJEITAR$/.test(l))).toBe(true);
+    expect(c.logsDoHandler.some((l) => /Divergência: IA=A\/ACEITO vs Auto=F\/REJEITAR \(45\/100\)/.test(l))).toBe(true);
   });
 });
 

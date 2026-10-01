@@ -1,0 +1,208 @@
+'use strict';
+/**
+ * COMPARAÇÃO da Fase 2 (nota e veredicto): o que a sonda mediu no código NOVO contra a PREDIÇÃO pré-registrada no commit
+ * anterior (`docs/dados/a12-nota-veredicto-fase2/predicao-*.json`). ⚠ Nada é ajustado: o que diverge é relatado como diverge.
+ *
+ * Os contextos esperados NÃO vêm de `previstos/` nem do código novo: o script os recompõe, aqui, a partir dos contextos ANTIGOS da
+ * Fase 1 (`docs/dados/a12-nota-veredicto-fase1/contextos-capturados/`), pelas duas regras declaradas: T1 (sai o bloco, as quatro
+ * linhas de saída) e T2 (nas suspensas, sai o prefixo "Nota não calculada: ", uma vez).
+ *
+ * Uso (na raiz do repositório): node comparar-com-a-predicao.cjs <diretório da sonda com sonda.json e contextos/> <saida.json>
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+
+const [, , dirSonda, saida] = process.argv;
+const sha256 = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+const ocorrencias = (t, a) => t.split(a).length - 1;
+const D = 'docs/dados/a12-nota-veredicto-fase2/';
+const F1 = 'docs/dados/a12-nota-veredicto-fase1/contextos-capturados/';
+const ler = (p) => JSON.parse(fs.readFileSync(p, 'utf8'));
+
+const sonda = ler(path.join(dirSonda, 'sonda.json'));
+const predCtx = Object.fromEntries(ler(D + 'predicao-contextos.json').map((x) => [x.condicao, x]));
+const predMatriz = ler(D + 'predicao-matriz.json');
+const MENSAGEM = 'Veredito não identificado no texto do parecer simulado.';
+const SHA_SYSTEM = 'f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98';
+
+const TITULO = '**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**\n';
+const ULTIMA = '- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.\n';
+const PREFIXO_ANTIGO = 'SUSPENSA: Nota não calculada: ';
+
+/** T1 e T2 sobre o contexto ANTIGO, com as contagens afirmadas: o que não ocorrer exatamente como previsto PARA o script. */
+function esperadoDoAntigo(antigo, suspensa) {
+  if (ocorrencias(antigo, TITULO) !== 1 || ocorrencias(antigo, ULTIMA) !== 1) throw new Error('bloco antigo não ocorre exatamente uma vez');
+  const i = antigo.indexOf(TITULO);
+  const fim = antigo.indexOf(ULTIMA, i) + ULTIMA.length;
+  let novo = antigo.slice(0, i) + antigo.slice(fim);
+  const n = ocorrencias(novo, PREFIXO_ANTIGO);
+  if (n !== (suspensa ? 1 : 0)) throw new Error(`prefixo: ${n} ocorrência(s), esperadas ${suspensa ? 1 : 0}`);
+  if (suspensa) novo = novo.replace(PREFIXO_ANTIGO, 'SUSPENSA: ');
+  return novo;
+}
+
+const out = { contextos: [], matriz: {}, adicionais: {}, naoConfirmadoConstruido: {}, pares: {} };
+
+// ---------------------------------------------------------------- os sete contextos
+for (const c of sonda.capturas) {
+  const novo = fs.readFileSync(path.join(dirSonda, 'contextos', `ctx-${c.condicao}.txt`), 'utf8');
+  const antigo = fs.readFileSync(F1 + `ctx-${c.condicao}.txt`, 'utf8');
+  const suspensa = ocorrencias(antigo, PREFIXO_ANTIGO) === 1;
+  const esperado = esperadoDoAntigo(antigo, suspensa);
+  const p = predCtx[c.condicao];
+  const motivo = p.motivo;
+  const termos = Object.fromEntries(
+    ['Referência Automatizada', 'Pontuação automática', 'Sugestão automática', 'referência automática', 'Nota não calculada', 'Destaque de nota e veredito suspenso'].map((t) => [t, ocorrencias(novo, t)])
+  );
+  out.contextos.push({
+    condicao: c.condicao,
+    construida: c.construida,
+    suspensa,
+    bytesAntigo: Buffer.byteLength(antigo, 'utf8'),
+    bytesNovo: Buffer.byteLength(novo, 'utf8'),
+    sha256Novo: sha256(novo),
+    shaIgualAoPrevistoPreRegistrado: sha256(novo) === p.previsto.sha256,
+    bytesIguaisAoPrevisto: Buffer.byteLength(novo, 'utf8') === p.previsto.bytes,
+    identicoAoAntigoMenosT1EMenosT2: novo === esperado,
+    systemIgual: c.sha256System === SHA_SYSTEM,
+    termosFora: termos,
+    termosForaTodosZero: Object.values(termos).every((v) => v === 0),
+    motivo: motivo
+      ? {
+          ocorrenciasNoAntigo: ocorrencias(antigo, motivo.texto),
+          ocorrenciasNoNovo: ocorrencias(novo, motivo.texto),
+          linhasNoNovo: novo.split('\n').map((l, i) => (l.includes(motivo.texto) ? i + 1 : null)).filter(Boolean),
+          linhasPrevistas: motivo.linhasNoPrevisto,
+          igualAoPrevisto: ocorrencias(novo, motivo.texto) === motivo.ocorrenciasNoPrevisto && JSON.stringify(novo.split('\n').map((l, i) => (l.includes(motivo.texto) ? i + 1 : null)).filter(Boolean)) === JSON.stringify(motivo.linhasNoPrevisto),
+        }
+      : null,
+    linhaDeSuspensao: suspensa ? novo.split('\n').find((l) => l.includes('classificação global está SUSPENSA')) : null,
+  });
+}
+out.contextos_todosConferem = out.contextos.every((x) => x.shaIgualAoPrevistoPreRegistrado && x.bytesIguaisAoPrevisto && x.identicoAoAntigoMenosT1EMenosT2 && x.systemIgual && x.termosForaTodosZero && (x.motivo === null || (x.motivo.igualAoPrevisto && x.motivo.ocorrenciasNoAntigo === 2 && x.motivo.ocorrenciasNoNovo === 1)));
+
+// ---------------------------------------------------------------- a matriz de 150 células
+const chave = (x) => `${x.apresentacao}|${x.condicao}|${x.texto}`;
+const obs = Object.fromEntries(sonda.celulas.map((c) => [chave(c), c]));
+const prev = Object.fromEntries(predMatriz.celulas.map((c) => [chave(c), c]));
+const divergencias = {};
+const marca = (campo, k, o, p) => { (divergencias[campo] = divergencias[campo] || []).push({ celula: k, observado: o, previsto: p }); };
+for (const [k, pc] of Object.entries(prev)) {
+  const o = obs[k];
+  if (!o) { marca('célula ausente', k, null, 'presente'); continue; }
+  const r = o.resposta; const s = o.superficies;
+  if (r.estadoDaExtracao !== pc.estadoDaExtracao) marca('estado', k, r.estadoDaExtracao, pc.estadoDaExtracao);
+  if (r.nota !== pc.nota) marca('nota', k, r.nota, pc.nota);
+  if (r.veredicto !== pc.veredicto) marca('veredicto', k, r.veredicto, pc.veredicto);
+  if (r.mensagemDaExtracao !== pc.mensagemDaExtracao) marca('mensagem (campo)', k, r.mensagemDaExtracao, pc.mensagemDaExtracao);
+  if (pc.notaSuspensa) {
+    if (!r.notaSuspensa || r.notaSuspensa.rotulo !== pc.notaSuspensa.rotuloPrevisto) marca('rótulo', k, r.notaSuspensa && r.notaSuspensa.rotulo, pc.notaSuspensa.rotuloPrevisto);
+    if (r.notaSuspensa && r.notaSuspensa.causa !== pc.notaSuspensa.causa) marca('causa', k, r.notaSuspensa.causa, pc.notaSuspensa.causa);
+    if (r.notaSuspensa && r.notaSuspensa.motivo !== pc.notaSuspensa.motivo) marca('motivo', k, r.notaSuspensa.motivo, pc.notaSuspensa.motivo);
+  } else if (r.notaSuspensa !== null) marca('notaSuspensa deveria ser nula', k, r.notaSuspensa, null);
+  if (!s) { marca('sem superfícies', k, null, 'presentes'); continue; }
+  if (s.destaque.exibido !== pc.destaqueExibidoPrevisto) marca('destaque exibido', k, s.destaque.exibido, pc.destaqueExibidoPrevisto);
+  if (s.mensagem.exibido !== pc.mensagemExibidaPrevista) marca('mensagem exibida', k, s.mensagem.exibido, pc.mensagemExibidaPrevista);
+  if (s.aviso.exibido !== pc.avisoDeA27ExibidoPrevisto) marca('aviso de A.27 exibido', k, s.aviso.exibido, pc.avisoDeA27ExibidoPrevisto);
+  if (s.cartaoDeSuspensao.exibido !== pc.cartaoDeSuspensaoExibidoPrevisto) marca('cartão exibido', k, s.cartaoDeSuspensao.exibido, pc.cartaoDeSuspensaoExibidoPrevisto);
+  if (pc.cartaoTituloPrevisto && s.cartaoDeSuspensao.titulo !== pc.cartaoTituloPrevisto) marca('título do cartão', k, s.cartaoDeSuspensao.titulo, pc.cartaoTituloPrevisto);
+  if (!s.corpo.mesmoConteudoQueOTextoRecebido) marca('corpo diferente do texto recebido', k, false, true);
+  if (!s.copiado.argumentoIgualAoTextoRecebidoIntegral) marca('cópia diferente do texto recebido', k, false, true);
+  if (!s.arvoreConfereComHtml) marca('árvore diferente do HTML', k, false, true);
+  if (s.ocorrenciasDaMensagemNoHtml !== (pc.mensagemExibidaPrevista ? 1 : 0)) marca('ocorrências da mensagem no HTML', k, s.ocorrenciasDaMensagemNoHtml, pc.mensagemExibidaPrevista ? 1 : 0);
+  if (r.gradeSourcePresente || r.automaticGradePresente) marca('gradeSource ou automaticGrade presentes', k, [r.gradeSourcePresente, r.automaticGradePresente], [false, false]);
+  if (!r.mensagemNoNivelPrincipal || r.mensagemDentroDeMetadata) marca('lugar da mensagem', k, [r.mensagemNoNivelPrincipal, r.mensagemDentroDeMetadata], [true, false]);
+  if (!o.extracao.confereReplicaComTratador) marca('réplica do extrator diferente do tratador', k, false, true);
+}
+const conta = (xs, f) => xs.reduce((m, x) => { const k = f(x); m[k] = (m[k] || 0) + 1; return m; }, {});
+const cel = sonda.celulas;
+out.matriz = {
+  observadas: cel.length,
+  previstas: Object.keys(prev).length,
+  mesmasChaves: JSON.stringify(Object.keys(obs).sort()) === JSON.stringify(Object.keys(prev).sort()),
+  divergenciasPorCampo: Object.fromEntries(Object.entries(divergencias).map(([k, v]) => [k, v.length])),
+  divergencias,
+  estados: conta(cel, (c) => c.resposta.estadoDaExtracao),
+  destaqueExibido: cel.filter((c) => c.superficies.destaque.exibido).length,
+  mensagemExibida: cel.filter((c) => c.superficies.mensagem.exibido).length,
+  cartaoExibido: cel.filter((c) => c.superficies.cartaoDeSuspensao.exibido).length,
+  mensagemCoexisteComAvisoDeA27: conta(cel.filter((c) => c.superficies.mensagem.exibido && c.superficies.aviso.exibido), (c) => c.apresentacao),
+  mensagemSemAvisoDeA27: cel.filter((c) => c.superficies.mensagem.exibido && !c.superficies.aviso.exibido).length,
+  corpoIgualAoTextoRecebido: cel.filter((c) => c.superficies.corpo.mesmoConteudoQueOTextoRecebido).length,
+  copiaIgualAoTextoRecebido: cel.filter((c) => c.superficies.copiado.argumentoIgualAoTextoRecebidoIntegral).length,
+  notaOuVeredictoComValorSobSuspensao: cel.filter((c) => c.resposta.notaSuspensa && (c.resposta.nota !== null || c.resposta.veredicto !== null)).length,
+  extratorExecutadoSobSuspensao: cel.filter((c) => c.resposta.notaSuspensa && c.extracao.caminhoObservadoNoLog !== 'nao-executado').length,
+};
+out.matriz_todasConferem = out.matriz.mesmasChaves && Object.keys(divergencias).length === 0;
+
+// ---------------------------------------------------------------- os 12 controles adicionais
+const prevAd = Object.fromEntries(predMatriz.adicionais.map((a) => [`${a.condicao}|${a.texto}`, a]));
+const divAd = {};
+for (const a of sonda.celulasAdicionais) {
+  const p = prevAd[`${a.condicao}|${a.texto}`]; const r = a.resposta; const s = a.superficies;
+  const m = (campo) => { divAd[campo] = (divAd[campo] || 0) + 1; };
+  if (r.estadoDaExtracao !== p.estadoDaExtracao) m('estado');
+  if (r.nota !== p.nota || r.veredicto !== p.veredicto) m('nota/veredicto');
+  if (r.mensagemDaExtracao !== p.mensagemDaExtracao) m('mensagem');
+  if (s.destaque.exibido !== p.destaqueExibidoPrevisto) m('destaque');
+  if (s.mensagem.exibido !== p.mensagemExibidaPrevista) m('mensagem exibida');
+  if (s.aviso.exibido !== p.avisoDeA27ExibidoPrevisto) m('aviso');
+  if (!s.copiadoIgualAoTexto) m('cópia');
+}
+out.adicionais = {
+  observados: sonda.celulasAdicionais.length,
+  divergenciasPorCampo: divAd,
+  estados: conta(sonda.celulasAdicionais, (a) => a.resposta.estadoDaExtracao),
+  destaqueExibido: sonda.celulasAdicionais.filter((a) => a.superficies.destaque.exibido).length,
+  mensagemExibida: sonda.celulasAdicionais.filter((a) => a.superficies.mensagem.exibido).length,
+};
+out.adicionais_todosConferem = Object.keys(divAd).length === 0;
+
+// ---------------------------------------------------------------- `nao_confirmado` CONSTRUÍDO
+out.naoConfirmadoConstruido = {
+  controles: sonda.naoConfirmadoConstruido.length,
+  procedencia: 'CONSTRUÍDO: resposta real do tratador, sem padrão reconhecido, com validation retirada ou invalidada SÓ no instrumento',
+  porVariante: conta(sonda.naoConfirmadoConstruido, (c) => c.variante),
+  mensagemExibida: sonda.naoConfirmadoConstruido.filter((c) => c.superficies.mensagem.exibido).length,
+  avisoDeA27Exibido: sonda.naoConfirmadoConstruido.filter((c) => c.superficies.aviso.exibido).length,
+  tituloDoAviso: [...new Set(sonda.naoConfirmadoConstruido.map((c) => c.superficies.aviso.titulo))],
+  destaqueExibido: sonda.naoConfirmadoConstruido.filter((c) => c.superficies.destaque.exibido).length,
+  ordemNoMarkup: [...new Set(sonda.naoConfirmadoConstruido.map((c) => JSON.stringify(c.superficies.ordemNoMarkup)))],
+  validationDaRespostaReal: [...new Set(sonda.naoConfirmadoConstruido.map((c) => c.respostaReal.validationEstadoDaRespostaReal))],
+};
+
+// ---------------------------------------------------------------- os pares cartão e corpo (aprovada × cinco condições de suspensão)
+const SUSP = ['disponibilidade-ausente', 'disponibilidade-incompleta', 'contradicao', 'coerencia-nao-concluida', 'coerencia-nao-avaliada-CONSTRUIDA'];
+const paresCel = cel.filter((c) => c.apresentacao === 'aprovada' && SUSP.includes(c.condicao));
+out.pares = {
+  celulas: paresCel.length,
+  cartaoExibido: paresCel.filter((c) => c.superficies.cartaoDeSuspensao.exibido).length,
+  destaqueExibido: paresCel.filter((c) => c.superficies.destaque.exibido).length,
+  corpoComExpressaoQueOExtratorReconheceria: paresCel.filter((c) => c.superficies.corpo.padroesDoExtratorNoCorpoExibido.length > 0).length,
+  porCondicao: Object.fromEntries(SUSP.map((co) => [co, { construida: co.includes('CONSTRUIDA'), celulas: paresCel.filter((c) => c.condicao === co).length, corpoComExpressao: paresCel.filter((c) => c.condicao === co && c.superficies.corpo.padroesDoExtratorNoCorpoExibido.length > 0).length }])),
+  exemplos: ['T1-editorial-simples', 'T3a-formato-sem-secao-com-padrao', 'T2a-ausencia-sem-secao'].map((t) => ({
+    texto: t,
+    pares: SUSP.map((co) => {
+      const c = paresCel.find((x) => x.condicao === co && x.texto === t);
+      return {
+        condicao: co,
+        construida: c.condicaoConstruida,
+        cartao: c.superficies.cartaoDeSuspensao.titulo,
+        motivoDoCartao: c.superficies.cartaoDeSuspensao.motivo,
+        corpoExibidoIgualAoTexto: c.superficies.corpo.mesmoConteudoQueOTextoRecebido,
+        padroesDoExtratorNoCorpo: c.superficies.corpo.padroesDoExtratorNoCorpoExibido,
+        destaque: c.superficies.destaque.exibido,
+        copiaIgualAoTexto: c.superficies.copiado.argumentoIgualAoTextoRecebidoIntegral,
+      };
+    }),
+  })),
+};
+
+out.fetchChamado = sonda.chamadasAFetch;
+out.chamadasAoClienteSimulado = sonda.chamadasAoClienteDoModeloNoTotal;
+fs.writeFileSync(saida, JSON.stringify(out, null, 1));
+console.log('contextos: todos conferem =', out.contextos_todosConferem, '| matriz: todas conferem =', out.matriz_todasConferem, '(', JSON.stringify(out.matriz.divergenciasPorCampo), ') | adicionais: todos conferem =', out.adicionais_todosConferem);
+console.log('estados (150):', JSON.stringify(out.matriz.estados), '| destaque', out.matriz.destaqueExibido, '| mensagem', out.matriz.mensagemExibida, '| cartão', out.matriz.cartaoExibido, '| coexiste com A.27', JSON.stringify(out.matriz.mensagemCoexisteComAvisoDeA27));
+console.log('pares:', JSON.stringify({ celulas: out.pares.celulas, cartao: out.pares.cartaoExibido, destaque: out.pares.destaqueExibido, corpoComExpressao: out.pares.corpoComExpressaoQueOExtratorReconheceria }));
+console.log('nao_confirmado construído:', JSON.stringify({ n: out.naoConfirmadoConstruido.controles, mensagem: out.naoConfirmadoConstruido.mensagemExibida, aviso: out.naoConfirmadoConstruido.avisoDeA27Exibido, destaque: out.naoConfirmadoConstruido.destaqueExibido }));

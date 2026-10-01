@@ -17,6 +17,12 @@ interface ParecerAISectionProps {
      * visíveis nas demais seções da página.
      */
     notaSuspensa?: { suspensa: boolean; rotulo: string; motivo: string } | null;
+    /**
+     * Aviso DIAGNÓSTICO da extração (nível principal da resposta): texto só quando a classificação NÃO está
+     * suspensa e nenhum padrão de nota ou veredicto foi reconhecido no texto do parecer simulado; `null` nos
+     * demais estados. ⚠ Pode coexistir com a quarentena de A.27, NÃO a substitui e NÃO autoriza o destaque.
+     */
+    mensagemDaExtracao?: string | null;
     review?: string;
     validation?: unknown;
     metadata?: {
@@ -218,6 +224,15 @@ export default function ParecerAISection({
                 A ausência de avaliação não é aprovação nem reprovação. Os cálculos AHP-BOCR
                 disponíveis seguem visíveis nas demais seções.
               </p>
+            </div>
+          )}
+
+          {/* Aviso DIAGNÓSTICO da extração: a classificação NÃO está suspensa e nenhum padrão de nota ou veredicto foi
+              reconhecido no texto do parecer simulado. ⚠ Não substitui o aviso de A.27 (acima), pode coexistir com a
+              quarentena e NÃO autoriza o destaque: o portão abaixo não muda. */}
+          {aiReview.mensagemDaExtracao && (
+            <div className="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4" role="status">
+              <p className="text-sm font-semibold text-slate-900">{aiReview.mensagemDaExtracao}</p>
             </div>
           )}
 

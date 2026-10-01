@@ -461,21 +461,21 @@ test('apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que pas
   expect(corpo.nota).toBeNull();
   expect(corpo.veredicto).toBeNull();
   expect(corpo.notaSuspensa?.suspensa).toBe(true);
-  expect(corpo.notaSuspensa.rotulo).toBe('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
+  expect(corpo.notaSuspensa.rotulo).toBe('Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade');
   expect(corpo.notaSuspensa.motivo).toContain('V5: a particao de qualityAnalysis.summary soma 8 sobre total 4');
 
   const html = renderizar(corpo);
   // ⚠ C5: o rotulo e o PROPRIO do caso contraditorio, e o antigo NAO aparece.
-  expect(html).toContain('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
-  expect(html).not.toContain('Nota não calculada: qualidade individual não avaliada');
+  expect(html).toContain('Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade');
+  expect(html).not.toContain('Destaque de nota e veredito suspenso: qualidade individual não avaliada');
   expect(html).toContain('soma 8 sobre total 4');
   expect(html).toContain('Os cálculos AHP-BOCR');
   // ⚠ CONTROLE de que a asserção discrimina: no caso coerente o cartão de suspensão NÃO sai.
   const corpoOk = await executar(coerente());
   expect(corpoOk.notaSuspensa).toBeNull();
   const htmlOk = renderizar(corpoOk);
-  expect(htmlOk).not.toContain('Nota não calculada: qualidade individual não avaliada');
-  expect(htmlOk).not.toContain('Nota não calculada: contradição interna não resolvida na avaliação de qualidade');
+  expect(htmlOk).not.toContain('Destaque de nota e veredito suspenso: qualidade individual não avaliada');
+  expect(htmlOk).not.toContain('Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade');
   // ⚠ D1: e o caso contraditorio NAO usa a redacao da verificacao nao concluida.
   expect(corpo.notaSuspensa.causa).toBe('contradicao');
   expect(html).not.toContain('verificação de coerência não concluída');
@@ -495,16 +495,16 @@ test('apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e n
   expect(corpo.notaSuspensa?.suspensa).toBe(true);
   // ⚠ CAUSA, ROTULO e MOTIVO proprios, distintos dos da contradicao.
   expect(corpo.notaSuspensa.causa).toBe('coerencia_nao_concluida');
-  expect(corpo.notaSuspensa.rotulo).toBe('Nota não calculada: verificação de coerência não concluída');
+  expect(corpo.notaSuspensa.rotulo).toBe('Destaque de nota e veredito suspenso: verificação de coerência não concluída');
   expect(corpo.notaSuspensa.motivo).toContain('NENHUMA contradicao foi demonstrada');
   // ⚠ E NOMEIA a verificacao pendente.
   expect(corpo.notaSuspensa.motivo).toMatch(/V2:|V3:/);
 
   const html = renderizar(corpo);
-  expect(html).toContain('Nota não calculada: verificação de coerência não concluída');
+  expect(html).toContain('Destaque de nota e veredito suspenso: verificação de coerência não concluída');
   // ⚠ NAO afirma contradicao, nem indisponibilidade, em lugar nenhum do markup.
   expect(html).not.toContain('contradição interna não resolvida');
-  expect(html).not.toContain('Nota não calculada: qualidade individual não avaliada');
+  expect(html).not.toContain('Destaque de nota e veredito suspenso: qualidade individual não avaliada');
 });
 
 /**
@@ -516,7 +516,7 @@ test('coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradic
   const e = elegivelParaClassificacao(av, null);
   expect(e.elegivel).toBe(false);
   expect(e.causa).toBe('coerencia_nao_avaliada');
-  expect(e.rotulo).toBe('Nota não calculada: coerência interna não avaliada nesta requisição');
+  expect(e.rotulo).toBe('Destaque de nota e veredito suspenso: coerência interna não avaliada nesta requisição');
   expect(e.motivo).toContain('NENHUMA contradicao foi demonstrada');
   expect(e.motivo).not.toContain('Contradição interna não resolvida');
   // ⚠ E as tres causas de coerencia sao DISTINTAS entre si.

@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+"""Resume, em um arquivo pequeno, as TRÊS execuções do jest (`--json`) que sustentam o registro da Fase 2 (os JSONs brutos têm de 0,2 a 1,4 MB
+e NÃO são versionados; regeneram-se):
+  (1) os testes ANTIGOS, sem edição, contra o código NOVO (a previsão enumerada: 24 reprovam);
+  (2) a suíte NOVA contra o código ANTIGO (worktree em 848d5a4);
+  (3) a suíte final, sobre o código novo e os testes reconciliados.
+Uso (na raiz do repositório): python3 resumir-execucoes.py <antigos-contra-novo.json> <nova-contra-antigo.json> <suite-final.json> <saida.json>"""
+import json, re, sys, collections
+antigos, nova, final = (json.load(open(p, encoding='utf8')) for p in sys.argv[1:4])
+saida = sys.argv[4]
+prev = json.load(open('docs/dados/a12-nota-veredicto-fase2/previsao-de-testes.json', encoding='utf8'))
+curto = lambda n: n.split('/lib/__tests__/')[-1]
+
+falham = []
+for tr in antigos['testResults']:
+    arq = curto(tr['name'])
+    for t in tr['assertionResults']:
+        if t['status'] == 'failed':
+            msg = '\n'.join(t['failureMessages'])
+            m = re.search(r'lib/__tests__/' + re.escape(arq) + r':(\d+):(\d+)', msg)
+            falham.append({'arquivo': arq, 'teste': t['fullName'], 'linhaDaPrimeiraAsserçãoQueFalha': int(m.group(1)) if m else None})
+iguais = collections.Counter((f['arquivo'], f['linhaDaPrimeiraAsserçãoQueFalha']) for f in falham) == collections.Counter((p['arquivo'], p['linha']) for p in prev['falham'])
+res_n = [(curto(tr['name']), t) for tr in nova['testResults'] for t in tr['assertionResults']]
+out = {
+    'antigosContraNovo': {
+        'regra': 'os testes ANTIGOS (843), sem nenhuma edição, contra o código NOVO',
+        'totalDeTestes': antigos['numTotalTests'], 'reprovam': antigos['numFailedTests'], 'passam': antigos['numPassedTests'],
+        'suitesTotal': antigos['numTotalTestSuites'], 'suitesQueReprovam': antigos['numFailedTestSuites'],
+        'reprovamPorArquivo': dict(sorted(collections.Counter(f['arquivo'] for f in falham).items())),
+        'conjuntoArquivoELinhaIgualAoPrevisto': iguais, 'falham': falham,
+    },
+    'novaContraAntigo': {
+        'regra': 'a suíte NOVA (a12-nota-veredicto-fase2) contra o código ANTIGO (worktree em 848d5a4)',
+        'totalDeTestes': len(res_n), 'reprovam': sum(1 for _, t in res_n if t['status'] == 'failed'), 'passam': sum(1 for _, t in res_n if t['status'] == 'passed'),
+        'osQuePassam': [t['fullName'] for _, t in res_n if t['status'] == 'passed'],
+    },
+    'suiteFinal': {
+        'regra': 'a suíte inteira, sobre o código novo e os testes reconciliados',
+        'suites': final['numTotalTestSuites'], 'testes': final['numTotalTests'], 'reprovam': final['numFailedTests'], 'passam': final['numPassedTests'],
+        'suitesQueReprovam': final['numFailedTestSuites'],
+        'testesPorSuite': dict(sorted((curto(tr['name']), len(tr['assertionResults'])) for tr in final['testResults'])),  # ordem alfabética: o jest não ordena as suítes
+    },
+}
+json.dump(out, open(saida, 'w', encoding='utf8'), ensure_ascii=False, indent=1)
+a, n, f = out['antigosContraNovo'], out['novaContraAntigo'], out['suiteFinal']
+print(f"antigos contra novo: {a['reprovam']} reprovam e {a['passam']} passam de {a['totalDeTestes']}; conjunto igual ao previsto: {a['conjuntoArquivoELinhaIgualAoPrevisto']}")
+print(f"nova contra antigo: {n['reprovam']} reprovam e {n['passam']} passam de {n['totalDeTestes']}")
+print(f"suíte final: {f['suites']} suítes e {f['testes']} testes; reprovam {f['reprovam']}")

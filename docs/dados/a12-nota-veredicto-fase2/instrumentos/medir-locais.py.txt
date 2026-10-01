@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Mede, por ÂNCORA DE TEXTO (e não por número digitado), as linhas HOJE dos pontos que o registro da Fase 2 cita. Cada âncora tem de ocorrer
+EXATAMENTE uma vez no arquivo; se não, o roteiro PARA. Se for dado `--conferir <locais-novos.json>`, compara com o arquivo e PARA na primeira diferença.
+Uso (na raiz do repositório): python3 medir-locais.py <saida.json> [--conferir <locais-novos.json>]"""
+import json, sys
+R, Q, C, P = 'app/api/ai-reviewer/route.ts', 'lib/ai-reviewer/avaliacao-qualidade.ts', 'components/ParecerAISection.tsx', 'app/decisor/resultados/[projectId]/page.tsx'
+# (secao, nome, arquivo, âncora, deslocamento de linhas em relação à linha da âncora)
+A = [
+ ('route', 'generateReview (assinatura)', R, 'async function generateReview(', 0),
+ ('route', 'motivo, contradição (abertura do bloco de qualidade)', R, 'CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — ${elegivel.motivo}', 0),
+ ('route', 'descrição, contradição', R, 'SUSPENSA: ${DESCRICAO_SUSPENSAO_POR_CONTRADICAO}.', 0),
+ ('route', 'motivo, coerência não concluída e não avaliada', R, 'SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — ${elegivel.motivo}', 0),
+ ('route', 'descrição, dinâmica (causa declarada)', R, 'SUSPENSA: ${DESCRICAO_DA_SUSPENSAO[elegivel.causa]}.', 0),
+ ('route', 'motivo, disponibilidade', R, 'AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — ${elegivel.motivo || motivoDaSuspensao', 0),
+ ('route', 'descrição, disponibilidade', R, 'SUSPENSA: ${DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE}.', 0),
+ ('route', 'userPrompt (início)', R, '  const userPrompt = `', 0),
+ ('route', 'type EstadoDaExtracao', R, "type EstadoDaExtracao = 'padrao_reconhecido'", 0),
+ ('route', 'MENSAGEM_DA_EXTRACAO_SEM_PADRAO', R, 'const MENSAGEM_DA_EXTRACAO_SEM_PADRAO =', 0),
+ ('route', 'POST', R, 'export async function POST(', 0),
+ ('route', 'calculateGrade (chamada)', R, 'const classification = calculateGrade(data);', 0),
+ ('route', 'log Classificação (objeto)', R, '} Classificação:`, classification);', 0),
+ ('route', 'generateReview (chamada)', R, 'await generateReview(data);', 0),
+ ('route', 'aiGrade (extração)', R, 'const aiGrade = classification.suspensa ? null : extractGradeFromReview(review);', 0),
+ ('route', 'estadoDaExtracao (cálculo)', R, 'const estadoDaExtracao: EstadoDaExtracao = classification.suspensa', 0),
+ ('route', 'mensagemDaExtracao (cálculo)', R, "const mensagemDaExtracao = estadoDaExtracao === 'nenhum_padrao_reconhecido'", 0),
+ ('route', 'log Nota suspensa', R, 'Nota suspensa: ${classification.motivo}', 0),
+ ('route', 'log Nota IA (autoritativa)', R, 'Nota IA (autoritativa)', 0),
+ ('route', 'log Divergência', R, 'Divergência: IA=', 0),
+ ('route', 'log novo (nenhum padrão reconhecido)', R, 'Nenhum padrão de nota ou veredicto reconhecido no texto do parecer simulado: nota e veredicto ficam nulos', 0),
+ ('route', 'resposta: mensagemDaExtracao (nível principal)', R, '\n      mensagemDaExtracao,\n', 1),
+ ('route', 'resposta: metadata.estadoDaExtracao', R, '\n        estadoDaExtracao,\n', 1),
+ ('route', 'calculateGrade (função)', R, 'function calculateGrade(data: ReviewRequest): Classificacao {', 0),
+ ('route', 'calculateGrade: log Resultado', R, '} Resultado: ${nota} (${score}/100) - ${veredicto}', 0),
+ ('route', 'extractGradeFromReview (cabeçalho de comentário, 1ª linha)', R, '// EXTRAÇÃO DA NOTA DO TEXTO DA IA (FONTE ÚNICA AUTORITATIVA)', -1),
+ ('route', 'extractGradeFromReview (função)', R, 'function extractGradeFromReview(', 0),
+ ('route', 'extrator: log Grade extraída (editorial)', R, 'Grade extraída da DECISÃO EDITORIAL', 0),
+ ('route', 'extrator: log Grade extraída (fallback)', R, 'Grade extraída do texto completo (fallback)', 0),
+ ('route', 'ranking das alternativas', R, '    finalScoresSection = `', 0),
+ ('avaliacao-qualidade', 'prefixo', Q, 'export const PREFIXO_DESTAQUE_SUSPENSO', 0),
+ ('avaliacao-qualidade', 'descrição, disponibilidade', Q, 'export const DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE', 0),
+ ('avaliacao-qualidade', 'descrição, contradição', Q, 'export const DESCRICAO_SUSPENSAO_POR_CONTRADICAO', 0),
+ ('avaliacao-qualidade', 'descrição, verificação não concluída', Q, 'export const DESCRICAO_SUSPENSAO_POR_VERIFICACAO_NAO_CONCLUIDA', 0),
+ ('avaliacao-qualidade', 'descrição, coerência não avaliada', Q, 'export const DESCRICAO_SUSPENSAO_POR_COERENCIA_NAO_AVALIADA', 0),
+ ('avaliacao-qualidade', 'mapa por causa', Q, 'export const DESCRICAO_DA_SUSPENSAO', 0),
+ ('avaliacao-qualidade', 'rótulo, disponibilidade', Q, 'export const ROTULO_NOTA_SUSPENSA =', 0),
+ ('avaliacao-qualidade', 'rótulo, contradição', Q, 'export const ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO =', 0),
+ ('avaliacao-qualidade', 'rótulo, verificação não concluída', Q, 'export const ROTULO_NOTA_SUSPENSA_POR_VERIFICACAO_NAO_CONCLUIDA =', 0),
+ ('avaliacao-qualidade', 'rótulo, coerência não avaliada', Q, 'export const ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA =', 0),
+ ('avaliacao-qualidade', 'elegivelParaClassificacao', Q, 'export function elegivelParaClassificacao(', 0),
+ ('componente', 'propriedade mensagemDaExtracao', C, 'mensagemDaExtracao?: string | null;', 0),
+ ('componente', 'handleCopy', C, '  const handleCopy = async () => {', 0),
+ ('componente', 'aviso de A.27', C, "          {presentation && presentation.estado !== 'aprovado' && (", 0),
+ ('componente', 'cartão de suspensão', C, '{aiReview.notaSuspensa?.suspensa && (', 0),
+ ('componente', 'bloco da mensagem', C, '{aiReview.mensagemDaExtracao && (', 0),
+ ('componente', 'portão do destaque', C, "          {!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (", 0),
+ ('componente', 'corpo (Review Text)', C, '          {/* Review Text */}', 0),
+ ('pagina', 'setAiReview com mensagemDaExtracao', P, 'mensagemDaExtracao: data.mensagemDaExtracao ?? null,', 0),
+]
+cache = {}
+saida = {}
+for secao, nome, arq, ancora, desloc in A:
+    t = cache.setdefault(arq, open(arq, encoding='utf8').read())
+    n = t.count(ancora)
+    if n != 1:
+        sys.exit(f'PARA: a âncora de «{secao} / {nome}» ocorre {n} vez(es), e tem de ser exatamente 1')
+    linha = t[:t.index(ancora)].count('\n') + 1
+    # se a âncora começa com '\n', a linha da âncora é a seguinte ao '\n'; o deslocamento já a trata
+    saida.setdefault(secao, {})[nome] = linha + desloc
+    if ancora.startswith('\n'):
+        pass
+json.dump(saida, open(sys.argv[1], 'w', encoding='utf8'), ensure_ascii=False, indent=1)
+print('medidos:', sum(len(v) for v in saida.values()), 'pontos')
+if '--conferir' in sys.argv:
+    ref = json.load(open(sys.argv[sys.argv.index('--conferir') + 1], encoding='utf8'))
+    difs = [(s, n, ref[s].get(n), v) for s, d in saida.items() for n, v in d.items() if ref[s].get(n) != v]
+    faltam = [(s, n) for s, d in ref.items() for n in d if n not in saida.get(s, {})]
+    print('diferenças contra o arquivo de referência:', difs, '| pontos do arquivo de referência não medidos:', faltam)

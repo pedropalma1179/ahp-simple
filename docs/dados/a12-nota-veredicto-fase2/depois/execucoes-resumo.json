@@ -1,0 +1,209 @@
+{
+ "antigosContraNovo": {
+  "regra": "os testes ANTIGOS (843), sem nenhuma edição, contra o código NOVO",
+  "totalDeTestes": 843,
+  "reprovam": 24,
+  "passam": 819,
+  "suitesTotal": 35,
+  "suitesQueReprovam": 7,
+  "reprovamPorArquivo": {
+   "a12-coerencia.test.ts": 3,
+   "a12-diagnostico.test.ts": 2,
+   "a12-estatisticas-dimensao.test.ts": 7,
+   "a12-qualidade-ausente.test.ts": 5,
+   "a33-cadeia-rule.test.ts": 3,
+   "a33-snapshot-v2.test.ts": 3,
+   "rag-semantic-states.test.ts": 1
+  },
+  "conjuntoArquivoELinhaIgualAoPrevisto": true,
+  "falham": [
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "linhaDaPrimeiraAsserçãoQueFalha": 650
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-incompleta (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "linhaDaPrimeiraAsserçãoQueFalha": 650
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas contradicao (causa contradicao): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "linhaDaPrimeiraAsserçãoQueFalha": 650
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas coerencia-nao-concluida (causa coerencia_nao_concluida): o bloco e a Taxa são os de antes, com e sem vínculo",
+    "linhaDaPrimeiraAsserçãoQueFalha": 650
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam agregado-5: contra o contexto completo da Fase 1, sem e com o campo",
+    "linhaDaPrimeiraAsserçãoQueFalha": 793
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam agregado-3: contra o contexto completo da Fase 1, sem e com o campo",
+    "linhaDaPrimeiraAsserçãoQueFalha": 793
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda",
+    "linhaDaPrimeiraAsserçãoQueFalha": 825
+   },
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C1: a montagem usa o payload de referência, e nenhum dado sintético",
+    "linhaDaPrimeiraAsserçãoQueFalha": 701
+   },
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C2: a montagem usa o payload de referência, e nenhum dado sintético",
+    "linhaDaPrimeiraAsserçãoQueFalha": 701
+   },
+   {
+    "arquivo": "a33-snapshot-v2.test.ts",
+    "teste": "A.33 v2: a montagem real corresponde à nova preparação, sem chamada externa C3: a montagem usa o payload de referência, e nenhum dado sintético",
+    "linhaDaPrimeiraAsserçãoQueFalha": 701
+   },
+   {
+    "arquivo": "rag-semantic-states.test.ts",
+    "teste": "os quatro estados da recuperação semântica, pelo handler real CONTEXTO: o que A.33 moveu, e o que continua igual a d658e50",
+    "linhaDaPrimeiraAsserçãoQueFalha": 425
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que passa a suspender",
+    "linhaDaPrimeiraAsserçãoQueFalha": 464
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao",
+    "linhaDaPrimeiraAsserçãoQueFalha": 498
+   },
+   {
+    "arquivo": "a12-coerencia.test.ts",
+    "teste": "coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradicao",
+    "linhaDaPrimeiraAsserçãoQueFalha": 519
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação AUSENTE: sem percentual, sem nota, sem veredicto e SEM penalização",
+    "linhaDaPrimeiraAsserçãoQueFalha": 185
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com confiáveis: comportamento existente preservado",
+    "linhaDaPrimeiraAsserçãoQueFalha": 215
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: as quatro situações, pelo handler real avaliação VÁLIDA com ZERO confiáveis: zero é observado, e a regra existente vale",
+    "linhaDaPrimeiraAsserçãoQueFalha": 227
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa com ACEITO na DECISÃO EDITORIAL e avaliação ausente, a nota permanece suspensa",
+    "linhaDaPrimeiraAsserçãoQueFalha": 254
+   },
+   {
+    "arquivo": "a12-qualidade-ausente.test.ts",
+    "teste": "A.12: a nota extraída do texto NÃO restabelece nota suspensa CONTROLE: com avaliação disponível, o mesmo texto continua governando a nota",
+    "linhaDaPrimeiraAsserçãoQueFalha": 261
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "3.3: no caso disponivel E COERENTE o contexto TRAZ percentual",
+    "linhaDaPrimeiraAsserçãoQueFalha": 1042
+   },
+   {
+    "arquivo": "a12-diagnostico.test.ts",
+    "teste": "o artefato gravado coincide com a medicao atual",
+    "linhaDaPrimeiraAsserçãoQueFalha": 1104
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "RE2: o inventario gravado coincide com o medido agora",
+    "linhaDaPrimeiraAsserçãoQueFalha": 1248
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: os metadados historicos do artefato foram preservados",
+    "linhaDaPrimeiraAsserçãoQueFalha": 1491
+   },
+   {
+    "arquivo": "a33-cadeia-rule.test.ts",
+    "teste": "complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA",
+    "linhaDaPrimeiraAsserçãoQueFalha": 1522
+   }
+  ]
+ },
+ "novaContraAntigo": {
+  "regra": "a suíte NOVA (a12-nota-veredicto-fase2) contra o código ANTIGO (worktree em 848d5a4)",
+  "totalDeTestes": 97,
+  "reprovam": 84,
+  "passam": 13,
+  "osQuePassam": [
+   "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código os contextos históricos da Fase 1 estão INTACTOS (o sha256 de cada um é o registrado na predição), e as requisições são as da Fase 1",
+   "A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código os elegíveis não têm motivo, nem a frase de suspensão: o ranking das alternativas e as linhas do vínculo e da cobertura ficam",
+   "D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.27 e não autoriza o destaque o aviso de A.27 e o portão do destaque NÃO foram alterados (o hash do trecho é o pré-registrado; ver o ensaio E)",
+   "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral os pares existem para as CINCO condições, e a quinta está marcada CONSTRUÍDA (o tratador real não a produz)",
+   "E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral os trechos que o pedido manda NÃO mudar têm o sha256 PRÉ-REGISTRADO no commit da predição",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica app/api/ai-reviewer/route.ts: nenhuma promessa de \"veredito não apresentado\"",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica components/ParecerAISection.tsx: nenhuma promessa de \"veredito não apresentado\"",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica app/decisor/resultados/[projectId]/page.tsx: nenhuma promessa de \"veredito não apresentado\"",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica lib/ai-reviewer/avaliacao-qualidade.ts: nenhuma promessa de \"veredito não apresentado\"",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica docs/contratos-de-dados.md: nenhuma promessa de \"veredito não apresentado\"",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica docs/imprecisoes-parecer-ia.md: nenhuma promessa de \"veredito não apresentado\"",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica CONTRAEXEMPLOS: o detector pega a promessa nas formas vedadas, e não pega a frase do pedido",
+   "F. Guardas de redação: nenhum texto promete que o veredito deixe de ser apresentado, e nenhum nome ou valor novo afirma identificação semântica os novos rótulos, a mensagem e os valores do estado não afirmam identificação (\"Veredito identificado\", \"grade extraída\")"
+  ]
+ },
+ "suiteFinal": {
+  "regra": "a suíte inteira, sobre o código novo e os testes reconciliados",
+  "suites": 36,
+  "testes": 940,
+  "reprovam": 0,
+  "passam": 940,
+  "suitesQueReprovam": 0,
+  "testesPorSuite": {
+   "a12-coerencia.test.ts": 23,
+   "a12-diagnostico.test.ts": 19,
+   "a12-estatisticas-dimensao-consumidor-latente.test.ts": 13,
+   "a12-estatisticas-dimensao.test.ts": 30,
+   "a12-identidade.test.ts": 8,
+   "a12-nota-veredicto-fase2.test.ts": 97,
+   "a12-qualidade-ausente.test.ts": 15,
+   "a12-rastreabilidade.test.ts": 16,
+   "a16-correcao-trechos-c1.test.ts": 9,
+   "a33-cadeia-rule.test.ts": 41,
+   "a33-conferencia-c1.test.ts": 29,
+   "a33-conferencia-regressao.test.ts": 13,
+   "a33-conferencia-sustentacao.test.ts": 6,
+   "a33-identidade-aplicada.test.ts": 22,
+   "a33-identidade-derivada-medicao.test.ts": 12,
+   "a33-identidade-regressao.test.ts": 31,
+   "a33-identidade-revisada-medicao.test.ts": 21,
+   "a33-montagem-contexto.test.ts": 7,
+   "a33-snapshot-v2.test.ts": 60,
+   "a33-triagem-parafrase.test.ts": 7,
+   "calculate-route.test.ts": 9,
+   "characterization.test.ts": 30,
+   "completeness.test.ts": 18,
+   "engine-census.test.ts": 12,
+   "julgamentos-resumo.test.ts": 17,
+   "rag-diagnostico-regressao.test.ts": 16,
+   "rag-semantic-states.test.ts": 9,
+   "rag-transport.test.ts": 13,
+   "rag-transporte-comparacao.test.ts": 12,
+   "rag-voyage-transport.test.ts": 9,
+   "respondent-weights.test.ts": 22,
+   "review-validation-contract.test.ts": 7,
+   "validate-review.test.ts": 7,
+   "vinculo-execucao-calculo.test.ts": 24,
+   "vinculo-execucao-fiacao.test.ts": 87,
+   "vinculo-execucao.test.ts": 169
+  }
+ }
+}

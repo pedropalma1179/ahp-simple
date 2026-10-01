@@ -720,6 +720,53 @@ rescaling. Três convenções para a mesma coisa.
 
 **Saída**: texto do parecer, nota, veredicto, análise de viés, chunks do RAG.
 
+⚠ **A resposta mudou em 01/10/2026 (nota e veredicto, Fase 2).** A linha acima é a descrição histórica, e não a lista dos
+campos. **Medido pelo tratador real**, o nível principal traz `success`, `nota`, `veredicto`, `notaSuspensa`,
+`mensagemDaExtracao`, `review`, `validation` e `metadata`, e `metadata` traz `version`, `model`, `timestamp`,
+`estadoDaExtracao`, `avaliacaoDeQualidade`, `knowledgeBase` e `debug`.
+
+| Campo | O que mudou |
+|---|---|
+| `metadata.automaticGrade` | **Saiu da resposta.** Era o valor da classificação automática (`calculateGrade`): `{ nota, veredicto, score }`, ou `null` sob suspensão. |
+| `metadata.gradeSource` | **Deu lugar a `metadata.estadoDaExtracao`**, com **três** valores (tabela abaixo). Os valores antigos (`suspensa`, `ai` e `automatic`) deixaram de existir. |
+| `mensagemDaExtracao` | **Entrou no nível principal da resposta**, e **não** dentro de `metadata`. Tipo `string \| null`, com a regra abaixo. |
+| `nota` e `veredicto` | **Nulos também quando nenhum padrão é reconhecido** no texto: não há mais valor automático substituto. Continuam nulos sob suspensão (R1). |
+| `notaSuspensa.rotulo` | Os quatro rótulos passam a **`Destaque de nota e veredito suspenso: <descrição>`**, com a descrição da causa (abaixo). `causa` e `motivo` **não mudam**. |
+
+**Os três valores de `metadata.estadoDaExtracao`.** Descrevem o **resultado do reconhecimento textual**, e **não** afirmam que
+o texto não traga uma decisão: o texto pode trazê-la numa forma que nenhum padrão reconhece.
+
+| Valor | Quando | `nota` e `veredicto` | `mensagemDaExtracao` |
+|---|---|---|---|
+| `padrao_reconhecido` | classificação **não** suspensa, e a extração reconheceu um padrão no texto | os extraídos | `null` |
+| `nenhum_padrao_reconhecido` | classificação **não** suspensa, e a extração **não** reconheceu nenhum padrão | **nulos** | exatamente `Veredito não identificado no texto do parecer simulado.` |
+| `nao_executada_por_suspensao` | classificação **suspensa** (R1): a extração **não corre**, e nenhuma expressão do texto restabelece nota ou veredito | nulos | `null` |
+
+**A regra de `mensagemDaExtracao`**: contém texto **somente** quando `metadata.estadoDaExtracao` é
+`nenhum_padrao_reconhecido`, e é `null` nos outros dois estados. ⚠ **O valor independe do estado de A.27** (`validation`):
+o mesmo texto sem padrão traz a mesma mensagem com a validação aprovada, reprovada ou inconclusiva. **Na tela** a mensagem é um
+**aviso diagnóstico**: pode coexistir com a quarentena de A.27, **não** substitui o aviso de A.27 e **não** autoriza o
+destaque de nota e veredicto, cujo portão não mudou.
+
+**As descrições das quatro causas de suspensão.** O **contexto do modelo** recebe só a descrição, na frase "… a classificação
+global está SUSPENSA: `<descrição>`."; a **tela** recebe o prefixo `Destaque de nota e veredito suspenso: ` mais a mesma
+descrição. O prefixo diz o que a interface faz, e por isso **não** entra no contexto.
+
+| Causa | Descrição |
+|---|---|
+| `disponibilidade` | `qualidade individual não avaliada` |
+| `contradicao` | `contradição interna não resolvida na avaliação de qualidade` |
+| `coerencia_nao_concluida` | `verificação de coerência não concluída` |
+| `coerencia_nao_avaliada` | `coerência interna não avaliada nesta requisição` |
+
+⚠ **A fronteira.** R1 governa os **campos** e o **destaque**. **Não** impede, por si, que o **corpo** e a **cópia** da tela
+contenham uma decisão: eles seguem exibindo e copiando o texto integral do parecer simulado, e alterá-los exige decisão
+própria, que não foi tomada. ⚠ **O contexto do modelo** deixou de trazer o bloco "Referência Automatizada" (a pontuação, a
+sugestão e a instrução que remetia a elas); os motivos da suspensão continuam chegando ao contexto, pelo bloco de qualidade.
+⚠ **`calculateGrade` continua existindo**: o sinal de suspensão e os logs ainda a consomem, e a remoção dela exige separar
+esse sinal, o que esta rodada não fez. ⚠ **`coerencia_nao_avaliada` não é produzida pelo tratador real** (a rota sempre calcula
+a coerência): só se alcança com uma coerência nula simulada.
+
 **Chamado por**: `resultados/page.tsx:1245`.
 
 ### `POST /api/audit-decision`

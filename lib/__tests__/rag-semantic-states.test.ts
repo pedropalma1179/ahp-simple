@@ -388,8 +388,13 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // seção "Análise de Viés nos Julgamentos" era montada NO CONTEXTO, junto com a
     // linha de recurso disponível e a proibição de alegar ausência da análise. Os
     // valores de A.12 ficam nomeados: eram `29f55aa7…` com chunks e `339f5f3f…` sem.
-    const A12_MESSAGES_COM_CHUNKS = '241117eaa1d5f12efbabc5ba1501db916adaede07878521e0ca7cc2a7158f2bf';
-    const A12_MESSAGES_SEM_CHUNKS = '5b2cb948064279be81ae4488dd87dfc8b3ccc24e1c2563f2f4e684bde82243da';
+    // ⚠ **NOTA E VEREDICTO, Fase 2, MOVE os `messages` de novo**: sai o bloco "Referência Automatizada" do contexto, e a frase de
+    // suspensão passa a trazer só a DESCRIÇÃO da causa. Os dois valores abaixo foram PREVISTOS ANTES do código (commit 848d5a4,
+    // `docs/dados/a12-nota-veredicto-fase2/predicao-suites.json`, chave `rag4`), e o código os imprimiu: se imprimisse outro, seria
+    // refutação da predição, e a constante NÃO se atualizaria. Os valores anteriores ficam nomeados: eram `241117ea…` com chunks e
+    // `5b2cb948…` sem. O `system` NÃO se moveu.
+    const A12_MESSAGES_COM_CHUNKS = '71d5a2dcd602a83b84806c6b6d27570eaa936ec6da98fe9446a8ce943100860a';
+    const A12_MESSAGES_SEM_CHUNKS = '4f638afbcf61eecc80b375dc0987671720d399177020f117dcdfaf81c4328f37';
 
     // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
     // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui

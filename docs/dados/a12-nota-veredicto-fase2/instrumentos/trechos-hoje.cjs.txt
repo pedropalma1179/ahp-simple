@@ -1,0 +1,19 @@
+'use strict';
+// Lê as linhas HOJE dos 9 trechos, com as MESMAS âncoras do pré-registro (trechos-que-nao-mudam.json), e confere o sha256. NÃO grava no repositório.
+const fs = require('node:fs'); const crypto = require('node:crypto');
+const sha256 = (t) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+const { trechos } = JSON.parse(fs.readFileSync('docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json', 'utf8'));
+const out = [];
+for (const t of trechos) {
+  const texto = fs.readFileSync(t.arquivo, 'utf8');
+  const n = texto.split(t.ancoraDeInicio).length - 1;
+  const i = texto.indexOf(t.ancoraDeInicio);
+  const apos = t.fimDepoisDe ? texto.indexOf(t.fimDepoisDe, i) : i;
+  const j = texto.indexOf(t.ancoraDeFim, apos);
+  const trecho = texto.slice(i, j + t.incluirNoFimNCaracteres);
+  const li = texto.slice(0, i).split('\n').length;
+  const lf = texto.slice(0, i + trecho.length).split('\n').length;
+  out.push({ id: t.id, arquivo: t.arquivo, ocorrenciasDaAncora: n, antes: t.linhas, hoje: `${li}-${lf}`, bytesAntes: t.bytes, bytesHoje: Buffer.byteLength(trecho, 'utf8'), shaIgual: sha256(trecho) === t.sha256 });
+}
+fs.writeFileSync(process.argv[2], JSON.stringify(out, null, 1));
+for (const o of out) console.log(o.id.slice(0, 52).padEnd(54), 'antes', o.antes.padEnd(10), 'hoje', o.hoje.padEnd(10), 'bytes', o.bytesAntes, '->', o.bytesHoje, 'ancora', o.ocorrenciasDaAncora, 'sha igual:', o.shaIgual);

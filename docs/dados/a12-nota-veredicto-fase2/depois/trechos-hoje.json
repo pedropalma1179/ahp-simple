@@ -1,0 +1,92 @@
+[
+ {
+  "id": "calculateGrade",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "ocorrenciasDaAncora": 1,
+  "antes": "344-507",
+  "hoje": "346-509",
+  "bytesAntes": 7468,
+  "bytesHoje": 7468,
+  "shaIgual": true
+ },
+ {
+  "id": "extractGradeFromReview (com o cabeçalho de comentário)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "ocorrenciasDaAncora": 1,
+  "antes": "510-550",
+  "hoje": "512-552",
+  "bytesAntes": 1983,
+  "bytesHoje": 1983,
+  "shaIgual": true
+ },
+ {
+  "id": "ranking das alternativas no contexto (finalScoresSection)",
+  "arquivo": "app/api/ai-reviewer/route.ts",
+  "ocorrenciasDaAncora": 1,
+  "antes": "1046-1054",
+  "hoje": "1047-1055",
+  "bytesAntes": 330,
+  "bytesHoje": 330,
+  "shaIgual": true
+ },
+ {
+  "id": "interface Elegibilidade e tipo CausaDaSuspensao",
+  "arquivo": "lib/ai-reviewer/avaliacao-qualidade.ts",
+  "ocorrenciasDaAncora": 1,
+  "antes": "751-763",
+  "hoje": "797-809",
+  "bytesAntes": 346,
+  "bytesHoje": 346,
+  "shaIgual": true
+ },
+ {
+  "id": "elegivelParaClassificacao",
+  "arquivo": "lib/ai-reviewer/avaliacao-qualidade.ts",
+  "ocorrenciasDaAncora": 1,
+  "antes": "765-793",
+  "hoje": "811-839",
+  "bytesAntes": 1206,
+  "bytesHoje": 1206,
+  "shaIgual": true
+ },
+ {
+  "id": "handleCopy",
+  "arquivo": "components/ParecerAISection.tsx",
+  "ocorrenciasDaAncora": 1,
+  "antes": "47-56",
+  "hoje": "53-62",
+  "bytesAntes": 293,
+  "bytesHoje": 293,
+  "shaIgual": true
+ },
+ {
+  "id": "aviso de quarentena de A.27",
+  "arquivo": "components/ParecerAISection.tsx",
+  "ocorrenciasDaAncora": 1,
+  "antes": "187-199",
+  "hoje": "193-205",
+  "bytesAntes": 709,
+  "bytesHoje": 709,
+  "shaIgual": true
+ },
+ {
+  "id": "portão do destaque",
+  "arquivo": "components/ParecerAISection.tsx",
+  "ocorrenciasDaAncora": 1,
+  "antes": "225-225",
+  "hoje": "240-240",
+  "bytesAntes": 128,
+  "bytesHoje": 128,
+  "shaIgual": true
+ },
+ {
+  "id": "corpo do parecer (de \"Review Text\" até antes de \"Dica de uso\")",
+  "arquivo": "components/ParecerAISection.tsx",
+  "ocorrenciasDaAncora": 1,
+  "antes": "263-339",
+  "hoje": "278-354",
+  "bytesAntes": 2977,
+  "bytesHoje": 2977,
+  "shaIgual": true
+ }
+]

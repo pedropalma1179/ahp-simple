@@ -16,7 +16,9 @@ import {
   elegivelParaClassificacao,
   motivoDaSuspensao,
   ROTULO_NOTA_SUSPENSA,
-  ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO,
+  DESCRICAO_SUSPENSAO_POR_CONTRADICAO,
+  DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE,
+  DESCRICAO_DA_SUSPENSAO,
   type AvaliacaoQualidade,
 } from '@/lib/ai-reviewer/avaliacao-qualidade';
 import {
@@ -621,8 +623,7 @@ function normalizeRequest(rawData: any): ReviewRequest {
 // SYSTEM_PROMPT extracted to ./system-prompt.ts (Phase 7 refactor)
 
 async function generateReview(
-  data: ReviewRequest,
-  classification: Classificacao
+  data: ReviewRequest
 ): Promise<{ review: string; semanticStats: SemanticStats }> {
   console.log('[AI-REVIEWER] sensitivityInflections recebido:', JSON.stringify(data.sensitivityInflections));
 
@@ -762,7 +763,7 @@ async function generateReview(
 **Qualidade dos Dados:**
 ⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA — ${elegivel.motivo}
 Os CRs individuais dos respondentes FORAM avaliados; o que não se resolveu foi a contradição entre os valores declarados na própria requisição.
-Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA_POR_CONTRADICAO}.
+Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${DESCRICAO_SUSPENSAO_POR_CONTRADICAO}.
 ⚠️ A contradição NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum dos valores em conflito como o correto.
 Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
 `;
@@ -775,7 +776,7 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
 **Qualidade dos Dados:**
 ⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE DISPONÍVEL, E CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA — ${elegivel.motivo}
 Os CRs individuais dos respondentes FORAM avaliados; a verificação de coerência não foi concluída, pelo motivo informado acima, e NENHUMA contradição foi demonstrada.
-Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${elegivel.rotulo}.
+Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${DESCRICAO_DA_SUSPENSAO[elegivel.causa]}.
 ⚠️ Verificação não concluída NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum valor como conferido.
 Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
 `;
@@ -788,7 +789,7 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
 **Qualidade dos Dados:**
 ⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE NÃO DISPONÍVEL — ${elegivel.motivo || motivoDaSuspensao(data.avaliacaoDeQualidade)}
 O CR global agregado (via média geométrica) foi validado; os CRs individuais dos respondentes NÃO foram avaliados.
-Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${ROTULO_NOTA_SUSPENSA}.
+Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE}.
 ⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.
 Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
 `;
@@ -1059,11 +1060,6 @@ ${validScores.map((fs, idx) => `${idx + 1}º ${fs.code || 'N/A'} — ${fs.name |
 **Título do Projeto:** ${data.projectName}
 ${data.projectDescription ? `\n**Descrição:** ${data.projectDescription}\n` : ''}
 
-**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**
-${classification.suspensa
-      ? `- Pontuação automática: não calculada — ${classification.motivo}\n- Sugestão automática: não calculada; a classificação global está suspensa`
-      : `- Pontuação automática: ${classification.score}/100\n- Sugestão automática: ${classification.veredicto}`}
-- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.
 
 ---
 
@@ -1392,6 +1388,27 @@ export async function GET() {
   });
 }
 
+/**
+ * O estado da EXTRAÇÃO do resultado no texto do parecer simulado (`metadata.estadoDaExtracao`).
+ *
+ * ⚠ **Descreve o RESULTADO DO RECONHECIMENTO TEXTUAL**, e NÃO afirma que o texto não traga uma decisão: o texto
+ * pode trazê-la numa forma que nenhum padrão reconhece.
+ *
+ * | Estado | Quando |
+ * |---|---|
+ * | `padrao_reconhecido` | classificação NÃO suspensa, e a extração reconheceu um padrão no texto |
+ * | `nenhum_padrao_reconhecido` | classificação NÃO suspensa, e a extração NÃO reconheceu nenhum padrão: `nota` e `veredicto` ficam NULOS |
+ * | `nao_executada_por_suspensao` | classificação SUSPENSA: a extração NÃO corre (R1) |
+ */
+type EstadoDaExtracao = 'padrao_reconhecido' | 'nenhum_padrao_reconhecido' | 'nao_executada_por_suspensao';
+
+/**
+ * O texto de `mensagemDaExtracao` quando NENHUM padrão é reconhecido (campo de nível principal da resposta).
+ *
+ * ⚠ Aviso DIAGNÓSTICO: sem letra, e sem veredito automático substituto.
+ */
+const MENSAGEM_DA_EXTRACAO_SEM_PADRAO = 'Veredito não identificado no texto do parecer simulado.';
+
 export async function POST(request: NextRequest) {
   try {
     const rawData = await request.json();
@@ -1414,7 +1431,7 @@ export async function POST(request: NextRequest) {
     console.log(`${LOG_PREFIX} Classificação:`, classification);
 
     console.log(`${LOG_PREFIX} Iniciando chamada à API Anthropic...`);
-    const { review, semanticStats } = await generateReview(data, classification);
+    const { review, semanticStats } = await generateReview(data);
     console.log(`${LOG_PREFIX} Revisão gerada com sucesso!`, review.substring(0, 100) + '...');
 
     // ANTI-ALUCINAÇÃO: Validação pós-geração
@@ -1432,12 +1449,20 @@ export async function POST(request: NextRequest) {
       console.warn(`${LOG_PREFIX} ⚠️ Avisos de validação:`, validation.warnings);
     }
 
-    // FONTE ÚNICA: Extrair nota do texto da IA (fallback: calculateGrade)
-    // ⚠ A.12: com a classificação SUSPENSA, a extração NÃO restabelece nota nem
-    // veredicto. O texto do modelo não supre avaliação de qualidade ausente.
+    // FONTE ÚNICA: o texto do parecer simulado. ⚠ SEM valor automático substituto: quando nenhum padrão é
+    // reconhecido no texto, `nota` e `veredicto` ficam NULOS, e a mensagem vai em `mensagemDaExtracao`.
+    // ⚠ A.12, R1: com a classificação SUSPENSA, a extração NÃO corre e NÃO restabelece nota nem
+    // veredicto. O texto do modelo não supre avaliação de qualidade ausente ou contraditória.
     const aiGrade = classification.suspensa ? null : extractGradeFromReview(review);
-    const finalNota = classification.suspensa ? null : (aiGrade?.nota ?? classification.nota);
-    const finalVeredicto = classification.suspensa ? null : (aiGrade?.veredicto ?? classification.veredicto);
+    const finalNota = aiGrade ? aiGrade.nota : null;
+    const finalVeredicto = aiGrade ? aiGrade.veredicto : null;
+    const estadoDaExtracao: EstadoDaExtracao = classification.suspensa
+      ? 'nao_executada_por_suspensao'
+      : aiGrade
+        ? 'padrao_reconhecido'
+        : 'nenhum_padrao_reconhecido';
+    // ⚠ Aviso DIAGNÓSTICO: o valor depende SÓ do estado da extração, e independe do estado de A.27.
+    const mensagemDaExtracao = estadoDaExtracao === 'nenhum_padrao_reconhecido' ? MENSAGEM_DA_EXTRACAO_SEM_PADRAO : null;
     if (classification.suspensa) {
       console.log(`${LOG_PREFIX} Nota suspensa: ${classification.motivo}`);
     }
@@ -1448,7 +1473,7 @@ export async function POST(request: NextRequest) {
         console.log(`${LOG_PREFIX} 📊 Divergência: IA=${aiGrade.nota}/${aiGrade.veredicto} vs Auto=${classification.nota}/${classification.veredicto} (${classification.score}/100)`);
       }
     } else if (!classification.suspensa) {
-      console.log(`${LOG_PREFIX} ⚠️ Fallback para nota automática: ${classification.nota} (${classification.score}/100)`);
+      console.log(`${LOG_PREFIX} ⚠️ Nenhum padrão de nota ou veredicto reconhecido no texto do parecer simulado: nota e veredicto ficam nulos, sem valor automático substituto`);
     }
 
     return NextResponse.json({
@@ -1473,6 +1498,10 @@ export async function POST(request: NextRequest) {
             };
           })()
         : null,
+      // ⚠ Aviso DIAGNÓSTICO da extração (campo de NÍVEL PRINCIPAL, e não de `metadata`): texto só quando
+      //   `metadata.estadoDaExtracao` é `nenhum_padrao_reconhecido`, e `null` nos outros dois estados. O valor
+      //   independe do estado de A.27.
+      mensagemDaExtracao,
       review,
       // `success` informa que a geração terminou. A autorização para apresentar
       // o texto vem exclusivamente deste contrato versionado (A.27, eixo 2).
@@ -1481,12 +1510,7 @@ export async function POST(request: NextRequest) {
         version: API_VERSION,
         model: MODEL_CONFIG.id,
         timestamp: new Date().toISOString(),
-        gradeSource: classification.suspensa ? 'suspensa' : (aiGrade ? 'ai' : 'automatic'),
-        automaticGrade: classification.suspensa ? null : {
-          nota: classification.nota,
-          veredicto: classification.veredicto,
-          score: classification.score,
-        },
+        estadoDaExtracao,
         avaliacaoDeQualidade: data.avaliacaoDeQualidade,
         knowledgeBase: {
           refsUsed: getKnowledgeStats().totalRefs,

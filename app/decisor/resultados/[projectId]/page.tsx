@@ -1364,6 +1364,8 @@ export default function ResultadosPage() {
           nota: data.nota,
           veredicto: data.veredicto,
           notaSuspensa: data.notaSuspensa ?? null,
+          // Aviso diagnóstico da extração: texto só com a classificação não suspensa e nenhum padrão reconhecido; `null` nos demais
+          mensagemDaExtracao: data.mensagemDaExtracao ?? null,
           review: data.review,
           validation: data.validation,
           metadata: data.metadata

@@ -268,6 +268,26 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
     camposPerdidos: 0,
   },
+  {
+    ordem: 10,
+    motivo: 'Nota e veredicto do Parecer IA, Fase 2: sai o bloco "Referencia Automatizada" do contexto e a frase de suspensao passa a trazer so a DESCRICAO da causa (alterou route.ts; a tela e avaliacao-qualidade.ts nao entram nesta linha de base)',
+    commitDaBase: '848d5a484510d6988c564ba0e1ae3cfdf4c99506',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ MEDIDO por comparacao campo a campo: 3132 campos antes e 3145 depois, ZERO perdidos, TREZE novos (todos nesta propria
+    //   entrada) e QUATRO mudados: o resumo de codigo de route.ts e os bytes das mensagens dos tres casos (C1, C2 e C3), cada um
+    //   com −450 bytes, a mesma diferenca que a predicao registrada em 848d5a4 deu para a condicao `disponibilidade-ausente`:
+    //   as requisicoes desta suite NAO sao elegiveis, a causa e `disponibilidade`, e saem o bloco "Referencia Automatizada" e o
+    //   prefixo da frase de suspensao. Nenhum outro campo se moveu.
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'montagem.casos.C1.bytesMessages',
+      'montagem.casos.C2.bytesMessages',
+      'montagem.casos.C3.bytesMessages',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>
