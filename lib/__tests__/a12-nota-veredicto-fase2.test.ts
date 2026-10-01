@@ -11,8 +11,9 @@ export {};
  *
  * ⚠ **As procedências, distinguidas em cada ensaio:**
  *   - as quatro condições de suspensão ALCANÇÁVEIS (três causas) e as duas elegíveis: o tratador real;
- *   - a quinta causa, `coerencia_nao_avaliada`: CONSTRUÍDA, por um simulado de `avaliarCoerencia` que devolve `null` (o tratador
- *     real NÃO a produz: `normalizeRequest` sempre calcula a coerência); a produção NÃO foi alterada para torná-la alcançável;
+ *   - a quinta condição de suspensão, correspondente à quarta causa, `coerencia_nao_avaliada`: CONSTRUÍDA, por um simulado de
+ *     `avaliarCoerencia` que devolve `null` (o tratador real NÃO a produz: `normalizeRequest` sempre calcula a coerência); a
+ *     produção NÃO foi alterada para torná-la alcançável;
  *   - o estado de A.27 `nao_confirmado`: CONSTRUÍDO a partir de uma resposta REAL sem padrão reconhecido, com `validation`
  *     retirada ou invalidada SÓ no instrumento (o tratador real SEMPRE devolve `validation`).
  *

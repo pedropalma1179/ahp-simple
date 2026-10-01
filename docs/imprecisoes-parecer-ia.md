@@ -15665,6 +15665,163 @@ Os preservados (seção 1) e os 21 arquivos da Fase 1 estão íntegros. O CI do 
 - **Não foram feitos, por decisão ou por escopo:** a remoção de `calculateGrade` e a separação do sinal de suspensão; qualquer alteração do corpo, da cópia ou do extrator; qualquer alteração de produção para tornar a quinta causa ou `nao_confirmado` alcançáveis; qualquer alteração dos escores das alternativas.
 - Sem consulta a produção, sem recálculo, sem alteração de dado, sem chamada externa de inferência, embedding ou recuperação, sem parecer novo; `npm run lint` e `scripts/ingest-rag.ts` **não** foram rodados; nenhum `--force`, rebase ou `amend`; **nada foi integrado**.
 
+## Correções documentais da Fase 1 e da Fase 2 (nota e veredicto): reconhecimento lexical, condições e causas, e refs remotas, em 01/10/2026
+
+⚠ **Acréscimo datado, sobre `35a4164bf46c5ca95227df4a3f1d7e9de64d7435`.** **Nenhuma linha histórica deste registro foi editada**: o diff do
+registro é uma inserção, sem remoções, e as linhas citadas abaixo são as de `35a4164`, que **seguem as mesmas** neste arquivo, porque a
+inserção vem depois delas. ⚠ **Os dados e os números medidos não mudam**: nenhum artefato de medição foi regravado e nenhuma sonda foi
+reexecutada. O que se corrige é **interpretação, redação e terminologia**. ⚠ **Nada do que o modelo recebe muda**, e por isso esta rodada
+não traz predição. A Fase 1 e a Fase 2 estão aceitas e não se reabrem.
+
+**Os itens, em três famílias.** Em **A.1** e **A.2** o texto promove **reconhecimento lexical** a **decisão identificada**, que é o defeito
+que a própria rodada demonstrou no extrator. Em **A.3** e **C** confunde **condição** com **causa**. Em **B** chama de `main` o que é a `main`
+**remota**. Cada conferência abaixo declara a sua **procedência**: *leitura de artefato*, *leitura de código*, ou *execução*; e, onde a
+procedência é execução sobre um artefato arquivado, o que se executou foi um **roteiro de leitura**, e **não** a sonda.
+
+### 1. A.1: "decisão" é o que o oráculo diz, e não o que o padrão do extrator casa
+
+**O que o instrumento conta** (leitura de artefato). Em `docs/dados/a12-nota-veredicto-fase1/instrumentos/analisar-sonda.cjs.txt`, a
+condição de `copiaCarregaOQueODestaqueEsconde` (`:103`) é "destaque NÃO exibido E o corpo exibido traz um **padrão do extrator** E o argumento de
+`writeText` é o texto integral". ⚠ **Presença de padrão do extrator no corpo inclui o texto que declara NÃO haver decisão própria.** O oráculo
+manual está declarado, à mão e antes da comparação, na constante `LEITURA` (`:15-26`) do mesmo arquivo, e nele T2a, T2b, **T5b** e **T5c** têm
+veredito `null`.
+
+**Recontagem das 50 células de suspensão na apresentação aprovada, por conteúdo** (execução de um roteiro de leitura sobre
+`texto-fixado.json` da Fase 1; as 50 são as 5 condições de suspensão × os 10 textos):
+
+| Conteúdo | Textos | Células | Com padrão do extrator no corpo |
+|---|---|---|---|
+| decisão explícita | T1, T3a, T3b, T5a | 20 | 20 |
+| alternativas condicionais ambíguas | T4a, T4b | 10 | 10 |
+| negação de aceitação | T5b | 5 | 5 |
+| menção sem decisão própria | T5c | 5 | 5 |
+| ausência de decisão | T2a, T2b | 10 | 0 |
+| **Total** | | **50** | **40** |
+
+⚠ **A formulação que se sustenta:** "**40 de 50 contêm expressão reconhecível pelo extrator**". **Não** "40 de 50 trazem decisão do modelo": só
+**20** dessas 40 trazem decisão explícita pelo oráculo; **10** são ambíguas, **5** negam a aceitação e **5**
+mencionam um exemplo, sem decisão própria.
+
+**O mesmo ajuste vale para "104 de 130 células sem destaque"**, que **existe** no registro (`14514-14517`). Das **130** células sem destaque, **104** têm padrão
+do extrator no corpo exibido e o argumento de `writeText` é o texto integral, o que **bate com o artefato** (`resumo.json`,
+`copiaCarregaOQueODestaqueEsconde`: total 104, denominador 130). Por conteúdo (execução de um roteiro de leitura sobre `texto-fixado.json`): **52** de decisão explícita (T1, T3a, T3b, T5a, 13 de cada), **26** de alternativas condicionais ambíguas (T4a, T4b, 13 de cada), **13** de negação de aceitação (T5b), **13** de menção sem decisão própria (T5c); as
+outras **26** são T2a e T2b (13 de cada), sem padrão. ⚠ **Nos dois casos são contagens de reconhecimento lexical, e NÃO de decisões
+identificadas**: só 52 das 104 trazem decisão explícita.
+
+**Onde o registro diz de outro modo, localizado por conteúdo (linhas de `35a4164`; as citações vão sem os realces em negrito do original), e como se lê:**
+
+| Linhas | O registro diz | Leia-se |
+|---|---|---|
+| `14514-14515` | "Das 130 células sem destaque, em 104 o corpo exibido traz redação de decisão (um padrão do extrator)" | "em 104 o corpo exibido **contém expressão reconhecível pelo extrator** (um padrão)": contagem lexical |
+| `14516-14517` | "Nas outras 26, o texto não traz decisão (T2a e T2b)" | **verdadeira como está**: as 26 são as sem padrão, e T2a e T2b não declaram decisão |
+| `14519-14520` | "em 40 dessas 50, o corpo e a cópia trazem redação de decisão do modelo (as outras 10 são os textos sem decisão)" | "em 40 dessas 50 o corpo e a cópia **contêm expressão reconhecível pelo extrator**; as outras 10 são os textos sem padrão (T2a e T2b)" |
+| `14717-14718` | "Em 40 das 50 células de suspensão na apresentação aprovada, o corpo e a cópia trazem a redação de uma decisão do modelo" | "… **contêm expressão reconhecível pelo extrator**": só 20 dessas 40 trazem decisão explícita pelo oráculo |
+| `14460-14461` | "o corpo e a cópia carregam a decisão do modelo (item (e))", sem contagem | "carregam texto em que o extrator **reconhece um padrão** (item (e))" |
+
+Já estão na forma que se sustenta, e **não** se corrigem: `15315-15316` e `15497` (Fase 2: "um trecho que algum padrão do extrator reconhece").
+
+**Onde procurei, e o que achei** (execução: `git grep` e varredura **multilinha** sobre os **340** arquivos rastreados, `git ls-files`, sem filtro de extensão):
+(i) por "redação de decisão", "decisão do modelo", "traz/trazem decisão", "carrega/carregam a decisão" e "contém/contêm decisão": **oito ocorrências** (uma delas quebrada em duas linhas, `14460-14461`), todas neste registro e nenhuma em outro arquivo. As **quatro a corrigir** são
+`14460-14461`, `14514-14515`, `14519-14520` e `14718`; as que **já estão certas** são `14517` (as 26 sem padrão), `14398` (a coluna de T5c, "o corpo e a cópia não trazem decisão", correta pelo oráculo) e `15104` e
+`15448` (`AD1`, "traz uma decisão legível por pessoa" que o extrator **não** reconhece: correta, e é o caso inverso). (ii) por "40" junto de "50": `14519-14520` e `14717-14718` (a corrigir), mais `15315-15316` e `15497` (já lexicais).
+(iii) por "104" junto de "130": `14514-14515` e, fora da prosa, os campos numéricos de `docs/dados/a12-nota-veredicto-fase1/resumo.json:637`. A frase "104 de 130 células sem destaque" **existe** no registro, em `14514-14517`, e não foi preciso registrar ausência.
+
+### 2. A.2: as 14 contradições dependem do oráculo declarado
+
+**O registro declara o oráculo** (`14502`: "leitura do executor sobre os textos construídos; o oráculo foi escrito antes da comparação"), e a tabela é a de
+`14507-14512`. A **regra** do instrumento (`analisar-sonda.cjs.txt:84-100`, leitura de artefato): "destaque exibido E (leitura do corpo sem decisão, ou veredicto
+diferente, ou nota diferente)", sobre os **20** destaques exibidos (todos na apresentação aprovada, nas duas condições elegíveis). **Recontadas** (execução de um roteiro
+de leitura sobre `texto-fixado.json`): **14**, como em `resumo.json` (`contradicoes.total`).
+
+**As 14, enumeradas, apresentadas em dois grupos** (cada texto, nas duas condições, `elegivel-auto-A` e `elegivel-auto-F`):
+
+| Grupo | Texto | Células | O destaque mostra | O oráculo lê |
+|---|---|---|---|---|
+| **10: nota incompatível, aceitação negada, ou veredito atribuído sem decisão própria** | T2a, T2b | 4 | a nota **automática** (A/ACEITO ou F/REJEITAR), `gradeSource` `automatic` | nenhuma decisão |
+| | T5a | 2 | nota **A** | "Nota B. ACEITO COM REVISÕES MENORES" |
+| | T5b | 2 | A / ACEITO | "NÃO deve ser ACEITO": a aceitação é **negada** |
+| | T5c | 2 | A / ACEITO | nenhuma decisão própria (menção a exemplo) |
+| **4: ambíguas** | T4a, T4b | 4 | A / ACEITO COM REVISÕES MENORES | REJEITAR em primeiro lugar, ACEITO COM REVISÕES MENORES só se mitigado |
+
+⚠ **Nas 4 ambíguas, o destaque ELIMINA a condição e a alternativa que estão no texto.** O instrumento escolheu **REJEITAR** como decisão principal de um texto
+**explicitamente ambíguo** (`LEITURA`, `:21-22`; a linha `14508` já traz "⚠ leitura do executor; o texto é ambíguo"), e essa escolha é **interpretação do executor**.
+⚠ **O total 14 permanece, como resultado SEGUNDO O ORÁCULO DO EXECUTOR**, e **não** se promove a uma contagem independente dessa interpretação. A ressalva vai também no
+**resumo da entrega** desta rodada.
+
+### 3. A.3: quatro condições alcançáveis, correspondentes a três causas
+
+**A frase "as quatro causas alcançáveis" está incorreta.** Ausência e incompletude pertencem à **mesma** causa, `disponibilidade`. Conferido por **leitura de código**
+(`lib/ai-reviewer/avaliacao-qualidade.ts:811-839`: `elegivelParaClassificacao` tem **quatro** retornos de causa, e `qualidadeDisponivel` é `avaliacao?.estado === 'disponivel'`, que
+`ausente` e `incompleta` falham do mesmo modo) e por **leitura de artefato** (`SUSPENSAS_ALCANCAVEIS`, `analisar-sonda.cjs.txt:28`; `sanidadeDasCondicoes` em `texto-fixado.json`):
+
+| Condição de suspensão (id da sonda) | Causa (`Elegibilidade.causa`) | Procedência |
+|---|---|---|
+| `disponibilidade-ausente` | `disponibilidade` | tratador real |
+| `disponibilidade-incompleta` | `disponibilidade` | tratador real |
+| `contradicao` | `contradicao` | tratador real |
+| `coerencia-nao-concluida` | `coerencia_nao_concluida` | tratador real |
+| `coerencia-nao-avaliada-CONSTRUIDA` | `coerencia_nao_avaliada` | **CONSTRUÍDA**, por simulado de `avaliarCoerencia` que devolve `null` |
+
+**A redação correta:** **quatro condições** alcançáveis de suspensão, correspondentes a **três** causas, mais a causa `coerencia_nao_avaliada`, **construída** pelo simulado.
+
+**Onde procurei** (execução): `git grep` e uma varredura **multilinha** (a quebra de linha parte frases) sobre os **340** arquivos rastreados (`git ls-files`), sem filtro de extensão, (i) por
+"quatro causas" ou "4 causas" seguido de "alcançável" (até quatro palavras), por "causas alcançáveis" com qualquer numeral, por "alcançáveis" seguido de "quatro causas" e por "quatro causas"
+seguido de "medidas", "reais", "observadas", "produzidas", "do tratador", "exercitadas" ou "testadas"; e (ii) por **toda** ocorrência de "quatro causas", sem distinção de caixa: **45 ocorrências
+em 44 linhas de 12 arquivos** (a linha `15524` tem duas), **todas classificadas** abaixo (1 + 33 + 11). **Achei:**
+
+- **A formulação errada, UMA ocorrência:** `14462`, "As quatro causas alcançáveis dão o mesmo resultado nesta matriz". Leia-se: "As quatro **condições** alcançáveis de suspensão dão o mesmo resultado nesta matriz".
+- **Corretas, preservadas** (as três causas alcançáveis e a construída): `14237` e `15026-15027`, "as três causas alcançáveis e a construída nunca se somam como se fossem a mesma origem".
+- **A mesma confusão, em outra redação** ("as quatro causas" para ausente, incompleta, contradição e coerência não concluída, que são **quatro condições** de **três** causas), **33 ocorrências**: no registro,
+  `13253`, `13386`, `14579`, `15170` e `15524` (6 ocorrências; as duas últimas linhas são da predição e do registro da implementação da Fase 2, do próprio executor); em `lib/__tests__/a12-estatisticas-dimensao.test.ts`,
+  `:677` (o título do `describe`) e `:716` (um comentário); e o título do `describe` repetido como nome de teste em **25 ocorrências de 5 arquivos de dados** (`a12-cobertura-restringiu/testes-antigos-contra-codigo-novo.json`, 3;
+  `a12-nota-veredicto-fase2/previsao-de-testes.json`, 4; `.../depois/execucoes-resumo.json`, 4; `.../depois/mutantes.json`, 13; `.../instrumentos/previsao-de-testes.cjs.txt`, 1, um modelo de título). Leia-se "as quatro
+  **condições**": o título do teste imprime a causa de cada cenário, e `disponibilidade` aparece **duas** vezes. ⚠ **Estas NÃO se editam**: são linhas históricas, títulos executáveis de teste ou nomes
+  copiados de execuções, e a exceção desta rodada alcança **um único** comentário (item C).
+- **"As quatro causas" no sentido correto** (os quatro valores de `CausaDaSuspensao`), preservadas, **11 ocorrências**: no registro `13439`, `14646`, `14982` e `15306`; `docs/contratos-de-dados.md:751`; `docs/objetivo-estados-caminho.md:811`;
+  `docs/dados/a12-nota-veredicto-fase2/LEIA-ME.md:24`; e as quatro linhas de `trechos-que-nao-mudam.json` (2) e do seu instrumento (2).
+
+### 4. B: a `main` das tabelas é a `main` remota
+
+As tabelas de refs das rodadas anteriores escreviam `refs/heads/main` **(remoto)** (`12615`, `13214`, `13663`), e as três últimas escrevem `refs/heads/main` **sem** o qualificador (`14191`, `14944` e `15332`).
+**O valor está certo para a remota**: essas três linhas se leem `refs/heads/main` **(remoto)**, o valor consultado por `git ls-remote`.
+
+**Reconferência desta rodada** (execução, a partir de `35a4164`): `git ls-remote origin` dá `refs/heads/main` em `33c1fdf6500242832994a17aa15b0a686704c029`, `refs/heads/integra/a30-registros` em
+`8e165fb9da51133ccbe1e9d0093680ada67a7ca5` e `refs/heads/claude/loving-shannon-661fy9` em `35a4164bf46c5ca95227df4a3f1d7e9de64d7435`. A `main` **local** efetivamente encontrada **neste ambiente**
+(`git rev-parse refs/heads/main`) é `7422e87c2bdc5aa277922395a7ecc483817f2103`, e `refs/remotes/origin/main` é `33c1fdf6500242832994a17aa15b0a686704c029`.
+
+> Na execução relatada da Fase 2, o executor informou `main` local em `7422e87`. O SHA usado no aceite refere-se à `main` remota, consultada por `git ls-remote`.
+
+⚠ **`7422e87` é evidência histórica do ambiente daquela execução, e NÃO valor obrigatório para a branch local de qualquer ambiente futuro.** Uma diferença apenas na ref **local** não é divergência: o que
+vale para o aceite são as três refs **remotas**.
+
+### 5. C: "quinta causa" é a quinta condição, da quarta causa
+
+**São cinco condições de suspensão sobre quatro causas.** `coerencia_nao_avaliada` é a **quarta causa**, exercitada na **quinta condição**, construída. A implementação distingue isso corretamente; **o texto é que errava**.
+As **seis** ocorrências de `quinta causa` no repositório (execução de `git grep -n "quinta causa"`: **6** linhas e **6** ocorrências, o mesmo em busca sem distinção de caixa e em varredura multilinha),
+**antes** desta correção, e o que se faz com cada uma, **por conteúdo e por ocorrência**:
+
+| # | Onde | Trata de | Tratamento |
+|---|---|---|---|
+| 1 | `docs/imprecisoes-parecer-ia.md:15230`, linha do controle C2 | a condição construída | **corrigida por este acréscimo**: leia-se "a quinta **condição de suspensão, correspondente à quarta causa**, `coerencia_nao_avaliada`" |
+| 2 | `docs/imprecisoes-parecer-ia.md:15665`, "para tornar a quinta causa ou `nao_confirmado` alcançáveis" | a condição construída | **corrigida por este acréscimo**: leia-se "para tornar a quinta **condição de suspensão, correspondente à quarta causa**, ou `nao_confirmado` alcançáveis" |
+| 3 | `lib/__tests__/a12-nota-veredicto-fase2.test.ts:14` | a condição construída | **editada no lugar**, pela **exceção explícita** autorizada pelo autor em 01/10/2026 à regra de zero byte de teste: "a quinta causa" passa a "a quinta condição de suspensão, correspondente à quarta causa"; **só o comentário**, e a requebra que as palavras acrescentadas exigem |
+| 4 | `docs/imprecisoes-parecer-ia.md:11509` | a hipótese de o vínculo acrescentar uma causa a `elegivelParaClassificacao` | **preservada**: está correta |
+| 5 | `lib/__tests__/vinculo-execucao.test.ts:1288` | idem | **preservada**: está correta |
+| 6 | `docs/objetivo-estados-caminho.md:811` | idem | **preservada**: está correta |
+
+⚠ **O arquivo de teste se contradizia a uma linha de distância:** `:13` diz "as quatro condições de suspensão ALCANÇÁVEIS (três causas)", e `:14` chamava a seguinte de quinta causa. **É por isso que a
+ocorrência 3 é edição no lugar, e não acréscimo.** ⚠ **Sem substituição em massa**: as ocorrências 4, 5 e 6 falam de **outro assunto** e permanecem como estão.
+
+### 6. A lacuna que permanece declarada
+
+A saída inicial de `git status` da Fase 2 **não foi guardada**, e o executor declarou a falta corretamente (linha `15334`: "a saída de `git status` do início da implementação não foi guardada, e por isso **não** é afirmada aqui").
+⚠ **Ela permanece declarada como lacuna de registro, e NÃO se reconstrói retrospectivamente**: o estado final e o diff **não recompõem** essa evidência, e **nenhum "antes" é afirmado por dedução**.
+
+### 7. O que esta rodada não fez
+
+Nenhuma linha histórica editada; nenhum número medido alterado; nenhum artefato de medição regravado; nenhuma sonda reexecutada; nenhum byte de produção; nenhuma asserção, fixture ou código executável de teste alterado; nenhuma integração.
+A **única** alteração em arquivo de teste é o **comentário** do item C. Os 21 arquivos de `docs/dados/a12-nota-veredicto-fase1/` e os de `docs/dados/a12-nota-veredicto-fase2/` **não** foram regravados.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
