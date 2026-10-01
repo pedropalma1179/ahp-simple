@@ -1,0 +1,1190 @@
+
+# MANUSCRITO SUBMETIDO
+
+**Título do Projeto:** Projeto da medicao
+
+
+**Referência Automatizada (apenas contexto — NÃO use como sua decisão):**
+- Pontuação automática: 100/100
+- Sugestão automática: ACEITO
+- IMPORTANTE: Sua DECISÃO EDITORIAL na seção 🎯 deve ser baseada na SUA análise dos dados, NÃO nesta referência automática.
+
+---
+
+# DADOS METODOLÓGICOS COLETADOS
+
+## Especificações do Método
+- **Escala de Julgamento:** Escala fundamental 1-9 de Saaty (1977, 1980)
+- **Método de Agregação:** Média Geométrica (Saaty, 1990)
+- **Cálculo do Eigenvector:** Método da Média Geométrica por linha
+- **Limiar de Consistência:** CR ≤ 0.10 (Saaty, 1977)
+- **CR Global Agregado:** 1.06%
+
+
+## Amostra e Qualidade Geral
+
+
+
+## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO
+- Estado do vínculo: **divergente** — Divergência: 0 no documento e não na avaliação; 1 na avaliação e não no documento (contadas as de identidade ausente); 0 identificador(es) repetido(s) na avaliação. Enviados a você: 3 de 4 avaliados.
+- Execução do cálculo (identificador opaco): exec-fiacao-0001
+- Origem da lista de respondentes avaliados: analiseDeQualidade
+- Chave de leitura das contagens deste contexto (cálculo, avaliação e envio NÃO são sinônimos):
+  - amostra coletada: as respostas carregadas pela tela (etapa: coleta);
+  - restantes após a exclusão do gestor (etapa: exclusão do gestor, anterior a qualquer restrição do vínculo);
+  - incluídos no documento de cálculo (etapa: cálculo): a contagem registrada no documento;
+  - avaliados antes de qualquer restrição (etapa: avaliação de qualidade);
+  - enviados a você (etapa: envio): a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles;
+  - "Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste contexto, e nenhuma deve ser derivada dos totais agregados, que NÃO são contagem por dimensão nem participação por dimensão nas matrizes.
+- Contagens: incluídos no documento de cálculo: 3; avaliados antes de qualquer restrição: 4; enviados a você: 3
+- No documento de cálculo e NÃO na avaliação: nenhum (comparação realizada)
+- Na avaliação e NÃO no documento de cálculo: "r4" [fora-do-documento; campo respondentId]
+- Identificadores repetidos na avaliação: nenhum (comparação realizada)
+- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados.
+- Relação entre os ENVIADOS e os INCLUÍDOS no documento de cálculo (comparação dos dois conjuntos, com multiplicidade; não deduzida do estado): COINCIDEM, um a um (3 enviados, 3 incluídos). A divergência anterior à restrição, acima, permanece registrada.
+- Lista de respondentes APRESENTADA a você (3 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): COINCIDE, um a um, com os 3 enviados declarados (etapa: envio) e com os 3 incluídos no documento de cálculo (etapa: cálculo).
+- Resumo do painel (algoritmo sha256, serialização a12-julgamentos-v1): bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - Cobre o conjunto do DOCUMENTO de cálculo; identifica, e não verifica. O conjunto enviado coincide com o do documento.
+- Resumos individuais transportados: 3 de 3 entradas com resumo.
+  - Enviados sem entrada no mapa: nenhum (checagem realizada)
+  - Enviados com resumo individual indisponível: nenhum (checagem realizada)
+  - Entradas de respondentes NÃO enviados: nenhuma (checagem realizada)
+- Portão de completude de A.21, propriedade do PERCURSO DE CÁLCULO EXAMINADO (o código da rota de cálculo), e não conferência desta execução: esse código rejeita a resposta que tem algum par de alguma matriz sem julgamento válido, e agrega cada célula só com julgamento existente, não pulado e com valor. Este vínculo de identificadores NÃO verificou os julgamentos daquela execução.
+⚠ Limites: este bloco transporta registros, e nada nele conferiu conteúdo. Nenhum resumo foi recalculado nem verificado por este sistema nesta etapa. "vinculado" significa correspondência de identificadores segundo regras declaradas, e NÃO comprova que os CRs foram calculados sobre as versões registradas. O bloco não é critério de nota e não suspende a classificação.
+
+
+## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)
+
+- ID: r1 | Email: — | CR: 5.0% | Status: CONFIÁVEL
+- ID: r2 | Email: — | CR: 5.0% | Status: CONFIÁVEL
+- ID: r3 | Email: — | CR: 5.0% | Status: CONFIÁVEL
+
+**TOTAL ENVIADO A VOCÊ: 3 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 3 incluídos no documento de cálculo.**
+
+**CÁLCULO — contagem registrada no documento de cálculo: 3 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.
+⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução.
+
+Contagens por status, sobre os ENVIADOS a você (etapa: envio):
+- CONFIÁVEIS (CR ≤ 10%): 3
+- REVISAR (10–15%): 0
+- SUSPEITOS (15–20%): 0
+- CRÍTICOS (>20%): 0
+
+
+⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.
+
+
+
+## DADOS DO SISTEMA — FÓRMULA DE SÍNTESE
+
+**Fórmula implementada (baseada em Wijnmalen, 2007):**
+Score_i = vb × sb × B_i + vo × so × O_i − vc × sc × C_i − vr × sr × R_i
+
+**Pesos pessoais (v) — derivados da hierarquia de controle:**
+- vb (Benefits) = 0.3700
+- vo (Opportunities) = 0.1500
+- vc (Costs) = 0.2000
+- vr (Risks) = 0.2800
+
+**Rescaling weights (s):** Não fornecidos separadamente. Os pesos acima já incorporam o rescaling.
+
+⚠️ REGRA: Ao descrever a fórmula, mencione que a síntese subtrativa de Wijnmalen (2007) foi utilizada com os pesos da hierarquia de controle.
+
+
+
+## DADOS DO SISTEMA — RANKING FINAL DAS ALTERNATIVAS
+
+1º A1 — Alternativa 1: Score = 0.620000
+2º A2 — Alternativa 2: Score = 0.380000
+
+⚠️ REGRA: Use APENAS estes scores. NUNCA recalcule ou reordene.
+
+
+
+
+**Distribuição de Qualidade dos Respondentes (CR Individual):**
+- Total: 3 especialistas
+- Respostas CONFIÁVEIS (CR ≤ 0.10): 3 (100.0%)
+- Respostas para REVISAR (0.10 < CR ≤ 0.15): 0 (0.0%)
+- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)
+- Respostas CRÍTICAS (CR > 0.20): 0 (0.0%)
+
+**Nota:** Conforme Saaty (1977), CR individual > 0.10 indica inconsistência nos julgamentos do respondente.
+
+
+**Taxa de Validade Geral:** 100.0% das respostas com CR ≤ 0.10
+
+
+
+## Estatísticas por Dimensão BOCR
+
+⚠️ Contagem por dimensão BOCR: não disponível nesta requisição (respostas totais, válidas, warning e críticas por dimensão). Os totais deste contexto são agregados e não identificam a dimensão: nenhuma contagem por dimensão é apresentada, e nenhuma deve ser derivada deles.
+
+## Pesos Finais da Hierarquia de Controle (Méritos BOCR)
+
+- **Benefits (Benefícios):** 37.0%
+- **Opportunities (Oportunidades):** 15.0%
+- **Costs (Custos):** 20.0%
+- **Risks (Riscos):** 28.0%
+
+**Ratio Máximo/Mínimo:** 2.47:1
+
+---
+
+# BASE DE CONHECIMENTO CIENTÍFICO
+
+## Referências sobre Consistência e Validação de Dados
+
+
+**Alizadeh (2020)** - *For long-term evaluation, the additive BOCR formula is recommended.*
+Contexto: Renewable Energy / Public Policy
+Fundamento: The additive formula is the best for long-term results
+
+
+**Alizadeh (2020)** - *For short-term evaluation, the multiplicative BOCR formula provides the best marginal cost/benefit equivalent.*
+Contexto: Renewable Energy / Public Policy
+Fundamento: multiplicative formula is equivalent to the marginal cost/benefit and the best for short-term results
+
+
+**Alizadeh (2020)** - *In highly complex political/economic environments, relaxing the inconsistency threshold to 15% may be justifiable.*
+Contexto: Renewable Energy / Public Policy
+Fundamento: Because of the complex political and economic situations... we accept here a 15% inconsistency
+
+
+**Aull-hyde (2006)** - *GMM aggregation guarantees aggregate consistency with a sufficiently large group regardless of individual consistency.*
+Contexto: Group Decision Making / Aggregation Consistency
+Fundamento: given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices
+
+
+**Aull-hyde (2006)** - *Higher matrix dimensions reach aggregate consistency with fewer group members.*
+Contexto: Group Decision Making / Aggregation Consistency
+Fundamento: as the number of comparisons increase, the number of group members needed to generate a 100% acceptable inconsistency measure decreases.
+
+
+**Ayan et al. (2023)** - *In MCDM, the choice of weighting method directly influences the accuracy and reliability of decision outcomes. Decisi...*
+Contexto: Multi-Criteria Decision-Making
+Fundamento: any MCDM problem requires the choice of the weighting methods because it directly influences the accuracy and reliability of the decision outcomes
+
+
+**Ayan et al. (2023)** - *The distinct characteristics of each weighting method generate varying weights attributed to the criteria, leading to...*
+Contexto: Multi-Criteria Decision-Making
+Fundamento: The distinct characteristics of each weighting method generate varying weights attributed to the criteria, leading to different rankings that impact the entire order, not just the best alternative
+
+
+**Ayan et al. (2023)** - *Weighting methods in MCDM are classified into three categories: subjective, objective, and combinative (integrated). ...*
+Contexto: Multi-Criteria Decision-Making
+Fundamento: Weighting methods can be classified into three categories: subjective, objective, and combinative (integrated). Subjective methods require DMs to take responsibility for assigning weights to the criteria. In contrast, objective methods do not involve DMs in determining the relative importance of the criteria but instead use mathematical algorithms. The combinative approach involves a blend of both subjective and objective methods
+
+
+**Ayan et al. (2023)** - *Decision-making is fundamentally constrained by bounded rationality: the rationality of decision-makers is limited by...*
+Contexto: Multi-Criteria Decision-Making
+Fundamento: According to the theory of bounded rationality, the rationality of a researcher is limited by the available knowledge, the cognitive limitations of the individual mind, and the availability of decision-making (DM) time
+
+
+**Ayan et al. (2023)** - *To ensure trust in the decision outcomes, it is recommended to use multiple weighting methods and compare results. A ...*
+Contexto: Multi-Criteria Decision-Making
+Fundamento: to ensure trust in the decision outcomes, it is recommended to choose multiple methods in determining the weights
+
+
+**Ayan et al. (2023)** - *Multi-criteria decision methods are tools that support decision-making by organizing complex information and enabling...*
+Contexto: Multi-Criteria Decision-Making
+Fundamento: it is important to note that the ultimate decision is still made by the managers, not the methods themselves. A balanced approach that combines subjective and objective methods has emerged as a trend in the development of new methods, as it allows for the integration of manager preferences with mathematical algorithms
+
+
+**Bozóki et al. (2010)** - *Connectivity of the graph corresponds to the existence of a comparison chain (direct or indirect) between any two alt...*
+Contexto: Multi-Attribute Decision Making / IPC
+Fundamento: two criteria, not compared yet, can be in indirect relation, through further criteria and direct relations
+
+
+**Demirtas (2008)** - *ANP is required over AHP to capture same-level criteria feedback and alternative-to-criteria impacts.*
+Contexto: Supplier Selection and Order Allocation
+Fundamento: AHP is not sufficient to catch the effects of the same level criteria on themselves and the effects of the alternatives on the criteria.
+
+
+**Demirtas (2008)** - *Subtractive BOCR formulations can alter alternative rankings compared to additive formulas.*
+Contexto: Supplier Selection and Order Allocation
+Fundamento: But, when the negative additive formulation (Eq. (3)) is used, the rank of the suppliers changes.
+
+
+**Dodevska (2023)** - *Fair and consistent matrices are mathematically possible without being empty sets.*
+Contexto: Multi-criteria decision making (MCDM) / Algorithmic Fairness
+Fundamento: The space of admissible solutions (simultaneously consistent and fair matrix we are looking for) is not empty.
+
+
+**Dodevska (2023)** - *Disparate Impact (DI) is calculated using average rank scores of AHP alternatives.*
+Contexto: Multi-criteria decision making (MCDM) / Algorithmic Fairness
+Fundamento: DI before optimization (DI_{bef}) is the ratio of average AHP rank comparison scores before optimization (overline{R}_{bef}) between privileged and discriminated groups.
+
+
+**Dodevska (2023)** - *Initial high inconsistency makes achieving simultaneous fairness and consistency significantly harder.*
+Contexto: Multi-criteria decision making (MCDM) / Algorithmic Fairness
+Fundamento: When the starting point is high inconsistency, independent of the DI value, the average value of the goal function is more elevated, i.e., the conclusion is that it is more challenging to correct the consistency issue.
+
+
+**Escobar (2004)** - *Group inconsistency is bounded by individual inconsistency.*
+Contexto: Group Decision Making
+Fundamento: the paper proves that the inconsistency of the group is smaller than the largest individual inconsistency.
+
+
+**Escobar (2004)** - *AIP is more efficient than AIJ for RGMM consistency checks.*
+Contexto: Group Decision Making
+Fundamento: it is simpler and more efficient to work with the AIP approach (only o(mn) operations) than with the AIJ approach
+
+
+**Forman & Peniwati (1998)** - *While both means work for AIP, geometric mean fits AHP's ratio scale better.*
+Contexto: Group Decision Making
+Fundamento: While either an arithmetic or geometric mean can be used for AIP, the geometric mean is more consistent with the meaning of both judgments and priorities
+
+
+**Goepel (2018)** - *AHP-OS calculates the Consistency Ratio using Alonso & Lamata (2006) linear fit instead of Saaty's RI table, enabling...*
+Contexto: AHP Software / Group Decision Making / Validation
+Fundamento: we use the linear fit proposed by Alonso and Lamata (2006) to calculate the consistency ratio CR... It can be used for matrices larger than 10 x 10
+
+
+**Goepel (2018)** - *A known analytical test case for AHP validation: when one criterion is judged x-times more important than n-1 others,...*
+Contexto: AHP Software / Group Decision Making / Validation
+Fundamento: if all criteria are equal (x = 1), it follows that wAHP = 1/n, and for four criteria, with one criterion nine times more important than all others, it follows wAHP = 9/12 or 75%
+
+
+**Goepel (2018)** - *When two opposite judgments are aggregated by WGM-AIJ (x and 1/x), the result is equal weights, which may not represe...*
+Contexto: AHP Software / Group Decision Making / Validation
+Fundamento: if we have two opposite judgments for two criteria (x and 1/x), an aggregation will result in equal weights for both criteria. In fact, there is no consensus, and equal weights may result in a deadlocked situation
+
+
+**Goepel (2018)** - *AHP-OS reached over 7,000 registered users by 2018 with at least 500 active users per 3-month period across applicati...*
+Contexto: AHP Software / Group Decision Making / Validation
+Fundamento: more than 7000 users have registered for the software, and on average, there are at least 500 active users over a three-month period
+
+
+**Goepel (2018)** - *When the CR exceeds 10%, AHP-OS identifies and highlights the top-3 most inconsistent judgments via an inconsistency ...*
+Contexto: AHP Software / Group Decision Making / Validation
+Fundamento: If the consistency ratio CR exceeds 10%, the software calculates the top-3 inconsistent judgments
+
+
+**Ishizaka (2011)** - *Missing comparisons computation via extended transitivity*
+Contexto: Multi-criteria decision making (MCDM)
+Fundamento: The minimal number of comparisons required is n-1... The other comparisons are redundant... They can be calculated by the transitivity rule
+
+
+**Ishizaka (2011)** - *Geometric mean equivalence for rows and columns avoids asymmetry*
+Contexto: Multi-criteria decision making (MCDM)
+Fundamento: geometric mean of rows and columns provide the same ranking (which is not necessarily the case with the eigenvalue method).
+
+
+**Ishizaka (2011)** - *Up to 50% comparisons can be deleted without major loss*
+Contexto: Multi-criteria decision making (MCDM)
+Fundamento: one can randomly delete as much as 50% of the comparisons without significantly reducing the results
+
+
+**Ishizaka (2011)** - *Additive mode enables exact weight retrieval*
+Contexto: Multi-criteria decision making (MCDM)
+Fundamento: additive aggregation is the only way to retrieve exact weights of known objects.
+
+
+**Kabak (2014)** - *ANP enables the combined evaluation of both qualitative and quantitative criteria during decision-making.*
+Contexto: Renewable Energy / Strategic Planning
+Fundamento: ANP allows the simultaneous evaluation of qualitative and quantitative criteria in the decision making process.
+
+
+**Lee (2009)** - *Using BOCR with AHP comprehensively handles complex decisions with both positive and negative criteria.*
+Contexto: Energy / Wind Farms
+Fundamento: considering the benefits (B), opportunities (O), costs (C) and risks (R) of an alternative... is a more comprehensive way
+
+
+**Lee (2009)** - *Sub-criteria for costs can simply be monetary sums rather than pairwise compared.*
+Contexto: Energy / Wind Farms
+Fundamento: no pairwise comparison of the importance of these sub-criteria is necessary since the values... can simply be summed up into a single value.
+
+
+**Lee (2009)** - *Risks may not require sub-criteria if the criteria level is sufficiently descriptive.*
+Contexto: Energy / Wind Farms
+Fundamento: there is no need for sub-criteria under the risks merit because criteria themselves can clearly express the risks
+
+
+**Lee (2024)** - *Capital cost is the most critical criterion for selecting highly capital-intensive projects in the energy sector.*
+Contexto: Energy Sector / Project Management
+Fundamento: Capital cost contributes the most to this decision because the projects considered in this case are highly capital intensive.
+
+
+**Liang & Yang (2022)** - *The main drawback of traditional AHP is its inability to effectively handle undesirable or negative criteria.*
+Contexto: General Optimization
+Fundamento: The biggest drawback of this method is that it does not produce good results if some of the criteria are undesirable.
+
+
+**Liang & Yang (2022)** - *BOCR models require proper normalization of criteria values across alternatives to produce valid results.*
+Contexto: General Optimization
+Fundamento: Without normalization, meaningless solutions are obtained.
+
+
+**Mu (2016)** - *The multiplicative BOCR ratio may not always identify correct profitability.*
+Contexto: Management Education / International Cooperation
+Fundamento: multiplicative formula may always give the correct ordering for alternatives, it may not always provide a correct indication of profitability
+
+
+**Mu (2016)** - *BOCR distinguishes benefits/costs from opportunities/risks by certainty.*
+Contexto: Management Education / International Cooperation
+Fundamento: Can we reasonably be sure this benefit will occur?'; If the answer is 'Yes' it is a benefit, if the answer is 'No' it is an opportunity.
+
+
+**Mu (2016)** - *AHP handles both tangible and intangible factors.*
+Contexto: Management Education / International Cooperation
+Fundamento: consider both tangible and intangible factors for the assessment process; this is also one of the strengths of the AHP
+
+
+**Neely jr (2020)** - *Contextual conditions (environmental continuity vs. change, crisis, industry dynamism, national setting) significantl...*
+Contexto: Strategic Management / Executive Cognition
+Fundamento: Our review of the recent UET literature revealed a great deal of progress in understanding how UET results vary depending on a variety of individual, group, organizational, and environmental conditions
+
+
+**Neely jr (2020)** - *Managerial discretion is a key moderating variable in Upper Echelons Theory: the magnitude of CEO/executive effects o...*
+Contexto: Strategic Management / Executive Cognition
+Fundamento: CEOs have a significant effect on firm outcomes, that the effect appears to be increasing over time, and that the size of the effect is highly dependent upon the level of discretion within an industry
+
+
+**Neely jr (2020)** - *Executive impact on firm actions and performance has increased over time — executives today have even greater influen...*
+Contexto: Strategic Management / Executive Cognition
+Fundamento: Considerable evidence suggests that executives today have even greater impact on firm actions and performance than they did in the past
+
+
+**Neely jr (2020)** - *In MCDM panel-based weight elicitation, the dominant weight given to a BOCR merit dimension may reflect the cognitive...*
+Contexto: Strategic Management / Executive Cognition
+Fundamento: UET scholars must provide evidence for the appropriateness of whatever measure they use, defend their approach to the aggregation of variables at the group level, understand that every measure has limitations, and acknowledge that multiple methods for measuring underlying constructs (both within and across studies) engender greater confidence in research findings
+
+
+**Ossadnik (2016)** - *AIJ using the arithmetic mean violates reciprocity and creates inconsistent matrices.*
+Contexto: Strategic Management / Group Decision Making
+Fundamento: the arithmetic form of AIJ (AIJ (WAMM)) generates inconsistent collective pairwise comparison matrices, even if all individual judgments were consistent.
+
+
+**Ossadnik (2016)** - *Geometric aggregation (AIJ-WGMM) improves group consistency levels.*
+Contexto: Strategic Management / Group Decision Making
+Fundamento: Geometric aggregation leads to a compensation of single inconsistent matrices to consistent group judgments
+
+
+**Petrillo (2023)** - *BOCR models ensure a mutually exclusive and collectively exhaustive set of criteria.*
+Contexto: Multi-criteria decision making (MCDM) / BOCR
+Fundamento: The use of an MCDM model with these four main criteria aims for a mutually exclusive and collectively exhaustive (MECE) set of criteria.
+
+
+**Petrillo (2023)** - *Negative priorities can emerge when comparing costly alternatives directly.*
+Contexto: Multi-criteria decision making (MCDM) / BOCR
+Fundamento: if an alternative i is more costly than j, and a_ij > 1, there are negative priorities: the most costly alternative receives the greatest w_i
+
+
+**Saaty (1977)** - *Perfect consistency occurs if and only if the principal eigenvalue equals the order of the matrix.*
+Contexto: Mathematical Psychology / Decision Theory
+Fundamento: a reciprocal matrix A with positive entries is consistent if and only if \lambda_{max} = n
+
+
+**Saaty (1977)** - *Consistency validates the logical relation of estimates but does not guarantee correspondence to real-life accuracy.*
+Contexto: Mathematical Psychology / Decision Theory
+Fundamento: consistency is a necessary but not a sufficient condition for judging how good a set of observational data is.
+
+
+**Saaty (1986)** - *The expectations axiom states that all relevant alternatives, criteria, and beliefs must be adequately represented in...*
+Contexto: Decision Theory / AHP Foundations
+Fundamento: thoughtful individuals who have reasons for their beliefs should make sure that their ideas are adequately represented
+
+
+**Saaty (1987)** - *Approximating the principal eigenvector using geometric means can cause rank reversal and should be avoided.*
+Contexto: Decision Theory / Operations Research
+Fundamento: one should only use the eigenvector derivation procedure because approximations can lead to rank reversal in spite of the closeness
+
+
+**Saaty (1987)** - *The geometric mean is mathematically required when aggregating group judgments because it satisfies the reciprocal pr...*
+Contexto: Decision Theory / Operations Research
+Fundamento: any rule to combine the judgments of several individuals should also satisfy the reciprocal property. A proof that the geometric mean... satisfies this condition
+
+
+**Saaty (1987)** - *The 10% inconsistency threshold is logically sound because consistency measurement errors should be an order of magni...*
+Contexto: Decision Theory / Operations Research
+Fundamento: The priority of consistency to obtain a coherent explanation of a set of facts must differ by an order of magnitude from the priority of inconsistency
+
+
+**Saaty (1990)** - *Rank reversal within utility theory, even under a single criterion, is a counterintuitive flaw that lacks a rigorous ...*
+Contexto: Operations Research / Decision Making
+Fundamento: This is a phenomenon that is strongly counterintuitive and can never be made mathematically right.
+
+
+**Saaty (1990)** - *Normalizing variables from a standard scale separately across multiple criteria distorts their linear relationships a...*
+Contexto: Operations Research / Decision Making
+Fundamento: normalizing separate sets of numbers destroys the linear relation among them.
+
+
+**Saaty (2003)** - *The principal eigenvector is the mathematically mandatory method to represent priorities derived from a near-consiste...*
+Contexto: Decision Aiding / Operational Research
+Fundamento: the principal eigenvector is necessary for representing the priorities associated with that matrix
+
+
+**Saaty (2003)** - *A certain degree of inconsistency in human judgment is both inevitable and desirable when evaluating intangibles.*
+Contexto: Decision Aiding / Operational Research
+Fundamento: a modicum of inconsistency may be considered as a good thing and forced consistency... as an undesirable compulsion.
+
+
+**Saaty (2015)** - *MCDM structures are deemed comprehensive when they evaluate a problem across Benefits, Opportunities, Costs, and Risk...*
+Contexto: Decision Making / Operations Research
+Fundamento: A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR
+
+
+**Saaty (2015)** - *Consistency is necessary but insufficient to guarantee that a decision accurately captures reality.*
+Contexto: Decision Making / Operations Research
+Fundamento: But consistency is only necessary but not sufficient to capture reality.
+
+
+**Saaty (2015)** - *Methods that rate alternatives one at a time using an ideal fail to account for the interdependence hidden within the...*
+Contexto: Decision Making / Operations Research
+Fundamento: the ideal itself is derived from all the relevant alternatives... Thus while assuming independence, it turns out that interdependence lies hidden
+
+
+**Saaty (2003)** - *BOCR criteria can be represented with positive AND negative absolute scale priorities, instead of only converting cos...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: absolute numbers can be both positive and negative, and hence, it is not necessary to confine the BOCR to being positive
+
+
+**Saaty (2003)** - *Four synthesis methods for BOCR are presented: multiplicative BO/CR, additive with reciprocals, additive residual (1-...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: Several different ways are described in the paper for doing this
+
+
+**Saaty (2003)** - *The Additive Subtractive synthesis can produce negative scores, indicating unprofitability of an alternative when cos...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: Annual Exten. -0.32 ; Amend NTR -0.07 ; PNTR 0.23
+
+
+**Saaty (2003)** - *Each positive or negative priority need not have a symmetric opposite value, because the opposite criterion may not e...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: each of the positive or negative priorities need not have a symmetric opposite value, because the opposite criterion may not exist
+
+
+**Saaty (2003)** - *When rankings differ between synthesis methods, this provides additional information that should be considered, not d...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: If the rankings are different with the methods, there is information that needs to be considered
+
+
+**Saaty (2003)** - *The contribution of the paper is to discuss and illustrate negative priorities and how to synthesize priorities obtai...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: main contribution of this paper has been to discuss and illustrate negative priorities and how to synthesize the priorities
+
+
+**Saaty (1984)** - *Only the principal eigenvector method directly addresses inconsistency and captures rank order inherent in inconsiste...*
+Contexto: Decision Theory / AHP Foundations
+Fundamento: only the principal eigenvector directly deals with the question of inconsistency and captures the rank order
+
+
+**Saaty (1984)** - *For n greater than 4, LLSM tends to produce rankings insensitive to matrix inconsistencies because it does not use cr...*
+Contexto: Decision Theory / AHP Foundations
+Fundamento: LLSM would tend to produce a ranking that is insensitive to inconsistencies in the matrix
+
+
+**Saaty (1984)** - *Inconsistency in pairwise comparisons is unavoidable in real decision contexts and cannot be dismissed as an aberration.*
+Contexto: Decision Theory / AHP Foundations
+Fundamento: inconsistency cannot be dismissed as an aberration. We have experienced many situations
+
+
+**Saaty (2012)** - *CR must be less than 0.10; otherwise revise judgments.*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: If it is not less than 0.10, study the problem and revise the judgments.
+
+
+**Saaty (2012)** - *10% hierarchy inconsistency is small relative to eigenvector values.*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: An inconsistency of 10 percent or less implies that the adjustment is small compared to the actual values of the eigenvector entries.
+
+
+**Saaty (2012)** - *The geometric mean is the only valid function for aggregating individual judgments (AIJ) under reciprocal, separabili...*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: then only the geometric mean satisfies all the above conditions.
+
+
+**Saaty (2012)** - *For judges with different expertise weights, only the weighted geometric mean is valid under the reciprocal property.*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: then only the weighted geometric mean applies.
+
+
+**Saaty (2012)** - *AHP has four axioms: reciprocal relation, homogeneous comparison, hierarchic dependence, and expectations about rank/...*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: there are four axioms in the AHP... concerned with the reciprocal relation, comparison of homogeneous elements, hierarchic and systems dependence
+
+
+**Saaty (2012)** - *Arrow's Impossibility Theorem does not apply to AHP because cardinal ratio scale preferences allow construction of a ...*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: because now the individual preferences are cardinal rather than ordinal, it is possible to derive a rational group choice satisfying the above four conditions.
+
+
+**Saaty (2012)** - *Additive synthesis (not multiplicative) is recommended; multiplicative synthesis does not generalize to dependence an...*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: I do not recommend ever using multiplicative synthesis. It can lead to an undesirable ranking of the alternatives.
+
+
+**Saaty (2012)** - *CI equals the variance of the error incurred in estimating pairwise comparison entries.*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: (kmax - n)/(n - 1) is the variance of the error incurred in estimating aij.
+
+
+**Saiyed et al. (2023)** - *High CEO power induces systematic cognitive biases in strategic decision-making: it distorts how the CEO frames decis...*
+Contexto: Strategic Management / Emerging Markets
+Fundamento: High power leads to cognitive biases creeping in, especially how the CEO frames the decision calculus and estimates risks inherent in decisions, leading them to concentrate on the upside potential of the decisions and ignore relevant downside consequences
+
+
+**Salomon (2024)** - *Consistency is the primary measure of input data quality in AHP.*
+Contexto: Multiple Criteria Decision-Making (MCDM)
+Fundamento: Consistency is a measure of the quality of data input in the AHP.
+
+
+**Salomon (2024)** - *The 0.1 CR threshold is standard for evaluating reliability.*
+Contexto: Multiple Criteria Decision-Making (MCDM)
+Fundamento: the 0.1 threshold have been accepted for the consistency measurements
+
+
+**Salomon (2024)** - *Moderate inconsistency is necessary for admitting new knowledge.*
+Contexto: Multiple Criteria Decision-Making (MCDM)
+Fundamento: inconsistency itself is important, since "without it new knowledge that changes preferences cannot be admitted"
+
+
+**Schmidt (2016)** - *Weight difference between CR 0.1 and 0.2 is negligible.*
+Contexto: Healthcare / Rare Diseases
+Fundamento: The mean weights of the two groups of CR ≤ 0.1 and CR ≤ 0.2 did not differ significantly.
+
+
+**Schmidt (2016)** - *AIJ produces lower CR than AIP.*
+Contexto: Healthcare / Rare Diseases
+Fundamento: The CR in the scenario of aggregation by geometric mean was markedly lower for AIJ than for AIP.
+
+
+**Tavana et al. (2023)** - *Experts are more motivated and provide better results with methods requiring fewer pairwise comparisons.*
+Contexto: Multi-Criteria Decision-Making (MCDM)
+Fundamento: experts are more motivated and attentive in methods requiring fewer pairwise comparisons and less interaction
+
+
+**Tavana et al. (2023)** - *AHP requires a burdensome number of pairwise comparisons as elements increase.*
+Contexto: Multi-Criteria Decision-Making (MCDM)
+Fundamento: AHP requires \frac{m^{2}-m}{2} pairwise comparisons per level with m elements, reducing the willingness of the expert(s) to provide information
+
+
+**Tavana et al. (2023)** - *AHP-express significantly reduces evaluation effort compared to traditional AHP.*
+Contexto: Multi-Criteria Decision-Making (MCDM)
+Fundamento: AHP-express is a special case of BWM-AHP that reduces the amount of information retrieved from experts.
+
+
+**Wijnmalen (2007)** - *BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.*
+Contexto: Multiple Criteria Analysis
+Fundamento: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.
+
+
+**Wijnmalen (2007)** - *Using reciprocal values for costs and risks distorts the scale and confounds results.*
+Contexto: Multiple Criteria Analysis
+Fundamento: taking cost and risk reciprocals... actually distorts their originally common scale, thereby producing confounded results.
+
+
+**Wijnmalen (2007)** - *A fórmula subtrativa completa para síntese BOCR (Eq. 17) é: P_i = v_B·s_B·B_i + v_O·s_O·O_i − v_C·s_C·C_i − v_R·s_R·R...*
+Contexto: Multiple Criteria Analysis
+Fundamento: additive synthesis expression should be used where rescaled cost and risk priorities are subtracted from rescaled benefits and opportunities priorities
+
+
+**Wijnmalen (2007)** - *Os rescaling weights (s) são necessários para garantir a comensurabilidade entre as prioridades de diferentes subhier...*
+Contexto: Multiple Criteria Analysis
+Fundamento: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.
+
+
+**Wijnmalen (2007)** - *A forma simplificada bB + oO − cC − rR é um caso particular da Eq. 17 quando s_B = s_O = s_C = s_R = 1, assumindo com...*
+Contexto: Multiple Criteria Analysis
+Fundamento: additive expression is proposed, where costs and risks are treated as negative values rather than reciprocals
+
+
+**Xu (2000)** - *The WGMCJM maintains acceptable consistency if all individual matrices are acceptable.*
+Contexto: Group Decision Making / AHP Consistency
+Fundamento: this paper proves that the WGMCJM is of acceptable consistency (i.e., CR <= 0.1) under the condition that each Ak... is of acceptable consistency.
+
+
+**Xu (2000)** - *WGMM is the standard for group preference aggregation in AHP.*
+Contexto: Group Decision Making / AHP Consistency
+Fundamento: The weighted geometric mean method (WGMM) is the most common group preference aggregation method in the Analytic Hierarchy Process.
+
+
+## Referências sobre Metodologia BOCR
+
+
+**Alizadeh (2020)** - *For long-term evaluation, the additive BOCR formula is recommended.*
+Contexto: Renewable Energy / Public Policy
+Fundamento: The additive formula is the best for long-term results
+
+
+**Alizadeh (2020)** - *For short-term evaluation, the multiplicative BOCR formula provides the best marginal cost/benefit equivalent.*
+Contexto: Renewable Energy / Public Policy
+Fundamento: multiplicative formula is equivalent to the marginal cost/benefit and the best for short-term results
+
+
+**Demirtas (2008)** - *Subtractive BOCR formulations can alter alternative rankings compared to additive formulas.*
+Contexto: Supplier Selection and Order Allocation
+Fundamento: But, when the negative additive formulation (Eq. (3)) is used, the rank of the suppliers changes.
+
+
+**Lee (2009)** - *Using BOCR with AHP comprehensively handles complex decisions with both positive and negative criteria.*
+Contexto: Energy / Wind Farms
+Fundamento: considering the benefits (B), opportunities (O), costs (C) and risks (R) of an alternative... is a more comprehensive way
+
+
+**Lee (2009)** - *Sub-criteria for costs can simply be monetary sums rather than pairwise compared.*
+Contexto: Energy / Wind Farms
+Fundamento: no pairwise comparison of the importance of these sub-criteria is necessary since the values... can simply be summed up into a single value.
+
+
+**Lee (2009)** - *Risks may not require sub-criteria if the criteria level is sufficiently descriptive.*
+Contexto: Energy / Wind Farms
+Fundamento: there is no need for sub-criteria under the risks merit because criteria themselves can clearly express the risks
+
+
+**Liang & Yang (2022)** - *BOCR models require proper normalization of criteria values across alternatives to produce valid results.*
+Contexto: General Optimization
+Fundamento: Without normalization, meaningless solutions are obtained.
+
+
+**Mu (2016)** - *The multiplicative BOCR ratio may not always identify correct profitability.*
+Contexto: Management Education / International Cooperation
+Fundamento: multiplicative formula may always give the correct ordering for alternatives, it may not always provide a correct indication of profitability
+
+
+**Mu (2016)** - *BOCR distinguishes benefits/costs from opportunities/risks by certainty.*
+Contexto: Management Education / International Cooperation
+Fundamento: Can we reasonably be sure this benefit will occur?'; If the answer is 'Yes' it is a benefit, if the answer is 'No' it is an opportunity.
+
+
+**Neely jr (2020)** - *In MCDM panel-based weight elicitation, the dominant weight given to a BOCR merit dimension may reflect the cognitive...*
+Contexto: Strategic Management / Executive Cognition
+Fundamento: UET scholars must provide evidence for the appropriateness of whatever measure they use, defend their approach to the aggregation of variables at the group level, understand that every measure has limitations, and acknowledge that multiple methods for measuring underlying constructs (both within and across studies) engender greater confidence in research findings
+
+
+**Petrillo (2023)** - *BOCR models ensure a mutually exclusive and collectively exhaustive set of criteria.*
+Contexto: Multi-criteria decision making (MCDM) / BOCR
+Fundamento: The use of an MCDM model with these four main criteria aims for a mutually exclusive and collectively exhaustive (MECE) set of criteria.
+
+
+**Petrillo (2023)** - *Negative priorities can emerge when comparing costly alternatives directly.*
+Contexto: Multi-criteria decision making (MCDM) / BOCR
+Fundamento: if an alternative i is more costly than j, and a_ij > 1, there are negative priorities: the most costly alternative receives the greatest w_i
+
+
+**Saaty (2015)** - *MCDM structures are deemed comprehensive when they evaluate a problem across Benefits, Opportunities, Costs, and Risk...*
+Contexto: Decision Making / Operations Research
+Fundamento: A decision structure is said to be comprehensive if it represents a decision problem by considering comprehensive influence factors such as BOCR
+
+
+**Saaty (2003)** - *BOCR criteria can be represented with positive AND negative absolute scale priorities, instead of only converting cos...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: absolute numbers can be both positive and negative, and hence, it is not necessary to confine the BOCR to being positive
+
+
+**Saaty (2003)** - *Four synthesis methods for BOCR are presented: multiplicative BO/CR, additive with reciprocals, additive residual (1-...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: Several different ways are described in the paper for doing this
+
+
+**Saaty (2003)** - *The Additive Subtractive synthesis can produce negative scores, indicating unprofitability of an alternative when cos...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: Annual Exten. -0.32 ; Amend NTR -0.07 ; PNTR 0.23
+
+
+**Saaty (2003)** - *Each positive or negative priority need not have a symmetric opposite value, because the opposite criterion may not e...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: each of the positive or negative priorities need not have a symmetric opposite value, because the opposite criterion may not exist
+
+
+**Saaty (2003)** - *When rankings differ between synthesis methods, this provides additional information that should be considered, not d...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: If the rankings are different with the methods, there is information that needs to be considered
+
+
+**Saaty (2003)** - *The contribution of the paper is to discuss and illustrate negative priorities and how to synthesize priorities obtai...*
+Contexto: Decision Theory / BOCR Synthesis
+Fundamento: main contribution of this paper has been to discuss and illustrate negative priorities and how to synthesize the priorities
+
+
+**Saaty (2012)** - *Additive synthesis (not multiplicative) is recommended; multiplicative synthesis does not generalize to dependence an...*
+Contexto: Decision Theory / Multi-Criteria Decision Making
+Fundamento: I do not recommend ever using multiplicative synthesis. It can lead to an undesirable ranking of the alternatives.
+
+
+**Saiyed et al. (2023)** - *High CEO power induces systematic cognitive biases in strategic decision-making: it distorts how the CEO frames decis...*
+Contexto: Strategic Management / Emerging Markets
+Fundamento: High power leads to cognitive biases creeping in, especially how the CEO frames the decision calculus and estimates risks inherent in decisions, leading them to concentrate on the upside potential of the decisions and ignore relevant downside consequences
+
+
+**Salomon (2016)** - *Combining absolute measurement with ideal synthesis prevents rank reversal.*
+Contexto: MCDM theory and application
+Fundamento: Combining absolute measurement with ideal synthesis will always preserve ranks
+
+
+**Salomon (2016)** - *Ideal synthesis scores represent a concept similar to utility.*
+Contexto: MCDM theory and application
+Fundamento: That is the '0.77' for Project X in Tables 13 and 17 represent a concept similar to 'utility'
+
+
+**Wijnmalen (2007)** - *BOCR synthesis requires commensurate priorities on a common scale; synthesizing non-commensurate measures is deceiving.*
+Contexto: Multiple Criteria Analysis
+Fundamento: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.
+
+
+**Wijnmalen (2007)** - *Using reciprocal values for costs and risks distorts the scale and confounds results.*
+Contexto: Multiple Criteria Analysis
+Fundamento: taking cost and risk reciprocals... actually distorts their originally common scale, thereby producing confounded results.
+
+
+**Wijnmalen (2007)** - *A fórmula subtrativa completa para síntese BOCR (Eq. 17) é: P_i = v_B·s_B·B_i + v_O·s_O·O_i − v_C·s_C·C_i − v_R·s_R·R...*
+Contexto: Multiple Criteria Analysis
+Fundamento: additive synthesis expression should be used where rescaled cost and risk priorities are subtracted from rescaled benefits and opportunities priorities
+
+
+**Wijnmalen (2007)** - *Os rescaling weights (s) são necessários para garantir a comensurabilidade entre as prioridades de diferentes subhier...*
+Contexto: Multiple Criteria Analysis
+Fundamento: Synthesis however requires commensurate priorities on a common scale. Therefore, there is a need to know the magnitude relationship between total benefits and total costs and total opportunities and total risks.
+
+
+**Wijnmalen (2007)** - *A forma simplificada bB + oO − cC − rR é um caso particular da Eq. 17 quando s_B = s_O = s_C = s_R = 1, assumindo com...*
+Contexto: Multiple Criteria Analysis
+Fundamento: additive expression is proposed, where costs and risks are treated as negative values rather than reciprocals
+
+
+## Referências sobre Análise de Sensibilidade e Robustez
+
+
+**Saaty (1986)** - *The principal right eigenvector solution is appropriate for surfacing rank order from inconsistent data, and is stabl...*
+Contexto: Decision Theory / AHP Foundations
+Fundamento: the eigenvector is stable to small perturbations in the data
+
+
+**Saaty (1987)** - *Approximating the principal eigenvector using geometric means can cause rank reversal and should be avoided.*
+Contexto: Decision Theory / Operations Research
+Fundamento: one should only use the eigenvector derivation procedure because approximations can lead to rank reversal in spite of the closeness
+
+
+**Saaty (1990)** - *Rank reversal within utility theory, even under a single criterion, is a counterintuitive flaw that lacks a rigorous ...*
+Contexto: Operations Research / Decision Making
+Fundamento: This is a phenomenon that is strongly counterintuitive and can never be made mathematically right.
+
+
+**Saaty (1984)** - *LSM can yield non-unique solutions and reverse rank even when intuitively rank reversal should not occur.*
+Contexto: Decision Theory / AHP Foundations
+Fundamento: LSM yields A < B > C, even though in the pairwise comparisons A is preferred to B
+
+
+**Salomon (2016)** - *Combining absolute measurement with ideal synthesis prevents rank reversal.*
+Contexto: MCDM theory and application
+Fundamento: Combining absolute measurement with ideal synthesis will always preserve ranks
+
+
+**Schmidt (2015)** - *Sensitivity analysis is essential for rank reversal assessment.*
+Contexto: Healthcare / Methodology Review
+Fundamento: Sensitivity analysis for AHP is relevant only when alternatives are included in the hierarchy.
+
+
+## Referências Críticas Adicionais (Alta Prioridade)
+
+
+**Alizadeh (2020)** - *In highly complex political/economic environments, relaxing the inconsistency threshold to 15% may be justifiable.*
+Fundamento: Because of the complex political and economic situations... we accept here a 15% inconsistency
+
+
+**Aull-hyde (2006)** - *GMM aggregation guarantees aggregate consistency with a sufficiently large group regardless of individual consistency.*
+Fundamento: given a sufficiently large group size, consistency of the aggregate comparison matrix is guaranteed, regardless of the consistency measures of the individual comparison matrices
+
+
+**Aull-hyde (2006)** - *Higher matrix dimensions reach aggregate consistency with fewer group members.*
+Fundamento: as the number of comparisons increase, the number of group members needed to generate a 100% acceptable inconsistency measure decreases.
+
+
+**Ayan et al. (2023)** - *In MCDM, the choice of weighting method directly influences the accuracy and reliability of decision outcomes. Decisi...*
+Fundamento: any MCDM problem requires the choice of the weighting methods because it directly influences the accuracy and reliability of the decision outcomes
+
+
+**Ayan et al. (2023)** - *Weighting methods in MCDM are classified into three categories: subjective, objective, and combinative (integrated). ...*
+Fundamento: Weighting methods can be classified into three categories: subjective, objective, and combinative (integrated). Subjective methods require DMs to take responsibility for assigning weights to the criteria. In contrast, objective methods do not involve DMs in determining the relative importance of the criteria but instead use mathematical algorithms. The combinative approach involves a blend of both subjective and objective methods
+
+
+**Bozóki et al. (2010)** - *The optimal solution of the eigenvalue minimization problem for IPC is unique if and only if the graph associated wit...*
+Fundamento: The optimal solution of the problem (5) is unique if and only if the graph is connected
+
+
+**Bozóki et al. (2010)** - *The optimal solution of the incomplete LLSM problem is unique if and only if the graph G associated with the matrix i...*
+Fundamento: The optimal solution of the incomplete LLSM problem (6) is unique if and only if graph is connected
+
+
+**Bozóki et al. (2010)** - *Connectivity of the graph corresponds to the existence of a comparison chain (direct or indirect) between any two alt...*
+Fundamento: two criteria, not compared yet, can be in indirect relation, through further criteria and direct relations
+
+
+## Limiares Publicados (RAG)
+
+- **0.1 ratio** (<): acceptable threshold for identifying possible errors and actual inconsistencies in pairwise judgments
+      *Fonte:* demirtas2008_integrated (2008) - "In general, the inconsistency ratio should be less than 0.1 [46]."
+- **0.1 ratio** (≤): acceptable consistency level
+      *Fonte:* dodevska2023when (2023) - "Only CR-values smaller than or equal to 0.1 (i.e., 10%) indicate an acceptable/tolerable consistency level"
+- **0.1 ratio** (<): acceptable consistency
+      *Fonte:* ishizaka2011review (2011) - "If CR is less than 10%, then the matrix can be considered as having an acceptable consistency."
+- **0.1 ratio** (<): acceptable consistency of pairwise comparison matrix
+      *Fonte:* lee2024_project (2024) - "the result is said to be consistent only if the corresponding CR value is lower than 10%"
+- **0.1 ratio** (<): acceptable consistency threshold
+      *Fonte:* liang2022_ahp_undesirable (2022) - "If the degree of CR consistency is less than 0.10, the result is sufficiently accurate and there is no need for corrections"
+- **0.1 ratio** (≤): acceptable consistency
+      *Fonte:* mu2016_bocr (2016) - "CR values of 0.1 or below constitute acceptable consistency."
+- **0.2 ratio** (>): Julgamentos com CR > 0.20 são considerados não confiáveis — aleatoriedade compromete derivação de prioridades
+      *Fonte:* saaty2015_trustworthy (2015) - "A CR greater than 0.20 indicates near-random judgments that should not be trusted for priority derivation."
+- **0.1 ratio** (≤): acceptable consistency; if not less than 0.10, revise judgments
+      *Fonte:* saatyVargas2012 (2012) - "If it is not less than 0.10, study the problem and revise the judgments."
+- **0.1 ratio** (≤): acceptable consistency threshold for general AHP matrices
+      *Fonte:* salomon2024_consistency (2024) - "Considering the 0.1 threshold, B is not 100% consistent, but it is an acceptable matrix"
+- **0.5 ratio** (≤): suggested threshold for matrices of order three
+      *Fonte:* salomon2024_consistency (2024) - "for matrices of orders three and four, the thresholds could be 0.5 and 0.8, respectively"
+- **0.8 ratio** (≤): suggested threshold for matrices of order four
+      *Fonte:* salomon2024_consistency (2024) - "for matrices of orders three and four, the thresholds could be 0.5 and 0.8, respectively"
+- **0.2 ratio** (≤): tolerated threshold for larger matrices
+      *Fonte:* salomon2024_consistency (2024) - "For larger matrices, even a CR = 0.2 could be tolerated, but no more"
+- **0.1 ratio** (=): most common accepted threshold in reviewed studies
+      *Fonte:* schmidt2015_review (2015) - "31 studies used a CR of 0.1"
+- **0.15 ratio** (≤): widened consistency range accepted by some studies
+      *Fonte:* schmidt2015_review (2015) - "five studies widened the range to a CR of 0.15"
+- **0.2 ratio** (≤): highest accepted consistency threshold in healthcare reviews
+      *Fonte:* schmidt2015_review (2015) - "three studies accepted a CR of 0.2 or less"
+- **0.1 ratio** (≤): Standard consistency threshold suggested by Saaty
+      *Fonte:* schmidt2016_priorities (2016) - "Following Saaty, the CR has to be ≤ 0.1."
+- **0.2 ratio** (≤): Extended consistency threshold suggested by other authors
+      *Fonte:* schmidt2016_priorities (2016) - "Other authors suggested a CR ≤ 0.2, but the threshold value is not defined consistently."
+- **0.1 ratio** (≤): acceptable consistency threshold for individual and aggregated matrices
+      *Fonte:* xu2000_consistency (2000) - "a consistency ratio (CR) of 0.1 or less is acceptable"
+
+## Fórmulas de Síntese BOCR Validadas (RAG)
+
+### Additive method to synthesize BOCR priorities. (alizadeh2020_energy, 2020)
+    $$
+    P_i = bB_i + oO_i + c(1/C_i)_{\text{Normalized}} + r(1/R_i)_{\text{Normalized}}
+    $$
+    *Variáveis:* B_i=Benefits score, O_i=Opportunities score, C_i=Costs score, R_i=Risks score, b=Benefit weight, o=Opportunity weight, c=Cost weight, r=Risk weight
+    *Condições:* The additive formula is the best for long-term results.
+
+### Probabilistic additive method to synthesize BOCR priorities. (alizadeh2020_energy, 2020)
+    $$
+    P_i = bB_i + oO_i + c(1-C_i) + r(1-R_i)
+    $$
+    *Variáveis:* B_i=Benefits, O_i=Opportunities, C_i=Costs, R_i=Risks, b=Benefit weight, o=Opportunity weight, c=Cost weight, r=Risk weight
+    *Condições:* Gerais
+
+### Subtractive method to synthesize BOCR priorities. (alizadeh2020_energy, 2020)
+    $$
+    P_i = bB_i + oO_i - cC_i - rR_i
+    $$
+    *Variáveis:* B_i=Benefits, O_i=Opportunities, C_i=Costs, R_i=Risks, b=Benefit weight, o=Opportunity weight, c=Cost weight, r=Risk weight
+    *Condições:* Gerais
+
+### Multiplicative priority powers method to synthesize BOCR priorities. (alizadeh2020_energy, 2020)
+    $$
+    P_i = B_i^b O_i^o [(1/C_i)_{\text{Normalized}}]^c [(1/R_i)_{\text{Normalized}}]^r
+    $$
+    *Variáveis:* B_i=Benefits, O_i=Opportunities, C_i=Costs, R_i=Risks, b=Benefit weight, o=Opportunity weight, c=Cost weight, r=Risk weight
+    *Condições:* Gerais
+
+### Multiplicative ratio method to synthesize BOCR priorities. (alizadeh2020_energy, 2020)
+    $$
+    P_i = \frac{B_i O_i}{C_i R_i}
+    $$
+    *Variáveis:* B_i=Benefits, O_i=Opportunities, C_i=Costs, R_i=Risks
+    *Condições:* multiplicative formula is equivalent to the marginal cost/benefit and the best for short-term results (BO/CR).
+
+### Computes the overall score of each supplier using an additive formulation for BOCR merits, considering Costs and Risks as inverted. (demirtas2008_integrated, 2008)
+    $$
+    W_{i} = R_{b}*W_{ib} + R_{o}*W_{io} + R_{c}*(1-W_{ic}) + R_{r}*(1-W_{ir})
+    $$
+    *Variáveis:* W_i=overall score of the ith supplier, W_{ib}, W_{io}, W_{ic}, W_{ir}=total weights of the ith supplier according to Benefits, Opportunities, Costs, and Risks, R_b, R_o, R_c, R_r=rating results (weights) of the BOCR strategic criteria
+    *Condições:* Used to compute the overall score to rank alternatives and serve as objective function coefficients.
+
+### Computes the overall score using a negative additive (subtractive) formulation for Costs and Risks. (demirtas2008_integrated, 2008)
+    $$
+    W_{i} = R_{b}*W_{ib} + R_{o}*W_{io} - R_{c}*W_{ic} - R_{r}*W_{ir}
+    $$
+    *Variáveis:* W_i=overall score of the ith supplier, W_{ib}, W_{io}, W_{ic}, W_{ir}=total weights of the ith supplier according to Benefits, Opportunities, Costs, and Risks, R_b, R_o, R_c, R_r=rating results (weights) of the BOCR strategic criteria
+    *Condições:* Alternative to Eq. 2; its use may change the final rank of the alternatives.
+
+### Additive method to combine the scores of each alternative under BOCR. (kabak2014_prioritization, 2014)
+    $$
+    P_{i} = bB_{i} + oO_{i} + c(1/C_{i})_{\text{Normalized}} + r(1/R_{i})_{\text{Normalized}}
+    $$
+    *Variáveis:* P_i=priority score of alternative i, B_i, O_i, C_i, R_i=synthesized results of alternative i under merit B, O, C, and R, b, o, c, r=normalized weights of merit B, O, C, and R
+    *Condições:* Used to combine the scores of each alternative under B, O, C and R.
+
+### Probabilistic additive method to combine the scores of each alternative under BOCR. (kabak2014_prioritization, 2014)
+    $$
+    P_{i} = bB_{i} + oO_{i} + c(1-C_{i}) + r(1-R_{i})
+    $$
+    *Variáveis:* P_i=priority score of alternative i, B_i, O_i, C_i, R_i=synthesized results of alternative i under merit B, O, C, and R, b, o, c, r=normalized weights of merit B, O, C, and R
+    *Condições:* Used to combine the scores of each alternative under B, O, C and R.
+
+### Subtractive method to combine the scores of each alternative under BOCR. (kabak2014_prioritization, 2014)
+    $$
+    P_{i} = bB_{i} + oO_{i} + cC_{i} - rR_{i}
+    $$
+    *Variáveis:* P_i=priority score of alternative i, B_i, O_i, C_i, R_i=synthesized results of alternative i under merit B, O, C, and R, b, o, c, r=normalized weights of merit B, O, C, and R
+    *Condições:* Used to combine the scores of each alternative under B, O, C and R.
+
+### Multiplicative priority powers method to combine the scores of each alternative under BOCR. (kabak2014_prioritization, 2014)
+    $$
+    P_{i} = B_{i}^{b}O_{i}^{o}[(1/C_{i})_{\text{Normalized}}]^{c}[(1/R_{i})_{\text{Normalized}}]^{r}
+    $$
+    *Variáveis:* P_i=priority score of alternative i, B_i, O_i, C_i, R_i=synthesized results of alternative i under merit B, O, C, and R, b, o, c, r=normalized weights of merit B, O, C, and R
+    *Condições:* Used to combine the scores of each alternative under B, O, C and R.
+
+### Multiplicative method to combine the scores of each alternative under BOCR. (kabak2014_prioritization, 2014)
+    $$
+    P_{i} = BO / CR
+    $$
+    *Variáveis:* P_i=priority score of alternative i, B, O, C, R=synthesized results of alternatives under merit B, O, C, and R
+    *Condições:* Used to combine the scores of each alternative under B, O, C and R.
+
+### Additive method to combine scores of each alternative under B, O, C, and R. (lee2009_wind, 2009)
+    $$
+    P_i = bB_i + oO_i + c(1/C_i)_{Normalized} + r(1/R_i)_{Normalized}
+    $$
+    *Variáveis:* P_i=overall priority of alternative i, B_i=synthesized result of alternative i under merit B, b=normalized weight of merit B
+    *Condições:* Synthesizing normalized values where costs and risks are inverted and normalized before addition.
+
+### Probabilistic additive method to combine scores of each alternative under B, O, C, and R. (lee2009_wind, 2009)
+    $$
+    P_i = bB_i + oO_i + c(1-C_i) + r(1-R_i)
+    $$
+    *Variáveis:* P_i=overall priority of alternative i, C_i=synthesized result of alternative i under merit C
+    *Condições:* Used when costs and risks are subtracted from 1 (representing their complements) before weighting and adding.
+
+### Subtractive method to combine scores of each alternative under B, O, C, and R. (lee2009_wind, 2009)
+    $$
+    P_i = bB_i + oO_i - cC_i - rR_i
+    $$
+    *Variáveis:* P_i=overall priority of alternative i
+    *Condições:* Direct subtraction of weighted costs and risks from weighted benefits and opportunities.
+
+### Multiplicative priority powers method to combine scores of each alternative. (lee2009_wind, 2009)
+    $$
+    P_i = B_i^b O_i^o [(1/C_i)_{Normalized}]^c [(1/R_i)_{Normalized}]^r
+    $$
+    *Variáveis:* P_i=overall priority of alternative i
+    *Condições:* Merits are multiplied, with their respective priorities acting as exponents.
+
+### Multiplicative method to combine scores of each alternative under B, O, C, and R. (lee2009_wind, 2009)
+    $$
+    P_i = B_i O_i / (C_i R_i)
+    $$
+    *Variáveis:* P_i=overall priority of alternative i
+    *Condições:* Ratio of the product of positive merits to the product of negative merits. Does not explicitly use merit weights b, o, c, r in the final formula shown.
+
+### Basic BOCR additive formula with negative criteria subtracted. (liang2022_ahp_undesirable, 2022)
+    $$
+    bB+oO-cC-rR = \text{value for alternative}
+    $$
+    *Variáveis:* b, o, c, r=Weight coefficients of benefit, opportunities, costs, and risks criteria, B, O, C, R=Values of the alternative for each respective criterion
+    *Condições:* Values of criteria for each alternative must be normalized so 1 is best for positive and -1 is worst for negative.
+
+### Multiplicative combination of BOCR priorities. (liang2022_ahp_undesirable, 2022)
+    $$
+    BO/CR
+    $$
+    *Variáveis:* B, O, C, R=Synthesized priorities for Benefits, Opportunities, Costs, and Risks
+    *Condições:* One of the four ways to combine the four criteria to yield good results.
+
+### Additive combination where negative priorities are transformed using reciprocal values. (liang2022_ahp_undesirable, 2022)
+    $$
+    bB+oO+c(1/C)+r(1/R)
+    $$
+    *Variáveis:* b, o, c, r=Weights for B, O, C, R, B, O, C, R=Synthesized priorities for Benefits, Opportunities, Costs, and Risks
+    *Condições:* One of the four ways to combine the four criteria to yield good results.
+
+### Additive combination where negative priorities are transformed using complement (1 - value). (liang2022_ahp_undesirable, 2022)
+    $$
+    bB+oO+c(1-C)+r(1-R)
+    $$
+    *Variáveis:* b, o, c, r=Weights for B, O, C, R, B, O, C, R=Synthesized priorities for Benefits, Opportunities, Costs, and Risks
+    *Condições:* One of the four ways to combine the four criteria to yield good results.
+
+### Standard multiplicative BOCR ratio analysis. (mu2016_bocr, 2016)
+    $$
+    (B \times O) / (C \times R)
+    $$
+    *Variáveis:* B=Benefits, O=Opportunities, C=Costs, R=Risks
+    *Condições:* Intuitive simplicity; used when factors are mostly intangible rather than monetary.
+
+### Additive with subtraction formula for BOCR. (mu2016_bocr, 2016)
+    $$
+    B + O - C - R
+    $$
+    *Variáveis:* B=Benefits, O=Opportunities, C=Costs, R=Risks
+    *Condições:* Extension of the original net value approach (B-C).
+
+### Additive synthesis method for BOCR containing only positive priorities. (petrillo2023state, 2023)
+    $$
+    x = Bb + Oo + Cc + Rr
+    $$
+    *Variáveis:* x=overall priority, B, O, C, R=weights of each BOCR criterion, b, o, c, r=priorities of the alternative according to each criterion
+    *Condições:* Only in Equation (1) are there positive priorities.
+
+### Additive synthesis method for BOCR using reciprocals for negative priorities (costs and risks). (petrillo2023state, 2023)
+    $$
+    x = Bb + Oo + C(1/c) + R(1/r)
+    $$
+    *Variáveis:* x=overall priority, B, O, C, R=weights of each BOCR criterion, b, o, c, r=priorities of the alternative according to each criterion
+    *Condições:* Equation (2) has negative priorities obtained with comparison matrices.
+
+### Additive synthesis method for BOCR using complementary/residual values for negative priorities. (petrillo2023state, 2023)
+    $$
+    x = Bb + Oo + C(1-c) + R(1-r)
+    $$
+    *Variáveis:* x=overall priority, B, O, C, R=weights of each BOCR criterion, b, o, c, r=priorities of the alternative according to each criterion
+    *Condições:* Equation (3) deals with the concept of residual or complimentary values.
+
+### Multiplicative synthesis method (tradeoff) for BOCR priorities. (petrillo2023state, 2023)
+    $$
+    x = \frac{b^{B}o^{O}}{c^{C}r^{R}}
+    $$
+    *Variáveis:* x=overall priority, B, O, C, R=weights of each BOCR criterion, b, o, c, r=priorities of the alternative according to each criterion
+    *Condições:* Equation (4) highlights a tradeoff between benefits and costs and costs and risks.
+
+### Multiplicative synthesis of benefits/opportunities over costs/risks (return on investment ratio). (saatyOzdemir2003_negative, 2003)
+    $$
+    \frac{B^{w_b} \cdot O^{w_o}}{C^{w_c} \cdot R^{w_r}}
+    $$
+    *Variáveis:* B, O, C, R=Normalized priorities of an alternative on benefits, opportunities, costs, and risks, w_b, w_o, w_c, w_r=Strategic weights for the four BOCR factors
+    *Condições:* Yields a return-on-investment ratio. Reported alongside three other synthesis methods in Table 5.
+
+### Additive synthesis using reciprocals of costs and risks (i.e., 1/C and 1/R) to convert disadvantageous criteria into beneficial. (saatyOzdemir2003_negative, 2003)
+    $$
+    b \cdot B + o \cdot O + c/C + r/R
+    $$
+    *Variáveis:* b, o, c, r=Normalized weights of the BOCR factors, B, O, C, R=Normalized priorities of an alternative on each factor, 1/C, 1/R=Reciprocals of cost and risk priorities
+    *Condições:* One of four synthesis methods compared. Criticized in Wijnmalen (2007) for distorting the original common scale.
+
+### Additive Residual synthesis: costs and risks are converted to (1-C) and (1-R), so higher cost reduces the score additively. (saatyOzdemir2003_negative, 2003)
+    $$
+    b \cdot B + o \cdot O + c \cdot (1-C) + r \cdot (1-R)
+    $$
+    *Variáveis:* b, o, c, r=Normalized weights of BOCR factors, B, O, C, R=Normalized priorities of alternative on each factor, (1-C), (1-R)=Residual transformation: complement of normalized cost/risk relative to the largest reciprocal
+    *Condições:* One of four synthesis methods presented. The residual form (1-C) yields values between 0 and 1.
+
+### Additive Subtractive synthesis: costs and risks are subtracted directly, allowing the score to be negative when an alternative is unprofitable. (saatyOzdemir2003_negative, 2003)
+    $$
+    b \cdot B + o \cdot O - c \cdot C - r \cdot R
+    $$
+    *Variáveis:* b, o, c, r=Normalized weights of BOCR factors, B, O, C, R=Normalized priorities of alternative on each factor
+    *Condições:* Result can be negative, indicating unprofitability. Approximates net monetary value better than reciprocals.
+
+### Original multiplicative synthesis of composite priorities with weights as powers, proposed by Saaty. (wijnmalen2007_bocr, 2007)
+    $$
+    \frac{B_{p}^{w_{b}} * O_{p}^{w_{o}}}{C_{p}^{w_{c}} * R_{p}^{w_{r}}}
+    $$
+    *Variáveis:* B_{p}, O_{p}, C_{p}, R_{p}=Normalized overall priorities of alternatives on benefits, opportunities, costs, and risks, w_{b}, w_{o}, w_{c}, w_{r}=Normalized weights for each of the four factors
+    *Condições:* Criticized in the paper for yielding ambiguous profitability results unless specific commensurability conditions are met.
+
+### Additive synthesis with weights as coefficients, using reciprocals for costs and risks (approximation of multiplicative synthesis). (wijnmalen2007_bocr, 2007)
+    $$
+    w_{b}*B_{p} + w_{o}*O_{p} + w_{c}*1/C_{p}^{*} + w_{r}*1/R_{p}^{*}
+    $$
+    *Variáveis:* 1/C_{p}^{*}, 1/R_{p}^{*}=Normalized reciprocals of cost and risk priorities
+    *Condições:* Criticized for distorting the scale and lacking a break-even based profitability indicator.
+
+### Additive synthesis treating costs and risks as negative values instead of reciprocals. (wijnmalen2007_bocr, 2007)
+    $$
+    w_{b}*B_{p} + w_{o}*O_{p} - w_{c}*C_{p} - w_{r}*R_{p}
+    $$
+    *Variáveis:* 
+    *Condições:* Closer representation of net monetary value, but requires commensurate priorities to ensure valid results.
+
+### Revised synthesis using a quotient of sums of rescaled priorities to maintain consistent units. (wijnmalen2007_bocr, 2007)
+    $$
+    \frac{(s_{b}*B_{p}^{i})+(s_{o}*O_{p}^{i})}{(s_{c}*C_{p}^{i})+(s_{r}*R_{p}^{i})}
+    $$
+    *Variáveis:* s_{b}, s_{o}, s_{c}, s_{r}=Rescaling weights proportionate to the relative magnitudes (totals) of the factors
+    *Condições:* Recommended. Requires priorities to be rescaled to be commensurate prior to synthesis.
+
+### Net value oriented analysis incorporating both rescaling weights (s) for commensurability and personal evaluation weights (v). (wijnmalen2007_bocr, 2007)
+    $$
+    v_{b}*s_{b}*B_{p}^{i} + v_{o}*s_{o}*O_{p}^{i} - v_{c}*s_{c}*C_{p}^{i} - v_{r}*s_{r}*R_{p}^{i}
+    $$
+    *Variáveis:* v_{b}, v_{o}, v_{c}, v_{r}=Weights based on personal values (relative importance of factors), s_{b}, s_{o}, s_{c}, s_{r}=Magnitude-based rescaling weights
+    *Condições:* Recommended for net-value oriented BOCR analysis.
+
+## Benchmarks Empíricos de Estudos Publicados
+
+| Estudo | Domínio | N (Resp) | Pesos BOCR (B/O/C/R) | CR Agregado |
+|---|---|---|---|---|
+| lee2024_project (2024) | Energy Sector / Project Management | - | N/A | - |
+| salomon2024_consistency (2024) | Multiple Criteria Decision-Making (MCDM) | 1 | N/A | - |
+| saiyed2023_ceoPowerUET (2023) | Strategic Management / Emerging Markets | - | N/A | - |
+| tavana2023_revolution (2023) | Multi-Criteria Decision-Making (MCDM) | 5 | N/A | - |
+| alizadeh2020_energy (2020) | Renewable Energy / Public Policy | 12 | N/A | - |
+| mu2016_bocr (2016) | Management Education / International Cooperation | 54 | 0.46/0.20/0.24/0.10 | - |
+| ossadnik2016_group_aggregation (2016) | Strategic Management / Group Decision Making | 3 | N/A | - |
+| schmidt2016_priorities (2016) | Healthcare / Rare Diseases | 39 | N/A | - |
+| schmidt2015_review (2015) | Healthcare / Methodology Review | 109 | N/A | - |
+| kabak2014_prioritization (2014) | Renewable Energy / Strategic Planning | 8 | 0.37/0.35/0.20/0.08 | - |
+
+## Evidências Semânticas Recuperadas (RAG Vetorial)
+
+_(nenhum chunk semântico recuperado nesta execução)_
+
+---
+
+# RECURSOS DO SISTEMA DISPONÍVEIS
+
+O sistema AHP-BOCR possui os seguintes recursos implementados:
+
+## Análise de Sensibilidade
+⚠️ **ANÁLISE DE SENSIBILIDADE NÃO EXECUTADA**
+O sistema possui a funcionalidade, mas não foi executada para este projeto.
+Recomende ao pesquisador executar a análise de sensibilidade.
+
+## Outros Recursos Disponíveis
+- ✅ Cálculo automático de CR por respondente
+- ✅ Classificação de qualidade (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO)
+- ✅ Agregação por média geométrica (Saaty, 1990)
+- ✅ Validação externa com pyAHP
+- ✅ **Fórmula de síntese BOCR ESPECIFICADA:** Síntese Subtrativa Completa (Wijnmalen, 2007, Eq. 17)
+  - Score_i = vb × sb × B_i + vo × so × O_i − vc × sc × C_i − vr × sr × R_i
+  - Onde v = pesos pessoais (hierarquia de controle) e s = rescaling weights (comensurabilidade)
+  - Os valores exatos de v e s estão na seção DADOS DO SISTEMA — FÓRMULA DE SÍNTESE
+  - NÃO afirme que a fórmula não está especificada
+  - NÃO simplifique para bB + oO - cC - rR (esta forma omite os rescaling weights)
+- ⚠️ Algoritmo de melhoria de consistência (disponível, requer ação do usuário)
+
+## Verificação dos Axiomas de Saaty (1986)
+- ✅ **Reciprocidade:** Garantida pela estrutura da matriz de comparações pareadas
+- ✅ **Homogeneidade:** Escala 1-9 limita comparações a uma ordem de magnitude
+- ✅ **Dependência:** Estrutura hierárquica BOCR respeita dependência funcional
+- ✅ **Expectativas:** Ranking final reflete preferências agregadas dos especialistas
+
+## Caracterização da Amostra (Dados Demográficos)
+⚠️ **CARACTERIZAÇÃO DA AMOSTRA NÃO DISPONÍVEL**
+Os dados demográficos dos especialistas não foram coletados neste projeto.
+Recomende ao pesquisador incluir caracterização da amostra conforme Saaty & Ergu (2015).
+
+---
+
+# SUA TAREFA
+
+Como **Validador Científico**, confronte CADA métrica apresentada acima com a literatura e produza a revisão seguindo RIGOROSAMENTE a estrutura do system prompt.
+
+**PROTOCOLO DE VALIDAÇÃO:**
+Para cada métrica, siga: DADO (valor observado) → REFERÊNCIA (o que a literatura define) → VEREDITO (atende/não atende) → MITIGAÇÃO (se não atende)
+
+**LEMBRE-SE:**
+1. Valide APENAS os dados que foram fornecidos — não sugira análises que o sistema não implementa
+2. Cite SEMPRE a referência publicada para cada afirmação
+3. Reconheça métricas que atendem aos padrões antes de apontar as que não atendem
+4. Ações de mitigação devem ser REALIZÁVEIS com o sistema atual
+5. **NÃO FAÇA AFIRMAÇÕES FALSAS** - verifique a seção "RECURSOS DO SISTEMA" antes de afirmar que algo está "ausente"
+
+**AFIRMAÇÕES PROIBIDAS (são falsas se os recursos estiverem marcados como ✅):**
+- ❌ "Falta de análise de sensibilidade" → A análise FOI executada
+- ❌ "Ative/Execute a análise de sensibilidade" → Já está executada
+- ❌ "Não especifica fórmula de síntese" → Usa síntese subtrativa completa (Wijnmalen, 2007, Eq. 17) com v e s
+- ❌ "Ausência de verificação dos axiomas" → Garantidos pela estrutura do sistema
+- ❌ "Implementar análise de sensibilidade" → Já implementada E executada
+- ❌ "Falta de caracterização da amostra" → Dados demográficos disponíveis
+- ❌ Sugerir integração com ANP, MOMILP, análise multi-período, comparação internacional ou qualquer extensão teórica
+- ❌ Sugerir "expandir" ou "complementar" com análises não implementadas
+- ❌ Sugerir limiares não publicados (como CR > 0.15)
+- ❌ Gerar seções "Médio Prazo" ou "Longo Prazo" — a revisão contém APENAS "AÇÕES DE MITIGAÇÃO" para problemas concretos nos dados
+
+Elabore agora a revisão de validação científica.

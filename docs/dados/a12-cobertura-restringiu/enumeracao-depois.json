@@ -1,0 +1,191 @@
+{
+ "fase": "depois",
+ "combinacoes": 12939,
+ "origens": 681,
+ "documentos": 19,
+ "contagem": {
+  "a": 2724,
+  "b": 903,
+  "c": 9312,
+  "d": 0
+ },
+ "porOrigem": {
+  "analiseDeQualidade": {
+   "a": 1360,
+   "b": 444,
+   "c": 4656,
+   "d": 0
+  },
+  "fallbackSobreRespostas": {
+   "a": 1360,
+   "b": 444,
+   "c": 4656,
+   "d": 0
+  },
+  "nenhuma": {
+   "a": 4,
+   "b": 15,
+   "c": 0,
+   "d": 0
+  }
+ },
+ "estadosEmB": {
+  "vinculado": 30,
+  "divergente": 873
+ },
+ "retiradosEmC": {
+  "1": 2112,
+  "2": 2856,
+  "3": 2664,
+  "4": 1680
+ },
+ "violacoes": {
+  "I1_enviadosMaiorQueAvaliados": 0,
+  "I2_booleanoDiscordaDasContagens": 0,
+  "I3_listaEnviadaDiferenteDaContagem": 0,
+  "I4_restringiuDiscordaDoEstado": 0,
+  "I5_retiradoSemSobraNaAvaliacao": 0,
+  "I6_sobraSemRetirada": 0,
+  "T_tabelaNaoExaustiva": 0
+ },
+ "linhaAntes": {
+  "aberturaAntigaEmB": 0,
+  "aberturaAntigaEmC": 0,
+  "aberturaAEmA": 0,
+  "outras": 0
+ },
+ "linhaDepois": {
+  "esperadaB": 903,
+  "esperadaC": 9312,
+  "esperadaA": 2724,
+  "esperadaD": 0,
+  "divergiu": 0,
+  "exemplosDeDivergencia": []
+ },
+ "exemplos": {
+  "a": [
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "indisponivel",
+    "estado": "indisponivel",
+    "cobertura": {
+     "restringiu": false,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 1,
+     "incluidosNoDocumento": null,
+     "enviadosDiferemDosAvaliados": false,
+     "enviadosIguaisAoDocumento": null
+    }
+   },
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "invalido-vazio",
+    "estado": "invalido",
+    "cobertura": {
+     "restringiu": false,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 1,
+     "incluidosNoDocumento": null,
+     "enviadosDiferemDosAvaliados": false,
+     "enviadosIguaisAoDocumento": null
+    }
+   },
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "invalido-repetido",
+    "estado": "invalido",
+    "cobertura": {
+     "restringiu": false,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 1,
+     "incluidosNoDocumento": null,
+     "enviadosDiferemDosAvaliados": false,
+     "enviadosIguaisAoDocumento": null
+    }
+   }
+  ],
+  "b": [
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "ids:r1",
+    "estado": "vinculado",
+    "cobertura": {
+     "restringiu": true,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 1,
+     "incluidosNoDocumento": 1,
+     "enviadosDiferemDosAvaliados": false,
+     "enviadosIguaisAoDocumento": true
+    }
+   },
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "ids:r1,r2",
+    "estado": "divergente",
+    "cobertura": {
+     "restringiu": true,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 1,
+     "incluidosNoDocumento": 2,
+     "enviadosDiferemDosAvaliados": false,
+     "enviadosIguaisAoDocumento": false
+    }
+   },
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "ids:r1,r3",
+    "estado": "divergente",
+    "cobertura": {
+     "restringiu": true,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 1,
+     "incluidosNoDocumento": 2,
+     "enviadosDiferemDosAvaliados": false,
+     "enviadosIguaisAoDocumento": false
+    }
+   }
+  ],
+  "c": [
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "ids:r2",
+    "estado": "divergente",
+    "cobertura": {
+     "restringiu": true,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 0,
+     "incluidosNoDocumento": 1,
+     "enviadosDiferemDosAvaliados": true,
+     "enviadosIguaisAoDocumento": false
+    }
+   },
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "ids:r3",
+    "estado": "divergente",
+    "cobertura": {
+     "restringiu": true,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 0,
+     "incluidosNoDocumento": 1,
+     "enviadosDiferemDosAvaliados": true,
+     "enviadosIguaisAoDocumento": false
+    }
+   },
+   {
+    "origem": "analiseDeQualidade",
+    "doc": "ids:r2,r3",
+    "estado": "divergente",
+    "cobertura": {
+     "restringiu": true,
+     "avaliadosAntesDaRestricao": 1,
+     "enviados": 0,
+     "incluidosNoDocumento": 2,
+     "enviadosDiferemDosAvaliados": true,
+     "enviadosIguaisAoDocumento": false
+    }
+   }
+  ],
+  "d": []
+ }
+}

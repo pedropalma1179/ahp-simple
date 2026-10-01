@@ -30,6 +30,13 @@ export {};
  * ⚠ **As linhas de base de `35a1506`** (sha256 do contexto completo de cada cenário, medido pela sonda
  * sobre o código ANTERIOR à saída A) ficam em `docs/dados/a12-estatisticas-dimensao/saida-a/`. Este
  * arquivo as usa para medir que o contexto novo é o antigo com EXATAMENTE as substituições declaradas.
+ *
+ * ⚠ **Reconciliação de 01/10/2026 (`cobertura.restringiu`).** Em todo cenário COM vínculo o vínculo é o `vinculado` do
+ * produtor real (nada retirado), e a abertura da linha "Cobertura enviada" deixou de ser "RESTRINGIDO" para ser a do
+ * vínculo sem retirada. A reversão ao texto anterior e o esperado a partir da Fase 1 passaram a admitir EXATAMENTE essa
+ * troca (`ABERTURA_COBERTURA_*`), CONTADA em cada cenário, e o restante do contexto segue comparado byte a byte. Os
+ * arquivos históricos (`docs/dados/a12-estatisticas-dimensao/` e `saida-a/contextos-depois/`) ficam INTACTOS. Isto
+ * NÃO reabre a saída A: as decisões e as capturas dela são as mesmas.
  */
 
 const fs = require('node:fs');
@@ -124,6 +131,15 @@ const ITEM_NOVO =
 const ITEM_ANTIGO =
   '  - os totais por dimensão BOCR de "Estatísticas por Dimensão" NÃO medem a participação por dimensão e NÃO são o N de matriz alguma ' +
   '(quando a requisição traz o total agregado, como a da tela, a rota o reparte por quatro, arredondando para baixo).';
+/**
+ * A.12, `cobertura.restringiu` (rodada de 01/10/2026): a abertura da linha "Cobertura enviada" que `8e165fb` imprimia para
+ * TODO vínculo comparado, e a que a substitui no vínculo SEM retirada. Todos os vínculos com o campo, nestes cenários, são o
+ * `vinculado` do produtor real (n avaliados, n enviados, nada retirado), e por isso a linha mudou neles, e SÓ nela.
+ * ⚠ Isto NÃO reabre a saída A: a reconciliação admite EXATAMENTE essa troca, e o restante do contexto segue comparado.
+ */
+const ABERTURA_COBERTURA_ANTIGA = '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ';
+const ABERTURA_COBERTURA_SEM_RETIRADA =
+  '- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e ';
 
 const CABECALHO_DO_BLOCO = '## Estatísticas por Dimensão BOCR';
 const CABECALHO_SEGUINTE = '## Pesos Finais da Hierarquia de Controle';
@@ -191,7 +207,10 @@ function blocoDoTextoAnterior(individualStats: any): string {
   ].join('\n\n');
 }
 
-/** O contexto NOVO, levado de volta ao texto anterior: o bloco (se elegível) e o item da chave (se houver). */
+/**
+ * O contexto NOVO, levado de volta ao texto anterior: o bloco (se elegível), o item da chave (se houver) e, A.12
+ * `cobertura.restringiu`, a abertura da linha de cobertura do vínculo sem retirada (se houver). ⚠ NADA além disso.
+ */
 function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolean): string {
   let c = novo;
   if (elegivel) {
@@ -201,6 +220,12 @@ function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolea
   if (c.includes(ITEM_NOVO)) {
     expect(ocorrencias(c, ITEM_NOVO)).toBe(1);
     c = c.replace(ITEM_NOVO, ITEM_ANTIGO);
+  }
+  // ⚠ A troca é de UMA ocorrência, e SÓ dessa abertura: o resto do contexto segue comparado byte a byte. A ocorrência é
+  //   CONTADA em cada ponto de chamada, para que a reversão não passe por vacuidade onde ela deveria acontecer.
+  if (c.includes(ABERTURA_COBERTURA_SEM_RETIRADA)) {
+    expect(ocorrencias(c, ABERTURA_COBERTURA_SEM_RETIRADA)).toBe(1);
+    c = c.replace(ABERTURA_COBERTURA_SEM_RETIRADA, ABERTURA_COBERTURA_ANTIGA);
   }
   return c;
 }
@@ -615,7 +640,11 @@ describe('ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE
       expect(linhaDaTaxa(r.contexto)).toBe(TAXA_NAO_AVALIADA);
       expect(r.contexto).not.toContain(FRASE_DO_BLOCO_AVALIADA);
 
-      // byte a byte: sem o campo, o contexto COMPLETO tem o sha256 da base; com o campo, só o item da chave difere
+      // A.12, `cobertura.restringiu`: com o campo, a abertura do vínculo sem retirada ocorre UMA vez (o vínculo é o `vinculado`
+      //   do produtor), exceto em `nao-avaliada-ausente`, cujo vínculo é `indisponivel` e mantém a abertura de antes
+      const esperadasSemRetirada = comVinculo && base !== 'nao-avaliada-ausente' ? 1 : 0;
+      expect([nome, ocorrencias(r.contexto, ABERTURA_COBERTURA_SEM_RETIRADA)]).toEqual([nome, esperadasSemRetirada]);
+      // byte a byte: sem o campo, o contexto COMPLETO tem o sha256 da base; com o campo, só o item da chave e a abertura da cobertura diferem
       const base35a1506 = daBase(nome);
       const anterior = paraOTextoAnterior(r.contexto, payload.individualStats, false);
       expect(sha256(anterior)).toBe(base35a1506.sha256Contexto);
@@ -731,7 +760,7 @@ describe('ensaio 8: nenhum quociente do agregado é apresentado como contagem me
 });
 
 // ============================================================ ensaio 9
-describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco e o item da chave mudam', () => {
+describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco, o item da chave e (com o campo) a abertura da cobertura sem retirada mudam', () => {
   /** O contexto de `35a1506`, capturado na Fase 1 e versionado, com SÓ a substituição do bloco. */
   const comSoOBloco = (anterior: string): string => {
     const inicio = anterior.indexOf(CABECALHO_DO_BLOCO + '\n\n') + (CABECALHO_DO_BLOCO + '\n\n').length;
@@ -744,10 +773,14 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
     const soOBloco = comSoOBloco(anterior);
     if (!comVinculo) {
       expect(soOBloco).not.toContain(ITEM_ANTIGO);
+      expect(ocorrencias(soOBloco, '- Cobertura enviada')).toBe(0); // sem o campo não há linha de cobertura
       return soOBloco;
     }
     expect(ocorrencias(soOBloco, ITEM_ANTIGO)).toBe(1);
-    return soOBloco.replace(ITEM_ANTIGO, ITEM_NOVO);
+    // A.12, `cobertura.restringiu`: com o campo, a captura da Fase 1 traz a abertura de antes UMA vez, e ela é substituída
+    //   pela do vínculo sem retirada (o `vinculado` do produtor): é a ÚNICA mudança, além do bloco e do item da chave
+    expect(ocorrencias(soOBloco, ABERTURA_COBERTURA_ANTIGA)).toBe(1);
+    return soOBloco.replace(ITEM_ANTIGO, ITEM_NOVO).replace(ABERTURA_COBERTURA_ANTIGA, ABERTURA_COBERTURA_SEM_RETIRADA);
   };
 
   test.each([['agregado-5'], ['agregado-3']])('%s: contra o contexto completo da Fase 1, sem e com o campo', async (base) => {
@@ -775,6 +808,7 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
     expect(nomes.length).toBe(27);
     expect(new Set(nomes).size).toBe(27);
     expect(new Set(LINHAS_DE_BASE.cenarios.map((c: any) => c.sha256Contexto)).size).toBe(27); // 27 contextos DISTINTOS na base
+    let totalComAberturaNova = 0;
     for (const nome of nomes) {
       const comVinculo = nome.endsWith('-comVinculo');
       const base = nome.replace(/-(comVinculo|semVinculo)$/, '');
@@ -783,6 +817,10 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
       // o cenário é o que se pensa: a suspensão da classificação é exatamente a não elegibilidade
       expect([nome, !!r.corpo.notaSuspensa?.suspensa]).toEqual([nome, !elegivel]);
       const linha = daBase(nome);
+      // A.12, `cobertura.restringiu`: a abertura do vínculo sem retirada, contada em cada cenário e somada ao fim (12 de 27)
+      const esperadasSemRetirada = comVinculo && base !== 'nao-avaliada-ausente' ? 1 : 0;
+      expect([nome, ocorrencias(r.contexto, ABERTURA_COBERTURA_SEM_RETIRADA)]).toEqual([nome, esperadasSemRetirada]);
+      totalComAberturaNova += esperadasSemRetirada;
       const anterior = paraOTextoAnterior(r.contexto, JSON.parse(JSON.stringify(payload)).individualStats, elegivel);
       expect([nome, sha256(anterior)]).toEqual([nome, linha.sha256Contexto]);
       expect([nome, Buffer.byteLength(anterior, 'utf8')]).toEqual([nome, linha.bytesDoContexto]);
@@ -790,6 +828,8 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
       // e o pedido NÃO elegível, sem o campo, é byte a byte o de antes
       if (!elegivel && !comVinculo) expect([nome, sha256(r.contexto)]).toEqual([nome, linha.sha256Contexto]);
     }
+    // ⚠ a reversão da abertura aconteceu em 12 dos 27 cenários, e em nenhum outro: não passou por vacuidade, nem a estendeu
+    expect(totalComAberturaNova).toBe(12);
   });
 });
 

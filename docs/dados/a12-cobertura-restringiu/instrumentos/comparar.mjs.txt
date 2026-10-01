@@ -1,0 +1,69 @@
+// COMPARADOR (temporário, arquivado como texto): contexto ANTES (8e165fb) contra DEPOIS, por cenário.
+// Uso: node comparar.mjs <diretório com antes/ e depois/> [saída.json]
+import fs from 'node:fs';
+import path from 'node:path';
+
+const raiz = process.argv[2];
+const saida = process.argv[3];
+const lerJson = (f) => JSON.parse(fs.readFileSync(path.join(raiz, f), 'utf8'));
+const antes = lerJson('antes/resultados.json');
+const depois = lerJson('depois/resultados.json');
+const PREFIXO = '- Cobertura enviada: ';
+const ABERTURA_ANTIGA = '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ';
+const ABERTURA_B = '- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e ';
+const ABERTURA_D = '- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; NÃO se pode determinar se algum elemento da lista avaliada foi retirado (';
+
+const porNome = (j) => new Map(j.resultados.map((r) => [r.nome, r]));
+const A = porNome(antes);
+const D = porNome(depois);
+
+const veredito = [];
+for (const [nome, a] of A) {
+  const d = D.get(nome);
+  const v = { nome, grupo: a.grupo, classe: a.classeDoVinculoQueChega };
+  if (!d) { v.resultado = 'SEM-PAR-NO-DEPOIS'; veredito.push(v); continue; }
+  v.systemIgual = a.sha256System === d.sha256System;
+  v.corpoIgual = a.sha256Corpo === d.sha256Corpo;
+  v.statusIguais = a.status === d.status;
+  v.contextoIgual = a.sha256Contexto === d.sha256Contexto;
+  const ca = fs.readFileSync(path.join(raiz, 'antes/ctx', `${nome}.txt`), 'utf8').split('\n');
+  const cd = fs.readFileSync(path.join(raiz, 'depois/ctx', `${nome}.txt`), 'utf8').split('\n');
+  const difs = [];
+  const n = Math.max(ca.length, cd.length);
+  for (let i = 0; i < n; i++) if (ca[i] !== cd[i]) difs.push(i);
+  v.linhasDiferentes = difs.length;
+  v.mesmoNumeroDeLinhas = ca.length === cd.length;
+  if (v.contextoIgual) {
+    v.resultado = difs.length === 0 ? 'identico' : 'HASH-IGUAL-MAS-LINHAS-DIFEREM';
+  } else if (difs.length === 1 && ca.length === cd.length) {
+    const la = ca[difs[0]];
+    const ld = cd[difs[0]];
+    const ok = la.startsWith(ABERTURA_ANTIGA) && (ld.startsWith(ABERTURA_B) || ld.startsWith(ABERTURA_D));
+    const clausulaA = la.slice(ABERTURA_ANTIGA.length);
+    // a cláusula de R4 é a que SEGUE a abertura nova: em (b) logo depois; em (d), depois de "), e "
+    let clausulaD = null;
+    if (ld.startsWith(ABERTURA_B)) clausulaD = ld.slice(ABERTURA_B.length);
+    else if (ld.startsWith(ABERTURA_D)) { const k = ld.indexOf('), e '); clausulaD = k >= 0 ? ld.slice(k + '), e '.length) : null; }
+    v.resultado = ok && clausulaA === clausulaD ? (ld.startsWith(ABERTURA_B) ? 'so-a-abertura-de-b' : 'so-a-abertura-de-d') : 'OUTRA-DIFERENCA-NA-LINHA';
+    v.linhaAntes = la.slice(0, 220);
+    v.linhaDepois = ld.slice(0, 330);
+  } else {
+    v.resultado = 'DIFERE-EM-MAIS-DE-UMA-LINHA';
+  }
+  veredito.push(v);
+}
+
+const contar = (f) => veredito.filter(f).length;
+const resumo = {
+  total: veredito.length,
+  identicos: contar((v) => v.resultado === 'identico'),
+  soAberturaDeB: contar((v) => v.resultado === 'so-a-abertura-de-b'),
+  soAberturaDeD: contar((v) => v.resultado === 'so-a-abertura-de-d'),
+  anomalias: veredito.filter((v) => !['identico', 'so-a-abertura-de-b', 'so-a-abertura-de-d'].includes(v.resultado)).map((v) => [v.nome, v.resultado]),
+  systemIgualEm: contar((v) => v.systemIgual),
+  corpoIgualEm: contar((v) => v.corpoIgual),
+  statusIguaisEm: contar((v) => v.statusIguais),
+};
+const out = { resumo, veredito };
+if (saida) fs.writeFileSync(saida, JSON.stringify(out, null, 2));
+console.log(JSON.stringify(resumo, null, 2));

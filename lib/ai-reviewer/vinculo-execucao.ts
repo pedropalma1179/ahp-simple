@@ -638,6 +638,80 @@ function listar(x: unknown, formatar: (item: unknown) => string, vazio: string):
 const NENHUM = 'nenhum (comparação realizada)';
 
 /**
+ * ⚠ **A RETIRADA, lida SÓ dos campos declarados de `cobertura`, em quatro estados.** `restringiu` diz que o FILTRO
+ * pelos identificadores do documento foi aplicado, e é `true` em todo vínculo comparado, mesmo quando o filtro não
+ * retirou ninguém. Quem diz se a lista MUDOU são `enviadosDiferemDosAvaliados` e as duas contagens.
+ *
+ * ⚠ É conclusão DELIMITADA aos campos declarados: NÃO substitui a comparação das identidades (R4) e não se deduz do
+ * estado do vínculo, porque `vinculado` e `divergente` podem ter retirada, ou não.
+ * ⚠ No produtor real o booleano e as contagens saem dos MESMOS dois números (`prepararVinculoDaTela`), então a
+ * conferência cruzada só pode discordar em objeto RECEBIDO. O quarto estado não acrescenta causa de suspensão, não
+ * classifica e não emite veredito: declara que a retirada não se determina, com o motivo.
+ */
+type RetiradaDaCobertura =
+  | { estado: 'nao-aplicado' }
+  | { estado: 'sem-retirada' }
+  | { estado: 'com-retirada' }
+  | { estado: 'nao-determinada'; condicao: string };
+
+/** Uma contagem é VÁLIDA quando é número inteiro finito e não negativo. */
+const contagemValida = (x: unknown): boolean => typeof x === 'number' && Number.isInteger(x) && x >= 0;
+
+function lerRetiradaDaCobertura(cob: Record<string, any> | null): RetiradaDaCobertura {
+  if (cob?.restringiu !== true) return { estado: 'nao-aplicado' };
+  const diferem = cob.enviadosDiferemDosAvaliados;
+  const avaliados = cob.avaliadosAntesDaRestricao;
+  const enviados = cob.enviados;
+  const contagensValidas = contagemValida(avaliados) && contagemValida(enviados);
+  if (typeof diferem === 'boolean' && contagensValidas) {
+    if (diferem === false && enviados === avaliados) return { estado: 'sem-retirada' };
+    if (diferem === true && enviados < avaliados) return { estado: 'com-retirada' };
+  }
+  // ⚠ A PRIMEIRA condição que se aplica, nesta ordem. A ordem é escolha declarada, e NÃO propriedade do dado: quando
+  //   duas valem ao mesmo tempo só a primeira é nomeada, e isso não afirma que as demais continuem legíveis nos três
+  //   campos exibidos (com valor não representável elas podem não ser recuperáveis).
+  const condicao =
+    contagensValidas && enviados > avaliados
+      ? 'o vínculo declara mais enviados do que avaliados antes de qualquer restrição'
+      : typeof diferem !== 'boolean'
+        ? 'o vínculo não declara se a lista mudou'
+        : !contagensValidas
+          ? 'as contagens declaradas não permitem decidir'
+          : 'o booleano e as contagens declarados discordam';
+  return { estado: 'nao-determinada', condicao };
+}
+
+/**
+ * ⚠ A linha "Cobertura enviada". Só as aberturas de `sem-retirada` e de `nao-determinada` são novas: a de
+ * `nao-aplicado` e a de `com-retirada` são as de antes, palavra por palavra.
+ */
+function linhaDaCobertura(cob: Record<string, any> | null, leitura: LeituraDoVinculo): string {
+  const retirada = lerRetiradaDaCobertura(cob);
+  if (retirada.estado === 'nao-aplicado') {
+    return '- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado.';
+  }
+  // ⚠ R4: se a lista APRESENTADA não corresponde aos enviados declarados, o bloco não afirma que corresponde. A
+  //   cláusula é INDEPENDENTE da retirada: vale nas três aberturas que a usam.
+  const clausula =
+    leitura.conferencia !== null && !leitura.conferencia.correspondeAosEnviados
+      ? `o vínculo declara que a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).`
+      : `a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados.`;
+  if (retirada.estado === 'com-retirada') {
+    return `- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ${clausula}`;
+  }
+  if (retirada.estado === 'sem-retirada') {
+    return `- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e ${clausula}`;
+  }
+  // ⚠ O motivo EXIBE os três campos segundo a representação definida (`não informado` para o que não é representável),
+  //   e NÃO os preserva: `numero("4")`, `numero(null)` e `numero(NaN)` dão a mesma saída.
+  const b = cob?.enviadosDiferemDosAvaliados;
+  const lido =
+    `enviadosDiferemDosAvaliados = ${b === true ? 'true' : b === false ? 'false' : 'não informado'}, ` +
+    `avaliadosAntesDaRestricao = ${numero(cob?.avaliadosAntesDaRestricao)}, enviados = ${numero(cob?.enviados)}`;
+  return `- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; NÃO se pode determinar se algum elemento da lista avaliada foi retirado (${retirada.condicao}; lido: ${lido}), e ${clausula}`;
+}
+
+/**
  * O texto do bloco, ou `''` quando a requisição NÃO traz o campo.
  *
  * ⚠ **Requisição sem `vinculoDaExecucao` não ganha bloco algum**, e o contexto sai byte a
@@ -715,15 +789,8 @@ export function descreverVinculoParaContexto(raw: unknown, apresentada?: Identid
   );
 
   // ---- a cobertura ENVIADA, que é outra coisa
-  linhas.push(
-    cob?.restringiu === true
-      ? '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ' +
-          // ⚠ R4: se a lista APRESENTADA não corresponde aos enviados declarados, o bloco não afirma que corresponde.
-          (leitura.conferencia !== null && !leitura.conferencia.correspondeAosEnviados
-            ? `o vínculo declara que a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).`
-            : `a lista de respondentes que segue é a dos ${numero(cob?.enviados)} enviados.`)
-      : '- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado.'
-  );
+  // ⚠ `restringiu` diz que o filtro foi aplicado, e NÃO que algum elemento saiu: ver `lerRetiradaDaCobertura`.
+  linhas.push(linhaDaCobertura(cob, leitura));
   linhas.push(LINHA_DA_RELACAO(leitura));
   if (leitura.conferencia !== null) linhas.push(LINHA_DA_LISTA_APRESENTADA(leitura));
 

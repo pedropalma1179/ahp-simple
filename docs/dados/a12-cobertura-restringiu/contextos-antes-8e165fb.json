@@ -1,0 +1,758 @@
+{
+ "natureza": "Linhas de base HISTORICAS: o que o tratador real capturou no codigo de 8e165fb, antes de qualquer edicao de codigo desta rodada. Nao e criterio de qualidade: e o que o modelo recebia.",
+ "base": "8e165fb9da51133ccbe1e9d0093680ada67a7ca5",
+ "total": 56,
+ "observacao": "sha256Corpo e o do corpo da resposta SEM o campo `timestamp` (o unico campo volatil: medido, 56 de 56 corpos diferem so nele entre duas execucoes do MESMO codigo).",
+ "resultados": [
+  {
+   "nome": "agregado-5-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "fbabf60ee09d524b8826e89325a2ed66ad417938ec04d90efa5252d78cd47568",
+   "bytesDoContexto": 70525,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "agregado-5-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 5 enviados."
+   ],
+   "sha256Contexto": "983c0405a86777c0d1d0922e5c3aa9c993c09b1f046278bc6c285fe8eb96e10e",
+   "bytesDoContexto": 75229,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "agregado-3-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "24ae2c3f6208e0da4e72e6556876d8aa9268ad87571a19a44b90bc2299cbc23a",
+   "bytesDoContexto": 70418,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "agregado-3-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "38b1c59e4e49df348c66bebd54bfca74de2b7813ad44390cf61bffed651360ff",
+   "bytesDoContexto": 75122,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "agregado-12-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "781515dc8108e7e7af2b4241b07f58fb82b7a2c7b632a172f9d6db4288b3cab6",
+   "bytesDoContexto": 71049,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "c3e4e76d46364d878008cac3d5b8517150d326c802b0a9f58973697181d4885b"
+  },
+  {
+   "nome": "agregado-12-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 12 enviados."
+   ],
+   "sha256Contexto": "cdcc117f6556afc3d1823df67d892f4bc29c1cb1b814c6f312b51a03153ae1bf",
+   "bytesDoContexto": 75765,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "c3e4e76d46364d878008cac3d5b8517150d326c802b0a9f58973697181d4885b"
+  },
+  {
+   "nome": "agregado-12-gravado-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "ec61e825e4516aad553b5eec1e20797c16610cc4e1ba65135cf795ba4811736e",
+   "bytesDoContexto": 70841,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "agregado-12-gravado-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 12 enviados."
+   ],
+   "sha256Contexto": "405d62e4e0e828428a454054d2a6f3f6742371490c6693a7c9933113d10eef87",
+   "bytesDoContexto": 75557,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "agregado-5-com-2-desconhecidos-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "8c08d98a2f78ad94cbba64b1f420dbfd56f0f41583758fad10954513e4e997a7",
+   "bytesDoContexto": 70503,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "28e508e2561108533a7a2440864c0bb78dbfde511c4e7bfb46e111a238314ad9"
+  },
+  {
+   "nome": "agregado-5-com-2-desconhecidos-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 5 enviados."
+   ],
+   "sha256Contexto": "fc62c9799236c41c6811a4bd8f0330ae843d885bb345d851d3bb1b792703598e",
+   "bytesDoContexto": 75207,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "28e508e2561108533a7a2440864c0bb78dbfde511c4e7bfb46e111a238314ad9"
+  },
+  {
+   "nome": "todos-validos-3-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "c0797db8010ad0b0aea29c30f90ddc57939e948239923efc681235ac6a0d99ea",
+   "bytesDoContexto": 70336,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "todos-validos-3-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "fda5f45f07b9c8b1effa469376959ef940265f46a05677104f59e3041ec84174",
+   "bytesDoContexto": 75040,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "todos-acima-3-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "1e0ba90e26cc931b804dac4d0acb60530616bc2486d72edd5d89e3ca4f0c1afa",
+   "bytesDoContexto": 70329,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "c3e4e76d46364d878008cac3d5b8517150d326c802b0a9f58973697181d4885b"
+  },
+  {
+   "nome": "todos-acima-3-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "663c39232c4d8db48b75705c0a661a974cb1c91a45f0a545a4783257bee41e11",
+   "bytesDoContexto": 75033,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "c3e4e76d46364d878008cac3d5b8517150d326c802b0a9f58973697181d4885b"
+  },
+  {
+   "nome": "elegivel-sem-individualStats-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "fbabf60ee09d524b8826e89325a2ed66ad417938ec04d90efa5252d78cd47568",
+   "bytesDoContexto": 70525,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "elegivel-sem-individualStats-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 5 enviados."
+   ],
+   "sha256Contexto": "983c0405a86777c0d1d0922e5c3aa9c993c09b1f046278bc6c285fe8eb96e10e",
+   "bytesDoContexto": 75229,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "duplo-por-dimensao-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "fbabf60ee09d524b8826e89325a2ed66ad417938ec04d90efa5252d78cd47568",
+   "bytesDoContexto": 70525,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "duplo-por-dimensao-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 5 enviados."
+   ],
+   "sha256Contexto": "983c0405a86777c0d1d0922e5c3aa9c993c09b1f046278bc6c285fe8eb96e10e",
+   "bytesDoContexto": 75229,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "231aa9b42677279987a09a0f6e09d3bca7f51c51ee69c89f654021815f508277"
+  },
+  {
+   "nome": "nao-avaliada-ausente-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "510fd08e4d0bcdbba8716d0d4d865f2f6c45403ba43aa34ebeb850232dff3365",
+   "bytesDoContexto": 69873,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "6cb038ec00a858536eea58175b4096b31b0b577a96808c9b9a2da803ce5671f2"
+  },
+  {
+   "nome": "nao-avaliada-ausente-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "a",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado."
+   ],
+   "sha256Contexto": "48574daf24f76203dcf58f2d408efb1d4d2293658815187b938c728e108fbe5e",
+   "bytesDoContexto": 72534,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "6cb038ec00a858536eea58175b4096b31b0b577a96808c9b9a2da803ce5671f2"
+  },
+  {
+   "nome": "nao-avaliada-incompleta-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "c4674e7980d36a7f43f9cdd21b7d723c671fa3c7d717d88e3b12c327aa2c2daa",
+   "bytesDoContexto": 70787,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "af5d85df9c29f30844ea2772b15151dfe04cba152e85b658461567ba398f36ae"
+  },
+  {
+   "nome": "nao-avaliada-incompleta-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "17a81acf311040c3a1e19ffb6161ef30f6fc0e1d6d2c37d158fd03ebd35fe7f6",
+   "bytesDoContexto": 75491,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "af5d85df9c29f30844ea2772b15151dfe04cba152e85b658461567ba398f36ae"
+  },
+  {
+   "nome": "contradicao-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "b290f7d4781cb06740fd800a9cdf02842841beee8bfd4aa734ecaf9704d55227",
+   "bytesDoContexto": 71157,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "b0fe589bd63838c2883462497a7c887b8ccf052464a8c72d867888ab0b6224cb"
+  },
+  {
+   "nome": "contradicao-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 5 enviados."
+   ],
+   "sha256Contexto": "a64711c828bbe6c9ffb6d7ca1461099c6b43e12b361b06318aac9f9ddecd5a79",
+   "bytesDoContexto": 75861,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "b0fe589bd63838c2883462497a7c887b8ccf052464a8c72d867888ab0b6224cb"
+  },
+  {
+   "nome": "coerencia-nao-concluida-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "12519302f38f9125426d134757225e85ad72859f43d9fac29b300e154720b4e6",
+   "bytesDoContexto": 71644,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "0619eac7783bb1b96ee3cf0ac48fd5993b0e4382f8c8b7166be5bfea534db090"
+  },
+  {
+   "nome": "coerencia-nao-concluida-comVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 5 enviados."
+   ],
+   "sha256Contexto": "299a8120abcdbcf37868d1544d598bdf7c2bb4ed485df42f7cd7f91daa8a2c50",
+   "bytesDoContexto": 76348,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "0619eac7783bb1b96ee3cf0ac48fd5993b0e4382f8c8b7166be5bfea534db090"
+  },
+  {
+   "nome": "elegivel-total-zero-semVinculo",
+   "grupo": "saida-a",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "c26dc2b54d1f567a7dadb4a9e748d478b749eff009b5748fab33bcf2d9894d54",
+   "bytesDoContexto": 69861,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "c0666bcdfc026b83bb7779462d892716f7b05c41cb0b46dbf1639fda78b750da"
+  },
+  {
+   "nome": "a-indisponivel",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "a",
+   "esperado": "a",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado."
+   ],
+   "sha256Contexto": "7314251cf4107f3793f81000ee2dc0814684b1e73b7b8f1ba50a1b5ce80c31bf",
+   "bytesDoContexto": 73681,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "a-invalido",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "a",
+   "esperado": "a",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado."
+   ],
+   "sha256Contexto": "e4e8faf2d3a183f93f1423e8d9d644c8087970099ef6a9e39d1afd2275d4424e",
+   "bytesDoContexto": 73808,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "b-vinculado",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": "b",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "09b812ca8985df68e4da24b829ea5b4d4ee6becc84879d265942848e7ab152bc",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "b-divergente-sobra-no-documento",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": "b",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "de1a6b2710bad2849e3aa203d721fa1324a9cab05f1980f086ac142866616b65",
+   "bytesDoContexto": 76235,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "b-repetido-na-avaliacao",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": "b",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "a6e1863b96772b1a2f9d887f52ddc7a34e4410cdade297724ddb7ee7586b67ed",
+   "bytesDoContexto": 76279,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "b-r4-declara",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "b",
+   "esperado": "b",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e o vínculo declara que a lista de respondentes que segue é a dos 4 enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista)."
+   ],
+   "sha256Contexto": "491cdbbdb3614e6038c9282341f32c1b3232dfd36bbda910d97e00ed94f67e00",
+   "bytesDoContexto": 76742,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "c-retirada-parcial-4-para-3",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "c",
+   "esperado": "c",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "a8088b15eb4d3177d157a83e4db144a4b76bf67ce40de355a7a12470310e65b5",
+   "bytesDoContexto": 75077,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "c-retirada-parcial-5-para-4",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "c",
+   "esperado": "c",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "8f84301a64aababe61d8734cbdff3a9df57a0b6a9f13f020277353cb859f0854",
+   "bytesDoContexto": 75131,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "c-retirada-total",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "c",
+   "esperado": "c",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 0 enviados."
+   ],
+   "sha256Contexto": "36c35528605d7078984baa8c461ae5332344aae75d2acbdc23afbbbcb5f8c90a",
+   "bytesDoContexto": 74577,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "6cb038ec00a858536eea58175b4096b31b0b577a96808c9b9a2da803ce5671f2"
+  },
+  {
+   "nome": "c-identidade-ausente",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "c",
+   "esperado": "c",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 2 enviados."
+   ],
+   "sha256Contexto": "484be952a7868b0ba9392008b5abe036e0caff7712c3b6a7d74dea01f9beac6e",
+   "bytesDoContexto": 75057,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "c-r4-declara",
+   "grupo": "produtor-real",
+   "status": 200,
+   "classeDoVinculoQueChega": "c",
+   "esperado": "c",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e o vínculo declara que a lista de respondentes que segue é a dos 3 enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista)."
+   ],
+   "sha256Contexto": "b57689804eb8fe68e8b96863c1269108cbe02a37f9656bf542fc337651e3b908",
+   "bytesDoContexto": 76827,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d1-mais-enviados-que-avaliados",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d1",
+   "esperado": "d1",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "1da286272c77fb57ae89ef647eb55dd3ab970355c3b0e3c8430aa70b64ddcc28",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d2-booleano-ausente",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d2",
+   "esperado": "d2",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "09b812ca8985df68e4da24b829ea5b4d4ee6becc84879d265942848e7ab152bc",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d3-booleano-texto",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d2",
+   "esperado": "d2",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "09b812ca8985df68e4da24b829ea5b4d4ee6becc84879d265942848e7ab152bc",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d4-contagem-texto",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d3",
+   "esperado": "d3",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos não informado enviados."
+   ],
+   "sha256Contexto": "946825e2c307fbf839fbc89a10c661e2f54f8dcd23f5e69ca01600504411d0b6",
+   "bytesDoContexto": 75120,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d5-contagem-negativa",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d3",
+   "esperado": "d3",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "2019f589fdd636b65ee71f936fae3f732f42e43c08e884e5be09a3e4d98b3a51",
+   "bytesDoContexto": 75095,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d6-contagem-fracionaria",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d3",
+   "esperado": "d3",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 2.5 enviados."
+   ],
+   "sha256Contexto": "7533e48b5a13ab53aa2a38d3a9cb4d1530409d20100b6bcb1fce22fb404b1722",
+   "bytesDoContexto": 75186,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d7-iguais-com-booleano-true",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d4",
+   "esperado": "d4",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "09b812ca8985df68e4da24b829ea5b4d4ee6becc84879d265942848e7ab152bc",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d8-menor-com-booleano-false",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d4",
+   "esperado": "d4",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados."
+   ],
+   "sha256Contexto": "42ec6e285129752e5a54ff267331bfbd37e51b765c51f0e8648bb5e934a5df19",
+   "bytesDoContexto": 75180,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d9-duas-condicoes-1-e-2",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d1",
+   "esperado": "d1",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "1da286272c77fb57ae89ef647eb55dd3ab970355c3b0e3c8430aa70b64ddcc28",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d10-duas-condicoes-2-e-3",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d2",
+   "esperado": "d2",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos não informado enviados."
+   ],
+   "sha256Contexto": "946825e2c307fbf839fbc89a10c661e2f54f8dcd23f5e69ca01600504411d0b6",
+   "bytesDoContexto": 75120,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d11-contagem-nula",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d3",
+   "esperado": "d3",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos não informado enviados."
+   ],
+   "sha256Contexto": "946825e2c307fbf839fbc89a10c661e2f54f8dcd23f5e69ca01600504411d0b6",
+   "bytesDoContexto": 75120,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d12-maior-com-booleano-true",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d1",
+   "esperado": "d1",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "1da286272c77fb57ae89ef647eb55dd3ab970355c3b0e3c8430aa70b64ddcc28",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d13-duas-condicoes-1-e-4",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d1",
+   "esperado": "d1",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 4 enviados."
+   ],
+   "sha256Contexto": "1da286272c77fb57ae89ef647eb55dd3ab970355c3b0e3c8430aa70b64ddcc28",
+   "bytesDoContexto": 75094,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "d14-r4-declara",
+   "grupo": "a-mao",
+   "status": 200,
+   "classeDoVinculoQueChega": "d4",
+   "esperado": "d4",
+   "linhasDeCobertura": [
+    "- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e o vínculo declara que a lista de respondentes que segue é a dos 3 enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista)."
+   ],
+   "sha256Contexto": "c6f8759ac0f029f1964e541ec9031c82e60c3bb959d348d54ff25fce75dc2a68",
+   "bytesDoContexto": 76742,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "sem-campo",
+   "grupo": "sem-campo",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "69f48fc221daca9653c10c2ba8846d0f329207de38a8ae6b4379f206b910cd16",
+   "bytesDoContexto": 70390,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "campo-nulo",
+   "grupo": "sem-campo",
+   "status": 200,
+   "classeDoVinculoQueChega": "sem-campo",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "69f48fc221daca9653c10c2ba8846d0f329207de38a8ae6b4379f206b910cd16",
+   "bytesDoContexto": 70390,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "formato-nao-reconhecido",
+   "grupo": "formato",
+   "status": 200,
+   "classeDoVinculoQueChega": "a",
+   "esperado": null,
+   "linhasDeCobertura": [],
+   "sha256Contexto": "0d38b0ff87fc1aa4d2219441abe633e050346ccaa2bf16a3562f9e9f5dd70c9e",
+   "bytesDoContexto": 71552,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  },
+  {
+   "nome": "estado-sem-cobertura",
+   "grupo": "formato",
+   "status": 200,
+   "classeDoVinculoQueChega": "a",
+   "esperado": null,
+   "linhasDeCobertura": [
+    "- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado."
+   ],
+   "sha256Contexto": "cbd54ac6acc5a2b611f67862f4f3d69919820824c432f470670b256602304f1c",
+   "bytesDoContexto": 73447,
+   "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+   "sha256Corpo": "dfa7f2fd50e27cc9df5a79beaf258415dc72316adb7788b63e0ae972c4d9d8ab"
+  }
+ ]
+}

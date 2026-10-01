@@ -1,0 +1,220 @@
+{
+ "natureza": "Contraexemplos EXECUTADOS sobre a fonte: cada mutante altera so lib/ai-reviewer/vinculo-execucao.ts, roda a suite INTEIRA e restaura a fonte.",
+ "fonteRestauradaComSha256Igual": true,
+ "sha256": "2e336a659c55d1c3fdb41d4e88c634a11313779ff7e07a581911e78cb5babbc5",
+ "resultado": [
+  {
+   "mutante": "C1 com retirada lida como SEM retirada (c vira b)",
+   "estado": "MORTO",
+   "testesReprovados": 7,
+   "quem": [
+    "vinculo-execucao-fiacao::controle D. retirada PARCIAL efetiva: a abertura (c), a de sempre, pelo preparo REAL, com ",
+    "vinculo-execucao-fiacao::divergente com restrição: a lista e o N do contexto são os de `enviados`, e o bloco declar",
+    "vinculo-execucao::R6 (parte pura): cobertura enviada distingue \"restringido\" de \"nenhuma restrição\", e o fil",
+    "vinculo-execucao::a linha \"Cobertura enviada\": não afirma que a lista que segue é a dos enviados declarados ",
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::PROPRIEDADE: nenhum vínculo do produtor real cai em \"retirada não determinada\", e a abertu"
+   ]
+  },
+  {
+   "mutante": "C2 SEM retirada lida como com retirada (b vira c): o defeito original em (b)",
+   "estado": "MORTO",
+   "testesReprovados": 18,
+   "quem": [
+    "vinculo-execucao::R6 (parte pura): cobertura enviada distingue \"restringido\" de \"nenhuma restrição\", e o fil",
+    "vinculo-execucao::a linha \"Cobertura enviada\": não afirma que a lista que segue é a dos enviados declarados ",
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::PROPRIEDADE: nenhum vínculo do produtor real cai em \"retirada não determinada\", e a abertu",
+    "vinculo-execucao-fiacao::1. apresentada r1..r4, declarados r1..r4: a coincidência é afirmada, nos QUATRO sítios, e ",
+    "vinculo-execucao-fiacao::2. apresentada r1..r3, declarados r1..r4: NENHUMA coincidência em sítio algum, e os TRÊS c",
+    "vinculo-execucao-fiacao::3. apresentada r1,r2,r3,r9, declarados r1..r4: NENHUMA coincidência, e r9 é nomeado como P"
+   ]
+  },
+  {
+   "mutante": "C3 `<` trocado por `<=` em (c): iguais com o booleano verdadeiro viram (c)",
+   "estado": "MORTO",
+   "testesReprovados": 2,
+   "quem": [
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada"
+   ]
+  },
+  {
+   "mutante": "C4 (b) ignora a igualdade das contagens: menor com o booleano falso vira (b)",
+   "estado": "MORTO",
+   "testesReprovados": 4,
+   "quem": [
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada",
+    "vinculo-execucao-fiacao::controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou ins"
+   ]
+  },
+  {
+   "mutante": "C5 (c) ignora a desigualdade das contagens: iguais com o booleano verdadeiro vira (c)",
+   "estado": "MORTO",
+   "testesReprovados": 2,
+   "quem": [
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada"
+   ]
+  },
+  {
+   "mutante": "C6 a condição 1 nunca é nomeada",
+   "estado": "MORTO",
+   "testesReprovados": 3,
+   "quem": [
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada",
+    "vinculo-execucao-fiacao::controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou ins"
+   ]
+  },
+  {
+   "mutante": "C7 as condições 2 e 3 trocadas de ordem (duas valem ao mesmo tempo)",
+   "estado": "MORTO",
+   "testesReprovados": 1,
+   "quem": [
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada"
+   ]
+  },
+  {
+   "mutante": "C8 o motivo exibe `String(...)` em lugar de `numero(...)` nas duas contagens",
+   "estado": "MORTO",
+   "testesReprovados": 2,
+   "quem": [
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada",
+    "vinculo-execucao-fiacao::controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou ins"
+   ]
+  },
+  {
+   "mutante": "C9 o booleano é exibido por `String(b)`",
+   "estado": "MORTO",
+   "testesReprovados": 2,
+   "quem": [
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada",
+    "vinculo-execucao-fiacao::controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou ins"
+   ]
+  },
+  {
+   "mutante": "C10 a cláusula \"declara\" some em (b): só a forma simples",
+   "estado": "MORTO",
+   "testesReprovados": 5,
+   "quem": [
+    "vinculo-execucao-fiacao::2. apresentada r1..r3, declarados r1..r4: NENHUMA coincidência em sítio algum, e os TRÊS c",
+    "vinculo-execucao-fiacao::3. apresentada r1,r2,r3,r9, declarados r1..r4: NENHUMA coincidência, e r9 é nomeado como P",
+    "vinculo-execucao-fiacao::controle 6. apresentada = incluídos (r1..r4), diferente dos enviados declarados (r1..r3): ",
+    "vinculo-execucao::a linha \"Cobertura enviada\": não afirma que a lista que segue é a dos enviados declarados ",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe"
+   ]
+  },
+  {
+   "mutante": "C11 (a) ganha a cláusula de R4",
+   "estado": "MORTO",
+   "testesReprovados": 6,
+   "quem": [
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::a cobertura ausente ou sem `restringiu` verdadeiro é (a): nada se afirma além do que (a) j",
+    "vinculo-execucao::PROPRIEDADE: nenhum vínculo do produtor real cai em \"retirada não determinada\", e a abertu",
+    "vinculo-execucao-fiacao::controle A. filtro NÃO aplicado (`indisponivel` e `invalido`): a abertura (a), byte a byte",
+    "a12-estatisticas-dimensao::nao-avaliada-ausente (causa disponibilidade): o bloco e a Taxa são os de antes, com e sem ",
+    "a12-estatisticas-dimensao::os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, "
+   ]
+  },
+  {
+   "mutante": "C12 contagem negativa passa por válida",
+   "estado": "MORTO",
+   "testesReprovados": 1,
+   "quem": [
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada"
+   ]
+  },
+  {
+   "mutante": "C13 contagem fracionária (e infinita) passa por válida",
+   "estado": "MORTO",
+   "testesReprovados": 1,
+   "quem": [
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada"
+   ]
+  },
+  {
+   "mutante": "C14 `restringiu` lido por veracidade, e não por `=== true`",
+   "estado": "MORTO",
+   "testesReprovados": 1,
+   "quem": [
+    "vinculo-execucao::a cobertura ausente ou sem `restringiu` verdadeiro é (a): nada se afirma além do que (a) j"
+   ]
+  },
+  {
+   "mutante": "C15 a abertura de (d) com um caractere a menos de acento",
+   "estado": "MORTO",
+   "testesReprovados": 4,
+   "quem": [
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada",
+    "vinculo-execucao-fiacao::controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou ins"
+   ]
+  },
+  {
+   "mutante": "C16 a abertura de (c) perde um acento (a de antes tem de ficar palavra por palavra)",
+   "estado": "MORTO",
+   "testesReprovados": 6,
+   "quem": [
+    "vinculo-execucao::R6 (parte pura): cobertura enviada distingue \"restringido\" de \"nenhuma restrição\", e o fil",
+    "vinculo-execucao::a linha \"Cobertura enviada\": não afirma que a lista que segue é a dos enviados declarados ",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::PROPRIEDADE: nenhum vínculo do produtor real cai em \"retirada não determinada\", e a abertu",
+    "vinculo-execucao-fiacao::controle D. retirada PARCIAL efetiva: a abertura (c), a de sempre, pelo preparo REAL, com ",
+    "vinculo-execucao-fiacao::divergente com restrição: a lista e o N do contexto são os de `enviados`, e o bloco declar"
+   ]
+  },
+  {
+   "mutante": "C17 a correção INTEIRA revertida (o defeito original: toda restrição diz RESTRINGIDO)",
+   "estado": "MORTO",
+   "testesReprovados": 20,
+   "quem": [
+    "vinculo-execucao::R6 (parte pura): cobertura enviada distingue \"restringido\" de \"nenhuma restrição\", e o fil",
+    "vinculo-execucao::a linha \"Cobertura enviada\": não afirma que a lista que segue é a dos enviados declarados ",
+    "vinculo-execucao::nenhum texto novo afirma conferência de conteúdo nem emite critério de nota (R4)",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada",
+    "vinculo-execucao::PROPRIEDADE: nenhum vínculo do produtor real cai em \"retirada não determinada\", e a abertu",
+    "vinculo-execucao-fiacao::1. apresentada r1..r4, declarados r1..r4: a coincidência é afirmada, nos QUATRO sítios, e ",
+    "vinculo-execucao-fiacao::2. apresentada r1..r3, declarados r1..r4: NENHUMA coincidência em sítio algum, e os TRÊS c"
+   ]
+  },
+  {
+   "mutante": "C18 o rótulo do motivo muda (\"lidos:\")",
+   "estado": "MORTO",
+   "testesReprovados": 3,
+   "quem": [
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada",
+    "vinculo-execucao-fiacao::controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou ins"
+   ]
+  },
+  {
+   "mutante": "C19 a cláusula \"declara\" passa a depender da retirada (só com retirada)",
+   "estado": "MORTO",
+   "testesReprovados": 6,
+   "quem": [
+    "vinculo-execucao::a linha \"Cobertura enviada\": não afirma que a lista que segue é a dos enviados declarados ",
+    "vinculo-execucao::(a), (b) e (c) pelo módulo puro, e a cláusula de R4 INDEPENDENTE da retirada: nas três abe",
+    "vinculo-execucao-fiacao::2. apresentada r1..r3, declarados r1..r4: NENHUMA coincidência em sítio algum, e os TRÊS c",
+    "vinculo-execucao-fiacao::3. apresentada r1,r2,r3,r9, declarados r1..r4: NENHUMA coincidência, e r9 é nomeado como P",
+    "vinculo-execucao-fiacao::controle 6. apresentada = incluídos (r1..r4), diferente dos enviados declarados (r1..r3): ",
+    "vinculo-execucao-fiacao::controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou ins"
+   ]
+  },
+  {
+   "mutante": "C20 a validade das contagens deixa de entrar em (b) e (c) (duas contagens em texto e iguais viram (b))",
+   "estado": "MORTO",
+   "testesReprovados": 1,
+   "quem": [
+    "vinculo-execucao::CONTROLES NEGATIVOS de (d): as combinações INCOERENTES que motivaram a conferência cruzada"
+   ]
+  }
+ ]
+}

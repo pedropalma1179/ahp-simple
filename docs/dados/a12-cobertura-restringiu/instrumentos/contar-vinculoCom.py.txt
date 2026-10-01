@@ -1,0 +1,12 @@
+# Conta as EXECUCOES do auxiliar `vinculoCom` dos dois arquivos de teste, por `enviados.length`, por COPIA TEMPORARIA instrumentada.
+# Escreve lib/__tests__/zz-contagem-pura.test.ts e zz-contagem-fiacao.test.ts (que NAO se versionam e se apagam depois), e roda:
+#   CONTAGEM_SAIDA=<arquivo.json> npx jest lib/__tests__/zz-contagem-pura      (e idem para zz-contagem-fiacao)
+base = "/home/user/ahp-simple/lib/__tests__/"
+for src, dst in [("vinculo-execucao.test.ts", "zz-contagem-pura.test.ts"), ("vinculo-execucao-fiacao.test.ts", "zz-contagem-fiacao.test.ts")]:
+    s = open(base + src, encoding="utf-8").read()
+    padrao = "  function vinculoCom(enviados: string[], incluidos: string[]): any {\n"   # ATENCAO: so vale na versao de 8e165fb, antes do terceiro parametro
+    assert s.count(padrao) == 1, (src, s.count(padrao))
+    patch = padrao + "    { const g: any = global as any; g.__ct = g.__ct || {}; const k = String(enviados.length); g.__ct[k] = (g.__ct[k] || 0) + 1; }\n"
+    s = s.replace(padrao, patch)
+    s = s + "\n\nafterAll(() => { require('node:fs').writeFileSync(process.env.CONTAGEM_SAIDA as string, JSON.stringify((global as any).__ct || {})); });\n"
+    open(base + dst, "w", encoding="utf-8").write(s)

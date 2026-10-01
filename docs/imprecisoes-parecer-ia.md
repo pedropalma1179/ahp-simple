@@ -12487,6 +12487,11 @@ generalizada de R3 de volta. **Os catorze reprovam** (o último, por dois testes
    retirou ninguém (`prepararVinculoDaTela`, `cobertura.restringiu`). A frase "o conjunto avaliado foi
    RESTRINGIDO …" da linha "Cobertura enviada" é, portanto, dita também quando nada saiu. É redação do
    estágio 1, **anterior a R4 e não alterada**; fica registrada.
+   > **Acréscimo datado, 01/10/2026.** Este achado foi tratado: a linha "Cobertura enviada" passou a ter **quatro**
+   > aberturas, e "RESTRINGIDO" só sai quando algum elemento da lista avaliada foi **retirado**
+   > (`enviadosDiferemDosAvaliados` verdadeiro e `enviados` menor que `avaliadosAntesDaRestricao`). O texto acima **fica
+   > como estava** e descreve `8e165fb` e as bases anteriores. Ver a seção "A.12: `cobertura.restringiu`, filtro aplicado e
+   > elementos retirados: o que foi implementado e o que foi medido, em 01/10/2026".
 
 #### Execução, medida nesta sessão
 
@@ -13143,6 +13148,8 @@ verdadeira.
 - ⚠ **Nenhum código de produção foi alterado**, nenhuma saída (A ou B) foi implementada, e o executor **não
   escolheu** entre elas.
 - ⚠ **`cobertura.restringiu` não foi corrigido** (item enfileirado; Anexo).
+  > **Acréscimo datado, 01/10/2026:** o item **foi corrigido** em 01/10/2026; ver "A.12: `cobertura.restringiu`, filtro aplicado
+  > e elementos retirados: o que foi implementado e o que foi medido". A linha acima descreve a rodada de 30/09/2026.
 - ⚠ Sem consulta a produção, sem recálculo, sem alteração de dado, sem chamada externa de inferência,
   embedding ou recuperação, sem parecer novo; `npm run lint` não foi rodado; nenhum `--force`, rebase ou
   `amend`; nada foi integrado.
@@ -13162,6 +13169,13 @@ todo vínculo comparado (e `false` em `:497`); a frase "o conjunto avaliado foi 
 presentes no documento de cálculo" sai de `:719-720` sempre que `restringiu` é `true`; e
 `enviadosDiferemDosAvaliados`, em `:533`, diz se a lista mudou. ⚠ **O item é a distinção entre aplicação do
 filtro e alteração efetiva da lista**, e não entre filtro aplicado e não aplicado.
+
+> **Acréscimo datado, 01/10/2026.** O item foi **executado**, em dois commits: a predição (`c3f3398`) e a implementação. A
+> redação decidida acima para o estado sem retirada **é a abertura (b)**, com a cláusula de R4 a seguir; os outros três
+> estados são "não aplicado" e "com retirada" (as aberturas de antes, **palavra por palavra**) e "retirada não
+> determinada" (novo). A medição "em `a07998c`" acima continua descrevendo aquela base: no código atual o filtro segue em
+> `mantidas` e `restrita`, e a linha sai de `lerRetiradaDaCobertura` e de `linhaDaCobertura`. Ver a seção "A.12:
+> `cobertura.restringiu`, filtro aplicado e elementos retirados: o que foi implementado e o que foi medido, em 01/10/2026".
 
 ## A.12: estatísticas por dimensão BOCR, Fase 2 (saída A): predição datada, em 30/09/2026
 
@@ -13918,6 +13932,228 @@ trocado por `<=` em (c). Cada um deve ser **morto** por pelo menos um teste. ⚠
 segue sem execução por teste algum:** esta rodada não toca a tela. ⚠ **A predição sobre a redação do modelo permanece
 NÃO TESTADA.** ⚠ **Não avaliado:** se algum cliente além da tela envia `cobertura` fora da forma que o produtor
 grava; o repositório não permite saber. ⚠ A contagem de testes e de asserções **não é critério de aceite**.
+
+## A.12: `cobertura.restringiu`, filtro aplicado e elementos retirados: o que foi implementado e o que foi medido, em 01/10/2026
+
+⚠ **Este bloco é escrito DEPOIS do código e dos testes, e por isso NÃO é predição:** é relato e medição. A predição
+datada está acima, no commit `c3f33980e07612a57c4f2681b68882e7da2bacfd` (CI `completed/success`, execução
+`36803773125`), e **não foi reescrita**. O código é o de `8e165fb9da51133ccbe1e9d0093680ada67a7ca5` mais a mudança
+abaixo. Ambiente: Linux x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3, tsc 5.9.3 (**ambiente observado, e não requisito**).
+Os dados estão em `docs/dados/a12-cobertura-restringiu/`.
+⚠ **Os localizadores de linha deste bloco são os de `8e165fb`**, salvo onde a seção os qualifica: as edições desta rodada
+deslocaram as linhas dos três arquivos de teste.
+
+### O que mudou, e o que não foi tocado
+
+- **Produção, um arquivo:** `lib/ai-reviewer/vinculo-execucao.ts`, **76 inserções e 9 remoções**. `lerRetiradaDaCobertura`
+  (a tabela dos quatro estados, com a primeira condição que se aplica) e `linhaDaCobertura` (as quatro redações) entram
+  antes de `descreverVinculoParaContexto`, e o ternário de duas pernas de `:717-726` dá lugar a
+  `linhas.push(linhaDaCobertura(cob, leitura))`. **As aberturas de (a) e de (c) são as de antes, palavra por palavra**,
+  e a cláusula de R4 é a mesma, escrita uma vez e usada nas três aberturas que a têm.
+- **Testes, três arquivos:** o módulo puro (`+222`, `-13`), a fiação (`+144`, `-12`) e a suíte da saída A (`+44`, `-4`).
+- **Dados:** a pasta nova `docs/dados/a12-cobertura-restringiu/`, e este registro, com três acréscimos datados nos pontos
+  que o prompt indicou (o achado 4, a linha "não foi corrigido" e o Anexo), **sem editar nenhuma linha histórica**.
+- **Não tocados:** `LINHA_DA_RELACAO` (inclusive a outra cláusula de R4), a chave de leitura, a linha textual de
+  contagens, o bloco do resumo do painel, as frases da lista, `elegivelParaClassificacao`, `calculateGrade`,
+  penalidades, limiares, faixas, as cadeias de identificador, P1, `route.ts`, `page.tsx`, `review-request.ts`, o contrato
+  (D4 da predição), os contextos congelados e as duas linhas de base.
+
+### As redações efetivas, capturadas do tratador REAL
+
+As cinco são as que os controles `A` a `E` de `vinculo-execucao-fiacao.test.ts` afirmam, **linha inteira**, e as que a
+sonda capturou (`contextos-depois.json`; contextos completos em `contextos-depois/`):
+
+| Estado | Cenário pelo tratador real | A linha |
+|---|---|---|
+| (a) | `a-indisponivel` (e `a-invalido`) | `- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado.` |
+| (b) | `b-vinculado`: avaliados e documento `r1..r4` | `- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e a lista de respondentes que segue é a dos 4 enviados.` |
+| (b) | `b-divergente-sobra-no-documento`: avaliados `r1..r3`, documento `r1..r4` | a mesma abertura, "… é a dos 3 enviados." |
+| (c) | `c-retirada-parcial-4-para-3`: avaliados `r1..r4`, documento `r1..r3` | `- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e a lista de respondentes que segue é a dos 3 enviados.` |
+| (d) | `d8-menor-com-booleano-false`: vínculo **montado à mão**, 4 avaliados, 3 enviados, booleano falso | `- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; NÃO se pode determinar se algum elemento da lista avaliada foi retirado (o booleano e as contagens declarados discordam; lido: enviadosDiferemDosAvaliados = false, avaliadosAntesDaRestricao = 4, enviados = 3), e a lista de respondentes que segue é a dos 3 enviados.` |
+
+Com a lista apresentada **diferindo** dos enviados declarados, a abertura **não muda** e a cláusula passa a "o vínculo
+declara que a lista de respondentes que segue é a dos N enviados (a linha da lista APRESENTADA, abaixo, compara essa
+declaração com a lista).": medido em (b) (`b-r4-declara`, pedidos 2 e 3 e controle 6), em (c) (`c-r4-declara` e o
+controle `D`) e em (d) (`d14-r4-declara` e o controle `E`); **em (a) não há cláusula**, com a lista igual ou diferente.
+
+### A previsão de testes, conferida
+
+**Os testes ANTIGOS, sem edição, contra o código NOVO:** `npx jest` saiu 1 com **12 reprovados e 822 aprovados, de 834**,
+em **3 suítes**. A previsão por leitura (commit `c3f3398`) enumerou **os mesmos 12, nas mesmas asserções**: o conjunto
+(arquivo, linha, número de testes) observado é **igual** ao previsto (`testes-antigos-contra-codigo-novo.json`,
+`coincide: true`).
+
+| # | Teste | Primeira asserção que reprovou | Previsto |
+|---|---|---|---|
+| 1 | `vinculo-execucao.test.ts`, `a linha "Cobertura enviada": …` | `:1867` | `:1867` |
+| 2 a 6 | `vinculo-execucao-fiacao.test.ts`, pedidos 1, 2 e 3 e controles 5 e 6 | `:903`, `:932`, `:970`, `:1063`, `:1083` | idem |
+| 7 a 9 | `a12-estatisticas-dimensao.test.ts`, ensaio 4: `nao-avaliada-incompleta`, `contradicao`, `coerencia-nao-concluida` | `:621`, nas três | idem |
+| 10 e 11 | idem, ensaio 9: `agregado-5` e `agregado-3` | `:760`, nas duas | idem |
+| 12 | idem, ensaio 9: os 27 cenários | `:787` | idem |
+
+**Nenhum teste reprovou fora da previsão**, e a linha `nao-avaliada-ausente` do ensaio 4 passou (o vínculo dela é
+`indisponivel`, (a)). **Desvio de previsão: nenhum.**
+
+### As predições sobre o que o modelo RECEBE, conferidas
+
+| # | Resultado medido | Veredito |
+|---|---|---|
+| P1 | (a): no tratador real, `a-indisponivel`, `a-invalido`, `nao-avaliada-ausente-comVinculo`, `estado-sem-cobertura` e `formato-nao-reconhecido` saem **idênticos** ao contexto de `8e165fb` (sha256 igual); na enumeração, a linha dos **2724** é a abertura (a) | **confirmada** |
+| P2 | (c): os 5 cenários pelo produtor saem **idênticos**; na enumeração, a linha dos **9312** começa pela abertura de (c); `vinculo-execucao.test.ts:1149` e `vinculo-execucao-fiacao.test.ts:1272` seguem verdadeiras | **confirmada** |
+| P3 | (b): os 4 cenários pelo produtor e os **12** da saída A com vínculo diferem **em exatamente uma linha**, a abertura, e a **cláusula que a segue é idêntica** (o comparador a conferiu); na enumeração, a linha dos **903** começa pela abertura de (b) | **confirmada** |
+| P4 | (d): **0 de 12939** vínculos do produtor em (d), **repetido com a descrição nova**; nos 14 montados à mão, a abertura é a de (d) e a condição é a **primeira aplicável**: d1 1; d2 2; d3 2; d4 3; d5 3; d6 3; d7 4; d8 4; d9 1; d10 2; d11 3; d12 1; d13 1; d14 4, **como predito** | **confirmada** |
+| P5 | sem o campo: os **14** cenários da saída A, `sem-campo` e `campo-nulo` saem **idênticos**, e o `system` é igual em **56 de 56** | **confirmada** |
+| P6 | dos 27 da saída A, **15** idênticos e **12** com a troca da abertura; `system` igual em **27 de 27** e corpo da resposta (sem o `timestamp`) igual em **27 de 27**; nos 56, status HTTP igual em **56 de 56** | **confirmada** |
+| P7 | nenhuma palavra nova casa com `AFIRMA` nem com `NOTA`: o teste de `vinculo-execucao.test.ts:1993-1995` (agora com onze casos, quatro deles de (d), e com a guarda de que o texto inspecionado **traz** as palavras novas) passa, e a pré-medição nos literais deu 0 de 8 | **confirmada** |
+| P8 | a cláusula de R4 independe da retirada: o teste do módulo puro e os controles `D` e `E` pelo tratador passam, e o mutante `C19` (a cláusula "declara" só com retirada) **morre** | **confirmada** |
+| P9 | `git diff --stat` dos dois `medicao.json` (`a12-diagnostico` e `a33-cadeia-rule`) é **vazio**, e os dois testes passam **sem regravar** | **confirmada** |
+
+⚠ **Corpo da resposta:** a primeira comparação deu **0 de 56**, e isso foi **erro do instrumento**, não resultado (ver os
+erros, abaixo).
+
+### O caso em que duas condições valem ao mesmo tempo
+
+Medido pelo tratador real e afirmado nos testes, **com a condição que saiu**, como evidência da **ordem**, e **não** da
+legibilidade das demais: avaliados 2, enviados 4 e booleano falso (o fixture antigo de `vinculo-execucao.test.ts:1865`)
+valem as condições **1 e 4**, e sai a **1** (`d13`; no controle `E`, "mais enviados do que avaliados"); mais enviados que
+avaliados e booleano em texto valem **1 e 2**, e sai a **1** (`d9`); booleano ausente e enviados em texto valem **2 e 3**, e
+sai a **2** (`d10`). ⚠ Nos três a condição que **não** saiu pode **não ser recuperável** nos três campos exibidos: o
+booleano em texto e a contagem em texto aparecem ambos como "não informado".
+
+### Os fixtures incoerentes, e os controles negativos que os conservam
+
+A causa era o auxiliar `vinculoCom` dos dois arquivos (D3 da predição): ele herdava `avaliadosAntesDaRestricao` da base e
+só trocava `enviados`. **Corrigido no auxiliar**, que passa a declarar contagens coerentes (sem retirada, por padrão, e
+com um terceiro parâmetro para a retirada), porque a documentação dele **já prometia** "as contagens coerentes com elas"
+e porque, depois desta rodada, a linha **lê** o booleano e as contagens: **a razão é a incoerência, e não o que o código
+passou a imprimir**. Antes disso a incoerência era **inerte**. **Nenhum teste foi removido.**
+
+**As combinações incoerentes sobrevivem em controles negativos próprios**, que afirmam o estado (d), o motivo escolhido e
+os três campos exibidos: **2 avaliados, 4 enviados, booleano falso** (a de `:1865` e `:2003`: condição 1) e **4 avaliados, 3
+enviados, booleano falso** (a de `vinculo-execucao-fiacao.test.ts:1104`: condição 4), mais 14 outras, no módulo puro
+(`CONTROLES NEGATIVOS de (d)`) e, pelo tratador, no controle `E`. O teste de `:1862`, que existe por R4, passa a exercitar a
+distinção **nas duas aberturas**, em fixtures coerentes.
+
+### A reconciliação da suíte da saída A
+
+`lib/__tests__/a12-estatisticas-dimensao.test.ts` compara o contexto **completo** com capturas históricas, e `paraOTextoAnterior`
+desfazia só o bloco (se elegível) e o item da chave. **Passa a admitir EXATAMENTE uma troca a mais**: a abertura da linha de
+cobertura do vínculo sem retirada (`ABERTURA_COBERTURA_SEM_RETIRADA` volta a `ABERTURA_COBERTURA_ANTIGA`), **uma ocorrência**,
+e o `esperadoAPartirDoAnterior` do ensaio 9 faz a troca no sentido contrário sobre a captura da Fase 1. ⚠ **O restante do
+contexto continua comparado byte a byte**, e a troca **não passa por vacuidade**: a ocorrência é **contada em cada ponto de
+chamada** (1 onde há vínculo do produtor em `vinculado`, 0 onde não há), e o teste dos 27 cenários **soma** as trocas e
+exige **12**. Sem o campo, o esperado afirma que **não há linha de cobertura**. Os arquivos históricos
+(`docs/dados/a12-estatisticas-dimensao/` e `saida-a/contextos-depois/`) ficam **intactos** (`git diff` vazio). **Isto não
+reabre a saída A:** as decisões e as capturas dela são as mesmas; só a suíte dela foi reconciliada. O título do ensaio 9
+passou a nomear a terceira mudança.
+
+### Testes alterados ou substituídos, e a razão
+
+**Nenhum teste foi removido.** Os 9 acrescentados (4 no módulo puro, 5 na fiação) e os alterados, **cada um com a razão**:
+
+- `vinculo-execucao.test.ts`, `R6 (parte pura)`: **conserva** os fixtures e as asserções, e **ganha** (b) pelo `vinculado` e
+  pelo `divergente` com a sobra só no documento. O nome passou a dizer isso.
+- `vinculo-execucao.test.ts`, `a linha "Cobertura enviada": …` (`:1862`): **substituído**. As asserções antigas fixavam a
+  abertura "RESTRINGIDO" num fixture **incoerente**; as novas afirmam a **mesma distinção de R4**, nas duas aberturas, em
+  fixtures coerentes, com as linhas literais (`antiga` se divide em duas).
+- `vinculo-execucao.test.ts`, `nenhum texto novo afirma conferência …` (`:1993`): a sétima entrada (o `restringiu: true`
+  explícito, redundante e incoerente) vira a de **com retirada**, coerente, e **entram os quatro casos de (d)**. Ganha a guarda
+  de que o texto inspecionado **traz** as palavras novas.
+- `vinculoCom`, nos dois arquivos: **substituído** pela versão coerente (ver acima).
+- `vinculo-execucao-fiacao.test.ts`, `:903`, `:932`, `:970`, `:1063`, `:1083`: passam a afirmar a abertura de **(b)**
+  (`COBERTURA_B_CONFERE` e `COBERTURA_B_DIFERE`, que substituem `COBERTURA_CONFERE` e `COBERTURA_DIFERE`), **depois de
+  confirmar caso a caso que nenhum tem retirada**: os pedidos 1 a 3 têm 4 avaliados e 4 enviados, e os controles 5 e 6 têm
+  3 e 3 pelo preparo real, com a sobra só no documento. **A medição concorda com a do prompt nos cinco.** Cada teste
+  agora **afirma os campos de cobertura** que fazem dele (b), e não só o texto impresso.
+- `a12-estatisticas-dimensao.test.ts`: a reconciliação acima.
+
+### Contraexemplos executados sobre a fonte
+
+**20 mutantes** de `vinculo-execucao.ts`, cada um com a **suíte inteira**, e a fonte **restaurada com sha256 igual**
+(`2e336a659c55d1c3fdb41d4e88c634a11313779ff7e07a581911e78cb5babbc5`). **Mortos: 20. Sobreviveram: 0. Erro de compilação:
+0** (a previsão listava dez tipos; os executados são 20). Entre parênteses, os testes que reprovaram:
+
+| Mutante | Reprovados |
+|---|---|
+| `C1` (c lido como b) | 7 |
+| `C2` (b lido como c: o defeito original em (b)) | 18 |
+| `C3` (`<` por `<=` em (c)) | 2 |
+| `C4` ((b) ignora a igualdade das contagens) | 4 |
+| `C5` ((c) ignora a desigualdade das contagens) | 2 |
+| `C6` (a condição 1 nunca é nomeada) | 3 |
+| `C7` (condições 2 e 3 trocadas de ordem) | 1 |
+| `C8` (`String(…)` no lugar de `numero(…)` nas contagens do motivo) | 2 |
+| `C9` (o booleano exibido por `String(b)`) | 2 |
+| `C10` (a cláusula "declara" some em (b)) | 5 |
+| `C11` ((a) ganha a cláusula de R4) | 6 |
+| `C12` (contagem negativa passa por válida) | 1 |
+| `C13` (contagem fracionária e infinita passam por válidas) | 1 |
+| `C14` (`restringiu` lido por veracidade) | 1 |
+| `C15` (a abertura de (d) sem um acento) | 4 |
+| `C16` (a abertura de (c) sem um acento) | 6 |
+| `C17` (a correção inteira revertida) | 20 |
+| `C18` (o rótulo "lido:" muda) | 3 |
+| `C19` (a cláusula "declara" só com retirada) | 6 |
+| `C20` (a validade das contagens fora de (b) e (c)) | 1 |
+
+### Erros e desvios, classificados à parte
+
+**Desvio de previsão: nenhum.** Os 12 testes que reprovaram são os previstos, e nenhuma das predições P1 a P9 foi refutada.
+**Erros meus**, achados e classificados à parte (nenhum produziu falha de execução fora da previsão):
+
+- **E1, erro de instrumento.** O hash do corpo da resposta, na sonda, incluía o `timestamp` de execução, e deu **0 de 56**
+  iguais. O número era **absurdo**, e por isso foi investigado antes de ser aceito: duas execuções do **mesmo código** diferem,
+  nos 56 corpos, **só** na linha do `timestamp`. A sonda passou a retirar esse campo antes do hash (**56 de 56** iguais) e a
+  base foi **remedida** no código de `8e165fb` (`git stash` só do módulo, restauração conferida por sha256 e por patch).
+  Os arquivos desta rodada vêm da sonda **corrigida**.
+- **E2, defeito no meu teste, achado por LEITURA antes de rodar.** No teste de (a), (b) e (c) pelo módulo puro, escrevi a
+  cláusula "declara" para a lista que **corresponde** e a simples para a que **difere**, o oposto do módulo. Corrigido antes
+  da primeira execução.
+- **E3, lacuna de controle, achada ao desenhar o mutante `C20`.** Nenhum controle tinha as **duas** contagens inválidas e
+  **iguais** entre si (dois textos iguais, ou dois nulos), caso em que a igualdade passaria por "sem retirada" se a validade
+  saísse da condição. Entraram dois casos (as duas contagens em texto e iguais; as duas nulas, com o booleano verdadeiro), e
+  `C20` morre.
+- **E4, comentário meu, achado ao reler o diff.** O auxiliar de `vinculo-execucao-fiacao.test.ts` citava "controle D" onde o
+  controle é o `E`. Comentário, sem efeito de comportamento; corrigido.
+
+**Observações, e não erros:** a cláusula de R4, que é a de antes e não foi tocada, imprime "dos não informado enviados" quando
+`enviados` não é número, e isso agora também aparece em (d); e a abertura (b) é **verdadeira e vazia** com a lista avaliada
+vazia e documento utilizável (os 15 casos da predição). **Nenhum dos dois foi corrigido.**
+
+### Execução, medida nesta sessão
+
+- `npx tsc --noEmit`: **saída 0**.
+- `npm run build`: **saída 0**, compilado, **17 de 17 páginas** (o aviso de ESLint ausente é o conhecido, e não é falha).
+- `npx jest` (suíte inteira): **35 suítes, 843 testes, 0 falhas**, e **58927 asserções**, contra **834 testes e 55813
+  asserções** na base. Em testes: `vinculo-execucao` **169** (eram 165), `vinculo-execucao-fiacao` **87** (eram 82),
+  `a12-estatisticas-dimensao` **30** (o mesmo), `a12-diagnostico` **19** e `a33-cadeia-rule` **41** (o mesmo número de
+  antes). ⚠ O total de asserções vem de um **instrumento NÃO versionado** (um `setupFilesAfterEnv` que soma
+  `expect.getState().assertionCalls` a cada teste e grava por suíte; 35 linhas somadas): **não é reproduzível a partir do
+  repositório**, e a contagem de testes e de asserções **não é critério de aceite**.
+- **As duas linhas de base conservadas:** `docs/dados/a12-diagnostico/medicao.json` e
+  `docs/dados/a33-cadeia-rule/medicao.json`, **sem regravar** (`git diff --stat` vazio), e os dois testes passam.
+- **Preservados**, conferidos por `sha256sum` antes e depois, **iguais:** `docs/dados/a12-identidade/medicao.json` e
+  `medicao-preservada-03c7d8b.json`, `85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25` (17326 bytes);
+  `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`,
+  `a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d` (223411 bytes).
+- **A requisição sem `vinculoDaExecucao`** sai **byte a byte** a de `8e165fb`: **16 de 16** cenários (os 14 da saída A, mais
+  `sem-campo` e `campo-nulo`), e o `system` igual em 56 de 56. **Medido, e não presumido.**
+
+### O que NÃO foi feito, e o que permanece não avaliado
+
+- ⚠ **A redação do modelo sobre as frases novas permanece NÃO TESTADA** (T1 a T3 da predição): nenhum parecer novo foi
+  gerado, e o cliente é simulado.
+- ⚠ **O contrato não foi editado** (D4 da predição): `docs/contratos-de-dados.md:423-425` só lista os nomes dos campos de
+  `cobertura`, e a condição do Anexo do prompt não se cumpre. A **forma** do campo não mudou: nenhum campo novo, nenhum removido.
+- ⚠ **Dois casos vizinhos não foram corrigidos** (M11 da predição): a lista avaliada vazia com documento utilizável cai em
+  (b), verdadeira e vazia; e `cobertura` ausente ou `restringiu` não booleano cai em (a), que afirma "nenhuma restrição foi
+  aplicada" sem base. (a) ficou **byte a byte**, por decisão do autor.
+- ⚠ **A tela continua sem execução por teste algum**, e a enumeração é um **espaço pequeno e construído**: zero em (d) nele
+  **não** é prova para fora dele, e a afirmação geral vem da leitura de `compararIdentificadores`.
+- ⚠ **Não avaliado:** se algum cliente além da tela envia `cobertura` fora da forma que o produtor grava.
+- Sem consulta a produção, sem recálculo, sem alteração de dado, sem chamada externa de inferência, embedding ou
+  recuperação, sem parecer novo; `npm run lint` não foi rodado; nenhum `--force`, rebase ou `amend`; **nada foi integrado**:
+  `integra/a30-registros` segue em `8e165fb`, e `main`, em `33c1fdf6500242832994a17aa15b0a686704c029`.
 
 ---
 

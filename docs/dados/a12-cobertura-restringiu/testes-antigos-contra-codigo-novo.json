@@ -1,0 +1,173 @@
+{
+ "natureza": "Os testes de 8e165fb, SEM edicao, contra o codigo NOVO de vinculo-execucao.ts: o que a previsao por leitura (commit c3f3398) enumerou, contra o que a execucao observou.",
+ "totais": {
+  "reprovados": 12,
+  "passaram": 822,
+  "total": 834,
+  "suitesComFalha": 3,
+  "suitesTotal": 35
+ },
+ "previstoPelaLeitura": {
+  "reprovados": 12,
+  "passariam": 822,
+  "porArquivoELinha": [
+   [
+    "a12-estatisticas-dimensao.test.ts",
+    621,
+    3
+   ],
+   [
+    "a12-estatisticas-dimensao.test.ts",
+    760,
+    2
+   ],
+   [
+    "a12-estatisticas-dimensao.test.ts",
+    787,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    903,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    932,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    970,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    1063,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    1083,
+    1
+   ],
+   [
+    "vinculo-execucao.test.ts",
+    1867,
+    1
+   ]
+  ]
+ },
+ "observado": {
+  "porArquivoELinha": [
+   [
+    "a12-estatisticas-dimensao.test.ts",
+    621,
+    3
+   ],
+   [
+    "a12-estatisticas-dimensao.test.ts",
+    760,
+    2
+   ],
+   [
+    "a12-estatisticas-dimensao.test.ts",
+    787,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    903,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    932,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    970,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    1063,
+    1
+   ],
+   [
+    "vinculo-execucao-fiacao.test.ts",
+    1083,
+    1
+   ],
+   [
+    "vinculo-execucao.test.ts",
+    1867,
+    1
+   ]
+  ],
+  "reprovacoes": [
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "primeiraAssercaoQueReprovou": 903,
+    "teste": "R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a coincidência só sai quando os TRÊS conjuntos correspondem um a um 1. apresentad"
+   },
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "primeiraAssercaoQueReprovou": 932,
+    "teste": "R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a coincidência só sai quando os TRÊS conjuntos correspondem um a um 2. apresentad"
+   },
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "primeiraAssercaoQueReprovou": 970,
+    "teste": "R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a coincidência só sai quando os TRÊS conjuntos correspondem um a um 3. apresentad"
+   },
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "primeiraAssercaoQueReprovou": 1063,
+    "teste": "R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a coincidência só sai quando os TRÊS conjuntos correspondem um a um controle 5. a"
+   },
+   {
+    "arquivo": "vinculo-execucao-fiacao.test.ts",
+    "primeiraAssercaoQueReprovou": 1083,
+    "teste": "R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a coincidência só sai quando os TRÊS conjuntos correspondem um a um controle 6. a"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "primeiraAssercaoQueReprovou": 621,
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas nao-avaliada-incompleta (causa disponibilida"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "primeiraAssercaoQueReprovou": 621,
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas contradicao (causa contradicao): o bloco e a"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "primeiraAssercaoQueReprovou": 621,
+    "teste": "ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE fica byte a byte, nas quatro causas coerencia-nao-concluida (causa coerencia_nao"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "primeiraAssercaoQueReprovou": 760,
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco e o item da chave mudam agregado-5: contra o contexto com"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "primeiraAssercaoQueReprovou": 760,
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco e o item da chave mudam agregado-3: contra o contexto com"
+   },
+   {
+    "arquivo": "a12-estatisticas-dimensao.test.ts",
+    "primeiraAssercaoQueReprovou": 787,
+    "teste": "ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoDaExecucao`: só o bloco e o item da chave mudam os 27 cenários da sonda: o contex"
+   },
+   {
+    "arquivo": "vinculo-execucao.test.ts",
+    "primeiraAssercaoQueReprovou": 1867,
+    "teste": "R4: a identidade da lista APRESENTADA nasce com a origem registrada, e é ela que se compara a linha \"Cobertura enviada\": não afirma que a lista que se"
+   }
+  ]
+ },
+ "coincide": true
+}

@@ -770,15 +770,31 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
       respostasAtivas: [],
     });
 
-  /** O vínculo REAL de `vinculado` sobre r1..r4, com as duas listas DECLARADAS trocadas e as contagens coerentes com elas. */
-  function vinculoCom(enviados: string[], incluidos: string[]): any {
+  /**
+   * O vínculo REAL de `vinculado` sobre r1..r4, com as duas listas DECLARADAS trocadas e as contagens coerentes com elas.
+   *
+   * ⚠ **Coerentes de fato**, e não só nas duas listas: sem o terceiro parâmetro NADA foi retirado
+   * (`avaliadosAntesDaRestricao` é `enviados.length` e o booleano é falso); com `avaliadosAntes` maior que
+   * `enviados.length` a lista avaliada perdeu elementos e o booleano é verdadeiro. Antes de 01/10/2026 este auxiliar
+   * herdava `avaliadosAntesDaRestricao` da base (4) e só trocava `enviados` e `incluidosNoDocumento`: a única chamada
+   * com `enviados.length` diferente de 4, o controle 7, declarava 4 avaliados e 3 enviados com o booleano falso. A
+   * incoerência era INERTE, porque nada lia o booleano nem as contagens para a linha "Cobertura enviada". A combinação
+   * antiga continua testada, de propósito, no controle de "retirada não determinada" (controle E, abaixo).
+   */
+  function vinculoCom(enviados: string[], incluidos: string[], avaliadosAntes: number = enviados.length): any {
     const base: any = vinculoDoEstado('vinculado', elegivel());
     return {
       ...base,
       estado: enviados.join('|') === incluidos.join('|') ? 'vinculado' : 'divergente',
       enviados,
       incluidosNoDocumento: incluidos,
-      cobertura: { ...base.cobertura, enviados: enviados.length, incluidosNoDocumento: incluidos.length },
+      cobertura: {
+        ...base.cobertura,
+        avaliadosAntesDaRestricao: avaliadosAntes,
+        enviados: enviados.length,
+        incluidosNoDocumento: incluidos.length,
+        enviadosDiferemDosAvaliados: avaliadosAntes !== enviados.length,
+      },
     };
   }
 
@@ -837,10 +853,20 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
   const PAINEL_DIFERE = `${PAINEL} ⚠ NÃO descreve o conjunto enviado a você, que difere do conjunto do documento.`;
   const PAINEL_NAO_CONFIRMA = `${PAINEL} Não se pode afirmar que descreve o conjunto enviado a você: a lista apresentada tem os identificadores dos incluídos, mas difere dos enviados declarados (ver a linha da lista APRESENTADA, acima).`;
 
-  const COBERTURA = '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ';
-  const COBERTURA_CONFERE = (n: number) => `${COBERTURA}a lista de respondentes que segue é a dos ${n} enviados.`;
-  const COBERTURA_DIFERE = (n: number) =>
-    `${COBERTURA}o vínculo declara que a lista de respondentes que segue é a dos ${n} enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).`;
+  // ⚠ A.12, `cobertura.restringiu`: a linha "Cobertura enviada" tem QUATRO aberturas. Os pedidos 1 a 3 e os controles 5 e 6 abaixo
+  //   NÃO retiram ninguém (a sobra, quando há, é do lado do documento), e por isso afirmam a abertura (b), sem retirada.
+  //   A abertura "RESTRINGIDO" ficou para o vínculo em que algum elemento da lista avaliada FOI retirado.
+  const COBERTURA_A = '- Cobertura enviada: nenhuma restrição foi aplicada; o conjunto enviado é o avaliado.';
+  const COBERTURA_B = '- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e ';
+  const COBERTURA_C = '- Cobertura enviada: o conjunto avaliado foi RESTRINGIDO aos identificadores presentes no documento de cálculo, e ';
+  const COBERTURA_D = '- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; NÃO se pode determinar se algum elemento da lista avaliada foi retirado (';
+  const CLAUSULA_CONFERE = (n: number | string) => `a lista de respondentes que segue é a dos ${n} enviados.`;
+  const CLAUSULA_DIFERE = (n: number | string) =>
+    `o vínculo declara que a lista de respondentes que segue é a dos ${n} enviados (a linha da lista APRESENTADA, abaixo, compara essa declaração com a lista).`;
+  const COBERTURA_B_CONFERE = (n: number) => `${COBERTURA_B}${CLAUSULA_CONFERE(n)}`;
+  const COBERTURA_B_DIFERE = (n: number) => `${COBERTURA_B}${CLAUSULA_DIFERE(n)}`;
+  /** Os campos de cobertura de um vínculo SEM retirada (4 avaliados, 4 enviados): o que faz esses pedidos serem (b), e NÃO o texto impresso. */
+  const COBERTURA_SEM_RETIRADA_4 = { restringiu: true, avaliadosAntesDaRestricao: 4, enviados: 4, enviadosDiferemDosAvaliados: false };
 
   const ABERTURA = (n: number) =>
     `**TOTAL ENVIADO A VOCÊ: ${n} respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado`;
@@ -900,7 +926,8 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(r).toContain(APRESENTADA.c1);
     expect(r).toContain(PAINEL_COINCIDE);
     expect(r).toContain(TOTAL_COINCIDE_4);
-    expect(r).toContain(COBERTURA_CONFERE(4));
+    expect(vinculoCom(IDS, IDS).cobertura).toMatchObject(COBERTURA_SEM_RETIRADA_4); // nada foi retirado: (b)
+    expect(r).toContain(COBERTURA_B_CONFERE(4));
     expect(coincidencias(r)).toBe(4); // relação, linha da lista apresentada, resumo do painel e TOTAL: e mais nenhum
     expect(coincidencias(contexto)).toBe(4); // medido: nenhum sítio do contexto fora da região tem o radical
     // nada da discrepância, e a regra de menção é a de R2, sem acréscimo
@@ -929,7 +956,8 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     // as frases ao redor: a relação dos DECLARADOS sem o radical, o resumo do painel, a cobertura, o TOTAL e a regra
     expect(r).toContain(REL_DECLARADOS(4));
     expect(r).toContain(PAINEL_DIFERE);
-    expect(r).toContain(COBERTURA_DIFERE(4));
+    expect(vinculoCom(IDS, IDS).cobertura).toMatchObject(COBERTURA_SEM_RETIRADA_4); // nada foi retirado: (b), com a cláusula "declara"
+    expect(r).toContain(COBERTURA_B_DIFERE(4));
     expect(r).toContain(TOTAL_2);
     expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
     // a lista mostra TRÊS
@@ -967,7 +995,8 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(r).toContain('só nos enviados declarados ["r4"]');
     expect(r).toContain(REL_DECLARADOS(4));
     expect(r).toContain(PAINEL_DIFERE);
-    expect(r).toContain(COBERTURA_DIFERE(4));
+    expect(vinculoCom(IDS, IDS).cobertura).toMatchObject(COBERTURA_SEM_RETIRADA_4); // nada foi retirado: (b), com a cláusula "declara"
+    expect(r).toContain(COBERTURA_B_DIFERE(4));
     expect(r).toContain(TOTAL_3);
     expect(r).not.toContain('os dois valores se conservam'); // as contagens (4 e 4) NÃO diferem: a discrepância é de IDENTIDADE
     expect(r).toContain(REGRA_R2 + ACRESCIMO_R4);
@@ -1060,7 +1089,10 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(r).toContain(REL_DIFEREM_3_4);
     expect(r).not.toContain(SUFIXO_DECLARADOS); // apresentada = enviados: a relação dos declarados não precisa de desambiguação
     expect(r).toContain(`${TOTAL_5}\n\n**CÁLCULO — contagem registrada no documento de cálculo: 4 respondentes INCLUÍDOS`);
-    expect(r).toContain(COBERTURA_CONFERE(3)); // apresentada = enviados: a cobertura segue o texto de sempre
+    // o preparo REAL: 3 avaliados e 3 enviados, e a sobra é só do documento (r4): o filtro foi aplicado e NADA saiu da lista avaliada
+    expect(p.vinculo.cobertura).toMatchObject({ restringiu: true, avaliadosAntesDaRestricao: 3, enviados: 3, enviadosDiferemDosAvaliados: false });
+    expect(p.vinculo.divergencia.sobraNaAvaliacao).toEqual([]);
+    expect(r).toContain(COBERTURA_B_CONFERE(3)); // apresentada = enviados: a cláusula de sempre, depois da abertura de (b)
     expect(r).toContain(PAINEL_DIFERE);
     // o que a linha da lista apresentada conserva: os três conjuntos, e que a apresentada CONFERE com os enviados declarados
     for (const s of TRES_CONJUNTOS('["r1", "r2", "r3"]', 3, ids(3), ids(4))) expect(ocorrencias(r, s)).toBe(1);
@@ -1080,7 +1112,8 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(coincidencias(r)).toBe(0);
     expect(coincidencias(contexto)).toBe(0);
     expect(r).toContain(REL_DIFEREM_3_4 + SUFIXO_DECLARADOS); // o confronto dos DECLARADOS, desambiguado: a apresentada está na linha seguinte
-    expect(r).toContain(COBERTURA_DIFERE(3));
+    expect(p.vinculo.cobertura).toMatchObject({ restringiu: true, avaliadosAntesDaRestricao: 3, enviados: 3, enviadosDiferemDosAvaliados: false }); // o mesmo vínculo do controle 5: (b)
+    expect(r).toContain(COBERTURA_B_DIFERE(3));
     expect(r).toContain(PAINEL_NAO_CONFIRMA); // tem os identificadores dos incluídos: NÃO se diz que "difere do documento", e NÃO se afirma que descreve os enviados
     expect(r).not.toContain('NÃO descreve o conjunto enviado');
     expect(r).toContain(TOTAL_6);
@@ -1129,6 +1162,105 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(ocorrencias(contexto, '- Lista de respondentes APRESENTADA a você (0 identificador(es)')).toBe(1);
     expect(contexto).toContain('apresentada [] (0; lida de respondentId ou id de cada elemento de qualityAnalysis.respondents; etapa: envio)');
     expect(contexto).toContain('incluídos ["r7", "r8"] (2;');
+  });
+
+  // ============================================================ A.12, `cobertura.restringiu`, pelo tratador REAL
+  describe('A.12, `cobertura.restringiu`: a linha "Cobertura enviada", pelo tratador REAL, separa o filtro aplicado dos elementos retirados', () => {
+    /** A linha "Cobertura enviada" do contexto COMPLETO, e só ela: exatamente UMA. */
+    const linhaDeCobertura = (contexto: string): string => {
+      const linhas = contexto.split('\n').filter((l) => l.startsWith('- Cobertura enviada'));
+      expect(linhas.length).toBe(1);
+      return linhas[0];
+    };
+    /** O motivo da retirada não determinada, escrito à mão: a condição e os TRÊS campos exibidos. */
+    const motivoD = (condicao: string, b: string, a: string, e: string) =>
+      `${condicao}; lido: enviadosDiferemDosAvaliados = ${b}, avaliadosAntesDaRestricao = ${a}, enviados = ${e}), e `;
+
+    test('controle A. filtro NÃO aplicado (`indisponivel` e `invalido`): a abertura (a), byte a byte a de antes, e SEM cláusula de R4', async () => {
+      const lista = elegivel();
+      for (const estado of ['indisponivel', 'invalido'] as const) {
+        const v = vinculoDoEstado(estado, lista);
+        expect(v.cobertura.restringiu).toBe(false);
+        const { contexto } = await executarR4(lista, v);
+        expect(linhaDeCobertura(contexto)).toBe(COBERTURA_A);
+      }
+      // com a lista apresentada DIFERENTE da declarada, (a) continua sem cláusula: ela não se aplica onde nada foi restringido
+      const { contexto } = await executarR4(apresentar('r1', 'r2', 'r3'), vinculoDoEstado('indisponivel', elegivel()));
+      expect(linhaDeCobertura(contexto)).toBe(COBERTURA_A);
+    });
+
+    test('controle B. `vinculado` SEM retirada: a abertura (b), pelo preparo REAL', async () => {
+      const lista = elegivel();
+      const v = vinculoDoEstado('vinculado', lista);
+      expect(v.estado).toBe('vinculado');
+      expect(v.cobertura).toMatchObject(COBERTURA_SEM_RETIRADA_4);
+      const { contexto } = await executarR4(lista, v);
+      expect(linhaDeCobertura(contexto)).toBe(COBERTURA_B_CONFERE(4));
+      expect(contexto).not.toContain('o conjunto avaliado foi RESTRINGIDO');
+    });
+
+    test('controle C. `divergente` com a sobra SÓ no documento, e NADA retirado: a abertura (b), pelo preparo REAL', async () => {
+      const p = preparo(ids(3), ids(4)); // avaliados r1..r3, documento r1..r4
+      expect(p.vinculo.estado).toBe('divergente');
+      expect(p.vinculo.divergencia.sobraNaAvaliacao).toEqual([]); // ninguém da lista avaliada ficou de fora
+      expect(p.vinculo.divergencia.sobraNoDocumento).toEqual(['r4']); // a divergência está LÁ, do lado do documento
+      expect(p.vinculo.cobertura).toMatchObject({ restringiu: true, avaliadosAntesDaRestricao: 3, enviados: 3, enviadosDiferemDosAvaliados: false });
+      const { contexto } = await executarR4(p.respondentesEnviados, p.vinculo);
+      expect(linhaDeCobertura(contexto)).toBe(COBERTURA_B_CONFERE(3));
+      expect(contexto).not.toContain('o conjunto avaliado foi RESTRINGIDO');
+    });
+
+    test('controle D. retirada PARCIAL efetiva: a abertura (c), a de sempre, pelo preparo REAL, com as duas formas da cláusula de R4', async () => {
+      const p = preparo(ids(4), ids(3)); // avaliados r1..r4, documento r1..r3: r4 SAI da lista
+      expect(p.vinculo.cobertura).toMatchObject({ restringiu: true, avaliadosAntesDaRestricao: 4, enviados: 3, enviadosDiferemDosAvaliados: true });
+      expect(p.vinculo.divergencia.sobraNaAvaliacao?.map((x: any) => x.identificador)).toEqual(['r4']);
+      expect(p.respondentesEnviados.map((r: any) => r.respondentId)).toEqual(ids(3));
+      const confere = await executarR4(p.respondentesEnviados, p.vinculo);
+      expect(linhaDeCobertura(confere.contexto)).toBe(COBERTURA_C + CLAUSULA_CONFERE(3));
+      // a lista apresentada DIFERE dos enviados declarados: a cláusula de R4 muda, e a abertura NÃO
+      const difere = await executarR4(apresentar(...ids(4)), p.vinculo);
+      expect(linhaDeCobertura(difere.contexto)).toBe(COBERTURA_C + CLAUSULA_DIFERE(3));
+    });
+
+    test('controle E. retirada NÃO determinada: um vínculo RECEBIDO com campos contraditórios ou insuficientes, montado à mão, entregue ao tratador', async () => {
+      const base = (cobertura: Record<string, unknown>) => {
+        const v: any = JSON.parse(JSON.stringify(vinculoDoEstado('vinculado', elegivel())));
+        v.cobertura = { ...v.cobertura, ...cobertura };
+        return v;
+      };
+      // ⚠ a combinação do fixture antigo de `:1104` (4 avaliados, 3 enviados, booleano falso): o booleano e as contagens discordam
+      const discordam = base({ enviados: 3 });
+      const confere = await executarR4(apresentar(...IDS), discordam);
+      expect(linhaDeCobertura(confere.contexto)).toBe(
+        COBERTURA_D + motivoD('o booleano e as contagens declarados discordam', 'false', '4', '3') + CLAUSULA_CONFERE(3)
+      );
+      const difere = await executarR4(apresentar('r1', 'r2', 'r3'), discordam);
+      expect(linhaDeCobertura(difere.contexto)).toBe(
+        COBERTURA_D + motivoD('o booleano e as contagens declarados discordam', 'false', '4', '3') + CLAUSULA_DIFERE(3)
+      );
+      // o booleano AUSENTE do objeto que chega (a ida e volta por JSON o derruba): condição 2
+      const semBooleano = base({});
+      delete semBooleano.cobertura.enviadosDiferemDosAvaliados;
+      const a = await executarR4(apresentar(...IDS), semBooleano);
+      expect(linhaDeCobertura(a.contexto)).toBe(
+        COBERTURA_D + motivoD('o vínculo não declara se a lista mudou', 'não informado', '4', '4') + CLAUSULA_CONFERE(4)
+      );
+      // a contagem em TEXTO: condição 3, e o valor original se PERDE na exibição ("não informado"), inclusive na cláusula de R4
+      const contagemEmTexto = await executarR4(apresentar(...IDS), base({ enviados: '4' }));
+      expect(linhaDeCobertura(contagemEmTexto.contexto)).toBe(
+        COBERTURA_D + motivoD('as contagens declaradas não permitem decidir', 'false', '4', 'não informado') + CLAUSULA_CONFERE('não informado')
+      );
+      // mais enviados do que avaliados, com o booleano falso: valem as condições 1 E 4, e sai a 1 (a ORDEM, e não a legibilidade)
+      const maisEnviados = await executarR4(apresentar(...IDS), base({ avaliadosAntesDaRestricao: 2 }));
+      expect(linhaDeCobertura(maisEnviados.contexto)).toBe(
+        COBERTURA_D + motivoD('o vínculo declara mais enviados do que avaliados antes de qualquer restrição', 'false', '2', '4') + CLAUSULA_CONFERE(4)
+      );
+      // nenhuma dessas é um veredito: a elegibilidade e a nota NÃO dependem da linha (a rota só lê o vínculo para montar TEXTO)
+      for (const r of [confere, difere, a, contagemEmTexto, maisEnviados]) {
+        expect(r.contexto).not.toContain('o conjunto avaliado foi RESTRINGIDO');
+        expect(r.contexto).not.toContain('nenhum elemento da lista avaliada foi retirado');
+      }
+    });
   });
 
   // ============================================================ a fonte
