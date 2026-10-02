@@ -1,0 +1,60 @@
+24,26c24,26
+< - Amostra original coletada (população: respostas carregadas pela tela, finalizadas, de respondentes cadastrados e uma por respondente; etapa: coleta): 6 especialistas
+< - Restantes após a exclusão do gestor (população: respondentes não excluídos; etapa: exclusão do gestor, anterior a qualquer restrição do vínculo): 4 especialistas
+< - Respondentes excluídos pelo gestor (população: excluídos; etapa: exclusão do gestor): 2 (33.3% da amostra original)
+---
+> - Amostra original coletada: 6 especialistas
+> - Respondentes incluídos na análise: 4 especialistas
+> - Respondentes excluídos: 2 (33.3% da amostra original)
+29c29
+< - Os dados de qualidade abaixo referem-se APENAS aos 4 respondentes ENVIADOS a você (população: enviados; etapa: envio; contagem da lista de respondentes abaixo).
+---
+> - Os dados de qualidade abaixo referem-se APENAS aos 4 respondentes incluídos.
+34,59d33
+< ## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO
+< - Estado do vínculo: **vinculado** — Os 4 identificadores dos incluídos no documento de cálculo correspondem um a um aos 4 respondentes avaliados. É correspondência de identificadores segundo as regras declaradas, e não comprova que os CRs foram calculados sobre as versões registradas.
+< - Execução do cálculo (identificador opaco): exec-sonda-sem-vinculo-0001
+< - Origem da lista de respondentes avaliados: analiseDeQualidade
+< - Chave de leitura das contagens deste contexto (cálculo, avaliação e envio NÃO são sinônimos):
+<   - amostra coletada: as respostas carregadas pela tela (etapa: coleta);
+<   - restantes após a exclusão do gestor (etapa: exclusão do gestor, anterior a qualquer restrição do vínculo);
+<   - incluídos no documento de cálculo (etapa: cálculo): a contagem registrada no documento;
+<   - avaliados antes de qualquer restrição (etapa: avaliação de qualidade);
+<   - enviados a você (etapa: envio): a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles;
+<   - "Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste contexto, e nenhuma deve ser derivada dos totais agregados, que NÃO são contagem por dimensão nem participação por dimensão nas matrizes.
+< - Contagens: incluídos no documento de cálculo: 4; avaliados antes de qualquer restrição: 4; enviados a você: 4
+< - No documento de cálculo e NÃO na avaliação: nenhum (comparação realizada)
+< - Na avaliação e NÃO no documento de cálculo: nenhum (comparação realizada)
+< - Identificadores repetidos na avaliação: nenhum (comparação realizada)
+< - Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e a lista de respondentes que segue é a dos 4 enviados.
+< - Relação entre os ENVIADOS e os INCLUÍDOS no documento de cálculo (comparação dos dois conjuntos, com multiplicidade; não deduzida do estado): COINCIDEM, um a um (4 enviados, 4 incluídos).
+< - Lista de respondentes APRESENTADA a você (4 identificador(es) lidos de respondentId ou id de cada elemento de qualityAnalysis.respondents, na forma em que a lista deste contexto os exibe; etapa: envio; comparados um a um, com multiplicidade, contra os enviados declarados e contra os incluídos): COINCIDE, um a um, com os 4 enviados declarados (etapa: envio) e com os 4 incluídos no documento de cálculo (etapa: cálculo).
+< - Resumo do painel (algoritmo sha256, serialização sonda-sintetica-v1): b60df944fe9d4b0cff67a00ba9c4349bd76e8db02fd96bd16dc13a222620cd8c
+<   - Cobre o conjunto do DOCUMENTO de cálculo; identifica, e não verifica. O conjunto enviado coincide com o do documento.
+< - Resumos individuais transportados: 4 de 4 entradas com resumo.
+<   - Enviados sem entrada no mapa: nenhum (checagem realizada)
+<   - Enviados com resumo individual indisponível: nenhum (checagem realizada)
+<   - Entradas de respondentes NÃO enviados: nenhuma (checagem realizada)
+< - Portão de completude de A.21, propriedade do PERCURSO DE CÁLCULO EXAMINADO (o código da rota de cálculo), e não conferência desta execução: esse código rejeita a resposta que tem algum par de alguma matriz sem julgamento válido, e agrega cada célula só com julgamento existente, não pulado e com valor. Este vínculo de identificadores NÃO verificou os julgamentos daquela execução.
+< ⚠ Limites: este bloco transporta registros, e nada nele conferiu conteúdo. Nenhum resumo foi recalculado nem verificado por este sistema nesta etapa. "vinculado" significa correspondência de identificadores segundo regras declaradas, e NÃO comprova que os CRs foram calculados sobre as versões registradas. O bloco não é critério de nota e não suspende a classificação.
+61,62c35
+< 
+< ## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)
+---
+> ## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)
+69c42
+< **TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado e COINCIDE, um a um, com os 4 incluídos no documento de cálculo.**
+---
+> **TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**
+71,72c44,45
+< **CÁLCULO — contagem registrada no documento de cálculo: 4 respondentes INCLUÍDOS (tamanho do conjunto incluído; etapa: cálculo).** ⚠ Esta contagem NÃO é medição da participação em cada célula das matrizes agregadas (BOCR, MAGNITUDE e as quatro de subcritérios): não a apresente como o N de matriz alguma.
+< ⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N diferente a cada matriz. O portão de completude de A.21 é propriedade do percurso de cálculo examinado (ver o bloco do vínculo, acima), e não conferência desta execução.
+---
+> **AGREGAÇÃO POR MATRIZ: todos os 4 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 4 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**
+> ⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 4 julgamentos, sem particionamento.
+74d46
+< Contagens por status, sobre os ENVIADOS a você (etapa: envio):
+81c53
+< ⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.
+---
+> ⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.

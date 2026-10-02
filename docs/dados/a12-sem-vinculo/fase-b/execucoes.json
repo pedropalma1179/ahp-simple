@@ -1,0 +1,635 @@
+{
+  "natureza": "FASE B, texto fixado e o tratador concluindo: o corpo da resposta; quatro execucoes (2 classificacoes x controle/chave ausente), condicao de exclusao fixa: sem exclusao",
+  "registros": [
+    {
+      "id": "elegivel__controle",
+      "classificacao": "elegivel",
+      "variante": "controle",
+      "condicaoDeExclusao": "sem-exclusao",
+      "jsonEntregue": {
+        "arquivo": "fase-b/jsons-entregues/elegivel__controle.json",
+        "sha256": "1c3f6a856c740b59f040e01e4fedd994ead4de48c48f876e797d591195fbc9fd",
+        "bytes": 4050,
+        "contemAChaveVinculoNoTexto": true
+      },
+      "corpo": {
+        "arquivo": "fase-b/corpos/corpo-elegivel__controle.json",
+        "sha256": "9572b32b26cebd08bec981661c87dec4fe5e68efdfefff4a1e27f4ada43b3a58",
+        "bytes": 1304,
+        "status": 200,
+        "timestamp": "2026-10-02T21:43:53.404Z"
+      },
+      "chavesDeNivelPrincipal": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "metadata"
+      ],
+      "chavesDeMetadata": [
+        "version",
+        "model",
+        "timestamp",
+        "estadoDaExtracao",
+        "avaliacaoDeQualidade",
+        "knowledgeBase",
+        "debug"
+      ],
+      "caminhosDeChave": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "validation.version",
+        "validation.isValid",
+        "validation.issues",
+        "validation.issues[]",
+        "validation.warnings",
+        "validation.warnings[]",
+        "validation.estado",
+        "validation.inconclusivos",
+        "validation.inconclusivos[]",
+        "metadata",
+        "metadata.version",
+        "metadata.model",
+        "metadata.timestamp",
+        "metadata.estadoDaExtracao",
+        "metadata.avaliacaoDeQualidade",
+        "metadata.avaliacaoDeQualidade.estado",
+        "metadata.avaliacaoDeQualidade.motivo",
+        "metadata.avaliacaoDeQualidade.fonte",
+        "metadata.knowledgeBase",
+        "metadata.knowledgeBase.refsUsed",
+        "metadata.knowledgeBase.criticalRefs",
+        "metadata.knowledgeBase.uniqueArticles",
+        "metadata.knowledgeBase.semantic",
+        "metadata.knowledgeBase.semantic.contractVersion",
+        "metadata.knowledgeBase.semantic.enabled",
+        "metadata.knowledgeBase.semantic.queriesRan",
+        "metadata.knowledgeBase.semantic.withResults",
+        "metadata.knowledgeBase.semantic.emptyOk",
+        "metadata.knowledgeBase.semantic.errored",
+        "metadata.knowledgeBase.semantic.rawChunks",
+        "metadata.knowledgeBase.semantic.uniqueChunks",
+        "metadata.knowledgeBase.semantic.finalChunks",
+        "metadata.knowledgeBase.semantic.uniqueArticles",
+        "metadata.knowledgeBase.semantic.topScore",
+        "metadata.knowledgeBase.semantic.failedQueries",
+        "metadata.knowledgeBase.semantic.httpAttempts",
+        "metadata.knowledgeBase.semantic.queries",
+        "metadata.knowledgeBase.semantic.queries[]",
+        "metadata.debug",
+        "metadata.debug.sensitivityInflections",
+        "metadata.debug.sensitivityInflections{}",
+        "metadata.debug.hasSensitivity",
+        "metadata.debug.demographicsSummary",
+        "metadata.debug.demographicsSummary.total",
+        "metadata.debug.demographicsSummary.hasData",
+        "metadata.debug.hasDemographics"
+      ],
+      "mencoesAoRadicalVinculoNosCaminhosDeChave": [],
+      "mencoesAoRadicalVinculoNosValoresDeTexto": [],
+      "nota": "C",
+      "veredicto": "REVISÕES MAIORES",
+      "estadoDaExtracao": "padrao_reconhecido",
+      "mensagemDaExtracao": null,
+      "notaSuspensa": null,
+      "validacaoA27": {
+        "version": 1,
+        "estado": "aprovado",
+        "isValid": true,
+        "nIssues": 0,
+        "nWarnings": 0,
+        "nInconclusivos": 0
+      },
+      "reviewIgualAoTextoFixado": true,
+      "contexto": {
+        "arquivo": "fase-b/contextos/ctx-elegivel__controle.txt",
+        "sha256": "b1a7f44be1a182a172e33b0327b02fe212ec9003a34bf79561e1e3196bddc39d",
+        "bytes": 74823,
+        "linhas": 1186,
+        "caracteres": 74092,
+        "marcadorDoBlocoDoVinculo": 1,
+        "mencoesAoRadicalVinculo": 8
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        }
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "elegivel__chave-ausente",
+      "classificacao": "elegivel",
+      "variante": "chave-ausente",
+      "condicaoDeExclusao": "sem-exclusao",
+      "jsonEntregue": {
+        "arquivo": "fase-b/jsons-entregues/elegivel__chave-ausente.json",
+        "sha256": "a26492908bf02b4827fff0697ac15d5a8c58c73ec32874a215661b200da7d308",
+        "bytes": 1948,
+        "contemAChaveVinculoNoTexto": false
+      },
+      "corpo": {
+        "arquivo": "fase-b/corpos/corpo-elegivel__chave-ausente.json",
+        "sha256": "11f99f4c5224553d211e5b0dd86fefa81c08ccfffaceb2e32a1e01c27ba5f36c",
+        "bytes": 1304,
+        "status": 200,
+        "timestamp": "2026-10-02T21:43:53.413Z"
+      },
+      "chavesDeNivelPrincipal": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "metadata"
+      ],
+      "chavesDeMetadata": [
+        "version",
+        "model",
+        "timestamp",
+        "estadoDaExtracao",
+        "avaliacaoDeQualidade",
+        "knowledgeBase",
+        "debug"
+      ],
+      "caminhosDeChave": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "validation.version",
+        "validation.isValid",
+        "validation.issues",
+        "validation.issues[]",
+        "validation.warnings",
+        "validation.warnings[]",
+        "validation.estado",
+        "validation.inconclusivos",
+        "validation.inconclusivos[]",
+        "metadata",
+        "metadata.version",
+        "metadata.model",
+        "metadata.timestamp",
+        "metadata.estadoDaExtracao",
+        "metadata.avaliacaoDeQualidade",
+        "metadata.avaliacaoDeQualidade.estado",
+        "metadata.avaliacaoDeQualidade.motivo",
+        "metadata.avaliacaoDeQualidade.fonte",
+        "metadata.knowledgeBase",
+        "metadata.knowledgeBase.refsUsed",
+        "metadata.knowledgeBase.criticalRefs",
+        "metadata.knowledgeBase.uniqueArticles",
+        "metadata.knowledgeBase.semantic",
+        "metadata.knowledgeBase.semantic.contractVersion",
+        "metadata.knowledgeBase.semantic.enabled",
+        "metadata.knowledgeBase.semantic.queriesRan",
+        "metadata.knowledgeBase.semantic.withResults",
+        "metadata.knowledgeBase.semantic.emptyOk",
+        "metadata.knowledgeBase.semantic.errored",
+        "metadata.knowledgeBase.semantic.rawChunks",
+        "metadata.knowledgeBase.semantic.uniqueChunks",
+        "metadata.knowledgeBase.semantic.finalChunks",
+        "metadata.knowledgeBase.semantic.uniqueArticles",
+        "metadata.knowledgeBase.semantic.topScore",
+        "metadata.knowledgeBase.semantic.failedQueries",
+        "metadata.knowledgeBase.semantic.httpAttempts",
+        "metadata.knowledgeBase.semantic.queries",
+        "metadata.knowledgeBase.semantic.queries[]",
+        "metadata.debug",
+        "metadata.debug.sensitivityInflections",
+        "metadata.debug.sensitivityInflections{}",
+        "metadata.debug.hasSensitivity",
+        "metadata.debug.demographicsSummary",
+        "metadata.debug.demographicsSummary.total",
+        "metadata.debug.demographicsSummary.hasData",
+        "metadata.debug.hasDemographics"
+      ],
+      "mencoesAoRadicalVinculoNosCaminhosDeChave": [],
+      "mencoesAoRadicalVinculoNosValoresDeTexto": [],
+      "nota": "C",
+      "veredicto": "REVISÕES MAIORES",
+      "estadoDaExtracao": "padrao_reconhecido",
+      "mensagemDaExtracao": null,
+      "notaSuspensa": null,
+      "validacaoA27": {
+        "version": 1,
+        "estado": "aprovado",
+        "isValid": true,
+        "nIssues": 0,
+        "nWarnings": 0,
+        "nInconclusivos": 0
+      },
+      "reviewIgualAoTextoFixado": true,
+      "contexto": {
+        "arquivo": "fase-b/contextos/ctx-elegivel__chave-ausente.txt",
+        "sha256": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc",
+        "bytes": 70094,
+        "linhas": 1158,
+        "caracteres": 69518,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        }
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "suspensa-contradicao__controle",
+      "classificacao": "suspensa-contradicao",
+      "variante": "controle",
+      "condicaoDeExclusao": "sem-exclusao",
+      "jsonEntregue": {
+        "arquivo": "fase-b/jsons-entregues/suspensa-contradicao__controle.json",
+        "sha256": "e73ce69e15ea0ada6d01cb11cfcff10ca63f333b002f87c027c22ce0498a7f25",
+        "bytes": 4050,
+        "contemAChaveVinculoNoTexto": true
+      },
+      "corpo": {
+        "arquivo": "fase-b/corpos/corpo-suspensa-contradicao__controle.json",
+        "sha256": "72cfab7f9768373a58818a35fdf4f464bea5b95cb0b26f73206ac28117086389",
+        "bytes": 1838,
+        "status": 200,
+        "timestamp": "2026-10-02T21:43:53.419Z"
+      },
+      "chavesDeNivelPrincipal": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "metadata"
+      ],
+      "chavesDeMetadata": [
+        "version",
+        "model",
+        "timestamp",
+        "estadoDaExtracao",
+        "avaliacaoDeQualidade",
+        "knowledgeBase",
+        "debug"
+      ],
+      "caminhosDeChave": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "notaSuspensa.suspensa",
+        "notaSuspensa.causa",
+        "notaSuspensa.rotulo",
+        "notaSuspensa.motivo",
+        "notaSuspensa.avaliacaoDeQualidade",
+        "notaSuspensa.avaliacaoDeQualidade.estado",
+        "notaSuspensa.avaliacaoDeQualidade.motivo",
+        "notaSuspensa.avaliacaoDeQualidade.fonte",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "validation.version",
+        "validation.isValid",
+        "validation.issues",
+        "validation.issues[]",
+        "validation.warnings",
+        "validation.warnings[]",
+        "validation.estado",
+        "validation.inconclusivos",
+        "validation.inconclusivos[]",
+        "metadata",
+        "metadata.version",
+        "metadata.model",
+        "metadata.timestamp",
+        "metadata.estadoDaExtracao",
+        "metadata.avaliacaoDeQualidade",
+        "metadata.avaliacaoDeQualidade.estado",
+        "metadata.avaliacaoDeQualidade.motivo",
+        "metadata.avaliacaoDeQualidade.fonte",
+        "metadata.knowledgeBase",
+        "metadata.knowledgeBase.refsUsed",
+        "metadata.knowledgeBase.criticalRefs",
+        "metadata.knowledgeBase.uniqueArticles",
+        "metadata.knowledgeBase.semantic",
+        "metadata.knowledgeBase.semantic.contractVersion",
+        "metadata.knowledgeBase.semantic.enabled",
+        "metadata.knowledgeBase.semantic.queriesRan",
+        "metadata.knowledgeBase.semantic.withResults",
+        "metadata.knowledgeBase.semantic.emptyOk",
+        "metadata.knowledgeBase.semantic.errored",
+        "metadata.knowledgeBase.semantic.rawChunks",
+        "metadata.knowledgeBase.semantic.uniqueChunks",
+        "metadata.knowledgeBase.semantic.finalChunks",
+        "metadata.knowledgeBase.semantic.uniqueArticles",
+        "metadata.knowledgeBase.semantic.topScore",
+        "metadata.knowledgeBase.semantic.failedQueries",
+        "metadata.knowledgeBase.semantic.httpAttempts",
+        "metadata.knowledgeBase.semantic.queries",
+        "metadata.knowledgeBase.semantic.queries[]",
+        "metadata.debug",
+        "metadata.debug.sensitivityInflections",
+        "metadata.debug.sensitivityInflections{}",
+        "metadata.debug.hasSensitivity",
+        "metadata.debug.demographicsSummary",
+        "metadata.debug.demographicsSummary.total",
+        "metadata.debug.demographicsSummary.hasData",
+        "metadata.debug.hasDemographics"
+      ],
+      "mencoesAoRadicalVinculoNosCaminhosDeChave": [],
+      "mencoesAoRadicalVinculoNosValoresDeTexto": [],
+      "nota": null,
+      "veredicto": null,
+      "estadoDaExtracao": "nao_executada_por_suspensao",
+      "mensagemDaExtracao": null,
+      "notaSuspensa": {
+        "suspensa": true,
+        "causa": "contradicao",
+        "rotulo": "Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+        "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+      },
+      "validacaoA27": {
+        "version": 1,
+        "estado": "aprovado",
+        "isValid": true,
+        "nIssues": 0,
+        "nWarnings": 0,
+        "nInconclusivos": 0
+      },
+      "reviewIgualAoTextoFixado": true,
+      "contexto": {
+        "arquivo": "fase-b/contextos/ctx-suspensa-contradicao__controle.txt",
+        "sha256": "51d030114394c97f1684efc05ad06ddffd128ba8535d24c1a4f8ee6b6a8ce54f",
+        "bytes": 75199,
+        "linhas": 1184,
+        "caracteres": 74436,
+        "marcadorDoBlocoDoVinculo": 1,
+        "mencoesAoRadicalVinculo": 8
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        }
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "suspensa-contradicao__chave-ausente",
+      "classificacao": "suspensa-contradicao",
+      "variante": "chave-ausente",
+      "condicaoDeExclusao": "sem-exclusao",
+      "jsonEntregue": {
+        "arquivo": "fase-b/jsons-entregues/suspensa-contradicao__chave-ausente.json",
+        "sha256": "5e668fadffe25fb39fa0a052e343a3fb623484a2b5955d04bc26279a578dfd3c",
+        "bytes": 1948,
+        "contemAChaveVinculoNoTexto": false
+      },
+      "corpo": {
+        "arquivo": "fase-b/corpos/corpo-suspensa-contradicao__chave-ausente.json",
+        "sha256": "ba008bea91b55aa2dbab49cf903d3f1aee7e6c3697afbf4179e4d71c75c7f3c5",
+        "bytes": 1838,
+        "status": 200,
+        "timestamp": "2026-10-02T21:43:53.424Z"
+      },
+      "chavesDeNivelPrincipal": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "metadata"
+      ],
+      "chavesDeMetadata": [
+        "version",
+        "model",
+        "timestamp",
+        "estadoDaExtracao",
+        "avaliacaoDeQualidade",
+        "knowledgeBase",
+        "debug"
+      ],
+      "caminhosDeChave": [
+        "success",
+        "nota",
+        "veredicto",
+        "notaSuspensa",
+        "notaSuspensa.suspensa",
+        "notaSuspensa.causa",
+        "notaSuspensa.rotulo",
+        "notaSuspensa.motivo",
+        "notaSuspensa.avaliacaoDeQualidade",
+        "notaSuspensa.avaliacaoDeQualidade.estado",
+        "notaSuspensa.avaliacaoDeQualidade.motivo",
+        "notaSuspensa.avaliacaoDeQualidade.fonte",
+        "mensagemDaExtracao",
+        "review",
+        "validation",
+        "validation.version",
+        "validation.isValid",
+        "validation.issues",
+        "validation.issues[]",
+        "validation.warnings",
+        "validation.warnings[]",
+        "validation.estado",
+        "validation.inconclusivos",
+        "validation.inconclusivos[]",
+        "metadata",
+        "metadata.version",
+        "metadata.model",
+        "metadata.timestamp",
+        "metadata.estadoDaExtracao",
+        "metadata.avaliacaoDeQualidade",
+        "metadata.avaliacaoDeQualidade.estado",
+        "metadata.avaliacaoDeQualidade.motivo",
+        "metadata.avaliacaoDeQualidade.fonte",
+        "metadata.knowledgeBase",
+        "metadata.knowledgeBase.refsUsed",
+        "metadata.knowledgeBase.criticalRefs",
+        "metadata.knowledgeBase.uniqueArticles",
+        "metadata.knowledgeBase.semantic",
+        "metadata.knowledgeBase.semantic.contractVersion",
+        "metadata.knowledgeBase.semantic.enabled",
+        "metadata.knowledgeBase.semantic.queriesRan",
+        "metadata.knowledgeBase.semantic.withResults",
+        "metadata.knowledgeBase.semantic.emptyOk",
+        "metadata.knowledgeBase.semantic.errored",
+        "metadata.knowledgeBase.semantic.rawChunks",
+        "metadata.knowledgeBase.semantic.uniqueChunks",
+        "metadata.knowledgeBase.semantic.finalChunks",
+        "metadata.knowledgeBase.semantic.uniqueArticles",
+        "metadata.knowledgeBase.semantic.topScore",
+        "metadata.knowledgeBase.semantic.failedQueries",
+        "metadata.knowledgeBase.semantic.httpAttempts",
+        "metadata.knowledgeBase.semantic.queries",
+        "metadata.knowledgeBase.semantic.queries[]",
+        "metadata.debug",
+        "metadata.debug.sensitivityInflections",
+        "metadata.debug.sensitivityInflections{}",
+        "metadata.debug.hasSensitivity",
+        "metadata.debug.demographicsSummary",
+        "metadata.debug.demographicsSummary.total",
+        "metadata.debug.demographicsSummary.hasData",
+        "metadata.debug.hasDemographics"
+      ],
+      "mencoesAoRadicalVinculoNosCaminhosDeChave": [],
+      "mencoesAoRadicalVinculoNosValoresDeTexto": [],
+      "nota": null,
+      "veredicto": null,
+      "estadoDaExtracao": "nao_executada_por_suspensao",
+      "mensagemDaExtracao": null,
+      "notaSuspensa": {
+        "suspensa": true,
+        "causa": "contradicao",
+        "rotulo": "Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+        "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+      },
+      "validacaoA27": {
+        "version": 1,
+        "estado": "aprovado",
+        "isValid": true,
+        "nIssues": 0,
+        "nWarnings": 0,
+        "nInconclusivos": 0
+      },
+      "reviewIgualAoTextoFixado": true,
+      "contexto": {
+        "arquivo": "fase-b/contextos/ctx-suspensa-contradicao__chave-ausente.txt",
+        "sha256": "342ad3c640fd54c3c47f0913ef24f85b49715e0aac16939bc9bcdeb69525b1a9",
+        "bytes": 70470,
+        "linhas": 1156,
+        "caracteres": 69862,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        }
+      },
+      "chamadasDeRede": 0
+    }
+  ],
+  "determinismoEntreDuasPassadas": [
+    {
+      "id": "elegivel__controle",
+      "corpoIgualNasDuasPassadas": false,
+      "corpoSemTimestampIgualNasDuasPassadas": true,
+      "contextoIgualNasDuasPassadas": true
+    },
+    {
+      "id": "elegivel__chave-ausente",
+      "corpoIgualNasDuasPassadas": false,
+      "corpoSemTimestampIgualNasDuasPassadas": true,
+      "contextoIgualNasDuasPassadas": true
+    },
+    {
+      "id": "suspensa-contradicao__controle",
+      "corpoIgualNasDuasPassadas": false,
+      "corpoSemTimestampIgualNasDuasPassadas": true,
+      "contextoIgualNasDuasPassadas": true
+    },
+    {
+      "id": "suspensa-contradicao__chave-ausente",
+      "corpoIgualNasDuasPassadas": false,
+      "corpoSemTimestampIgualNasDuasPassadas": true,
+      "contextoIgualNasDuasPassadas": true
+    }
+  ],
+  "cruzamentoComAFaseA": [
+    {
+      "variante": "controle",
+      "contextoDaFaseBElegivelIgualAoDaFaseAEmSemExclusao": true,
+      "sha256DaFaseB": "b1a7f44be1a182a172e33b0327b02fe212ec9003a34bf79561e1e3196bddc39d",
+      "sha256DaFaseA": "b1a7f44be1a182a172e33b0327b02fe212ec9003a34bf79561e1e3196bddc39d"
+    },
+    {
+      "variante": "chave-ausente",
+      "contextoDaFaseBElegivelIgualAoDaFaseAEmSemExclusao": true,
+      "sha256DaFaseB": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc",
+      "sha256DaFaseA": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc"
+    }
+  ]
+}

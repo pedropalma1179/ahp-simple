@@ -1,0 +1,65 @@
+# APLICACAO DAS GUARDAS DE REDACAO (secao 6.4 do pedido). Base ad2ad0afdc1a972570d3733ccc582d65a719397a.
+# HEAD ad2ad0afdc1a972570d3733ccc582d65a719397a. Arvore de trabalho: o que sera publicado.
+# Arquivos ALTERADOS (rastreados): ['docs/imprecisoes-parecer-ia.md']
+# Arquivos NOVOS (nao rastreados): 60; fora de docs/dados/a12-sem-vinculo/: []
+# Registro: base 1172075 bytes, sha256 233476eb6bf5; trabalho 1217960 bytes, sha256 738ae1cbcff8. Contrato e ancora: byte a byte os da base.
+
+[G1] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1453-1459
+    escopo:  arquivo inteiro, NORMALIZADO, de docs/contratos-de-dados.md e de docs/imprecisoes-parecer-ia.md
+    afirma:  contém a redação literal da seção 5 e NÃO contém a sua versão corrompida ("não pode" por "pode")
+    medido:  redação no contrato: True; no registro: True; corrompida no contrato: False; no registro: False
+[G2] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1461-1475
+    escopo:  varredura recursiva de app, lib, docs, components e scripts (sem node_modules, .next e .git), só arquivos .ts .tsx .md .json .cjs .js .mjs, cada um NORMALIZADO e em minúsculas
+    afirma:  nenhum arquivo contém a frase proibida ('verificar conteúdo exigiria o servidor')
+    medido:  arquivos varridos: 260; achados: []; do pacote novo, ALCANÇADOS pela varredura: 25 (['.json', '.md']); do pacote, FORA da extensão varrida: 35 (['.diff', '.html', '.py', '.txt']). Contraexemplo: a frase montada é achada em "x verificar conteúdo exigiria o servidor y": True
+[G3] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1477-1485
+    escopo:  arquivo inteiro, NORMALIZADO, de docs/contratos-de-dados.md e de docs/imprecisoes-parecer-ia.md
+    afirma:  contém a regra da seção 7, literal
+    medido:  no contrato: True; no registro: True
+[G4] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1706-1712
+    escopo:  arquivo inteiro, NORMALIZADO, de docs/imprecisoes-parecer-ia.md
+    afirma:  contém as cinco passagens listadas
+    medido:  ausentes: []
+[G5] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1720-1721
+    escopo:  arquivo inteiro, NORMALIZADO, de docs/contratos-de-dados.md, docs/imprecisoes-parecer-ia.md e docs/objetivo-estados-caminho.md
+    afirma:  não contém a frase montada de "diverge", "por" e "construção"
+    medido:  ocorrências no contrato: 0; no registro: 0 (base: 0); no ancora: 0
+[G6] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1725-1744
+    escopo:  a FATIA do registro normalizado entre "**Achado 1 (delimitado" e "**Achado 2:" (índices 675350 a 677943; 2593 caracteres)
+    afirma:  contém as passagens listadas e não contém a frase generalizada
+    medido:  a fatia é IDÊNTICA à da base (a inserção está depois dela): True; sha256 5d55b8aa47d1; ausentes: []
+[G7] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1774-1796
+    escopo:  a FATIA do registro normalizado entre "### Implementado e medido: R4" e a PRIMEIRA ocorrência seguinte de "## Anexo 3" (índices 734358 a 825066; 90708 caracteres; na base 90708)
+    afirma:  contém as dez passagens listadas, e o registro inteiro contém as duas do complemento; a fatia não contém a frase generalizada (o critério é o do TESTE: as asserções sobre a fatia)
+    medido:  a fatia vai da linha crua 12332 à linha crua 13339, onde está a PRIMEIRA ocorrência do marcador de fim (dentro de uma frase de bloco anterior), e NÃO ao título do anexo (linha crua 16266); ocorrências do marcador no registro: 2 (base 2), ou seja, esta inserção NÃO acrescentou marcador; a fatia é IDÊNTICA à da base: True; ausentes: []
+    ⚠ PREMISSA DO PEDIDO CONFRONTADA COM A MEDIÇÃO (as duas ficam conservadas): o pedido, como ponto de partida de 02/10, diz que o bloco do commit anterior ficou DENTRO desta fatia e manda tratar o acréscimo como dentro dela até medir o contrário.
+    MEDIDO (a mesma semântica do teste): o bloco do commit anterior (aceite técnico) está FORA da fatia, na base (dentro: False); o acréscimo desta rodada está FORA da fatia (dentro: False); a fatia termina na linha crua 13339.
+[G8] PASSA
+    fonte:   lib/__tests__/vinculo-execucao-fiacao.test.ts:1798
+    escopo:  o PREFIXO do registro normalizado, slice(0, inicio) com inicio = 734358 (na base 734358)
+    afirma:  não contém "Nenhum teste novo ou atualizado reprovou na primeira execução"
+    medido:  o prefixo é IDÊNTICO ao da base (a inserção está depois do marcador de início): True; sha256 d99fac1b0962
+[G9] PASSA
+    fonte:   lib/__tests__/a12-nota-veredicto-fase2.test.ts:786-799
+    escopo:  cada um dos SEIS arquivos, texto CRU (a regex usa \s e não há normalização); só o registro mudou
+    afirma:  a regex PROMESSA ("veredito não apresentado", "deixa de ser apresentado", "fica oculto") NÃO casa
+    medido:  casa em: []; trecho do registro novo analisado: 1181974 caracteres (a regex olhou o arquivo inteiro). Contraexemplos que o detector pega: [True, True, True]
+[P1] PASSA
+    fonte:   pedido, seção 9 (proibições)
+    escopo:  o registro inteiro, texto cru, e todos os arquivos novos de docs/dados/a12-sem-vinculo/ de extensão de texto
+    afirma:  a expressão protegida pela seção 9 do pedido (a que se manda não corrigir) não ganha nenhuma ocorrência
+    medido:  ocorrências no registro: base 5, trabalho 5 (casamento: "outra" + espaço(s) + "redação", sem distinção de caixa, atravessando quebra de linha)
+[P2] PASSA
+    fonte:   pedido, seção 6.1 (inserção pura)
+    escopo:  docs/imprecisoes-parecer-ia.md, linha a linha, base contra trabalho
+    afirma:  nenhuma linha da base foi alterada ou removida: a base é prefixo mais sufixo do trabalho, e o resto é a inserção
+    medido:  prefixo comum: 15930 linhas; sufixo comum: 277 linhas; inseridas: 333 (a partir da linha 15931); remoções: 0; linha seguinte à inserção: '---'
+
+# RESUMO: 11 de 11 aplicações passam

@@ -1,0 +1,167 @@
+# BUSCAS DA FASE D (alcancabilidade), sobre a arvore de ad2ad0afdc1a972570d3733ccc582d65a719397a (git grep; leitura, nao medicao)
+
+## D3a. o endpoint literal, em codigo de producao e scripts (app, components, lib exceto testes, scripts)
+## escopo: app components lib scripts, sem lib/__tests__
+## comando: git grep -n -E api/ai-reviewer ad2ad0afdc1a972570d3733ccc582d65a719397a -- app components lib scripts :!lib/__tests__ (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 0 (com resultado) | linhas: 14
+app/api/ai-reviewer/knowledge.ts:1:// app/api/ai-reviewer/knowledge.ts
+app/api/ai-reviewer/route.ts:1:// app/api/ai-reviewer/route.ts
+app/api/ai-reviewer/system-prompt.ts:11: * @see app/api/ai-reviewer/route.ts para uso
+app/decisor/resultados/[projectId]/page.tsx:1350:      const response = await fetch('/api/ai-reviewer', {
+lib/ai-reviewer/avaliacao-qualidade.ts:306: * prioridades de `app/api/ai-reviewer/route.ts:685`, `:738` e `:757`.
+lib/ai-reviewer/avaliacao-qualidade.ts:328: * `app/api/ai-reviewer/route.ts:698-701`. **Só `CONFIÁVEL` coincide**; nas outras três a
+lib/ai-reviewer/review-request.ts:5: * Movido de `app/api/ai-reviewer/route.ts` em A.27, eixo 1, commit 1a, SEM
+lib/ai-reviewer/validate-review.ts:5: * `app/api/ai-reviewer/route.ts` em A.27, eixo 1, commit 1a, sem alteração de
+lib/rag/README.md:60:*   app/api/ai-reviewer/route.ts
+lib/rag/semantic-retrieve.ts:5: * em app/api/ai-reviewer/route.ts via embedding Voyage-3 + Upstash Vector.
+scripts/a33-payload-referencia.cjs:283:      { fallback: 'a tela usa project.alternatives || []', nota: 'A rota só copia o campo em normalizeRequest e não o lê depois; medido por busca em app/api/ai-reviewer e lib/ai-reviewer.' }),
+scripts/a33-snapshot-v2.cjs:199:/** `claimToRef`, em `app/api/ai-reviewer/knowledge.ts`: só `topic` e `rule` dependem dos campos aprovados. */
+scripts/a33-snapshot-v2.cjs:569:        e.molde = 'claimToRef, app/api/ai-reviewer/knowledge.ts: topic vem de claim, rule de evidence.quote';
+scripts/a33-snapshot-v2.cjs:585:        e.molde = 'as quatro seções de app/api/ai-reviewer/route.ts';
+
+## D3b. o endpoint literal, nos testes (lib/__tests__)
+## escopo: lib/__tests__
+## comando: git grep -n -E api/ai-reviewer ad2ad0afdc1a972570d3733ccc582d65a719397a -- lib/__tests__ (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 0 (com resultado) | linhas: 66
+lib/__tests__/a12-coerencia.test.ts:424:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-coerencia.test.ts:574:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-diagnostico.test.ts:34: * A remoção da análise de fairness alterou `app/api/ai-reviewer/route.ts` e
+lib/__tests__/a12-diagnostico.test.ts:35: * `app/api/ai-reviewer/system-prompt.ts`, e o contexto medido encolheu, então o artefato
+lib/__tests__/a12-diagnostico.test.ts:56:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:95:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:118:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:141:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:159:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:176:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:192:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a12-diagnostico.test.ts:206:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a12-diagnostico.test.ts:225:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:244:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a12-diagnostico.test.ts:267:const ROTA = 'app/api/ai-reviewer/route.ts';
+lib/__tests__/a12-diagnostico.test.ts:442: * contra `app/api/ai-reviewer/route.ts`, de modo que reescrita do prompt reprova o
+lib/__tests__/a12-diagnostico.test.ts:642:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-diagnostico.test.ts:750:          onde: 'app/api/ai-reviewer/route.ts:831-832 escreve o criterio e a justificativa como TEXTO FIXO no contexto; lib/ai-reviewer/review-request.ts traz um campo reason, textual e unico',
+lib/__tests__/a12-estatisticas-dimensao-consumidor-latente.test.ts:56:const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-estatisticas-dimensao.test.ts:6: * ⚠ **Instrumento, declarado.** Estes ensaios passam pelo TRATADOR REAL de `POST /api/ai-reviewer`,
+lib/__tests__/a12-estatisticas-dimensao.test.ts:95:const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:6: * ⚠ **Instrumento, declarado.** Estes ensaios passam pelo TRATADOR REAL de `POST /api/ai-reviewer`, com o cliente do modelo
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:101:const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:518:    const arquivos = ['lib/ai-reviewer/avaliacao-qualidade.ts', 'app/api/ai-reviewer/route.ts', 'components/ParecerAISection.tsx', 'app/decisor/resultados/[projectId]/page.tsx'];
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:540:    const rota = ler('app/api/ai-reviewer/route.ts');
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:556:    const rota = ler('app/api/ai-reviewer/route.ts');
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:652:    const rota = ler('app/api/ai-reviewer/route.ts');
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:788:    'app/api/ai-reviewer/route.ts',
+lib/__tests__/a12-qualidade-ausente.test.ts:132:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-qualidade-ausente.test.ts:368:    const rota = ler('app/api/ai-reviewer/route.ts');
+lib/__tests__/a16-correcao-trechos-c1.test.ts:16:import { getRefsByAuthor } from '@/app/api/ai-reviewer/knowledge';
+lib/__tests__/a33-cadeia-rule.test.ts:5: * `app/api/ai-reviewer/knowledge.ts`, linha 101:
+lib/__tests__/a33-cadeia-rule.test.ts:46: * corrente, e os dois papéis se tornaram incompatíveis quando `app/api/ai-reviewer/route.ts`
+lib/__tests__/a33-cadeia-rule.test.ts:116: * substitui.** A remoção da análise de fairness alterou `app/api/ai-reviewer/route.ts`
+lib/__tests__/a33-cadeia-rule.test.ts:117: * e `app/api/ai-reviewer/system-prompt.ts`, então a medição corrente deixou de
+lib/__tests__/a33-cadeia-rule.test.ts:166:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:183:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:195:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:208:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:222:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:237:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:252:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:268:    camposRegravados: ['identificacao.codigo[app/api/ai-reviewer/route.ts]'],
+lib/__tests__/a33-cadeia-rule.test.ts:284:      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+lib/__tests__/a33-cadeia-rule.test.ts:304:  'app/api/ai-reviewer/knowledge.ts',
+lib/__tests__/a33-cadeia-rule.test.ts:305:  'app/api/ai-reviewer/route.ts',
+lib/__tests__/a33-cadeia-rule.test.ts:493:    const k = require('@/app/api/ai-reviewer/knowledge');
+lib/__tests__/a33-cadeia-rule.test.ts:548:  const k = require('@/app/api/ai-reviewer/knowledge');
+lib/__tests__/a33-cadeia-rule.test.ts:650:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a33-cadeia-rule.test.ts:734:  const k = require('@/app/api/ai-reviewer/knowledge');
+lib/__tests__/a33-cadeia-rule.test.ts:843:  const k = require('@/app/api/ai-reviewer/knowledge');
+lib/__tests__/a33-cadeia-rule.test.ts:1317:  const k = require('@/app/api/ai-reviewer/knowledge');
+lib/__tests__/a33-cadeia-rule.test.ts:1335:  const k = require('@/app/api/ai-reviewer/knowledge');
+lib/__tests__/a33-cadeia-rule.test.ts:1542:  expect(gravado.identificacao.codigo['app/api/ai-reviewer/route.ts']).toBe(
+lib/__tests__/a33-cadeia-rule.test.ts:1543:    shaArquivo('app/api/ai-reviewer/route.ts')
+lib/__tests__/a33-montagem-contexto.test.ts:127:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a33-snapshot-v2.test.ts:473:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/engine-census.test.ts:176:      f => !f.startsWith('app/api/ai-reviewer/')
+lib/__tests__/engine-census.test.ts:228:    expect(FONTES).not.toContain('app/api/ai-reviewer/route-v641-compatible.ts');
+lib/__tests__/rag-diagnostico-regressao.test.ts:581:      const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/rag-semantic-states.test.ts:5: * `app/api/ai-reviewer/route.ts`, com os clientes externos simulados.
+lib/__tests__/rag-semantic-states.test.ts:173:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/vinculo-execucao-fiacao.test.ts:6: * ⚠ **O que roda de verdade aqui.** A rota real `app/api/ai-reviewer/route.ts`, com o
+lib/__tests__/vinculo-execucao-fiacao.test.ts:47:const ROTA = 'app/api/ai-reviewer/route.ts';
+lib/__tests__/vinculo-execucao-fiacao.test.ts:76:const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/vinculo-execucao-fiacao.test.ts:1585:  const fimDaChamada = tela.indexOf("const response = await fetch('/api/ai-reviewer', {", inicio);
+
+## D3c. o endpoint literal, em QUALQUER outro caminho rastreado (documentos de topo, config, workflows)
+## escopo: tudo menos app, components, lib, scripts, docs
+## comando: git grep -n -E api/ai-reviewer ad2ad0afdc1a972570d3733ccc582d65a719397a -- . :!app :!components :!lib :!scripts :!docs (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 1 (SEM RESULTADO: a busca executou e nada achou; NAO e falha) | linhas: 0
+
+## D3d. quem IMPORTA o handler (especificador com ai-reviewer/route), em qualquer extensao de codigo
+## escopo: *.ts *.tsx *.js *.cjs *.mjs, todo o repositorio rastreado
+## comando: git grep -n -E from ['"][^'"]*ai-reviewer/route['"]|require\(['"][^'"]*ai-reviewer/route['"]\) ad2ad0afdc1a972570d3733ccc582d65a719397a -- *.ts *.tsx *.js *.cjs *.mjs (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 0 (com resultado) | linhas: 13
+lib/__tests__/a12-coerencia.test.ts:424:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-coerencia.test.ts:574:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-diagnostico.test.ts:642:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-estatisticas-dimensao-consumidor-latente.test.ts:56:const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-estatisticas-dimensao.test.ts:95:const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-nota-veredicto-fase2.test.ts:101:const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a12-qualidade-ausente.test.ts:132:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a33-cadeia-rule.test.ts:650:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a33-montagem-contexto.test.ts:127:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/a33-snapshot-v2.test.ts:473:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/rag-diagnostico-regressao.test.ts:581:      const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/rag-semantic-states.test.ts:173:    const { POST } = require('@/app/api/ai-reviewer/route');
+lib/__tests__/vinculo-execucao-fiacao.test.ts:76:const { POST } = require('@/app/api/ai-reviewer/route');
+
+## D3e. chamadas fetch com URL montada (fetch( seguido de crase ou variavel), que poderiam compor o endpoint sem o literal
+## escopo: app components lib, sem lib/__tests__
+## comando: git grep -n -E fetch\(\s*(`|[A-Za-z_]) ad2ad0afdc1a972570d3733ccc582d65a719397a -- app components lib :!lib/__tests__ (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 0 (com resultado) | linhas: 3
+app/api/validate-external/route.ts:37:    const response = await fetch(`${VALIDATOR_URL}${endpoint}`, {
+app/api/validate-external/route.ts:65:    const response = await fetch(VALIDATOR_URL, { method: 'GET' });
+lib/rag/upstash-client.ts:119:          res = await fetch(endereco, opcoes);
+
+## D3f. a rota declara outros metodos alem de POST?
+## escopo: app/api/ai-reviewer
+## comando: git grep -n -E export (async )?function (GET|PUT|PATCH|DELETE|POST) ad2ad0afdc1a972570d3733ccc582d65a719397a -- app/api/ai-reviewer (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 0 (com resultado) | linhas: 2
+app/api/ai-reviewer/route.ts:1365:export async function GET() {
+app/api/ai-reviewer/route.ts:1412:export async function POST(request: NextRequest) {
+
+## D3g. nos 12 arquivos de teste que importam o handler (D3d), quantas vezes o texto do arquivo cita o identificador do campo
+## escopo: os 12 arquivos listados abaixo, na base. ⚠ Contagem de OCORRENCIAS do identificador no texto do arquivo (grep -o | wc -l) e de LINHAS (git grep -c): NAO e prova de que o payload do teste omite o campo (um auxiliar importado poderia traze-lo), e zero ocorrencias NAO e falha.
+  lib/__tests__/a12-coerencia.test.ts                        ocorrencias=0   linhas=0
+  lib/__tests__/a12-diagnostico.test.ts                      ocorrencias=4   linhas=4
+  lib/__tests__/a12-estatisticas-dimensao-consumidor-latente.test.ts ocorrencias=0   linhas=0
+  lib/__tests__/a12-estatisticas-dimensao.test.ts            ocorrencias=6   linhas=6
+  lib/__tests__/a12-nota-veredicto-fase2.test.ts             ocorrencias=0   linhas=0
+  lib/__tests__/a12-qualidade-ausente.test.ts                ocorrencias=0   linhas=0
+  lib/__tests__/a33-cadeia-rule.test.ts                      ocorrencias=4   linhas=4
+  lib/__tests__/a33-montagem-contexto.test.ts                ocorrencias=0   linhas=0
+  lib/__tests__/a33-snapshot-v2.test.ts                      ocorrencias=0   linhas=0
+  lib/__tests__/rag-diagnostico-regressao.test.ts            ocorrencias=0   linhas=0
+  lib/__tests__/rag-semantic-states.test.ts                  ocorrencias=0   linhas=0
+  lib/__tests__/vinculo-execucao-fiacao.test.ts              ocorrencias=38  linhas=29
+
+## D3h. primitivas de chamada HTTP em scripts (fetch, axios, node-fetch, http(s).request, XMLHttpRequest, curl): um script poderia chamar a rota sem citar o literal
+## escopo: scripts
+## comando: git grep -n -E fetch\(|axios|node-fetch|https?\.request|XMLHttpRequest|curl  ad2ad0afdc1a972570d3733ccc582d65a719397a -- scripts (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 1 (SEM RESULTADO: a busca executou e nada achou; NAO e falha) | linhas: 0
+
+## D3i. primitivas de chamada HTTP alem de fetch (axios, node-fetch, http(s).request, XMLHttpRequest) em codigo de producao
+## escopo: app components lib, sem lib/__tests__
+## comando: git grep -n -E axios|node-fetch|https?\.request|XMLHttpRequest ad2ad0afdc1a972570d3733ccc582d65a719397a -- app components lib :!lib/__tests__ (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 1 (SEM RESULTADO: a busca executou e nada achou; NAO e falha) | linhas: 0
+
+## D3j-escopo. dos caminhos de configuracao pedidos abaixo, quais EXISTEM na base (a busca D3j nao acusa caminho inexistente)
+.github/copilot-instructions.md
+.github/workflows/ci.yml
+next.config.js
+package.json
+
+## D3j. o endpoint em workflows, package.json e configuracao de deploy
+## escopo: .github package.json vercel.json next.config.js next.config.mjs (os que existem, acima)
+## comando: git grep -n -E ai-reviewer ad2ad0afdc1a972570d3733ccc582d65a719397a -- .github package.json vercel.json next.config.js next.config.mjs (sobre ad2ad0afdc1a972570d3733ccc582d65a719397a)
+## saida do git grep: 1 (SEM RESULTADO: a busca executou e nada achou; NAO e falha) | linhas: 0
+
+## fim

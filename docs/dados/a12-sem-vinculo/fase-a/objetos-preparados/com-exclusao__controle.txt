@@ -1,0 +1,126 @@
+{
+  avaliacaoDeQualidade: { estado: 'disponivel', motivo: null, fonte: 'análise de qualidade dos respondentes ativos' },
+  vinculoDaExecucao: {
+    estado: 'vinculado',
+    motivo: 'Os 4 identificadores dos incluídos no documento de cálculo correspondem um a um aos 4 respondentes avaliados. É correspondência de identificadores segundo as regras declaradas, e não comprova que os CRs foram calculados sobre as versões registradas.',
+    violacoes: null,
+    executionId: 'exec-sonda-sem-vinculo-0001',
+    origemDaListaAvaliada: 'analiseDeQualidade',
+    avaliadosAntesDaRestricao: [
+      { identificador: 'resp-1', campo: 'respondentId', posicaoNaLista: 0 },
+      { identificador: 'resp-2', campo: 'respondentId', posicaoNaLista: 1 },
+      { identificador: 'resp-3', campo: 'respondentId', posicaoNaLista: 2 },
+      { identificador: 'resp-4', campo: 'respondentId', posicaoNaLista: 3 }
+    ],
+    incluidosNoDocumento: [ 'resp-1', 'resp-2', 'resp-3', 'resp-4' ],
+    divergencia: { sobraNoDocumento: [], sobraNaAvaliacao: [], repetidosNaAvaliacao: [] },
+    enviados: [ 'resp-1', 'resp-2', 'resp-3', 'resp-4' ],
+    cobertura: {
+      restringiu: true,
+      avaliadosAntesDaRestricao: 4,
+      enviados: 4,
+      incluidosNoDocumento: 4,
+      enviadosDiferemDosAvaliados: false,
+      enviadosIguaisAoDocumento: true
+    },
+    resumoDoConteudo: {
+      verificado: false,
+      cobre: 'incluidosNoDocumento',
+      painel: {
+        serialization: 'sonda-sintetica-v1',
+        algorithm: 'sha256',
+        panel: 'b60df944fe9d4b0cff67a00ba9c4349bd76e8db02fd96bd16dc13a222620cd8c',
+        unavailableReason: null
+      },
+      motivoSemPainel: null,
+      mapaPorRespondentId: {
+        'resp-1': {
+          responseDocId: 'doc-resp-1',
+          judgmentsSha256: '34e5ddd219d1203a3465e47978a4a67e935e435dad8d11b61fd78c132d28ce83',
+          judgmentsUnavailableReason: null
+        },
+        'resp-2': {
+          responseDocId: 'doc-resp-2',
+          judgmentsSha256: 'a788fcb89a36174143c4dd9610c4237e4e0cd9d13a270ca29ca42d45bbd422db',
+          judgmentsUnavailableReason: null
+        },
+        'resp-3': {
+          responseDocId: 'doc-resp-3',
+          judgmentsSha256: '0cb7d2ea174b279b93711c30bd397fb720f39d90a8fce8208d74c3faaa323a59',
+          judgmentsUnavailableReason: null
+        },
+        'resp-4': {
+          responseDocId: 'doc-resp-4',
+          judgmentsSha256: 'a5261dc98a7a04a8ebb79594aecc32c3cd90437b66a3fb848f7b0f65363d48fa',
+          judgmentsUnavailableReason: null
+        }
+      },
+      enviadosSemEntradaNoMapa: [],
+      enviadosComResumoIndisponivel: [],
+      entradasDeNaoEnviados: []
+    }
+  },
+  projectName: 'Projeto da sonda sem vinculo',
+  projectDescription: '',
+  alternatives: [],
+  bocrWeights: [ 0.37, 0.15, 0.2, 0.28 ],
+  personalWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+  rescalingWeights: undefined,
+  bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+  subWeights: {},
+  subConsistency: {},
+  finalScores: [ { code: 'A1', name: 'Alternativa 1', score: 0.62 } ],
+  responseCount: 4,
+  sensitivityInflections: {},
+  qualityAnalysis: {
+    respondents: [
+      {
+        respondentId: 'resp-1',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      },
+      {
+        respondentId: 'resp-2',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      },
+      {
+        respondentId: 'resp-3',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      },
+      {
+        respondentId: 'resp-4',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      }
+    ],
+    statistics: { byStatus: { 'CONFIÁVEL': 4, REVISAR: 0, SUSPEITO: 0, 'CRÍTICO': 0 }, total: 4, avgCR: 0.05 },
+    overall: {},
+    summary: { total: 4, ok: 4, suspicious: 0, critical: 0 }
+  },
+  overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
+  individualStats: { valid: 4, warning: 0, critical: 0, total: 4, avgCR: 0.05 },
+  demographicsSummary: { total: 0, hasData: false },
+  exclusionInfo: { totalCollected: 6, activeCount: 4, excludedCount: 2, reason: 'Filtragem por consistência (CR > 0.10, Saaty 1977)' }
+}

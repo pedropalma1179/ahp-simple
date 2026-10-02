@@ -1,0 +1,283 @@
+{
+  "natureza": "FASE C, renderizacao do componente real ParecerAISection com os quatro corpos da Fase B; NAO e a pagina no navegador",
+  "registros": [
+    {
+      "id": "elegivel__controle",
+      "classificacao": "elegivel",
+      "variante": "controle",
+      "aiReview": {
+        "chaves": [
+          "nota",
+          "veredicto",
+          "notaSuspensa",
+          "mensagemDaExtracao",
+          "review",
+          "validation",
+          "metadata"
+        ],
+        "sha256DoJson": "5f3f7281b1df78250c0ac7d1894948b095ffa40a14ad164966ac880938a23136"
+      },
+      "estadoDeA27": {
+        "estado": "aprovado",
+        "quarantined": false,
+        "titulo": "Parecer aprovado na verificação",
+        "nMotivos": 0,
+        "nWarnings": 0
+      },
+      "portaoDoDestaque": {
+        "condicao1_classificacaoNaoSuspensa": true,
+        "condicao2_apresentacaoAprovada": true,
+        "condicao3_notaOuVeredictoNaoNulos": true
+      },
+      "renderizacao": {
+        "html": {
+          "arquivo": "fase-c/html/elegivel__controle.html",
+          "sha256": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325",
+          "caracteres": 3357
+        },
+        "destaque": {
+          "exibido": true,
+          "nota": "C",
+          "veredicto": "REVISÕES MAIORES"
+        },
+        "avisoDeQuarentena": {
+          "exibido": false,
+          "titulo": null,
+          "motivos": []
+        },
+        "avisosDaVerificacao": {
+          "exibido": false,
+          "itens": []
+        },
+        "cartaoDeSuspensao": {
+          "exibido": false,
+          "titulo": null,
+          "motivo": null
+        },
+        "mensagemDaExtracao": {
+          "exibida": false,
+          "texto": null
+        },
+        "titulosDeBlocosDeStatus": [],
+        "corpoDoTexto": {
+          "exibido": true,
+          "caracteresDoReview": 356
+        },
+        "mencoesAoRadicalVinculoNoHtml": 0
+      }
+    },
+    {
+      "id": "elegivel__chave-ausente",
+      "classificacao": "elegivel",
+      "variante": "chave-ausente",
+      "aiReview": {
+        "chaves": [
+          "nota",
+          "veredicto",
+          "notaSuspensa",
+          "mensagemDaExtracao",
+          "review",
+          "validation",
+          "metadata"
+        ],
+        "sha256DoJson": "1990f0611b8e09278a024020e929ae4e13565f493656d497b2a9ac262e824691"
+      },
+      "estadoDeA27": {
+        "estado": "aprovado",
+        "quarantined": false,
+        "titulo": "Parecer aprovado na verificação",
+        "nMotivos": 0,
+        "nWarnings": 0
+      },
+      "portaoDoDestaque": {
+        "condicao1_classificacaoNaoSuspensa": true,
+        "condicao2_apresentacaoAprovada": true,
+        "condicao3_notaOuVeredictoNaoNulos": true
+      },
+      "renderizacao": {
+        "html": {
+          "arquivo": "fase-c/html/elegivel__chave-ausente.html",
+          "sha256": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325",
+          "caracteres": 3357
+        },
+        "destaque": {
+          "exibido": true,
+          "nota": "C",
+          "veredicto": "REVISÕES MAIORES"
+        },
+        "avisoDeQuarentena": {
+          "exibido": false,
+          "titulo": null,
+          "motivos": []
+        },
+        "avisosDaVerificacao": {
+          "exibido": false,
+          "itens": []
+        },
+        "cartaoDeSuspensao": {
+          "exibido": false,
+          "titulo": null,
+          "motivo": null
+        },
+        "mensagemDaExtracao": {
+          "exibida": false,
+          "texto": null
+        },
+        "titulosDeBlocosDeStatus": [],
+        "corpoDoTexto": {
+          "exibido": true,
+          "caracteresDoReview": 356
+        },
+        "mencoesAoRadicalVinculoNoHtml": 0
+      }
+    },
+    {
+      "id": "suspensa-contradicao__controle",
+      "classificacao": "suspensa-contradicao",
+      "variante": "controle",
+      "aiReview": {
+        "chaves": [
+          "nota",
+          "veredicto",
+          "notaSuspensa",
+          "mensagemDaExtracao",
+          "review",
+          "validation",
+          "metadata"
+        ],
+        "sha256DoJson": "358414d0b0256fa5fe78e3d1186e97f1051e833fdf60c74e57f8b2670ff68762"
+      },
+      "estadoDeA27": {
+        "estado": "aprovado",
+        "quarantined": false,
+        "titulo": "Parecer aprovado na verificação",
+        "nMotivos": 0,
+        "nWarnings": 0
+      },
+      "portaoDoDestaque": {
+        "condicao1_classificacaoNaoSuspensa": false,
+        "condicao2_apresentacaoAprovada": true,
+        "condicao3_notaOuVeredictoNaoNulos": false
+      },
+      "renderizacao": {
+        "html": {
+          "arquivo": "fase-c/html/suspensa-contradicao__controle.html",
+          "sha256": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1",
+          "caracteres": 3481
+        },
+        "destaque": {
+          "exibido": false,
+          "nota": null,
+          "veredicto": null
+        },
+        "avisoDeQuarentena": {
+          "exibido": false,
+          "titulo": null,
+          "motivos": []
+        },
+        "avisosDaVerificacao": {
+          "exibido": false,
+          "itens": []
+        },
+        "cartaoDeSuspensao": {
+          "exibido": true,
+          "titulo": "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+          "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+        },
+        "mensagemDaExtracao": {
+          "exibida": false,
+          "texto": null
+        },
+        "titulosDeBlocosDeStatus": [
+          "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade"
+        ],
+        "corpoDoTexto": {
+          "exibido": true,
+          "caracteresDoReview": 356
+        },
+        "mencoesAoRadicalVinculoNoHtml": 0
+      }
+    },
+    {
+      "id": "suspensa-contradicao__chave-ausente",
+      "classificacao": "suspensa-contradicao",
+      "variante": "chave-ausente",
+      "aiReview": {
+        "chaves": [
+          "nota",
+          "veredicto",
+          "notaSuspensa",
+          "mensagemDaExtracao",
+          "review",
+          "validation",
+          "metadata"
+        ],
+        "sha256DoJson": "0547d35c0271bf6cbd79beacb9d2de79481c26d59ffa16de5c4f782c39ad1281"
+      },
+      "estadoDeA27": {
+        "estado": "aprovado",
+        "quarantined": false,
+        "titulo": "Parecer aprovado na verificação",
+        "nMotivos": 0,
+        "nWarnings": 0
+      },
+      "portaoDoDestaque": {
+        "condicao1_classificacaoNaoSuspensa": false,
+        "condicao2_apresentacaoAprovada": true,
+        "condicao3_notaOuVeredictoNaoNulos": false
+      },
+      "renderizacao": {
+        "html": {
+          "arquivo": "fase-c/html/suspensa-contradicao__chave-ausente.html",
+          "sha256": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1",
+          "caracteres": 3481
+        },
+        "destaque": {
+          "exibido": false,
+          "nota": null,
+          "veredicto": null
+        },
+        "avisoDeQuarentena": {
+          "exibido": false,
+          "titulo": null,
+          "motivos": []
+        },
+        "avisosDaVerificacao": {
+          "exibido": false,
+          "itens": []
+        },
+        "cartaoDeSuspensao": {
+          "exibido": true,
+          "titulo": "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+          "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+        },
+        "mensagemDaExtracao": {
+          "exibida": false,
+          "texto": null
+        },
+        "titulosDeBlocosDeStatus": [
+          "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade"
+        ],
+        "corpoDoTexto": {
+          "exibido": true,
+          "caracteresDoReview": 356
+        },
+        "mencoesAoRadicalVinculoNoHtml": 0
+      }
+    }
+  ],
+  "comparacaoControleEAusente": [
+    {
+      "classificacao": "elegivel",
+      "htmlIgualEntreControleEAusente": true,
+      "sha256DoHtmlControle": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325",
+      "sha256DoHtmlAusente": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325"
+    },
+    {
+      "classificacao": "suspensa-contradicao",
+      "htmlIgualEntreControleEAusente": true,
+      "sha256DoHtmlControle": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1",
+      "sha256DoHtmlAusente": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1"
+    }
+  ]
+}

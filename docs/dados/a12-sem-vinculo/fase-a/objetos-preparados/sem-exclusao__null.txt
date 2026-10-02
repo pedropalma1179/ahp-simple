@@ -1,0 +1,67 @@
+{
+  avaliacaoDeQualidade: { estado: 'disponivel', motivo: null, fonte: 'análise de qualidade dos respondentes ativos' },
+  vinculoDaExecucao: null,
+  projectName: 'Projeto da sonda sem vinculo',
+  projectDescription: '',
+  alternatives: [],
+  bocrWeights: [ 0.37, 0.15, 0.2, 0.28 ],
+  personalWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+  rescalingWeights: undefined,
+  bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+  subWeights: {},
+  subConsistency: {},
+  finalScores: [ { code: 'A1', name: 'Alternativa 1', score: 0.62 } ],
+  responseCount: 4,
+  sensitivityInflections: {},
+  qualityAnalysis: {
+    respondents: [
+      {
+        respondentId: 'resp-1',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      },
+      {
+        respondentId: 'resp-2',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      },
+      {
+        respondentId: 'resp-3',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      },
+      {
+        respondentId: 'resp-4',
+        isSimulated: false,
+        status: 'CONFIÁVEL',
+        overallScore: 100,
+        cr: 0.05,
+        metrics: { avgCR: 0.05, crBOCR: 0.05, crBenefits: 0.05, crOpportunities: 0.05, crCosts: 0.05, crRisks: 0.05 },
+        flags: [],
+        recommendation: 'Resposta confiável.'
+      }
+    ],
+    statistics: { byStatus: { 'CONFIÁVEL': 4, REVISAR: 0, SUSPEITO: 0, 'CRÍTICO': 0 }, total: 4, avgCR: 0.05 },
+    overall: {},
+    summary: { total: 4, ok: 4, suspicious: 0, critical: 0 }
+  },
+  overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
+  individualStats: { valid: 4, warning: 0, critical: 0, total: 4, avgCR: 0.05 },
+  demographicsSummary: { total: 0, hasData: false },
+  exclusionInfo: undefined
+}

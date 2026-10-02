@@ -1,0 +1,286 @@
+{
+ "natureza": "Fase D, partes de LEITURA DE CODIGO assistidas por maquina (localizadores computados; a classificacao de cada saida e leitura).",
+ "base": "ad2ad0afdc1a972570d3733ccc582d65a719397a",
+ "D1_prepararVinculoDaTela": {
+  "pergunta": "prepararVinculoDaTela tem algum caminho que devolve preparacao SEM vinculo?",
+  "escopo": "lib/ai-reviewer/vinculo-execucao.ts:460-597, na base ad2ad0afdc1a972570d3733ccc582d65a719397a",
+  "tipoDeRegistro": "LEITURA DE CODIGO",
+  "retornos": [
+   {
+    "linha": 516,
+    "texto": "return { vinculo, respondentesEnviados: respondentesAtivos, respostasEnviadas: respostasAtivas, omitirOverall: false };",
+    "devolveOObjetoVinculo": true
+   },
+   {
+    "linha": 590,
+    "texto": "return {",
+    "devolveOObjetoVinculo": true
+   }
+  ],
+  "lancamentosDeExcecao": [],
+  "tipoDaPreparacao": {
+   "localizador": "lib/ai-reviewer/vinculo-execucao.ts:431",
+   "trecho": [
+    "export interface PreparacaoDoVinculo {",
+    "  /** O que viaja em `vinculoDaExecucao`. */",
+    "  vinculo: VinculoDaExecucao;",
+    "  /** Substitui `activeRespondents` nas duas cadeias de estatística e no classificador. */",
+    "  respondentesEnviados: any[];",
+    "  /** Substitui `activeProjectResponses` nas duas cadeias e no classificador. */",
+    "  respostasEnviadas: any[];",
+    "  /** `true`: `enviados` difere de `avaliadosAntesDaRestricao`, e `overall` NÃO deve ir. */"
+   ]
+  },
+  "resposta": "NAO: a funcao tem exatamente os retornos listados e todos devolvem o objeto `vinculo`; nenhum caminho devolve preparacao sem ele, e nenhum lanca excecao",
+  "estadosQueOVinculoPodeTer": "indisponivel e invalido (sem conjunto utilizavel), vinculado e divergente (com conjunto): o campo vai ao modelo em todos, e o bloco vazio so ocorre quando o campo NAO chega",
+  "limite": "o valor devolvido e tipado como objeto; `undefined` so resultaria se a funcao fosse substituida ou se a preparacao nao fosse usada"
+ },
+ "D2_payloadDaTela": {
+  "pergunta": "page.tsx:1247 inclui o campo em TODOS os caminhos que chegam ao fetch de :1350?",
+  "escopo": "app/decisor/resultados/[projectId]/page.tsx:946-1350 (de `runAiReview` ate o fetch), na base ad2ad0afdc1a972570d3733ccc582d65a719397a",
+  "tipoDeRegistro": "LEITURA DE CODIGO",
+  "caminhosExaminados": [
+   {
+    "linha": 952,
+    "texto": "return;",
+    "classificacao": "saída da função ANTES do `try` e antes de qualquer payload (`calculation` ou `project` ausente): não chega ao fetch"
+   },
+   {
+    "linha": 1000,
+    "texto": "return !excludedIds.includes(id);",
+    "classificacao": "retorno de callback de `filter` (não sai de `runAiReview`)"
+   },
+   {
+    "linha": 1006,
+    "texto": "return !excludedIds.includes(id);",
+    "classificacao": "retorno de callback de `filter` (não sai de `runAiReview`)"
+   },
+   {
+    "linha": 1085,
+    "texto": "return acc;",
+    "classificacao": "retorno de callback de `reduce` (não sai de `runAiReview`)"
+   },
+   {
+    "linha": 1120,
+    "texto": "return;",
+    "classificacao": "retorno de callback de `forEach` (não sai de `runAiReview`)"
+   },
+   {
+    "linha": 1215,
+    "texto": "return {",
+    "classificacao": "retorno de callback de `map` (não sai de `runAiReview`)"
+   }
+  ],
+  "lancamentosDeExcecaoNoTrecho": [],
+  "tryAbertoNoTrecho": [
+   958,
+   967
+  ],
+  "tryAninhado": {
+   "try": 967,
+   "chamadaCoberta": "app/decisor/resultados/[projectId]/page.tsx:968 (fetch de /api/response-quality)",
+   "catch": 986,
+   "fechaNaLinha": 988,
+   "preparoDoVinculoNaLinha": 1033,
+   "terminaAntesDoPreparoDoVinculo": true,
+   "tipoDeRegistro": "LEITURA"
+  },
+  "catchQueSegueOFetch": [
+   1380
+  ],
+  "ondeOPayloadEMontado": {
+   "const payload": 1244,
+   "vinculoDaExecucao no literal": 1247,
+   "const finalPayload": 1332,
+   "...payload no finalPayload": 1333
+  },
+  "resposta": "SIM, por leitura: entre `runAiReview` e o fetch o unico retorno de funcao esta ANTES do payload (:952, e nao chega ao fetch); os demais sao retornos de callback; o payload e montado numa unica expressao literal que traz `vinculoDaExecucao` sem condicao, e o `finalPayload` o espalha (`...payload`); o unico `try` que cobre codigo entre o preparo do vinculo e o fetch e o externo, cujo `catch` vem DEPOIS do fetch (uma excecao ali vai ao `catch`, e nao ao fetch); o `try` aninhado cobre so a chamada a /api/response-quality e termina antes do preparo",
+  "limite": "leitura do texto da base; a tela NAO e executada por teste algum, e nada aqui diz o que uma versao antiga publicada enviava"
+ },
+ "ancorasDoPedido": [
+  {
+   "hipotese": "H1",
+   "localizador": "app/api/ai-reviewer/route.ts:600",
+   "trechoEsperado": "vinculoDaExecucao: rawData.vinculoDaExecucao",
+   "linhaLida": "vinculoDaExecucao: rawData.vinculoDaExecucao,",
+   "confere": true,
+   "oQueE": "normalizeRequest copia o campo"
+  },
+  {
+   "hipotese": "H1",
+   "localizador": "app/api/ai-reviewer/route.ts:848",
+   "trechoEsperado": "mantém a redação anterior, byte a byte",
+   "linhaLida": "// ⚠ Requisição SEM o campo mantém a redação anterior, byte a byte (`comVinculo` falso). COM o",
+   "confere": true,
+   "oQueE": "comentario que descreve a ausencia"
+  },
+  {
+   "hipotese": "H1",
+   "localizador": "app/api/ai-reviewer/route.ts:852",
+   "trechoEsperado": "const comVinculo = lerVinculoParaTexto(data.vinculoDaExecucao).modo",
+   "linhaLida": "const comVinculo = lerVinculoParaTexto(data.vinculoDaExecucao).modo !== 'ausente';",
+   "confere": true,
+   "oQueE": "comVinculo"
+  },
+  {
+   "hipotese": "H1",
+   "localizador": "app/api/ai-reviewer/route.ts:859",
+   "trechoEsperado": "const linhasDaExclusao = comVinculo",
+   "linhaLida": "const linhasDaExclusao = comVinculo",
+   "confere": true,
+   "oQueE": "sitio de redacao 1: as linhas da exclusao"
+  },
+  {
+   "hipotese": "H1",
+   "localizador": "app/api/ai-reviewer/route.ts:928",
+   "trechoEsperado": "const frases: FrasesDaLista = comVinculo",
+   "linhaLida": "const frases: FrasesDaLista = comVinculo",
+   "confere": true,
+   "oQueE": "sitio de redacao 2: as frases da lista de respondentes"
+  },
+  {
+   "hipotese": "H1",
+   "localizador": "app/api/ai-reviewer/route.ts:973",
+   "trechoEsperado": "const textoDoVinculo = descreverVinculoParaContexto(",
+   "linhaLida": "const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao, identidadesApresentadas);",
+   "confere": true,
+   "oQueE": "texto do bloco do vinculo"
+  },
+  {
+   "hipotese": "H1",
+   "localizador": "app/api/ai-reviewer/route.ts:974",
+   "trechoEsperado": "const blocoDoVinculo = textoDoVinculo === '' ? ''",
+   "linhaLida": "const blocoDoVinculo = textoDoVinculo === '' ? '' : `\\n${textoDoVinculo}\\n`;",
+   "confere": true,
+   "oQueE": "bloco vazio quando o texto do vinculo e vazio"
+  },
+  {
+   "hipotese": "H2",
+   "localizador": "app/api/ai-reviewer/route.ts:931",
+   "trechoEsperado": "cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)'",
+   "linhaLida": "cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',",
+   "confere": true,
+   "oQueE": "cabecalho da lista, caso ausente"
+  },
+  {
+   "hipotese": "H2",
+   "localizador": "app/api/ai-reviewer/route.ts:932",
+   "trechoEsperado": "total: `**TOTAL: ${respondents.length} respondentes (esta lista é COMPLETA — não existem outros)**`",
+   "linhaLida": "total: `**TOTAL: ${respondents.length} respondentes (esta lista é COMPLETA — não existem outros)**`,",
+   "confere": true,
+   "oQueE": "total, caso ausente"
+  },
+  {
+   "hipotese": "H2",
+   "localizador": "app/api/ai-reviewer/route.ts:934",
+   "trechoEsperado": "`**AGREGAÇÃO POR MATRIZ: todos os ${respondents.length} respondentes responderam à TOTALIDADE",
+   "linhaLida": "`**AGREGAÇÃO POR MATRIZ: todos os ${respondents.length} respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = ${respondents.length} em TO",
+   "confere": true,
+   "oQueE": "agregacao por matriz, caso ausente"
+  },
+  {
+   "hipotese": "H2",
+   "localizador": "app/api/ai-reviewer/route.ts:935",
+   "trechoEsperado": "`⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério.",
+   "linhaLida": "`⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos ${respondents.length} julgamentos, sem particionamen",
+   "confere": true,
+   "oQueE": "ausencia de divisao, caso ausente"
+  },
+  {
+   "hipotese": "H2",
+   "localizador": "app/api/ai-reviewer/route.ts:937",
+   "trechoEsperado": "regraDeMencao: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista.",
+   "linhaLida": "regraDeMencao: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.',",
+   "confere": true,
+   "oQueE": "regra de mencao, caso ausente"
+  },
+  {
+   "hipotese": "H3",
+   "localizador": "app/api/ai-reviewer/route.ts:1479",
+   "trechoEsperado": "return NextResponse.json({",
+   "linhaLida": "return NextResponse.json({",
+   "confere": true,
+   "oQueE": "inicio do corpo de sucesso"
+  },
+  {
+   "hipotese": "H3",
+   "localizador": "app/api/ai-reviewer/route.ts:1512",
+   "trechoEsperado": "timestamp: new Date().toISOString(),",
+   "linhaLida": "timestamp: new Date().toISOString(),",
+   "confere": true,
+   "oQueE": "metadata.timestamp"
+  },
+  {
+   "hipotese": "H3",
+   "localizador": "app/api/ai-reviewer/route.ts:1523",
+   "trechoEsperado": "});",
+   "linhaLida": "});",
+   "confere": true,
+   "oQueE": "fim do corpo de sucesso"
+  },
+  {
+   "hipotese": "H4",
+   "localizador": "components/ParecerAISection.tsx:240",
+   "trechoEsperado": "presentation?.estado === 'aprovado'",
+   "linhaLida": "{!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (",
+   "confere": true,
+   "oQueE": "portao do destaque (tres condicoes)"
+  },
+  {
+   "hipotese": "H5",
+   "localizador": "app/decisor/resultados/[projectId]/page.tsx:1033",
+   "trechoEsperado": "const preparoDoVinculo = prepararVinculoDaTela({",
+   "linhaLida": "const preparoDoVinculo = prepararVinculoDaTela({",
+   "confere": true,
+   "oQueE": "a tela chama o preparo do vinculo"
+  },
+  {
+   "hipotese": "H5",
+   "localizador": "app/decisor/resultados/[projectId]/page.tsx:1038",
+   "trechoEsperado": "const vinculoDaExecucao = preparoDoVinculo.vinculo;",
+   "linhaLida": "const vinculoDaExecucao = preparoDoVinculo.vinculo;",
+   "confere": true,
+   "oQueE": "a tela toma o vinculo da preparacao"
+  },
+  {
+   "hipotese": "H5",
+   "localizador": "app/decisor/resultados/[projectId]/page.tsx:1247",
+   "trechoEsperado": "vinculoDaExecucao,",
+   "linhaLida": "vinculoDaExecucao,",
+   "confere": true,
+   "oQueE": "o payload inclui o campo"
+  },
+  {
+   "hipotese": "H5",
+   "localizador": "app/decisor/resultados/[projectId]/page.tsx:1350",
+   "trechoEsperado": "const response = await fetch('/api/ai-reviewer', {",
+   "linhaLida": "const response = await fetch('/api/ai-reviewer', {",
+   "confere": true,
+   "oQueE": "o fetch"
+  },
+  {
+   "hipotese": "H5",
+   "localizador": "app/decisor/resultados/[projectId]/page.tsx:1353",
+   "trechoEsperado": "body: JSON.stringify(finalPayload)",
+   "linhaLida": "body: JSON.stringify(finalPayload)",
+   "confere": true,
+   "oQueE": "a serializacao do transporte"
+  },
+  {
+   "hipotese": "H5",
+   "localizador": "app/decisor/resultados/[projectId]/page.tsx:1363",
+   "trechoEsperado": "setAiReview({",
+   "linhaLida": "setAiReview({",
+   "confere": true,
+   "oQueE": "a montagem do aiReview (inicio)"
+  },
+  {
+   "hipotese": "H5",
+   "localizador": "app/decisor/resultados/[projectId]/page.tsx:1371",
+   "trechoEsperado": "metadata: data.metadata",
+   "linhaLida": "metadata: data.metadata",
+   "confere": true,
+   "oQueE": "a montagem do aiReview (ultima chave)"
+  }
+ ]
+}

@@ -1,0 +1,25 @@
+/**
+ * CONFIGURACAO ISOLADA de jest para a sonda do caminho sem `vinculoDaExecucao`.
+ *
+ * Nao edita `jest.config.js`: so o REAPROVEITA (mesmo preset ts-jest, mesmo `transform`, mesmo `moduleNameMapper` de `@/`) e troca o
+ * que isola a sonda da suite do projeto: `roots` e `testMatch` apontam SO para o diretorio da sonda (`SONDA_DIR`, FORA de `lib/`), e
+ * `modulePaths` deixa a sonda, que mora fora do repositorio, resolver `react`, `@anthropic-ai/sdk` etc. a partir de `node_modules` do repo.
+ *
+ * Uso (a partir da raiz do repositorio; veja `LEIA-ME.md`):
+ *   SONDA_DIR=<dir com sonda-sem-vinculo.test.ts> SONDA_SAIDA=<dir de saida> npx jest --config <este arquivo, como .cjs> --runInBand
+ */
+const path = require('node:path');
+const RAIZ = process.env.SONDA_RAIZ || process.cwd();
+const base = require(path.join(RAIZ, 'jest.config.js'));
+
+if (!process.env.SONDA_DIR) throw new Error('SONDA_DIR nao definido');
+
+module.exports = {
+  ...base,
+  rootDir: RAIZ,
+  roots: [process.env.SONDA_DIR],
+  testMatch: ['**/sonda-sem-vinculo.test.ts'],
+  modulePaths: [path.join(RAIZ, 'node_modules')],
+  collectCoverage: false,
+  verbose: false,
+};

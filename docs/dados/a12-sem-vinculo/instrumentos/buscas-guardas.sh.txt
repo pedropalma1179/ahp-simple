@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Roteiro das buscas da secao 6.4, passo 1: QUEM LE os arquivos que a rodada altera ou acrescenta. Busca PROPRIA sobre a arvore do commit-base; a lista de
+# guardas do pedido e ponto de partida, e NAO e inventario. SO LE (git grep). Cada busca declara COMANDO e ESCOPO e distingue:
+#   saida 0 = com resultado;  saida 1 = SEM RESULTADO (executou e nada achou: NAO e falha);  saida >= 2 = FALHA do comando.
+# Uso, a partir da raiz do repositorio:  bash docs/dados/a12-sem-vinculo/instrumentos/buscas-guardas.sh.txt > docs/dados/a12-sem-vinculo/guardas/buscas-6-4.txt
+BASE=ad2ad0afdc1a972570d3733ccc582d65a719397a
+cd "$(git rev-parse --show-toplevel)" || exit 99
+git cat-file -e "$BASE^{commit}" || { echo "o commit-base nao esta no repositorio"; exit 98; }
+
+busca() {  # busca <rotulo> <descricao> -- <args do git grep>
+  local rotulo="$1" desc="$2"; shift 3
+  echo; echo "## $rotulo. $desc"
+  echo "## comando: git grep -n $* (sobre $BASE)"
+  local saida; saida=$(git grep -n "$@" 2>&1); local ec=$?
+  if [ $ec -eq 0 ]; then echo "## saida do git grep: 0 (com resultado) | linhas: $(printf '%s\n' "$saida" | wc -l)"; printf '%s\n' "$saida"
+  elif [ $ec -eq 1 ]; then echo "## saida do git grep: 1 (SEM RESULTADO: a busca executou e nada achou; NAO e falha) | linhas: 0"
+  else echo "## saida do git grep: $ec (FALHA DO COMANDO)"; printf '%s\n' "$saida"; fi
+}
+
+echo "# BUSCAS DA SECAO 6.4, passo 1 (guardas): quem LE os arquivos que a rodada altera ou acrescenta. Base: $BASE. Todas com git grep sobre a arvore da base."
+echo "# Arquivos que a rodada altera ou acrescenta: docs/imprecisoes-parecer-ia.md (insercao) e, NOVOS, tudo sob docs/dados/a12-sem-vinculo/ (inclusive instrumentos/)."
+
+busca B1 "quem cita o REGISTRO (qualquer tipo de arquivo, fora o proprio registro)" -- 'imprecisoes-parecer-ia' "$BASE" -- . ':!docs/imprecisoes-parecer-ia.md'
+busca B2 "nos testes e scripts executaveis (ts, tsx, js, cjs, mjs): quem LE o registro" -- -E 'imprecisoes-parecer-ia' "$BASE" -- '*.ts' '*.tsx' '*.js' '*.cjs' '*.mjs'
+busca B3 "quem cita o diretorio de dados NOVO (a12-sem-vinculo) na base, em qualquer tipo de arquivo" -- 'a12-sem-vinculo' "$BASE"
+busca B4 "nos executaveis (ts, tsx, js, cjs, mjs): quem le 'docs/dados' (o diretorio-pai dos dados novos)" -- -E 'docs/dados' "$BASE" -- '*.ts' '*.tsx' '*.js' '*.cjs' '*.mjs' ':!docs'
+busca B5 "nos executaveis: quem VARRE diretorios (readdirSync, glob, walk, ls-files), o que alcancaria arquivos NOVOS sem citar o caminho" -- -E 'readdirSync|readdir\(|globSync|glob\(|ls-files|walkSync|opendirSync|fast-glob' "$BASE" -- '*.ts' '*.tsx' '*.js' '*.cjs' '*.mjs' ':!docs'
+busca B6 "nos executaveis: quem le o CONTRATO (docs/contratos-de-dados.md) ou o ANCORA (docs/objetivo-estados-caminho.md), para conferir que a rodada NAO os altera" -- -E 'contratos-de-dados|objetivo-estados-caminho' "$BASE" -- '*.ts' '*.tsx' '*.js' '*.cjs' '*.mjs' ':!docs'
+busca B7 "dentro dos testes que leem o registro (B2), TODOS os usos do registro e os marcadores de fatia: o conjunto completo de assercoes que a insercao pode alcancar" -- -E 'registro\(\)|REGISTRO|registroInteiro|indexOf\(|lastIndexOf\(|\.slice\(' "$BASE" -- lib/__tests__/vinculo-execucao-fiacao.test.ts
+echo; echo "## fim"

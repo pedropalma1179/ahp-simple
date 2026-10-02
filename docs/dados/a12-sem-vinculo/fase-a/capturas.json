@@ -1,0 +1,685 @@
+{
+  "natureza": "FASE A, captura interrompida: o contexto que SERIA enviado ao modelo; oito capturas (2 condicoes de exclusao x 4 variantes do campo)",
+  "registros": [
+    {
+      "id": "sem-exclusao__controle",
+      "condicao": "sem-exclusao",
+      "variante": "controle",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/sem-exclusao__controle.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "vinculoDaExecucao",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": true,
+        "descricaoDoValorDoVinculo": "chave presente, com objeto (estado \"vinculado\")",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "undefined"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/sem-exclusao__controle.json",
+        "sha256": "1c3f6a856c740b59f040e01e4fedd994ead4de48c48f876e797d591195fbc9fd",
+        "bytes": 4050,
+        "contemAChaveVinculoNoTexto": true,
+        "trechoDoCampo": "\"vinculoDaExecucao\":{",
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-sem-exclusao__controle.txt",
+        "sha256": "b1a7f44be1a182a172e33b0327b02fe212ec9003a34bf79561e1e3196bddc39d",
+        "bytes": 74823,
+        "linhas": 1186,
+        "caracteres": 74092,
+        "marcadorDoBlocoDoVinculo": 1,
+        "mencoesAoRadicalVinculo": 8
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "sem-exclusao__chave-ausente",
+      "condicao": "sem-exclusao",
+      "variante": "chave-ausente",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/sem-exclusao__chave-ausente.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": false,
+        "descricaoDoValorDoVinculo": "chave ausente no objeto preparado",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "undefined"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/sem-exclusao__chave-ausente.json",
+        "sha256": "a26492908bf02b4827fff0697ac15d5a8c58c73ec32874a215661b200da7d308",
+        "bytes": 1948,
+        "contemAChaveVinculoNoTexto": false,
+        "trechoDoCampo": null,
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-sem-exclusao__chave-ausente.txt",
+        "sha256": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc",
+        "bytes": 70094,
+        "linhas": 1158,
+        "caracteres": 69518,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "sem-exclusao__undefined-explicito",
+      "condicao": "sem-exclusao",
+      "variante": "undefined-explicito",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/sem-exclusao__undefined-explicito.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "vinculoDaExecucao",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": true,
+        "descricaoDoValorDoVinculo": "chave PRESENTE no objeto preparado, com valor undefined",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "undefined"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/sem-exclusao__undefined-explicito.json",
+        "sha256": "a26492908bf02b4827fff0697ac15d5a8c58c73ec32874a215661b200da7d308",
+        "bytes": 1948,
+        "contemAChaveVinculoNoTexto": false,
+        "trechoDoCampo": null,
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-sem-exclusao__undefined-explicito.txt",
+        "sha256": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc",
+        "bytes": 70094,
+        "linhas": 1158,
+        "caracteres": 69518,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "sem-exclusao__null",
+      "condicao": "sem-exclusao",
+      "variante": "null",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/sem-exclusao__null.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "vinculoDaExecucao",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": true,
+        "descricaoDoValorDoVinculo": "chave presente, com valor null",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "undefined"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/sem-exclusao__null.json",
+        "sha256": "ebd4f8544c449070df4db49734fadcdae34da00963ee804b7e7e17f9a068c705",
+        "bytes": 1973,
+        "contemAChaveVinculoNoTexto": true,
+        "trechoDoCampo": "\"vinculoDaExecucao\":null",
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-sem-exclusao__null.txt",
+        "sha256": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc",
+        "bytes": 70094,
+        "linhas": 1158,
+        "caracteres": 69518,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "com-exclusao__controle",
+      "condicao": "com-exclusao",
+      "variante": "controle",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/com-exclusao__controle.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "vinculoDaExecucao",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": true,
+        "descricaoDoValorDoVinculo": "chave presente, com objeto (estado \"vinculado\")",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "{\"totalCollected\":6,\"activeCount\":4,\"excludedCount\":2,\"reason\":\"Filtragem por consistência (CR > 0.10, Saaty 1977)\"}"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/com-exclusao__controle.json",
+        "sha256": "2c3f1744db2961c1d8d34e3f7aed104efd24284b1126a8b76835269e1a67b323",
+        "bytes": 4184,
+        "contemAChaveVinculoNoTexto": true,
+        "trechoDoCampo": "\"vinculoDaExecucao\":{",
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-com-exclusao__controle.txt",
+        "sha256": "35df97281bf476b225fc28b9dc5c183f53f5dc7995ed0a2ba35fdf008d54a26a",
+        "bytes": 76120,
+        "linhas": 1196,
+        "caracteres": 75340,
+        "marcadorDoBlocoDoVinculo": 1,
+        "mencoesAoRadicalVinculo": 9
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "com-exclusao__chave-ausente",
+      "condicao": "com-exclusao",
+      "variante": "chave-ausente",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/com-exclusao__chave-ausente.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": false,
+        "descricaoDoValorDoVinculo": "chave ausente no objeto preparado",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "{\"totalCollected\":6,\"activeCount\":4,\"excludedCount\":2,\"reason\":\"Filtragem por consistência (CR > 0.10, Saaty 1977)\"}"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/com-exclusao__chave-ausente.json",
+        "sha256": "09f397fdc94074a0149592ee385b63c8d3c3054adf2418f0d669484d49c01e22",
+        "bytes": 2082,
+        "contemAChaveVinculoNoTexto": false,
+        "trechoDoCampo": null,
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+        "sha256": "4b09690aaa0566f1ea1ef9e38b05950c930a4b7a646d0299f3f2282467926d60",
+        "bytes": 70995,
+        "linhas": 1168,
+        "caracteres": 70386,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "com-exclusao__undefined-explicito",
+      "condicao": "com-exclusao",
+      "variante": "undefined-explicito",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/com-exclusao__undefined-explicito.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "vinculoDaExecucao",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": true,
+        "descricaoDoValorDoVinculo": "chave PRESENTE no objeto preparado, com valor undefined",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "{\"totalCollected\":6,\"activeCount\":4,\"excludedCount\":2,\"reason\":\"Filtragem por consistência (CR > 0.10, Saaty 1977)\"}"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/com-exclusao__undefined-explicito.json",
+        "sha256": "09f397fdc94074a0149592ee385b63c8d3c3054adf2418f0d669484d49c01e22",
+        "bytes": 2082,
+        "contemAChaveVinculoNoTexto": false,
+        "trechoDoCampo": null,
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-com-exclusao__undefined-explicito.txt",
+        "sha256": "4b09690aaa0566f1ea1ef9e38b05950c930a4b7a646d0299f3f2282467926d60",
+        "bytes": 70995,
+        "linhas": 1168,
+        "caracteres": 70386,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    },
+    {
+      "id": "com-exclusao__null",
+      "condicao": "com-exclusao",
+      "variante": "null",
+      "objetoPreparado": {
+        "arquivo": "fase-a/objetos-preparados/com-exclusao__null.txt",
+        "chavesDeNivelPrincipal": [
+          "avaliacaoDeQualidade",
+          "vinculoDaExecucao",
+          "projectName",
+          "projectDescription",
+          "alternatives",
+          "bocrWeights",
+          "personalWeights",
+          "rescalingWeights",
+          "bocrConsistency",
+          "subWeights",
+          "subConsistency",
+          "finalScores",
+          "responseCount",
+          "sensitivityInflections",
+          "qualityAnalysis",
+          "overallStats",
+          "individualStats",
+          "demographicsSummary",
+          "exclusionInfo"
+        ],
+        "temAChaveVinculoDaExecucao": true,
+        "descricaoDoValorDoVinculo": "chave presente, com valor null",
+        "temAChaveExclusionInfo": true,
+        "exclusionInfoIgual": "{\"totalCollected\":6,\"activeCount\":4,\"excludedCount\":2,\"reason\":\"Filtragem por consistência (CR > 0.10, Saaty 1977)\"}"
+      },
+      "jsonEntregue": {
+        "arquivo": "fase-a/jsons-entregues/com-exclusao__null.json",
+        "sha256": "565c648f6ba0ee2a662d158756841c65d7bfefbd63132cf3c142f87b9eaeda62",
+        "bytes": 2107,
+        "contemAChaveVinculoNoTexto": true,
+        "trechoDoCampo": "\"vinculoDaExecucao\":null",
+        "textoLidoDoRequestIgualAoSerializado": true
+      },
+      "respostaDoTratadorNaCaptura": {
+        "status": 500,
+        "textoDoCorpo": "{\"error\":\"Erro ao gerar revisão acadêmica\",\"details\":\"SONDA: captura interrompida antes da geracao\",\"errorType\":\"Error\"}",
+        "observacao": "erro sentinela do cliente simulado: a captura interrompe antes da geracao"
+      },
+      "contexto": {
+        "arquivo": "fase-a/contextos/ctx-com-exclusao__null.txt",
+        "sha256": "4b09690aaa0566f1ea1ef9e38b05950c930a4b7a646d0299f3f2282467926d60",
+        "bytes": 70995,
+        "linhas": 1168,
+        "caracteres": 70386,
+        "marcadorDoBlocoDoVinculo": 0,
+        "mencoesAoRadicalVinculo": 1
+      },
+      "chamadaAoCliente": {
+        "n": 1,
+        "argumentos": {
+          "chaves": [
+            "model",
+            "max_tokens",
+            "thinking",
+            "system",
+            "messages"
+          ],
+          "model": "claude-opus-4-6",
+          "max_tokens": 16000,
+          "thinking": {
+            "type": "enabled",
+            "budget_tokens": 5000
+          },
+          "nMensagens": 1,
+          "papeis": [
+            "user"
+          ]
+        },
+        "systemSha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+        "systemBytes": 34170
+      },
+      "chamadasDeRede": 0
+    }
+  ],
+  "determinismoEntreDuasPassadas": [
+    {
+      "id": "sem-exclusao__controle",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    },
+    {
+      "id": "sem-exclusao__chave-ausente",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    },
+    {
+      "id": "sem-exclusao__undefined-explicito",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    },
+    {
+      "id": "sem-exclusao__null",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    },
+    {
+      "id": "com-exclusao__controle",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    },
+    {
+      "id": "com-exclusao__chave-ausente",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    },
+    {
+      "id": "com-exclusao__undefined-explicito",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    },
+    {
+      "id": "com-exclusao__null",
+      "contextoIgualNasDuasPassadas": true,
+      "jsonEntregueIgualNasDuasPassadas": true
+    }
+  ]
+}

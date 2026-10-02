@@ -1,0 +1,628 @@
+export {};
+
+/**
+ * SONDA, Parecer IA: "o caminho sem `vinculoDaExecucao`" (rodada SÓ DE MEDIÇÃO; sem predição, porque nada do que o modelo recebe muda).
+ *
+ * ⚠ **NÃO é teste versionado.** Este texto é o instrumento ARQUIVADO (`.txt`, para o `tsc` e a suíte não o coletarem). Para executar, veja
+ *   `LEIA-ME.md` desta pasta: copie-o para um diretório FORA de `lib/` e rode-o com a configuração ISOLADA `jest.sem-vinculo.config.cjs.txt`.
+ *   Nada é acrescentado em `lib/__tests__/`, em `scripts/` nem na configuração de teste do projeto.
+ *
+ * ⚠ **Três fases, três técnicas, e o relato diz qual produziu cada número:**
+ *   - FASE A, `captura`: o cliente simulado REGISTRA o contexto e INTERROMPE antes da geração (lança um erro sentinela). Mede o CONTEXTO que
+ *     SERIA enviado ao modelo, e SÓ ele: não mede resposta nem apresentação.
+ *   - FASE B, `texto-fixado`: o cliente simulado REGISTRA o contexto e DEVOLVE um texto fixado pelo instrumento, e o `POST` conclui (extração,
+ *     validação, corpo da resposta). Nenhuma chamada externa de inferência.
+ *   - FASE C: RENDERIZAÇÃO DO COMPONENTE REAL `components/ParecerAISection.tsx` (`renderToStaticMarkup` e a árvore de elementos). NÃO é a
+ *     página no navegador, e nada aqui afirma o que um modelo geraria.
+ *
+ * ⚠ Passa pelo TRATADOR REAL de `POST /api/ai-reviewer`: a montagem do contexto NÃO é reproduzida em cópia local.
+ *
+ * ⚠ **O TRANSPORTE é o real, até onde o instrumento alcança:** o payload preparado é serializado com `JSON.stringify` (como `page.tsx:1353`),
+ *   o TEXTO resultante vira o corpo de um `Request` (API Fetch do Node), e o tratador lê com `await request.json()`. O instrumento NÃO usa um
+ *   simulado de `request.json()` que devolva o objeto JavaScript (isso contornaria a omissão da propriedade `undefined`). Fica FORA do alcance:
+ *   a rede, o `fetch` do navegador e o roteamento do Next.
+ *
+ * ⚠ **A requisição é construída por LEITURA de `page.tsx:1033-1342`** (a tela é `'use client'` e não é executada): o vínculo é produzido pela
+ *   função REAL `prepararVinculoDaTela`, e a `avaliacaoDeQualidade`, pela REAL `classificarAvaliacaoDaTela`. Os dados do painel, as respostas e o
+ *   documento de cálculo são SINTÉTICOS (os hashes são `sha256` de uma etiqueta, e NÃO resumos de julgamentos reais).
+ *
+ * Variáveis de ambiente: `SONDA_SAIDA` (diretório de saída, obrigatório). Executar a partir da raiz do repositório (`process.cwd()`).
+ */
+
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const util = require('node:util');
+const cp = require('node:child_process');
+
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import ParecerAISection from '@/components/ParecerAISection';
+import { prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';
+import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
+import { decideReviewPresentation } from '@/lib/ai-reviewer/review-validation-contract';
+
+const RAIZ: string = process.cwd();
+const SAIDA: string = process.env.SONDA_SAIDA as string;
+if (!SAIDA) throw new Error('SONDA_SAIDA nao definido');
+if (!fs.existsSync(path.join(RAIZ, 'app/api/ai-reviewer/route.ts'))) throw new Error('executar a partir da raiz do repositorio');
+
+const sha256 = (t: string): string => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+const sha256Arq = (rel: string): string => crypto.createHash('sha256').update(fs.readFileSync(path.join(RAIZ, rel))).digest('hex');
+const linhasDe = (t: string): number => (t === '' ? 0 : t.split('\n').length);
+
+function escrever(rel: string, conteudo: string) {
+  const alvo = path.join(SAIDA, rel);
+  fs.mkdirSync(path.dirname(alvo), { recursive: true });
+  fs.writeFileSync(alvo, conteudo, 'utf8');
+}
+
+// ====================================================================================================================
+// O AMBIENTE DO PROCESSO: chave falsa, RAG semântico desligado, rede BLOQUEADA e CONTADA.
+// ====================================================================================================================
+const CHAVE = 'chave-anthropic-falsa-do-processo-de-teste';
+const ENV_ANTES = { chave: process.env.ANTHROPIC_API_KEY, flag: process.env.USE_RAG_SEMANTIC };
+process.env.ANTHROPIC_API_KEY = CHAVE;
+delete process.env.USE_RAG_SEMANTIC;
+
+const chamadasDeRede: string[] = [];
+const fetchOriginal = (globalThis as any).fetch;
+(globalThis as any).fetch = (...a: any[]) => {
+  chamadasDeRede.push(String(a[0]));
+  throw new Error('SONDA: fetch bloqueado (nenhuma chamada de rede e permitida)');
+};
+
+type Chamada = { chaves: string[]; model: unknown; max_tokens: unknown; thinking: unknown; nMensagens: number; papeis: string[] };
+const estado: { modo: 'captura' | 'texto-fixado'; texto: string; contexto: string; system: string; chamadas: number; args: Chamada | null } = {
+  modo: 'captura',
+  texto: '',
+  contexto: '',
+  system: '',
+  chamadas: 0,
+  args: null,
+};
+
+jest.mock('@anthropic-ai/sdk', () => ({
+  __esModule: true,
+  default: class {
+    messages = {
+      create: async (a: { system?: unknown; messages: Array<{ role: string; content: string }>; [k: string]: unknown }) => {
+        estado.chamadas += 1;
+        estado.contexto = a.messages.map((m) => m.content).join('\n');
+        estado.system = typeof a.system === 'string' ? a.system : JSON.stringify(a.system ?? '');
+        estado.args = {
+          chaves: Object.keys(a),
+          model: a.model,
+          max_tokens: a.max_tokens,
+          thinking: a.thinking,
+          nMensagens: a.messages.length,
+          papeis: a.messages.map((m) => m.role),
+        };
+        // ⚠ MODO `captura`: interrompe ANTES da geração. MODO `texto-fixado`: devolve o texto do instrumento.
+        if (estado.modo === 'captura') throw new Error('SONDA: captura interrompida antes da geracao');
+        return { content: [{ type: 'text', text: estado.texto }] };
+      },
+    };
+  },
+}));
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { POST } = require('@/app/api/ai-reviewer/route');
+
+let logs: string[] = [];
+let silencios: jest.SpyInstance[] = [];
+beforeAll(() => {
+  silencios = [
+    jest.spyOn(console, 'log').mockImplementation((...a: unknown[]) => {
+      logs.push(a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' '));
+    }),
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined),
+    jest.spyOn(console, 'error').mockImplementation(() => undefined),
+  ];
+});
+afterAll(() => {
+  silencios.forEach((s) => s.mockRestore());
+  (globalThis as any).fetch = fetchOriginal;
+  if (ENV_ANTES.chave === undefined) delete process.env.ANTHROPIC_API_KEY; else process.env.ANTHROPIC_API_KEY = ENV_ANTES.chave;
+  if (ENV_ANTES.flag === undefined) delete process.env.USE_RAG_SEMANTIC; else process.env.USE_RAG_SEMANTIC = ENV_ANTES.flag;
+});
+jest.setTimeout(300000);
+
+// ====================================================================================================================
+// OS DADOS SINTÉTICOS. Quatro respondentes (CR 0.05), no formato de `app/api/response-quality/route.ts:386-402`, e o documento de cálculo
+// que os inclui, na forma que `lerDocumento` (`vinculo-execucao.ts:290`) lê. ⚠ Hashes: `sha256` de uma ETIQUETA, e não resumo de julgamentos.
+// ====================================================================================================================
+const etiqueta = (s: string): string => sha256('sonda-sem-vinculo|' + s);
+const IDS = ['resp-1', 'resp-2', 'resp-3', 'resp-4'];
+
+const elementoDaAnalise = (id: string, cr: number): any => ({
+  respondentId: id,
+  isSimulated: false,
+  status: 'CONFIÁVEL',
+  overallScore: 100,
+  cr,
+  metrics: { avgCR: cr, crBOCR: cr, crBenefits: cr, crOpportunities: cr, crCosts: cr, crRisks: cr },
+  flags: [],
+  recommendation: 'Resposta confiável.',
+});
+
+const documentoDeCalculo = (): any => ({
+  executionId: 'exec-sonda-sem-vinculo-0001',
+  metadata: {
+    includedRespondents: IDS.map((id) => ({ respondentId: id, responseDocId: `doc-${id}`, judgmentsSha256: etiqueta(`julgamentos|${id}`) })),
+    judgmentsDigest: { serialization: 'sonda-sintetica-v1', algorithm: 'sha256', panel: etiqueta('painel'), unavailableReason: null },
+  },
+});
+
+type Condicao = 'sem-exclusao' | 'com-exclusao';
+type Variante = 'controle' | 'chave-ausente' | 'undefined-explicito' | 'null';
+type Classe = 'elegivel' | 'suspensa-contradicao';
+
+/**
+ * A REQUISIÇÃO, na ordem de chaves e com as propriedades `undefined` que a tela monta (`page.tsx:1244-1342`). ⚠ A variante `chave-ausente` NÃO
+ * tem a chave; `undefined-explicito` TEM a chave com valor `undefined` (o `JSON.stringify` a omite); `null` TEM a chave com `null`.
+ */
+function montarPayload(cond: Condicao, variante: Variante, classe: Classe): any {
+  const respondentesAtivos = IDS.map((id) => elementoDaAnalise(id, 0.05));
+  const respostasAtivas = IDS.map((id) => ({ id, respondentId: id }));
+  const preparo = prepararVinculoDaTela({ calculo: documentoDeCalculo(), respondentesAtivos, respostasAtivas });
+  const respondentesEnviados = preparo.respondentesEnviados;
+  const respostasEnviadas = preparo.respostasEnviadas;
+  const respondentesComCR = respondentesEnviados.map((r: any) => ({
+    ...r,
+    cr: typeof r.cr === 'number' ? r.cr : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
+    isSimulated: r.isSimulated === true,
+  }));
+  const avaliacaoDeQualidade = classificarAvaliacaoDaTela({ respondentesAvaliados: respondentesEnviados, respostasAtivas: respostasEnviadas });
+  const individualStats = { valid: 4, warning: 0, critical: 0, total: 4, avgCR: 0.05 };
+  // ⚠ A causa de suspensão do ensaio da Fase B, CONSTRUÍDA no instrumento (a tela, com os mesmos respondentes, não a produziria):
+  //   `summary.critical = 4` sobre `total` 4 (V5 de `a12-coerencia`), que o tratador real lê como `contradicao`.
+  const summary = { total: 4, ok: 4, suspicious: 0, critical: classe === 'suspensa-contradicao' ? 4 : 0 };
+
+  const payload: any = { avaliacaoDeQualidade };
+  if (variante === 'controle') payload.vinculoDaExecucao = preparo.vinculo;
+  else if (variante === 'undefined-explicito') payload.vinculoDaExecucao = undefined;
+  else if (variante === 'null') payload.vinculoDaExecucao = null;
+  // variante `chave-ausente`: NENHUMA chave.
+  Object.assign(payload, {
+    projectName: 'Projeto da sonda sem vinculo',
+    projectDescription: '',
+    alternatives: [],
+    bocrWeights: [0.37, 0.15, 0.2, 0.28],
+    personalWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    rescalingWeights: undefined,
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    subWeights: {},
+    subConsistency: {},
+    finalScores: [{ code: 'A1', name: 'Alternativa 1', score: 0.62 }],
+    responseCount: 4,
+    sensitivityInflections: {},
+    qualityAnalysis: {
+      respondents: respondentesComCR,
+      statistics: { byStatus: { 'CONFIÁVEL': 4, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 0 }, total: 4, avgCR: 0.05 },
+      overall: preparo.omitirOverall ? undefined : {},
+      summary,
+    },
+    overallStats: { total: 4, valid: 4, warning: 0, critical: 0 },
+    individualStats,
+    demographicsSummary: { total: 0, hasData: false },
+    exclusionInfo:
+      cond === 'com-exclusao'
+        ? { totalCollected: 6, activeCount: 4, excludedCount: 2, reason: 'Filtragem por consistência (CR > 0.10, Saaty 1977)' }
+        : undefined,
+  });
+  return payload;
+}
+
+// ====================================================================================================================
+// O TEXTO FIXADO, o MESMO nas quatro execuções da Fase B: o T1 da Fase 1 (`a12-nota-veredicto-fase1`), uma única decisão editorial.
+// ====================================================================================================================
+const CORPO_NEUTRO = [
+  '## 📋 RESUMO EXECUTIVO',
+  'Texto de ensaio do instrumento de medição, escrito apenas para ter extensão suficiente e nenhum termo de resultado.',
+  '',
+  '## 🔍 ANÁLISE',
+  'Parágrafo de preenchimento, sem números, sem referências e sem qualquer termo que o extrator reconheça.',
+  '',
+  '',
+].join('\n');
+const TEXTO_FIXADO = `${CORPO_NEUTRO}## 🎯 DECISÃO EDITORIAL\nREVISÕES MAIORES\n\nTexto final de ensaio, sem outros termos de resultado.\n`;
+
+// ====================================================================================================================
+// A EXECUÇÃO: preparado -> JSON (texto) -> Request -> tratador real.
+// ====================================================================================================================
+type Execucao = {
+  jsonEntregue: string;
+  textoLidoDoRequestIgual: boolean;
+  status: number;
+  textoDoCorpo: string;
+  contexto: string;
+  system: string;
+  args: Chamada | null;
+  chamadasAoCliente: number;
+  chamadasDeRede: number;
+};
+
+async function executar(payload: any, modo: 'captura' | 'texto-fixado', texto = ''): Promise<Execucao> {
+  estado.modo = modo;
+  estado.texto = texto;
+  estado.contexto = '';
+  estado.system = '';
+  estado.args = null;
+  logs = [];
+  const antes = estado.chamadas;
+  const redeAntes = chamadasDeRede.length;
+  const jsonEntregue = JSON.stringify(payload); // ⚠ O MESMO transporte da tela (`page.tsx:1353`)
+  const request = new Request('http://localhost/api/ai-reviewer', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: jsonEntregue,
+  });
+  const textoLido = await request.clone().text(); // o que o tratador receberia como TEXTO
+  const res = await POST(request as any); // o tratador faz `await request.json()`
+  const textoDoCorpo = await res.text();
+  return {
+    jsonEntregue,
+    textoLidoDoRequestIgual: textoLido === jsonEntregue,
+    status: res.status ?? 200,
+    textoDoCorpo,
+    contexto: estado.contexto,
+    system: estado.system,
+    args: estado.args,
+    chamadasAoCliente: estado.chamadas - antes,
+    chamadasDeRede: chamadasDeRede.length - redeAntes,
+  };
+}
+
+const CONDICOES: Condicao[] = ['sem-exclusao', 'com-exclusao'];
+const VARIANTES: Variante[] = ['controle', 'chave-ausente', 'undefined-explicito', 'null'];
+const CLASSES: Classe[] = ['elegivel', 'suspensa-contradicao'];
+
+function descricaoDoValor(p: any): string {
+  if (!Object.prototype.hasOwnProperty.call(p, 'vinculoDaExecucao')) return 'chave ausente no objeto preparado';
+  const v = p.vinculoDaExecucao;
+  if (v === undefined) return 'chave PRESENTE no objeto preparado, com valor undefined';
+  if (v === null) return 'chave presente, com valor null';
+  return `chave presente, com objeto (estado "${v.estado}")`;
+}
+
+/** Os caminhos de chave de um valor JSON, recursivamente (arrays por `[]`), e os que contêm o radical do vínculo. */
+function caminhosDeChave(v: any, prefixo = '', acc: string[] = []): string[] {
+  if (Array.isArray(v)) {
+    if (v.length === 0) acc.push(`${prefixo}[]`);
+    for (const x of v) caminhosDeChave(x, `${prefixo}[]`, acc);
+  } else if (v !== null && typeof v === 'object') {
+    const ks = Object.keys(v);
+    if (ks.length === 0) acc.push(`${prefixo}{}`);
+    for (const k of ks) {
+      acc.push(prefixo ? `${prefixo}.${k}` : k);
+      caminhosDeChave(v[k], prefixo ? `${prefixo}.${k}` : k, acc);
+    }
+  }
+  return acc;
+}
+const RADICAL = /v[ií]nculo/i;
+
+// ====================================================================================================================
+// A APRESENTAÇÃO: componente REAL. Árvore de elementos (função chamada com `useState` simulado) e HTML (`renderToStaticMarkup`).
+// ====================================================================================================================
+type No = any;
+const filhos = (no: No): No[] => {
+  const c = no?.props?.children;
+  return c === undefined || c === null ? [] : Array.isArray(c) ? (c as any[]).flat(Infinity) : [c];
+};
+function achar(no: No, pred: (n: No) => boolean, acc: No[] = []): No[] {
+  if (no && typeof no === 'object' && !Array.isArray(no)) {
+    if (pred(no)) acc.push(no);
+    for (const f of filhos(no)) achar(f, pred, acc);
+  } else if (Array.isArray(no)) {
+    for (const f of (no as any[]).flat(Infinity)) achar(f, pred, acc);
+  }
+  return acc;
+}
+function textoDe(no: No): string {
+  if (no === null || no === undefined || typeof no === 'boolean') return '';
+  if (typeof no === 'string' || typeof no === 'number') return String(no);
+  if (Array.isArray(no)) return (no as any[]).map(textoDe).join('');
+  return filhos(no).map(textoDe).join('');
+}
+const classe = (n: No): string => (typeof n?.props?.className === 'string' ? n.props.className : '');
+
+function arvoreDoComponente(aiReview: any): No {
+  const setCopied = jest.fn();
+  const espiao = jest.spyOn(React, 'useState').mockReturnValue([false, setCopied] as any);
+  try {
+    return (ParecerAISection as any)({ aiReview, loading: false, onExecute: () => undefined });
+  } finally {
+    espiao.mockRestore();
+  }
+}
+
+function superficies(aiReview: any) {
+  const arvore = arvoreDoComponente(aiReview);
+  const html: string = renderToStaticMarkup(React.createElement(ParecerAISection as any, { aiReview, loading: false, onExecute: () => undefined }));
+  const caixaDestaque = achar(arvore, (n) => classe(n).includes('flex gap-3 mb-6 flex-wrap'));
+  const paragrafos = caixaDestaque.length ? achar(caixaDestaque[0], (n) => n.type === 'p').map((n) => textoDe(n)) : [];
+  const idxNota = paragrafos.indexOf('Nota Científica');
+  const idxVered = paragrafos.indexOf('Veredicto');
+  const alertas = achar(arvore, (n) => n.props?.role === 'alert');
+  const statusBlocos = achar(arvore, (n) => n.props?.role === 'status');
+  const titulosDeStatus = statusBlocos.map((n) => textoDe(achar(n, (m) => m.type === 'h4')[0]));
+  const blocoAvisos = statusBlocos.find((n) => textoDe(achar(n, (m) => m.type === 'h4')[0]) === 'Avisos da verificação');
+  const blocoSusp = statusBlocos.find((n) => textoDe(achar(n, (m) => m.type === 'h4')[0]).startsWith('📊'));
+  const blocoMensagem = aiReview.mensagemDaExtracao ? statusBlocos.find((n) => textoDe(n).trim() === aiReview.mensagemDaExtracao) : undefined;
+  return {
+    html,
+    destaque: {
+      exibido: caixaDestaque.length > 0,
+      nota: idxNota >= 0 ? paragrafos[idxNota + 1] ?? null : null,
+      veredicto: idxVered >= 0 ? paragrafos[idxVered + 1] ?? null : null,
+    },
+    avisoDeQuarentena: {
+      exibido: alertas.length > 0,
+      titulo: alertas.length ? textoDe(achar(alertas[0], (n) => n.type === 'h4')[0]) : null,
+      motivos: alertas.length ? achar(alertas[0], (n) => n.type === 'li').map((n) => textoDe(n)) : [],
+    },
+    avisosDaVerificacao: { exibido: !!blocoAvisos, itens: blocoAvisos ? achar(blocoAvisos, (n) => n.type === 'li').map((n) => textoDe(n)) : [] },
+    cartaoDeSuspensao: {
+      exibido: !!blocoSusp,
+      titulo: blocoSusp ? textoDe(achar(blocoSusp, (n) => n.type === 'h4')[0]) : null,
+      motivo: blocoSusp ? textoDe(achar(blocoSusp, (n) => n.type === 'p')[0]) : null,
+    },
+    mensagemDaExtracao: { exibida: !!blocoMensagem, texto: blocoMensagem ? textoDe(blocoMensagem).trim() : null },
+    titulosDeBlocosDeStatus: titulosDeStatus,
+    corpoDoTexto: { exibido: html.includes(aiReview.review.split('\n')[0].replace('## ', '')), caracteresDoReview: aiReview.review.length },
+  };
+}
+
+// ====================================================================================================================
+// A SONDA
+// ====================================================================================================================
+const metaDoContexto = (ex: Execucao, arquivo: string) => ({
+  arquivo,
+  sha256: sha256(ex.contexto),
+  bytes: Buffer.byteLength(ex.contexto, 'utf8'),
+  linhas: linhasDe(ex.contexto),
+  caracteres: ex.contexto.length,
+  marcadorDoBlocoDoVinculo: ex.contexto.split('## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO').length - 1,
+  mencoesAoRadicalVinculo: (ex.contexto.match(/v[ií]nculo/gi) || []).length,
+});
+
+test('sonda: o caminho sem vinculoDaExecucao (fases A, B e C)', async () => {
+  const instanteDaMedicao = new Date().toISOString();
+  const execGit = (cmd: string) => cp.execSync(cmd, { cwd: RAIZ, encoding: 'utf8' }).trim();
+
+  // ------------------------------------------------------------------------------------------ FASE A: oito capturas (e uma segunda passada, de determinismo)
+  const registrosA: any[] = [];
+  const contextosDaPassada1: Record<string, string> = {};
+  const passadas: Array<Record<string, { contextoSha: string; jsonSha: string }>> = [];
+  for (const passada of [1, 2]) {
+    const m: Record<string, { contextoSha: string; jsonSha: string }> = {};
+    for (const cond of CONDICOES) {
+      for (const v of VARIANTES) {
+        const id = `${cond}__${v}`;
+        const payload = montarPayload(cond, v, 'elegivel');
+        const ex = await executar(payload, 'captura');
+        expect(ex.chamadasAoCliente).toBe(1);
+        expect(ex.chamadasDeRede).toBe(0);
+        expect(ex.textoLidoDoRequestIgual).toBe(true);
+        m[id] = { contextoSha: sha256(ex.contexto), jsonSha: sha256(ex.jsonEntregue) };
+        if (passada === 1) {
+          contextosDaPassada1[id] = ex.contexto;
+          escrever(`fase-a/contextos/ctx-${id}.txt`, ex.contexto);
+          escrever(`fase-a/jsons-entregues/${id}.json`, ex.jsonEntregue);
+          escrever(`fase-a/objetos-preparados/${id}.txt`, util.inspect(payload, { depth: null, maxArrayLength: null, maxStringLength: null, breakLength: 140, compact: 3 }) + '\n');
+          registrosA.push({
+            id,
+            condicao: cond,
+            variante: v,
+            objetoPreparado: {
+              arquivo: `fase-a/objetos-preparados/${id}.txt`,
+              chavesDeNivelPrincipal: Object.keys(payload),
+              temAChaveVinculoDaExecucao: Object.prototype.hasOwnProperty.call(payload, 'vinculoDaExecucao'),
+              descricaoDoValorDoVinculo: descricaoDoValor(payload),
+              temAChaveExclusionInfo: Object.prototype.hasOwnProperty.call(payload, 'exclusionInfo'),
+              exclusionInfoIgual: payload.exclusionInfo === undefined ? 'undefined' : JSON.stringify(payload.exclusionInfo),
+            },
+            jsonEntregue: {
+              arquivo: `fase-a/jsons-entregues/${id}.json`,
+              sha256: sha256(ex.jsonEntregue),
+              bytes: Buffer.byteLength(ex.jsonEntregue, 'utf8'),
+              contemAChaveVinculoNoTexto: ex.jsonEntregue.includes('"vinculoDaExecucao"'),
+              trechoDoCampo: (ex.jsonEntregue.match(/"vinculoDaExecucao":(null|\{)/) || [null])[0],
+              textoLidoDoRequestIgualAoSerializado: ex.textoLidoDoRequestIgual,
+            },
+            respostaDoTratadorNaCaptura: { status: ex.status, textoDoCorpo: ex.textoDoCorpo, observacao: 'erro sentinela do cliente simulado: a captura interrompe antes da geracao' },
+            contexto: metaDoContexto(ex, `fase-a/contextos/ctx-${id}.txt`),
+            chamadaAoCliente: { n: ex.chamadasAoCliente, argumentos: ex.args, systemSha256: sha256(ex.system), systemBytes: Buffer.byteLength(ex.system, 'utf8') },
+            chamadasDeRede: ex.chamadasDeRede,
+          });
+        }
+      }
+    }
+    passadas.push(m);
+  }
+  const determinismoA = Object.keys(passadas[0]).map((id) => ({
+    id,
+    contextoIgualNasDuasPassadas: passadas[0][id].contextoSha === passadas[1][id].contextoSha,
+    jsonEntregueIgualNasDuasPassadas: passadas[0][id].jsonSha === passadas[1][id].jsonSha,
+  }));
+
+  // ------------------------------------------------------------------------------------------ FASE B: quatro execuções com texto fixado
+  const registrosB: any[] = [];
+  const corposDaPassada1: Record<string, string> = {};
+  const passadasB: Array<Record<string, { corpoSemTimestampSha: string; corpoSha: string; contextoSha: string }>> = [];
+  for (const passada of [1, 2]) {
+    const m: Record<string, { corpoSemTimestampSha: string; corpoSha: string; contextoSha: string }> = {};
+    for (const cl of CLASSES) {
+      for (const v of ['controle', 'chave-ausente'] as Variante[]) {
+        const id = `${cl}__${v}`;
+        const payload = montarPayload('sem-exclusao', v, cl);
+        const ex = await executar(payload, 'texto-fixado', TEXTO_FIXADO);
+        expect(ex.status).toBe(200);
+        expect(ex.chamadasAoCliente).toBe(1);
+        expect(ex.chamadasDeRede).toBe(0);
+        expect(ex.textoLidoDoRequestIgual).toBe(true);
+        const corpo = JSON.parse(ex.textoDoCorpo);
+        const semTimestamp = JSON.parse(ex.textoDoCorpo);
+        delete semTimestamp.metadata.timestamp; // ⚠ ÚNICA exclusão autorizada, e só para a PROJEÇÃO de comparação
+        m[id] = { corpoSemTimestampSha: sha256(JSON.stringify(semTimestamp)), corpoSha: sha256(ex.textoDoCorpo), contextoSha: sha256(ex.contexto) };
+        if (passada === 1) {
+          corposDaPassada1[id] = ex.textoDoCorpo;
+          escrever(`fase-b/corpos/corpo-${id}.json`, ex.textoDoCorpo);
+          escrever(`fase-b/contextos/ctx-${id}.txt`, ex.contexto);
+          escrever(`fase-b/jsons-entregues/${id}.json`, ex.jsonEntregue);
+          const caminhos = caminhosDeChave(corpo);
+          const mencoesNasChaves = caminhos.filter((c) => RADICAL.test(c));
+          const mencoesNosValores: string[] = [];
+          const varrer = (x: any, p: string) => {
+            if (typeof x === 'string') { if (RADICAL.test(x)) mencoesNosValores.push(p); }
+            else if (Array.isArray(x)) x.forEach((y, i) => varrer(y, `${p}[${i}]`));
+            else if (x && typeof x === 'object') for (const k of Object.keys(x)) varrer(x[k], p ? `${p}.${k}` : k);
+          };
+          varrer(corpo, '');
+          registrosB.push({
+            id,
+            classificacao: cl,
+            variante: v,
+            condicaoDeExclusao: 'sem-exclusao',
+            jsonEntregue: { arquivo: `fase-b/jsons-entregues/${id}.json`, sha256: sha256(ex.jsonEntregue), bytes: Buffer.byteLength(ex.jsonEntregue, 'utf8'), contemAChaveVinculoNoTexto: ex.jsonEntregue.includes('"vinculoDaExecucao"') },
+            corpo: { arquivo: `fase-b/corpos/corpo-${id}.json`, sha256: sha256(ex.textoDoCorpo), bytes: Buffer.byteLength(ex.textoDoCorpo, 'utf8'), status: ex.status, timestamp: corpo.metadata?.timestamp ?? null },
+            chavesDeNivelPrincipal: Object.keys(corpo),
+            chavesDeMetadata: Object.keys(corpo.metadata ?? {}),
+            caminhosDeChave: caminhos,
+            mencoesAoRadicalVinculoNosCaminhosDeChave: mencoesNasChaves,
+            mencoesAoRadicalVinculoNosValoresDeTexto: mencoesNosValores,
+            nota: corpo.nota,
+            veredicto: corpo.veredicto,
+            estadoDaExtracao: corpo.metadata?.estadoDaExtracao ?? null,
+            mensagemDaExtracao: corpo.mensagemDaExtracao ?? null,
+            notaSuspensa: corpo.notaSuspensa === null ? null : { suspensa: corpo.notaSuspensa?.suspensa, causa: corpo.notaSuspensa?.causa, rotulo: corpo.notaSuspensa?.rotulo, motivo: corpo.notaSuspensa?.motivo },
+            validacaoA27: { version: corpo.validation?.version, estado: corpo.validation?.estado, isValid: corpo.validation?.isValid, nIssues: (corpo.validation?.issues ?? []).length, nWarnings: (corpo.validation?.warnings ?? []).length, nInconclusivos: (corpo.validation?.inconclusivos ?? []).length },
+            reviewIgualAoTextoFixado: corpo.review === TEXTO_FIXADO,
+            contexto: metaDoContexto(ex, `fase-b/contextos/ctx-${id}.txt`),
+            chamadaAoCliente: { n: ex.chamadasAoCliente, argumentos: ex.args },
+            chamadasDeRede: ex.chamadasDeRede,
+          });
+        }
+      }
+    }
+    passadasB.push(m);
+  }
+  const determinismoB = Object.keys(passadasB[0]).map((id) => ({
+    id,
+    corpoIgualNasDuasPassadas: passadasB[0][id].corpoSha === passadasB[1][id].corpoSha,
+    corpoSemTimestampIgualNasDuasPassadas: passadasB[0][id].corpoSemTimestampSha === passadasB[1][id].corpoSemTimestampSha,
+    contextoIgualNasDuasPassadas: passadasB[0][id].contextoSha === passadasB[1][id].contextoSha,
+  }));
+  // O contexto da Fase B `elegivel` (sem exclusao) tem de ser o da Fase A (sem exclusao), com o mesmo controle/ausente.
+  const cruzamentoAB = (['controle', 'chave-ausente'] as Variante[]).map((v) => ({
+    variante: v,
+    contextoDaFaseBElegivelIgualAoDaFaseAEmSemExclusao: registrosB.find((r) => r.id === `elegivel__${v}`).contexto.sha256 === registrosA.find((r) => r.id === `sem-exclusao__${v}`).contexto.sha256,
+    sha256DaFaseB: registrosB.find((r) => r.id === `elegivel__${v}`).contexto.sha256,
+    sha256DaFaseA: registrosA.find((r) => r.id === `sem-exclusao__${v}`).contexto.sha256,
+  }));
+
+  // ------------------------------------------------------------------------------------------ FASE C: renderização do componente com os quatro corpos
+  const registrosC: any[] = [];
+  for (const r of registrosB) {
+    const corpo = JSON.parse(corposDaPassada1[r.id]);
+    // ⚠ O `aiReview` é o que a tela monta em `page.tsx:1363-1371`: sete campos, e nem mais nem menos.
+    const aiReview = {
+      nota: corpo.nota,
+      veredicto: corpo.veredicto,
+      notaSuspensa: corpo.notaSuspensa ?? null,
+      mensagemDaExtracao: corpo.mensagemDaExtracao ?? null,
+      review: corpo.review,
+      validation: corpo.validation,
+      metadata: corpo.metadata,
+    };
+    const apresentacao = decideReviewPresentation(aiReview.validation);
+    const s = superficies(aiReview);
+    escrever(`fase-c/html/${r.id}.html`, s.html + '\n');
+    registrosC.push({
+      id: r.id,
+      classificacao: r.classificacao,
+      variante: r.variante,
+      aiReview: { chaves: Object.keys(aiReview), sha256DoJson: sha256(JSON.stringify(aiReview)) },
+      estadoDeA27: { estado: apresentacao.estado, quarantined: apresentacao.quarantined, titulo: apresentacao.titulo, nMotivos: apresentacao.motivos.length, nWarnings: apresentacao.warnings.length },
+      portaoDoDestaque: {
+        condicao1_classificacaoNaoSuspensa: !aiReview.notaSuspensa?.suspensa,
+        condicao2_apresentacaoAprovada: apresentacao.estado === 'aprovado',
+        condicao3_notaOuVeredictoNaoNulos: !!(aiReview.nota || aiReview.veredicto),
+      },
+      renderizacao: {
+        html: { arquivo: `fase-c/html/${r.id}.html`, sha256: sha256(s.html), caracteres: s.html.length },
+        destaque: s.destaque,
+        avisoDeQuarentena: s.avisoDeQuarentena,
+        avisosDaVerificacao: s.avisosDaVerificacao,
+        cartaoDeSuspensao: s.cartaoDeSuspensao,
+        mensagemDaExtracao: s.mensagemDaExtracao,
+        titulosDeBlocosDeStatus: s.titulosDeBlocosDeStatus,
+        corpoDoTexto: s.corpoDoTexto,
+        mencoesAoRadicalVinculoNoHtml: (s.html.match(/v[ií]nculo/gi) || []).length,
+      },
+    });
+  }
+  const comparacaoC = CLASSES.map((cl) => {
+    const c = registrosC.find((x) => x.id === `${cl}__controle`);
+    const a = registrosC.find((x) => x.id === `${cl}__chave-ausente`);
+    return {
+      classificacao: cl,
+      htmlIgualEntreControleEAusente: c.renderizacao.html.sha256 === a.renderizacao.html.sha256,
+      sha256DoHtmlControle: c.renderizacao.html.sha256,
+      sha256DoHtmlAusente: a.renderizacao.html.sha256,
+    };
+  });
+
+  // ------------------------------------------------------------------------------------------ A IDENTIDADE
+  const arquivosDeProducao = [
+    'app/api/ai-reviewer/route.ts',
+    'lib/ai-reviewer/vinculo-execucao.ts',
+    'lib/ai-reviewer/avaliacao-qualidade.ts',
+    'lib/ai-reviewer/review-validation-contract.ts',
+    'lib/ai-reviewer/review-request.ts',
+    'components/ParecerAISection.tsx',
+    'app/decisor/resultados/[projectId]/page.tsx',
+  ];
+  const identidade = {
+    natureza: 'identidade da execucao da sonda do caminho sem vinculoDaExecucao; os valores sao MEDIDOS nesta execucao, salvo onde dito',
+    instanteDaMedicaoUTC: instanteDaMedicao,
+    codigo: {
+      commitDeBase: execGit('git rev-parse HEAD'),
+      statusPorcelainAntesDaExecucao: execGit('git status --porcelain'),
+      sha256DosArquivosDeProducao: Object.fromEntries(arquivosDeProducao.map((f) => [f, sha256Arq(f)])),
+      instrumento: { arquivoExecutado: path.basename(__filename), sha256: sha256(fs.readFileSync(__filename, 'utf8')) },
+    },
+    ambiente: {
+      node: process.version,
+      plataforma: `${process.platform} ${process.arch}`,
+      npm: execGit('npm -v'),
+      // ⚠ Duas fontes que NAO coincidem, e as duas se conservam: a versao declarada nos `package.json` instalados, e a que o proprio CLI imprime.
+      versaoDosPacotesInstalados: Object.fromEntries(
+        ['jest', 'jest-cli', '@jest/core', 'ts-jest', 'react', 'react-dom', 'next', '@anthropic-ai/sdk'].map((p) => [p, JSON.parse(fs.readFileSync(path.join(RAIZ, 'node_modules', p, 'package.json'), 'utf8')).version])
+      ),
+      jestVersionImpressaPeloCli: execGit('node node_modules/.bin/jest --version'),
+    },
+    modelo: {
+      real: 'NAO APLICAVEL: nenhum modelo foi chamado; o cliente de `@anthropic-ai/sdk` foi SIMULADO (jest.mock) e devolveu um erro sentinela (Fase A) ou o texto fixado (Fase B)',
+      parametrosDaChamadaCapturados: registrosA[0].chamadaAoCliente.argumentos,
+      parametrosNaoEnviados: 'temperature, top_p e top_k: conferido na lista de chaves da chamada capturada (nao constam); seed: nao existe na chamada',
+    },
+    dados: { natureza: 'SINTETICOS: quatro respondentes (CR 0.05), documento de calculo sintetico, hashes derivados de etiquetas; a tela nao foi executada', idsDosRespondentes: IDS, textoFixadoDaFaseB: { sha256: sha256(TEXTO_FIXADO), caracteres: TEXTO_FIXADO.length } },
+    variaveisDeAmbiente: { ANTHROPIC_API_KEY: 'chave falsa do processo de teste', USE_RAG_SEMANTIC: 'removida (RAG semantico desligado)' },
+    rede: { chamadasDeFetchObservadas: chamadasDeRede.length, observacao: 'fetch global substituido por funcao que lanca e conta; nenhuma chamada observada' },
+    ausenciasDeMetadadoDeclaradas: [
+      'temperatura, top_p, top_k e seed: nao se aplicam (nao enviados)',
+      'versao do modelo real: nao se aplica (cliente simulado)',
+      'nenhum registro de latencia, custo ou tokens: nao se aplica',
+    ],
+  };
+
+  escrever('fase-a/capturas.json', JSON.stringify({ natureza: 'FASE A, captura interrompida: o contexto que SERIA enviado ao modelo; oito capturas (2 condicoes de exclusao x 4 variantes do campo)', registros: registrosA, determinismoEntreDuasPassadas: determinismoA }, null, 2) + '\n');
+  escrever('fase-b/execucoes.json', JSON.stringify({ natureza: 'FASE B, texto fixado e o tratador concluindo: o corpo da resposta; quatro execucoes (2 classificacoes x controle/chave ausente), condicao de exclusao fixa: sem exclusao', registros: registrosB, determinismoEntreDuasPassadas: determinismoB, cruzamentoComAFaseA: cruzamentoAB }, null, 2) + '\n');
+  escrever('fase-c/renderizacoes.json', JSON.stringify({ natureza: 'FASE C, renderizacao do componente real ParecerAISection com os quatro corpos da Fase B; NAO e a pagina no navegador', registros: registrosC, comparacaoControleEAusente: comparacaoC }, null, 2) + '\n');
+  escrever('identidade.json', JSON.stringify(identidade, null, 2) + '\n');
+  expect(chamadasDeRede.length).toBe(0);
+  expect(determinismoA.every((d) => d.contextoIgualNasDuasPassadas && d.jsonEntregueIgualNasDuasPassadas)).toBe(true);
+});

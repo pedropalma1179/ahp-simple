@@ -1,0 +1,805 @@
+{
+ "natureza": "ANALISE da Fase A (captura interrompida): os numeros abaixo sao MEDIDOS por este script sobre os artefatos gravados pela sonda; os campos `leitura` e `classes` sao CLASSIFICACAO POR LEITURA, e nao medicao.",
+ "base": "ad2ad0afdc1a972570d3733ccc582d65a719397a",
+ "integridade": {
+  "arquivosConferidosContraORegistroDaSonda": 16,
+  "problemas": []
+ },
+ "condicoes": {
+  "sem-exclusao": {
+   "todoOMaisIdenticoNoPar": {
+    "controleSemAChaveIgualAChaveAusente": true,
+    "nullSemAChaveIgualAChaveAusente": true,
+    "chavesDoControle": [
+     "avaliacaoDeQualidade",
+     "vinculoDaExecucao",
+     "projectName",
+     "projectDescription",
+     "alternatives",
+     "bocrWeights",
+     "personalWeights",
+     "bocrConsistency",
+     "subWeights",
+     "subConsistency",
+     "finalScores",
+     "responseCount",
+     "sensitivityInflections",
+     "qualityAnalysis",
+     "overallStats",
+     "individualStats",
+     "demographicsSummary"
+    ],
+    "chavesDaChaveAusente": [
+     "avaliacaoDeQualidade",
+     "projectName",
+     "projectDescription",
+     "alternatives",
+     "bocrWeights",
+     "personalWeights",
+     "bocrConsistency",
+     "subWeights",
+     "subConsistency",
+     "finalScores",
+     "responseCount",
+     "sensitivityInflections",
+     "qualityAnalysis",
+     "overallStats",
+     "individualStats",
+     "demographicsSummary"
+    ],
+    "valorDeNullNoJson": null
+   },
+   "contagensDistintas": {
+    "objetosPreparados": 4,
+    "jsonsEntreguesAoTratador": 3,
+    "contextos": 2
+   },
+   "classesDeEquivalencia": {
+    "objetosPreparados": [
+     [
+      "controle"
+     ],
+     [
+      "chave-ausente"
+     ],
+     [
+      "undefined-explicito"
+     ],
+     [
+      "null"
+     ]
+    ],
+    "jsonsEntregues": [
+     [
+      "controle"
+     ],
+     [
+      "chave-ausente",
+      "undefined-explicito"
+     ],
+     [
+      "null"
+     ]
+    ],
+    "contextos": [
+     [
+      "controle"
+     ],
+     [
+      "chave-ausente",
+      "undefined-explicito",
+      "null"
+     ]
+    ]
+   },
+   "sha256": {
+    "contextos": {
+     "controle": "b1a7f44be1a182a172e33b0327b02fe212ec9003a34bf79561e1e3196bddc39d",
+     "chave-ausente": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc",
+     "undefined-explicito": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc",
+     "null": "eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc"
+    },
+    "jsonsEntregues": {
+     "controle": "1c3f6a856c740b59f040e01e4fedd994ead4de48c48f876e797d591195fbc9fd",
+     "chave-ausente": "a26492908bf02b4827fff0697ac15d5a8c58c73ec32874a215661b200da7d308",
+     "undefined-explicito": "a26492908bf02b4827fff0697ac15d5a8c58c73ec32874a215661b200da7d308",
+     "null": "ebd4f8544c449070df4db49734fadcdae34da00963ee804b7e7e17f9a068c705"
+    },
+    "objetosPreparados": {
+     "controle": "040a6a6bc9a86f9c896f08dae7b8a3552dee8ca76c75fa4895958d101266984b",
+     "chave-ausente": "14005fc9c713bd42d6714d226042a04a6264b2158ca4316a852263734cfd2aa1",
+     "undefined-explicito": "3356a171ea90e5731b0f68a428417f45f6ba224084eda2958bf22a0b8f257a33",
+     "null": "026b21f2365d15abe6960a8ed1ab4549e1687dd494b14add5e9940b4e245593f"
+    }
+   },
+   "transporte": {
+    "chaveAusenteIgualAUndefinedExplicito": {
+     "objetoPreparadoDifere": true,
+     "objetoPreparadoDeUndefinedTemAChave": true,
+     "objetoPreparadoDeChaveAusenteTemAChave": false,
+     "jsonEntregueByteAByteIgual": true,
+     "jsonEntregueDeUndefinedContemAChave": false,
+     "contextoByteAByteIgual": true
+    },
+    "nullNoJsonDifereDaChaveAusente": {
+     "jsonEntregueDeNullContemAChave": true,
+     "trechoDoCampoNoJson": "\"vinculoDaExecucao\":null",
+     "bytesAMaisQueAChaveAusente": 25,
+     "bytesDoTrechoMaisAVirgula": 25,
+     "contextoByteAByteIgualAoDaChaveAusente": true
+    },
+    "textoLidoDoRequestIgualAoSerializado": {
+     "controle": true,
+     "chave-ausente": true,
+     "undefined-explicito": true,
+     "null": true
+    }
+   },
+   "diff": {
+    "comando": "diff <contexto do controle> <contexto da variante>   (GNU diffutils, formato normal; calculado uma vez por variante ausente)",
+    "arquivo": "fase-a/diffs/sem-exclusao__controle_x_ausente.diff",
+    "sha256DoDiffPorVariante": {
+     "chave-ausente": "4ac8fe58a7837a025625d4e67911838b87b93c653fb52e16abf85493c9484e89",
+     "undefined-explicito": "4ac8fe58a7837a025625d4e67911838b87b93c653fb52e16abf85493c9484e89",
+     "null": "4ac8fe58a7837a025625d4e67911838b87b93c653fb52e16abf85493c9484e89"
+    },
+    "osTresDiffsSaoIguais": true,
+    "hunks": [
+     "24,49d23",
+     "51,52c25",
+     "59c32",
+     "61,62c34,35",
+     "64d36",
+     "71c43"
+    ],
+    "linhasRemovidasNoAusente": 33,
+    "linhasAcrescentadasNoAusente": 5
+   },
+   "frasesSoNoCasoAusente": [
+    {
+     "id": "L1",
+     "linhaNoContextoDaCaptura": 25,
+     "arquivoDoContexto": "fase-a/contextos/ctx-sem-exclusao__chave-ausente.txt",
+     "texto": "## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:931",
+     "classesDeLeitura": [
+      "exaustividade"
+     ],
+     "leitura": "Declara a lista EXAUSTIVA sem dizer de que conjunto. O controle restringe: \"(lista EXAUSTIVA do conjunto enviado)\".",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L2",
+     "linhaNoContextoDaCaptura": 32,
+     "arquivoDoContexto": "fase-a/contextos/ctx-sem-exclusao__chave-ausente.txt",
+     "texto": "**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:932",
+     "classesDeLeitura": [
+      "completude",
+      "exaustividade"
+     ],
+     "leitura": "Afirma a lista COMPLETA e que \"não existem outros\", sem restringir ao conjunto enviado. Na condição com exclusão o mesmo contexto traz, nas linhas das contagens da filtragem, 6 coletados, 4 incluídos e 2 excluídos: as duas afirmações coexistem no texto entregue. O controle diz \"COMPLETA para o conjunto enviado\".",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L3",
+     "linhaNoContextoDaCaptura": 34,
+     "arquivoDoContexto": "fase-a/contextos/ctx-sem-exclusao__chave-ausente.txt",
+     "texto": "**AGREGAÇÃO POR MATRIZ: todos os 4 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 4 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:934",
+     "classesDeLeitura": [
+      "totalidade"
+     ],
+     "leitura": "Afirma como fato que todos responderam à TOTALIDADE das comparações pareadas e que N é o tamanho da lista em TODAS as matrizes agregadas. O número vem de `respondents.length` (`route.ts:934`), isto é, da contagem da lista, e não de um campo de completude. O controle, nesta posição, declara que a contagem do documento de cálculo NÃO é medição da participação por célula e que não deve ser apresentada como o N de matriz alguma.",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L4",
+     "linhaNoContextoDaCaptura": 35,
+     "arquivoDoContexto": "fase-a/contextos/ctx-sem-exclusao__chave-ausente.txt",
+     "texto": "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 4 julgamentos, sem particionamento.",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:935",
+     "classesDeLeitura": [
+      "ausência de divisão"
+     ],
+     "leitura": "Afirma como fato do sistema que NÃO existe divisão de respondentes. O controle afirma outra coisa, sobre a requisição: \"esta requisição não traz divisão\", e pede que não se atribua um N diferente a cada matriz.",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L5",
+     "linhaNoContextoDaCaptura": 43,
+     "arquivoDoContexto": "fase-a/contextos/ctx-sem-exclusao__chave-ausente.txt",
+     "texto": "⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:937",
+     "classesDeLeitura": [
+      "regra de menção"
+     ],
+     "leitura": "Proíbe mencionar respondente fora da lista, sem a qualificação \"COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA\" e sem a exceção para divergência registrada que o controle traz. No caso ausente não há bloco que registre divergência.",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    }
+   ],
+   "contagemDeLinhasNaoBrancas": {
+    "soNoAusente": 5,
+    "soNoControle": 32,
+    "doControle": 803,
+    "doAusente": 776
+   },
+   "linhasDoControleQueSaemNoAusente": {
+    "total": 32,
+    "doBlocoDoVinculo": 26
+   },
+   "blocoDoVinculo": {
+    "ausente": {
+     "marcadorDoBlocoOcorrencias": 0,
+     "linhaDoCabecalhoDaLista": 25,
+     "linhasEmBrancoConsecutivasAntesDoCabecalhoDaLista": 4,
+     "ultimaLinhaNaoBrancaAntes": {
+      "linha": 20,
+      "inicio": "## Amostra e Qualidade Geral"
+     },
+     "linhasEntreEssaLinhaEOCabecalho": 4,
+     "todasEmBranco": true
+    },
+    "controle": {
+     "marcadorDoBlocoOcorrencias": 1,
+     "linhaDoMarcador": 24,
+     "linhasDoBloco": 26,
+     "linhasEmBrancoConsecutivasAntesDoMarcador": 3,
+     "ultimaLinhaNaoBrancaAntes": {
+      "linha": 20,
+      "inicio": "## Amostra e Qualidade Geral"
+     }
+    },
+    "leitura": "o bloco vem VAZIO e aparece no texto so como linhas em branco: nenhuma palavra, nenhum marcador, nenhum aviso de que o campo nao veio",
+    "leituraDoCodigo": "app/api/ai-reviewer/route.ts:1094-1096 monta \"${exclusionContext}\\n${blocoDoVinculo}\\n${fullRespondentList}\", e app/api/ai-reviewer/route.ts:974 faz blocoDoVinculo = \"\" quando o texto do vinculo e vazio"
+   },
+   "mencoesAVinculo": {
+    "controle": {
+     "total": 8,
+     "doTituloSinteticoDaSonda": 1,
+     "doTextoDoSistema": 7,
+     "porLinha": [
+      {
+       "linha": 4,
+       "ocorrencias": 1,
+       "origem": "titulo do projeto, texto SINTETICO da sonda",
+       "inicio": "**Título do Projeto:** Projeto da sonda sem vinculo"
+      },
+      {
+       "linha": 24,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO"
+      },
+      {
+       "linha": 25,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "- Estado do vínculo: **vinculado** — Os 4 identificadores dos incluídos no documento de cá"
+      },
+      {
+       "linha": 26,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "- Execução do cálculo (identificador opaco): exec-sonda-sem-vinculo-0001"
+      },
+      {
+       "linha": 30,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "  - restantes após a exclusão do gestor (etapa: exclusão do gestor, anterior a qualquer re"
+      },
+      {
+       "linha": 48,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "- Portão de completude de A.21, propriedade do PERCURSO DE CÁLCULO EXAMINADO (o código da "
+      },
+      {
+       "linha": 62,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; nã"
+      },
+      {
+       "linha": 71,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVAL"
+      }
+     ]
+    },
+    "chave-ausente": {
+     "total": 1,
+     "doTituloSinteticoDaSonda": 1,
+     "doTextoDoSistema": 0,
+     "porLinha": [
+      {
+       "linha": 4,
+       "ocorrencias": 1,
+       "origem": "titulo do projeto, texto SINTETICO da sonda",
+       "inicio": "**Título do Projeto:** Projeto da sonda sem vinculo"
+      }
+     ]
+    },
+    "observacao": "a contagem 1 que a sonda registra para o contexto ausente e a do TITULO do projeto, que a propria sonda forneceu (\"Projeto da sonda sem vinculo\", linha 4): nao e mencao do sistema"
+   }
+  },
+  "com-exclusao": {
+   "todoOMaisIdenticoNoPar": {
+    "controleSemAChaveIgualAChaveAusente": true,
+    "nullSemAChaveIgualAChaveAusente": true,
+    "chavesDoControle": [
+     "avaliacaoDeQualidade",
+     "vinculoDaExecucao",
+     "projectName",
+     "projectDescription",
+     "alternatives",
+     "bocrWeights",
+     "personalWeights",
+     "bocrConsistency",
+     "subWeights",
+     "subConsistency",
+     "finalScores",
+     "responseCount",
+     "sensitivityInflections",
+     "qualityAnalysis",
+     "overallStats",
+     "individualStats",
+     "demographicsSummary",
+     "exclusionInfo"
+    ],
+    "chavesDaChaveAusente": [
+     "avaliacaoDeQualidade",
+     "projectName",
+     "projectDescription",
+     "alternatives",
+     "bocrWeights",
+     "personalWeights",
+     "bocrConsistency",
+     "subWeights",
+     "subConsistency",
+     "finalScores",
+     "responseCount",
+     "sensitivityInflections",
+     "qualityAnalysis",
+     "overallStats",
+     "individualStats",
+     "demographicsSummary",
+     "exclusionInfo"
+    ],
+    "valorDeNullNoJson": null
+   },
+   "contagensDistintas": {
+    "objetosPreparados": 4,
+    "jsonsEntreguesAoTratador": 3,
+    "contextos": 2
+   },
+   "classesDeEquivalencia": {
+    "objetosPreparados": [
+     [
+      "controle"
+     ],
+     [
+      "chave-ausente"
+     ],
+     [
+      "undefined-explicito"
+     ],
+     [
+      "null"
+     ]
+    ],
+    "jsonsEntregues": [
+     [
+      "controle"
+     ],
+     [
+      "chave-ausente",
+      "undefined-explicito"
+     ],
+     [
+      "null"
+     ]
+    ],
+    "contextos": [
+     [
+      "controle"
+     ],
+     [
+      "chave-ausente",
+      "undefined-explicito",
+      "null"
+     ]
+    ]
+   },
+   "sha256": {
+    "contextos": {
+     "controle": "35df97281bf476b225fc28b9dc5c183f53f5dc7995ed0a2ba35fdf008d54a26a",
+     "chave-ausente": "4b09690aaa0566f1ea1ef9e38b05950c930a4b7a646d0299f3f2282467926d60",
+     "undefined-explicito": "4b09690aaa0566f1ea1ef9e38b05950c930a4b7a646d0299f3f2282467926d60",
+     "null": "4b09690aaa0566f1ea1ef9e38b05950c930a4b7a646d0299f3f2282467926d60"
+    },
+    "jsonsEntregues": {
+     "controle": "2c3f1744db2961c1d8d34e3f7aed104efd24284b1126a8b76835269e1a67b323",
+     "chave-ausente": "09f397fdc94074a0149592ee385b63c8d3c3054adf2418f0d669484d49c01e22",
+     "undefined-explicito": "09f397fdc94074a0149592ee385b63c8d3c3054adf2418f0d669484d49c01e22",
+     "null": "565c648f6ba0ee2a662d158756841c65d7bfefbd63132cf3c142f87b9eaeda62"
+    },
+    "objetosPreparados": {
+     "controle": "ffc05cd3649f76dbef107af8d840328a5acd4dc03ff559f3fb39ca5fb0cbf8b9",
+     "chave-ausente": "4d26e269cbf7f42bd2e536941b0850809cb23ab2f3ab0e5d4d5b512318e7f889",
+     "undefined-explicito": "e7bc6e63ea87b936b08c0fcbe2efd41a38dd83759b5aaa52ae3347f16294eff3",
+     "null": "32ed138e9382a470fe62a36c963dbad2982d00325c7ea8a2fbb9beb0f82627d1"
+    }
+   },
+   "transporte": {
+    "chaveAusenteIgualAUndefinedExplicito": {
+     "objetoPreparadoDifere": true,
+     "objetoPreparadoDeUndefinedTemAChave": true,
+     "objetoPreparadoDeChaveAusenteTemAChave": false,
+     "jsonEntregueByteAByteIgual": true,
+     "jsonEntregueDeUndefinedContemAChave": false,
+     "contextoByteAByteIgual": true
+    },
+    "nullNoJsonDifereDaChaveAusente": {
+     "jsonEntregueDeNullContemAChave": true,
+     "trechoDoCampoNoJson": "\"vinculoDaExecucao\":null",
+     "bytesAMaisQueAChaveAusente": 25,
+     "bytesDoTrechoMaisAVirgula": 25,
+     "contextoByteAByteIgualAoDaChaveAusente": true
+    },
+    "textoLidoDoRequestIgualAoSerializado": {
+     "controle": true,
+     "chave-ausente": true,
+     "undefined-explicito": true,
+     "null": true
+    }
+   },
+   "diff": {
+    "comando": "diff <contexto do controle> <contexto da variante>   (GNU diffutils, formato normal; calculado uma vez por variante ausente)",
+    "arquivo": "fase-a/diffs/com-exclusao__controle_x_ausente.diff",
+    "sha256DoDiffPorVariante": {
+     "chave-ausente": "997057442064c408800fad642b67194a0ad002b03e84c81f08ec7ec903eae9e7",
+     "undefined-explicito": "997057442064c408800fad642b67194a0ad002b03e84c81f08ec7ec903eae9e7",
+     "null": "997057442064c408800fad642b67194a0ad002b03e84c81f08ec7ec903eae9e7"
+    },
+    "osTresDiffsSaoIguais": true,
+    "hunks": [
+     "24,26c24,26",
+     "29c29",
+     "34,59d33",
+     "61,62c35",
+     "69c42",
+     "71,72c44,45",
+     "74d46",
+     "81c53"
+    ],
+    "linhasRemovidasNoAusente": 37,
+    "linhasAcrescentadasNoAusente": 9
+   },
+   "frasesSoNoCasoAusente": [
+    {
+     "id": "E1",
+     "linhaNoContextoDaCaptura": 24,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "- Amostra original coletada: 6 especialistas",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:862",
+     "classesDeLeitura": [
+      "nenhuma das cinco (contagem sem população nem etapa)"
+     ],
+     "leitura": "Conta a amostra sem nomear a população nem a etapa. No controle a mesma posição nomeia as duas (população: respostas carregadas pela tela; etapa: coleta).",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "E2",
+     "linhaNoContextoDaCaptura": 25,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "- Respondentes incluídos na análise: 4 especialistas",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:863",
+     "classesDeLeitura": [
+      "nenhuma das cinco (contagem sem população nem etapa)"
+     ],
+     "leitura": "\"Incluídos na análise\" não diz de que etapa é o conjunto, nem se coincide com o enviado ao modelo ou com o incluído no documento de cálculo. O controle separa \"restantes após a exclusão do gestor\", \"incluídos no documento de cálculo\" e \"enviados\".",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "E3",
+     "linhaNoContextoDaCaptura": 26,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "- Respondentes excluídos: 2 (33.3% da amostra original)",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:864",
+     "classesDeLeitura": [
+      "nenhuma das cinco (contagem sem população nem etapa)"
+     ],
+     "leitura": "Conta os excluídos sem nomear a etapa. O controle diz \"excluídos pelo gestor\" e nomeia a população e a etapa.",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "E4",
+     "linhaNoContextoDaCaptura": 29,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "- Os dados de qualidade abaixo referem-se APENAS aos 4 respondentes incluídos.",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:865",
+     "classesDeLeitura": [
+      "nenhuma das cinco (contagem sem população nem etapa)"
+     ],
+     "leitura": "Delimita os dados de qualidade aos \"incluídos\" sem nomear população nem etapa. O controle os delimita aos \"ENVIADOS a você (população: enviados; etapa: envio)\".",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L1",
+     "linhaNoContextoDaCaptura": 35,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:931",
+     "classesDeLeitura": [
+      "exaustividade"
+     ],
+     "leitura": "Declara a lista EXAUSTIVA sem dizer de que conjunto. O controle restringe: \"(lista EXAUSTIVA do conjunto enviado)\".",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L2",
+     "linhaNoContextoDaCaptura": 42,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:932",
+     "classesDeLeitura": [
+      "completude",
+      "exaustividade"
+     ],
+     "leitura": "Afirma a lista COMPLETA e que \"não existem outros\", sem restringir ao conjunto enviado. Na condição com exclusão o mesmo contexto traz, nas linhas das contagens da filtragem, 6 coletados, 4 incluídos e 2 excluídos: as duas afirmações coexistem no texto entregue. O controle diz \"COMPLETA para o conjunto enviado\".",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L3",
+     "linhaNoContextoDaCaptura": 44,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "**AGREGAÇÃO POR MATRIZ: todos os 4 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 4 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:934",
+     "classesDeLeitura": [
+      "totalidade"
+     ],
+     "leitura": "Afirma como fato que todos responderam à TOTALIDADE das comparações pareadas e que N é o tamanho da lista em TODAS as matrizes agregadas. O número vem de `respondents.length` (`route.ts:934`), isto é, da contagem da lista, e não de um campo de completude. O controle, nesta posição, declara que a contagem do documento de cálculo NÃO é medição da participação por célula e que não deve ser apresentada como o N de matriz alguma.",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L4",
+     "linhaNoContextoDaCaptura": 45,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 4 julgamentos, sem particionamento.",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:935",
+     "classesDeLeitura": [
+      "ausência de divisão"
+     ],
+     "leitura": "Afirma como fato do sistema que NÃO existe divisão de respondentes. O controle afirma outra coisa, sobre a requisição: \"esta requisição não traz divisão\", e pede que não se atribua um N diferente a cada matriz.",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    },
+    {
+     "id": "L5",
+     "linhaNoContextoDaCaptura": 53,
+     "arquivoDoContexto": "fase-a/contextos/ctx-com-exclusao__chave-ausente.txt",
+     "texto": "⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.",
+     "localizadorNaFonte": "app/api/ai-reviewer/route.ts:937",
+     "classesDeLeitura": [
+      "regra de menção"
+     ],
+     "leitura": "Proíbe mencionar respondente fora da lista, sem a qualificação \"COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA\" e sem a exceção para divergência registrada que o controle traz. No caso ausente não há bloco que registre divergência.",
+     "tipoDoRegistro": "LEITURA (classificacao), nao medicao"
+    }
+   ],
+   "contagemDeLinhasNaoBrancas": {
+    "soNoAusente": 9,
+    "soNoControle": 36,
+    "doControle": 811,
+    "doAusente": 784
+   },
+   "linhasDoControleQueSaemNoAusente": {
+    "total": 36,
+    "doBlocoDoVinculo": 26
+   },
+   "blocoDoVinculo": {
+    "ausente": {
+     "marcadorDoBlocoOcorrencias": 0,
+     "linhaDoCabecalhoDaLista": 35,
+     "linhasEmBrancoConsecutivasAntesDoCabecalhoDaLista": 3,
+     "ultimaLinhaNaoBrancaAntes": {
+      "linha": 31,
+      "inicio": "**INSTRUÇÃO PARA O REVISOR:** Você DEVE mencionar esta filtragem no RESUMO DA SU"
+     },
+     "linhasEntreEssaLinhaEOCabecalho": 3,
+     "todasEmBranco": true
+    },
+    "controle": {
+     "marcadorDoBlocoOcorrencias": 1,
+     "linhaDoMarcador": 34,
+     "linhasDoBloco": 26,
+     "linhasEmBrancoConsecutivasAntesDoMarcador": 2,
+     "ultimaLinhaNaoBrancaAntes": {
+      "linha": 31,
+      "inicio": "**INSTRUÇÃO PARA O REVISOR:** Você DEVE mencionar esta filtragem no RESUMO DA SU"
+     }
+    },
+    "leitura": "o bloco vem VAZIO e aparece no texto so como linhas em branco: nenhuma palavra, nenhum marcador, nenhum aviso de que o campo nao veio",
+    "leituraDoCodigo": "app/api/ai-reviewer/route.ts:1094-1096 monta \"${exclusionContext}\\n${blocoDoVinculo}\\n${fullRespondentList}\", e app/api/ai-reviewer/route.ts:974 faz blocoDoVinculo = \"\" quando o texto do vinculo e vazio"
+   },
+   "mencoesAVinculo": {
+    "controle": {
+     "total": 9,
+     "doTituloSinteticoDaSonda": 1,
+     "doTextoDoSistema": 8,
+     "porLinha": [
+      {
+       "linha": 4,
+       "ocorrencias": 1,
+       "origem": "titulo do projeto, texto SINTETICO da sonda",
+       "inicio": "**Título do Projeto:** Projeto da sonda sem vinculo"
+      },
+      {
+       "linha": 25,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "- Restantes após a exclusão do gestor (população: respondentes não excluídos; etapa: exclu"
+      },
+      {
+       "linha": 34,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO"
+      },
+      {
+       "linha": 35,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "- Estado do vínculo: **vinculado** — Os 4 identificadores dos incluídos no documento de cá"
+      },
+      {
+       "linha": 36,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "- Execução do cálculo (identificador opaco): exec-sonda-sem-vinculo-0001"
+      },
+      {
+       "linha": 40,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "  - restantes após a exclusão do gestor (etapa: exclusão do gestor, anterior a qualquer re"
+      },
+      {
+       "linha": 58,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "- Portão de completude de A.21, propriedade do PERCURSO DE CÁLCULO EXAMINADO (o código da "
+      },
+      {
+       "linha": 72,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; nã"
+      },
+      {
+       "linha": 81,
+       "ocorrencias": 1,
+       "origem": "texto do sistema",
+       "inicio": "⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVAL"
+      }
+     ]
+    },
+    "chave-ausente": {
+     "total": 1,
+     "doTituloSinteticoDaSonda": 1,
+     "doTextoDoSistema": 0,
+     "porLinha": [
+      {
+       "linha": 4,
+       "ocorrencias": 1,
+       "origem": "titulo do projeto, texto SINTETICO da sonda",
+       "inicio": "**Título do Projeto:** Projeto da sonda sem vinculo"
+      }
+     ]
+    },
+    "observacao": "a contagem 1 que a sonda registra para o contexto ausente e a do TITULO do projeto, que a propria sonda forneceu (\"Projeto da sonda sem vinculo\", linha 4): nao e mencao do sistema"
+   }
+  }
+ },
+ "identidadeConferida": {
+  "commitDeBaseDeclarado": "ad2ad0afdc1a972570d3733ccc582d65a719397a",
+  "arquivosDeProducao": {
+   "app/api/ai-reviewer/route.ts": {
+    "sha256NaBase": "cdfeff68e64bdfbd1bbdc93bb78149570da4c18bd7d451a332a8e217e11b6eab",
+    "sha256DaIdentidade": "cdfeff68e64bdfbd1bbdc93bb78149570da4c18bd7d451a332a8e217e11b6eab",
+    "iguais": true
+   },
+   "lib/ai-reviewer/vinculo-execucao.ts": {
+    "sha256NaBase": "2e336a659c55d1c3fdb41d4e88c634a11313779ff7e07a581911e78cb5babbc5",
+    "sha256DaIdentidade": "2e336a659c55d1c3fdb41d4e88c634a11313779ff7e07a581911e78cb5babbc5",
+    "iguais": true
+   },
+   "lib/ai-reviewer/avaliacao-qualidade.ts": {
+    "sha256NaBase": "511ca1a0ca2cf42380e5c6f08ebf03d1ca6cccfc2fbf1eecf2f31e1ce19700a0",
+    "sha256DaIdentidade": "511ca1a0ca2cf42380e5c6f08ebf03d1ca6cccfc2fbf1eecf2f31e1ce19700a0",
+    "iguais": true
+   },
+   "lib/ai-reviewer/review-validation-contract.ts": {
+    "sha256NaBase": "bca8fdd47c3111d080569e0a94b55d00fc67640ed8e58bda7f703f04f7058ecd",
+    "sha256DaIdentidade": "bca8fdd47c3111d080569e0a94b55d00fc67640ed8e58bda7f703f04f7058ecd",
+    "iguais": true
+   },
+   "lib/ai-reviewer/review-request.ts": {
+    "sha256NaBase": "e51931aa741600c008af1e01af1f4cc369c51da6ac085c2aa3217fe8061240ee",
+    "sha256DaIdentidade": "e51931aa741600c008af1e01af1f4cc369c51da6ac085c2aa3217fe8061240ee",
+    "iguais": true
+   },
+   "components/ParecerAISection.tsx": {
+    "sha256NaBase": "5082e5134bb0f370a255411b5845497ffb497c1b7b486c9f393cfd32772d457a",
+    "sha256DaIdentidade": "5082e5134bb0f370a255411b5845497ffb497c1b7b486c9f393cfd32772d457a",
+    "iguais": true
+   },
+   "app/decisor/resultados/[projectId]/page.tsx": {
+    "sha256NaBase": "02d28066f1cd6a098594e43fbeebe168fd8286bd2df911479f5e1e583867f65b",
+    "sha256DaIdentidade": "02d28066f1cd6a098594e43fbeebe168fd8286bd2df911479f5e1e583867f65b",
+    "iguais": true
+   }
+  },
+  "instrumento": {
+   "sha256DoArquivoArquivado": "2b302fa89339af0f75671b129a0773ae77678482da69be86b9a046e86671b405",
+   "sha256DoArquivoExecutado": "2b302fa89339af0f75671b129a0773ae77678482da69be86b9a046e86671b405",
+   "iguais": true
+  },
+  "ambiente": {
+   "node": "v22.22.2",
+   "plataforma": "linux x64",
+   "npm": "10.9.7"
+  },
+  "versoesDeJest": {
+   "pacotesInstalados": {
+    "jest": "30.2.0",
+    "jest-cli": "30.2.0",
+    "@jest/core": "30.2.0"
+   },
+   "impressaPeloCli": "30.1.3",
+   "contradicao": "os dois valores e as duas fontes ficam conservados: package.json dos pacotes instalados diz 30.2.0 e `node_modules/.bin/jest --version` imprime 30.1.3; a causa nao foi apurada"
+  },
+  "chamadasDeFetchObservadas": 0
+ },
+ "controleDeJsonStringify": {
+  "comando": "node -e \"console.log(JSON.stringify({a:1,b:undefined,c:null}))\"",
+  "versaoDoNode": "v22.22.2",
+  "saida": "{\"a\":1,\"c\":null}",
+  "leitura_do_resultado": "a propriedade com valor undefined e OMITIDA; a com valor null e mantida",
+  "confere": true
+ },
+ "instrumentoLocalizadores": {
+  "arquivo": "instrumentos/sonda-sem-vinculo.test.ts.txt",
+  "jsonStringifyDoPayload": 255,
+  "requestComOTextoComoCorpo": 256,
+  "textoLidoDoRequest": 261,
+  "chamadaAoTratadorReal": 262,
+  "leituraDoCorpoPeloTratador": "app/api/ai-reviewer/route.ts:1414",
+  "declaracao": "o texto serializado vira o corpo de um `Request` real e o tratador o le com `await request.json()`; NAO ha simulado de `request.json()` que devolva o objeto JavaScript, de modo que a omissao da propriedade `undefined` NAO foi contornada"
+ },
+ "promptDeSistema": {
+  "valoresDistintosDeSha256ETamanhoNasOitoCapturas": 1,
+  "sha256": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "bytes": 34170,
+  "leitura": "o prompt de sistema NAO varia com o campo"
+ },
+ "mensagensDoCliente": {
+  "numeroDeChamadasPorCaptura": [
+   1
+  ],
+  "chamadasDeRede": [
+   0
+  ]
+ },
+ "determinismoEntreDuasPassadas": {
+  "todasAsOitoCapturasIguaisNasDuasPassadas": true,
+  "capturas": 8
+ },
+ "totaisDasOitoCapturas": {
+  "contextosDistintos": 4,
+  "jsonsEntreguesDistintos": 6,
+  "objetosPreparadosDistintos": 8
+ }
+}

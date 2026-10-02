@@ -1,0 +1,387 @@
+{
+ "natureza": "ANALISE da Fase C: RENDERIZACAO DO COMPONENTE real `components/ParecerAISection.tsx` com os quatro corpos da Fase B. NAO e a pagina no navegador, NAO demonstra o conteudo que um modelo geraria e NAO demonstra o comportamento da pagina completa.",
+ "base": "ad2ad0afdc1a972570d3733ccc582d65a719397a",
+ "aiReviewMontado": {
+  "fonteDaMontagem": "app/decisor/resultados/[projectId]/page.tsx:1363-1371",
+  "chavesNaOrdemDaTela": [
+   "nota",
+   "veredicto",
+   "notaSuspensa",
+   "mensagemDaExtracao",
+   "review",
+   "validation",
+   "metadata"
+  ],
+  "chavesDoAiReviewDaSonda": [
+   "nota",
+   "veredicto",
+   "notaSuspensa",
+   "mensagemDaExtracao",
+   "review",
+   "validation",
+   "metadata"
+  ],
+  "iguais": true,
+  "regraDe_notaSuspensa_e_mensagemDaExtracao": "ambos com `?? null`, como na tela",
+  "textoDasLinhasDaTela": [
+   "setAiReview({",
+   "nota: data.nota,",
+   "veredicto: data.veredicto,",
+   "notaSuspensa: data.notaSuspensa ?? null,",
+   "// Aviso diagnóstico da extração: texto só com a classificação não suspensa e nenhum padrão reconhecido; `null` nos demais",
+   "mensagemDaExtracao: data.mensagemDaExtracao ?? null,",
+   "review: data.review,",
+   "validation: data.validation,",
+   "metadata: data.metadata",
+   "});"
+  ]
+ },
+ "portaoDoDestaque": {
+  "localizador": "components/ParecerAISection.tsx:240",
+  "linhaLida": "{!aiReview.notaSuspensa?.suspensa && presentation?.estado === 'aprovado' && (aiReview.nota || aiReview.veredicto) && (",
+  "condicoes": [
+   "classificacao nao suspensa",
+   "presentation?.estado === 'aprovado'",
+   "nota ou veredicto nao nulos"
+  ]
+ },
+ "ensaios": [
+  {
+   "id": "elegivel__controle",
+   "classificacao": "elegivel",
+   "variante": "controle",
+   "estadoDeA27": {
+    "estado": "aprovado",
+    "quarantined": false,
+    "titulo": "Parecer aprovado na verificação",
+    "nMotivos": 0,
+    "nWarnings": 0
+   },
+   "textoFixadoQueProduziuOEstado": {
+    "sha256": "6693cde649eeafb8123d44de5c510eaf391de5bf34e2891cd18b02b0472dbf3a",
+    "caracteresEmUnidadesUtf16": 356
+   },
+   "portaoDoDestaque": {
+    "condicao1_classificacaoNaoSuspensa": true,
+    "condicao2_apresentacaoAprovada": true,
+    "condicao3_notaOuVeredictoNaoNulos": true
+   },
+   "oQueSeExibe": {
+    "destaque": {
+     "exibido": true,
+     "nota": "C",
+     "veredicto": "REVISÕES MAIORES"
+    },
+    "avisoDeQuarentena": {
+     "exibido": false,
+     "titulo": null,
+     "motivos": []
+    },
+    "avisosDaVerificacao": {
+     "exibido": false,
+     "itens": []
+    },
+    "cartaoDeSuspensao": {
+     "exibido": false,
+     "titulo": null,
+     "motivo": null
+    },
+    "mensagemDaExtracao": {
+     "exibida": false,
+     "texto": null
+    },
+    "titulosDeBlocosDeStatus": [],
+    "corpoDoTexto": {
+     "exibido": true,
+     "caracteresDoReview": 356
+    }
+   },
+   "html": {
+    "arquivo": "fase-c/html/elegivel__controle.html",
+    "sha256": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325",
+    "bytes": 3415
+   },
+   "mencoesAVinculoNoHtml": 0,
+   "mencoesAoRadicalAmploNoHtml": 0
+  },
+  {
+   "id": "elegivel__chave-ausente",
+   "classificacao": "elegivel",
+   "variante": "chave-ausente",
+   "estadoDeA27": {
+    "estado": "aprovado",
+    "quarantined": false,
+    "titulo": "Parecer aprovado na verificação",
+    "nMotivos": 0,
+    "nWarnings": 0
+   },
+   "textoFixadoQueProduziuOEstado": {
+    "sha256": "6693cde649eeafb8123d44de5c510eaf391de5bf34e2891cd18b02b0472dbf3a",
+    "caracteresEmUnidadesUtf16": 356
+   },
+   "portaoDoDestaque": {
+    "condicao1_classificacaoNaoSuspensa": true,
+    "condicao2_apresentacaoAprovada": true,
+    "condicao3_notaOuVeredictoNaoNulos": true
+   },
+   "oQueSeExibe": {
+    "destaque": {
+     "exibido": true,
+     "nota": "C",
+     "veredicto": "REVISÕES MAIORES"
+    },
+    "avisoDeQuarentena": {
+     "exibido": false,
+     "titulo": null,
+     "motivos": []
+    },
+    "avisosDaVerificacao": {
+     "exibido": false,
+     "itens": []
+    },
+    "cartaoDeSuspensao": {
+     "exibido": false,
+     "titulo": null,
+     "motivo": null
+    },
+    "mensagemDaExtracao": {
+     "exibida": false,
+     "texto": null
+    },
+    "titulosDeBlocosDeStatus": [],
+    "corpoDoTexto": {
+     "exibido": true,
+     "caracteresDoReview": 356
+    }
+   },
+   "html": {
+    "arquivo": "fase-c/html/elegivel__chave-ausente.html",
+    "sha256": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325",
+    "bytes": 3415
+   },
+   "mencoesAVinculoNoHtml": 0,
+   "mencoesAoRadicalAmploNoHtml": 0
+  },
+  {
+   "id": "suspensa-contradicao__controle",
+   "classificacao": "suspensa-contradicao",
+   "variante": "controle",
+   "estadoDeA27": {
+    "estado": "aprovado",
+    "quarantined": false,
+    "titulo": "Parecer aprovado na verificação",
+    "nMotivos": 0,
+    "nWarnings": 0
+   },
+   "textoFixadoQueProduziuOEstado": {
+    "sha256": "6693cde649eeafb8123d44de5c510eaf391de5bf34e2891cd18b02b0472dbf3a",
+    "caracteresEmUnidadesUtf16": 356
+   },
+   "portaoDoDestaque": {
+    "condicao1_classificacaoNaoSuspensa": false,
+    "condicao2_apresentacaoAprovada": true,
+    "condicao3_notaOuVeredictoNaoNulos": false
+   },
+   "oQueSeExibe": {
+    "destaque": {
+     "exibido": false,
+     "nota": null,
+     "veredicto": null
+    },
+    "avisoDeQuarentena": {
+     "exibido": false,
+     "titulo": null,
+     "motivos": []
+    },
+    "avisosDaVerificacao": {
+     "exibido": false,
+     "itens": []
+    },
+    "cartaoDeSuspensao": {
+     "exibido": true,
+     "titulo": "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+     "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+    },
+    "mensagemDaExtracao": {
+     "exibida": false,
+     "texto": null
+    },
+    "titulosDeBlocosDeStatus": [
+     "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade"
+    ],
+    "corpoDoTexto": {
+     "exibido": true,
+     "caracteresDoReview": 356
+    }
+   },
+   "html": {
+    "arquivo": "fase-c/html/suspensa-contradicao__controle.html",
+    "sha256": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1",
+    "bytes": 3559
+   },
+   "mencoesAVinculoNoHtml": 0,
+   "mencoesAoRadicalAmploNoHtml": 0
+  },
+  {
+   "id": "suspensa-contradicao__chave-ausente",
+   "classificacao": "suspensa-contradicao",
+   "variante": "chave-ausente",
+   "estadoDeA27": {
+    "estado": "aprovado",
+    "quarantined": false,
+    "titulo": "Parecer aprovado na verificação",
+    "nMotivos": 0,
+    "nWarnings": 0
+   },
+   "textoFixadoQueProduziuOEstado": {
+    "sha256": "6693cde649eeafb8123d44de5c510eaf391de5bf34e2891cd18b02b0472dbf3a",
+    "caracteresEmUnidadesUtf16": 356
+   },
+   "portaoDoDestaque": {
+    "condicao1_classificacaoNaoSuspensa": false,
+    "condicao2_apresentacaoAprovada": true,
+    "condicao3_notaOuVeredictoNaoNulos": false
+   },
+   "oQueSeExibe": {
+    "destaque": {
+     "exibido": false,
+     "nota": null,
+     "veredicto": null
+    },
+    "avisoDeQuarentena": {
+     "exibido": false,
+     "titulo": null,
+     "motivos": []
+    },
+    "avisosDaVerificacao": {
+     "exibido": false,
+     "itens": []
+    },
+    "cartaoDeSuspensao": {
+     "exibido": true,
+     "titulo": "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+     "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+    },
+    "mensagemDaExtracao": {
+     "exibida": false,
+     "texto": null
+    },
+    "titulosDeBlocosDeStatus": [
+     "📊 Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade"
+    ],
+    "corpoDoTexto": {
+     "exibido": true,
+     "caracteresDoReview": 356
+    }
+   },
+   "html": {
+    "arquivo": "fase-c/html/suspensa-contradicao__chave-ausente.html",
+    "sha256": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1",
+    "bytes": 3559
+   },
+   "mencoesAVinculoNoHtml": 0,
+   "mencoesAoRadicalAmploNoHtml": 0
+  }
+ ],
+ "portaoAbertoEm": [
+  "elegivel__controle",
+  "elegivel__chave-ausente"
+ ],
+ "comparacaoControleXAusente": {
+  "elegivel": {
+   "htmlByteAByteIgual": true,
+   "sha256Controle": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325",
+   "sha256ChaveAusente": "5a664821f0b71ac63e159ea49af7fc175b37f44654ae927e3c37dbeab03bb325",
+   "bytes": 3415,
+   "oQueSeExibeIgual": true,
+   "estadoDeA27Igual": true
+  },
+  "suspensa-contradicao": {
+   "htmlByteAByteIgual": true,
+   "sha256Controle": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1",
+   "sha256ChaveAusente": "bc2a7848291e27defe7cb5a55d2f0f497e85354a846cdc3a382a842ac0e03ba1",
+   "bytes": 3559,
+   "oQueSeExibeIgual": true,
+   "estadoDeA27Igual": true
+  }
+ },
+ "respostaDireta": {
+  "redacaoDoAlcanceMedido": "nos quatro ensaios com texto fixado, a renderizacao do componente NAO DISTINGUE a presenca da ausencia do vinculo",
+  "base": "o HTML renderizado e byte a byte igual entre controle e chave ausente, nas duas classificacoes; os quatro ensaios tem A.27 aprovado; o portao do destaque esta aberto no ensaio elegivel",
+  "naoDemonstra": [
+   "o conteudo que um modelo geraria",
+   "o comportamento da pagina completa",
+   "o que outro texto fixado, outro estado da extracao ou outro estado de A.27 exibiria"
+  ],
+  "valeSe": true
+ },
+ "buscaPorMencaoAoVinculoNoComponente": {
+  "padrao": "v[ií]ncul (expressao regular, case-insensitive, Unicode; casa vinculo, vínculo, VÍNCULO, vinculado, vinculoDaExecucao)",
+  "ferramenta": "python3, modulo `re`, sobre o texto de `git show <base>:<arquivo>`",
+  "escopo": "components/ParecerAISection.tsx na base ad2ad0afdc1a972570d3733ccc582d65a719397a",
+  "resultado": {
+   "arquivo": "components/ParecerAISection.tsx",
+   "linhasComOPadrao": 0,
+   "ocorrencias": 0,
+   "primeirasLinhas": []
+  },
+  "controlesPositivos": [
+   {
+    "arquivo": "lib/ai-reviewer/vinculo-execucao.ts",
+    "linhasComOPadrao": 79,
+    "ocorrencias": 89,
+    "primeirasLinhas": [
+     1,
+     3,
+     6,
+     8,
+     17
+    ]
+   },
+   {
+    "arquivo": "app/decisor/resultados/[projectId]/page.tsx",
+    "linhasComOPadrao": 17,
+    "ocorrencias": 22,
+    "primeirasLinhas": [
+     44,
+     243,
+     1014,
+     1016,
+     1024
+    ]
+   }
+  ],
+  "leituraDoResultado": "SEM RESULTADO (nenhuma ocorrencia), e a busca acha onde ha: lib/ai-reviewer/vinculo-execucao.ts: 89, app/decisor/resultados/[projectId]/page.tsx: 22",
+  "observacaoDeMetodo": "uma primeira busca com `grep -E \"v[ií]nculo\"` no locale POSIX do ambiente (bytes, nao caracteres) nao casa a grafia acentuada: o \"sem resultado\" dela nao informava sobre \"vínculo\"; esta busca, com controles positivos que ACHAM, e a que vale"
+ },
+ "tipoDasPropriedadesDoComponente": {
+  "localizadorDaPrimeiraDeclaracaoEncontrada": 10,
+  "trecho": [
+   "interface ParecerAISectionProps {",
+   "  aiReview: {",
+   "    nota?: string | null;",
+   "    veredicto?: string | null;",
+   "    /**",
+   "     * A.12: sem avaliação de qualidade, a classificação global fica suspensa, e a",
+   "     * tela mostra o motivo no lugar da nota. ⚠ Os cálculos AHP-BOCR seguem",
+   "     * visíveis nas demais seções da página.",
+   "     */",
+   "    notaSuspensa?: { suspensa: boolean; rotulo: string; motivo: string } | null;",
+   "    /**",
+   "     * Aviso DIAGNÓSTICO da extração (nível principal da resposta): texto só quando a classificação NÃO está",
+   "     * suspensa e nenhum padrão de nota ou veredicto foi reconhecido no texto do parecer simulado; `null` nos",
+   "     * demais estados. ⚠ Pode coexistir com a quarentena de A.27, NÃO a substitui e NÃO autoriza o destaque.",
+   "     */",
+   "    mensagemDaExtracao?: string | null;",
+   "    review?: string;",
+   "    validation?: unknown;",
+   "    metadata?: {",
+   "      model?: string;",
+   "      knowledgeBase?: {",
+   "        refsUsed?: number;",
+   "        criticalRefs?: number;",
+   "        uniqueArticles?: number;"
+  ],
+  "tipoDeRegistro": "LEITURA"
+ }
+}

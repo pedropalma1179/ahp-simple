@@ -1,0 +1,86 @@
+{
+  "natureza": "identidade da execucao da sonda do caminho sem vinculoDaExecucao; os valores sao MEDIDOS nesta execucao, salvo onde dito",
+  "instanteDaMedicaoUTC": "2026-10-02T21:43:53.250Z",
+  "codigo": {
+    "commitDeBase": "ad2ad0afdc1a972570d3733ccc582d65a719397a",
+    "statusPorcelainAntesDaExecucao": "",
+    "sha256DosArquivosDeProducao": {
+      "app/api/ai-reviewer/route.ts": "cdfeff68e64bdfbd1bbdc93bb78149570da4c18bd7d451a332a8e217e11b6eab",
+      "lib/ai-reviewer/vinculo-execucao.ts": "2e336a659c55d1c3fdb41d4e88c634a11313779ff7e07a581911e78cb5babbc5",
+      "lib/ai-reviewer/avaliacao-qualidade.ts": "511ca1a0ca2cf42380e5c6f08ebf03d1ca6cccfc2fbf1eecf2f31e1ce19700a0",
+      "lib/ai-reviewer/review-validation-contract.ts": "bca8fdd47c3111d080569e0a94b55d00fc67640ed8e58bda7f703f04f7058ecd",
+      "lib/ai-reviewer/review-request.ts": "e51931aa741600c008af1e01af1f4cc369c51da6ac085c2aa3217fe8061240ee",
+      "components/ParecerAISection.tsx": "5082e5134bb0f370a255411b5845497ffb497c1b7b486c9f393cfd32772d457a",
+      "app/decisor/resultados/[projectId]/page.tsx": "02d28066f1cd6a098594e43fbeebe168fd8286bd2df911479f5e1e583867f65b"
+    },
+    "instrumento": {
+      "arquivoExecutado": "sonda-sem-vinculo.test.ts",
+      "sha256": "2b302fa89339af0f75671b129a0773ae77678482da69be86b9a046e86671b405"
+    }
+  },
+  "ambiente": {
+    "node": "v22.22.2",
+    "plataforma": "linux x64",
+    "npm": "10.9.7",
+    "versaoDosPacotesInstalados": {
+      "jest": "30.2.0",
+      "jest-cli": "30.2.0",
+      "@jest/core": "30.2.0",
+      "ts-jest": "29.4.6",
+      "react": "18.3.1",
+      "react-dom": "18.3.1",
+      "next": "14.2.35",
+      "@anthropic-ai/sdk": "0.95.1"
+    },
+    "jestVersionImpressaPeloCli": "30.1.3"
+  },
+  "modelo": {
+    "real": "NAO APLICAVEL: nenhum modelo foi chamado; o cliente de `@anthropic-ai/sdk` foi SIMULADO (jest.mock) e devolveu um erro sentinela (Fase A) ou o texto fixado (Fase B)",
+    "parametrosDaChamadaCapturados": {
+      "chaves": [
+        "model",
+        "max_tokens",
+        "thinking",
+        "system",
+        "messages"
+      ],
+      "model": "claude-opus-4-6",
+      "max_tokens": 16000,
+      "thinking": {
+        "type": "enabled",
+        "budget_tokens": 5000
+      },
+      "nMensagens": 1,
+      "papeis": [
+        "user"
+      ]
+    },
+    "parametrosNaoEnviados": "temperature, top_p e top_k: conferido na lista de chaves da chamada capturada (nao constam); seed: nao existe na chamada"
+  },
+  "dados": {
+    "natureza": "SINTETICOS: quatro respondentes (CR 0.05), documento de calculo sintetico, hashes derivados de etiquetas; a tela nao foi executada",
+    "idsDosRespondentes": [
+      "resp-1",
+      "resp-2",
+      "resp-3",
+      "resp-4"
+    ],
+    "textoFixadoDaFaseB": {
+      "sha256": "6693cde649eeafb8123d44de5c510eaf391de5bf34e2891cd18b02b0472dbf3a",
+      "caracteres": 356
+    }
+  },
+  "variaveisDeAmbiente": {
+    "ANTHROPIC_API_KEY": "chave falsa do processo de teste",
+    "USE_RAG_SEMANTIC": "removida (RAG semantico desligado)"
+  },
+  "rede": {
+    "chamadasDeFetchObservadas": 0,
+    "observacao": "fetch global substituido por funcao que lanca e conta; nenhuma chamada observada"
+  },
+  "ausenciasDeMetadadoDeclaradas": [
+    "temperatura, top_p, top_k e seed: nao se aplicam (nao enviados)",
+    "versao do modelo real: nao se aplica (cliente simulado)",
+    "nenhum registro de latencia, custo ou tokens: nao se aplica"
+  ]
+}

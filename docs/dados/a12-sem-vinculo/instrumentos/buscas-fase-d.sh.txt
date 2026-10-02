@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Roteiro das buscas da Fase D (alcancabilidade, por LEITURA com escopo declarado), sobre a arvore do commit-base. SO LE (git grep, git show, grep, wc).
+# Cada busca declara COMANDO e ESCOPO e imprime o codigo de saida, e distingue:
+#   saida 0   = com resultado;   saida 1 = SEM RESULTADO (a busca executou e nada achou: NAO e falha);   saida >= 2 (git grep) ou >= 128 (git) = FALHA do comando.
+# Uso, a partir da raiz do repositorio:  bash docs/dados/a12-sem-vinculo/instrumentos/buscas-fase-d.sh.txt > docs/dados/a12-sem-vinculo/fase-d/buscas.txt
+BASE=ad2ad0afdc1a972570d3733ccc582d65a719397a
+cd "$(git rev-parse --show-toplevel)" || exit 99
+git cat-file -e "$BASE^{commit}" || { echo "o commit-base nao esta no repositorio"; exit 98; }
+
+busca() {  # busca <rotulo> <descricao> <escopo> -- <args do git grep depois do commit>
+  local rotulo="$1" desc="$2" escopo="$3"; shift 4
+  echo; echo "## $rotulo. $desc"
+  echo "## escopo: $escopo"
+  echo "## comando: git grep -n $* (sobre $BASE)"
+  local saida; saida=$(git grep -n "$@" 2>&1); local ec=$?
+  if [ $ec -eq 0 ]; then echo "## saida do git grep: 0 (com resultado) | linhas: $(printf '%s\n' "$saida" | wc -l)"; printf '%s\n' "$saida" | sed "s/^$BASE://"
+  elif [ $ec -eq 1 ]; then echo "## saida do git grep: 1 (SEM RESULTADO: a busca executou e nada achou; NAO e falha) | linhas: 0"
+  else echo "## saida do git grep: $ec (FALHA DO COMANDO)"; printf '%s\n' "$saida"; fi
+}
+
+echo "# BUSCAS DA FASE D (alcancabilidade), sobre a arvore de $BASE (git grep; leitura, nao medicao)"
+
+busca D3a "o endpoint literal, em codigo de producao e scripts (app, components, lib exceto testes, scripts)" "app components lib scripts, sem lib/__tests__" \
+  -- -E 'api/ai-reviewer' "$BASE" -- app components lib scripts ':!lib/__tests__'
+# o `--` acima e so separador de leitura; o git grep recebe: -E padrao commit -- caminhos
+busca D3b "o endpoint literal, nos testes (lib/__tests__)" "lib/__tests__" \
+  -- -E 'api/ai-reviewer' "$BASE" -- lib/__tests__
+busca D3c "o endpoint literal, em QUALQUER outro caminho rastreado (documentos de topo, config, workflows)" "tudo menos app, components, lib, scripts, docs" \
+  -- -E 'api/ai-reviewer' "$BASE" -- . ':!app' ':!components' ':!lib' ':!scripts' ':!docs'
+busca D3d "quem IMPORTA o handler (especificador com ai-reviewer/route), em qualquer extensao de codigo" "*.ts *.tsx *.js *.cjs *.mjs, todo o repositorio rastreado" \
+  -- -E "from ['\"][^'\"]*ai-reviewer/route['\"]|require\(['\"][^'\"]*ai-reviewer/route['\"]\)" "$BASE" -- '*.ts' '*.tsx' '*.js' '*.cjs' '*.mjs'
+busca D3e "chamadas fetch com URL montada (fetch( seguido de crase ou variavel), que poderiam compor o endpoint sem o literal" "app components lib, sem lib/__tests__" \
+  -- -E 'fetch\(\s*(`|[A-Za-z_])' "$BASE" -- app components lib ':!lib/__tests__'
+busca D3f "a rota declara outros metodos alem de POST?" "app/api/ai-reviewer" \
+  -- -E 'export (async )?function (GET|PUT|PATCH|DELETE|POST)' "$BASE" -- app/api/ai-reviewer
+
+echo; echo "## D3g. nos 12 arquivos de teste que importam o handler (D3d), quantas vezes o texto do arquivo cita o identificador do campo"
+echo "## escopo: os 12 arquivos listados abaixo, na base. ⚠ Contagem de OCORRENCIAS do identificador no texto do arquivo (grep -o | wc -l) e de LINHAS (git grep -c): NAO e prova de que o payload do teste omite o campo (um auxiliar importado poderia traze-lo), e zero ocorrencias NAO e falha."
+for f in a12-coerencia a12-diagnostico a12-estatisticas-dimensao-consumidor-latente a12-estatisticas-dimensao a12-nota-veredicto-fase2 a12-qualidade-ausente a33-cadeia-rule a33-montagem-contexto a33-snapshot-v2 rag-diagnostico-regressao rag-semantic-states vinculo-execucao-fiacao; do
+  occ=$(git show "$BASE:lib/__tests__/$f.test.ts" | grep -o 'vinculoDaExecucao' | wc -l)
+  lin=$(git show "$BASE:lib/__tests__/$f.test.ts" | grep -c 'vinculoDaExecucao')
+  printf '  %-58s ocorrencias=%-3s linhas=%s\n' "lib/__tests__/$f.test.ts" "$occ" "$lin"
+done
+busca D3h "primitivas de chamada HTTP em scripts (fetch, axios, node-fetch, http(s).request, XMLHttpRequest, curl): um script poderia chamar a rota sem citar o literal" "scripts" \
+  -- -E 'fetch\(|axios|node-fetch|https?\.request|XMLHttpRequest|curl ' "$BASE" -- scripts
+busca D3i "primitivas de chamada HTTP alem de fetch (axios, node-fetch, http(s).request, XMLHttpRequest) em codigo de producao" "app components lib, sem lib/__tests__" \
+  -- -E 'axios|node-fetch|https?\.request|XMLHttpRequest' "$BASE" -- app components lib ':!lib/__tests__'
+echo; echo "## D3j-escopo. dos caminhos de configuracao pedidos abaixo, quais EXISTEM na base (a busca D3j nao acusa caminho inexistente)"
+git ls-tree -r --name-only "$BASE" -- .github package.json vercel.json next.config.js next.config.mjs
+busca D3j "o endpoint em workflows, package.json e configuracao de deploy" ".github package.json vercel.json next.config.js next.config.mjs (os que existem, acima)" \
+  -- -E 'ai-reviewer' "$BASE" -- .github package.json vercel.json next.config.js next.config.mjs
+
+echo; echo "## fim"

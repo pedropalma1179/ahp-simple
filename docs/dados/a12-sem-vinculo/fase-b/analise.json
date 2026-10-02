@@ -1,0 +1,751 @@
+{
+ "natureza": "ANALISE da Fase B (texto fixado, tratador concluindo): numeros MEDIDOS por este script sobre os corpos integrais gravados pela sonda.",
+ "base": "ad2ad0afdc1a972570d3733ccc582d65a719397a",
+ "limites": [
+  "o texto fixado e o MESMO nos quatro ensaios, e nenhum modelo foi chamado: nada aqui diz o que um modelo geraria",
+  "dos tres estados da extracao (padrao_reconhecido, nenhum_padrao_reconhecido, nao_executada_por_suspensao) so dois foram exercidos: padrao_reconhecido (nos dois ensaios nao suspensos) e nao_executada_por_suspensao (nos dois suspensos); nenhum_padrao_reconhecido NAO foi variado",
+  "uma so causa de suspensao foi exercida (contradicao interna, regra V5); as demais nao foram variadas",
+  "a condicao de exclusao ficou fixa (sem exclusao) nos quatro ensaios"
+ ],
+ "textoFixado": {
+  "sha256Utf8": "6693cde649eeafb8123d44de5c510eaf391de5bf34e2891cd18b02b0472dbf3a",
+  "sha256DeIdentidadeJson": "6693cde649eeafb8123d44de5c510eaf391de5bf34e2891cd18b02b0472dbf3a",
+  "confere": true,
+  "caracteresEmUnidadesUtf16": 356,
+  "caracteresDeIdentidadeJson": 356,
+  "pontosDeCodigo": 353,
+  "bytesUtf8": 372,
+  "observacao": "o JavaScript conta unidades UTF-16 (os tres emojis dos titulos valem 2 cada) e o Python conta pontos de codigo: 356 e 353 sao o mesmo texto",
+  "iguaisNosQuatroCorpos": true,
+  "texto": "## 📋 RESUMO EXECUTIVO\nTexto de ensaio do instrumento de medição, escrito apenas para ter extensão suficiente e nenhum termo de resultado.\n\n## 🔍 ANÁLISE\nParágrafo de preenchimento, sem números, sem referências e sem qualquer termo que o extrator reconheça.\n\n## 🎯 DECISÃO EDITORIAL\nREVISÕES MAIORES\n\nTexto final de ensaio, sem outros termos de resultado.\n"
+ },
+ "ensaios": [
+  {
+   "id": "elegivel__controle",
+   "classificacao": "elegivel",
+   "variante": "controle",
+   "corpo": {
+    "arquivo": "fase-b/corpos/corpo-elegivel__controle.json",
+    "sha256": "9572b32b26cebd08bec981661c87dec4fe5e68efdfefff4a1e27f4ada43b3a58",
+    "bytes": 1304,
+    "status": 200
+   },
+   "jsonEntregueContemAChave": true,
+   "nota": "C",
+   "veredicto": "REVISÕES MAIORES",
+   "estadoDaExtracao": "padrao_reconhecido",
+   "notaSuspensa": null,
+   "validacaoA27": {
+    "version": 1,
+    "estado": "aprovado",
+    "isValid": true,
+    "nIssues": 0,
+    "nWarnings": 0,
+    "nInconclusivos": 0
+   },
+   "avaliacaoDeQualidade": {
+    "estado": "disponivel",
+    "motivo": null,
+    "fonte": "declarada na requisição, com CR por respondente"
+   },
+   "timestamp": "2026-10-02T21:43:53.404Z"
+  },
+  {
+   "id": "elegivel__chave-ausente",
+   "classificacao": "elegivel",
+   "variante": "chave-ausente",
+   "corpo": {
+    "arquivo": "fase-b/corpos/corpo-elegivel__chave-ausente.json",
+    "sha256": "11f99f4c5224553d211e5b0dd86fefa81c08ccfffaceb2e32a1e01c27ba5f36c",
+    "bytes": 1304,
+    "status": 200
+   },
+   "jsonEntregueContemAChave": false,
+   "nota": "C",
+   "veredicto": "REVISÕES MAIORES",
+   "estadoDaExtracao": "padrao_reconhecido",
+   "notaSuspensa": null,
+   "validacaoA27": {
+    "version": 1,
+    "estado": "aprovado",
+    "isValid": true,
+    "nIssues": 0,
+    "nWarnings": 0,
+    "nInconclusivos": 0
+   },
+   "avaliacaoDeQualidade": {
+    "estado": "disponivel",
+    "motivo": null,
+    "fonte": "declarada na requisição, com CR por respondente"
+   },
+   "timestamp": "2026-10-02T21:43:53.413Z"
+  },
+  {
+   "id": "suspensa-contradicao__controle",
+   "classificacao": "suspensa-contradicao",
+   "variante": "controle",
+   "corpo": {
+    "arquivo": "fase-b/corpos/corpo-suspensa-contradicao__controle.json",
+    "sha256": "72cfab7f9768373a58818a35fdf4f464bea5b95cb0b26f73206ac28117086389",
+    "bytes": 1838,
+    "status": 200
+   },
+   "jsonEntregueContemAChave": true,
+   "nota": null,
+   "veredicto": null,
+   "estadoDaExtracao": "nao_executada_por_suspensao",
+   "notaSuspensa": {
+    "suspensa": true,
+    "causa": "contradicao",
+    "rotulo": "Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+    "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+   },
+   "validacaoA27": {
+    "version": 1,
+    "estado": "aprovado",
+    "isValid": true,
+    "nIssues": 0,
+    "nWarnings": 0,
+    "nInconclusivos": 0
+   },
+   "avaliacaoDeQualidade": {
+    "estado": "disponivel",
+    "motivo": null,
+    "fonte": "declarada na requisição, com CR por respondente"
+   },
+   "timestamp": "2026-10-02T21:43:53.419Z"
+  },
+  {
+   "id": "suspensa-contradicao__chave-ausente",
+   "classificacao": "suspensa-contradicao",
+   "variante": "chave-ausente",
+   "corpo": {
+    "arquivo": "fase-b/corpos/corpo-suspensa-contradicao__chave-ausente.json",
+    "sha256": "ba008bea91b55aa2dbab49cf903d3f1aee7e6c3697afbf4179e4d71c75c7f3c5",
+    "bytes": 1838,
+    "status": 200
+   },
+   "jsonEntregueContemAChave": false,
+   "nota": null,
+   "veredicto": null,
+   "estadoDaExtracao": "nao_executada_por_suspensao",
+   "notaSuspensa": {
+    "suspensa": true,
+    "causa": "contradicao",
+    "rotulo": "Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade",
+    "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados."
+   },
+   "validacaoA27": {
+    "version": 1,
+    "estado": "aprovado",
+    "isValid": true,
+    "nIssues": 0,
+    "nWarnings": 0,
+    "nInconclusivos": 0
+   },
+   "avaliacaoDeQualidade": {
+    "estado": "disponivel",
+    "motivo": null,
+    "fonte": "declarada na requisição, com CR por respondente"
+   },
+   "timestamp": "2026-10-02T21:43:53.424Z"
+  }
+ ],
+ "causaDaSuspensao": {
+  "causa": "contradicao",
+  "motivo": "Contradição interna não resolvida entre os dados da requisição: a classificação fica suspensa. V5: a particao de qualityAnalysis.summary soma 8 sobre total 4, com as chaves ok, suspicious, critical. Os dois valores e as suas fontes ficam conservados.",
+  "comoFoiProduzida": {
+   "diferencasDoPayloadElegivelParaOSuspenso": {
+    "controle": [
+     {
+      "caminho": "qualityAnalysis.summary.critical",
+      "a": 0,
+      "b": 4
+     }
+    ],
+    "chave-ausente": [
+     {
+      "caminho": "qualityAnalysis.summary.critical",
+      "a": 0,
+      "b": 4
+     }
+    ]
+   },
+   "iguaisNasDuasVariantes": true
+  }
+ },
+ "enumeracaoDeChaves": {
+  "chavesDeNivelPrincipalIguaisNosQuatro": true,
+  "chavesDeMetadataIguaisNosQuatro": true,
+  "chavesDeNivelPrincipal": [
+   "success",
+   "nota",
+   "veredicto",
+   "notaSuspensa",
+   "mensagemDaExtracao",
+   "review",
+   "validation",
+   "metadata"
+  ],
+  "chavesDeMetadata": [
+   "version",
+   "model",
+   "timestamp",
+   "estadoDaExtracao",
+   "avaliacaoDeQualidade",
+   "knowledgeBase",
+   "debug"
+  ],
+  "porEnsaio": {
+   "elegivel__controle": {
+    "chavesDeNivelPrincipal": [
+     "success",
+     "nota",
+     "veredicto",
+     "notaSuspensa",
+     "mensagemDaExtracao",
+     "review",
+     "validation",
+     "metadata"
+    ],
+    "chavesDeMetadata": [
+     "version",
+     "model",
+     "timestamp",
+     "estadoDaExtracao",
+     "avaliacaoDeQualidade",
+     "knowledgeBase",
+     "debug"
+    ],
+    "totalDeCaminhosDeChave": 53,
+    "caminhosComRadicalDoVinculoNoNome": [],
+    "valoresDeTextoComRadicalDoVinculo": [],
+    "totalDeValoresDeTexto": 10
+   },
+   "elegivel__chave-ausente": {
+    "chavesDeNivelPrincipal": [
+     "success",
+     "nota",
+     "veredicto",
+     "notaSuspensa",
+     "mensagemDaExtracao",
+     "review",
+     "validation",
+     "metadata"
+    ],
+    "chavesDeMetadata": [
+     "version",
+     "model",
+     "timestamp",
+     "estadoDaExtracao",
+     "avaliacaoDeQualidade",
+     "knowledgeBase",
+     "debug"
+    ],
+    "totalDeCaminhosDeChave": 53,
+    "caminhosComRadicalDoVinculoNoNome": [],
+    "valoresDeTextoComRadicalDoVinculo": [],
+    "totalDeValoresDeTexto": 10
+   },
+   "suspensa-contradicao__controle": {
+    "chavesDeNivelPrincipal": [
+     "success",
+     "nota",
+     "veredicto",
+     "notaSuspensa",
+     "mensagemDaExtracao",
+     "review",
+     "validation",
+     "metadata"
+    ],
+    "chavesDeMetadata": [
+     "version",
+     "model",
+     "timestamp",
+     "estadoDaExtracao",
+     "avaliacaoDeQualidade",
+     "knowledgeBase",
+     "debug"
+    ],
+    "totalDeCaminhosDeChave": 61,
+    "caminhosComRadicalDoVinculoNoNome": [],
+    "valoresDeTextoComRadicalDoVinculo": [],
+    "totalDeValoresDeTexto": 13
+   },
+   "suspensa-contradicao__chave-ausente": {
+    "chavesDeNivelPrincipal": [
+     "success",
+     "nota",
+     "veredicto",
+     "notaSuspensa",
+     "mensagemDaExtracao",
+     "review",
+     "validation",
+     "metadata"
+    ],
+    "chavesDeMetadata": [
+     "version",
+     "model",
+     "timestamp",
+     "estadoDaExtracao",
+     "avaliacaoDeQualidade",
+     "knowledgeBase",
+     "debug"
+    ],
+    "totalDeCaminhosDeChave": 61,
+    "caminhosComRadicalDoVinculoNoNome": [],
+    "valoresDeTextoComRadicalDoVinculo": [],
+    "totalDeValoresDeTexto": 13
+   }
+  },
+  "caminhosDeChavePorEnsaio": {
+   "elegivel__controle": [
+    "success",
+    "nota",
+    "veredicto",
+    "notaSuspensa",
+    "mensagemDaExtracao",
+    "review",
+    "validation",
+    "validation.version",
+    "validation.isValid",
+    "validation.issues",
+    "validation.issues[]",
+    "validation.warnings",
+    "validation.warnings[]",
+    "validation.estado",
+    "validation.inconclusivos",
+    "validation.inconclusivos[]",
+    "metadata",
+    "metadata.version",
+    "metadata.model",
+    "metadata.timestamp",
+    "metadata.estadoDaExtracao",
+    "metadata.avaliacaoDeQualidade",
+    "metadata.avaliacaoDeQualidade.estado",
+    "metadata.avaliacaoDeQualidade.motivo",
+    "metadata.avaliacaoDeQualidade.fonte",
+    "metadata.knowledgeBase",
+    "metadata.knowledgeBase.refsUsed",
+    "metadata.knowledgeBase.criticalRefs",
+    "metadata.knowledgeBase.uniqueArticles",
+    "metadata.knowledgeBase.semantic",
+    "metadata.knowledgeBase.semantic.contractVersion",
+    "metadata.knowledgeBase.semantic.enabled",
+    "metadata.knowledgeBase.semantic.queriesRan",
+    "metadata.knowledgeBase.semantic.withResults",
+    "metadata.knowledgeBase.semantic.emptyOk",
+    "metadata.knowledgeBase.semantic.errored",
+    "metadata.knowledgeBase.semantic.rawChunks",
+    "metadata.knowledgeBase.semantic.uniqueChunks",
+    "metadata.knowledgeBase.semantic.finalChunks",
+    "metadata.knowledgeBase.semantic.uniqueArticles",
+    "metadata.knowledgeBase.semantic.topScore",
+    "metadata.knowledgeBase.semantic.failedQueries",
+    "metadata.knowledgeBase.semantic.httpAttempts",
+    "metadata.knowledgeBase.semantic.queries",
+    "metadata.knowledgeBase.semantic.queries[]",
+    "metadata.debug",
+    "metadata.debug.sensitivityInflections",
+    "metadata.debug.sensitivityInflections{}",
+    "metadata.debug.hasSensitivity",
+    "metadata.debug.demographicsSummary",
+    "metadata.debug.demographicsSummary.total",
+    "metadata.debug.demographicsSummary.hasData",
+    "metadata.debug.hasDemographics"
+   ],
+   "elegivel__chave-ausente": [
+    "success",
+    "nota",
+    "veredicto",
+    "notaSuspensa",
+    "mensagemDaExtracao",
+    "review",
+    "validation",
+    "validation.version",
+    "validation.isValid",
+    "validation.issues",
+    "validation.issues[]",
+    "validation.warnings",
+    "validation.warnings[]",
+    "validation.estado",
+    "validation.inconclusivos",
+    "validation.inconclusivos[]",
+    "metadata",
+    "metadata.version",
+    "metadata.model",
+    "metadata.timestamp",
+    "metadata.estadoDaExtracao",
+    "metadata.avaliacaoDeQualidade",
+    "metadata.avaliacaoDeQualidade.estado",
+    "metadata.avaliacaoDeQualidade.motivo",
+    "metadata.avaliacaoDeQualidade.fonte",
+    "metadata.knowledgeBase",
+    "metadata.knowledgeBase.refsUsed",
+    "metadata.knowledgeBase.criticalRefs",
+    "metadata.knowledgeBase.uniqueArticles",
+    "metadata.knowledgeBase.semantic",
+    "metadata.knowledgeBase.semantic.contractVersion",
+    "metadata.knowledgeBase.semantic.enabled",
+    "metadata.knowledgeBase.semantic.queriesRan",
+    "metadata.knowledgeBase.semantic.withResults",
+    "metadata.knowledgeBase.semantic.emptyOk",
+    "metadata.knowledgeBase.semantic.errored",
+    "metadata.knowledgeBase.semantic.rawChunks",
+    "metadata.knowledgeBase.semantic.uniqueChunks",
+    "metadata.knowledgeBase.semantic.finalChunks",
+    "metadata.knowledgeBase.semantic.uniqueArticles",
+    "metadata.knowledgeBase.semantic.topScore",
+    "metadata.knowledgeBase.semantic.failedQueries",
+    "metadata.knowledgeBase.semantic.httpAttempts",
+    "metadata.knowledgeBase.semantic.queries",
+    "metadata.knowledgeBase.semantic.queries[]",
+    "metadata.debug",
+    "metadata.debug.sensitivityInflections",
+    "metadata.debug.sensitivityInflections{}",
+    "metadata.debug.hasSensitivity",
+    "metadata.debug.demographicsSummary",
+    "metadata.debug.demographicsSummary.total",
+    "metadata.debug.demographicsSummary.hasData",
+    "metadata.debug.hasDemographics"
+   ],
+   "suspensa-contradicao__controle": [
+    "success",
+    "nota",
+    "veredicto",
+    "notaSuspensa",
+    "notaSuspensa.suspensa",
+    "notaSuspensa.causa",
+    "notaSuspensa.rotulo",
+    "notaSuspensa.motivo",
+    "notaSuspensa.avaliacaoDeQualidade",
+    "notaSuspensa.avaliacaoDeQualidade.estado",
+    "notaSuspensa.avaliacaoDeQualidade.motivo",
+    "notaSuspensa.avaliacaoDeQualidade.fonte",
+    "mensagemDaExtracao",
+    "review",
+    "validation",
+    "validation.version",
+    "validation.isValid",
+    "validation.issues",
+    "validation.issues[]",
+    "validation.warnings",
+    "validation.warnings[]",
+    "validation.estado",
+    "validation.inconclusivos",
+    "validation.inconclusivos[]",
+    "metadata",
+    "metadata.version",
+    "metadata.model",
+    "metadata.timestamp",
+    "metadata.estadoDaExtracao",
+    "metadata.avaliacaoDeQualidade",
+    "metadata.avaliacaoDeQualidade.estado",
+    "metadata.avaliacaoDeQualidade.motivo",
+    "metadata.avaliacaoDeQualidade.fonte",
+    "metadata.knowledgeBase",
+    "metadata.knowledgeBase.refsUsed",
+    "metadata.knowledgeBase.criticalRefs",
+    "metadata.knowledgeBase.uniqueArticles",
+    "metadata.knowledgeBase.semantic",
+    "metadata.knowledgeBase.semantic.contractVersion",
+    "metadata.knowledgeBase.semantic.enabled",
+    "metadata.knowledgeBase.semantic.queriesRan",
+    "metadata.knowledgeBase.semantic.withResults",
+    "metadata.knowledgeBase.semantic.emptyOk",
+    "metadata.knowledgeBase.semantic.errored",
+    "metadata.knowledgeBase.semantic.rawChunks",
+    "metadata.knowledgeBase.semantic.uniqueChunks",
+    "metadata.knowledgeBase.semantic.finalChunks",
+    "metadata.knowledgeBase.semantic.uniqueArticles",
+    "metadata.knowledgeBase.semantic.topScore",
+    "metadata.knowledgeBase.semantic.failedQueries",
+    "metadata.knowledgeBase.semantic.httpAttempts",
+    "metadata.knowledgeBase.semantic.queries",
+    "metadata.knowledgeBase.semantic.queries[]",
+    "metadata.debug",
+    "metadata.debug.sensitivityInflections",
+    "metadata.debug.sensitivityInflections{}",
+    "metadata.debug.hasSensitivity",
+    "metadata.debug.demographicsSummary",
+    "metadata.debug.demographicsSummary.total",
+    "metadata.debug.demographicsSummary.hasData",
+    "metadata.debug.hasDemographics"
+   ],
+   "suspensa-contradicao__chave-ausente": [
+    "success",
+    "nota",
+    "veredicto",
+    "notaSuspensa",
+    "notaSuspensa.suspensa",
+    "notaSuspensa.causa",
+    "notaSuspensa.rotulo",
+    "notaSuspensa.motivo",
+    "notaSuspensa.avaliacaoDeQualidade",
+    "notaSuspensa.avaliacaoDeQualidade.estado",
+    "notaSuspensa.avaliacaoDeQualidade.motivo",
+    "notaSuspensa.avaliacaoDeQualidade.fonte",
+    "mensagemDaExtracao",
+    "review",
+    "validation",
+    "validation.version",
+    "validation.isValid",
+    "validation.issues",
+    "validation.issues[]",
+    "validation.warnings",
+    "validation.warnings[]",
+    "validation.estado",
+    "validation.inconclusivos",
+    "validation.inconclusivos[]",
+    "metadata",
+    "metadata.version",
+    "metadata.model",
+    "metadata.timestamp",
+    "metadata.estadoDaExtracao",
+    "metadata.avaliacaoDeQualidade",
+    "metadata.avaliacaoDeQualidade.estado",
+    "metadata.avaliacaoDeQualidade.motivo",
+    "metadata.avaliacaoDeQualidade.fonte",
+    "metadata.knowledgeBase",
+    "metadata.knowledgeBase.refsUsed",
+    "metadata.knowledgeBase.criticalRefs",
+    "metadata.knowledgeBase.uniqueArticles",
+    "metadata.knowledgeBase.semantic",
+    "metadata.knowledgeBase.semantic.contractVersion",
+    "metadata.knowledgeBase.semantic.enabled",
+    "metadata.knowledgeBase.semantic.queriesRan",
+    "metadata.knowledgeBase.semantic.withResults",
+    "metadata.knowledgeBase.semantic.emptyOk",
+    "metadata.knowledgeBase.semantic.errored",
+    "metadata.knowledgeBase.semantic.rawChunks",
+    "metadata.knowledgeBase.semantic.uniqueChunks",
+    "metadata.knowledgeBase.semantic.finalChunks",
+    "metadata.knowledgeBase.semantic.uniqueArticles",
+    "metadata.knowledgeBase.semantic.topScore",
+    "metadata.knowledgeBase.semantic.failedQueries",
+    "metadata.knowledgeBase.semantic.httpAttempts",
+    "metadata.knowledgeBase.semantic.queries",
+    "metadata.knowledgeBase.semantic.queries[]",
+    "metadata.debug",
+    "metadata.debug.sensitivityInflections",
+    "metadata.debug.sensitivityInflections{}",
+    "metadata.debug.hasSensitivity",
+    "metadata.debug.demographicsSummary",
+    "metadata.debug.demographicsSummary.total",
+    "metadata.debug.demographicsSummary.hasData",
+    "metadata.debug.hasDemographics"
+   ]
+  }
+ },
+ "perguntaDireta": {
+  "pergunta": "existe algum campo do corpo que diga o estado do vinculo, ou que diga que o vinculo veio ausente?",
+  "tecnica": "ENUMERACAO: os caminhos de chave dos quatro corpos (nivel principal e `metadata`), buscando o radical \"vincul\" no nome de cada caminho e no valor de cada texto, mais a comparacao campo a campo entre controle e ausente (abaixo)",
+  "resposta": "NAO. Nos quatro corpos, zero caminhos de chave e zero valores de texto contem o radical do vinculo, e nenhum campo tem valor diferente entre controle e chave ausente alem de metadata.timestamp.",
+  "caminhosComRadicalNoNome": 0,
+  "valoresComRadical": 0,
+  "camposMaisProximosDoAssunto": {
+   "elegivel__controle": {
+    "metadata.avaliacaoDeQualidade": {
+     "estado": "disponivel",
+     "motivo": null,
+     "fonte": "declarada na requisição, com CR por respondente"
+    },
+    "metadata.estadoDaExtracao": "padrao_reconhecido"
+   },
+   "elegivel__chave-ausente": {
+    "metadata.avaliacaoDeQualidade": {
+     "estado": "disponivel",
+     "motivo": null,
+     "fonte": "declarada na requisição, com CR por respondente"
+    },
+    "metadata.estadoDaExtracao": "padrao_reconhecido"
+   },
+   "suspensa-contradicao__controle": {
+    "metadata.avaliacaoDeQualidade": {
+     "estado": "disponivel",
+     "motivo": null,
+     "fonte": "declarada na requisição, com CR por respondente"
+    },
+    "metadata.estadoDaExtracao": "nao_executada_por_suspensao"
+   },
+   "suspensa-contradicao__chave-ausente": {
+    "metadata.avaliacaoDeQualidade": {
+     "estado": "disponivel",
+     "motivo": null,
+     "fonte": "declarada na requisição, com CR por respondente"
+    },
+    "metadata.estadoDaExtracao": "nao_executada_por_suspensao"
+   }
+  },
+  "limite": "a resposta vale para estes quatro corpos, com o texto fixado e a extracao em dois dos tres estados; nao diz o que um corpo traria em outro estado da extracao"
+ },
+ "comparacaoControleXAusente": {
+  "elegivel": {
+   "diffBruto": {
+    "corposByteAByteIdenticos": false,
+    "sha256": {
+     "controle": "9572b32b26cebd08bec981661c87dec4fe5e68efdfefff4a1e27f4ada43b3a58",
+     "chaveAusente": "11f99f4c5224553d211e5b0dd86fefa81c08ccfffaceb2e32a1e01c27ba5f36c"
+    },
+    "bytes": {
+     "controle": 1304,
+     "chaveAusente": 1304
+    },
+    "posicoesQueDiferem": [
+     {
+      "posicaoBase1": 697,
+      "controle": "0",
+      "chaveAusente": "1"
+     },
+     {
+      "posicaoBase1": 698,
+      "controle": "4",
+      "chaveAusente": "3"
+     }
+    ],
+    "numeroDePosicoesQueDiferem": 2,
+    "valorDoTimestampNoControle": "\"timestamp\":\"2026-10-02T21:43:53.404Z\"",
+    "valorDoTimestampNaChaveAusente": "\"timestamp\":\"2026-10-02T21:43:53.413Z\"",
+    "intervaloDoValorDoTimestampNoCorpo": {
+     "inicioBase1": 676,
+     "fimBase1": 699
+    },
+    "todasAsPosicoesQueDiferemEstaoDentroDoValorDoTimestamp": true,
+    "comando_equivalente": "cmp -l <corpo do controle> <corpo da chave ausente>"
+   },
+   "projecaoSemOTimestamp": {
+    "campoExcluido": "metadata.timestamp (route.ts:1512, `new Date().toISOString()`), E MAIS NENHUM OUTRO",
+    "projecaoTextual": {
+     "tecnica": "troca do valor do unico \"timestamp\" do corpo por um marcador fixo, sem reserializar",
+     "igual": true,
+     "sha256": {
+      "controle": "94c6f5f73d3f814152b8cea87192e990a1341388ce732c4f59778a1981e7a0f7",
+      "chaveAusente": "94c6f5f73d3f814152b8cea87192e990a1341388ce732c4f59778a1981e7a0f7"
+     }
+    },
+    "projecaoDeJson": {
+     "tecnica": "JSON analisado, `metadata.timestamp` removido, comparacao dos objetos",
+     "igual": true,
+     "diferencasCampoACampo": []
+    }
+   },
+   "diferencasQueRestamAposAProjecao": []
+  },
+  "suspensa-contradicao": {
+   "diffBruto": {
+    "corposByteAByteIdenticos": false,
+    "sha256": {
+     "controle": "72cfab7f9768373a58818a35fdf4f464bea5b95cb0b26f73206ac28117086389",
+     "chaveAusente": "ba008bea91b55aa2dbab49cf903d3f1aee7e6c3697afbf4179e4d71c75c7f3c5"
+    },
+    "bytes": {
+     "controle": 1838,
+     "chaveAusente": 1838
+    },
+    "posicoesQueDiferem": [
+     {
+      "posicaoBase1": 1222,
+      "controle": "1",
+      "chaveAusente": "2"
+     },
+     {
+      "posicaoBase1": 1223,
+      "controle": "9",
+      "chaveAusente": "4"
+     }
+    ],
+    "numeroDePosicoesQueDiferem": 2,
+    "valorDoTimestampNoControle": "\"timestamp\":\"2026-10-02T21:43:53.419Z\"",
+    "valorDoTimestampNaChaveAusente": "\"timestamp\":\"2026-10-02T21:43:53.424Z\"",
+    "intervaloDoValorDoTimestampNoCorpo": {
+     "inicioBase1": 1201,
+     "fimBase1": 1224
+    },
+    "todasAsPosicoesQueDiferemEstaoDentroDoValorDoTimestamp": true,
+    "comando_equivalente": "cmp -l <corpo do controle> <corpo da chave ausente>"
+   },
+   "projecaoSemOTimestamp": {
+    "campoExcluido": "metadata.timestamp (route.ts:1512, `new Date().toISOString()`), E MAIS NENHUM OUTRO",
+    "projecaoTextual": {
+     "tecnica": "troca do valor do unico \"timestamp\" do corpo por um marcador fixo, sem reserializar",
+     "igual": true,
+     "sha256": {
+      "controle": "1c028886e2d743e4d313806a2b08f939408ccaf7368dc46ebe0c1c1353be1b42",
+      "chaveAusente": "1c028886e2d743e4d313806a2b08f939408ccaf7368dc46ebe0c1c1353be1b42"
+     }
+    },
+    "projecaoDeJson": {
+     "tecnica": "JSON analisado, `metadata.timestamp` removido, comparacao dos objetos",
+     "igual": true,
+     "diferencasCampoACampo": []
+    }
+   },
+   "diferencasQueRestamAposAProjecao": []
+  }
+ },
+ "interacaoComASuspensao": {
+  "pergunta": "a ausencia do campo interage com a suspensao, ou os dois eixos sao independentes?",
+  "noCorpo": {
+   "efeitoDaSuspensaoNoCorpoProjetado": {
+    "controle": [
+     "metadata.estadoDaExtracao",
+     "nota",
+     "notaSuspensa",
+     "notaSuspensa.avaliacaoDeQualidade.estado",
+     "notaSuspensa.avaliacaoDeQualidade.fonte",
+     "notaSuspensa.avaliacaoDeQualidade.motivo",
+     "notaSuspensa.causa",
+     "notaSuspensa.motivo",
+     "notaSuspensa.rotulo",
+     "notaSuspensa.suspensa",
+     "veredicto"
+    ],
+    "chave-ausente": [
+     "metadata.estadoDaExtracao",
+     "nota",
+     "notaSuspensa",
+     "notaSuspensa.avaliacaoDeQualidade.estado",
+     "notaSuspensa.avaliacaoDeQualidade.fonte",
+     "notaSuspensa.avaliacaoDeQualidade.motivo",
+     "notaSuspensa.causa",
+     "notaSuspensa.motivo",
+     "notaSuspensa.rotulo",
+     "notaSuspensa.suspensa",
+     "veredicto"
+    ]
+   },
+   "osDoisEfeitosSaoIguais": true,
+   "efeitoDaAusenciaNoCorpoProjetadoDentroDeCadaClasse": {
+    "elegivel": [],
+    "suspensa-contradicao": []
+   },
+   "projecaoExcluiSomente": "metadata.timestamp"
+  },
+  "noContexto": {
+   "contextosElegiveisDaFaseBSaoOsDaFaseASemExclusao": {
+    "elegivel__controle": true,
+    "elegivel__chave-ausente": true
+   },
+   "efeitoDaSuspensaoSoNoSuspenso_linhasAcrescentadas": {
+    "controle": 8,
+    "chave-ausente": 8
+   },
+   "efeitoDaSuspensaoSoNoElegivel_linhasRetiradas": {
+    "controle": 9,
+    "chave-ausente": 9
+   },
+   "oEfeitoDaSuspensaoNoContextoETaoIgualNasDuasVariantes": true,
+   "efeitoDaAusenciaDentroDaClasseElegivel_linhasSoNoAusente_e_soNoControle": [
+    5,
+    32
+   ],
+   "efeitoDaAusenciaDentroDaClasseSuspensa_linhasSoNoAusente_e_soNoControle": [
+    5,
+    32
+   ],
+   "oEfeitoDaAusenciaNoContextoEIgualNasDuasClasses": true
+  },
+  "leitura": "nos quatro ensaios, os dois eixos sao independentes: o efeito da suspensao e o mesmo conjunto de campos (corpo projetado) e de linhas (contexto) com e sem o campo, e o efeito da ausencia e o mesmo conjunto de linhas de contexto com e sem suspensao; o corpo, nas duas classes, so difere entre controle e ausente em metadata.timestamp"
+ },
+ "conclusaoDaIndependencia": true
+}

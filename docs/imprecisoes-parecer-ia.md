@@ -15928,6 +15928,339 @@ entre as fases. **Não** torna a leitura das três refs e o push uma operação 
 ⚠ **O defeito corrigido é do prompt**, que exigia leitura "imediatamente antes do push" sem dar
 como demonstrá-la.
 
+## Diagnóstico: o caminho sem `vinculoDaExecucao`, rodada só de medição, em 02/10/2026
+
+⚠ **Acréscimo datado, por inserção pura**, sobre a base `ad2ad0afdc1a972570d3733ccc582d65a719397a`. Nenhuma linha publicada foi editada, nenhum número de
+medição anterior foi alterado, e há **zero byte de produção e zero byte de teste**. ⚠ **A rodada só mede e lê:** não corrige o caminho sem o campo, não
+decide o comportamento esperado para ele e não propõe redação. Dados, instrumento e instruções de execução estão em `docs/dados/a12-sem-vinculo/`, e o
+`LEIA-ME.md` de lá descreve cada arquivo.
+
+⚠ **Não há predição, e isso aplica a regra, em vez de dispensá-la.** Predição só cabe onde a correção altera o que o modelo recebe, e nesta rodada nada do
+que o modelo recebe mudou: o código medido é o de `ad2ad0a` (o `sha256` dos sete arquivos de produção que a sonda leu confere com o blob da base). Uma
+correção futura que altere o contexto exigirá predição datada **antes**, com o caso negativo nomeado, e as oito capturas desta rodada são a linha de base de
+contextos para ela.
+
+⚠ **As cinco hipóteses de leitura do pedido não eram critério de aceite.** O resultado de cada uma está na tabela abaixo: nenhuma foi refutada, e duas (H1 e H5)
+receberam qualificação.
+
+**Procedência.** Cada informação traz a sua origem: **medida** (produzida nesta rodada pelo tratador real da rota ou pelo componente real), **derivada**
+(calculada pelo analisador `instrumentos/analisar-fases.py` sobre os artefatos medidos, depois de conferir cada arquivo contra o `sha256` e os bytes que a
+sonda registrou), **lida** (leitura de código ou busca sobre a árvore de `ad2ad0a`) ou **recebida** (do pedido). ⚠ **Classificar uma frase como "afirma
+exaustividade" é leitura, e não medição.** Onde duas fontes se contradizem, os dois valores e a fonte de cada um ficam conservados.
+
+| # | Hipótese de leitura (pedido) | Resultado | Procedência |
+|---|---|---|---|
+| H1 | A ausência torna `comVinculo` falso, e isso comuta **dois** sítios de redação, além de suprimir o bloco inteiro | **Confirmada, com qualificação de condição.** Os dois sítios (`route.ts:859-866`, as linhas da exclusão, e `:928-938`, as frases da lista) e o bloco (`:973-974`) comutam. ⚠ Mas o sítio da exclusão só é emitido quando `excludedCount > 0` (`:857`): **sem exclusão só o sítio da lista aparece no diff** (5 linhas só no caso ausente), e com exclusão aparecem os dois (9) | medida (Fase A) e lida (código) |
+| H2 | No caso ausente o contexto afirma exaustividade, completude e totalidade, sem qualificação | **Confirmada**, nas duas condições de exclusão e nas três variantes ausentes: o contexto traz `lista EXAUSTIVA`, `COMPLETA — não existem outros`, `TOTALIDADE das comparações pareadas`, `N = 4 em TODAS as matrizes agregadas`, `NÃO existe divisão` e a regra de menção sem qualificação (`route.ts:931`, `:932`, `:934`, `:935`, `:937`). ⚠ **A redação do caso ausente, como medida, afirma**: o comentário de `:848` ("mantém a redação anterior, byte a byte") descreve a origem do texto e não o torna neutro. ⚠ Que esse texto seja, de fato, byte a byte o de antes do estágio **não foi verificado** (exigiria reexecutar o código anterior, o que a rodada não faz) | medida (texto) e lida (classificação) |
+| H3 | A resposta não carrega nada sobre o vínculo, nem sobre a sua ausência | **Confirmada** nos quatro corpos: 0 dos 53 (elegível) ou 61 (suspensa) caminhos de chave e 0 dos 10 ou 13 valores de texto contêm o radical do vínculo, e nenhum campo difere entre controle e ausente além de `metadata.timestamp` | medida (enumeração), derivada |
+| H4 | O componente de apresentação não tem noção do vínculo | **Confirmada:** 0 ocorrências do radical em `ParecerAISection.tsx` (a mesma busca acha 89 e 22 ocorrências nos dois controles positivos), o tipo das propriedades não declara o campo, e a renderização é a mesma com e sem vínculo (Fase C) | lida (busca e tipo) e medida (renderização) |
+| H5 | A tela atual sempre envia o campo, e é o único chamador da rota na árvore | **Confirmada no sentido HTTP, com refinamento.** A tela sempre envia o campo (D1 e D2) e é o único `fetch` ao endpoint em código de produção e scripts. ⚠ **Mas a árvore tem outros executores do handler: 12 arquivos de teste o chamam diretamente (13 `require`), e 8 deles não citam o identificador `vinculoDaExecucao` no próprio texto.** Isso não prova que o payload desses testes omita o campo (um auxiliar importado poderia trazê-lo) | lida (código e buscas) |
+
+**Identidade da execução** (`identidade.json`; cada item com origem, disponibilidade e coerência).
+
+| Item | Valor | Origem · disponibilidade · coerência |
+|---|---|---|
+| Código medido | base `ad2ad0a`; o `sha256` dos sete arquivos de produção que a sonda leu (`route.ts`, `vinculo-execucao.ts`, `avaliacao-qualidade.ts`, `review-validation-contract.ts`, `review-request.ts`, `ParecerAISection.tsx`, `page.tsx`) é o do blob da base | medida e derivada · disponível · consistente |
+| Instrumento | `sonda-sem-vinculo.test.ts.txt`, `sha256` `2b302fa89339…`, igual ao do arquivo executado | medida · disponível · consistente |
+| Ambiente | Linux x64, Node v22.22.2, npm 10.9.7; ts-jest 29.4.6, React 18.3.1, next 14.2.35, `@anthropic-ai/sdk` 0.95.1 (versões instaladas) | medida · disponível · consistente |
+| Versão do jest | os `package.json` de `jest`, `jest-cli` e `@jest/core` instalados dizem **30.2.0**; `node_modules/.bin/jest --version` imprime **30.1.3** | medida · disponível · **contraditória**: os dois valores e as duas fontes ficam conservados, e a causa não foi apurada |
+| Modelo | **não aplicável**: o cliente de `@anthropic-ai/sdk` foi **simulado** (`jest.mock`) e nenhum modelo foi chamado. A chamada capturada tem as chaves `model`, `max_tokens`, `thinking`, `system` e `messages`, com `max_tokens` 16000 e `thinking` com orçamento de 5000 | medida · disponível · consistente |
+| Parâmetros | `temperature`, `top_p` e `top_k` **não são enviados** (conferido na lista de chaves da chamada capturada); `seed` não existe na chamada. Latência, custo e tokens: não se aplicam | medida · não aplicável |
+| Dados | **sintéticos**: quatro respondentes (CR 0,05), documento de cálculo sintético, resumos derivados de etiquetas; a tela não foi executada. O título sintético do projeto traz a palavra `vinculo` (linha 4 dos 12 contextos gravados, conferido) | construída pela sonda · disponível |
+| Rede | `fetch` global substituído por função que lança e conta: **0 chamadas**; chave de API falsa; `USE_RAG_SEMANTIC` removida (RAG semântico desligado: `semantic.enabled` é `false` no corpo) | medida · disponível · consistente |
+
+### Fase A: o contexto, por captura interrompida
+
+⚠ **Técnica: captura interrompida, pelo tratador real.** O cliente do modelo é simulado: registra o contexto e lança um erro sentinela **antes** da geração, e o
+`POST` responde 500 (esperado, nas oito). A montagem do contexto não é reproduzida em cópia local. ⚠ **Isto mede o contexto, e só ele:** não mede resposta nem
+apresentação. **Oito capturas**, quatro variantes do campo por duas condições de exclusão (sem exclusão: `exclusionInfo` ausente; com exclusão: `excludedCount`
+2, `totalCollected` 6), com tudo o mais idêntico em cada par: o JSON entregue do controle, sem a chave do vínculo, é igual ao da chave ausente nas duas condições
+(conferido). O controle é o vínculo real, construído por `prepararVinculoDaTela`.
+
+**O transporte, que precede qualquer conclusão sobre as variantes (medido).** Cada captura serializa o payload com `JSON.stringify` (como `page.tsx:1353`), faz
+do **texto** o corpo de um `Request` real e chama o `POST` real, que lê `await request.json()` (`route.ts:1414`). ⚠ **O instrumento não usa simulado de
+`request.json()` que devolva o objeto JavaScript**, de modo que a omissão da propriedade `undefined` **não foi contornada**: a equivalência de `undefined` com a
+chave ausente foi **exercitada no transporte**, e não declarada (no instrumento arquivado: `JSON.stringify` na linha 255, `Request` na 256, texto lido na
+261 e `POST` na 262). O objeto preparado e o JSON entregue, **por execução**, estão em `fase-a/objetos-preparados/` e `fase-a/jsons-entregues/`.
+
+| Captura | `vinculoDaExecucao` no objeto preparado | No JSON entregue ao tratador | JSON entregue: bytes e `sha256` | Contexto: bytes e `sha256` |
+|---|---|---|---|---|
+| `sem-exclusao__controle` | presente (objeto, estado `vinculado`) | presente (objeto) | 4050 · `1c3f6a856c74…` | 74823 · `b1a7f44be1a1…` |
+| `sem-exclusao__chave-ausente` | ausente | ausente | 1948 · `a26492908bf0…` | 70094 · `eee039f0bb84…` |
+| `sem-exclusao__undefined-explicito` | presente, valor `undefined` | **ausente** (omitida pelo `JSON.stringify`) | 1948 · `a26492908bf0…` | 70094 · `eee039f0bb84…` |
+| `sem-exclusao__null` | presente, valor `null` | `"vinculoDaExecucao":null` | 1973 · `ebd4f8544c44…` | 70094 · `eee039f0bb84…` |
+| `com-exclusao__controle` | presente (objeto, estado `vinculado`) | presente (objeto) | 4184 · `2c3f1744db29…` | 76120 · `35df97281bf4…` |
+| `com-exclusao__chave-ausente` | ausente | ausente | 2082 · `09f397fdc940…` | 70995 · `4b09690aaa05…` |
+| `com-exclusao__undefined-explicito` | presente, valor `undefined` | **ausente** (omitida pelo `JSON.stringify`) | 2082 · `09f397fdc940…` | 70995 · `4b09690aaa05…` |
+| `com-exclusao__null` | presente, valor `null` | `"vinculoDaExecucao":null` | 2107 · `565c648f6ba0…` | 70995 · `4b09690aaa05…` |
+
+- **Contagens distintas, depois do transporte (derivadas).** Por condição (`n = 4` capturas por condição): **4** objetos preparados distintos, **3** payloads
+  distintos chegaram ao tratador e **2** contextos distintos. Nas oito capturas: 8, 6 e 4. ⚠ As duas condições não se somam como unidades distintas: o contexto sem
+  exclusão e o com exclusão diferem entre si pelo parágrafo da filtragem.
+- **`undefined` explícito ≡ chave ausente, no transporte (medido).** Os objetos preparados diferem (um traz a chave com valor `undefined`, o outro não a traz),
+  o **JSON entregue é byte a byte igual** (`sha256` `a2649290…` sem exclusão, `09f397fd…` com exclusão), nenhum dos dois contém a chave, e os contextos são **byte a
+  byte iguais**. Controle de linguagem, executado (Node v22.22.2): `JSON.stringify({a:1,b:undefined,c:null})` devolve `{"a":1,"c":null}`.
+- **`null` é outro payload e o mesmo contexto (medido).** O JSON traz `"vinculoDaExecucao":null` (25 bytes a mais que o da chave ausente), mas o contexto é
+  **byte a byte igual** ao da chave ausente: a rota trata `null` como `undefined` (`vinculo-execucao.ts:1098`). Em cada condição, **o contexto é o mesmo nas três
+  variantes ausentes**, e o diff do controle contra cada uma é o mesmo (mesmo `sha256`).
+- **Diff do controle contra cada variante ausente (derivado; `diff` do GNU diffutils, formato normal; em `fase-a/diffs/`).** Sem exclusão: `24,49d23`, `51,52c25`, `59c32`, `61,62c34,35`, `64d36`, `71c43`
+  (6 blocos), 33 linhas retiradas do controle (32 não brancas, das quais 26 são o bloco do vínculo) e 5 acrescentadas. Com exclusão: `24,26c24,26`, `29c29`, `34,59d33`, `61,62c35`, `69c42`, `71,72c44,45`, `74d46`, `81c53` (8 blocos),
+  37 retiradas (36 não brancas) e 9 acrescentadas. As linhas retiradas do controle são o bloco e as redações qualificadas; as acrescentadas são as frases do caso
+  ausente, enumeradas abaixo.
+
+#### As frases que existem só no caso ausente, com a leitura de cada uma
+
+⚠ **A classificação de cada frase (exaustividade, completude, totalidade, ausência de divisão, regra de menção, ou nenhuma delas) é LEITURA, e não medição.** O que
+foi medido é que a linha existe só no contexto ausente (diferença de multiconjuntos de linhas não brancas entre os dois contextos, que não depende do alinhamento
+que o diff escolhe), em que posição, e com que texto; o localizador na fonte (`route.ts`, na base) foi conferido por busca da linha.
+
+- **L1** (sem exclusão: linha 25 · com exclusão: linha 35; `route.ts:931`). Texto no contexto medido: `## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)`. Classes de leitura: exaustividade. Leitura: Declara a lista EXAUSTIVA sem dizer de que conjunto. O controle restringe: "(lista EXAUSTIVA do conjunto enviado)".
+- **L2** (sem exclusão: linha 32 · com exclusão: linha 42; `route.ts:932`). Texto no contexto medido: `**TOTAL: 4 respondentes (esta lista é COMPLETA — não existem outros)**`. Classes de leitura: completude, exaustividade. Leitura: Afirma a lista COMPLETA e que "não existem outros", sem restringir ao conjunto enviado. Na condição com exclusão o mesmo contexto traz, nas linhas das contagens da filtragem, 6 coletados, 4 incluídos e 2 excluídos: as duas afirmações coexistem no texto entregue. O controle diz "COMPLETA para o conjunto enviado".
+- **L3** (sem exclusão: linha 34 · com exclusão: linha 44; `route.ts:934`). Texto no contexto medido: `**AGREGAÇÃO POR MATRIZ: todos os 4 respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = 4 em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**`. Classes de leitura: totalidade. Leitura: Afirma como fato que todos responderam à TOTALIDADE das comparações pareadas e que N é o tamanho da lista em TODAS as matrizes agregadas. O número vem de `respondents.length` (`route.ts:934`), isto é, da contagem da lista, e não de um campo de completude. O controle, nesta posição, declara que a contagem do documento de cálculo NÃO é medição da participação por célula e que não deve ser apresentada como o N de matriz alguma.
+- **L4** (sem exclusão: linha 35 · com exclusão: linha 45; `route.ts:935`). Texto no contexto medido: `⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos 4 julgamentos, sem particionamento.`. Classes de leitura: ausência de divisão. Leitura: Afirma como fato do sistema que NÃO existe divisão de respondentes. O controle afirma outra coisa, sobre a requisição: "esta requisição não traz divisão", e pede que não se atribua um N diferente a cada matriz.
+- **L5** (sem exclusão: linha 43 · com exclusão: linha 53; `route.ts:937`). Texto no contexto medido: `⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.`. Classes de leitura: regra de menção. Leitura: Proíbe mencionar respondente fora da lista, sem a qualificação "COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA" e sem a exceção para divergência registrada que o controle traz. No caso ausente não há bloco que registre divergência.
+- **E1** (com exclusão: linha 24; `route.ts:862`). Texto no contexto medido: `- Amostra original coletada: 6 especialistas`. Classes de leitura: nenhuma das cinco (contagem sem população nem etapa). Leitura: Conta a amostra sem nomear a população nem a etapa. No controle a mesma posição nomeia as duas (população: respostas carregadas pela tela; etapa: coleta).
+- **E2** (com exclusão: linha 25; `route.ts:863`). Texto no contexto medido: `- Respondentes incluídos na análise: 4 especialistas`. Classes de leitura: nenhuma das cinco (contagem sem população nem etapa). Leitura: "Incluídos na análise" não diz de que etapa é o conjunto, nem se coincide com o enviado ao modelo ou com o incluído no documento de cálculo. O controle separa "restantes após a exclusão do gestor", "incluídos no documento de cálculo" e "enviados".
+- **E3** (com exclusão: linha 26; `route.ts:864`). Texto no contexto medido: `- Respondentes excluídos: 2 (33.3% da amostra original)`. Classes de leitura: nenhuma das cinco (contagem sem população nem etapa). Leitura: Conta os excluídos sem nomear a etapa. O controle diz "excluídos pelo gestor" e nomeia a população e a etapa.
+- **E4** (com exclusão: linha 29; `route.ts:865`). Texto no contexto medido: `- Os dados de qualidade abaixo referem-se APENAS aos 4 respondentes incluídos.`. Classes de leitura: nenhuma das cinco (contagem sem população nem etapa). Leitura: Delimita os dados de qualidade aos "incluídos" sem nomear população nem etapa. O controle os delimita aos "ENVIADOS a você (população: enviados; etapa: envio)".
+
+⚠ **Leitura de conjunto, ainda leitura:** as cinco frases L1 a L5 aparecem **nas duas condições de exclusão e nas três variantes ausentes**, e afirmam sem
+a qualificação que o controle traz nas mesmas posições; as quatro E1 a E4 só aparecem com exclusão e **não afirmam nenhuma das cinco coisas**: contam sem
+nomear população nem etapa. O controle, nas mesmas posições, diz de que conjunto fala e declara que a contagem do documento de cálculo **não** é medição da
+participação por célula.
+
+#### O bloco vazio, e como se observa no texto
+
+`blocoDoVinculo` **sai vazio** no caso ausente (`route.ts:974`: `''` quando o texto do vínculo é vazio) e **se observa no contexto apenas como linhas em
+branco**: 4 linhas em branco consecutivas entre o título `## Amostra e Qualidade Geral` e o cabeçalho da lista, sem exclusão (3 após o
+parágrafo da filtragem, com exclusão), contra o bloco de 26 linhas do controle na mesma posição. O marcador do bloco ocorre **0** vezes nos contextos ausentes
+(1 vez nos controles), e **nenhuma palavra do sistema** diz que o campo não veio: o sistema escreve a palavra "vínculo" **0** vezes no contexto ausente e 7 (sem
+exclusão) ou 8 (com exclusão) no controle.
+
+⚠ **Achado sobre o instrumento, antes de aceitar o agregado:** a contagem de menções que a sonda registra para o contexto ausente é **1**, e essa única ocorrência é
+o **título sintético do projeto** que a própria sonda forneceu ("Projeto da sonda sem vinculo", linha 4), e não texto do sistema; a contagem do controle (8 e 9)
+inclui a mesma ocorrência. O analisador separa as duas origens linha a linha (`fase-a/analise.json`, `mencoesAVinculo`).
+
+- **O que não varia (medido):** o prompt de sistema tem **1** valor de `sha256` nas oito capturas (34170 bytes). Cada captura foi feita duas vezes na mesma execução, e as
+  oito foram iguais nas duas passadas (contexto e JSON entregue).
+- **Determinismo entre execuções (derivado):** a sonda foi executada **três vezes** (a primeira, com versão anterior do instrumento, não arquivada; a segunda é a
+  arquivada; a terceira seguiu as instruções do `LEIA-ME.md`, depois de empacotar). **37 dos 44 arquivos de saída são idênticos nas três**: os 8 contextos, os 8 JSON
+  entregues, os 8 objetos preparados, `capturas.json`, os 4 contextos e os 4 JSON entregues da Fase B e os 4 HTML. Os 7 restantes (os quatro corpos, `execucoes.json`,
+  `renderizacoes.json` e `identidade.json`) diferem **somente** em campos derivados do relógio (`metadata.timestamp` e os `sha256` que o contêm) ou da identidade da
+  execução (instante, estado do diretório, versão do instrumento).
+
+### Fase B: a resposta, com texto fixado e o tratador concluindo
+
+⚠ **Técnica diferente da Fase A.** O cliente simulado **devolve um texto fixado** e o `POST` real **conclui** (extração, validação de A.27, corpo da resposta). Nenhuma
+chamada externa de inferência. Isto mede o corpo da resposta, e só ele.
+
+**O texto fixado, o mesmo nos quatro ensaios:** 356 unidades UTF-16 (o `length` do JavaScript; 353 pontos de código, na contagem do Python), `sha256` `6693cde649ee…`,
+integral em `fase-b/analise.json` (`textoFixado.texto`) e como `review` de cada corpo. São três seções (`📋 RESUMO EXECUTIVO`, `🔍 ANÁLISE`, `🎯 DECISÃO EDITORIAL`)
+de texto de preenchimento, sem números e sem referências, em que a decisão editorial é a linha `REVISÕES MAIORES`. Foi escolhido para que a extração reconheça um
+padrão (`nota` e `veredicto` não ficam nulos pela via da extração) e para que a validação de A.27 o aprove (ver a Fase C).
+
+**A causa de suspensão exercida:** contradição interna, regra V5 (`notaSuspensa.causa` é `contradicao`). O payload suspenso difere do elegível em **um único campo**:
+`qualityAnalysis.summary.critical`, de 0 para 4, de modo que a partição de `qualityAnalysis.summary` (`ok`, `suspicious`, `critical`) soma 8 sobre `total` 4 (o
+`motivo` do corpo registra a soma 8 sobre o total 4 e diz que "os dois valores e as suas fontes ficam conservados"), e a avaliação individual de qualidade continua
+`disponivel` no corpo.
+
+| Ensaio | Corpo: bytes e `sha256` | `metadata.timestamp` | `nota` | `veredicto` | `metadata.estadoDaExtracao` | `notaSuspensa.causa` | A.27 |
+|---|---|---|---|---|---|---|---|
+| `elegivel__controle` | 1304 · `9572b32b26ce…` | `2026-10-02T21:43:53.404Z` | C | REVISÕES MAIORES | `padrao_reconhecido` | — | `aprovado` |
+| `elegivel__chave-ausente` | 1304 · `11f99f4c5224…` | `2026-10-02T21:43:53.413Z` | C | REVISÕES MAIORES | `padrao_reconhecido` | — | `aprovado` |
+| `suspensa-contradicao__controle` | 1838 · `72cfab7f9768…` | `2026-10-02T21:43:53.419Z` | `null` | `null` | `nao_executada_por_suspensao` | `contradicao` | `aprovado` |
+| `suspensa-contradicao__chave-ausente` | 1838 · `ba008bea91b5…` | `2026-10-02T21:43:53.424Z` | `null` | `null` | `nao_executada_por_suspensao` | `contradicao` | `aprovado` |
+
+- **Enumeração das chaves (medida e derivada).** Os quatro corpos têm as **mesmas 8 chaves de nível principal**, na mesma ordem (`success`, `nota`, `veredicto`,
+  `notaSuspensa`, `mensagemDaExtracao`, `review`, `validation`, `metadata`) e as **mesmas 7 chaves de `metadata`** (`version`, `model`, `timestamp`,
+  `estadoDaExtracao`, `avaliacaoDeQualidade`, `knowledgeBase`, `debug`). Caminhos de chave: 53 nos dois ensaios elegíveis e 61 nos dois suspensos (a diferença é o
+  objeto `notaSuspensa`, que no elegível é `null`). A lista completa está em `fase-b/analise.json`, `enumeracaoDeChaves`.
+- **Resposta direta, por enumeração e não por leitura do código: existe algum campo do corpo que diga o estado do vínculo, ou que diga que o vínculo veio ausente?
+  NÃO.** Dos caminhos de chave e dos valores de texto dos quatro corpos, **0** contêm o radical do vínculo, e os campos mais próximos do assunto
+  (`metadata.avaliacaoDeQualidade`, com `estado` `disponivel` e `fonte` "declarada na requisição, com CR por respondente", e `metadata.estadoDaExtracao`) têm o
+  **mesmo valor, em cada classe, com e sem vínculo**. A resposta vale para estes quatro corpos, com o texto fixado e a extração em dois dos três estados (limites abaixo).
+- **Diff bruto, sobre os corpos integrais (medido).** O corpo é JSON compacto de uma só linha, e um diff por linha só diria "a linha difere"; a comparação bruta é **por
+  byte** (o equivalente de `cmp -l`). Os pares têm o mesmo tamanho (1304 e 1304; 1838 e 1838). ⚠ **Os corpos NÃO são byte a byte idênticos.** Na classe elegível
+  diferem **2 posições**, 697 e 698 (`0` por `1` e `4` por `3`), e na suspensa **2 posições**, 1222 e 1223 (`1` por `2` e `9` por `4`): são os milissegundos de
+  `metadata.timestamp` (`...53.404Z` e `...53.413Z`; `...53.419Z` e `...53.424Z`), e os valores ocupam os bytes 676 a 699 e 1201 a 1224, de modo que **todas as
+  posições que diferem estão dentro do valor do timestamp**. O campo vem de `new Date().toISOString()` em `route.ts:1512`, e os quatro ensaios correram em
+  intervalos de 5 a 9 ms.
+- **Projeção que exclui SOMENTE `metadata.timestamp` (derivada).** ⚠ **A igualdade abaixo vale para a projeção, e não para os corpos.** Excluído um campo, e nenhum
+  outro: `metadata.timestamp`. Em cada classe a projeção é **igual entre controle e chave ausente**, por duas técnicas independentes (troca textual do valor do único
+  `"timestamp"` do corpo, sem reserializar; e JSON analisado com a chave removida). **Diferenças restantes após a projeção: nenhuma** (0 em cada classe), de modo que
+  não há diferença a explicar além do timestamp.
+- **A ausência do campo interage com a suspensão? Não, nos quatro ensaios (derivado).** No corpo projetado, o efeito da suspensão é o **mesmo conjunto de 11 campos**
+  (`nota`, `veredicto`, `notaSuspensa` e seus 7 subcampos, `metadata.estadoDaExtracao`) com e sem vínculo. No contexto (o que o modelo receberia), o efeito da
+  suspensão é o **mesmo conjunto de linhas** com e sem vínculo (8 acrescentadas e 9 retiradas, nas duas variantes), e o efeito da ausência é o **mesmo conjunto de linhas**
+  (5 só no ausente e 32 só no controle) com e sem suspensão. Os dois eixos são independentes no corpo e no contexto medidos.
+- **Limites declarados.** ⚠ Os outros estados da extração **não foram variados**. Dos três estados que a rota define (`route.ts:1399-1403`), esta rodada exerceu **dois**
+  (`padrao_reconhecido`, nos dois ensaios não suspensos, e `nao_executada_por_suspensao`, nos dois suspensos, que é o que o ensaio suspenso produz por construção); **`nenhum_padrao_reconhecido` não foi
+  variado**, e o corpo desse estado (que traz `mensagemDaExtracao`) **não foi medido**, com ou sem vínculo. Uma só causa de suspensão; uma só condição de exclusão (sem
+  exclusão); um só texto fixado; nenhum modelo chamado.
+
+### Fase C: a apresentação, por renderização do componente
+
+⚠ **Nome exato do que foi feito: renderização do componente.** O componente real `components/ParecerAISection.tsx` foi renderizado (`renderToStaticMarkup` de
+`react-dom/server`, mais a árvore de elementos) com cada um dos quatro corpos da Fase B. ⚠ **Não é a página no navegador**, não demonstra o conteúdo que um modelo
+geraria e não demonstra o comportamento da página completa. O rótulo "Análise por …" e a frase "baseada em 138 referências científicas de 36 artigos (RAG)" que o
+HTML traz vêm de `metadata.model` e `metadata.knowledgeBase` do corpo (configuração da rota e da base estática): nenhum modelo foi chamado.
+
+**O `aiReview` montado como a tela monta** (`page.tsx:1363-1371`): sete chaves, nesta ordem: `nota`, `veredicto`, `notaSuspensa` (com `?? null`),
+`mensagemDaExtracao` (com `?? null`), `review`, `validation` e `metadata`. As chaves do objeto da sonda e as do `setAiReview` da base **coincidem** (conferido pelo
+analisador, que lê as linhas da tela). Não é um objeto mais completo nem mais pobre do que o que a tela entrega.
+
+**Estado de A.27 nos quatro ensaios, e o texto que o produziu:** `aprovado` (versão 1, `isValid` verdadeiro, 0 problemas, 0 avisos, 0 inconclusivos) **nos quatro**, com o
+**mesmo texto fixado** da Fase B (`6693cde649ee…`). ⚠ Por isso o **portão do destaque** (`ParecerAISection.tsx:240`, três condições: classificação não suspensa,
+`presentation?.estado === 'aprovado'` e `nota` ou `veredicto` não nulos) **abre no ensaio elegível**, e a Fase C não se fechou com o portão fechado em todos os
+ensaios (critério de bloqueio 7 não acionado). Nos ensaios suspensos o portão está fechado **pela suspensão** (condições 1 e 3), e não por A.27.
+
+| Ensaio | A.27 | Portão do destaque (condições 1 · 2 · 3) | Destaque de nota e veredicto | Cartão de suspensão | Aviso de quarentena · avisos da verificação · mensagem da extração | Corpo do texto | HTML: bytes (sem o LF final) e `sha256` |
+|---|---|---|---|---|---|---|---|
+| `elegivel__controle` | `aprovado` | abre · abre · abre | exibido: nota `C` e veredicto `REVISÕES MAIORES` | não exibido | não exibido · não exibido · não exibido | exibido (356 unidades UTF-16) | 3415 · `5a664821f0b7…` |
+| `elegivel__chave-ausente` | `aprovado` | abre · abre · abre | exibido: nota `C` e veredicto `REVISÕES MAIORES` | não exibido | não exibido · não exibido · não exibido | exibido (356 unidades UTF-16) | 3415 · `5a664821f0b7…` |
+| `suspensa-contradicao__controle` | `aprovado` | fechada · abre · fechada | não exibido | exibido | não exibido · não exibido · não exibido | exibido (356 unidades UTF-16) | 3559 · `bc2a7848291e…` |
+| `suspensa-contradicao__chave-ausente` | `aprovado` | fechada · abre · fechada | não exibido | exibido | não exibido · não exibido · não exibido | exibido (356 unidades UTF-16) | 3559 · `bc2a7848291e…` |
+
+- **O que a renderização exibe, em cada um dos quatro casos (medido).** Elegíveis (controle e ausente): o destaque com os rótulos "Nota Científica" e "Veredicto"
+  (valores `C` e `REVISÕES MAIORES`) e o corpo do texto; nenhum aviso de quarentena, nenhum aviso da verificação, nenhuma mensagem da extração. Suspensos (controle e
+  ausente): nenhum destaque; o cartão de suspensão com o título "Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade", o
+  `motivo` do corpo e a frase "A ausência de avaliação não é aprovação nem reprovação. Os cálculos AHP-BOCR disponíveis seguem visíveis nas demais seções."; e o corpo do
+  texto.
+- **Resposta direta, na redação do alcance medido:** nos quatro ensaios com texto fixado, a renderização do componente **NÃO DISTINGUE a presença da ausência do
+  vínculo**: o HTML é **byte a byte igual** entre controle e chave ausente nas duas classificações (`5a664821f0b7…` na elegível e `bc2a7848291e…` na suspensa; 2 pares).
+  ⚠ **Isso não demonstra o conteúdo que um modelo geraria, nem o comportamento da página completa.** Quatro renderizações com texto fixado não sustentam nenhuma
+  afirmação sobre o que o gestor vê na página completa.
+- **Menção ao vínculo no componente, por busca declarada.** Padrão: `v[ií]ncul` (expressão regular, sem distinção de caixa, Unicode: casa `vinculo`, `vínculo`,
+  `VÍNCULO`, `vinculado` e `vinculoDaExecucao`). Ferramenta: `re` do Python sobre o texto de `git show ad2ad0a:<arquivo>`. Escopo: `components/ParecerAISection.tsx`.
+  Resultado: **sem resultado, 0 ocorrências** (a busca executou; não é falha de comando). Controles positivos, que a mesma busca **acha**: `lib/ai-reviewer/vinculo-execucao.ts`
+  (89 ocorrências em 79 linhas) e `app/decisor/resultados/[projectId]/page.tsx` (22 em 17). O tipo das propriedades (`ParecerAISection.tsx:10-39`) declara `nota`, `veredicto`,
+  `notaSuspensa`, `mensagemDaExtracao`, `review`, `validation` e `metadata` (com `model` e `knowledgeBase`), **sem campo do vínculo**. Também há 0 menções ao vínculo nos quatro HTML.
+  ⚠ **Achado sobre o instrumento:** uma primeira busca com `grep -E "v[ií]nculo"`, no locale POSIX do ambiente (que compara bytes, e não caracteres), **não casa a grafia
+  acentuada**; o "sem resultado" dela não informava sobre "vínculo" e foi descartado em favor desta, com controles positivos.
+
+### Fase D: alcançabilidade, por leitura com escopo declarado
+
+⚠ **Isto é leitura, e não medição.** A severidade do defeito depende de o caminho ser alcançável, e isso não se decide por suposição. As leituras de código foram
+assistidas por máquina (os localizadores são computados, e o analisador para se a estrutura lida mudar), mas a **classificação** de cada saída e de cada retorno é
+leitura. Os 23 localizadores que o pedido indica (`route.ts`, `page.tsx` e `ParecerAISection.tsx`) foram conferidos na linha indicada, na base: **23 de 23 conferem**.
+
+1. **A tela atual: `prepararVinculoDaTela` tem algum caminho que devolve preparação sem vínculo? Não.** Escopo: `lib/ai-reviewer/vinculo-execucao.ts:460-597`. A função tem
+   **dois `return`** (`:516` e `:590`), ambos com o objeto `vinculo`, nenhum `throw`, e o tipo `PreparacaoDoVinculo` declara `vinculo` como obrigatório (`:431`). ⚠ Os estados
+   `indisponivel` e `invalido` (sem conjunto utilizável, `:484-516`) **também devolvem o objeto**, e `descreverVinculoParaContexto` só devolve texto vazio para `undefined` e `null` (`vinculo-execucao.ts:724`), de modo que a rota imprime o
+   bloco nesses estados: "sem documento de cálculo utilizável" é estado do vínculo, e **não** campo ausente.
+2. **O payload da tela: `page.tsx:1247` inclui o campo em todos os caminhos que chegam ao `fetch` de `:1350`? Sim, por leitura.** Escopo: `page.tsx:946-1350`, de
+   `runAiReview` até o `fetch`. Caminhos examinados (os únicos `return` e `throw` do trecho, achados por busca e classificados por leitura; **0** `throw`):
+
+   | Linha de `page.tsx` | Instrução | Classificação (leitura) |
+   |---|---|---|
+   | `:952` | `return;` | saída da função ANTES do `try` e antes de qualquer payload (`calculation` ou `project` ausente): não chega ao fetch |
+   | `:1000` | `return !excludedIds.includes(id);` | retorno de callback de `filter` (não sai de `runAiReview`) |
+   | `:1006` | `return !excludedIds.includes(id);` | retorno de callback de `filter` (não sai de `runAiReview`) |
+   | `:1085` | `return acc;` | retorno de callback de `reduce` (não sai de `runAiReview`) |
+   | `:1120` | `return;` | retorno de callback de `forEach` (não sai de `runAiReview`) |
+   | `:1215` | `return {` | retorno de callback de `map` (não sai de `runAiReview`) |
+
+   O payload é montado numa única expressão literal (`const payload`, `:1244`) que traz `vinculoDaExecucao,` **sem condição** (`:1247`), e `finalPayload` (`:1332`) o espalha
+   (`...payload`, `:1333`). O único `try` que cobre código entre o preparo do vínculo (`:1033`) e o `fetch` é o externo (`:958`), cujo `catch` vem **depois** do `fetch` (`:1380`); o `try`
+   aninhado (`:967` a `:988`) cobre só a chamada a `/api/response-quality` e termina antes do preparo. ⚠ O único retorno de função (`:952`) ocorre **antes** do payload e não chega
+   ao `fetch`.
+3. **Quem mais chama `POST /api/ai-reviewer` na árvore.** As buscas são `git grep` sobre a árvore de `ad2ad0a` (D3g conta também com `git show` e `grep -o`; saída em `fase-d/buscas.txt`; roteiro em
+   `instrumentos/buscas-fase-d.sh.txt`), com saída 0 (com resultado), 1 (**sem resultado, que não é falha**) ou 2 e acima (falha de comando, **nenhuma ocorreu**):
+
+   | Busca | Padrão e escopo | Resultado |
+   |---|---|---|
+   | D3a | `api/ai-reviewer`; `app`, `components`, `lib` (sem `lib/__tests__`) e `scripts` | 14 linhas: **1 chamada** (`page.tsx:1350`) e 13 menções em comentários e textos (`knowledge.ts`, `route.ts`, `system-prompt.ts`, `avaliacao-qualidade.ts`, `review-request.ts`, `validate-review.ts`, `lib/rag/README.md`, `semantic-retrieve.ts`, 4 em `scripts/a33-*.cjs`) |
+   | D3b | `api/ai-reviewer`; `lib/__tests__` | 66 linhas, entre menções e os `require` do handler |
+   | D3c | `api/ai-reviewer`; todo caminho rastreado fora de `app`, `components`, `lib`, `scripts` e `docs` | **sem resultado** (saída 1) |
+   | D3d | `import` ou `require` do handler (`ai-reviewer/route`); `*.ts`, `*.tsx`, `*.js`, `*.cjs`, `*.mjs` | 13 linhas, **todas em `lib/__tests__`** (12 arquivos), 0 em produção e 0 em scripts |
+   | D3e | `fetch(` seguido de crase ou de identificador; `app`, `components`, `lib` (sem testes) | 3 linhas, **nenhuma compõe o endpoint do revisor**: duas em `app/api/validate-external/route.ts` (`:37` e `:65`, que chamam `VALIDATOR_URL`, serviço externo) e uma em `lib/rag/upstash-client.ts:119`; os dois arquivos têm 0 menções a `ai-reviewer` |
+   | D3f | `export function GET\|PUT\|PATCH\|DELETE\|POST`; `app/api/ai-reviewer` | `GET` (`route.ts:1365`, descreve a API, sem corpo de entrada) e `POST` (`:1412`) |
+   | D3g | `vinculoDaExecucao` no texto de cada um dos 12 arquivos de D3d (ocorrências, e não linhas) | 4 arquivos citam o identificador (`a12-diagnostico` 4, `a12-estatisticas-dimensao` 6, `a33-cadeia-rule` 4, `vinculo-execucao-fiacao` 38) e **8 não o citam** (0) |
+   | D3h | `fetch(`, `axios`, `node-fetch`, `http(s).request`, `XMLHttpRequest`, `curl `; `scripts` | **sem resultado** (saída 1) |
+   | D3i | `axios`, `node-fetch`, `http(s).request`, `XMLHttpRequest`; `app`, `components`, `lib` (sem testes) | **sem resultado** (saída 1) |
+   | D3j | `ai-reviewer`; `.github`, `package.json`, `next.config.js` (os que existem; `vercel.json` e `next.config.mjs` não existem na base) | **sem resultado** (saída 1) |
+
+   **Leitura:** o único chamador por HTTP é a tela. Os 12 arquivos de teste executam o handler **diretamente**; 8 deles não citam o campo no próprio texto, e isso é só
+   contagem de ocorrências do identificador, **não prova** de que o payload omita o campo.
+   ⚠ **Achado sobre o instrumento:** a primeira execução manual de D3e escreveu a crase com uma barra invertida na frente, que no ERE do GNU grep é a âncora de início de buffer, e não a crase; achou 2 linhas.
+   O roteiro arquivado usa a crase literal e acha 3, e a terceira (`validate-external/route.ts:37`) foi lida e não se relaciona com o revisor. Vale o roteiro.
+4. **Fora da árvore, o que não se pode concluir (não avaliado, e não ausente):** ver a lista abaixo.
+
+### O que ficou não avaliado
+
+Cada item é **não avaliado**, e distinguido de ausente, falso ou zero observados:
+
+- **Cliente externo** que chame `POST /api/ai-reviewer` sem o campo, e o que ele enviaria: fora da árvore.
+- **Versão antiga publicada da tela** (que pudesse enviar sem o campo): fora da árvore; nenhum deploy anterior foi consultado.
+- **Campo perdido em trânsito** (navegador, proxy, limite de corpo da plataforma): só `JSON.stringify` e `request.json()` foram exercidos.
+- **Se o que o caso ausente afirma é verdadeiro para dados reais**: depende do portão de completude de A.21 no percurso de cálculo e dos dados de uma execução real, e nenhum
+  dado real foi consultado.
+- **Se o texto do caso ausente é byte a byte o de antes do estágio** (o comentário de `route.ts:848` diz que sim): exigiria reexecutar o código anterior.
+- **Os estados do vínculo `indisponivel`, `invalido` e `divergente`, e as formas não reconhecidas** (que a rota trata como `sem-comparacao`, com o campo presente, `vinculo-execucao.ts:1102-1103`, e para os quais o código imprime um bloco curto de "formato NÃO
+  reconhecido", `:727-732`): não variados nesta rodada, que mediu só `vinculado`, `undefined`, `null` e chave ausente.
+- **Extração e suspensão:** `nenhum_padrao_reconhecido`; outras causas de suspensão; a condição com exclusão na Fase B; outros textos fixados.
+- **Apresentação:** estados de A.27 diferentes de `aprovado` (os quatro ensaios foram aprovados); a página completa no navegador.
+- **O que um modelo geraria** com o contexto ausente e com o do controle: nenhuma chamada de inferência foi feita.
+
+### Achados sobre os instrumentos desta rodada
+
+Cinco defeitos de instrumento ou de premissa foram achados **antes de aceitar o agregado**, na primeira execução de cada instrumento, e nenhum chegou a este registro como resultado: (1) a contagem de
+menções ao vínculo no contexto ausente era o título sintético do projeto (Fase A); (2) a busca por `grep` no componente não casava a grafia acentuada (Fase C); (3) o
+padrão de D3e, com a crase escapada, tinha achado 2 linhas em vez de 3 (Fase D); (4) o analisador, na primeira execução, divergiu em três convenções (a notação `[]` e `{}` dos caminhos de
+chave, o LF final que a sonda acrescenta a cada arquivo HTML antes de registrar o `sha256` da string, e as **três** chamadas `setAiReview({` da tela, em vez de uma); (5) o primeiro rascunho do aplicador de guardas herdou a premissa do pedido sobre a fatia de
+`vinculo-execucao-fiacao.test.ts:1796`, que a medição contrariou (seção seguinte). As três divergências do item (4) eram do analisador e se resolveram sem alterar dado: os
+artefatos conferiam contra o registro da sonda. Cada um foi verificado à mão no caso mais visível (o
+diff do controle contra o ausente sem exclusão; a posição dos bytes que diferem nos corpos; o HTML elegível) antes de o agregado ser aceito.
+
+### As guardas de redação (pedido, seção 6.4)
+
+⚠ **"Só documental" descreve os arquivos alterados, e não demonstra ausência de efeito nos testes.** A rodada altera **um** arquivo (este registro, por inserção) e acrescenta
+o diretório `docs/dados/a12-sem-vinculo/`. A lista de guardas do pedido foi tratada como ponto de partida, e a busca foi **própria**, sobre `ad2ad0a` (roteiro
+`instrumentos/buscas-guardas.sh.txt`; padrões, escopos e saídas em `guardas/buscas-6-4.txt`).
+
+| Arquivo alterado ou acrescentado | Testes que o leem, na base (lido) | O que examinam |
+|---|---|---|
+| `docs/imprecisoes-parecer-ia.md` | `vinculo-execucao-fiacao.test.ts` (`REGISTRO`, `:49`) e `a12-nota-veredicto-fase2.test.ts:786-799` | o arquivo inteiro normalizado (`:1453-1459`, `:1477-1485`, `:1706-1712`, `:1721`), duas fatias (`:1725-1744` e `:1774-1796`), um prefixo (`:1798`) e, no texto cru, a regex `PROMESSA` |
+| os `.md` e `.json` novos | só a varredura `vinculo-execucao-fiacao.test.ts:1461-1475` | cada arquivo, normalizado e em minúsculas, contra uma frase proibida |
+| os demais novos (`.txt`, `.diff`, `.html`, `.py`) | nenhum: a varredura só abre `.ts`, `.tsx`, `.md`, `.json`, `.cjs`, `.js` e `.mjs`, e `vinculo-execucao-calculo.test.ts:535-555` e `engine-census.test.ts:29` percorrem `app`, `lib`, `components` (e `scripts`), e não `docs` | — |
+| o diretório `a12-sem-vinculo` | nenhum teste cita o caminho (busca B3: sem resultado, saída 1) | — |
+
+Cada guarda foi aplicada, **antes de publicar**, **ao mesmo trecho que o teste examina** (arquivo inteiro normalizado, fatia, prefixo ou varredura), por
+`instrumentos/aplicar-guardas.py` (saída em `guardas/aplicacao.txt`): **11 de 11 aplicações passam** (as nove guardas e duas verificações do pedido: a expressão protegida
+e a inserção pura). Os literais de cada guarda são copiados do teste e conferidos contra o texto do teste, e o aplicador imprime o contraexemplo do detector (o varredor acha a
+frase montada; a regex pega as três formas vedadas). O `\s` e o `trim()` da normalização usam o conjunto de espaços do JavaScript, e não o do Python.
+
+⚠ **A premissa do pedido sobre a fatia de `vinculo-execucao-fiacao.test.ts:1796` não se confirmou na medição, e as duas leituras ficam conservadas.** O pedido, como ponto de
+partida de 02/10, diz que o bloco do commit anterior ficou **dentro** da fatia e manda tratar o acréscimo como estando dentro dela até medir o contrário. **Medido, com a
+semântica do teste** (`indexOf` e `slice` sobre o registro normalizado, em JavaScript e em Python): a fatia vai de `### Implementado e medido: R4` (linha 12332) até a **primeira**
+ocorrência seguinte do marcador de fim, que está na **linha 13339**, no texto entre aspas de um bloco anterior, e **não** no título do anexo da execução 7 (linha 15933 na base).
+**Nem o bloco de aceite técnico do commit anterior, nem o erratum, nem este acréscimo estão dentro dela**, na base e na árvore de trabalho. A fatia é **a mesma da base, caractere
+por caractere** (90708 caracteres), de modo que as asserções de `:1780-1796` avaliam o mesmo texto de antes, e o prefixo de `:1798` também. O primeiro rascunho do aplicador
+tratava "dentro da fatia" como condição de passagem, por herdar a premissa do pedido; a medição a contrariou, e o critério foi corrigido para o do teste (as asserções sobre a
+fatia), com a premissa passando a ser relatada como divergência. ⚠ A fatia, o prefixo e os marcadores **não foram tocados**; que a guarda cubra bem menos do registro do que o pedido
+supõe é **achado**, e não correção desta rodada.
+
+### A citação da mensagem de andamento (pedido, seção 6.5)
+
+A citação **verbatim** da mensagem de andamento que o bloco de 02/10 deste registro menciona sem localizar:
+
+> Fase 2 concluída com sucesso: o push atualizou `integra/a30-registros` de `8e165fb` para `426878f`, igual à ref local.
+
+⚠ **Procedência, e limite.** Ela vem do **relato de execução da integração de 02/10**, que é **externo ao repositório**: o repositório não guarda esse relato, e **a
+citação não transforma a transcrição em registro independente**. A transcrição foi **recebida do pedido**; esta rodada não a conferiu contra o relato de origem. O que a
+rodada mediu, e que acrescenta localização sem a tornar prova: no histórico de sessão do executor (também externo ao repositório), essa redação aparece **uma única vez
+antes do pedido desta rodada**, num bloco de raciocínio interno (`thinking`) com marca de tempo `2026-10-02T02:26:03.619Z` (entrada `66f13b69-72ac-4518-9672-5493b83e833c`) e
+**em nenhuma mensagem de texto da resposta**; a mensagem de texto que a segue tem redação diferente da citada. ⚠ Essa localização **não é evidência independente** sobre a ordem ou o instante
+das operações da integração e **não reabre** a ressalva do bloco de 02/10; a redação chama de "push" o avanço **local** da Fase 2, e aquele bloco já separa os dois. Nenhuma linha
+daquele bloco foi editada.
+
+### O que a rodada não decidiu
+
+⚠ **Pendência do autor: o comportamento esperado para o caminho sem `vinculoDaExecucao`.** A rodada delimitou o que o caminho produz hoje (o contexto, o corpo e a renderização,
+com texto fixado, e a alcançabilidade lida dentro da árvore). **Não** decide o que ele deve produzir, não propõe redação para o caso ausente, não escolhe entre manter,
+qualificar ou tornar visível a ausência, e não classifica o defeito por severidade, que depende da alcançabilidade fora da árvore, hoje **não avaliada**. Nada foi integrado:
+`integra/a30-registros` permanece em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em `33c1fdf6500242832994a17aa15b0a686704c029`.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
