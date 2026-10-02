@@ -15862,6 +15862,72 @@ a Fase 2 segue tecnicamente aceita, e nenhum número da medição funcional muda
 `:13501-13502`, "as quatro / causas de não elegibilidade (frase existente byte a byte)". A classificação é **leitura**, e o que a sustenta é **leitura de código**: o ensaio 4 de `lib/__tests__/a12-estatisticas-dimensao.test.ts` (`:677-683`) tem **quatro cenários**
 (`nao-avaliada-ausente`, `nao-avaliada-incompleta`, `contradicao`, `coerencia-nao-concluida`), cujas causas são `disponibilidade` (**duas vezes**), `contradicao` e `coerencia_nao_concluida`: **quatro condições, três causas**.
 
+## Registro: o aceite técnico da integração em `426878f` e a ressalva sobre a Fase 3, em 02/10/2026
+
+⚠ **Acréscimo datado, por inserção pura.** Nenhuma linha publicada editada, nenhum número de
+medição alterado, nenhum byte de produção ou de teste. ⚠ **Não é reconstrução retrospectiva de
+evidência:** a comprovação da reconferência imediatamente anterior ao push continua ausente, e
+este registro consigna essa ausência.
+
+**O que foi aceito.** A branch `integra/a30-registros` foi avançada por fast-forward de
+`8e165fb9da51133ccbe1e9d0093680ada67a7ca5` para `426878f028ea78c49ed9e3d476fda052fa04a7ac`,
+sem commit de merge, e `main` permaneceu em
+`33c1fdf6500242832994a17aa15b0a686704c029`. A integração está **tecnicamente aceita**, pelo
+estado final conferido.
+
+**A ressalva.** A reconferência das três refs **imediatamente anterior ao push** não ficou
+comprovada. Os horários apresentados pelo executor são `02:26Z` para a reconferência da Fase 3
+e `09:07Z` para o push, e a explicação de salto do relógio do ambiente permanece **relatada,
+sem evidência independente**. A saída do push, `8e165fb..426878f`, confirma o **valor anterior
+da ref de integração** naquele instante, e **não** comprova o estado simultâneo da branch de
+sessão e de `main`, nem substitui a reconferência das três imediatamente antes.
+
+⚠ **Nos dois cenários a contiguidade não está demonstrada:** se `02:26Z` estiver correto, houve
+intervalo entre a reconferência e o push; se o relógio do ambiente estava errado, o instante
+daquela leitura é desconhecido.
+
+⚠ **O horário do CI não é o horário do push.** O início do run `36987981876` é referência
+externa **posterior** ao evento, e espera ou agendamento podem separar os dois instantes. Ele
+limita o push a ter ocorrido **não depois** do início do run, e **não fixa o seu instante**. O
+horário da Vercel continua sendo evidência **relatada pelo executor**.
+
+**O que isso não altera.** O estado final conferido permanece válido. ⚠ **Não cabe desfazer o
+avanço nem reconstruir retrospectivamente essa evidência.** A consequência é de alcance do
+aceite: o **procedimento inteiro** não pode ser tratado como comprovado sem ressalvas.
+
+**Procedência de cada medição deste intervalo.**
+
+| Medição | Quem mediu |
+|---|---|
+| as três refs remotas | autor e analista |
+| sete commits no intervalo, cadeia linear, zero merges | autor e analista |
+| 95 arquivos, com 80 em `docs/` | autor e analista |
+| **90323 inserções e 134 remoções** | **analista apenas**: a resposta da API ao autor trouxe estatísticas zeradas para parte dos arquivos, o que limita aquela consulta e não demonstra divergência |
+| blobs dos três preservados, iguais nas duas pontas do intervalo | analista |
+| `.github/` inalterado no intervalo | analista |
+| `ci.yml:35-37`, `on: push` e `pull_request` sem filtro de branch | analista em 02/10, sobre `426878f`; o autor havia conferido o mesmo em 01/10, ao conferir o prompt |
+| CI `36987981876`: evento push, `head_branch` `integra/a30-registros`, `head_sha` `426878f…`, `completed/success`, e 36 suítes e 940 testes no log | **autor, de forma independente** |
+| diretório de trabalho do executor, antes e depois, e o reflog | executor |
+| deploys da Vercel, seus estados, os aliases automáticos da integração Git e os horários | executor |
+
+**Uma redação do relato, sem efeito no resultado.** Uma mensagem de andamento do executor
+chamou de "push" o avanço **local** por `git fetch .` da Fase 2. As saídas apresentadas
+distinguem o avanço local da publicação: a Fase 2 imprime `From .`, e a Fase 4 registra o
+avanço remoto `8e165fb..426878f`. ⚠ **Elas sustentam a correção da mensagem de andamento, mas
+não constituem, isoladamente, um histórico exaustivo das operações sobre a referência remota.**
+
+**Decisão para as próximas rodadas de integração, de 02/10/2026.** A reconferência das refs e a
+publicação passam a ocorrer em **uma única invocação de shell**, que compara explicitamente as
+três refs com os valores esperados e **aborta diante de qualquer divergência ou falha**, antes
+de verificar a ancestralidade e executar o push.
+
+⚠ **A garantia é precisa.** Isso documenta a sequência de execução e elimina uma pausa manual
+entre as fases. **Não** torna a leitura das três refs e o push uma operação **atômica**, e
+**não** elimina alterações concorrentes no remoto.
+
+⚠ **O defeito corrigido é do prompt**, que exigia leitura "imediatamente antes do push" sem dar
+como demonstrá-la.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
