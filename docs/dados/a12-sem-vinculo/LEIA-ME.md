@@ -40,35 +40,194 @@ objeto: a omissão da propriedade `undefined` **não é contornada**. Ficam fora
 | `fase-d/analise.json` | leitura de código **assistida por máquina**: os retornos de `prepararVinculoDaTela`, as saídas de `runAiReview` antes do `fetch`, e as **23 âncoras** do pedido, cada uma lida na linha indicada |
 | `fase-d/buscas.txt` | a saída, **busca a busca**, de quem chama `POST /api/ai-reviewer` (D3a a D3j), com comando, escopo e código de saída; **sem resultado** (saída 1) separado de **falha de comando** (saída 2 ou mais) |
 | `guardas/buscas-6-4.txt` | a saída das buscas da seção 6.4 do pedido (quem lê o registro e o diretório novo): B1 a B7 |
-| `guardas/aplicacao.txt` | a aplicação de **cada guarda de redação** ao trecho que o teste examina, com fonte (teste:linhas), escopo nomeado e resultado |
-| `instrumentos/` | a **sonda** (`sonda-sem-vinculo.test.ts.txt`) e a **configuração isolada** de jest (`jest.sem-vinculo.config.cjs.txt`), o **analisador** (`analisar-fases.py`), o **aplicador de guardas** (`aplicar-guardas.py`) e os dois **roteiros** de busca (`buscas-fase-d.sh.txt`, `buscas-guardas.sh.txt`). O sufixo `.txt` mantém a sonda e a configuração fora do `tsc` e do jest |
+| `guardas/aplicacao.txt` | a aplicação de **cada guarda de redação** ao trecho que o teste examina, com fonte (teste:linhas), escopo nomeado e resultado. ⚠ **Datada de 02/10/2026**: feita com `ad2ad0a` em checkout e o registro alterado na árvore de trabalho, antes do commit; ver o passo 7 de *Como reexecutar* |
+| `instrumentos/` | a **sonda** (`sonda-sem-vinculo.test.ts.txt`) e a **configuração isolada** de jest (`jest.sem-vinculo.config.cjs.txt`), o **analisador** (`analisar-fases.py`), o **aplicador de guardas** (`aplicar-guardas.py`) e os dois **roteiros** de busca (`buscas-fase-d.sh.txt`, `buscas-guardas.sh.txt`). O sufixo `.txt` mantém a sonda e a configuração fora do `tsc` e do jest. ⚠ O **aplicador de guardas** e o roteiro `buscas-guardas.sh.txt` são **amarrados à rodada de 02/10/2026** (`BASE` fixo em `ad2ad0a`): ver o passo 7 de *Como reexecutar* |
 
 ## Como reexecutar (ambiente observado: Linux x64, Node v22.22.2, npm 10.9.7)
+
+⚠ **Roteiro corrigido em 03/10/2026.** A versão publicada em `c8e1da0` mandava executar "com o commit `ad2ad0a` em checkout" e copiar a sonda de
+`docs/dados/a12-sem-vinculo/instrumentos/`. **Esse diretório não existe em `ad2ad0a`:** `git ls-tree -r --name-only ad2ad0a -- docs/dados/a12-sem-vinculo` não devolve nenhuma
+entrada, porque o instrumento foi publicado depois do código que ele mede. O roteiro abaixo separa **três coisas**, não leva a árvore principal a outro commit e foi executado
+**como está escrito**, a partir de árvore limpa, com `c8e1da0` em checkout e, outra vez, com `ad2ad0a`; a execução e o que ela mostrou estão no registro, na seção "Correção do roteiro
+de reprodução", de 03/10/2026.
+
+| Coisa | O que é | Onde fica | Como se obtém |
+|---|---|---|---|
+| **Código medido** | a produção que a sonda lê: o commit `ad2ad0afdc1a972570d3733ccc582d65a719397a` | um **worktree auxiliar**, criado e removido pelo roteiro; **a árvore de trabalho principal não muda de commit** | `git worktree add --detach`, depois `npm ci` |
+| **Instrumento publicado** | a sonda, a configuração isolada, o analisador, o aplicador de guardas e os dois roteiros de busca, **como publicados** em `c8e1da0e3bb34c08a55c8ffb76dc6cae78d9b2cc` | um diretório **externo** ao repositório | `git show c8e1da0…:<caminho>`, arquivo a arquivo, **antes de qualquer execução**; não depende do commit em checkout |
+| **Resultados novos** | o que a sonda grava nesta execução | um diretório **separado**, também externo | a própria sonda; conferidos com `--so-conferir`; o pacote publicado não é tocado |
 
 ⚠ **Nada disto é versionado como teste, e nada fica em caminho coletado pela suíte.** A sonda roda **fora** de `lib/`, com configuração **isolada**: a
 `jest.config.js` do projeto não é editada, só reaproveitada (mesmo `preset` ts-jest, mesmo `transform`, mesmo mapeamento de `@/`), com `roots` e `testMatch`
 apontando só para o diretório da sonda.
 
-1. **Sonda** (a partir da raiz do repositório, com `npm ci` feito e o commit `ad2ad0a` em checkout):
+⚠ **`analisar-fases.py` sem `--so-conferir` REGRAVA** `fase-a/analise.json`, `fase-b/analise.json`, `fase-c/analise.json`, `fase-d/analise.json` e `fase-a/diffs/*.diff` **no
+diretório dado em `--dados`**, e o padrão de `--dados` é o pacote publicado (`docs/dados/a12-sem-vinculo`). Quando o alvo é o pacote publicado, use **sempre** `--so-conferir`,
+que só confere e imprime. Os passos abaixo usam a opção em todas as chamadas.
 
-   ```
-   SONDA=$(mktemp -d); SAIDA=$(mktemp -d)        # FORA do repositório
-   cp docs/dados/a12-sem-vinculo/instrumentos/sonda-sem-vinculo.test.ts.txt  $SONDA/sonda-sem-vinculo.test.ts
-   cp docs/dados/a12-sem-vinculo/instrumentos/jest.sem-vinculo.config.cjs.txt $SONDA/jest.sem-vinculo.config.cjs
-   SONDA_DIR=$SONDA SONDA_SAIDA=$SAIDA npx jest --config $SONDA/jest.sem-vinculo.config.cjs --runInBand
-   ```
+Os blocos formam **um só roteiro**: execute-os em ordem, **no mesmo shell** (as variáveis do passo 1 valem nos seguintes). Se o espaço em disco ou a rede para o `npm ci` do
+passo 2 não estiverem disponíveis, **pare e registre**: não leve a árvore principal a `ad2ad0a`. Se interromper o roteiro no meio, rode o passo 8 mesmo assim.
 
-   A sonda grava em `$SAIDA` a mesma árvore de `fase-a/`, `fase-b/`, `fase-c/` e `identidade.json`. Em outro commit que não `ad2ad0a`, os arquivos de
-   produção lidos podem diferir da base, e o analisador (passo 2) o acusa pela identidade.
-2. **Analisador** (raiz do repositório; lê só os artefatos e `git show` da base; sai 1 e diz o que diverge):
-   `python3 docs/dados/a12-sem-vinculo/instrumentos/analisar-fases.py` (confere e **regrava** `*/analise.json` e `fase-a/diffs/`; com `--so-conferir`, não grava).
-   Para uma saída nova: `cp -r docs/dados/a12-sem-vinculo/instrumentos $SAIDA/` e `... analisar-fases.py --dados $SAIDA --so-conferir`.
-3. **Buscas** (só leitura): `bash docs/dados/a12-sem-vinculo/instrumentos/buscas-fase-d.sh.txt` e `bash .../buscas-guardas.sh.txt`.
-4. **Guardas** (depois de qualquer alteração em `docs/`): `python3 docs/dados/a12-sem-vinculo/instrumentos/aplicar-guardas.py`.
+### Passo 1. Variáveis, e o instrumento publicado extraído antes de qualquer execução
 
-**Dependências:** Node (medido com v22.22.2; o CI usa 24.x), npm, os pacotes do `package-lock.json` do projeto (jest, ts-jest 29.4.6, `react` e `react-dom` 18.3.1,
-`@anthropic-ai/sdk` 0.95.1; o `@/` é resolvido pelo próprio `jest.config.js`), **Python 3** (medido com 3.11), `git`, **GNU `diff`** (diffutils), `bash` e `node`
-(o analisador executa um controle de `JSON.stringify`). Nenhuma rede, nenhuma chave real.
+A partir da raiz do repositório, com **qualquer** commit em checkout. O repositório precisa ter os dois commits (um clone raso não basta). A extração lê o commit publicado com
+`git show <commit>:<caminho>`, arquivo a arquivo, e **não depende do que está em checkout**; o `LEIA-ME.md` fica de fora, porque é este arquivo.
+
+```bash
+REPO=$(git rev-parse --show-toplevel)                  # o checkout desta árvore NÃO muda em nenhum passo
+MEDIDO=ad2ad0afdc1a972570d3733ccc582d65a719397a         # o código medido
+PUBLICADO=c8e1da0e3bb34c08a55c8ffb76dc6cae78d9b2cc      # o instrumento e os resultados publicados
+PACOTE=docs/dados/a12-sem-vinculo
+TMP=$(mktemp -d)                                        # o roteiro cria tudo aqui, FORA do repositório (os caches do jest e do Node ficam no diretório temporário do sistema)
+PUB=$TMP/publicado; INSTR=$PUB/$PACOTE/instrumentos
+cd "$REPO"
+for c in "$MEDIDO" "$PUBLICADO"; do git cat-file -e "$c^{commit}" && echo "ok: $c" || echo "FALTA o commit $c"; done
+for caminho in $(git ls-tree -r --name-only "$PUBLICADO" -- "$PACOTE" | grep -v -F -x "$PACOTE/LEIA-ME.md"); do
+  mkdir -p "$PUB/$(dirname "$caminho")" && git show "$PUBLICADO:$caminho" > "$PUB/$caminho"
+done
+echo "extraídos: $(find "$PUB" -type f | wc -l) arquivos, $(ls "$INSTR" | wc -l) no instrumento"
+```
+
+Esperado: `ok` para os dois commits e `extraídos: 59 arquivos, 6 no instrumento`.
+
+### Passo 2. O código medido, num worktree auxiliar
+
+O commit `ad2ad0a` vai para um **worktree auxiliar**; a árvore principal continua onde estava. Nele **não há** `docs/dados/a12-sem-vinculo/` (o passo 1 já tirou o instrumento
+de `c8e1da0`). A sonda grava em `identidade.json` o `git rev-parse HEAD` e o `git status --porcelain` desse worktree, e o analisador (passo 4) exige `ad2ad0a` e árvore sem alteração.
+
+```bash
+MED=$TMP/medido
+git worktree add --detach "$MED" "$MEDIDO"              # worktree auxiliar: criado aqui, removido no passo 8
+cd "$MED"
+echo "HEAD: $(git rev-parse HEAD); alterações: $(git status --porcelain | wc -l)"
+[ -e "$PACOTE" ] && echo "ATENÇÃO: o pacote existe aqui" || echo "o pacote NÃO existe neste commit (esperado)"
+npm ci --no-audit --no-fund                             # precisa de rede (registro npm)
+du -sh node_modules
+```
+
+Esperado: `HEAD` igual a `ad2ad0a…`, `alterações: 0` e `o pacote NÃO existe neste commit (esperado)`; o `npm ci` instala 618 pacotes e o `node_modules` ocupa 893 MB (medido em 03/10/2026).
+
+### Passo 3. A sonda: código medido como diretório atual, resultados novos em outro diretório
+
+```bash
+SONDA=$TMP/sonda; SAIDA=$TMP/saida; mkdir -p "$SONDA" "$SAIDA"
+cp "$INSTR/sonda-sem-vinculo.test.ts.txt"   "$SONDA/sonda-sem-vinculo.test.ts"
+cp "$INSTR/jest.sem-vinculo.config.cjs.txt" "$SONDA/jest.sem-vinculo.config.cjs"
+SONDA_DIR=$SONDA SONDA_SAIDA=$SAIDA npx jest --config "$SONDA/jest.sem-vinculo.config.cjs" --runInBand      # diretório atual: $MED
+echo "arquivos gravados: $(find "$SAIDA" -type f | wc -l)"
+```
+
+A sonda grava em `$SAIDA` a mesma árvore de `fase-a/`, `fase-b/`, `fase-c/` e `identidade.json`, e nada no repositório. Esperado: `PASS`, `Tests: 1 passed, 1 total` e
+`arquivos gravados: 44` (1 de `identidade.json`, 25 de `fase-a/`, 13 de `fase-b/` e 5 de `fase-c/`).
+
+### Passo 4. O analisador, só conferindo
+
+O analisador procura a sonda em `<--dados>/instrumentos/sonda-sem-vinculo.test.ts.txt` (`analisar-fases.py:318` e `:372`); por isso o diretório de resultados novos ganha uma
+**cópia extraída** dela. Lê os artefatos e o `git show` do commit medido, sai 1 e diz o que diverge. A segunda chamada confere o pacote **publicado**: o do repositório, se a árvore
+principal o tem, ou a cópia extraída no passo 1, se o checkout é anterior a `c8e1da0`.
+
+```bash
+mkdir -p "$SAIDA/instrumentos" && cp "$INSTR/sonda-sem-vinculo.test.ts.txt" "$SAIDA/instrumentos/"
+python3 "$INSTR/analisar-fases.py" --dados "$SAIDA" --so-conferir            # resultados novos; diretório atual: $MED
+cd "$REPO"
+if [ -d "$PACOTE" ]; then python3 "$INSTR/analisar-fases.py" --dados "$PACOTE" --so-conferir        # o pacote PUBLICADO, no repositório: só leitura
+else python3 "$INSTR/analisar-fases.py" --dados "$PUB/$PACOTE" --so-conferir; fi                    # checkout sem o pacote: a cópia extraída no passo 1
+```
+
+Esperado: cada uma das duas chamadas termina em `(--so-conferir: nada gravado)` e `TUDO CONFERE`.
+
+### Passo 5. Comparar os resultados novos com os publicados
+
+```bash
+cd "$SAIDA"; n=0; d=0
+for f in $(find . -type f -not -path './instrumentos/*' | LC_ALL=C sort); do
+  n=$((n+1)); cmp -s "$f" "$PUB/$PACOTE/$f" || { d=$((d+1)); echo "difere do publicado: $f"; }
+done
+echo "comparados: $n; diferem: $d; idênticos: $((n-d))"
+python3 - "$SAIDA" "$PUB/$PACOTE" <<'PY'
+import glob, json, os, sys
+novo, pub = sys.argv[1:3]
+def ler(p): return json.load(open(p, encoding='utf-8'))
+def difere(a, b, c=''):
+    if isinstance(a, dict) and isinstance(b, dict):
+        for k in sorted(set(a) | set(b)): yield from difere(a.get(k), b.get(k), f'{c}.{k}')
+    elif isinstance(a, list) and isinstance(b, list) and len(a) == len(b):
+        for i, (x, y) in enumerate(zip(a, b)): yield from difere(x, y, f'{c}[{i}]')
+    elif a != b: yield c
+for f in sorted(glob.glob(f'{novo}/fase-b/corpos/*.json')):        # os quatro corpos: iguais, exceto metadata.timestamp
+    a, b = ler(f), ler(f.replace(novo, pub, 1))
+    ts = (a['metadata'].pop('timestamp'), b['metadata'].pop('timestamp'))
+    print(os.path.basename(f), '| iguais, sem metadata.timestamp:', a == b, '| timestamp novo e publicado:', *ts)
+for f in ('identidade.json', 'fase-b/execucoes.json', 'fase-c/renderizacoes.json'):      # os três registros: que campos diferem
+    print(f, 'campos que diferem:', list(difere(ler(f'{novo}/{f}'), ler(f'{pub}/{f}'))))
+PY
+```
+
+Esperado (medido em 03/10/2026): `comparados: 44; diferem: 7; idênticos: 37`. Os sete são os quatro `fase-b/corpos/*.json`, `fase-b/execucoes.json`, `fase-c/renderizacoes.json` e `identidade.json`; os 37
+idênticos incluem os 25 de `fase-a/` (as **oito capturas**), os 8 de `fase-b/contextos/` e `fase-b/jsons-entregues/`, e os quatro HTML. Cada um dos quatro corpos traz `iguais, sem
+metadata.timestamp: True` (só esse campo difere, com timestamps diferentes); `identidade.json` difere só em `.instanteDaMedicaoUTC`; `execucoes.json`, em `corpo.timestamp` e `corpo.sha256` de cada um
+dos quatro registros; `renderizacoes.json`, em `aiReview.sha256DoJson` de cada um dos quatro. Tudo isso deriva do relógio: `corpo.sha256` é o `sha256` de um corpo que contém o timestamp, e
+`aiReview.sha256DoJson`, o de um `aiReview` que carrega `metadata` (lido na sonda, que monta o `aiReview` como `page.tsx:1363-1371`), e nela o timestamp. **Mais arquivos, ou outros campos,
+divergindo, não é o esperado**: o analisador do passo 4 já conferiu a integridade, e o que sobra a explicar é a comparação.
+
+### Passo 6. Buscas (só leitura; a saída vai para fora do pacote)
+
+Os dois roteiros de busca usam `git grep` sobre `ad2ad0a`. A saída **não** é redirecionada para `fase-d/` nem para `guardas/`: o uso antigo (`> docs/dados/.../buscas.txt`) regravaria o publicado.
+
+```bash
+cd "$MED"; mkdir -p "$TMP/buscas"
+bash "$INSTR/buscas-fase-d.sh.txt"  > "$TMP/buscas/fase-d.txt"
+bash "$INSTR/buscas-guardas.sh.txt" > "$TMP/buscas/guardas.txt"
+cmp "$TMP/buscas/fase-d.txt"  "$PUB/$PACOTE/fase-d/buscas.txt"      && echo "fase-d: igual ao publicado"     || echo "fase-d: DIFERE do publicado"
+cmp "$TMP/buscas/guardas.txt" "$PUB/$PACOTE/guardas/buscas-6-4.txt" && echo "guardas: igual ao publicado"    || echo "guardas: DIFERE do publicado"
+```
+
+Esperado, no ambiente observado: `fase-d: igual ao publicado` e `guardas: igual ao publicado`.
+
+### Passo 7. As guardas: dois usos, que não se confundem
+
+⚠ A versão anterior mandava rodar `aplicar-guardas.py` "depois de qualquer alteração em `docs/`". **Isso não vale.** O aplicador e `buscas-guardas.sh.txt` são **amarrados à rodada de 02/10/2026**, e
+extraí-los para fora do repositório não muda isso: o aplicador lê a árvore de trabalho do diretório atual. Ele tem `BASE` fixo em `ad2ad0a` (`aplicar-guardas.py:24`); exige que o **único** arquivo
+rastreado alterado seja o registro e que todo arquivo novo esteja sob `docs/dados/a12-sem-vinculo/` (`:85-86`), e que o contrato e o âncora sejam os de `ad2ad0a` (`:91`); e exige, em P2, **inserção
+não vazia** no registro em relação a `ad2ad0a` (`:252-253`). Medido em 03/10/2026, com o aplicador extraído de `c8e1da0`: numa árvore limpa de `ad2ad0a` ele sai 1 (P2 falha, 0 linhas inseridas;
+10 de 11); numa árvore de `c8e1da0` com o `LEIA-ME.md` alterado, sai 1 por `AssertionError` em `:86`.
+
+**(a) Reprodução histórica**, na árvore **limpa** de `c8e1da0`, onde o aplicador de 02/10 passa como publicado:
+
+```bash
+HIST=$TMP/historico
+git worktree add --detach "$HIST" "$PUBLICADO"           # árvore limpa de c8e1da0: criada aqui, removida no passo 8
+cd "$HIST"
+python3 "$INSTR/aplicar-guardas.py" > "$TMP/aplicacao-historica.txt" && echo "aplicador: saída 0" || echo "aplicador: FALHOU, saída $?"
+tail -1 "$TMP/aplicacao-historica.txt"
+diff "$TMP/aplicacao-historica.txt" "$PUB/$PACOTE/guardas/aplicacao.txt" || true
+```
+
+Esperado: `aplicador: saída 0`, `# RESUMO: 11 de 11 aplicações passam` e um `diff` **só nas linhas 2 a 4** (o cabeçalho): em 02/10 estavam em checkout `ad2ad0a`, o registro alterado e os 60 arquivos do
+pacote ainda não rastreados (`# HEAD ad2ad0a…`, `# Arquivos ALTERADOS (rastreados): ['docs/imprecisoes-parecer-ia.md']`, `# Arquivos NOVOS (nao rastreados): 60`); na árvore limpa de `c8e1da0` saem
+`c8e1da0…`, `[]` e `0`. Os onze resultados e o resto do texto são os mesmos.
+
+**(b) Conferir uma alteração posterior em `docs/`** (inclusive esta correção, de 03/10/2026) **não é o que o aplicador faz**, e o resultado de (a) **não** o substitui. O que vale: (1) uma **busca
+própria**, com `git grep` sobre o commit-base **daquela** alteração e com padrão e escopo declarados, de quem lê cada arquivo alterado (`buscas-guardas.sh.txt` serve de **modelo**, não de resultado:
+o `BASE` é `ad2ad0a` e a lista de arquivos é a de 02/10); (2) cada guarda achada, aplicada **ao mesmo trecho** que o teste examina, com a fatia calculada pela **expressão do teste** e
+nunca pela posição de um título; (3) os testes reais, `npm test`, depois. Se uma guarda ficar incompatível com o que foi escrito, **para-se e relata-se**: não se afrouxa a guarda, não se
+altera o teste, não se reescreve o trecho.
+
+### Passo 8. Limpar
+
+```bash
+cd "$REPO"
+git worktree remove --force "$HIST"; git worktree remove --force "$MED"   # --force: o worktree auxiliar tem node_modules; nada a ver com push
+rm -rf "$TMP"
+git worktree list; echo "alterações no pacote publicado: $(git status --porcelain -- "$PACOTE" | wc -l)"
+```
+
+Esperado: a lista de worktrees volta ao que era antes do passo 2, e `alterações no pacote publicado: 0`.
+
+**Dependências:** Node (medido com v22.22.2; o CI usa 24.x), npm, os pacotes do `package-lock.json` **de `ad2ad0a`** (jest, ts-jest 29.4.6, `react` e `react-dom` 18.3.1,
+`@anthropic-ai/sdk` 0.95.1; o `@/` é resolvido pelo próprio `jest.config.js`), **Python 3** (medido com 3.11), `git` **com `git worktree`**, **GNU `diff`** (diffutils), `cmp`, `grep`, `find`, `bash` (os
+blocos usam `heredoc`) e `node` (o analisador executa um controle de `JSON.stringify`). A sonda e o analisador não fazem chamada de rede e não usam chave real; **só** o
+`npm ci` do passo 2 usa a rede. Disco: 893 MB para o `node_modules` do worktree auxiliar.
 
 ## Metadados: disponíveis, ausentes e não aplicáveis
 

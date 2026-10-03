@@ -16261,6 +16261,179 @@ com texto fixado, e a alcançabilidade lida dentro da árvore). **Não** decide 
 qualificar ou tornar visível a ausência, e não classifica o defeito por severidade, que depende da alcançabilidade fora da árvore, hoje **não avaliada**. Nada foi integrado:
 `integra/a30-registros` permanece em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em `33c1fdf6500242832994a17aa15b0a686704c029`.
 
+## Correção do roteiro de reprodução do pacote `a12-sem-vinculo` (`LEIA-ME.md:52-67`), em 03/10/2026
+
+⚠ **Acréscimo datado, por inserção pura**, sobre a base `c8e1da0e3bb34c08a55c8ffb76dc6cae78d9b2cc`. Nenhuma linha publicada deste registro foi editada. A correção é **exclusivamente documental** e toca **dois**
+arquivos: o `LEIA-ME.md` do pacote `docs/dados/a12-sem-vinculo/`, **editado no lugar** (a seção "Como reexecutar", o parágrafo de dependências e duas linhas da tabela de arquivos), e este registro, por
+inserção. Há **zero byte de produção e zero byte de teste**, nenhum artefato publicado de `fase-a/`, `fase-b/`, `fase-c/`, `fase-d/`, `guardas/` e `instrumentos/` foi regravado, e **nenhum número de medição
+mudou**. ⚠ **A correção não decide o comportamento esperado para o caminho sem `vinculoDaExecucao`**, que segue como pendência do autor (seção "O que a rodada não decidiu", de 02/10/2026, acima).
+
+**Procedência.** A mesma convenção do bloco de 02/10/2026: **medida** (produzida nesta rodada, por execução), **derivada** (calculada sobre o que foi medido), **lida** (leitura de código, de texto ou busca) ou
+**recebida** (do pedido ou do autor). Onde duas fontes se contradizem, os dois valores e a fonte de cada um ficam conservados. ⚠ Os registros brutos das execuções desta rodada **não estão no repositório**: a
+correção é de dois arquivos e não acrescenta dados. O que cada passo do roteiro imprime está descrito no próprio roteiro, e quem o executar compara.
+
+### O defeito
+
+O roteiro publicado em `c8e1da0` mandava executar a sonda "com o commit `ad2ad0a` em checkout" (`LEIA-ME.md:52`) e copiá-la de `docs/dados/a12-sem-vinculo/instrumentos/` (`:56-57`); os passos 2 a 4 repetem o
+caminho (`:63-67`: o analisador em `:64`, a cópia do diretório de instrumentos em `:65`, as buscas em `:66` e o aplicador de guardas em `:67`). **Esse diretório não existe em `ad2ad0a`**: o instrumento foi
+publicado depois do código que ele mede.
+
+| O que | Em `ad2ad0a` | Em `c8e1da0` | Procedência |
+|---|---|---|---|
+| entradas de `git ls-tree -r --name-only <commit> -- docs/dados/a12-sem-vinculo` | **0** (saída 0 do `git`) | 60 | medida |
+| arquivos em `docs/dados/a12-sem-vinculo/instrumentos/` | **0** | 6 | medida |
+| o bloco de `:54-59`, extraído do arquivo de `c8e1da0` e executado **como estava**, numa árvore limpa de `ad2ad0a` com `npm ci` feito (a condição que o próprio passo declarava; `git status --porcelain` vazio antes e depois do `npm ci`) | os dois `cp` saem com `cannot stat ...: No such file or directory`, e o `jest` termina em `Error: Can't find a root directory while resolving a config file path` (saída 1) | — | medida |
+
+⚠ **A frase de 02/10 sobre a terceira execução da sonda não foi contrariada, e o seu alcance fica explícito.** O bloco de 02/10 diz, no determinismo entre execuções, que a terceira seguiu "as instruções do
+`LEIA-ME.md`, depois de empacotar" (linha 16047 do registro em `c8e1da0`). Essa execução foi feita **depois de empacotar**, isto é, numa árvore de trabalho em que `docs/dados/a12-sem-vinculo/instrumentos/` já
+existia como arquivos novos, ainda não rastreados: é a árvore que o cabeçalho de `guardas/aplicacao.txt` descreve (`ad2ad0a` em checkout e 60 arquivos novos). Ela **não** mostra que o roteiro funciona numa
+árvore limpa de `ad2ad0a`, e a medição acima mostra que não funciona. A frase **não foi editada**.
+
+Dois defeitos do mesmo roteiro, achados ao lê-lo contra os instrumentos:
+
+- **Lido** (`analisar-fases.py:896-897` e `:955-961`): o passo 2 antigo apresentava `python3 docs/dados/a12-sem-vinculo/instrumentos/analisar-fases.py` **sem** `--so-conferir`. Sem a opção, o analisador
+  **regrava** `fase-a/analise.json`, `fase-b/analise.json`, `fase-c/analise.json`, `fase-d/analise.json` e `fase-a/diffs/*.diff` no diretório de `--dados`, cujo padrão é o pacote publicado: o comando
+  apresentado era o que regravava, e o texto só avisava disso entre parênteses.
+- **Lido e medido** (`aplicar-guardas.py:24`, `:85-86`, `:91` e `:252-253`): o passo 4 antigo mandava rodar o aplicador de guardas "depois de qualquer alteração em `docs/`". Ele é **amarrado à rodada de
+  02/10/2026**: `BASE` fixo em `ad2ad0a`; exige que o único arquivo rastreado alterado seja o registro e que todo arquivo novo esteja sob o pacote; exige que o contrato e o âncora sejam os de `ad2ad0a`; e exige
+  inserção não vazia no registro em relação a `ad2ad0a` (P2). **Medido**, com o aplicador extraído de `c8e1da0`: numa árvore limpa de `ad2ad0a`, sai 1 (**10 de 11** passam; P2 falha, com 0 linhas inseridas);
+  numa árvore limpa de `c8e1da0` com o `LEIA-ME.md` alterado, sai 1 por `AssertionError` em `:86`, que nomeia o `LEIA-ME.md`; numa árvore limpa de `c8e1da0`, sai 0 (**11 de 11**). Extraí-lo para fora do
+  repositório não muda nada, porque ele lê a árvore de trabalho do diretório atual. O analisador, por sua vez, procura a sonda em `<--dados>/instrumentos/sonda-sem-vinculo.test.ts.txt` (`analisar-fases.py:318`
+  e `:372`), o que exige uma cópia dela também no diretório de resultados novos.
+
+### O que o roteiro corrigido separa
+
+O texto corrigido está no `LEIA-ME.md`. Ele separa **três coisas**, e o aplicador de guardas ganha um tratamento à parte:
+
+| Coisa | Onde fica | Como se obtém |
+|---|---|---|
+| **código medido** (`ad2ad0a`) | num **worktree auxiliar**, criado e removido dentro do roteiro, com `npm ci` próprio; **a árvore de trabalho principal não é levada a outro commit** | `git worktree add --detach`; o `npm ci` foi viável aqui (618 pacotes, 893 MB, 17 a 19 s), e por isso nenhuma alternativa precisou ser proposta |
+| **instrumento publicado** (`c8e1da0`) | num diretório **externo** ao repositório, extraído **antes** de qualquer execução e **sem depender do commit em checkout** | `git show c8e1da0:<caminho>`, arquivo a arquivo: 59 arquivos (o pacote sem o `LEIA-ME.md`; 6 deles são o instrumento), conferidos por `sha256` contra os blobs (59 de 59 iguais). A sonda extraída tem o `sha256` `2b302fa89339af0f75671b129a0773ae77678482da69be86b9a046e86671b405`, o mesmo que o `identidade.json` publicado declara para a sonda executada em 02/10 |
+| **resultados novos** | num diretório **separado**, também externo | a própria sonda; conferidos com `--so-conferir`; comparados com os publicados; o pacote publicado não é tocado |
+
+O analisador e o aplicador de guardas **não foram modificados**. O roteiro usa `--so-conferir` em todas as chamadas do analisador e avisa que, sem a opção, ele regrava o diretório de `--dados`. As buscas
+(`buscas-fase-d.sh.txt` e `buscas-guardas.sh.txt`) têm a saída redirecionada para fora do pacote. Os dois usos do aplicador de guardas ficam separados: **(a) reprodução histórica**, numa árvore limpa de
+`c8e1da0`, onde o aplicador de 02/10 passa como publicado; **(b) conferência de uma alteração posterior**, que **não** é o que o aplicador faz: busca própria sobre o commit-base daquela alteração, cada guarda
+aplicada ao mesmo trecho que o teste examina, e os testes reais. (a) **não** substitui (b); a seção "As guardas desta alteração", abaixo, é a aplicação de (b) a esta correção.
+
+### O roteiro corrigido, executado como publicado, de árvore limpa
+
+Os blocos `bash` da seção foram extraídos **mecanicamente** do arquivo e executados num único `bash -e`, **sem alterar nenhum**, a partir de uma árvore leitora **limpa** (um worktree auxiliar com
+`git status --porcelain` vazio, em `c8e1da0` e em `ad2ad0a`), com a árvore de trabalho principal **fora** da execução (o estado dela, com `HEAD`, `git status --porcelain` e lista de stash e de worktrees, foi
+registrado antes e depois de cada execução e é igual). Entre os blocos entraram só verificações de leitura, rotuladas `EVIDENCIA (fora do roteiro)`, que **não** fazem parte do texto.
+
+| Execução | `sha256` do `LEIA-ME.md` executado | Blocos de código | Árvore leitora (limpa) | Saída |
+|---|---|---|---|---|
+| 1 | `ff25326ac483…` (rascunho 1) | 8, conjunto `6d4608e1a100…` | `c8e1da0` | 0 |
+| 2 | `6da983a02288…` (rascunho 2) | 8, conjunto `50bea64f094e…` | `c8e1da0` e `ad2ad0a` | 0 e 0 |
+| 3 | `f4d2d976f021…` (rascunho 3) | 8, conjunto `50bea64f094e…` | `c8e1da0` e `ad2ad0a` | 0 e 0 |
+| 4 | `e71ff3b543492de870ed7e981e53da6c0bd907a813d3b769cf588fbbea62d945` (**o texto publicado**) | 8, conjunto `50bea64f094e…` | `c8e1da0` e `ad2ad0a` | 0 e 0 |
+
+**Quatro execuções, em sete árvores leitoras, até o texto publicado ser o executado.** Nenhuma falhou (saída 0); as correções de texto vieram da **leitura do resultado**, e não de falha de comando:
+
+1. da execução 1 para o rascunho 2: (i) o comentário do passo 1 dizia que o roteiro cria tudo em `$TMP`, e a execução deixou `jest_0` e `node-compile-cache` no diretório temporário do sistema (**medido**): o
+   comentário foi corrigido; (ii) a segunda chamada do analisador apontava para o pacote no repositório, que **não existe** numa árvore de `ad2ad0a`, justamente o cenário do defeito (**lido**, não medido): virou
+   um condicional que usa a cópia extraída quando o pacote não está na árvore; (iii) a comparação com o publicado só listava os sete arquivos que diferem, sem dizer por quê: o instrumento da primeira versão
+   (projeção textual do valor de `timestamp`, com `sed`) foi conferido à mão (uma ocorrência de `timestamp` por corpo; controle negativo que discrimina) e **substituído** por uma
+   comparação por caminho de JSON, que exclui só `metadata.timestamp` e lista os campos que diferem nos outros três;
+2. da execução 2 para o rascunho 3, só texto: a segunda chamada do analisador era chamada de "terceira", e a origem de `aiReview.sha256DoJson` estava descrita como a de "um corpo", quando é a de um `aiReview` que
+   carrega `metadata` (**lido** na sonda e na tela);
+3. da execução 3 para o texto publicado, só a frase que descreve as árvores leitoras.
+
+O que a execução 4 mediu, passo a passo (nas duas árvores leitoras, salvo onde dito):
+
+| Passo | Medido |
+|---|---|
+| 1. extração | `extraídos: 59 arquivos, 6 no instrumento`; 59 de 59 `sha256` iguais aos blobs de `c8e1da0`, conferidos à parte |
+| 2. código medido | `HEAD` em `ad2ad0a`, 0 alterações, o pacote **ausente** do worktree; `npm ci`: 618 pacotes; `node_modules`: 893 MB |
+| 3. sonda | `PASS`, 1 de 1 teste; **44** arquivos gravados (1 + 25 + 13 + 5, por pasta); `git status --porcelain --untracked-files=all` com 0 linhas na árvore leitora e no worktree medido; `identidade.json` novo com `commitDeBase` `ad2ad0a` e `statusPorcelainAntesDaExecucao` vazio |
+| 4. analisador | as duas chamadas terminam em `(--so-conferir: nada gravado)` e `TUDO CONFERE`, com 23 de 23 âncoras conferidas. Na árvore leitora de `c8e1da0`, a segunda conferiu o pacote do repositório; na de `ad2ad0a`, a cópia extraída |
+| 5. comparação | `comparados: 44; diferem: 7; idênticos: 37` (detalhe na seção seguinte) |
+| 6. buscas | `fase-d: igual ao publicado` e `guardas: igual ao publicado` (167 e 241 linhas; nenhuma busca com saída 2 ou mais) |
+| 7. guardas, uso (a) | `aplicador: saída 0` e `# RESUMO: 11 de 11 aplicações passam`; o `diff` contra `guardas/aplicacao.txt` só nas linhas 2 a 4 (`# HEAD`, `# Arquivos ALTERADOS`, `# Arquivos NOVOS`), pelo estado da árvore de 02/10 |
+| 8. limpeza | os dois worktrees auxiliares e o diretório temporário removidos; a lista de worktrees volta ao que era; `alterações no pacote publicado: 0` |
+
+⚠ **O instrumento novo do passo 5 foi conferido à mão antes de se aceitar o agregado**: em cada corpo, `grep` achou **uma** ocorrência de `timestamp` (no novo e no publicado), e o analisador de JSON
+confirmou que o caminho dela é `.metadata.timestamp`; o corpo novo e o publicado têm o **mesmo tamanho** (1304 ou 1838 bytes); os timestamps impressos pelo instrumento são os que o `grep` extraiu; e, como
+**controle negativo**, o mesmo corpo com `metadata.model` alterado compara como `False`. O percurso por arquivo discrimina por construção: listou os sete que diferem e deixou de listar os 37 iguais.
+⚠ **Um número que a primeira leitura tomou por constante não era**: o `cmp -l` conta **7 ou 8** bytes diferentes por corpo, conforme os dígitos do relógio que coincidem com os do timestamp publicado (8 em cinco das
+seis árvores leitoras das execuções 2 a 4, e 7 na sexta, a de `ad2ad0a` da execução 4, nos quatro corpos). A afirmação do registro é a igualdade **depois de excluir `metadata.timestamp`**, e não uma contagem de
+bytes.
+
+### O que a correção não invalida
+
+Os resultados de `c8e1da0` **não** são invalidados: o defeito era do **texto** do roteiro, e não dos dados, da sonda, do analisador ou do registro de 02/10. O que a execução 4 mediu sobre eles:
+
+| O que | Recebida (do autor) | Medida (esta rodada, execução 4) |
+|---|---|---|
+| as **8 capturas** (Fase A) | reproduzidas com igualdade | os **25** arquivos de `fase-a/` (8 contextos, 8 JSON entregues, 8 objetos preparados e `capturas.json`) **byte a byte iguais** aos publicados |
+| as **4 respostas** (Fase B) | reproduzidas com igualdade, depois de excluir **só** `metadata.timestamp` | os 4 corpos **iguais depois de excluir só `metadata.timestamp`** (comparação por caminho de JSON; os 4 timestamps diferem); os 8 contextos e JSON entregues da Fase B, byte a byte iguais |
+| as **4 renderizações** (Fase C) | reproduzidas com igualdade | os 4 HTML **byte a byte iguais** |
+| os três registros derivados | — | `identidade.json` difere só em `.instanteDaMedicaoUTC`; `execucoes.json`, em `corpo.timestamp` e `corpo.sha256` de cada um dos quatro registros; `renderizacoes.json`, em `aiReview.sha256DoJson` de cada um dos quatro: **campos derivados do relógio** |
+
+⚠ **As duas procedências ficam separadas.** O relato do autor foi **recebido** do pedido de 03/10/2026, e esta rodada **não o conferiu** contra a execução do autor: mediu a **sua própria**, pelo roteiro
+corrigido. Não há contradição entre as duas. Os sete arquivos que diferem são os mesmos que o bloco de 02/10 já listava (os quatro corpos, `execucoes.json`, `renderizacoes.json` e `identidade.json`). A derivação
+dos `sha256` é **lida**: `corpo.sha256` é o de um corpo que contém o timestamp, e `aiReview.sha256DoJson`, o de um `aiReview` que carrega `metadata`.
+
+**Nenhum artefato publicado foi regravado, e nenhum número de medição mudou.** O manifesto completo do pacote, com o `sha256` de cada arquivo, é o de `c8e1da0` **antes e depois** da execução 4 (árvore leitora
+de `c8e1da0`): os 60 caminhos de `c8e1da0` são os 60 da árvore (nenhum arquivo acrescentado ou removido, `LEIA-ME.md` incluído), e os **59** arquivos protegidos (os 60 menos o `LEIA-ME.md`, **excluído por
+nome**) têm o `sha256` igual ao do blob de `c8e1da0`, também depois das duas chamadas do analisador com `--so-conferir`. O `sha256` do manifesto protegido (as linhas `<sha256>␣␣<caminho>` dos 59, em
+ordem de caminho com `LC_ALL=C`, uma por linha, com LF final) é `221030090054c036cc0fc123e4b26bafdd79c26c786311326c8581fdadc2f93b`, e a árvore de trabalho principal, depois de editados os dois arquivos, dá o
+mesmo manifesto. O `LEIA-ME.md` é o **único** arquivo do pacote que muda.
+
+### Por que o `LEIA-ME.md` foi editado no lugar
+
+O `LEIA-ME.md` é um **instrumento operacional**, lido de cima para baixo por quem vai executar. Uma correção acrescentada no fim seria lida **depois** do comando que falha (o `cp` de `:56-57`), com o roteiro
+defeituoso ainda no lugar onde se executa; um arquivo novo deixaria dois roteiros no mesmo pacote. Por isso a seção foi **reescrita no lugar**, com o aviso de que foi corrigida em 03/10/2026 e do que o texto
+anterior mandava fazer. O texto anterior **não se perde**: está em `c8e1da0` (`git show c8e1da0:docs/dados/a12-sem-vinculo/LEIA-ME.md`), e a correção é um commit novo sobre ele, **sem reescrita de
+histórico** (sem `amend`, `rebase` ou `push --force`).
+
+O diff de `c8e1da0` para o texto publicado altera **só** o `LEIA-ME.md` e este registro. No `LEIA-ME.md`, 181 linhas acrescentadas e 22 removidas, e as 22 são do roteiro antigo: as linhas 43 e 44 da
+tabela (reescritas com a ressalva de que o aplicador de guardas e a aplicação de 02/10 são da rodada de 02/10), as linhas **52 a 67** (o bloco defeituoso) e as linhas 68 a 71 (a linha em branco e o parágrafo
+de dependências, reescritos). No registro, **nenhuma** linha removida.
+
+### As guardas desta alteração
+
+⚠ **"Só documental" descreve os arquivos alterados, e não demonstra ausência de efeito nos testes.** A correção altera **dois** arquivos: o `LEIA-ME.md` do pacote e este registro. A busca de quem os lê foi
+**própria**, sobre `c8e1da0`, com padrão e escopo declarados; o inventário de 02/10 **não** foi herdado. As buscas (`git grep -n`, sobre a árvore de `c8e1da0`; saída 0 é com resultado, e saída 1 é **sem
+resultado**, que não é falha):
+
+- `-F -e 'a12-sem-vinculo'`, tudo o que é rastreado: **22** linhas, todas dentro do próprio pacote e deste registro; **nenhum** arquivo executável (`.ts`, `.tsx`, `.js`, `.cjs`, `.mjs`) cita o caminho;
+- `-F -e 'LEIA-ME'`, tudo o que é rastreado: **11** linhas, em documentos, na saída arquivada de uma busca (`guardas/buscas-6-4.txt`) e em comentários de dois arquivos do instrumento (`.txt`); **nenhum** arquivo
+  executável cita o nome;
+- `-E 'docs/dados'`, só nos tipos executáveis e fora de `docs/`: **90** linhas, **nenhuma** sob `a12-sem-vinculo`;
+- `-E 'readdirSync|readdir\(|globSync|glob\(|ls-files|walkSync|opendirSync|fast-glob'`, nos mesmos tipos e fora de `docs/`: **9** linhas. **Só** `vinculo-execucao-fiacao.test.ts:1464` percorre `docs` (a varredura
+  de `:1459-1478`, sobre `app`, `lib`, `docs`, `components` e `scripts`); `engine-census.test.ts` (`app`, `lib` e `components`, só `.ts` e `.tsx`), `vinculo-execucao-calculo.test.ts:542` (`app`, `lib`,
+  `components` e `scripts`), `vinculo-execucao-fiacao.test.ts:1550` (`app`, `lib` e `components`), `a33-identidade-revisada-medicao.test.ts:12` e `verify-citations.mjs:52` (`lib/rag/articles`) **não** o alcançam;
+- `-E 'imprecisoes-parecer-ia'`, nos mesmos tipos: **6** linhas; **leem** o registro `vinculo-execucao-fiacao.test.ts:49` (`REGISTRO`) e `a12-nota-veredicto-fase2.test.ts:793`; as outras quatro só citam o nome
+  (um comentário de teste e três linhas de scripts).
+
+| Arquivo alterado | Testes que o leem, em `c8e1da0` (lido) | O que examinam |
+|---|---|---|
+| `docs/imprecisoes-parecer-ia.md` | `vinculo-execucao-fiacao.test.ts` e `a12-nota-veredicto-fase2.test.ts` | o arquivo inteiro normalizado (`:1453-1457`, `:1480-1486`, `:1705-1712`, `:1721`); duas fatias (`:1725-1747` e `:1774-1796`); um prefixo (`:1798`); a varredura (`:1459-1478`); e, no texto cru, a regex de promessa (`a12-nota-veredicto-fase2.test.ts:786-800`) |
+| `docs/dados/a12-sem-vinculo/LEIA-ME.md` | só a varredura `vinculo-execucao-fiacao.test.ts:1459-1478`, que abre os `.md` de `docs` | cada arquivo, normalizado e em minúsculas, contra uma frase proibida |
+
+Cada guarda foi aplicada, **antes de publicar**, **ao mesmo trecho que o teste examina**, com as **mesmas expressões do teste** (em JavaScript: `indexOf`, `slice`, `replace(/\s+/g, ' ').trim()`, `toLowerCase` e a regex
+copiada), por um script de trabalho **fora do repositório**, que não substitui o aplicador de 02/10 (este não se aplica a esta alteração, como o `LEIA-ME.md` agora diz). **11 de 11** aplicações passam: as nove
+guardas e duas condições desta alteração (a inserção pura no registro e só dois arquivos alterados). Os literais de cada guarda são copiados do teste e conferidos contra o texto do teste em `c8e1da0`; o
+detector da regex de promessa pega as três formas vedadas; e, como **controle negativo** do próprio script, numa árvore de `c8e1da0` com texto vedado acrescentado ao registro e ao `LEIA-ME.md` ele sai 1
+(`G2`, `G5`, `G9` e `C1` falham).
+
+⚠ **A medição dos trechos, com a semântica do teste.** A fatia de `:1725-1747` (2593 caracteres normalizados) e a de `:1774-1796` (90708 caracteres, da linha 12332 à linha 13339) são **idênticas às da base**, e o
+prefixo de `:1798` também. A fatia de `:1774-1796` termina na **primeira** ocorrência seguinte do marcador de fim de `:1776`, que está no texto entre aspas de um bloco anterior (linha 13339), e **não** no título do
+anexo da execução 7: o acréscimo desta correção está **fora** das duas fatias e do prefixo, e o marcador de fim ocorre **2** vezes, como na base (esta inserção não acrescentou marcador). O acréscimo está **dentro**
+das guardas de arquivo inteiro (`:1453-1457`, `:1480-1486`, `:1705-1712` e `:1721`) e da regex de promessa, que passam sobre ele, e a varredura de `:1459-1478` alcança os dois arquivos alterados (260 arquivos
+varridos, nenhum achado). ⚠ A fatia, o prefixo e os marcadores **não foram tocados**; que a guarda de fatia cubra bem menos do registro do que o nome sugere é **achado de 02/10**, conservado, e nada nesta
+correção autoriza alterar o teste.
+
+**Os testes reais, executados sobre o texto publicado.** Os dois arquivos de teste que leem o registro, executados à parte, passam (184 testes). `npx tsc --noEmit` sai 0, e `npm test` sai 0 com **36 suítes e 940
+testes**, os mesmos de `c8e1da0` e de `ad2ad0a` (nenhum arquivo de teste foi tocado).
+
+### O que não foi integrado
+
+Nada foi integrado. No início desta rodada (**medido** por `git ls-remote`), `integra/a30-registros` estava em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em
+`33c1fdf6500242832994a17aa15b0a686704c029`; a base desta correção é `c8e1da0e3bb34c08a55c8ffb76dc6cae78d9b2cc`. Esta correção não toca as duas primeiras.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
