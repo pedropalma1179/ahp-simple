@@ -16434,6 +16434,183 @@ testes**, os mesmos de `c8e1da0` e de `ad2ad0a` (nenhum arquivo de teste foi toc
 Nada foi integrado. No início desta rodada (**medido** por `git ls-remote`), `integra/a30-registros` estava em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em
 `33c1fdf6500242832994a17aa15b0a686704c029`; a base desta correção é `c8e1da0e3bb34c08a55c8ffb76dc6cae78d9b2cc`. Esta correção não toca as duas primeiras.
 
+## Acréscimo de 04/10/2026: o desvio de `--force`, a versão do jest e o alcance de "saída 0"
+
+⚠ **Acréscimo datado, por inserção pura**, sobre a base `5f04725345d4f2dc23d8f759af4aa20a04bcecb4`. Nenhuma linha publicada deste registro foi editada. A rodada é **exclusivamente documental** e toca **um** arquivo,
+este registro. Há **zero byte de produção e zero byte de teste**, **nenhuma alteração do `LEIA-ME.md`** (inclusive das linhas `:201`, `:203`, `:220` e `:237`), **nenhuma reexecução** da sonda, do analisador ou das
+buscas sobre o pacote, nenhum artefato do pacote regravado e nenhum número de medição alterado. ⚠ **Os três itens são de registro, e não corrigem comportamento**: a correção do roteiro publicada em `5f04725` segue
+tecnicamente aceita. Não há predição, porque nada do que o modelo recebe muda. ⚠ **A rodada não decide o comportamento esperado para o caminho sem `vinculoDaExecucao`**, que segue como pendência do autor.
+
+**Procedência.** A mesma convenção dos blocos anteriores: **medida** (produzida nesta rodada, por execução), **derivada** (calculada sobre o que foi medido), **lida** (leitura de código, de texto ou busca) ou
+**recebida** (do pedido). Onde duas fontes se contradizem, os dois valores e a fonte de cada um ficam conservados. ⚠ Os registros brutos das medições desta rodada **não estão no repositório**, que recebe só este arquivo.
+
+### Item 1: o desvio de `--force`
+
+O roteiro publicado em `5f04725` usa `--force` em `docs/dados/a12-sem-vinculo/LEIA-ME.md:220`, a **única** linha do arquivo em que a opção aparece (**medido**: `git grep -n -F -e '--force'` sobre `5f04725`,
+restrito ao arquivo, acha só essa linha):
+
+```
+git worktree remove --force "$HIST"; git worktree remove --force "$MED"   # --force: o worktree auxiliar tem node_modules; nada a ver com push
+```
+
+São **duas utilizações** de `--force` como opção (a de `$HIST` e a de `$MED`) e **três ocorrências textuais** na linha, contando a do comentário (**medido**: `grep -o` sobre a linha).
+
+**O que este registro declara, em três pontos.**
+
+1. **O desvio.** O pedido de 02/10/2026 proibia `--force` sem conceder exceção para limpeza de worktree (**recebida**: a seção 9 do pedido diz "nenhum `--force`", e o pedido não menciona worktree). O pedido de
+   03/10/2026, que encomendou a correção do roteiro, exigia o worktree auxiliar e a sua remoção antes do fim (seções 2 e 6) e repetia a proibição na seção 9, também sem exceção. O roteiro publicado o usa.
+   ⚠ **É desvio declarado, e não autorização.**
+2. **O que o desvio não é.** O comentário em linha distingue corretamente de `push --force`. Os 59 arquivos protegidos do pacote e os três preservados permaneceram iguais nas comparações realizadas, e os resultados
+   arquivados não são invalidados pelo desvio. ⚠ A conferência desse conjunto **não demonstra** ausência de perda de qualquer arquivo nos worktrees auxiliares.
+3. **A justificativa, e o seu alcance.** O comentário de `:220` justifica a opção por `node_modules` no worktree auxiliar. ⚠ **Essa justificativa cobre `$MED`, e não demonstra necessidade em `$HIST`:** `$MED` recebe
+   `npm ci` no passo 2 (`:104`), e `$HIST` é criado no passo 7 (`:199`) como worktree limpo de `c8e1da0`, **sem** `npm ci`. ⚠ A presença de `node_modules` num **não demonstra necessidade nos dois**. Se `git worktree
+   remove` exige a opção para um worktree com `node_modules` (o caso de `$MED`) **não foi medido** nesta rodada.
+
+**O alcance do uso na rodada de 03/10.** (**Lido** no histórico de comandos da sessão, **externo ao repositório**: do pedido de 03/10 ao último comando anterior a esta rodada, 95 comandos Bash, por busca textual.)
+Fora do texto do roteiro, `git worktree remove --force` foi usado em scripts e comandos de trabalho que removem worktrees auxiliares **criados pela própria rodada, fora do repositório**: o script que executou o roteiro
+nas árvores leitoras (em duas versões), o script que executou o bloco antigo e os comandos de limpeza das medições avulsas (a de viabilidade, a da exploração, a do aplicador de guardas e a do controle negativo).
+O texto do roteiro (`:220`) foi, além disso, executado por esse script em cada árvore leitora. **Nenhum** dos 95 comandos executou `git push` com `--force`, `--force-with-lease`, `commit --amend`, `git rebase` ou
+`git reset`; o único `git push` foi o da publicação de `5f04725`, sem `--force`. Esta declaração **dimensiona** o desvio, e **não** o regulariza.
+
+**O uso nesta rodada.** (**Lido** no mesmo histórico, até a gravação deste texto, pela busca das instruções `git worktree remove` fora de corpo de heredoc, de `echo` e de comentário.) Houve **três** remoções de
+worktree auxiliar, todas por `git worktree remove` **sem** `--force`: a do worktree do item 1 e as dos dois worktrees do controle negativo das guardas (descrito na seção das guardas, abaixo). **Nenhum** comando
+desta rodada, até aqui, executou `git push`, `--force-with-lease`, `commit --amend`, `git rebase` ou `git reset`. ⚠ O `git commit` e o `git push` da publicação são posteriores a este texto e constam do relato da
+rodada, e **não** deste registro.
+
+**A medição desta rodada, que não é a sonda.** (**Medida** em 04/10/2026, com `git` 2.43.0 em Linux x86_64.) Criou-se, fora do repositório, um worktree **limpo de `c8e1da0`**, **sem** `npm ci` (`git worktree add
+--detach`, saída 0). Antes da remoção, `git status --porcelain --untracked-files=all` e `git status --porcelain --ignored` tinham 0 linhas, não havia `node_modules`, e os arquivos do diretório (fora o `.git`) eram
+os 400 rastreados. Então `git worktree remove <caminho>`, **sem** `--force`, saiu com **código 0** e **nenhuma saída** (stdout e stderr vazios). Depois, o caminho **não existia**, `git worktree list` mostrava só
+a árvore principal e `ls -A .git/worktrees` listou **0 entradas** (a saída de erro foi descartada, de modo que a medição **não distingue** diretório vazio de diretório ausente). O worktree **saiu pelo próprio `git worktree remove`, sem `--force`**, e nenhum outro comando de remoção foi necessário.
+
+**Formulação da condição em que foi obtido:** a remoção sem `--force` funcionou no worktree limpo criado nesta rodada.
+
+⚠ **A conclusão vale para essa condição, e não reconstrói o estado histórico de `$HIST`**: o `$HIST` de 03/10 não foi observado, e esta rodada criou outro worktree. A medição, portanto, **não permite** afirmar
+nem negar que a opção fosse necessária ali. ⚠ Nada no `LEIA-ME.md` muda por causa disso nesta rodada.
+
+### A decisão de redação futura, separada do desvio
+
+**Decisão de 04/10/2026, para os próximos pedidos:** a proibição passa a **nomear as operações**, em vez da palavra solta: sem `push --force`, sem `--force-with-lease`, sem `amend`, sem `rebase`, sem `reset`; e
+`git worktree remove --force` fica **permitido para limpeza de worktree auxiliar, com declaração no relato**.
+
+⚠ **Esta decisão vale do próximo pedido em diante, e NÃO regulariza retroativamente o desvio de `5f04725`**, que permanece declarado como desvio na seção anterior.
+
+### Item 2: a versão do jest
+
+⚠ **Apuração posterior, que não edita o registro histórico.** O bloco de 02/10/2026 registra a versão do jest como **contraditória, e conservada**: os `package.json` de `jest`, `jest-cli` e `@jest/core` instalados
+dizem `30.2.0`, `node_modules/.bin/jest --version` imprime `30.1.3`, e "a causa não foi apurada" (a linha `:15966` deste registro, na tabela de metadados, e `LEIA-ME.md:237`, a linha equivalente do pacote).
+⚠ **As duas linhas permanecem como publicadas**: o estado "contraditória, e conservada" do bloco de 02/10 **permanece**, e os dois valores e as duas fontes continuam conservados. O mesmo estado consta também,
+com a mesma causa "não apurada", de dois lugares que não são texto corrido e que **também não são tocados**: `docs/dados/a12-sem-vinculo/fase-a/analise.json:762` (o campo `contradicao`) e
+`docs/dados/a12-sem-vinculo/instrumentos/analisar-fases.py:322`, que o produz. O que segue é uma apuração **posterior**, relatada no fecho da rodada de 02/10, depois do commit `c8e1da0`, e **reconferida nesta
+rodada** antes de entrar aqui.
+
+**A reconferência** (**medida** nesta rodada; o ambiente está abaixo):
+
+| Fonte | Valor |
+|---|---|
+| `node_modules/jest/package.json` | `30.2.0` |
+| `node_modules/jest-cli/package.json` | `30.2.0` |
+| `node_modules/@jest/core/package.json` | `30.2.0` |
+| `node_modules/.bin/jest --version` (saída 0; `.bin/jest` aponta para `../jest/bin/jest.js`) | `30.1.3` |
+
+O `package-lock.json` da árvore e o `node_modules/.package-lock.json` instalado registram `30.2.0` para os três pacotes (**medido**): o valor `30.1.3` não vem de nenhuma fonte **declarada**.
+
+**O arquivo instalado que embute a versão** (**lido**): `node_modules/@jest/core/build/index.js:16`, o corpo do módulo `./package.json` do pacote empacotado, declarado na linha `:13` (`/***/ "./package.json":`).
+O início da linha, que tem 1964 bytes (sem o LF):
+
+```
+module.exports = /*#__PURE__*/JSON.parse('{"name":"@jest/core","description":"Delightful JavaScript Testing.","version":"30.1.3","main":"./build/index.js", …
+```
+
+É a única ocorrência de `30.1.3` no arquivo, e `30.2.0` não ocorre nele.
+
+**O caminho de `getVersion()`** (**lido**): `jest-cli/build/index.js:612` (`const data = require("@jest/core");`) e `:671` (`const version = (0, _core().getVersion)() + …`, entregue ao `yargs` em `:673`), que
+chegam a `@jest/core/build/index.js:4121` (a exportação `getVersion`) e a `:3561` (`function getVersion() { return VERSION; }`), em que `VERSION` vem, em `:3558-3560`, de `__webpack_require__("./package.json")`, isto
+é, do JSON embutido de `:16`. `@jest/core` resolve, a partir de `jest-cli`, para `node_modules/@jest/core/build/index.js`, e **não há** cópia aninhada. **Medido:** `require('@jest/core').getVersion()` devolve `"30.1.3"`.
+
+⚠ **O que a apuração diz, e o que não diz.** O número que `jest --version` imprime vem do `package.json` **embutido** em `@jest/core/build/index.js`, que diz `30.1.3`, e **não** dos `package.json` instalados, que
+dizem `30.2.0`. **Por que o `package.json` embutido no `@jest/core` instalado diz `30.1.3` não foi apurado**: a apuração descreve de onde vem cada um dos dois valores, e não por que eles diferem dentro do pacote.
+
+**O ambiente identificado** (**medido** nesta rodada): Linux 6.18.44-fc-v64 x86_64 (Ubuntu 24.04.4 LTS), Node v22.22.2, npm 10.9.7, no diretório `/home/user/ahp-simple`; `node_modules` não é versionado (ignorado por
+`.gitignore:2`).
+
+**Quando a instalação foi feita.** O histórico de comandos desta sessão, **externo ao repositório**, registra, em 16/09/2026, uma verificação que acusava `node_modules` ausente no diretório principal (a entrada
+`ceeb130e-c041-452e-ad14-e2f5de4b8eb1`, às 13:47:21Z, e o resultado `6c360d64-f8ef-45bd-91cf-e67ba1d361b0`) e, em seguida, `npm install --no-audit --no-fund` (a entrada `66f56f23-944f-4e4f-92cf-f666c4f1d356`, às
+13:47:32Z, e o resultado `dee3f33f-2dec-4048-aee0-bd1cf8d06c42`, às 13:47:51Z). O levantamento próprio dos comandos `npm ci`, `npm install` e afins do histórico **não acha outra instalação** no diretório principal
+(as demais ocorrências são execuções em clones e em worktrees auxiliares, ou texto). **Não se usou horário de arquivo.** ⚠ Isto é registro de comando: **a reconferência descreve o ambiente observado nesta rodada, e não demonstra qual instalação
+existia na execução de 02/10**, e nada verifica, por outro meio, que `node_modules` não tenha sido alterado fora dos comandos registrados.
+
+### Item 3: o alcance de "saída 0"
+
+Dois comandos do roteiro **absorvem a falha**, de modo que "saída 0" não cobre esses pontos, e a conferência depende **também** das saídas impressas contra o "Esperado" de cada passo. Os dois, em
+`docs/dados/a12-sem-vinculo/LEIA-ME.md` de `5f04725` (**conferidos** contra o arquivo):
+
+- `:201`: `python3 "$INSTR/aplicar-guardas.py" > "$TMP/aplicacao-historica.txt" && echo "aplicador: saída 0" || echo "aplicador: FALHOU, saída $?"`: a falha do aplicador vira **mensagem**, e não derruba o roteiro;
+- `:203`: `diff "$TMP/aplicacao-historica.txt" "$PUB/$PACOTE/guardas/aplicacao.txt" || true`: a diferença vira saída do `diff`, e o `|| true` zera o status.
+
+**Medido**, com réplicas isoladas sob `bash -e` (GNU bash 5.2.21), sem executar o roteiro, o aplicador nem o `diff` do pacote: na réplica de `:201`, com o comando trocado por um que sai com 3, a construção imprime `aplicador:
+FALHOU, saída 3`, a linha seguinte é executada e o status do shell é 0 (no controle, com saída 0, imprime `aplicador: saída 0`); na réplica de `:203`, com dois textos diferentes, o `diff` imprime a diferença, a linha
+seguinte é executada e o status é 0, e **sem** o `|| true` o mesmo `bash -e` para com o status 1.
+
+⚠ **Isto delimita a evidência, e NÃO afirma que houve falha nas execuções relatadas.** O relato de 03/10 afirma ter lido as saídas, e este item não o contradiz. ⚠ **Nenhuma alteração do roteiro nesta rodada.** Se o autor
+quiser que esses dois pontos passem a propagar status, isso é rodada própria, e **não** se antecipa aqui.
+
+⚠ **O levantamento próprio não se limita a esses dois, e a lista não é exaustiva.** Nos oito blocos `bash` do arquivo (66 linhas de código) há **sete** linhas com `||` fora do heredoc de Python: `:84`, `:103`, `:144`,
+`:181`, `:182`, `:201` e `:203`; só `:203` zera o status com `|| true`. As outras cinco são testes e comparações cujo resultado o roteiro já relata por mensagem (`FALTA o commit`, `ATENÇÃO` ou `NÃO existe`, `difere do
+publicado` e `DIFERE do publicado`), e a conferência delas depende igualmente do "Esperado" do passo. Absorvem também a falha do comando interno as substituições de comando dentro de `echo` e de `for` (`:85`, `:88`,
+`:102`, `:117`, `:143` e `:222`). Este levantamento **não** foi usado para alterar o roteiro.
+
+### As guardas desta alteração
+
+⚠ **"Só documental" descreve os arquivos alterados, e não demonstra ausência de efeito nos testes.** A rodada altera **um** arquivo, este registro. A busca de quem o lê foi **própria**, sobre `5f04725`, com padrão e
+escopo declarados; o inventário das rodadas anteriores **não** foi herdado. As buscas (`git grep -n`, sobre a árvore de `5f04725`; saída 0 é com resultado, e saída 1 é **sem resultado**, que não é falha):
+
+- `-F -e 'imprecisoes-parecer-ia'`, tudo o que é rastreado, fora o próprio registro: **131** linhas, em documentos e em saídas arquivadas de busca. Restrita aos tipos executáveis (`.ts`, `.tsx`, `.js`, `.cjs`,
+  `.mjs`), a mesma busca acha **seis** linhas: `a12-estatisticas-dimensao.test.ts:16` (um comentário), `a12-nota-veredicto-fase2.test.ts:793` e `vinculo-execucao-fiacao.test.ts:49` (**leem** o registro),
+  `scripts/a33-snapshot-v2.cjs:757` (um rótulo) e `scripts/verify-citations.mjs:8` e `:264` (um comentário e uma mensagem);
+- `-F -e 'imprecisoes'` e `-E 'parecer-ia|imprecis'`, nos mesmos tipos (a segunda fora de `docs/`): as mesmas **seis** linhas, de modo que nenhum nome do registro é montado por partes;
+- `-E 'readdirSync|readdir\(|globSync|glob\(|ls-files|walkSync|opendirSync|fast-glob'`, nos mesmos tipos e fora de `docs/`: **9** linhas. **Só** `vinculo-execucao-fiacao.test.ts:1464` percorre `docs` (a varredura
+  de `:1459-1478`, sobre `app`, `lib`, `docs`, `components` e `scripts`); `engine-census.test.ts` (`app`, `lib` e `components`, só `.ts` e `.tsx`), `vinculo-execucao-calculo.test.ts:542` (`app`, `lib`,
+  `components` e `scripts`), `vinculo-execucao-fiacao.test.ts:1550` (`app`, `lib` e `components`), `a33-identidade-revisada-medicao.test.ts:12` e `verify-citations.mjs:52` (`lib/rag/articles`) **não** o alcançam;
+- `-E "['\"]docs/"` e `-E "['\"]docs['\"]"`, nos mesmos tipos e fora de `docs/`: **81** e **8** linhas, em arquivos que leem outros documentos e artefatos. **Só** três linhas nomeiam
+  `docs/imprecisoes-parecer-ia.md` (`a12-nota-veredicto-fase2.test.ts:793`, `vinculo-execucao-fiacao.test.ts:49` e `scripts/a33-snapshot-v2.cjs:757`), e o único `'docs'` como segmento de caminho que percorre o
+  diretório é o de `vinculo-execucao-fiacao.test.ts:1474`; os outros sete montam o caminho de um artefato específico;
+- `git diff --stat c8e1da0 5f04725 -- . ':!docs'`: **sem saída**, isto é, nada fora de `docs/` mudou desde o inventário de 03/10, e os testes são os mesmos.
+
+| Arquivo alterado | Testes que o leem, em `5f04725` (lido) | O que examinam |
+|---|---|---|
+| `docs/imprecisoes-parecer-ia.md` | `vinculo-execucao-fiacao.test.ts` e `a12-nota-veredicto-fase2.test.ts` | o arquivo inteiro normalizado (`:1453-1457`, `:1480-1486`, `:1705-1712`, `:1721`); duas fatias (`:1725-1747` e `:1774-1796`); um prefixo (`:1798`); a varredura (`:1459-1478`); e, no texto cru, a regex de promessa (`a12-nota-veredicto-fase2.test.ts:786-800`) |
+
+Cada guarda foi aplicada, **antes de publicar**, **ao mesmo trecho que o teste examina**, com as **mesmas expressões do teste** (em JavaScript: `indexOf`, `slice`, `replace(/\s+/g, ' ').trim()`, `toLowerCase` e a regex
+copiada), por um script de trabalho **fora do repositório**, que não substitui o aplicador de 02/10 (este segue amarrado àquela rodada e **não foi modificado**). O script confere ainda que cada guarda está onde se diz
+que está: as linhas citadas dos testes foram conferidas **por conteúdo**, em `5f04725`. **12 de 12** aplicações passam: as nove guardas, duas condições desta alteração (a inserção pura no registro e um só arquivo
+alterado) e uma terceira, **E1**, que aplica G2, G5 e G9 e a expressão protegida de 02/10 ao bloco inserido, isoladamente: o bloco cita `--force` e construções de shell em quantidade, e **nenhuma** guarda de redação é
+acionada por isso (**medido**, e não suposto). Os literais de cada guarda são copiados do teste e conferidos contra o texto do teste em `5f04725`.
+
+⚠ **A medição dos trechos, com a semântica do teste.** A fatia de `:1725-1747` e a de `:1774-1796` (da linha 12332 à linha 13339) são **idênticas às da base**, e o prefixo de `:1798` também. O acréscimo está **fora**
+das duas fatias e do prefixo, e **dentro** das guardas de arquivo inteiro e da regex de promessa, que passam sobre ele; a varredura de `:1459-1478` alcança o registro (nenhum achado). ⚠ A fatia, o prefixo e os
+marcadores **não foram tocados**, e nada nesta rodada autoriza alterar o teste.
+
+⚠ **O controle negativo, para que 12 de 12 não signifique só que não havia o que reprovar.** O mesmo script foi aplicado a uma cópia do registro gerado, num worktree auxiliar de `5f04725` criado e removido por esta
+rodada (fora do repositório), com um **texto vedado acrescentado dentro do bloco novo**: a frase vedada por G2 (com espaçamento irregular, para exercer a normalização), a vedada por G5 e uma passagem que a regex de
+G9 pega. **Medido:** o script saiu com **código 1** e **8 de 12** aplicações passaram; **falharam G2, G5, G9 e E1**, as quatro que examinam o texto novo. Passaram G1, G3, G4, G6, G7, G8, C1 e C2, o que é o esperado
+de um texto vedado que não remove nenhuma passagem exigida, não altera as fatias nem o prefixo e mantém a inserção pura e um só arquivo. ⚠ **A primeira tentativa foi inválida e não conta:** a âncora em que o texto
+vedado seria inserido (o título da seção final do bloco) ocorre **duas vezes** no registro gerado, porque o bloco de 03/10 tem a mesma seção final; a asserção do próprio comando de inserção falhou, **o texto vedado
+não entrou**, e o aplicador passou 12 de 12 **sem exercer nenhuma falha**. A segunda tentativa usou a **última** ocorrência (a do bloco novo) e conferiu, antes de aplicar, que o texto vedado estava lá. Em cada
+tentativa o arquivo do worktree foi devolvido ao blob de `5f04725` por escrita do blob, sem `git reset` e sem `git checkout`; o `git status` do worktree ficou com 0 linhas e o worktree saiu por
+`git worktree remove` **sem** `--force` (saída 0, nenhuma saída impressa).
+
+**Os testes reais, executados sobre o texto desta alteração, antes de publicar.** Os dois arquivos de teste que leem o registro, executados à parte, passam (184 testes). `npx tsc --noEmit` sai 0, e `npm test` sai 0 com **36 suítes e 940 testes**,
+os mesmos de `5f04725` (nenhum arquivo de teste foi tocado).
+
+**O pacote, intacto.** O manifesto completo dos **60** caminhos de `docs/dados/a12-sem-vinculo/`, com o `sha256` de cada um, é o de `5f04725` antes e depois, **sem exceção** (o `LEIA-ME.md` não é exceção nesta
+rodada): o conjunto de caminhos é o mesmo (nenhum arquivo acrescentado ou removido), e os 60 `sha256` são iguais aos dos blobs. O `sha256` do manifesto (as linhas `<sha256>␣␣<caminho>` dos 60, em ordem de caminho com
+`LC_ALL=C`, uma por linha, com LF final) é `69d4cf76723b6ff1942f38252f004bf57880c20cd6601485afd87cf0a578b9d1`.
+
+### O que não foi integrado
+
+Nada foi integrado. No início desta rodada (**medido** por `git ls-remote`), `integra/a30-registros` estava em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em
+`33c1fdf6500242832994a17aa15b0a686704c029`; a cabeça da branch de sessão, a base desta rodada, estava em `5f04725345d4f2dc23d8f759af4aa20a04bcecb4`. Esta rodada não toca as duas primeiras.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
