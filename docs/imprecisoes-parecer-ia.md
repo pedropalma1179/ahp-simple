@@ -17909,6 +17909,339 @@ explícita do autor.** Nenhuma das duas rodadas de implementação foi iniciada.
 ⚠ **A existência deste commit não libera código por si.** **Predição escrita, predição auditada e liberação explícita do autor são três condições, e este commit cumpre apenas a primeira.**
 A rodada 1 de implementação **só** começa depois das outras duas, e a da rodada 2 tem predição própria, em commit próprio, antes do código.
 
+## Registro de 05/10/2026 (fuso America/Sao_Paulo, UTC-3): a retificação do registro da predição da rodada 1, o pacote de evidências e o alcance da auditoria recebida
+
+⚠ **Este bloco corrige o registro por declaração, e não por edição.** Entra por **inserção pura**, imediatamente antes do `---` que precede o título do Anexo 3, e **nenhuma linha histórica
+foi alterada, removida ou renumerada quanto ao conteúdo**: a inserção desloca a numeração das linhas que vêm depois dela, e o conteúdo dessas linhas é o mesmo. **Toda linha do registro
+citada aqui, no formato `:NNNN`, é anterior a este bloco, e a numeração dela não muda** (os `:NNN` dentro de citações entre aspas e os que vêm com o nome de um arquivo de teste são linhas
+de teste). O texto corrigido **permanece onde está**; o que este bloco diz é o que dele fica superado, e por quê.
+
+⚠ **O bloco não altera valor previsto algum, não reabre a decisão da opção 3 nem a especificação, não antecipa implementação, nem da rodada 1 nem da rodada 2, e não declara a predição
+auditada por completo** (seção 6). A implementação da rodada 1 continua sem liberação.
+
+**Procedência.** Este bloco não traz medição nova sobre o que o modelo recebe. O que traz de **medido nesta rodada** está identificado como tal e nomeia o instrumento: a conferência dos
+rótulos da seção 3 (leitura do registro contra o pedido recebido e contra a especificação embutida, por script), o rastreio de rede da seção 2 e as verificações da seção 7. O que vem do
+auditor externo é **recebido** (seção 4), e o que vem de blocos anteriores é **citado pela linha**, e não refeito.
+
+### Os commits desta rodada, pelos nomes combinados
+
+Os nomes abaixo não se trocam entre si. Os carimbos de autor e de committer coincidem em cada commit e vêm de `git log`; a coluna de America/Sao_Paulo é a conversão (UTC-3; o Brasil não
+tem horário de verão nestas datas, **medido** com a base de fusos do sistema).
+
+| Nome neste bloco | Commit | Carimbo (UTC) | America/Sao_Paulo |
+|---|---|---|---|
+| commit do registro da decisão e da especificação | `8885c149117a049dcdc0652ec63033fbe4334c53` | `2026-10-05T02:34:43Z` | 04/10/2026 23:34:43 |
+| commit da predição | `838212cfe9fae9f42f8c9bfc66d98762fe41def9` | `2026-10-05T03:30:04Z` | 05/10/2026 00:30:04 |
+| commit do pacote de evidências | `c3d5ac6c6db9548ea5fd55b4d039297bc00d4cc3` | `2026-10-05T11:51:38Z` | 05/10/2026 08:51:38 |
+| commit da retificação | o commit que traz este bloco | na mensagem do commit e no relato | idem |
+
+O hash e o carimbo do commit da retificação não podem constar de um texto que ele mesmo contém: estão na mensagem do commit e no relato da entrega.
+
+### 1. As quatro correções, por declaração
+
+**1.1. O escopo da cláusula de ausência de inferência (`:17850-17852`).** A cláusula do commit da predição afirma que, «nas rodadas deste trabalho», **nenhuma chamada de inferência, de
+embedding ou de recuperação foi feita**. Ela é **mais larga que a evidência**: junta rodadas diferentes e junta as três operações, sem nomear a evidência de nenhum par. A cláusula **fica
+superada quanto ao escopo** pela redação e pela tabela da seção 2, e o texto original permanece onde está. ⚠ A cláusula do commit do registro da decisão e da especificação (`:17245-17248`)
+é mais estreita (só inferência, e atribui a afirmação ao executor); a seção 2 a trata como declaração dessa rodada, e não das anteriores.
+
+**1.2. Os rótulos de procedência contra a regra de precedência.** O pedido da rodada de 05/10/2026 traz duas tabelas de 14 linhas (PARTE 1, seção 3.3; PARTE 2, seção 3.4) e uma regra no
+cabeçalho: «Se as duas partes divergirem em algum texto literal, a PARTE 2 governa o CONTEÚDO e a PARTE 1 governa o PROCEDIMENTO. Relate a divergência em vez de escolher em silêncio.» A
+tabela de `:17537-17575` rotulou sete linhas com a redação da PARTE 1 («conferido pelo analista») onde a PARTE 2, que governa, diz «conferido»; deu a `fase2:765-783` o rótulo «conferido
+pelo analista» quando o pedido diz «leitura do executor»; atribuiu ao pedido uma frase entre aspas que ele não contém; e, em duas linhas, escolheu em silêncio entre dois enunciados da
+própria PARTE 2. O **resultado do confronto, rótulo a rótulo**, incluindo os corretos, está na seção 3.
+
+**1.3. A mensagem do commit da predição.** A mensagem de `838212c`, escrita sem acentos, diz: «a divergencia entre as duas partes do pedido (os rotulos "Estes cinco" e "conferido pelo
+analista") ja foi relatada no commit 1». **Isso não é verdade.** A divergência **não foi relatada** no commit do registro da decisão e da especificação: o que esse commit relata como
+divergência entre as duas partes (`:17176-17178` e `:17192-17193`, e a mensagem de `8885c14`) são a redação do bloco (b) e a da limitação da cópia quanto a A.27, e a linha `:17236` diz
+apenas que os rótulos de cada linha «não são reclassificados aqui». A mensagem de um commit já publicado **não é emendável** sob as restrições vigentes (sem `amend`, sem `rebase`, sem
+`reset`, sem `push --force`), e **esta declaração é a correção de registro**. A mesma mensagem diz que «a tabela de 14 linhas foi relida, sem erro encontrado» e que «As 14 linhas do pedido
+foram relidas nos testes de 5ad4780 e nenhuma estava errada»; essa releitura é a do conteúdo das linhas contra os testes (`:17752-17753`), e o registro não trazia, antes deste bloco, o
+confronto dos rótulos.
+
+**1.4. As datas dos títulos (`:16614` e `:17320`).** Os dois títulos dizem «Registro de 04/10/2026». Os carimbos dos commits são: `8885c149…` (commit do registro da decisão e da
+especificação), **`2026-10-05T02:34:43Z`**, que em America/Sao_Paulo é **04/10/2026 23:34:43**; e `838212cf…` (commit da predição), **`2026-10-05T03:30:04Z`**, que em America/Sao_Paulo é
+**05/10/2026 00:30:04**. Portanto: o título de `:17320`, do commit da predição, deveria dizer **05/10/2026 nos dois fusos**, e diz 04/10; o título de `:16614`, do commit do registro da
+decisão e da especificação, diz 04/10, que é a data de Brasília, e em UTC a data é 05/10. Os dois títulos **não são editados**. Daqui em diante, **o título de um bloco datado traz o
+fuso**, como o deste.
+
+Nenhuma dessas quatro correções altera valor previsto, `sha256`, resultado de guarda ou conteúdo dos dois commits anteriores.
+
+### 2. A ausência de chamadas, por rodada e por operação (retifica `:17850-17852`)
+
+⚠ **A redação correta.** A ausência de chamada é afirmada **por rodada e por operação**, e **não** para o conjunto das rodadas. As três operações são: **inferência**, a chamada ao modelo
+de linguagem do tratador (`app/api/ai-reviewer/route.ts`); **embedding**, a etapa de embedding da recuperação semântica (`lib/rag/semantic-retrieve.ts`); e **recuperação**, a consulta ao
+índice vetorial (`lib/rag/upstash-client.ts`). Cada par (rodada, operação) recebe **um** de três estatutos, e nenhum outro: **ausência verificada nesta rodada** (há evidência produzida
+agora de que a operação não ocorreu, e ela é nomeada); **declaração anterior não refeita** (o registro já afirmou isso em bloco datado, a linha é citada, e não houve nova verificação
+agora); **não verificada** (não há evidência suficiente, e o motivo vem em uma linha).
+
+⚠ **Não se generaliza de uma rodada para outra; a simulação dos clientes de uma rodada não é evidência de outra; e «não verificada» não se converte em «não ocorreu».** ⚠ **Isto NÃO vale
+para o registro inteiro**, que conserva o texto bruto de execuções reais, como o do anexo da execução 7.
+
+| Rodada | inferência | embedding | recuperação |
+|---|---|---|---|
+| O diagnóstico de 02/10/2026 (`:15931-16263`) | **declaração anterior não refeita**: `:15967` («nenhum modelo foi chamado», cliente simulado), `:15974`, `:16054-16055` e `:16203` | **não verificada**: o bloco não nomeia embedding; `:15970` registra `fetch` global com 0 chamadas e RAG semântico desligado, o que não é essa afirmação | **não verificada**: o bloco não nomeia a consulta ao índice; vale o motivo da coluna anterior (`:15970`) |
+| A correção de 03/10/2026 (`:16264-16436`) | **não verificada**: o bloco da rodada não declara ausência de nenhuma das três operações; `:17245-17248` a afirma só para inferência, atribui a afirmação ao executor e diz que os blocos de 03/10 e de 04/10 não a declaram | **não verificada**: o bloco da rodada não declara, e `:17245-17248` só trata de inferência | **não verificada**: o bloco da rodada não declara, e `:17245-17248` só trata de inferência |
+| O acréscimo de 04/10/2026 (`:16437-16613`) | **não verificada**: o bloco da rodada não declara ausência de nenhuma das três operações; `:17245-17248` a afirma só para inferência, atribui a afirmação ao executor e diz que os blocos de 03/10 e de 04/10 não a declaram | **não verificada**: o bloco da rodada não declara, e `:17245-17248` só trata de inferência | **não verificada**: o bloco da rodada não declara, e `:17245-17248` só trata de inferência |
+| O commit do registro da decisão e da especificação (`8885c149`, bloco `:16614-17319`) | **declaração anterior não refeita**: `:17245-17248`, afirmação do executor, sem evidência nomeada | **não verificada**: `:17245-17248` só trata de inferência, e nenhuma linha do bloco nomeia embedding | **não verificada**: `:17245-17248` só trata de inferência, e nenhuma linha do bloco nomeia a consulta ao índice |
+| O commit da predição (`838212cf`, bloco `:17320-17911`) | **declaração anterior não refeita**: `:17616` («nenhuma rede, nenhuma inferência», nas capturas de 05/10/2026, 02:51 a 03:04 UTC) e `:17841`; `:17850-17852` é mais larga que a evidência e fica superada (seção 1.1) | **declaração anterior não refeita**: `:17616` (clientes de embedding simulados); o `LEIA-ME.md` do pacote (seção 3) registra essa simulação em 3 das 5 famílias de captura, e, nas outras 2, o RAG semântico desligado | **declaração anterior não refeita**: `:17616` (cliente do índice simulado), com a mesma restrição do `LEIA-ME.md` do pacote |
+| O commit do pacote de evidências (`c3d5ac6c`) | **ausência verificada nesta rodada**: evidência E1, abaixo | **ausência verificada nesta rodada**: evidência E1, abaixo | **ausência verificada nesta rodada**: evidência E1, abaixo |
+| O commit da retificação (este) | **ausência verificada nesta rodada**: evidência E2, abaixo | **ausência verificada nesta rodada**: evidência E2, abaixo | **ausência verificada nesta rodada**: evidência E2, abaixo |
+
+**A tabela, por estatuto (denominador: 7 rodadas × 3 operações = 21 células; os três grupos não se sobrepõem e somam 21).** **ausência verificada nesta rodada**: 6 células (o commit do
+pacote de evidências e o desta retificação, nas três operações). **declaração anterior não refeita**: 5 células (inferência em 02/10, no commit do registro da decisão e da especificação e
+no da predição; embedding e recuperação no da predição). **não verificada**: 10 células. **Nenhuma célula das cinco rodadas anteriores tem evidência produzida agora**, e nenhuma «não
+verificada» foi convertida em «não ocorreu».
+
+**Limites declarados nas células.** (i) Em 03/10 e em 04/10 o bloco da rodada **não** declara ausência, e a afirmação retroativa de `:17245-17248` (só inferência, do executor, sem
+evidência nomeada) **não** é tratada como declaração dessas rodadas: tratá-la assim seria a generalização entre rodadas que esta seção desfaz. (ii) No commit da predição, a declaração de
+`:17616` sobre os clientes de embedding e do índice vale, pelo `LEIA-ME.md` do pacote, para as capturas de `rag-semantic-states`, `a12-diagnostico` e `a33-cadeia-rule`; nas de
+`vinculo-execucao-fiacao` e `a12-estatisticas-dimensao` o RAG semântico fica desligado (`USE_RAG_SEMANTIC` removida), e nenhuma das capturas de 05/10/2026 tem registro de rede. (iii) O
+estatuto de 02/10 para embedding e recuperação é «não verificada» porque `:15970` afirma outra coisa (`fetch` com 0 chamadas e RAG semântico desligado), que não é a ausência dessas duas
+operações.
+
+**As evidências nomeadas.**
+
+- **E1, o commit do pacote de evidências.** Três execuções locais (Linux 6.18.44-fc-v70 x86_64; `strace` 6.8; `unshare` de util-linux 2.39.3), cada uma num **espaço de rede vazio**
+  (`unshare -n`) e sob `strace -f -qq -e trace=network -e signal=none`, que registra qualquer syscall de rede dos processos filhos: (i) o bloco de reprodução da seção 6 do `LEIA-ME.md`
+  do pacote, extraído e executado verbatim (`bash -e`; saída 0; «190 valores publicados comparados; 190 coincidem; 0 divergem»), sem `--seccomp-bpf`; (ii) `npx tsc --noEmit` (saída 0) e
+  (iii) `npm test` (saída 0, 36 suítes e 940 testes), as duas **com** `--seccomp-bpf`. Registros de rastreio, **fora do repositório** (na área de trabalho da rodada), com o `sha256`:
+  reprodução `9bcb8344513b365a33ff17a87436d74b67b96eeb70b29d09659018e1ba4a006c` (48 linhas); `tsc` `bf04d1813c5f09e3f50804dbd93a562768535fb6fca2c3dfb06a35417eb10451` (16 linhas);
+  `npm test` `a47e4de0fd38e97398e4040baa0aac4fc091e4dac02945ff85319bd7ed2f401d` (1323 linhas). **Medido** nos três: **0** chamadas de `connect()` e **0** referências a `AF_INET` e
+  `AF_INET6`; os registros trazem `socketpair(AF_UNIX)` entre processos locais e, em `tsc` e na suíte, **um** socket `AF_NETLINK` (`NETLINK_ROUTE`, com pedidos de tipo 18 e 22, isto é,
+  `RTM_GETLINK` e `RTM_GETADDR`: a enumeração local de interfaces de rede, sem destino IP).
+- **Controles positivos de E1**, feitos **depois**, com as **mesmas opções de cada execução**: um `connect()` deliberado a um endereço IPv4 (`node`, porta 80) foi registrado como
+  `sa_family=AF_INET` e `ENETUNREACH`, sem `--seccomp-bpf` (`c9e1173711dd18713fb8ba15cfe31f7b3475de4ffbcb25bcf714064a5ece729d`) e com ele
+  (`d4ac0a1b6f00efffe44a9e22482cad41df246ec54fc3174dd6dbede298b8c7f2`), isto é, o rastreio **pega** uma tentativa de conexão quando ela acontece. ⚠ **Os registros têm PIDs e, por isso,
+  `sha256` próprio de cada execução**: identificam os registros, e não são reproduzíveis byte a byte.
+- ⚠ **Alcance de E1:** as três execuções, e só elas. Não cobre `git push` nem a consulta ao CI (usam a rede do GitHub, e não são inferência, embedding nem recuperação), **nem a execução
+  do CI no runner**, que não foi rastreada; e as capturas de 05/10/2026 **não foram refeitas** nesta rodada.
+- **E2, o commit da retificação.** (i) A reprodução do pacote com o diretório de trabalho da rodada anterior **ocultado**, sobre a redação final do bloco da seção 6 (seção 5), no mesmo
+  arranjo de E1 (i): `ad212711e66f313830c440b7ec3717b9f9d6c0d576bd2b710587c76f52b02292` (48 linhas; 0 `connect()`, 0 referências a `AF_INET` e `AF_INET6`). (ii) As execuções de `tsc`, da
+  suíte completa e das guardas deste commit, feitas **sobre o texto deste commit, antes de publicar**, nas mesmas opções de E1 (`--seccomp-bpf` em `tsc` e na suíte), com um controle
+  positivo feito junto. As contagens e o `sha256` dos registros de (ii) constam da **mensagem do commit e do relato**, e **não** deste bloco: um texto não pode conter o `sha256` de
+  registros produzidos a partir dele. A afirmação feita aqui, para (ii), é a de que os registros **mostram zero**; se não mostrassem, este bloco seria reescrito antes de publicado.
+
+### 3. Os rótulos de procedência, confrontados um a um com o pedido (retifica `:17537-17575` e as passagens que os repetem)
+
+**Como foi feito.** Os rótulos foram buscados no registro inteiro com `grep -n` pelas expressões «conferido pelo analista», «leitura do executor», «leitura e medição do executor», «pedido
+(», «acrescentad» e `| conferido |`, e por leitura dos blocos de `:16614-17911`; as citações entre aspas atribuídas ao pedido foram conferidas por varredura contra o texto do pedido. Cada
+rótulo foi confrontado com **as duas** tabelas do pedido: a da PARTE 1 (seção 3.3), que o repositório **não** guarda, e a da PARTE 2 (seção 3.4), embutida em `:16843-16856`. A cópia da
+PARTE 1 usada no confronto tem 380 linhas e 23152 bytes, com `sha256` `15c49423f0cc0ee30fb45b4743a3236e635e308a15a28b6633cee7127f7f233e`; ela identifica o texto comparado, e não é prova de
+que o texto recebido seja só esse. A cópia da PARTE 2 reproduz a especificação cujo `sha256` `2af3d87de0b95c4a7107f226a22e9293e98850dfedb472c092036c96279ac80a` o registro grava em
+`:16722`, e as 14 linhas da tabela embutida coincidem byte a byte com as dela. ⚠ **A busca é piso, e não prova de que não haja outro rótulo.**
+
+**A regra e a escolha declarada.** O cabeçalho do pedido diz: «Se as duas partes divergirem em algum texto literal, a PARTE 2 governa o CONTEÚDO e a PARTE 1 governa o PROCEDIMENTO. Relate
+a divergência em vez de escolher em silêncio.» Os rótulos de procedência são conteúdo. **A escolha declarada é, portanto, a da PARTE 2**, onde as duas tabelas divergem (linhas 1 a 5, 7 e
+8: «conferido» na PARTE 2, «conferido pelo analista» na PARTE 1; nas outras sete linhas as duas partes coincidem). A atribuição ao analista, que só a PARTE 1 faz, fica registrada como tal
+e **não é declarada falsa**: o que se corrige é tê-la preferido em silêncio, em vez de relatar a divergência.
+
+**Siglas.** «P1/l.N»: PARTE 1, seção 3.3, linha N da tabela. «P2/l.N»: PARTE 2, seção 3.4, linha N da tabela, que o registro embute em `:16842+N`. As aspas «…» reproduzem o texto
+publicado, **sem a ênfase em negrito**. As cláusulas finais das células da seção 4 («relido nesta rodada», «avaliado», «medida», «derivados») descrevem o trabalho da rodada e **não são
+rótulos do pedido**: não entram no confronto, salvo onde a tabela diz o contrário.
+
+| Localização | Redação publicada | Fonte correta no pedido | Correção |
+|---|---|---|---|
+| **1.** `:17537` · `fiacao:251`, `:252` (1 teste) | «pedido (conferido pelo analista)» | P1/l.1: «conferido pelo analista»; P2/l.1 (`:16843`): «conferido» | **Errado pela precedência.** Vale a PARTE 2, que diz «conferido», sem agente; «pelo analista» é só da PARTE 1. Rótulo correto: **«conferido»**. |
+| **2.** `:17538` · `fiacao:254-255` | «pedido (conferido pelo analista)» | P1/l.2: «conferido pelo analista»; P2/l.2 (`:16844`): «conferido» | **Errado pela precedência.** Vale a PARTE 2, que diz «conferido», sem agente; «pelo analista» é só da PARTE 1. Rótulo correto: **«conferido»**. |
+| **3.** `:17539` · `fiacao:256` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **4.** `:17540` · `fiacao:262` | «pedido (conferido pelo analista)» | P1/l.3: «conferido pelo analista»; P2/l.3 (`:16845`): «conferido» | **Errado pela precedência.** Vale a PARTE 2, que diz «conferido», sem agente; «pelo analista» é só da PARTE 1. Rótulo correto: **«conferido»**. |
+| **5.** `:17541` · `fiacao:265-290` (4 instâncias, os quatro estados) | «pedido (conferido pelo analista)» | P1/l.4: «conferido pelo analista»; P2/l.4 (`:16846`): «conferido» | **Errado pela precedência.** Vale a PARTE 2, que diz «conferido», sem agente; «pelo analista» é só da PARTE 1. Rótulo correto: **«conferido»**. |
+| **6.** `:17542` · `fiacao:297` (primeira parte da célula) | «`:297` pedido (conferido pelo analista)» | P1/l.5: «conferido pelo analista»; P2/l.5 (`:16847`): «conferido» | **Errado pela precedência.** Vale a PARTE 2, que diz «conferido», sem agente; «pelo analista» é só da PARTE 1. Rótulo correto: **«conferido»**. |
+| **7.** `:17542` · `fiacao:298` (segunda parte da célula) | «`:298` acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **8.** `:17543` · `fiacao:374-391` (3 testes, R7) | «pedido (leitura)» | P1/l.6: «leitura»; P2/l.6 (`:16848`): «leitura» | Correto. |
+| **9.** `:17544` · `fiacao:454-457` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **10.** `:17545` · `fiacao:518-542` (3 instâncias) | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **11.** `:17546` · `fiacao:650-653` | «pedido (leitura)» | P1/l.6: «leitura»; P2/l.6 (`:16848`): «leitura» | Correto. |
+| **12.** `:17547` · `fiacao:678-688` (1 teste) | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **13.** `:17548` · `fiacao:737-745` (1 teste) | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **14.** `:17549` · `fiacao:1305-1327` (2 testes) | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **15.** `:17550` · `fiacao:1356-1386` (1 teste) | «pedido (conferido pelo analista)» | P1/l.10: «conferido pelo analista»; P2/l.10 (`:16852`): «conferido pelo analista» | **Ambíguo no próprio pedido, e a escolha não foi declarada.** A célula diz «conferido pelo analista» nas duas partes, e o texto que segue a tabela da PARTE 2 (`:16858`) diz que «Estes cinco vieram da conferência do executor»; lido «estes cinco» como as linhas 10 a 14, as únicas cujo rótulo traz agente. Os dois valores e a fonte de cada um ficam conservados, e este bloco não escolhe. |
+| **16.** `:17551` · `fiacao:1423-1430` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **17.** `:17552` · demais pontos de chamada do tratador em `fiacao` (as classes B e C) | «pedido ("classes B e C inalteradas"); relido nesta rodada; enumerado aqui» | PARTE 2, seção 2, tabela das classes (`:16774-16775`): «inalterado» para B e para C; seção 3.3 (`:16830-16832`); seção 3.5, item 4 (`:16893`): «Classes B e C: contexto byte a byte igual ao de 5ad4780, demonstrado por comparação»; PARTE 1, seção 3.2, item 3: «Os controles de preservação das classes B e C» | **Errado quanto à citação.** A frase entre aspas não consta do pedido, e as aspas a atribuem a ele; a substância tem fonte (as quatro da coluna anterior). Leitura correta do rótulo: «pedido (PARTE 2, seção 3.5, item 4); relido nesta rodada; enumerado aqui». |
+| **18.** `:17553` · `fiacao:301-312`, `:1267-1286`, `:1523-1545`, `:1661-1671` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **19.** `:17554` · `fiacao:1453-1494`, `:1695-1796` e `fase2:786-800` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **20.** `:17555` · `vinculo-execucao.test.ts:1040-1041` (1 teste) | «pedido (conferido pelo analista)» | P1/l.7: «conferido pelo analista»; P2/l.7 (`:16849`): «conferido» | **Errado pela precedência.** Vale a PARTE 2, que diz «conferido», sem agente; «pelo analista» é só da PARTE 1. Rótulo correto: **«conferido»**. |
+| **21.** `:17556` · `vinculo-execucao.test.ts:1043-1045`, `:1339-1340`, `:1828-1829` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **22.** `:17557` · `estatisticas:685-718` (4 instâncias: `nao-avaliada-ausente`, `-incompleta`, `contradicao`, `coerencia-nao-concluida`) | «pedido (conferido pelo analista)» | P1/l.8: «conferido pelo analista»; P2/l.8 (`:16850`): «conferido» | **Errado pela precedência.** Vale a PARTE 2, que diz «conferido», sem agente; «pelo analista» é só da PARTE 1. Rótulo correto: **«conferido»**. |
+| **23.** `:17558` · `estatisticas:864-885` (2 instâncias: `agregado-5` e `agregado-3`) | «pedido (leitura)» | P1/l.9: «leitura»; P2/l.9 (`:16851`): «leitura» | Correto. |
+| **24.** `:17559` · `estatisticas:887-921` (1 teste) | «pedido (leitura)» | P1/l.9: «leitura»; P2/l.9 (`:16851`): «leitura» | Correto. |
+| **25.** `:17560` · `estatisticas:520-674`, `:720-730`, `:733-824`, `:925-955` e `consumidor-latente` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **26.** `:17561` · `fase2:437-451` (7 instâncias) | «pedido (conferido pelo analista)» | P1/l.11: «conferido pelo analista»; P2/l.11 (`:16853`): «conferido pelo analista» | **Ambíguo no próprio pedido, e a escolha não foi declarada.** A célula diz «conferido pelo analista» nas duas partes, e o texto que segue a tabela da PARTE 2 (`:16858`) diz que «Estes cinco vieram da conferência do executor»; lido «estes cinco» como as linhas 10 a 14, as únicas cujo rótulo traz agente. Os dois valores e a fonte de cada um ficam conservados, e este bloco não escolhe. |
+| **27.** `:17562` · `fase2:462-474` (5 instâncias, as suspensas) | «pedido (leitura do executor)» | P1/l.12: «leitura do executor»; P2/l.12 (`:16854`): «leitura do executor» | Correto. |
+| **28.** `:17563` · `fase2:430-435`, `:453-460`, `:476-482`, `:501-515` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **29.** `:17564` · `fase2:765-783` | «pedido (conferido pelo analista); relido nesta rodada; a ausência de sobreposição, acrescentada» | PARTE 2, seção 3.4, parágrafo depois da tabela (`:16867-16869`): «A rodada 2 já está travada por `a12-nota-veredicto-fase2:765-783` … Leitura do executor.»; PARTE 1, seção 3.3, parágrafo equivalente: sem rótulo («Registre isso na predição como fato conhecido, sem agir sobre ele») | **Errado.** O rótulo do fato é **«leitura do executor»**. «Conferido pelo analista» é o rótulo das linhas 10 e 11 da tabela, que não incluem `fase2:765-783`; `:17811` e `:17238` já o rotulam corretamente. A cláusula «a ausência de sobreposição, acrescentada» descreve o trabalho da rodada, e não é rótulo do pedido. |
+| **30.** `:17565` · `fase2:786-800` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **31.** `:17566` · `diag:1128-1136` (1 teste) | «pedido (leitura e medição do executor)» | P1/l.13: «leitura e medição do executor»; P2/l.13 (`:16855`): «leitura e medição do executor» | Correto. |
+| **32.** `:17567` · `diag:988-1075`, `:1081-1091`, `:1113-1126` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **33.** `:17568` · `a33-cadeia:1268` e `:1511` (primeira parte da célula) | «pedido (leitura do executor); relido nesta rodada (`:1268`, `:1511`)» | P1/l.14: «leitura do executor»; P2/l.14 (`:16856`): «leitura do executor» | Correto. |
+| **34.** `:17568` · `a33-cadeia:1542-1544` (segunda parte da célula) | «`:1542-1544` acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **35.** `:17569` · `a33-cadeia`: `bytesMessages` de C1 a C3 no artefato | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **36.** `:17570` · `a33-cadeia:1273-1281`, `:1429-1440` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **37.** `:17571` · `rag-states:353-446` | «acrescentado (o pedido não o enumera)» | nenhuma: não há linha do pedido para esta localização (o pedido não enumera `rag-semantic-states`) | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **38.** `:17572` · `rag-states:333-351` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **39.** `:17573` · `a33-snapshot-v2`, `a33-montagem-contexto`, `a12-qualidade-ausente`, `a12-coerencia`, `rag-diagnostico-regressao` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **40.** `:17574` · `contratos-de-dados.md:456`, `:470`, `:552`, `:620`, `:625`, `:661-663` | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **41.** `:17575` · `route.ts:847-851`, `:967-972` (comentários) | «acrescentado» | nenhuma: não há linha do pedido para esta localização | Correto: fora das 14 linhas das duas tabelas (conferido por intervalo de linhas e por busca do texto no pedido). |
+| **42.** `:17531-17533` · legenda da coluna «Origem e procedência» | «A coluna da origem diz se a linha veio do pedido (com a procedência que o pedido lhe dá) ou foi acrescentada por esta rodada.» | o cabeçalho do pedido: «Se as duas partes divergirem em algum texto literal, a PARTE 2 governa o CONTEÚDO e a PARTE 1 governa o PROCEDIMENTO. Relate a divergência em vez de escolher em silêncio.» | **Incompleta.** «A procedência que o pedido lhe dá» não diz que o pedido tem duas tabelas, com rótulos diferentes em sete linhas, nem qual vale. Vale a da PARTE 2, e o confronto está nesta tabela. |
+| **43.** `:17752-17753` · abertura do inventário | «as 14 estão na seção 4, com a procedência do pedido» | as duas tabelas de 14 linhas (PARTE 1, seção 3.3; PARTE 2, seção 3.4) | **Imprecisa.** As 14 estão na seção 4 (conferido por código: `:17537`, `:17538`, `:17540`, `:17541`, `:17542`, `:17543` e `:17546`, `:17555`, `:17557`, `:17558` e `:17559`, `:17550`, `:17561`, `:17562`, `:17566`, `:17568`), mas «com a procedência do pedido» não vale para sete delas (rótulo da PARTE 1 contra a PARTE 2) nem para duas (ambíguas), como mostram as linhas acima. |
+| **44.** `:17785` e `:17792-17794` · lista do que foi «acrescentado ao pedido» | «cada item está na seção 4, com a origem "acrescentado"; o que DEVE PERMANECER e o pedido não enumera … `:765-783` e `:786-800`» | PARTE 2, seção 3.4 (`:16867-16869`) e PARTE 1, seção 3.3: o pedido **nomeia** `a12-nota-veredicto-fase2:765-783`, como fato conhecido, fora das 14 linhas da tabela | **Imprecisa.** «O pedido não enumera» vale para as 14 linhas da tabela, e não para o fato, que o pedido nomeia; e `fase2:765-783` consta da seção 4 com «pedido (…)» (`:17564`), e não com «acrescentado». O rótulo correto do fato é «leitura do executor». |
+| **45.** `:17798-17799` · último item de «o que foi acrescentado ao pedido» | «o pedido nomeia expressamente os sete de `fase2:447`, e manda cobrir "o bloco em toda a classe A, as frases quando houver lista e as exclusões quando ativas"» | PARTE 1, seção 3.2, item 5b: «o bloco em toda a classe A, as frases quando houver lista, as exclusões quando ativas»; linha 11 da tabela: «compara sete contextos byte a byte» | **Citação alterada.** O pedido tem uma vírgula onde a citação tem «e»; o sentido é o mesmo, e as aspas valem como paráfrase. A atribuição (o pedido nomeia os sete de `fase2:447`) está correta. |
+| **46.** `:17734` · condição C6 | «Contraria o critério 3.5.4 e "não altera as classes B e C"» | PARTE 2, seção 3.5, item 4 (`:16893`): «Classes B e C: contexto byte a byte igual ao de 5ad4780, demonstrado por comparação»; a frase entre aspas não é literal em nenhuma parte (PARTE 2, `:16765`: «não altera o comportamento das classes B e C no contexto»; PARTE 1: «não altera classes B e C no contexto») | **Citação condensada.** O critério 3.5.4 está correto; a frase entre aspas é uma síntese, e não o texto de nenhuma das duas partes. |
+| **47.** `:17811` · «Fatos conhecidos», a rodada 2 travada | «Leitura do executor, reconferida nesta rodada contra o JSON (os nove identificadores)» | PARTE 2, seção 3.4 (`:16869`): «Leitura do executor.» | Correto. |
+| **48.** `:17238` · separação de procedência do commit do registro da decisão e da especificação | «leitura do executor, nesta rodada: o teste e o arquivo de trechos» | PARTE 2, seção 3.4 (`:16869`): «Leitura do executor.» | Correto. |
+| **49.** `:17236` · separação de procedência do commit do registro da decisão e da especificação | «os rótulos de cada linha ("conferido", "leitura", "conferido pelo analista", "leitura do executor", "leitura e medição do executor") estão no texto embutido e não são reclassificados aqui» | os cinco rótulos distintos da tabela da PARTE 2: «conferido» (7 linhas), «leitura» (2), «conferido pelo analista» (2), «leitura do executor» (2) e «leitura e medição do executor» (1) | Correto como lista dos rótulos da PARTE 2. **Não é** a declaração da divergência com a PARTE 1, que não foi feita (seção 1.3). |
+| **50.** `:17242` · separação de procedência do commit do registro da decisão e da especificação | «as linhas "conferido pelo analista" da tabela da seção 3.4» | PARTE 2, seção 3.4: duas linhas (10 e 11, `:16852` e `:16853`) têm esse rótulo; o resto da célula cita o enquadramento v4 recebido, outro documento, cujas expressões («conferido por mim», «conferida por mim», «conferido e medido por mim», «leitura do autor») foram conferidas contra o texto dele | Correto quanto às duas linhas. Não cobre as sete «conferido», de que `:17243` trata. |
+| **51.** `:17243` · separação de procedência do commit do registro da decisão e da especificação | «lidas pelo executor na conferência do v4 (04/10/2026, UTC) e na da especificação (05/10/2026 UTC, até 01:23)» | PARTE 2, cabeçalho (`:16734-16737`): «corrigido pela conferência do executor contra `5ad4780`»; não há rótulo de linha correspondente | Correto: rótulo próprio da rodada (quem leu), compatível com o cabeçalho da PARTE 2. As datas e horas são do registro do executor e não foram refeitas. |
+| **52.** `:17239` · separação de procedência do commit do registro da decisão e da especificação | «leitura do executor, nesta rodada, contra a base» | nenhuma: não é rótulo do pedido; descreve a leitura que o executor fez dos localizadores | Correto: rótulo próprio da rodada. |
+| **53.** `:17848` · separação de procedência do commit da predição | «as linhas "conferido pelo analista" do pedido (a tabela de 14 linhas)» | PARTE 2, seção 3.4: das 14 linhas, **2** têm «conferido pelo analista», **7** têm «conferido», 2 «leitura», 2 «leitura do executor» e 1 «leitura e medição do executor»; na PARTE 1, **9** têm «conferido pelo analista» | **Imprecisa.** «Conferido pelo analista» não é o rótulo da tabela de 14 linhas: na PARTE 2, que governa, são duas linhas (10 e 11), e as outras sete «conferidas» dizem só «conferido». Leitura correta: as linhas «conferido» (7) e «conferido pelo analista» (2) da tabela da PARTE 2. |
+| **54.** `:16843-16856` · tabela embutida da PARTE 2 (14 linhas) | «as 14 células da coluna Procedência, tal como na PARTE 2» | PARTE 2, seção 3.4 (a especificação, `sha256` `2af3d87de0b95c4a7107f226a22e9293e98850dfedb472c092036c96279ac80a`, `:16722`) | Correto: cópia literal, conferida nesta rodada linha a linha contra a PARTE 2 (as 14 linhas coincidem byte a byte). |
+
+**O resultado, por classe (denominador: 54 rótulos examinados; as classes não se sobrepõem e somam 54).**
+
+| Classe | Linhas da tabela acima | Quantidade |
+|---|---|---|
+| correto, com fonte no pedido (as duas partes concordam) | 8, 11, 23, 24, 27, 31, 33, 47, 48, 49, 50 | 11 |
+| correto: «acrescentado», sem linha correspondente no pedido | 3, 7, 9, 10, 12, 13, 14, 16, 18, 19, 21, 25, 28, 30, 32, 34, 35, 36, 37, 38, 39, 40, 41 | 23 |
+| correto: rótulo próprio da rodada, sem contraparte no pedido | 51, 52 | 2 |
+| correto: cópia literal da PARTE 2 | 54 | 1 |
+| errado pela regra de precedência (rótulo da PARTE 1 onde a PARTE 2 diz outra coisa) | 1, 2, 4, 5, 6, 20, 22 | 7 |
+| ambíguo no próprio pedido, com a escolha não declarada | 15, 26 | 2 |
+| errado: rótulo de outra linha do pedido | 29 | 1 |
+| citação entre aspas que não coincide com o pedido | 17, 45, 46 | 3 |
+| descrição imprecisa ou incompleta da procedência | 42, 43, 44, 53 | 4 |
+| **total**: 37 corretos e 17 com defeito ou com a escolha não declarada |  | **54** |
+
+⚠ **Leitura do resultado.** 37 de 54 rótulos estão corretos; 17 não. Dos 17, **sete** são o defeito central (a redação da PARTE 1 preferida em silêncio à da PARTE 2), **duas** são a tensão
+interna da PARTE 2 resolvida em silêncio, **uma** é o caso de `fase2:765-783`, **três** são citações entre aspas que o pedido não contém ou contém de outro modo, e **quatro** são
+descrições imprecisas ou incompletas. ⚠ **O confronto não examinou o conteúdo das 14 linhas do pedido** (o que o teste afirma e o que a rodada 1 muda), que o registro já releu contra os
+testes (`:17752-17753`): o defeito aqui é de **procedência**, e nenhum valor previsto depende de rótulo. **Nenhuma das 17 linhas com defeito foi editada**: permanecem como estão, e vale,
+para cada uma, a coluna «Correção».
+
+### 4. O alcance da auditoria, registrado como recebido
+
+⚠ **Esta seção registra o que foi recebido de um auditor externo, nos termos em que foi recebido. É evidência recebida desse auditor: não é medição do autor e não é medição da equipe**,
+salvo no que a equipe reexecutou e declara como seu, no último parágrafo da seção.
+
+- **38 previsões**, no total (as sete tabelas do commit da predição: F2 7, P 2, R 4, D 4, 33 3, F 4, E 14).
+- **2 reproduzidas integralmente** pelo auditor que enviou o relatório: os dois contextos do pacote `a12-sem-vinculo` (`sem-exclusao` e `com-exclusao`, a seção P), com bytes, linhas e
+  `sha256` iguais aos previstos.
+- **36 ainda sem reprodução independente integral.** Em 2 delas, `A-sem-exclusao-ativa` e `A-sem-lista-exclusao-ativa`, só o **delta** foi reproduzido (+1588 e +940 bytes), e não o
+  `sha256`.
+- **22 controles de preservação**, contados **à parte** das 38: 7 auxiliares de `fiacao` (6 da classe B e 1 da classe C), 13 cenários de `estatisticas` com vínculo (classe B) e 2
+  controles registrados do pacote (classe B).
+
+**Complementos recebidos, com o mesmo estatuto:** 8 arquivos do pacote conferidos por `sha256` (o relatório recebido é anterior ao pacote de evidências desta rodada, e, por leitura da
+equipe, «o pacote» ali é `docs/dados/a12-sem-vinculo/`); aritmética conferida em **34 das 38** linhas, com as **4** de `rag-states` conferidas à parte (**+579** no JSON, que é **+573**
+mais as seis quebras escapadas); e **4** deltas reproduzidos pelas funções reais de `5ad4780`: **+573**, **+619**, **+396** e **+367** bytes.
+
+⚠ **As contagens não se trocam.** «36 sem reprodução independente integral» é o **saldo da auditoria do auditor**; **não** é a contagem de bases capturadas (27 das 38, seção 5), nem a de
+previsões que a equipe recompôs. Cada número vale para o que mede.
+
+**O que a equipe reexecutou, e declara como próprio.** A reprodução do pacote de evidências (seção 5), executada nesta rodada em rede vazia (E1 e E2), recompôs os **190** valores
+publicados no commit da predição (148 das 38 previsões, 22 dos controles de preservação e 20 das diferenças de frases, de linhas de exclusão e de linhas do motivo), com **0** divergências.
+É execução da **mesma equipe que escreveu a predição**: mostra que as bases, os instrumentos e as instruções bastam para recompor os valores publicados, e **não é reprodução
+independente**; **não altera nenhum dos números recebidos** acima.
+
+### 5. O pacote de evidências
+
+O commit do pacote de evidências (`c3d5ac6c6db9548ea5fd55b4d039297bc00d4cc3`, pai `838212cfe9fae9f42f8c9bfc66d98762fe41def9`) acrescenta **só arquivos novos**, todos em
+`docs/dados/a12-predicao-rodada1/`: **81** arquivos (`LEIA-ME.md`, `MANIFESTO.sha256`, `bases/` com 65 e `instrumentos/` com 14). Nenhum arquivo existente foi alterado ou removido, e
+nenhum byte de produção ou de teste. `MANIFESTO.sha256` tem **80** linhas (o manifesto não se inclui), no formato `sha256␣␣caminho`, com hashes completos, em ordem alfabética. ⚠ **O
+`sha256` do manifesto é `43574fe01f82e31de669bcc9f385a7c78d55872dc01b955bf341eceb3a6bfb5d`**, e `sha256sum -c` o confere contra os 80 arquivos, com saída 0, na árvore deste commit; **cada
+uma das 80 linhas confere também com o blob do commit do pacote** (`git show c3d5ac6:<caminho>`), os caminhos estão em ordem alfabética, e `git diff --name-status 838212c c3d5ac6` traz
+**81 linhas `A`** (só adições), todas no diretório do pacote.
+
+- **A origem das 38 previsões, uma a uma** (o `LEIA-ME.md`, seção 5): **11** com origem no repositório, **não copiadas** (F2 7, P 2 e E 2), e **27** com origem em captura (R 4, D 4, 33
+  3, F 4 e E 12). Reconferido nesta rodada, base a base, com bytes e `sha256` do arquivo de origem contra os valores de base publicados no commit da predição: **38 de 38** iguais.
+- **Limites declarados no `LEIA-ME.md`:** em D e em 33 só o tamanho tem valor registrado para conferir a captura; e, em F, `A-sem-lista` e `A-sem-lista-exclusao-ativa` não têm valor
+  registrado nem recomposição. As capturas **não foram refeitas** nesta rodada: o `LEIA-ME.md` identifica a recaptura como outra captura, e a faria só com autorização.
+- **Suficiência, executada:** o bloco de reprodução da seção 6 do `LEIA-ME.md`, executado verbatim em diretório de trabalho novo, fora do repositório, em rede vazia (E1, i): «190 valores
+  publicados comparados; 190 coincidem; 0 divergem». Nenhum contexto derivado está no pacote. Dois instrumentos são **reconstruídos**, identificados pelo nome (`deriva_reconstruido.py` e
+  `conferir_reconstruido.py`); os demais são cópias byte a byte do executado.
+- ⚠ **Uma imprecisão na mensagem do commit do pacote, corrigida por declaração.** A mensagem, escrita sem acentos, diz que o bloco da seção 6 foi executado verbatim «com o diretorio da
+  rodada anterior OCULTADO». A execução com o diretório ocultado (11:47:28Z, pelo registro da sessão) foi feita sobre a redação do bloco **anterior** à linha de conferência do manifesto,
+  que o `LEIA-ME.md` ganhou depois (11:48:57Z, idem); a execução sobre a redação final (E1, i) **não** ocultou o diretório. Nesta rodada a redação final foi executada com o diretório da
+  rodada anterior ocultado e em rede vazia (E2, i): saída 0, «190 coincidem; 0 divergem», nenhuma menção ao diretório oculto na saída, e a saída é **idêntica byte a byte** à de E1 (i)
+  (`sha256` `3d3522f78f34d371ec5daa40a05a2a8f8fa1ce6ab3b59358493c96d56dc6dcd8`). A mensagem não é emendável, e esta declaração é a correção.
+- **O CI do commit do pacote de evidências:** execução `37305699196` (CI #158), evento `push`, **`completed/success`**, de `2026-10-05T11:52:07Z` a `2026-10-05T11:55:09Z`, com as etapas
+  de tipagem, de build e de testes concluídas com sucesso (consulta feita depois da publicação).
+- **Estatuto:** a partir do commit do pacote, esses arquivos valem como **artefatos preservados** (`LEIA-ME.md`, seção 8). O pacote **não** contém contextos derivados, prompts de tarefa
+  nem transcrições de sessão.
+
+### 6. O que este bloco não faz
+
+- **Não altera valor previsto algum.** Nenhum `sha256`, nenhum tamanho, nenhuma linha das sete tabelas de predição foi tocado: o valor publicado fica como está, e qualquer divergência
+  futura entre ele e o que as bases e os instrumentos produzem será **relatada**, e não corrigida em silêncio.
+- **Não reescreve, não remove e não renumera linha histórica.** As 17 linhas com defeito da seção 3, a cláusula de `:17850-17852` e os dois títulos de `:16614` e `:17320` ficam como
+  estão.
+- **Não reabre a decisão da opção 3 nem a especificação.**
+- **Não antecipa implementação**, nem da rodada 1 nem da rodada 2. Predição escrita, predição auditada e liberação explícita do autor são três condições, e este bloco não cumpre nenhuma
+  delas além da primeira, que já era do commit da predição.
+- **Não afirma que a predição está auditada por completo.** O que a auditoria recebida cobre é o da seção 4: **2** das 38 previsões reproduzidas integralmente por um auditor externo, e
+  **36** sem reprodução independente integral.
+
+### 7. As guardas desta alteração
+
+⚠ **«Só documental» descreve os arquivos alterados, e não demonstra ausência de efeito nos testes.** Este commit altera **um** arquivo, este registro. A busca de quem o lê foi **própria**,
+sobre a árvore de `c3d5ac6` (a base deste commit, cujo registro é o de `838212c`), com padrão e escopo declarados, e **não** herdou as contagens de `5ad4780`. Buscas (`git grep -n`; saída
+1 é **sem resultado**, e não falha):
+
+- `-F -e 'imprecisoes-parecer-ia'`, tudo o que é rastreado, fora o próprio registro: **137** linhas (as mesmas **131** de `5ad4780` e de `838212c`, mais **6** no pacote de evidências:
+  `LEIA-ME.md` 3, `conferir_reconstruido.py` 2 e `deriva_reconstruido.py` 1); nos tipos `.ts .tsx .js .cjs .mjs`, **6** linhas, das quais **leem** o registro
+  `a12-nota-veredicto-fase2.test.ts:793` e `vinculo-execucao-fiacao.test.ts:49`;
+- `-F -e 'imprecisoes'` (nos mesmos tipos) e `-E 'parecer-ia|imprecis'` (nos mesmos tipos, fora de `docs/`): **6** e **6** linhas;
+- `-E 'readdirSync|readdir\(|globSync|glob\(|ls-files|walkSync|opendirSync|fast-glob'`, nos mesmos tipos e fora de `docs/`: **9** linhas; **só** `vinculo-execucao-fiacao.test.ts:1464`
+  percorre `docs` (a varredura de `:1459-1478`);
+- `-E "['\"]docs/"` e `-E "['\"]docs['\"]"`, nos mesmos tipos e fora de `docs/`: **81** e **8** linhas; **só** 3 nomeiam `docs/imprecisoes-parecer-ia.md`;
+- `git diff --stat 838212c c3d5ac6 -- . ':!docs'` e `git diff --stat 5ad4780 c3d5ac6 -- . ':!docs'`: **sem saída**, isto é, os testes são os de `5ad4780`.
+
+| Arquivo alterado | Testes que o leem, em `c3d5ac6` (lido) | O que examinam |
+|---|---|---|
+| `docs/imprecisoes-parecer-ia.md` | `vinculo-execucao-fiacao.test.ts` e `a12-nota-veredicto-fase2.test.ts` | o arquivo inteiro normalizado (`fiacao:1453-1457`, `:1480-1486`, `:1705-1712`, `:1721`); duas fatias (`:1725-1747` e `:1774-1796`); um prefixo (`:1798`); a varredura (`:1459-1478`); e, no texto cru, a regex de promessa (`fase2:786-800`) |
+
+Cada guarda foi aplicada, **antes de publicar**, **ao mesmo trecho que o teste examina**, com as **mesmas expressões do teste** (`indexOf`, `slice`, `replace(/\s+/g, ' ').trim()`,
+`toLowerCase` e a regex copiada), por um script de trabalho **fora do repositório**, derivado do de 05/10/2026, que **não** foi modificado. As linhas citadas dos testes foram conferidas
+**por conteúdo**, em `c3d5ac6`, e os dois arquivos de teste são os da base. **15 de 15** aplicações passam: as nove guardas (G1 a G9); **quatro** verificações do texto novo (**E1**, que
+aplica G2, G5, G9 e a expressão protegida de 02/10 ao trecho inserido, isoladamente; **E2**, que confere que nenhum dos quatro marcadores literais das fatias foi acrescentado; **E3**, que
+lê as duas formulações vedadas só dentro do trecho inserido; e **E4**, que compara as linhas das sete tabelas de predição, com os 38 valores previstos, entre `838212c` e o texto novo); e
+duas condições (a inserção pura e um só arquivo alterado).
+
+⚠ **A medição dos trechos, com a semântica do teste.** A fatia de `:1725-1747` e a de `:1774-1796` (da linha 12332 à linha 13339) são **idênticas às da base**, e o prefixo de `:1798`
+também. O acréscimo está **fora** das duas fatias e do prefixo, e **dentro** das guardas de arquivo inteiro e da regex de promessa, que passam sobre ele; a varredura de `:1459-1478`
+alcança o registro e o pacote de evidências (nenhum achado). ⚠ Nada nesta alteração autoriza alterar o teste.
+
+⚠ **As duas formulações vedadas (E3)** não são afirmadas em parte alguma deste trecho, e a busca foi **restrita ao trecho inserido**: o arquivo inteiro não foi examinado por esse critério,
+e o histórico pode conter essas expressões, inclusive como erros documentados; nenhuma linha histórica foi tocada.
+
+⚠ **O controle negativo, para que "15 de 15" não signifique só que não havia o que reprovar.** O mesmo script foi aplicado a uma **cópia** do registro gerado, com um **texto vedado
+acrescentado dentro do bloco novo**: a frase vedada por G2 (com espaçamento irregular), a vedada por G5, uma passagem que a regex de G9 pega, a primeira formulação vedada como afirmação de
+comportamento e um dos marcadores das fatias; **antes de aplicar, o script conferiu que o texto vedado estava dentro do trecho inserido**. **Medido:** o script saiu com **código 1** e **8
+de 14** aplicações passaram; **falharam G2, G5, G9, E1, E2 e E3**, as que examinam o texto novo.
+
+**Os testes reais, executados sobre o texto desta alteração, antes de publicar** (Linux x86_64, Node v22.22.2, npm 10.9.7). Os dois arquivos de teste que leem o registro, executados à
+parte, passam (184 testes). `npx tsc --noEmit` sai 0, e `npm test` sai 0 com **36 suítes e 940 testes**, os mesmos do commit do pacote de evidências (nenhum arquivo de teste foi tocado; o
+pacote não foi descoberto como teste).
+
+**A inserção pura, medida.** Remover as linhas inseridas devolve o registro anterior **byte a byte**: 18187 linhas, 1408320 bytes, `sha256`
+`bc4c51c8db5ce39c136225d72711facdd03648d200686104782bae676a3b9d69`. O prefixo comum é de **17911** linhas, a inserção começa na linha **17912**, e a linha seguinte à inserção é o `---` que
+precede o título do Anexo 3. Nenhuma linha foi removida.
+
+**O pacote e os preservados, intactos.** O manifesto de 80 caminhos do pacote de evidências confere (`sha256sum -c`, saída 0), e o `sha256` dele é o da seção 5. O manifesto dos **60**
+caminhos de `docs/dados/a12-sem-vinculo/` é o de `5ad4780`, antes e depois, **sem exceção** (`sha256` do manifesto `69d4cf76723b6ff1942f38252f004bf57880c20cd6601485afd87cf0a578b9d1`). **Os
+preservados**, conferidos por `sha256sum` antes e depois, **iguais**: `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`
+(`85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25`, 17326 bytes) e `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`
+(`a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d`, 223411 bytes). **Nenhum `sha256` previsto mudou:** as linhas das sete tabelas de predição são as de `838212c` (E4).
+
+### 8. O que não foi integrado, e o encerramento
+
+Nada foi integrado. Medido por `git ls-remote` imediatamente antes do push do commit do pacote de evidências (05/10/2026, 11:52:02Z), a branch de sessão estava em
+`838212cfe9fae9f42f8c9bfc66d98762fe41def9`, `integra/a30-registros` em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em `33c1fdf6500242832994a17aa15b0a686704c029`; depois do
+push, a branch de sessão passou a `c3d5ac6c6db9548ea5fd55b4d039297bc00d4cc3`, e as duas outras ficaram como estavam. Esta rodada não toca as duas primeiras.
+
+⚠ **A implementação da rodada 1 continua bloqueada.** A liberação futura, quando o autor a der, nomeará expressamente os dois artefatos correntes que poderão ser regravados, os campos
+previstos e as novas entradas de procedência; os artefatos históricos preservados seguem intocáveis. **Predição escrita, predição auditada e liberação explícita do autor são três
+condições**, e a existência deste commit não cumpre nenhuma delas.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
