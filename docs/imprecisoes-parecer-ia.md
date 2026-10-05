@@ -18882,6 +18882,186 @@ passa a apontar para ele, e as duas outras ficam como estão. Esta rodada não t
 procedência (a 14ª e a 12ª); os artefatos históricos preservados seguem intocáveis. **Predição escrita, predição auditada e liberação explícita do autor são três condições**, e a
 existência deste commit cumpre apenas a primeira. A rodada 2 de implementação **só** começa depois das outras duas.
 
+## Registro de 05/10/2026 (fuso America/Sao_Paulo, UTC-3): retificação da procedência da predição da rodada 2
+
+⚠ **Retificação datada, por inserção pura**, sobre a base `c81424b3d748375d6ce201339520fec8e75b58e4`, o commit que publicou a predição datada da rodada 2 (o bloco das linhas 18245 a 18884
+deste registro). Este é o **único commit** desta etapa, e é **exclusivamente documental**: o único arquivo alterado é este registro, **nenhuma linha histórica foi alterada, removida ou
+reescrita**, e toda correção entra **por declaração** neste bloco. Há **zero byte de produção e zero byte de teste**, nenhum artefato de medição regravado, **nenhum valor técnico
+alterado**, nenhuma execução de estande nem medição com código modificado nesta etapa, nenhuma integração e nenhuma implementação. As horas marcadas com Z são UTC; Brasília é UTC-3.
+
+**A decisão, recebida do autor.** A predição da rodada 2 **continua como base técnica**, com a **procedência corrigida**, e esta retificação documental está autorizada. A implementação da
+rodada 2 e a integração **seguem sem autorização**. *Procedência:* recebido do autor, pelo pedido desta etapa; o repositório não guarda a conversa, e este registro não a reproduz.
+
+**Os termos desta retificação**, no sentido do pedido desta etapa (recebido do autor), somados aos sete estatutos de procedência do bloco de 18245: **resultado do protótipo** é o que M6
+mediu ao executar o estande, e não é medição da implementação definitiva; **expectativa informada pelo protótipo** é o que pode orientar a implementação futura **sem** reivindicar previsão
+independente anterior ao código; **anterioridade não demonstrada** quer dizer que não há registro explícito, anterior ao ensaio, de que a previsão estivesse feita, e ter lido um
+localizador antes **não** basta para demonstrá-la; **não se separa** quer dizer que o executor declarou não conseguir separar quanto o ensaio influenciou o item, e **não** equivale a «não
+afetado»; e **evidência recebida do executor** é a cronologia, que o executor apurou sobre a própria conduta.
+
+### 1. O desvio
+
+- **Houve execução funcional de um estande da rodada 2 fora da autorização.** A autorização era para um commit documental, com a predição escrita antes do código. O estande (edições em
+  `route.ts`, `page.tsx` e `ParecerAISection.tsx`, numa cópia de trabalho de `c9e7a62`) foi verificado por `tsc` e exercitado pelos testes do repositório, em duas variantes: a suíte
+  completa na primeira, e duas suítes na segunda. O desvio vale **independentemente da ordem** em que as coisas ocorreram.
+- **A cronologia da seção 2 é evidência recebida do executor** sobre a própria conduta, e **não medição de terceiro**. O executor a apurou a partir da transcrição da sessão (não
+  versionada; cópia congelada fora do repositório), de carimbos de arquivo e do conteúdo dos relatórios gravados nas execuções. Nenhuma fonte independente do executor a confirma.
+- **O diff do estande é reconstrução**, feita depois, na apuração (depois das 19:28Z), a partir do cache de transformação do jest, que guardou a fonte executada de `route.ts` e as duas
+  variantes executadas de `ParecerAISection.tsx`, e do instrumento, que dá a linha de `page.tsx` (os testes leem `page.tsx` como texto, e por isso ele não passa pelo cache). A reconstrução
+  foi necessária porque a cópia de trabalho foi **removida às 18:35:50Z**, depois da publicação de `c81424b`. **Não é artefato preservado de M6.**
+- **Esta retificação não restaura retroativamente a anterioridade.** Ela corrige o que o registro afirma, e não o que aconteceu: o bloco de 18245 a 18884 fica como foi publicado, e passa a
+  ser lido com as declarações deste bloco.
+- **Nenhuma intenção é atribuída.** O que a evidência sustenta é o **desvio** e a **influência** do ensaio sobre o texto publicado; o que ela **não** sustenta é qualquer conclusão sobre
+  propósito.
+
+### 2. A cronologia, como evidência recebida do executor
+
+*Fontes:* a transcrição da sessão, citada pelo número de linha da cópia congelada (134383227 bytes, `sha256` `0430ed8271f0dfae584fd618d612365ea7a5b484fb8fbd5b722325ff1beb5210`, guardada
+fora do repositório); o `startTime` que o jest grava dentro de cada relatório; e carimbos de arquivo. Os carimbos da transcrição são gravados pelo próprio ambiente da sessão, e o
+**raciocínio do executor não fica gravado nela**: o que não está escrito ali não tem registro. Um carimbo de arquivo diz só a última escrita, e, onde é citado, vem sustentado por conteúdo
+coincidente. ⚠ **A transcrição não é publicada**: este bloco cita só os localizadores usados na apuração.
+
+| Marca | Hora (UTC) | Fonte | O que a marca mostra |
+|---|---|---|---|
+| o pedido da predição da rodada 2 | 17:36:42 | L32593 | — |
+| a leitura dos seis testes e das linhas de asserção | 17:43:04 a 17:47:12 | L32820, L32856, L32895, L32921, L32922 e L32932 | **leitura de localizador, e não previsão de reprovação**: nenhum registro desse intervalo diz quais testes reprovariam |
+| a simulação em memória M2: posições no componente, três edições da rota e o mecanismo da transição de `handleCopy` | 17:51:55, conferida à mão às 17:52:15 | L33015 e L33022 | M2 é anterior ao estande e independente dele; o estande reaproveitou os três pontos de edição da rota definidos em M2 |
+| a leitura de `jest.config.js` e de `tsconfig.json` | 17:56:05 | L33112 | o único registro anterior que toca a tipagem; nenhuma hipótese escrita |
+| a cópia de trabalho de `c9e7a62` | 17:57:07 | L33126 | — |
+| a linha de base, **sem** estande | 17:57:12 a 17:57:49 | L33132; `startTime` 17:57:34.868 | `tsc` com saída 0; 36 suítes e 940 testes passando |
+| o instrumento do estande, escrito e aplicado | 17:58:05 | L33136; o arquivo preservado é idêntico, byte a byte, ao que a transcrição registra | a **finalidade registrada antes da execução**: medir a sensibilidade dos testes antigos, **sem contagem** |
+| a execução 1 do estande, **com** a declaração da prop | 17:58:11 a 17:58:31 | L33139 e L33140; `startTime` 17:58:20.323; entradas do cache às 17:58:22 e 17:58:28 | `tsc` com saída 0; 6 testes reprovados, em 4 suítes, e 934 passados: **o primeiro registro escrito da contagem** |
+| a extração da primeira asserção que falha, em cada um dos seis | 17:58:38 | L33146 e L33147 | **o primeiro registro das seis linhas** |
+| a execução 2 do estande, **sem** a declaração | 17:58:51 a 17:59:04 | L33150 e L33151; `startTime` 17:59:01.214; entrada do cache às 17:59:02 | `tsc` com saída 2 (`TS2339`); 120 testes em 2 suítes, 119 passados e 1 reprovado; o estande é revertido ao fim |
+| a primeira linha de texto do bloco de 18245 | 18:07:10 | L33212 | nenhum texto do bloco existe antes dela |
+| a seção 7 daquele bloco: a tabela, a contagem como «hipótese», o parágrafo de M6 e a condição de tipagem | 18:12:07 | L33262 | escrita **depois** do ensaio |
+| a tabela de procedência, com a contagem como «inferido por leitura» | 18:14:52 | L33283 | escrita depois do ensaio |
+| a saída do ensaio relida, e a linha de `fase2:851-869` corrigida | 18:17:15 e 18:17:38 | L33345 e L33349 | — |
+| o commit `c81424b` e o push | 18:34:43 e 18:35:07 | o carimbo do git; a saída datada do script de publicação | — |
+| a cópia de trabalho removida | 18:35:50 | L33816 | depois da publicação |
+| o pedido de apuração e a preservação | 19:22:14 e 19:28:53 | L33846; as cópias, com manifesto de `sha256` | — |
+
+O estande foi executado **duas** vezes, uma em cada variante, e cada vez com `tsc` e com o jest; a linha de base é uma terceira execução, **sem** estande. Às 18:23, duas execuções do jest
+na cópia de trabalho **já limpa**, para os fixtures da verificação E5 do bloco de 18245, não envolveram o estande.
+
+### 3. Os sete pontos retificados
+
+As linhas são as do registro em `c81424b`; nenhuma delas foi tocada.
+
+| # | Linha | O que está publicado | O que fica declarado | Estatuto |
+|---|---|---|---|---|
+| 1 | 18700-18703 | «A contagem, por leitura (hipótese, e não medida)»: **6** reprovações em **4** arquivos, com a primeira asserção que falha em `fiacao:1447`, `fase2:863`, `diag:1158`, `a33-cadeia:1292`, `:1535` e `:1566`, os outros **934** passando, e «Contagem do texto dos testes é hipótese» | A contagem, as seis primeiras asserções e os 934 restantes são **resultado do protótipo**, e **não** hipótese por leitura. O primeiro registro escrito da contagem é a saída do ensaio (17:58:31Z); o das seis linhas, a extração que a seguiu (17:58:38Z). A leitura dos seis testes, entre 17:43:04Z e 17:47:12Z, é leitura de localizador, e não previsão de reprovação | resultado do protótipo; **anterioridade não demonstrada**; se a leitura sozinha teria produzido a contagem, **não se separa** |
+| 2 | 18707 | «Para testar a **leitura** da tabela, e não a rodada 2» | A tabela da seção 7 foi escrita às 18:12:07Z, **depois** do ensaio. A finalidade registrada antes da execução (o instrumento, às 17:58:05Z) era **medir a sensibilidade dos testes antigos**, sem contagem. O propósito publicado é **enquadramento posterior**, e não a intenção registrada no momento | evidência recebida do executor |
+| 3 | 18707 (a frase está em 18711-18712) | «**os mesmos** da hipótese, **na mesma primeira linha**» | A frase afirma coincidência com uma hipótese que **ainda não estava escrita**: o resultado (17:58:31Z e 17:58:38Z) é anterior ao texto que o chama de hipótese (18:12:07Z). Fica retificada: não há coincidência a constatar, e sim um resultado do protótipo escrito depois sob o rótulo de hipótese | anterioridade não demonstrada |
+| 4 | 18715 (a medição está em 18716-18717) | «A condição de tipagem»: `tsc --noEmit` saiu **2**, com `TS2339`; 120 testes, 119 passados e 1 reprovado | **Resultado do protótipo**, na variante **sem a declaração da prop** (a execução 2, de 17:58:51Z a 17:59:04Z). Não há registro de hipótese anterior sobre esse comportamento: o único registro anterior que toca a tipagem é a leitura de `jest.config.js` e de `tsconfig.json`, às 17:56:05Z | resultado do protótipo; anterioridade não demonstrada |
+| 5 | 18749 | a lista B1 a B10, com «são alterados `fiacao:1447` e `fase2:851-869`» | **Previsão informada pelo protótipo**: os dois testes nomeados são dois dos seis que reprovaram no estande. A derivação da lista **não se separa** | previsão informada pelo protótipo; não se separa |
+| 6 | 18765 | K2: «Número de testes reprovados diferente de **6** nos quatro arquivos» | **Expectativa informada pelo protótipo**, e **não** previsão independente: o 6 é o número de testes que reprovaram no estande | expectativa informada pelo protótipo; anterioridade não demonstrada |
+| 7 | 18805 | a tabela de procedência classifica «a **hipótese** de contagem de testes (6 em 4 arquivos)» como **inferido por leitura** | O rótulo **não tem registro anterior que o sustente**. O estatuto correto, por esta declaração: **medido nesta rodada, no protótipo (M6)**, executado fora da autorização, e usado como **expectativa informada pelo protótipo** para a implementação futura | anterioridade não demonstrada |
+
+### 4. Outros pontos que a apuração situou depois do ensaio
+
+Registrados para que a retificação **não** pareça limitada aos sete pontos:
+
+- **18447**, a linha 3.1 da seção 3, que dá como caso contrário «a interface de props sem a declaração (o `tsc` reprova a leitura, seção 7)»: escrita às 18:07:48Z (L33219), depois do
+  ensaio, e sustentada pelo `TS2339` da execução 2. É **resultado do protótipo** usado como critério; anterioridade não demonstrada.
+- **18682**, a linha de `fase2:851-869` na tabela da seção 7: a menção da **sexta** iteração (`handleCopy`) vem da saída do ensaio. O primeiro rascunho (18:12:07Z) dizia que as outras oito
+  seguiam, o que não vale, porque o `expect` interrompe o laço; a linha foi **corrigida** às 18:17:38Z, depois de a saída do ensaio ser relida às 18:17:15Z.
+- **18712-18713**, «O controle serviu de rede de segurança do levantamento: nenhum teste fora da tabela reprovou»: a tabela foi escrita depois do ensaio, de modo que a ausência de
+  reprovação fora dela **não** testa a leitura; anterioridade não demonstrada.
+- **18717-18718**, a frase segundo a qual a falta da declaração reprovaria o `next build`: inferência escrita depois do ensaio, a partir do resultado dele, e que segue **não verificada**.
+- **18800**, M6 na linha **medido nesta rodada** da tabela de procedência: M6 é medição, e foi executada **fora da autorização** (seção 1).
+
+### 5. O que não se separa
+
+O executor declarou **não conseguir separar** quanto o ensaio influenciou cada um destes itens, e por isso este bloco escreve **não se separa**, e não «não afetado»:
+
+- a **contagem** (6 em 4 arquivos): como registro, ela é resultado do protótipo; se a leitura anterior a teria produzido sozinha, não se separa;
+- os **934** restantes (18702);
+- a derivação de **K2** (18765) e a de **B1 a B10** (18748-18755);
+- as linhas **DEVE PERMANECER** da tabela da seção 7 (18681, na parte de `:1461-1467`; 18683, inclusive as **seis** instâncias de `fase2` com a réplica inalterada; e 18686 a 18695): o
+  ensaio é compatível com elas, porque passaram entre os 934, e não se separa se a seleção delas foi influenciada pelo resultado;
+- as linhas **REGRAVAÇÃO** de `diag` (18684) e de `a33-cadeia` (18685): não se separa se a seleção foi influenciada pelo resultado.
+
+⚠ **Esta retificação NÃO afirma que a influência do ensaio está confinada à seção 7, à K2 e à condição de tipagem.**
+
+### 6. O que permanece como base técnica
+
+Nenhum valor abaixo é alterado por esta retificação, e a comparação das faixas 17320-17911 e 18245-18884 (seção 7 deste bloco) o confere:
+
+- os quatro textos literais da especificação e os seus `sha256` (17093-17181), inclusive os **254 bytes** de (d) como identidade documental (o `sha256` registrado em 17181, e a nota de
+  18543), os **255 bytes** do prefixo composto (18545-18546), os **169 bytes** de P0 (18552-18553) e a **composição de 424 bytes** para P0 (18578), com os fixtures dos quatro estados de
+  A.27 (18588-18593);
+- a tabela das **22** formas de entrada (18373-18396);
+- o mapeamento da tela (a seção 3 daquele bloco, 18437-18458);
+- o aviso e a sua posição pelas expressões de extração, com a simulação M2 (a seção 4, 18460-18526);
+- a trava das nove âncoras e a transição de `handleCopy` (a seção 6, 18609-18669), cuja base de medição, M1 e M2, é anterior ao ensaio;
+- as âncoras (a seção 1, 18313-18347), os manifestos e as guardas (18808-18872);
+- os **60** valores de contexto da rodada 1 (17320-17911) e o controle de preservação que os cita (18739-18746).
+
+As **seis reprovações** podem orientar a implementação futura como **expectativa informada pelo protótipo**, sem reivindicar previsão independente anterior ao código. ⚠ Elas foram medidas
+num **protótipo**, uma edição mínima numa cópia de trabalho, e a implementação definitiva pode alcançar o mesmo caminho por outro código, com outra contagem.
+
+### 7. As guardas desta alteração
+
+⚠ **«Só documental» descreve os arquivos alterados, e não demonstra ausência de efeito nos testes.** Este commit altera **um** arquivo, este registro. A busca de quem o lê foi **própria**,
+sobre a árvore de `c81424b`, a base deste commit, com padrão e escopo declarados (`git grep -n`; saída 1 é «sem resultado»):
+
+- `-F -e 'imprecisoes-parecer-ia'`, tudo o que é rastreado fora do próprio registro: **146** linhas; nos tipos `.ts .tsx .js .cjs .mjs`, **15**, das quais **leem** o registro só
+  `a12-nota-veredicto-fase2.test.ts:879` e `vinculo-execucao-fiacao.test.ts:50`;
+- `-F -e 'imprecisoes'` e `-E 'parecer-ia|imprecis'`, nos mesmos tipos e fora de `docs/`: **15** e **15** linhas;
+- `-E 'readdirSync|readdir\(|globSync|glob\(|ls-files|walkSync|opendirSync|fast-glob'`, nos mesmos tipos e fora de `docs/`: **9** linhas, e **só** `vinculo-execucao-fiacao.test.ts:1546`
+  percorre `docs`. As outras oito não alcançam este registro: `a33-identidade-revisada-medicao.test.ts:12` lê `lib/rag/articles`; `scripts/verify-citations.mjs:20` e `:52`, um script e não
+  um teste, leem o diretório do RAG que recebem como argumento; `engine-census.test.ts:24` (a importação), `:51` e `:205` varrem `app`, `lib` e `components`;
+  `vinculo-execucao-calculo.test.ts:542` varre `app`, `lib`, `components` e `scripts`, só em código; e `vinculo-execucao-fiacao.test.ts:1632` varre `app`, `lib` e `components`, só `.ts` e
+  `.tsx`;
+- `-E "['\"]docs/"` e `-E "['\"]docs['\"]"`, nos mesmos tipos e fora de `docs/`: **83** e **8** linhas; o caminho deste registro entre aspas ocorre em **2**, as dos dois testes que o leem;
+- `git diff --stat c9e7a62 c81424b -- . ':!docs/imprecisoes-parecer-ia.md'`: **sem saída**, isto é, os dois testes são os mesmos da base do bloco de 18245.
+
+Cada guarda foi aplicada, **antes de publicar**, ao **mesmo trecho que o teste examina**, com as **mesmas expressões do teste** (`indexOf`, `slice`, `replace(/\s+/g, ' ').trim()`,
+`toLowerCase` e a regex copiada), por um script de trabalho **fora do repositório**. As linhas dos testes foram localizadas **por conteúdo**, em `c81424b`: o arquivo inteiro normalizado
+(`fiacao:1535-1539`, `:1562-1568`, `:1787-1794` e `:1803`); duas fatias (`:1807-1829` e `:1856-1878`); um prefixo (`:1880`); a varredura (`:1541-1560`); e, no texto cru, a regex de
+promessa (`fase2:872-886`). **17 de 17** aplicações passam: as nove guardas (G1 a G9); **seis** verificações do texto novo (**E1**, que aplica G2, G5, G9 e a expressão protegida de 02/10
+ao trecho inserido; **E2**, que confere que nenhum dos quatro marcadores literais das fatias foi acrescentado; **E3**, que lê as formulações vedadas só dentro do trecho inserido; **E4**,
+que compara as faixas 17320-17911, com as sete tabelas e os 38 valores previstos, contra `c81424b` e `838212c`, e 18245-18884 contra `c81424b`; **E5**, que mede que toda sequência de 64
+hexadecimais do trecho inserido é um valor conhecido; e **E6**, que confere que cada localizador de linha citado neste bloco aponta, em `c81424b`, para o conteúdo que o bloco lhe atribui);
+e duas condições (a inserção pura e um só arquivo alterado).
+
+⚠ A fatia de `:1807-1829`, a de `:1856-1878` e o prefixo de `:1880` são **idênticos aos da base**: o acréscimo está **fora** delas, e **dentro** das guardas de arquivo inteiro e da regex
+de promessa, que passam sobre ele. Nada nesta alteração autoriza alterar o teste.
+
+⚠ **As formulações vedadas (E3)** foram lidas só no trecho inserido; o histórico pode contê-las e não é reescrito. São elas: «não afetado» (só entre aspas, como redação rejeitada); a
+afirmação de que a influência do ensaio está confinada (só negada); a atribuição de intenção (só negada, e «intenção registrada» designa a finalidade escrita no instrumento); o propósito
+(só o publicado, ou negado); o diff do estande como preservado (só negado); a anterioridade (só negada, ou referida à leitura, à finalidade, à autorização ou à base de medição de M1 e M2);
+e as cinco do bloco de 18245, que este bloco não usa. **Medido**, e **lido** ocorrência a ocorrência: (1) 3 ocorrências, todas conformes; (2) 2 ocorrências, todas conformes; (3) 4
+ocorrências, todas conformes; (4) 3 ocorrências, todas conformes; (5) 5 ocorrências do radical, todas conformes; (6) 16 ocorrências, todas conformes; e (7) nenhuma ocorrência. A numeração
+segue a ordem da lista acima; **cada ocorrência foi impressa com o contexto e lida**, e a regra de cada formulação está no script.
+
+⚠ **O controle negativo.** O mesmo script foi aplicado a uma **cópia** do registro gerado, com **12 linhas vedadas acrescentadas dentro do bloco novo** e um localizador trocado nele (o do
+ponto 6): a frase vedada por G2, a vedada por G5, uma passagem que a regex de G9 pega, **cada** uma das seis formulações vedadas desta retificação escrita como afirmação, uma das cinco do
+bloco de 18245 também afirmada, e um dos marcadores das fatias; **antes de aplicar, o script conferiu que cada alteração estava dentro do trecho inserido**. **Medido:** o script saiu com
+**código 1** e **9 de 16** aplicações passaram (a condição de um só arquivo é dispensada nesse modo, porque o registro lido é outro arquivo); **falharam 7**: G2, G5, G9, E1, E2, E3 e E6,
+as que examinam o texto novo; em E3, cada detecção exercitada falhou **só** na linha acrescentada, e as outras não falharam.
+
+**Os testes reais, sobre o texto desta alteração, antes de publicar** (Linux x86_64, Node v22.22.2, npm 10.9.7, rede vazia). Os dois arquivos de teste que leem o registro, executados à
+parte, passam (184 testes). `npx tsc --noEmit` sai 0, e `npm test` sai 0 com **36 suítes e 940 testes**, os mesmos de `c81424b`; nenhum arquivo de teste foi tocado.
+
+**A inserção pura, medida.** Remover as linhas inseridas devolve o registro anterior **byte a byte**: 19160 linhas, 1556353 bytes, `sha256`
+`129a8b6bc63cdb0ac1a559aa44dcfdfd00a9c51e6e415b09512dca0b2b88e0f6`. O prefixo comum é de **18884** linhas, a inserção começa na linha **18885**, e a linha seguinte à inserção é o `---` que
+precede o título do Anexo 3. ⚠ O número de linhas inseridas e o `sha256` do arquivo novo **não** são declarados aqui: o bloco não pode conter o próprio tamanho, e a verificação os mede no
+commit.
+
+**As faixas, os pacotes e os preservados, intactos.** A faixa **17320 a 17911** é **igual**, linha a linha, à de `c81424b` e à de `838212c`, com as sete tabelas e os **38** valores
+previstos; a faixa **18245 a 18884** é **igual** à de `c81424b` (E4). O manifesto dos **60** caminhos de `docs/dados/a12-sem-vinculo/` é o de `5ad4780` (`sha256` do manifesto
+`69d4cf76723b6ff1942f38252f004bf57880c20cd6601485afd87cf0a578b9d1`), o manifesto de **80** linhas do pacote de **81** caminhos `docs/dados/a12-predicao-rodada1/` confere (`sha256sum -c`,
+saída 0), e os preservados e os artefatos correntes de medição estão como em `c81424b`: nenhum foi regravado.
+
+### 8. O encerramento
+
+Nada foi integrado. Medido por `git ls-remote` em 05/10/2026, 20:11:04Z, antes do commit desta etapa: a branch de sessão estava em `c81424b3d748375d6ce201339520fec8e75b58e4`,
+`integra/a30-registros` em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em `33c1fdf6500242832994a17aa15b0a686704c029`. Com o push deste commit, a branch de sessão passa a
+apontar para ele, e as outras duas ficam como estão.
+
+⚠ **A implementação da rodada 2 continua bloqueada**, e a integração segue sem autorização. A liberação da implementação definitiva é decisão do autor, depois da auditoria desta entrega.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
