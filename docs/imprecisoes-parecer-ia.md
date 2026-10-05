@@ -17317,6 +17317,598 @@ duas rodadas de implementação foi iniciada.
 ⚠ **A existência do commit 2 desta rodada, o da predição datada da rodada 1, não libera código por si.** **Predição escrita, predição auditada e liberação explícita do autor são três
 condições, e o commit 2 cumpre apenas a primeira.**
 
+## Registro de 04/10/2026: a predição datada da rodada 1 (ausência de `vinculoDaExecucao`, opção 3), escrita antes do código
+
+⚠ **Registro datado, por inserção pura**, sobre a base `8885c149117a049dcdc0652ec63033fbe4334c53`, o commit 1 desta rodada, cujo único arquivo alterado é este registro: o código de
+produção e os testes são, byte a byte, os de `5ad478086d0aa4dadd42b6116cb9b96fecb7afe8` (**medido** por `git diff --stat 5ad4780 8885c14 -- . ':!docs'`, sem saída). Este é o **segundo de
+dois commits** da rodada, ambos **exclusivamente documentais**. Há **zero byte de produção e zero byte de teste**, nenhum artefato de medição regravado, nenhuma integração e **nenhuma
+implementação**, nem da rodada 1, nem da rodada 2. As datas são as de Brasília, salvo onde marcado UTC. ⚠ **Este bloco é a PREDIÇÃO escrita da rodada 1. NÃO é a auditoria dela, e NÃO
+autoriza implementação.**
+
+**Para que serve.** A seção 2 do `CLAUDE.md` exige, para toda correção que altera o que o modelo do Parecer IA recebe, uma predição escrita **antes**, com o caso negativo nomeado; a
+segunda frase de `contratos-de-dados.md:348` repete a exigência para este caminho. A rodada 1 altera o contexto de **toda** requisição da classe A. Este bloco enumera o que muda, o que não
+muda, os valores que o código tem de imprimir, os testes que reprovam e os que têm de seguir passando, e o que, se aparecer, a refuta. ⚠ **Se o código imprimir outro valor, isso é
+refutação da predição, e o valor registrado aqui NÃO se atualiza para coincidir com ele**: é a regra que a predição de 01/10/2026 aplicou aos sete contextos de `a12-nota-veredicto-fase2`.
+
+**Procedência e convenção.** A mesma do bloco anterior: **medida** (produzida por execução), **derivada** (calculada sobre o que foi medido ou lido), **lida** (leitura de código, de teste
+ou de artefato) ou **recebida** (do pedido). Toda informação usada aqui tem **três dimensões independentes**: a origem (medida nesta execução, recebida ou derivada), a disponibilidade e a
+cobertura (disponível, ausente ou incompleta) e a coerência (consistente, contraditória ou não verificada). Onde uma informação falta, o bloco diz "não avaliado" ou "desconhecido", e não
+um zero. ⚠ Os registros brutos desta rodada (as capturas de contexto, os roteiros de derivação e de avaliação e as saídas) **não estão no repositório**, que recebe só este arquivo: o bloco
+traz o que basta para **refazer** cada número, isto é, o contexto-base e o seu hash, as substituições e as contagens de ocorrência, e o método.
+
+**Nomes curtos.** `route.ts` é `app/api/ai-reviewer/route.ts`; `vinculo-execucao.ts` é `lib/ai-reviewer/vinculo-execucao.ts`; `ParecerAISection.tsx` é `components/ParecerAISection.tsx`;
+`page.tsx` é `app/decisor/resultados/[projectId]/page.tsx`; `contratos-de-dados.md` é `docs/contratos-de-dados.md`. Os arquivos de teste, todos em `lib/__tests__/` e com o sufixo
+`.test.ts`: `fiacao` é `vinculo-execucao-fiacao`; `estatisticas` é `a12-estatisticas-dimensao`; `fase2` é `a12-nota-veredicto-fase2`; `diag` é `a12-diagnostico`; `a33-cadeia` é
+`a33-cadeia-rule`; `rag-states` é `rag-semantic-states`; `vinculo-execucao.test.ts` é o de mesmo nome. Todo localizador `arquivo:linha` vale para a base `5ad4780`. **A, B e C** são as três
+classes de entrada do bloco anterior.
+
+**O que o bloco traz, nesta ordem:** o que a predição prediz e o que não prediz, com os pressupostos; (1) os cenários da classe A; (2) as mudanças esperadas, com a decomposição, as cinco
+frases e as quatro linhas de exclusão enumeradas; (3) os controles de preservação das classes B e C; (4) cada teste e comparação atingidos; (5) como conferir a resposta; (5b) os bytes e o
+`sha256` previstos de cada contexto, por derivação independente; (6) os resultados que contrariariam a predição; o inventário levantado nesta rodada, com o que foi acrescentado ao pedido;
+os fatos conhecidos, sem ação; o que a predição não faz; a separação de procedência; as guardas desta alteração; o que não foi integrado; e o encerramento.
+
+### O que a predição prediz, e o que não prediz
+
+**Determinístico, e portanto conferível exatamente:** o texto que o tratador monta e entrega ao modelo (o `messages`; o `system` não muda na rodada 1): o bloco de ausência, as cinco frases
+da lista, as quatro linhas de exclusão, os bytes e o `sha256` de cada contexto da seção 5b, e o resultado de cada asserção dos testes sobre esse texto. **Não medido, e não predito:** o
+efeito do novo contexto sobre o texto que o modelo produz, e o resultado desse texto em A.27. O mecanismo de A.27 permanece; o resultado dele não é objeto de previsão.
+
+**Os pressupostos.** Se um deles não valer, a predição é refutada nos valores que dependem dele, e a seção "Os resultados que contrariariam a predição" diz onde:
+
+- **P1.** O bloco é montado pelo mecanismo que já existe, e entra **no mesmo ponto** em que o da classe B entra: `${exclusionContext}\n${blocoDoVinculo}\n${fullRespondentList}`
+  (`route.ts:1094-1096`), com `blocoDoVinculo = '\n' + texto + '\n'` (`route.ts:973-974`). O texto é o de (a), registrado no bloco anterior (571 bytes, sem LF final, `sha256`
+  `267226e55d0e4d031b324c9a8e2961df9be74b50fa6e217cb70e15f39d99872f`), sem mudança de palavra.
+- **P2.** As cinco frases vêm de `frasesDaListaComVinculo` com a leitura `modo: 'ausente'`, que devolve o ramo 3 (`vinculo-execucao.ts:1353-1358`), e as quatro linhas de exclusão vêm de
+  `linhasDeExclusaoComVinculo` com o tamanho da lista enviada (`route.ts:853`), **sem alteração dessas duas funções**: a especificação diz que não é preciso texto novo para elas (seção
+  3.1).
+- **P3.** O texto do ramo sem lista (`route.ts:959-964`) e as linhas de exclusão que não são as quatro trocadas (`route.ts:867-877`) ficam como estão.
+- **P4.** O `system` não muda: `app/api/ai-reviewer/system-prompt.ts` fica como está, e o `sha256` do `system` é `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98` em
+  todo cenário.
+- **P5.** `normalizeRequest` continua copiando `vinculoDaExecucao` **por nome** (`route.ts:600`): um campo de outro nome continua ignorado.
+- **P6.** Nenhuma alteração em `ParecerAISection.tsx`, em `page.tsx`, no contrato e na montagem da resposta (seção 3.3 da especificação).
+
+### 1. Os cenários da classe A: o que muda e o que não muda
+
+A classe A é o campo omitido, `undefined` ou `null`. "Exclusão ativa" é `data.exclusionInfo` presente **com** `excludedCount > 0` (`route.ts:857`); "lista" é `qualityAnalysis.respondents`
+com pelo menos um elemento (`route.ts:889`). Os quatro cenários que o pedido exige estão em A1 a A4; A3' e A5 a A7 foram **acrescentados** (o pedido pede "no mínimo" aqueles). Cada linha
+diz também onde o cenário aparece nos valores da seção 5b.
+
+| Cenário | Entrada | O que muda | O que NÃO muda | Contextos derivados (seção 5b) |
+|---|---|---|---|---|
+| **A1.** Sem lista | lista ausente, vazia ou de tamanho 0; sem exclusão ativa | entra **só o bloco de ausência**: +573 bytes (571 do bloco e 2 quebras) e +6 linhas | o texto do ramo sem lista (`route.ts:959-964`), **byte a byte**; **nenhuma** das cinco frases é emitida, porque não há lista; nada mais | rag-states ×4 (2 valores distintos), `diag` `C-ausente`, `a33-cadeia` C1 a C3, `fase2` `disponibilidade-ausente`, `estatisticas` ×2, `fiacao` `A-sem-lista` |
+| **A2.** Com lista não vazia | lista com N elementos; sem exclusão ativa | entram o bloco **e** a troca das cinco frases: +1192 bytes e +7 linhas com N de um dígito (+1189 com dois dígitos, +1186 com três) | as linhas `- ID:`, os **valores** das contagens por status, o bloco de qualidade, a Taxa, as estatísticas, o ranking e os pesos | `fase2` ×6, pacote `sem-exclusao`, `diag` ×3, `fiacao` `A-sem`, `estatisticas` ×12 |
+| **A3.** Com exclusão ativa e lista não vazia | A2, com `exclusionInfo.excludedCount > 0` | A2, **mais** a troca das quatro linhas de exclusão: +396 bytes. A linha de qualidade troca a **fonte do número** (de `activeCount`, `route.ts:865`, para o tamanho da lista enviada) e a população ("incluídos" por "ENVIADOS a você"): na `fiacao` o número vai de 5 para 4 | o título da filtragem, o critério de exclusão, a justificativa e a instrução ao revisor (`route.ts:867-877`) | pacote `com-exclusao`, `fiacao` `A-sem-exclusao-ativa` |
+| **A3'.** Com exclusão ativa e **sem** lista | A1, com exclusão ativa | entra o bloco e a troca das quatro linhas de exclusão: +940 bytes e +6 linhas. A linha de qualidade passa a ser a do conjunto enviado **vazio**: "Nenhum respondente foi ENVIADO a você (população: enviados; etapa: envio; contagem: 0): a lista de respondentes abaixo não existe." | o texto de `route.ts:959-964`; nenhuma das cinco frases | `fiacao` `A-sem-lista-exclusao-ativa` |
+| **A4.** Campo com nome incorreto | `vinculoDaExecucaoX` ou outro nome, com o campo correto ausente | o contexto é **idêntico** ao do cenário A1, A2 ou A3 com o campo omitido: **o bloco de ausência entra**, porque a ausência do campo correto o produz | o campo incorreto continua **ignorado**: os seus dados **não** entram no contexto (a marca `MARCA-QUE-NAO-DEVE-CHEGAR` e o objeto desconhecido ficam fora) | `fiacao` `A-outro-nome`, igual a `A-sem` (70155 bytes nas quatro entradas da base) |
+| **A5.** As três entradas | omitida, `undefined` e `null` | o mesmo que A1, A2 ou A3, conforme lista e exclusão | os três contextos continuam **idênticos entre si** (critério 3.5.3; `fiacao:254-255`) | `fiacao` `A-sem`, `A-undefined` e `A-null`: um só contexto |
+| **A6.** Exclusão **não** ativa | `exclusionInfo` ausente ou com `excludedCount` não positivo | nada nas linhas de exclusão, que não são emitidas; vale o que A1 ou A2 dizem | nenhuma linha de exclusão aparece | A1 e A2 |
+| **A7.** Lista de dois dígitos | N de 10 a 99 | o mesmo que A2, com o delta de bytes menor em 3 por dígito a mais: as frases antigas repetem N quatro vezes e as novas, uma | o resto de A2 | `estatisticas` `agregado-12` (N = 12): +1189 |
+
+⚠ **O contrato do campo com nome incorreto passa a ser:** o campo incorreto continua **ignorado**, os seus dados **não** entram no contexto, e **a ausência do campo correto produz o bloco
+de ausência**. Hoje o teste de `fiacao:293-299` afirma 0 ocorrência do marcador nesse cenário; ele passa a afirmar 1.
+
+### 2. As mudanças esperadas, com a decomposição
+
+A decomposição é a da especificação (seção 3.4), com os deltas **derivados** (seção 5b) e conferidos contra as funções não modificadas:
+
+| Condição na classe A | Mudança prevista | Delta, derivado |
+|---|---|---|
+| qualquer cenário que alcance a construção do contexto | **inclusão do bloco de ausência**, uma vez, com o marcador único, imediatamente antes da seção da lista | +573 bytes (571 do bloco e 2 quebras) e +6 linhas |
+| lista não vazia | troca **adicional** das cinco frases da lista | +619 bytes e +1 linha com N de um dígito (+616 com dois dígitos, +613 com três) |
+| exclusão ativa | troca **adicional** das quatro linhas de exclusão | +396 bytes com lista enviada não vazia; +367 sem lista; nenhuma linha nova |
+| sem lista | o texto de `route.ts:959-964` é **preservado**, e o contexto completo muda **pelo bloco** | +573 bytes e +6 linhas |
+
+**As CINCO frases da lista, enumeradas.** São as de `route.ts:931-937`, trocadas pelas de `frasesDaListaComVinculo` com a leitura `ausente` (`vinculo-execucao.ts:1311-1385`, ramo 3). ⚠
+**`cabecalhoDasContagens` é uma delas**: passa de vazio para `Contagens por status, sobre os ENVIADOS a você (etapa: envio):`, que ocupa uma linha **nova** (a razão do +1 linha). N é o
+tamanho da lista; o delta é o de N = 4.
+
+| # | Chave | Texto antigo (`route.ts`) | Texto novo (`frasesDaListaComVinculo`, ramo 3) | Delta (N = 4) |
+|---|---|---|---|---|
+| 1 | `cabecalho` | `## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)` | `## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)` | +37 |
+| 2 | `total` | `**TOTAL: N respondentes (esta lista é COMPLETA — não existem outros)**` | `**TOTAL ENVIADO A VOCÊ: N respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**` | +127 |
+| 3 | `agregacao` (duas linhas) | linha 1: `**AGREGAÇÃO POR MATRIZ: todos os N respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = N em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**`; linha 2: `⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos N julgamentos, sem particionamento.` | linha 1: `**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.`; linha 2: `⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.` | -15 |
+| 4 | `cabecalhoDasContagens` | vazio | `Contagens por status, sobre os ENVIADOS a você (etapa: envio):` (mais a quebra de linha, antes de `- CONFIÁVEIS (CR ≤ 10%): N`) | +64 |
+| 5 | `regraDeMencao` | `⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.` | `⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.` | +406 |
+
+**Soma:** +619 bytes com N de um dígito. Com o bloco, +1192. A frase 5 cita "identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA", e o **bloco de ausência não registra
+identificador algum**: é o caso que a classe B sem declaração e a classe C já têm hoje, e a especificação diz que **não a contradiz** (seção 3.1). O efeito dessa frase sobre o modelo **não
+é medido**.
+
+**As quatro linhas de exclusão, enumeradas** (de `route.ts:862-865`, trocadas pelas de `linhasDeExclusaoComVinculo`, `vinculo-execucao.ts:1273-1296`), para a exclusão `T` coletados, `A`
+restantes, `E` excluídos, `X`% de taxa:
+
+| # | Linha | Texto antigo | Texto novo | Delta |
+|---|---|---|---|---|
+| 1 | `amostra` | `- Amostra original coletada: T especialistas` | `- Amostra original coletada (população: respostas carregadas pela tela, finalizadas, de respondentes cadastrados e uma por respondente; etapa: coleta): T especialistas` | +125 |
+| 2 | `restantes` | `- Respondentes incluídos na análise: A especialistas` | `- Restantes após a exclusão do gestor (população: respondentes não excluídos; etapa: exclusão do gestor, anterior a qualquer restrição do vínculo): A especialistas` | +119 |
+| 3 | `excluidos` | `- Respondentes excluídos: E (X% da amostra original)` | `- Respondentes excluídos pelo gestor (população: excluídos; etapa: exclusão do gestor): E (X% da amostra original)` | +66 |
+| 4 | `qualidade`, com N > 0 enviados | `- Os dados de qualidade abaixo referem-se APENAS aos A respondentes incluídos.` | `- Os dados de qualidade abaixo referem-se APENAS aos N respondentes ENVIADOS a você (população: enviados; etapa: envio; contagem da lista de respondentes abaixo).` | +86 |
+| 4' | `qualidade`, com **0** enviados (sem lista) | `- Os dados de qualidade abaixo referem-se APENAS aos A respondentes incluídos.` | `- Nenhum respondente foi ENVIADO a você (população: enviados; etapa: envio; contagem: 0): a lista de respondentes abaixo não existe.` | +57 |
+
+A linha 4 não é só de nomenclatura: o número vem de outra fonte. No cenário de `fiacao` com exclusão 6/5/1 e lista de 4, a redação antiga afirma "APENAS aos **5**" e a nova, "APENAS aos
+**4**". Nos cenários em que `activeCount` e o tamanho da lista coincidem (o pacote `com-exclusao`: 4 e 4), só a palavra muda.
+
+**O bloco de ausência**, entre o conteúdo da exclusão e a seção da lista, **uma vez**, é o texto (a) registrado no bloco anterior. Os trechos abaixo são o contexto **derivado** (seção 5b)
+dos cenários A1 (`fiacao` `A-sem-lista`, 14 linhas) e A2 (`fiacao` `A-sem`, do título "Amostra e Qualidade Geral" até a regra de menção, 31 linhas; as linhas `- ID:` são as da requisição
+de ensaio):
+
+```
+## Amostra e Qualidade Geral
+
+
+
+## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO
+- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.
+- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.
+- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.
+⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.
+
+
+## DADOS DO SISTEMA — RESPONDENTES
+⚠️ Lista individual de respondentes não disponível. Use APENAS as estatísticas agregadas fornecidas.
+NUNCA invente ou deduza respondentes individuais.
+```
+
+```
+## Amostra e Qualidade Geral
+
+
+
+## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO
+- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.
+- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.
+- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.
+⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.
+
+
+## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)
+
+- ID: r1 | Email: Respondente r1 | CR: 5.0% | Status: CONFIÁVEL
+- ID: r2 | Email: Respondente r2 | CR: 5.0% | Status: CONFIÁVEL
+- ID: r3 | Email: Respondente r3 | CR: 5.0% | Status: CONFIÁVEL
+- ID: r4 | Email: Respondente r4 | CR: 5.0% | Status: CONFIÁVEL
+
+**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**
+
+**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.
+⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.
+
+Contagens por status, sobre os ENVIADOS a você (etapa: envio):
+- CONFIÁVEIS (CR ≤ 10%): 4
+- REVISAR (10–15%): 0
+- SUSPEITOS (15–20%): 0
+- CRÍTICOS (>20%): 0
+
+
+⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.
+```
+
+### 3. Os controles de preservação das classes B e C
+
+**O que a predição afirma:** nas classes B e C o contexto é **byte a byte** o de `5ad4780`. **A comparação declarada:** executar, depois do código novo, **os mesmos cenários** (as chamadas
+nomeadas abaixo, com os auxiliares dos próprios testes), capturar o contexto como os testes o fazem (os textos das mensagens, unidos por LF) e comparar **bytes e `sha256`** com a tabela.
+Os valores abaixo foram **medidos** por esta rodada, com o tratador real de `5ad4780` e os clientes simulados (instrumento fora do repositório, declarado na seção 5b), e são **também** o
+valor previsto: a predição é que **nenhum** muda. O `sha256` do `system` é `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98` em todos.
+
+| Cenário (auxiliares de `fiacao`) | Classe | Bytes | Linhas | `sha256` do contexto (base = previsto) |
+|---|---|---|---|---|
+| `executar(payloadDaTela(elegivel(), vinculoDoEstado('indisponivel', elegivel())))` | B, `indisponivel` | 73446 | 1181 | `4da79801e470c40dfd0365ff8eb20530b9a0f756a9e7fc309470dc8196f26f7e` |
+| idem, `'invalido'` | B, `invalido` | 73573 | 1182 | `8c8c6f9b17302757d58c19f2ac4b822d9cf26b2ef7e8a4fb21781ddd9d767bc8` |
+| idem, `'vinculado'` | B, `vinculado` | 74873 | 1187 | `a516e8b53f658da786497bfbb4362e8717ca5b68d0c3706cd4657f2f5e93cd8a` |
+| idem, `'divergente'` | B, `divergente` | 76146 | 1187 | `967a6329ebbd1edb34daf8653f576047228e4fe9250a73f599f220b61fdf54b0` |
+| `executarCenario(cenario(ids(5), ids(4)), { exclusionInfo: EXCLUSAO })` | B, 5 / 4 / 4 com exclusão | 76193 | 1197 | `6146af33d22bcf0eb6f646540185d49e3131fb2dbb46f4a8af4e6343a48c51e0` |
+| `executarCenario(cenario(['r1', 'r2'], ['r7', 'r8']), { exclusionInfo: EXCLUSAO })` | B, restrição que esvazia a lista | 75329 | 1178 | `4f5aabd659417eec3439cdc8c5df65eee5d4e9a294c4a3c48444699e7cfee0d9` |
+| `executar(payloadDaTela(elegivel(), X))`, com X igual a `{ estado: 'inventado' }`, `'texto'`, `{}`, `0` ou `[]`: **os cinco produzem o mesmo contexto** | C (formato não reconhecido) | 71317 | 1164 | `9d8142a5f1e6350e304cd9be48b93d65c69fca61e3fdddb68e17a419351eca55` |
+
+Além desses, os **13** cenários **com** vínculo de `estatisticas` (o `vinculado` do produtor real) e os **dois controles registrados** do pacote `a12-sem-vinculo`. Os 13 foram capturados
+também com o tratador de `5ad4780`; os dois do pacote **não** foram recapturados: o `sha256` deles é o do manifesto de 60 caminhos, e **sustentam a derivação** (V2, na seção 5b), e não a
+comparação desta seção.
+
+| Cenário de `estatisticas` com vínculo | N | Bytes | Linhas | `sha256` do contexto (base = previsto) |
+|---|---|---|---|---|
+| `agregado-12-comVinculo` | 12 | 75499 | 1203 | `0734304ac11b7f965cbc2a546e2fa794a095a3833d5c91e511dea369b54dd015` |
+| `agregado-12-gravado-comVinculo` | 12 | 75292 | 1195 | `f3f00656a0eb31ad8e06f144af2a50d1cd488bee5953fdc00e062cdbee7525f9` |
+| `agregado-3-comVinculo` | 3 | 74856 | 1189 | `1b3b1e34a906643ba80497562277a1843aa5d02824e948fa1a04f8c8086b7047` |
+| `agregado-5-com-2-desconhecidos-comVinculo` | 5 | 74921 | 1188 | `4f836ee4962a5b6c5707e78ee1cc6981c2640b76395f73b7879f945585d53e39` |
+| `agregado-5-comVinculo` | 5 | 74963 | 1191 | `9b33df583c9af0724be50b840e38626302338353bd915d9a0feb0aaf9caeea44` |
+| `coerencia-nao-concluida-comVinculo` | 5 | 75510 | 1186 | `cd3031bfd019a907409664cb97cf7569e0012cc3d97562857309809208380da3` |
+| `contradicao-comVinculo` | 5 | 75256 | 1186 | `92ec1503945c53cff3c36bbc47551540c025ede4b29afbd10c9f76207c9e3256` |
+| `duplo-por-dimensao-comVinculo` | 5 | 74963 | 1191 | `9b33df583c9af0724be50b840e38626302338353bd915d9a0feb0aaf9caeea44` |
+| `elegivel-sem-individualStats-comVinculo` | 5 | 74963 | 1191 | `9b33df583c9af0724be50b840e38626302338353bd915d9a0feb0aaf9caeea44` |
+| `nao-avaliada-ausente-comVinculo` | 0 | 72084 | 1162 | `ab09fe570efbe31c46f84040fde885a2f4557f31608da9db4a7b5976d512ccc7` |
+| `nao-avaliada-incompleta-comVinculo` | 3 | 74980 | 1184 | `c5768e4f56e3158c48926a5d753c6e36ec52994c5ae2608453ca34b6f6b541e1` |
+| `todos-acima-3-comVinculo` | 3 | 74767 | 1186 | `57c7be33ccbbad0ab8352b17ffa83c645c2ee70348cde26103620972c3d8603b` |
+| `todos-validos-3-comVinculo` | 3 | 74775 | 1186 | `0cbdb259ca2aa791d7fcca3346c980ace4f029048a75450fcf3399af48fcb7e6` |
+
+| Controle registrado do pacote (`docs/dados/a12-sem-vinculo/fase-a/contextos/`) | Bytes | `sha256` (do arquivo) |
+|---|---|---|
+| `ctx-sem-exclusao__controle.txt` | 74823 | `b1a7f44be1a182a172e33b0327b02fe212ec9003a34bf79561e1e3196bddc39d` |
+| `ctx-com-exclusao__controle.txt` | 76120 | `35df97281bf476b225fc28b9dc5c183f53f5dc7995ed0a2ba35fdf008d54a26a` |
+
+### 4. Cada teste e comparação atingidos: alteração esperada e comportamento que deve permanecer
+
+A tabela distingue **ALTERAÇÃO ESPERADA** (a asserção reprova, e a implementação terá de adaptar o teste), **DEVE PERMANECER** (a asserção segue passando **sem** alteração de teste),
+**REGRAVAÇÃO** (o artefato de medição fica defasado e exige regravação autorizada) e **CONFERÊNCIA CONTRA A FONTE** (documento ou comentário que a rodada 1 tornaria falso: não é predição,
+porque não é o que o modelo recebe). A coluna da origem diz se a linha **veio do pedido** (com a procedência que o pedido lhe dá) ou foi **acrescentada** por esta rodada. ⚠ Tudo aqui é
+**efeito inferido por leitura**: onde o predicado do teste foi **avaliado sobre o texto derivado**, a coluna diz, mas o teste **não** foi executado contra código novo, que não existe.
+
+| Onde (em `5ad4780`) | O que o teste afirma hoje | Previsão para a rodada 1 | Natureza | Origem e procedência |
+|---|---|---|---|---|
+| `fiacao:251`, `:252` (1 teste) | nas três entradas da classe A, o marcador ocorre 0 vez e a expressão `VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO` não ocorre | o marcador ocorre **1** vez e a expressão ocorre (avaliado sobre o texto derivado); reprova em `:251` | ALTERAÇÃO ESPERADA | pedido (conferido pelo analista); relido nesta rodada; avaliado |
+| `fiacao:254-255` | os contextos de `undefined` e de `null` são iguais ao da omissão | **continua valendo**: as quatro bases capturadas (omitida, `undefined`, `null`, nome errado) são byte a byte iguais, e a derivação é a mesma | DEVE PERMANECER | pedido (conferido pelo analista); relido nesta rodada; a igualdade das bases, medida |
+| `fiacao:256` | `sem.contexto.length > 1000` | continua valendo (71347 bytes derivados) | DEVE PERMANECER | acrescentado |
+| `fiacao:262` | âncora absoluta: cinco quebras entre `## Amostra e Qualidade Geral` e o cabeçalho antigo da lista | a âncora antiga **deixa de ocorrer**; ocorre `## Amostra e Qualidade Geral`, **4** quebras, o bloco (a), **3** quebras e o cabeçalho novo da lista (avaliado sobre o texto derivado) | ALTERAÇÃO ESPERADA | pedido (conferido pelo analista); relido nesta rodada; avaliado |
+| `fiacao:265-290` (4 instâncias, os quatro estados) | retirado o bloco da classe B e devolvidas as cinco frases à redação antiga, o resto é byte a byte o contexto da classe A | a reconstrução **deixa de corresponder**: o contexto da classe A traz o bloco e as frases novas, e a reconstrução o recompõe sem bloco e com as frases antigas; reprova em `:289` | ALTERAÇÃO ESPERADA | pedido (conferido pelo analista); relido nesta rodada |
+| `fiacao:297`, `:298` (1 teste) | campo com nome errado: o marcador ocorre 0 vez; a marca `MARCA-QUE-NAO-DEVE-CHEGAR` não chega ao contexto | `:297` passa a **1** (o bloco de ausência entra); `:298` **continua valendo** | `:297` ALTERAÇÃO ESPERADA; `:298` DEVE PERMANECER | `:297` pedido (conferido pelo analista); `:298` acrescentado |
+| `fiacao:374-391` (3 testes, R7) | o contexto da classe A contém `LISTA_ANTERIOR` e `EXCLUSAO_ANTERIOR` | **deixa de conter** as duas; reprovam em `:376`, `:381` e `:386`; as três negativas de `:388-390` ficariam vácuas, e a reescrita as substitui (avaliado sobre o texto derivado) | ALTERAÇÃO ESPERADA | pedido (leitura); relido nesta rodada; avaliado |
+| `fiacao:454-457` | cada frase antiga ocorre uma vez em `LISTA_ANTERIOR`, e `ANTIGA` é feita delas (só constantes) | continua valendo: não executa o tratador | DEVE PERMANECER | acrescentado |
+| `fiacao:518-542` (3 instâncias) | `:541`: o contexto da classe A (`legado`) contém `Portanto N = 4 em TODAS as matrizes agregadas` | **deixa de conter**; reprova em `:541`, nas três instâncias; o que precede, nas classes B e C, permanece (avaliado sobre o texto derivado) | ALTERAÇÃO ESPERADA | acrescentado |
+| `fiacao:650-653` | a exclusão da classe A tem a redação antiga, e `(população: ` não ocorre | `EXCLUSAO_ANTERIOR` deixa de ocorrer e `(população: ` passa a ocorrer; reprova em `:652` (avaliado sobre o texto derivado) | ALTERAÇÃO ESPERADA | pedido (leitura); relido nesta rodada; avaliado |
+| `fiacao:678-688` (1 teste) | `:686`: o contexto da classe A contém a regra de menção antiga; `:687`: `contradiz` é falso | `:686` **reprova** (a regra nova a substitui e não a contém); `:687` **continua valendo** (avaliado sobre o texto derivado) | `:686` ALTERAÇÃO ESPERADA; `:687` DEVE PERMANECER | acrescentado |
+| `fiacao:737-745` (1 teste) | inventário sem o campo: `semRotulo.length` é 7, contém `Portanto N = 4 em TODAS as matrizes agregadas` e `APENAS aos 5 respondentes incluídos`; sem `Chave de leitura das contagens` | `semRotulo.length` passa de 7 a **0** (as linhas de exclusão e a do total passam a nomear a etapa; as duas de agregação deixam de conter número); `:741-743` reprovam; `:744` **continua valendo** (o bloco de ausência não traz a chave). O avaliador reproduz o 7 e as duas passagens **na base** e dá 0 no derivado | `:741-743` ALTERAÇÃO ESPERADA; `:744` DEVE PERMANECER | acrescentado |
+| `fiacao:1305-1327` (2 testes) | a decisão (status, nota, veredicto, `notaSuspensa`, estado e mensagem da extração, avaliação de qualidade, validação) é a mesma nos quatro estados e sem o campo | **continua valendo**: o modelo é simulado com texto fixo, e a decisão não lê o contexto | DEVE PERMANECER | acrescentado |
+| `fiacao:1356-1386` (1 teste) | a lista ordenada de toda referência a "vinculo" em `route.ts` (14 linhas), com o literal `const comVinculo = …` (`:1369`) | muda: sai o literal `const comVinculo = …` (`route.ts:852`), e as quatro linhas condicionais (`:859-860` e `:928-929`) deixam de ter o ramo `comVinculo`; reprova em `:1362`. Permanecem as cinco linhas de importação, a cópia em `normalizeRequest`, `textoDoVinculo`, `blocoDoVinculo` e `${blocoDoVinculo}`, e as asserções de `:1357-1358`, `:1379-1381` e `:1382-1385` | `:1362` ALTERAÇÃO ESPERADA; o resto DEVE PERMANECER | pedido (conferido pelo analista); relido nesta rodada |
+| `fiacao:1423-1430` | `overall` ausente ou presente: contextos da classe A iguais | **continua valendo** | DEVE PERMANECER | acrescentado |
+| demais pontos de chamada do tratador em `fiacao` (as classes B e C: `:205`, `:234`, `:269`, `:316`, `:463`, `:490`, `:501`, `:509`, `:524`, `:547`, `:567`, `:590`, `:592`, `:607`, `:621`, `:632`, `:642`, `:664`, `:679`, `:693`, `:720`, os de `executarR4` (`:924` a `:1254`), `:1158`, `:1332`, `:1335`, `:1340`, `:1347`, `:1400`, `:1419` e `:1440`) | contexto com vínculo presente | contexto **byte a byte** igual ao de `5ad4780` (seção 3), e as asserções passam | DEVE PERMANECER | pedido ("classes B e C inalteradas"); relido nesta rodada; enumerado aqui |
+| `fiacao:301-312`, `:1267-1286`, `:1523-1545`, `:1661-1671` | a leitura do fonte de `route.ts`, de `vinculo-execucao.ts` e da tela: `normalizeRequest` copia o campo **uma** vez, por nome; `identificarParaApresentacao` ocorre uma vez, e `hash_` só numa linha de código do módulo; o módulo **não importa nada** (`:1535`) e não contém `createHash(`, `crypto.subtle`, `subtle.digest`, `Buffer.from(` nem `new TextEncoder` (`:1541`) | **continuam valendo**, desde que a rodada 1 não acrescente ao módulo importação alguma, nem esses tokens, nem `hash_` em linha de código (o bloco de ausência não os tem) | DEVE PERMANECER | acrescentado |
+| `fiacao:1453-1494`, `:1695-1796` e `fase2:786-800` | as guardas de redação que leem o contrato, o registro e o âncora | continuam valendo: aplicadas a **este** commit por busca própria (seção das guardas); a rodada 1 as reaplica ao texto que editar no contrato | DEVE PERMANECER | acrescentado |
+| `vinculo-execucao.test.ts:1040-1041` (1 teste) | `descreverVinculoParaContexto(undefined)` e `(null)` devolvem `''` | deixam de devolver `''` **se** o bloco for produzido por essa função, que é o ponto onde a rota já o obtém (`route.ts:973`); a predição fixa o **contexto**, e não o nome da função | ALTERAÇÃO ESPERADA | pedido (conferido pelo analista); relido nesta rodada |
+| `vinculo-execucao.test.ts:1043-1045`, `:1339-1340`, `:1828-1829` | `({})`, `('texto')` e `(0)` não devolvem `''`; `lerVinculoParaTexto(undefined)` e `(null)` têm `modo` `ausente` | **continuam valendo** (classe C inalterada; leitor inalterado) | DEVE PERMANECER | acrescentado |
+| `estatisticas:685-718` (4 instâncias: `nao-avaliada-ausente`, `-incompleta`, `contradicao`, `coerencia-nao-concluida`) | `:708-709`: o `sha256` do contexto, levado ao texto anterior pela reversão do teste, é o da base de `35a1506`, sem e com o campo | **sem** o campo, o contexto derivado traz o bloco (e as frases, havendo lista) que a reversão não desfaz: reprova em `:709`, na primeira volta (`comVinculo = false`); **com** o campo continua | ALTERAÇÃO ESPERADA | pedido (conferido pelo analista); relido nesta rodada; as quatro instâncias são contagem desta rodada |
+| `estatisticas:864-885` (2 instâncias: `agregado-5` e `agregado-3`) | `:872-873`: o contexto é o esperado a partir do arquivo da Fase 1 | **sem** o campo reprova: o esperado precisa das novas diferenças. O contexto derivado a partir do esperado do teste e o derivado a partir da captura **coincidem** byte a byte (V5) | ALTERAÇÃO ESPERADA | pedido (leitura); relido nesta rodada; avaliado |
+| `estatisticas:887-921` (1 teste) | os 27 cenários: `sha256` e bytes do contexto revertido iguais aos da base; trocas {27 blocos, 9 prefixos} | **14** dos 27 cenários (os sem vínculo) mudam e **13** (com vínculo) não; reprova em `:909`, no primeiro cenário sem vínculo da ordem do teste (`agregado-12-gravado-semVinculo`) | ALTERAÇÃO ESPERADA | pedido (leitura); relido nesta rodada; contagem 14 e 13 medida |
+| `estatisticas:520-674`, `:720-730`, `:733-824`, `:925-955` (ensaios 1 a 3b, 4 contraexemplo, 5, 7, 8 e o de alcance) e `a12-estatisticas-dimensao-consumidor-latente` | detectores do bloco por dimensão, da Taxa, da contagem por dimensão, de dígito e do zero literal | **continuam valendo** nos **14** cenários sem vínculo: os cinco detectores dão o **mesmo** resultado no texto derivado e na base (avaliado) | DEVE PERMANECER | acrescentado |
+| `fase2:437-451` (7 instâncias) | `r.contexto === esperado` (o antigo da Fase 1 menos o bloco e o prefixo), bytes e `sha256` contra `PREDICAO[id].previsto`, `system` | os **sete** contextos mudam: cada instância reprova em `:444`, a primeira asserção que falha (`:446` e `:447` também falhariam); `:448` (`system`) **continua**. Os novos bytes e `sha256` estão na seção 5b | ALTERAÇÃO ESPERADA | pedido (conferido pelo analista); relido nesta rodada; valores derivados |
+| `fase2:462-474` (5 instâncias, as suspensas) | a linha do motivo no contexto é `motivo.linhasNoPrevisto` | `:471` reprova: 58 passa a 64 (sem lista, +6) e 72, 74, 74 e 74 passam a 79, 81, 81 e 81 (com lista, +7). **Continuam** `:469` (o motivo ocorre 1 vez) e `:473` | `:471` ALTERAÇÃO ESPERADA; `:469` e `:473` DEVEM PERMANECER | pedido (leitura do executor); relido nesta rodada; linhas derivadas e avaliadas |
+| `fase2:430-435`, `:453-460`, `:476-482`, `:501-515` | contextos da Fase 1 intactos; termos do bloco antigo ausentes; `\n\n\n\n---\n\n# DADOS METODOLÓGICOS COLETADOS` presente; sem frase de suspensão nos elegíveis; a frase de suspensão uma vez | **continuam valendo** (avaliado sobre os sete contextos derivados) | DEVE PERMANECER | acrescentado |
+| `fase2:765-783` | o `sha256` pré-registrado de nove trechos, entre eles `handleCopy` | **continua valendo na rodada 1**: nenhum dos três trechos de `route.ts` (`calculateGrade`, `extractGradeFromReview` e o ranking `finalScoresSection`, em `:346`, `:512-517` e `:1047`) está nas linhas que a rodada 1 altera (`:852`, `:859-866`, `:928-938`, `:973-974`, `:1094-1096`). **Trava a rodada 2**: ver "Fatos conhecidos" | DEVE PERMANECER (rodada 1) | pedido (conferido pelo analista); relido nesta rodada; a ausência de sobreposição, acrescentada |
+| `fase2:786-800` | nenhuma promessa de omitir o veredito ao gestor (a regex `PROMESSA`, sobre o texto cru) nos seis arquivos, com `route.ts` e este registro entre eles | continua valendo, desde que o texto novo de `route.ts` não a contenha | DEVE PERMANECER | acrescentado |
+| `diag:1128-1136` (1 teste) | `gravado.quatroCasos` igual à medição atual (bytes do contexto 70188, 69444, 70394 e 70966) e `identificacao.codigo` igual | reprova: os bytes passam a **71380, 70017, 71586 e 72158**, e o `sha256` de `route.ts` muda. **Exige REGRAVAÇÃO** (`A12_GRAVAR=1`, 13ª entrada de procedência) | REGRAVAÇÃO | pedido (leitura e medição do executor); relido nesta rodada; bytes derivados |
+| `diag:988-1075`, `:1081-1091`, `:1113-1126` | o ramo do resumo de qualidade, o aviso de suspensão, os percentuais, os marcadores em `route.ts` e a lista de procedências (12 entradas) | **continuam valendo** (a seção de qualidade e os marcadores não mudam; a lista de procedências só muda com a regravação) | DEVE PERMANECER | acrescentado |
+| `a33-cadeia:1261-1271`, `:1507-1512` e `:1520-1545` (3 testes) | `identificacao.codigo` gravado igual ao medido (`:1268`, `:1511`) e `sha256` de `route.ts` igual ao do arquivo (`:1542-1544`) | os três reprovam, porque o `sha256` de `route.ts` muda. **Exige REGRAVAÇÃO** (`A33_GRAVAR=1`, 11ª entrada de procedência) | REGRAVAÇÃO | pedido (leitura do executor); relido nesta rodada (`:1268`, `:1511`); `:1542-1544` acrescentado |
+| `a33-cadeia`: `bytesMessages` de C1 a C3 no artefato | 71994, 70428 e 70428, gravados; **não** comparados por `:1273-1281` | passam a **72567, 71001 e 71001** (derivados); ficam defasados até a regravação | REGRAVAÇÃO | acrescentado |
+| `a33-cadeia:1273-1281`, `:1429-1440` | a presença por seção e as ocorrências de fundamento; as 14 marcas que só o sistema escrevia | **continuam valendo** (avaliado: nenhuma das 14 marcas no contexto derivado) | DEVE PERMANECER | acrescentado |
+| `rag-states:353-446` (1 teste) | `sha256(JSON.stringify(messages))` é `A12_MESSAGES_COM_CHUNKS` (comResultados e misto) e `A12_MESSAGES_SEM_CHUNKS` (vazio e erro); `system` é `SYSTEM_SEM_FAIRNESS` | os **dois** hashes de `messages` mudam (seção 5b); `system` **não muda**; reprova em `:430` | ALTERAÇÃO ESPERADA | acrescentado (o pedido não o enumera) |
+| `rag-states:333-351` | as quatro condições sem chunks entregam o mesmo prompt, byte a byte | **continua valendo**: o bloco entra igualmente nas quatro | DEVE PERMANECER | acrescentado |
+| `a33-snapshot-v2`, `a33-montagem-contexto`, `a12-qualidade-ausente`, `a12-coerencia`, `rag-diagnostico-regressao` | asserções sobre o contexto: literais proibidos, padrão de página, motivo uma vez, percentuais | **nenhuma atingida** (avaliado: nenhum literal proibido nem padrão de página nos textos derivados, e `PERCENTUAIS` e `MOTIVO_AUSENTE` com o mesmo resultado na base e no derivado) | DEVE PERMANECER | acrescentado |
+| `contratos-de-dados.md:456`, `:470`, `:552`, `:620`, `:625`, `:661-663` | a classe A "gera contexto byte a byte igual ao anterior", e "SEM o campo permanece a redação anterior" | passam a ser **falsas** para a classe A (continuam verdadeiras para B e C) | CONFERÊNCIA CONTRA A FONTE | acrescentado |
+| `route.ts:847-851`, `:967-972` (comentários) | "Requisição SEM o campo mantém a redação anterior, byte a byte" e "não ganha bloco algum" | passam a ser **falsos** | CONFERÊNCIA CONTRA A FONTE | acrescentado |
+
+**A contagem, por leitura (hipótese, e não medida).** Os testes que, executados **sem adaptação** contra o código novo, **reprovam**, são **41**, em **sete** arquivos: `fiacao` 16 (`:245`;
+`:265` ×4; `:293`; `:374`, `:379` e `:384`; `:518` ×3; `:650`; `:678`; `:737`; `:1356`), `vinculo-execucao.test.ts` 1 (`:1039`), `estatisticas` 7 (`:685` ×4, `:864` ×2 e `:887`), `fase2`
+12 (`:437` ×7 e `:462` ×5), `diag` 1 (`:1128`), `a33-cadeia` 3 (`:1261`, `:1507` e `:1520`) e `rag-states` 1 (`:353`). A contagem é por **instância** de `test` e de `test.each`. Os outros
+**899** dos 940 devem seguir passando. ⚠ **Contagem do texto dos testes é hipótese; a que vem da execução é medida**: a rodada 1 mede o número e, se for diferente de 41, explica a
+diferença antes de seguir. O total de testes **depois** da adaptação não é critério (a suíte cresce por testes novos), e a rodada 1 o registra depois de executar.
+
+### 5. Como conferir a resposta na rodada 1
+
+⚠ **O contrato e a montagem da resposta permanecem inalterados**, e, **com a saída do modelo e as demais entradas variáveis fixadas**, os campos da resposta permanecem iguais (critério
+3.5.5). Concretamente, no instrumento de ensaio do repositório (o tratador real com o cliente do modelo simulado e texto fixo, como em `fiacao:88-93`), nas classes A, B e C:
+
+- o conjunto de chaves do corpo, no nível principal, é o de `5ad4780` (`route.ts:1479-1523`): `success`, `nota`, `veredicto`, `notaSuspensa`, `mensagemDaExtracao`, `review`, `validation`
+  e `metadata`; e o de `metadata`: `version`, `model`, `timestamp`, `estadoDaExtracao`, `avaliacaoDeQualidade`, `knowledgeBase` e `debug`. **Nenhuma chave nova**: o campo
+  `estadoDoVinculo` é da rodada 2;
+- os valores de `status`, `nota`, `veredicto`, `notaSuspensa` (com `causa`, `rotulo`, `motivo` e `avaliacaoDeQualidade`), `mensagemDaExtracao`, `review` (igual ao texto simulado),
+  `validation` e de `metadata`, **fora `timestamp`**, são **iguais** aos de `5ad4780`. O `debug` vem de `data` (`route.ts:1422-1427`), e não do contexto. O auxiliar `decisao` de
+  `fiacao:1292-1303` cobre parte disso, e a comparação de igualdade dos dois corpos, sem `timestamp`, cobre o resto;
+- ⚠ **NÃO se exige "nenhum byte alterado no corpo"**: não é critério de runtime, por `metadata.timestamp` (`route.ts:1512`) e por conteúdo gerado;
+- ⚠ **`ParecerAISection.tsx` e `page.tsx`: preservação literal por comparação** com `5ad4780`, que se declara assim: `sha256`
+  `5082e5134bb0f370a255411b5845497ffb497c1b7b486c9f393cfd32772d457a` (17252 bytes) e `02d28066f1cd6a098594e43fbeebe168fd8286bd2df911479f5e1e583867f65b` (246063 bytes), e
+  `git diff --stat 5ad4780 <novo> -- <os dois caminhos>` sem saída. Como controles do mesmo tipo: `system-prompt.ts` `1a7259c9c61b56691862f70907c9255eae41b5f59427f0e52dfc9923cae59f83`
+  (34845 bytes) e `avaliacao-qualidade.ts` `511ca1a0ca2cf42380e5c6f08ebf03d1ca6cccfc2fbf1eecf2f31e1ce19700a0` (39599 bytes), que a rodada 1 também não altera.
+
+### 5b. Os bytes e o `sha256` previstos de cada contexto, por derivação independente
+
+`fase2:447` compara contra `PREDICAO[id].previsto.sha256`, registrado **antes** do código. A rodada 1 faz o mesmo, por **derivação independente**, sem implementar. ⚠ **Os valores abaixo
+NÃO atualizam** o objeto `PREDICAO` de `fase2`, as constantes `A12_MESSAGES_*` de `rag-states` nem `contextos-da-base-35a1506.json`: a adaptação desses testes **pertence à implementação
+futura**.
+
+**As cinco condições, todas cumpridas:** (1) **o contexto-base e o seu hash** estão em cada tabela, com a origem; (2) **as substituições** são as listadas, e cada uma exige **exatamente
+1** ocorrência do trecho no contexto corrente: o roteiro **falha** se contar outra quantidade (todas as 38 derivações passaram nessa conferência). Em A2 são seis (o cabeçalho, o total, a
+agregação de duas linhas, a âncora `- CONFIÁVEIS (CR ≤ 10%): ` que recebe o cabeçalho das contagens, a regra de menção e o bloco), mais quatro (as linhas de exclusão) em A3; em A1, **uma**
+(o bloco, inserido imediatamente antes de `\n## DADOS DO SISTEMA — RESPONDENTES`, que ocorre uma vez), seguida das quatro, em A3'; (3) **espaços, quebras de linha e separadores** são
+preservados exatamente: o bloco entra com `\n\n` depois do último caractere, e o roteiro compara bytes; (4) **bytes e hash** são calculados sobre o resultado derivado **sem executar código
+de produção modificado** (só texto, em Python; as únicas funções de produção executadas foram as **não modificadas** de `vinculo-execucao.ts`, e só para conferir os gabaritos); (5) **os
+valores ficam registrados neste commit**, sem alterar teste e sem regravar artefato.
+
+**Como o contexto-base foi obtido, e como foi validado.** Dois caminhos. **Registrado no repositório:** os sete contextos de `fase2` (o antigo da Fase 1 menos as duas trocas, que é o
+`previsto` pré-registrado em `docs/dados/a12-nota-veredicto-fase2/predicao-contextos.json`) e os dois contextos de classe A do pacote. **Capturado por esta rodada**, com o tratador real de
+`5ad4780`, **sem modificação**, os clientes do modelo, de embedding e do índice **simulados** (nenhuma rede, nenhuma inferência), por um instrumento **fora do repositório** (jest com
+configuração isolada; cópias literais dos auxiliares dos testes, as de `estatisticas` extraídas **por script**), em 05/10/2026, 02:51 a 03:04 UTC, Linux x86_64, Node v22.22.2, npm 10.9.7,
+jest 30.1.3. **Cada captura foi validada contra o que o repositório registra**, e nenhuma foi aceita sem isso:
+
+- **rag-states** (4 condições): os `sha256` de `messages` capturados são **os dois registrados**, `71d5a2dc…` (comResultados, misto) e `4f638afb…` (vazio, erro), e o do `system` é
+  `f3f2410c…6f98`;
+- **diag** (4 casos): os bytes capturados são **os quatro registrados** (70188, 69444, 70394, 70966);
+- **a33-cadeia** (C1 a C3): os `bytesMessages` capturados são **os três registrados** (71994, 70428, 70428) e o `bytesSystem` é 34170;
+- **estatisticas** (27 cenários): cada captura, levada ao texto anterior pela **mesma reversão que o teste aplica** (`paraOTextoAnterior`, extraída por script do teste de `5ad4780`), tem
+  o `sha256`, os bytes e o `sha256` do `system` registrados em `contextos-da-base-35a1506.json`: **27 de 27**, com as trocas contadas {27 blocos, 9 prefixos} (V4);
+- **fiacao**: as quatro entradas da classe A (omitida, `undefined`, `null`, nome errado) têm o **mesmo** contexto, 70155 bytes, `sha256`
+  `5649a44b16fa534aa3e26f2bdecf90a0aa95dc9f112456ae69bebacd3a2dd663` (`fiacao:254-255`, `:297-298`).
+
+**Os gabaritos do texto novo foram conferidos contra as funções NÃO modificadas.** V1: as cinco frases e as linhas de exclusão, transcritas por leitura de `vinculo-execucao.ts`, comparadas
+com a **saída** de `frasesDaListaComVinculo` e de `linhasDeExclusaoComVinculo` (o módulo de `5ad4780`, transpilado e executado em isolamento) para N em {0, 1, 2, 3, 4, 5, 6, 12, 13, 20,
+100} e cinco exclusões: **iguais**; e a saída das cinco frases **não depende** das identidades apresentadas (quatro variantes: `undefined` sem identidades, `undefined` com identidades,
+`null` com identidades e `undefined` com identidades posicionais). **V2 e V3** (o modelo de montagem): aplicando ao contexto de classe A as mesmas trocas, mas com o bloco e as frases da
+classe B, obtém-se o **controle de classe B byte a byte**, nos dois controles do pacote (74823 e 76120 bytes) e nos dois da `fiacao` (74873 e 76193 bytes, capturados). **V5:** nos cenários
+`agregado-5` e `agregado-3` sem vínculo, o contexto derivado **a partir do esperado do teste** (que parte do arquivo da Fase 1 versionado) é **igual** ao derivado **a partir da captura**.
+**V6:** 70 predicados de texto extraídos dos testes foram avaliados sobre os textos derivados e sobre as bases, com **0 divergência** entre o que a predição afirma e o que o predicado dá
+(e mais 5 valores registrados: as linhas do motivo derivadas, 64, 79, 81, 81 e 81); nos **36** pares base e derivado, a regex `PERCENTUAIS` (`a12-qualidade-ausente:158`) e a contagem de
+`MOTIVO_AUSENTE` dão o mesmo resultado; **na base** os predicados reproduzem o que o teste afirma hoje (por exemplo, `semRotulo.length` igual a 7 em `fiacao:741`).
+
+**F2. `fase2:437-450`: os sete contextos.** Base **registrada** (o `previsto` pré-registrado: bytes, linhas e `sha256` conferidos **iguais**, nos sete). `elegivel-auto-A`,
+`elegivel-auto-F` e as quatro suspensas com lista são A2; `disponibilidade-ausente` é A1.
+
+| Contexto | N | Base: bytes | Base: `sha256` | Previsto: bytes | Previsto: `sha256` | Δ bytes | Linhas |
+|---|---|---|---|---|---|---|---|
+| `elegivel-auto-A` | 4 | 70138 | `346d07ed1fe380d43d6c816119d1d041a6b2430abbeb77ccc07d3686b7a30162` | 71330 | `69342175962d4598776a273c0940a3d94e0a66651ff613b0a3b0f007104df2b0` | +1192 | 1158 → 1165 |
+| `elegivel-auto-F` | 4 | 70304 | `365f640d7ce4215121a5bcc14458d0aa28fc7dd85352786f29d60a654d56fe10` | 71496 | `f7cd09455df2998bf0fb819e28eec6ef7ae66a72767ae529fc3de71665454ce3` | +1192 | 1164 → 1171 |
+| `disponibilidade-ausente` | 0 | 69394 | `a03ef5ceb50edd1242165133cecce39302ececedfbb0dfbf588322ac8ab1d01c` | 69967 | `e63be9c69a3b1d512c4bec3e96c28c50875120e93ea328aa71bc58240e44af0c` | +573 | 1140 → 1146 |
+| `disponibilidade-incompleta` | 2 | 70207 | `13ef2d180f0b280898df565e134287618a7fe015ed777a39a20c4629c0c81b8e` | 71399 | `d68f213d3d9e2aca605c969cd07afc4f73fa0700a78f13c432a803204afcb58a` | +1192 | 1154 → 1161 |
+| `contradicao` | 4 | 70514 | `6c0293d8ceb05414e6b10c50a4dbd79306625e549e69e92ef99d54ffa18ab64a` | 71706 | `615696253e96275757401f9d833ae87d416705bd829f0e2bebee6f31e47fd5f1` | +1192 | 1156 → 1163 |
+| `coerencia-nao-concluida` | 4 | 70769 | `e8c89e3eaf6c48b2cc6a407b7c175a52d1176c51f60e559fcf95b0c9e71f664b` | 71961 | `19700b1d35b33b435d34daa3a5abff0ed8e609737e2aa3c79c11230d47243c33` | +1192 | 1156 → 1163 |
+| `coerencia-nao-avaliada-CONSTRUIDA` | 4 | 70452 | `6ef3d2b24f4fece6de6db0d78d60e14f1e8fd76705baabf0d2992fc7365ae252` | 71644 | `953a3e5823a0db979a8602ddb02dc0befd49ed64403a9c305af93e14dda85d9c` | +1192 | 1156 → 1163 |
+
+**P. Pacote `a12-sem-vinculo`, fase A, classe A.** Base **registrada** (arquivos do pacote, `sha256` do manifesto). `sem-exclusao` é A2 (N = 4); `com-exclusao` é A3 (exclusão 6/4/2,
+33.3%).
+
+| Contexto | N | Base: bytes | Base: `sha256` | Previsto: bytes | Previsto: `sha256` | Δ bytes | Linhas |
+|---|---|---|---|---|---|---|---|
+| `sem-exclusao` | 4 | 70094 | `eee039f0bb843847f3f47f2d1286da0e82171bfa3f3c96e853b15468ae7f6bdc` | 71286 | `a9d37c0ec3e2e4a2906e2cef5ff9e2f2b5026cbc155dc563ebbd9fecd2cb233a` | +1192 | 1158 → 1165 |
+| `com-exclusao` | 4 | 70995 | `4b09690aaa0566f1ea1ef9e38b05950c930a4b7a646d0299f3f2282467926d60` | 72583 | `4e10702dbde661e76c55f4bf165b5cd528388ef0cb435df980fb3f369dddfe3f` | +1588 | 1168 → 1175 |
+
+**R. `rag-states:427-431`: `sha256(JSON.stringify(messages))`.** Base **capturada** e **igual ao registrado**. Todas são A1. O JSON é `[{"role":"user","content":…}]`; a reserialização da
+base reproduz o JSON capturado byte a byte, e as quebras viram `\n` de dois caracteres, o que explica +579 no JSON para +573 no conteúdo. Cada condição também traz o `sha256` do
+**conteúdo**.
+
+| Condição | N | Base: bytes do JSON | Base: `sha256` do JSON (registrado) | Previsto: bytes do JSON | Previsto: `sha256` do JSON | Previsto: bytes e `sha256` do conteúdo |
+|---|---|---|---|---|---|---|
+| `comResultados` | 0 | 71028 | `71d5a2dcd602a83b84806c6b6d27570eaa936ec6da98fe9446a8ce943100860a` | 71607 | `4df2cb20f2af2f8d8d9815645b9f759773e3c31c0c62aec90cbe109948267677` | 70315 B, `b27e82c6c001ed0fa10a12ff6c48b6bdb24401c40a1e33fb0dfa6eff86182645` |
+| `vazio` | 0 | 70691 | `4f638afbcf61eecc80b375dc0987671720d399177020f117dcdfaf81c4328f37` | 71270 | `107cec11b6f884c5274ec1f39780f1ce83a0b5d88439298ba1e0a5b621d8c7c9` | 70000 B, `35402b1e89c35027b4579b6d9db116a0cc847fc6de134a611189f55c42b9dcac` |
+| `erro` | 0 | 70691 | `4f638afbcf61eecc80b375dc0987671720d399177020f117dcdfaf81c4328f37` | 71270 | `107cec11b6f884c5274ec1f39780f1ce83a0b5d88439298ba1e0a5b621d8c7c9` | 70000 B, `35402b1e89c35027b4579b6d9db116a0cc847fc6de134a611189f55c42b9dcac` |
+| `misto` | 0 | 71028 | `71d5a2dcd602a83b84806c6b6d27570eaa936ec6da98fe9446a8ce943100860a` | 71607 | `4df2cb20f2af2f8d8d9815645b9f759773e3c31c0c62aec90cbe109948267677` | 70315 B, `b27e82c6c001ed0fa10a12ff6c48b6bdb24401c40a1e33fb0dfa6eff86182645` |
+
+**D. `diag:1128-1136`: `bytesDoContexto`.** Base **capturada**, com os bytes **iguais aos registrados**. `C-ausente` é A1; os outros três, A2 (com N = 4 elementos, mesmo no de CR
+incompleto). O artefato guarda só os bytes; o `sha256` é acrescentado aqui.
+
+| Contexto | N | Base: bytes | Base: `sha256` | Previsto: bytes | Previsto: `sha256` | Δ bytes | Linhas |
+|---|---|---|---|---|---|---|---|
+| `C-disponivel` | 4 | 70188 | `bc0d203f5e476ea92b678b279ec63df4c46d030d5c6eef641fb135bc17b2ebeb` | 71380 | `f51d99638746aad9eab3bc98b20b54c4f2084f6d0f0c203899efa43d5dd4b91a` | +1192 | 1159 → 1166 |
+| `C-ausente` | 0 | 69444 | `8e5e84869a01dbdf356c0869298cb2c3a4587b9e87dd2b15320a39e25e76b6d5` | 70017 | `c85986a50fef7647410531315ad361b6d698feaafd30f3ba3a30ecbef55e60b0` | +573 | 1141 → 1147 |
+| `C-incompleta` | 4 | 70394 | `b62c6f4bd38993410ab056e9997ebae3378d67b80382abc57a414c09b9456ef0` | 71586 | `4365762e0a07298fe73f937426defb11c962ecb377c68517fc1ede71db72c30b` | +1192 | 1157 → 1164 |
+| `C-contradicao` | 4 | 70966 | `5c23981652ee1800802cc2a9771c055912a1421b922446c78adf9adb4d9568ab` | 72158 | `30c7c9250b3a8a42795374db241d68fe2f635263a06d6ba7ffe8211a2e1847c8` | +1192 | 1157 → 1164 |
+
+**33. `a33-cadeia`: `bytesMessages` do artefato.** Base **capturada**, com os bytes **iguais aos registrados**; todas são A1 (a requisição de referência r2 não tem respondentes nem
+exclusão). O artefato guarda só os bytes; `bytesSystem` fica em 34170.
+
+| Contexto | N | Base: bytes | Base: `sha256` | Previsto: bytes | Previsto: `sha256` | Δ bytes | Linhas |
+|---|---|---|---|---|---|---|---|
+| `C1` | 0 | 71994 | `9c4b83489b71ec2d729f9a569da5ef72a2e53a59611002599c204e288800bd94` | 72567 | `f6006e1022b603fb41b6abbf9815acf914b8175d4f918c47ae69e589ab786074` | +573 | 1175 → 1181 |
+| `C2` | 0 | 70428 | `14b0abce5653000488ddfd4f0fb68e743eeedd18f28ec1b5bb8513edcc572e6c` | 71001 | `64b44c789e164867d7f84e634bc20fcfaacd53ace5f17615daf4833544f1e2eb` | +573 | 1159 → 1165 |
+| `C3` | 0 | 70428 | `14b0abce5653000488ddfd4f0fb68e743eeedd18f28ec1b5bb8513edcc572e6c` | 71001 | `64b44c789e164867d7f84e634bc20fcfaacd53ace5f17615daf4833544f1e2eb` | +573 | 1159 → 1165 |
+
+**F. `fiacao`: os cenários da classe A.** Base **capturada**. As quatro entradas `A-sem`, `A-undefined`, `A-null` e `A-outro-nome` têm **um só** contexto, antes e depois. Definições:
+`A-sem` é `payloadDaTela(elegivel())`; `A-sem-exclusao-ativa`, o mesmo com `exclusionInfo: EXCLUSAO` (`{ totalCollected: 6, activeCount: 5, excludedCount: 1 }`); `A-sem-lista`,
+`payloadDaTela([])`; `A-sem-lista-exclusao-ativa`, esse com `exclusionInfo: EXCLUSAO`. A conferência de ocorrências nas exclusões: 1 de cada, nas quatro linhas.
+
+| Contexto | N | Base: bytes | Base: `sha256` | Previsto: bytes | Previsto: `sha256` | Δ bytes | Linhas |
+|---|---|---|---|---|---|---|---|
+| `A-sem` | 4 | 70155 | `5649a44b16fa534aa3e26f2bdecf90a0aa95dc9f112456ae69bebacd3a2dd663` | 71347 | `37ca494ef926636b75c90a62a5c8265d4794c66ebedb6a76d4f124e1a11d4ad5` | +1192 | 1159 → 1166 |
+| `A-sem-exclusao-ativa` | 4 | 71056 | `61ec6783ac2ee02494cbf4246bd3eda0a73b4ffb45977bda1482302a481077ef` | 72644 | `d7125f21d89675f874309c2df8edc4f4d099168c3b46221d07c6c22aba158e0d` | +1588 | 1169 → 1176 |
+| `A-sem-lista` | 0 | 69357 | `6787f3b947d80efe46b88b4181e7566a4c1fc19a9301dd69720c33d743d259f1` | 69930 | `325b6a6d121fb64f19ad546532495daffc7642e0cddaa4c2be67702ad48b9fa1` | +573 | 1141 → 1147 |
+| `A-sem-lista-exclusao-ativa` | 0 | 70258 | `ae0a2bfcb2c41f383579e91f70838d405d9c7ed1b4b7d5a951e67429c74aeddb` | 71198 | `d4d1d3a020afdd314fcf8e1ad126e9d225ef05854e7692ddfcf747c5af4b0947` | +940 | 1151 → 1157 |
+
+**E. `estatisticas:887-921`: os 14 cenários sem vínculo dos 27.** Base **capturada** e validada (V4). A2, exceto `elegivel-total-zero-semVinculo` e `nao-avaliada-ausente-semVinculo` (A1, N
+= 0) e `agregado-12-semVinculo` e `agregado-12-gravado-semVinculo` (N = 12, +1189). `agregado-3-semVinculo` e `agregado-5-semVinculo` são também os do teste de `:864-885`.
+
+| Contexto | N | Base: bytes | Base: `sha256` | Previsto: bytes | Previsto: `sha256` | Δ bytes | Linhas |
+|---|---|---|---|---|---|---|---|
+| `agregado-12-gravado-semVinculo` | 12 | 70562 | `4db9db54104ade1ddf7cb974e732ed2adb5b3a8049fdbfc9860c719b5fd35c0c` | 71751 | `9d5449abcd29934c55c76e31fbb4452fd9d0b31cb94f9c617ba2446c91104981` | +1189 | 1167 → 1174 |
+| `agregado-12-semVinculo` | 12 | 70769 | `846c2287cda2498f2e2eba0818d9e9723d92867c2c5c69d626a5ef101ce81cd1` | 71958 | `6cf91d7dbbbfc9af6a39539aa6c92e0af488acb2a6c8a7723325cdc60134da76` | +1189 | 1175 → 1182 |
+| `agregado-3-semVinculo` | 3 | 70138 | `8b584ef59c3759bcb59d602583f8714829d5d138f4af990ddf7588f215d43856` | 71330 | `b23cf220afc90dae6f417d5f73c37712244321a4bb956b46b947cdafff5f88fc` | +1192 | 1161 → 1168 |
+| `agregado-5-com-2-desconhecidos-semVinculo` | 5 | 70203 | `c5e476e55710a412adfd6ad10b39dfd71452d9fb5133b499d6a8a3dcf825896f` | 71395 | `abbf53b88926ab60e7cca5d273748adac096640b4298af3ffe9719009083c303` | +1192 | 1160 → 1167 |
+| `agregado-5-semVinculo` | 5 | 70245 | `be3b6f8adc0bdd958668fe434c37a338e0d84c3472c9887608915810f6a193dc` | 71437 | `c8bceaaa21e55295ac1e1e2260847f86cf898d6097810adda9d09e9425ab9911` | +1192 | 1163 → 1170 |
+| `coerencia-nao-concluida-semVinculo` | 5 | 70792 | `c52b30bc10aa90532fc2798ad3293657a76b05d17ac4cec4b00b96ec380b8658` | 71984 | `f7d02c6cae8cf76832a8a917e8dd7cd6edb6fa4f4ba3b7b54cbe5b2663d6f97d` | +1192 | 1158 → 1165 |
+| `contradicao-semVinculo` | 5 | 70538 | `123fd947c4c8d2058fe34843a8d86952a056c956583b6d02ed7e574c938e8707` | 71730 | `067fb6f94829ddab24603a42dc3fda8d85c05997f7d2cef86cad34e893c45d72` | +1192 | 1158 → 1165 |
+| `duplo-por-dimensao-semVinculo` | 5 | 70245 | `be3b6f8adc0bdd958668fe434c37a338e0d84c3472c9887608915810f6a193dc` | 71437 | `c8bceaaa21e55295ac1e1e2260847f86cf898d6097810adda9d09e9425ab9911` | +1192 | 1163 → 1170 |
+| `elegivel-sem-individualStats-semVinculo` | 5 | 70245 | `be3b6f8adc0bdd958668fe434c37a338e0d84c3472c9887608915810f6a193dc` | 71437 | `c8bceaaa21e55295ac1e1e2260847f86cf898d6097810adda9d09e9425ab9911` | +1192 | 1163 → 1170 |
+| `elegivel-total-zero-semVinculo` | 0 | 69417 | `2d088295d1885c56d5789964ab9e36abd845c58779b240bb743633bca23ecd69` | 69990 | `79305e7375b355631e0a4b3579a33314fe3320de890873cb9bdadf4e63d7ec7b` | +573 | 1141 → 1147 |
+| `nao-avaliada-ausente-semVinculo` | 0 | 69423 | `3c49d2ce22032bd90a6441bfe077a5650bd3b1725631106fe46438befdb67902` | 69996 | `9365ad78eb87999952549d84a5e2f185081f344454dfef842df94d311eb1bb84` | +573 | 1141 → 1147 |
+| `nao-avaliada-incompleta-semVinculo` | 3 | 70262 | `133da9c5d0823e393fa897f989494af5dbbc7c3b52b1bf72c49f81cbf6b24c60` | 71454 | `427001380173e820f18528e1e5b904cd8c258debc2d2b122dfbf9b0db6f8be9a` | +1192 | 1156 → 1163 |
+| `todos-acima-3-semVinculo` | 3 | 70049 | `85b11aa12c62cff144f8c8b53f1c608473b1697986fcc7a574cb012a5eb38fda` | 71241 | `666fb177e307a12eea966e834ebdab29dd9edf9a2a20e9af403da87ba5185477` | +1192 | 1158 → 1165 |
+| `todos-validos-3-semVinculo` | 3 | 70057 | `b0b853fc96904f1681c676798a76530310c496388f82f4a763c0bb0e5074a6e2` | 71249 | `e981e863f477b39b0f0f25791b40b953caf3ccf89f8382e5860362819895d4cf` | +1192 | 1158 → 1165 |
+
+### 6. Os resultados que contrariariam a predição e exigiriam interromper a rodada 1
+
+Cada item é um resultado **observável** que, se aparecer, **refuta** a predição. ⚠ **Qualquer um deles exige interromper, relatar o desvio e NÃO ajustar a predição nem o teste para que
+coincidam.** Ninguém decide aqui entre "o código está errado" e "a predição está errada": os dois valores se conservam, e a decisão é do autor.
+
+- **C1.** Contexto de classe A **sem** o bloco, com o bloco **mais de uma vez**, com texto que difere de (a) em qualquer palavra, ou **fora do ponto previsto** (imediatamente antes da
+  seção da lista; em A2, quatro quebras antes do bloco e três depois). Contraria P1 e o critério 3.5.1.
+- **C2.** As entradas omitida, `undefined` e `null` com contextos **diferentes** entre si; o cenário de nome incorreto **diferente** da omissão; ou a marca `MARCA-QUE-NAO-DEVE-CHEGAR` no
+  contexto. Contraria o contrato do campo com nome incorreto e o critério 3.5.3.
+- **C3.** Com lista não vazia: alguma das cinco frases **antigas** presente (qualquer dos nove fragmentos de `fiacao:401-411`), ou alguma das novas ausente ou fora da contagem 1.
+  Contraria P2.
+- **C4.** Com exclusão ativa: alguma das quatro linhas antigas presente, ou alguma das novas ausente; e, com a lista vazia, a linha "Nenhum respondente foi ENVIADO a você" ausente.
+- **C5.** **Sem lista:** o texto de `route.ts:959-964` alterado ou ausente, ou **qualquer** das cinco frases novas no contexto. Contraria P3 e o critério 3.5.2.
+- **C6.** Classe B ou C: **um** byte diferente num dos controles da seção 3. Contraria o critério 3.5.4 e "não altera as classes B e C".
+- **C7.** Bytes ou `sha256` de **qualquer** contexto da seção 5b, `fase2:447` incluído, diferentes do previsto. É a refutação da derivação; a constante **não** se atualiza.
+- **C8.** `sha256` do `system` diferente de `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98` em algum cenário. Contraria P4.
+- **C9.** Chave nova no corpo da resposta, ou valor diferente de algum campo (fora `timestamp`) com o modelo e as demais entradas fixados. Contraria o critério 3.5.5 e P6.
+- **C10.** `ParecerAISection.tsx` ou `page.tsx` com `sha256` diferente do registrado na seção 5. Contraria o critério 3.5.6.
+- **C11.** Teste **fora** da seção 4 reprovando quando os testes antigos rodam contra o código novo; teste marcado **DEVE PERMANECER** reprovando; ou teste marcado **ALTERAÇÃO ESPERADA**
+  **passando** sem adaptação (o que indicaria que a mudança não alcançou o caminho previsto). Este item é a rede de segurança do levantamento, que é piso.
+- **C12.** Número de testes reprovados diferente de **41** nos sete arquivos: relatar o número medido e a diferença, e explicar antes de seguir. Não é critério de aceite, mas é desvio da
+  hipótese.
+- **C13.** As linhas do motivo em `fase2:470-471` diferentes de 64, 79, 81, 81 e 81 (a decomposição por linhas: +6 sem lista e +7 com lista).
+- **C14.** Qualquer alteração, pela rodada 1, em `calculateGrade`, `extractGradeFromReview`, no ranking `finalScoresSection` ou nos trechos pré-registrados de `fase2:765-783`.
+- **C15.** A rota deixar de gerar parecer (`status` diferente de 200) em classe onde hoje gera, ou o aviso, a elegibilidade ou a suspensão passarem a depender do vínculo. Contraria
+  `contratos-de-dados.md:348` e `:363-368`.
+- **C16.** O instrumento da rodada 1 não conseguir reproduzir **as bases** desta predição (um controle de classe B ou C com `sha256` diferente do da seção 3 no código **ainda sem**
+  alteração): invalida a comparação, e não a predição.
+
+### O inventário levantado nesta rodada: padrão e escopo de cada busca, e o que foi acrescentado ao pedido
+
+⚠ **Este levantamento é insumo, e NÃO prova que a enumeração esteja completa.** O pedido trouxe uma tabela de **14** linhas. Esta rodada **relê** as 14 nos testes de `5ad4780` e **nenhuma
+estava errada**; as 14 estão na seção 4, com a procedência do pedido. As buscas próprias, sobre a **árvore** de `5ad4780` (`git grep`; contagens **medidas** nesta execução):
+
+- **I1.** Arquivos que carregam o tratador da rota: `-l -E "(require|import)[^;]*['\"]@/app/api/ai-reviewer/route['\"]"`, nos tipos `.ts .tsx .js .cjs .mjs`, tudo rastreado: **12**
+  arquivos, todos de `lib/__tests__/`: `a12-coerencia`, `a12-diagnostico`, `a12-estatisticas-dimensao-consumidor-latente`, `a12-estatisticas-dimensao`, `a12-nota-veredicto-fase2`,
+  `a12-qualidade-ausente`, `a33-cadeia-rule`, `a33-montagem-contexto`, `a33-snapshot-v2`, `rag-diagnostico-regressao`, `rag-semantic-states` e `vinculo-execucao-fiacao`. O pedido não os
+  nomeia: ele fala em "os doze arquivos que carregam o tratador" (seção 3.4 da especificação), e **o número confere**.
+- **I2.** Testes que **nomeiam** `route.ts` pelo caminho: `-o -F "ai-reviewer/route.ts"` em `lib/__tests__/*.ts`: **37** ocorrências (as linhas e as ocorrências coincidem): `diag` 14,
+  `a33-cadeia` 14, `fase2` 5, `fiacao` 2, `a12-qualidade-ausente` 1 e `rag-states` 1. Delas, **leem o fonte** (`ler`, `readFileSync` ou `shaArquivo`): `fase2` (`:518`, `:540`, `:556`,
+  `:652` e `:788`), `a12-qualidade-ausente:368`, `fiacao` (por `ROTA`, `:47`), `diag` (por `ROTA`, `:267`) e `a33-cadeia` (por `CODIGO`, `:305`); as de `rag-states:5` e `fiacao:6` são
+  comentários, e as demais de `diag` e `a33-cadeia` são nomes de campo do artefato. O que cada um lê foi conferido nas linhas citadas da seção 4.
+- **I3.** Testes e scripts que calculam o `sha256` de **arquivo** de produção: `-o -F "shaArquivo("` em `lib/__tests__/*.ts` e `scripts/*`: **6** ocorrências, `diag` 2, `a33-cadeia` 3 e
+  `a12-rastreabilidade` 1. Este último hasheia a rota de **cálculo**, e não a do Parecer IA. O artefato de `diag` liga `route.ts`, `page.tsx`, `ParecerAISection.tsx` e
+  `avaliacao-qualidade.ts`, e o de `a33-cadeia`, `route.ts` e `knowledge.ts`.
+- **I4.** Testes que nomeiam `vinculo-execucao.ts` pelo caminho: `-o -F "lib/ai-reviewer/vinculo-execucao.ts"` em `lib/__tests__/*.ts`: **7** ocorrências (`fiacao` 5,
+  `vinculo-execucao-calculo` 1 e `vinculo-execucao.test.ts` 1, as duas últimas em comentário). Nenhuma assere texto que a rodada 1 acrescente: os de `fiacao` conferem `hash_`,
+  `identificarParaApresentacao` e imports.
+- **I5.** As frases e linhas **antigas** da classe A: nove padrões fixos (`-l -F`, os fragmentos de `route.ts:931-937` e `:862-865`) em `app lib components scripts`: os arquivos que
+  casam com algum deles são **quatro**: `route.ts` (a fonte), `fiacao` (as constantes), `vinculo-execucao.ts` (**só** as redações novas) e `scripts/a33-aplicar-trecho-id.cjs:161` (um
+  comentário que repete "lista EXAUSTIVA"). Em `docs/dados/`, o cabeçalho antigo ocorre em 53 arquivos e a frase "esta lista é COMPLETA" em 36: são **contextos arquivados** de rodadas
+  anteriores, que ficam **como estão**.
+- **I6.** Varredura **mecânica** das asserções dos doze arquivos: **146** negativas com literal (`not.toContain` e `not.toMatch`) foram avaliadas contra os 48 textos novos, e **24**
+  negativas dinâmicas foram listadas e lidas uma a uma. **Nove** asserções distintas casam com algum texto novo; lidas, **duas** atingem a classe A (`fiacao:252` e `:653`, as duas do
+  pedido) e **sete** não (o objeto não é contexto de classe A: a linha da Taxa em `consumidor-latente:146`, o trecho do bloco em `estatisticas:530`, a constante `ITEM_NOVO` em `:792`, os
+  rótulos em `fase2:498`, os nomes de estado em `fase2:561`, o controle de classe B em `fiacao:555` e `:1404`). As positivas com literal: **3** literais do texto antigo (`fiacao:541`,
+  `:742` e `:743`) deixam de ocorrer, todos acrescentados à seção 4.
+- **I7.** Pontos de chamada do tratador em `fiacao` (`executar(`, `executarCenario(` e `executarR4(`): os da classe A foram classificados um a um (os de `:247-249`, `:267`, `:296`,
+  `:375`, `:380`, `:385`, `:540`, `:651`, `:685`, `:738`, `:1307`, `:1318`, `:1425` e `:1426`); os demais têm vínculo presente.
+- **I8.** Unitários de `descreverVinculoParaContexto(undefined)` e `(null)`: `-n -F` nos testes: 2 linhas, `vinculo-execucao.test.ts:1040` e `:1041`, as do pedido.
+- **I9.** Documentos e comentários que afirmam o contexto sem o campo: `grep -n -i -E "sem o campo|byte a byte"` em `contratos-de-dados.md` e
+  `grep -n -E "SEM o campo|byte a byte|não ganha bloco"` em `route.ts`: as linhas citadas na seção 4 (a linha 643 do contrato, sobre a Taxa idêntica com e sem o campo, **continua
+  verdadeira** e fica fora).
+
+**O que foi ACRESCENTADO ao pedido**, em resumo (cada item está na seção 4, com a origem "acrescentado"):
+
+- **sete testes em cinco pontos que reprovam e o pedido não enumera:** `fiacao:518-542` (3 instâncias), `fiacao:678-688`, `fiacao:737-745` e `rag-states:353-446`, mais **um** de
+  `a33-cadeia` (`:1520-1545`, por `:1542-1544`; o pedido cita `:1268` e `:1511`);
+- **a contagem das instâncias** dos testes do pedido: `fiacao:265-290` tem 4, `fiacao:374-391` tem 3, `estatisticas:685-718` tem 4, `estatisticas:864-885` tem 2, `fase2:437-451` tem 7 e
+  `fase2:462-474` tem 5;
+- **os cenários** A3', A5, A6 e A7, que o pedido não nomeia;
+- **o que DEVE PERMANECER** e o pedido não enumera: `fiacao:256`, `:298`, `:454-457`, `:687`, `:744`, `:1305-1327` e `:1423-1430`; `vinculo-execucao.test.ts:1043-1045`, `:1339-1340` e
+  `:1828-1829`; `fase2:430-435`, `:453-460`, `:469`, `:473`, `:476-482`, `:501-515`, `:765-783` e `:786-800`; os ensaios de `estatisticas` e `consumidor-latente`; `diag:988-1075`,
+  `:1081-1091` e `:1113-1126`; `a33-cadeia:1273-1281` e `:1429-1440`; e os cinco arquivos sem asserção atingida;
+- **os controles de preservação** com `sha256` (6 + 1 de `fiacao`, 13 de `estatisticas`, 2 do pacote), os `sha256` dos arquivos de produção que a rodada 1 preserva, e a **contagem por
+  leitura** (41 em sete arquivos);
+- **as afirmações de documento e de comentário** que a rodada 1 tornaria falsas (`contratos-de-dados.md` e `route.ts`), sem ação aqui;
+- **os valores previstos de 38 contextos** (as tabelas da seção 5b): o pedido nomeia expressamente os sete de `fase2:447`, e manda cobrir "o bloco em toda a classe A, as frases quando
+  houver lista e as exclusões quando ativas"; os outros 31 cobrem isso.
+
+**O que o levantamento não cobre.** O varredor mecânico só vê asserções com **literal** ou **constante nomeada**; uma asserção sobre o contexto de classe A comparada com um valor
+**calculado** pode escapar dele. Por isso a leitura seguiu os **pontos de chamada do tratador**: em `fiacao`, `estatisticas`, `fase2`, `a12-qualidade-ausente` e `consumidor-latente` foram
+lidos os trechos que constroem ou examinam o contexto; em `diag`, `a33-cadeia`, `a12-coerencia`, `a33-snapshot-v2` e `rag-states` a leitura foi **dirigida pelas buscas** (as asserções
+sobre o contexto), e **não integral**. A rede de segurança é o item C11: qualquer reprovação fora da seção 4 é desvio.
+
+### Fatos conhecidos, sem ação nesta rodada
+
+- **A rodada 2 já está travada** por `fase2:765-783`, que confere o `sha256` pré-registrado de **nove** trechos contra `docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json`:
+  três de `route.ts` (`calculateGrade`, `extractGradeFromReview` e o ranking `finalScoresSection`), dois de `avaliacao-qualidade.ts` (`interface Elegibilidade` com `CausaDaSuspensao`, e
+  `elegivelParaClassificacao`) e quatro de `ParecerAISection.tsx` (**`handleCopy`**, o aviso de quarentena de A.27, o portão do destaque e o corpo do parecer). A rodada 2 altera
+  `handleCopy` (`:53-56`), de modo que a adaptação desse teste pertence a ela. **Leitura do executor**, reconferida nesta rodada contra o JSON (os nove identificadores). **Sem ação.**
+- **Duas regravações de artefato de medição seriam exigidas pela rodada 1, e esta rodada só as NOMEIA:** `A12_GRAVAR=1` para `docs/dados/a12-diagnostico/medicao.json` (campos
+  `identificacao.codigo[app/api/ai-reviewer/route.ts]` e `quatroCasos[*].executadoAntesDaInterrupcao.bytesDoContexto`, de 70188, 69444, 70394 e 70966 para 71380, 70017, 71586 e 72158,
+  com a 13ª entrada de procedência) e `A33_GRAVAR=1` para `docs/dados/a33-cadeia-rule/medicao.json` (campos `identificacao.codigo[app/api/ai-reviewer/route.ts]` e
+  `montagem.casos[C1..C3].bytesMessages`, de 71994, 70428 e 70428 para 72567, 71001 e 71001, com a 11ª entrada de procedência). **Nada é regravado nesta rodada.** Artefato de medição
+  está sob a regra de preservação, e a autorização de regravar é do autor, a ser dada no pedido da rodada 1 de implementação. Os preservados `a12-identidade/medicao.json`,
+  `medicao-preservada-03c7d8b.json` e `a33-cadeia-rule/medicao-preservada-0d02fab.json` não são tocados.
+- **A rodada 2 também religa o artefato de `diag`**, que hasheia `page.tsx` e `ParecerAISection.tsx` (`diag:725`): essas duas mudam na rodada 2 e não na 1. Fato para a predição da
+  segunda rodada.
+- **O contrato do campo com nome incorreto** é o da seção 1: o campo incorreto continua ignorado, os seus dados não entram no contexto, e a ausência do campo correto **produz o bloco de
+  ausência**.
+
+### O que esta predição NÃO faz
+
+- **Não regrava resultado algum**: nenhum artefato de `docs/dados/` foi tocado, e o pacote `a12-sem-vinculo/` tem os 60 `sha256` iguais aos de `5ad4780`.
+- **Não ajusta teste algum** para antecipar a implementação: nem `PREDICAO`, nem `A12_MESSAGES_*`, nem as âncoras de `fiacao`, nem o artefato. Os valores da seção 5b não os atualizam.
+- **Não alega que o modelo produzirá texto melhor** (nem pior): o efeito do novo contexto sobre o texto gerado **não foi medido**. O `system` (a seção "RESPONDENTES" e a regra "o número
+  total é EXATAMENTE o declarado", `system-prompt.ts:111` e `:114`) continua como está, e **se o modelo lê o novo cabeçalho e a nova regra de forma coerente com ele não é objeto desta
+  predição**.
+- **Não afirma que o resultado de A.27 fica preservado**: o mecanismo fica, o resultado não é objeto de previsão. Também não afirma que a extração da nota e do veredito fique igual com
+  texto gerado diferente: só que, **com o texto fixado**, a decisão é a mesma (seção 5).
+- **Não declara completa a lista da seção 4**: é piso, e C11 é a rede de segurança.
+- **Não prediz a rodada 2**, que tem predição própria; nem implementa a 1.
+
+### A separação de procedência
+
+O bloco separa, item a item, **resultado executado**, **efeito inferido por leitura** e **verificação anterior não refeita**, e não mistura as três coisas numa afirmação só.
+
+| Categoria | Item | Quem, quando e onde |
+|---|---|---|
+| **resultado executado** | as capturas do tratador real de `5ad4780`, com os clientes simulados: 4 condições de `rag-states`, 4 casos de `diag`, C1 a C3 de `a33-cadeia`, 27 cenários de `estatisticas` e 18 de `fiacao` (7 da classe A, 6 da B e 5 da C), e a validação de cada uma contra o que o repositório registra (27 de 27, 4 de 4, 4 de 4, 3 de 3) | o executor, 05/10/2026 UTC, 02:51 a 03:04; Linux x86_64, Node v22.22.2, npm 10.9.7, jest 30.1.3 |
+| **resultado executado** | a execução das funções **não modificadas** de `vinculo-execucao.ts` (V1), a reversão do teste sobre as capturas (V4), as 38 derivações com a contagem de ocorrências, V2, V3 e V5, e a avaliação de 70 predicados de texto (V6) | o executor, nas mesmas condições; em Python e Node, **sem** executar código de produção modificado |
+| **resultado executado** | as buscas `git grep` do inventário (I1 a I9) e as guardas, os testes, `tsc`, o manifesto e os preservados, deste commit (seção "As guardas desta alteração") | o executor, antes de publicar |
+| **efeito inferido por leitura** | **todos os impactos previstos sobre os testes** (as 41 reprovações, as asserções marcadas DEVE PERMANECER, as linhas do motivo): são **previsões**, e não resultados. Onde um predicado foi avaliado sobre o texto derivado, o teste **não** foi executado contra código novo, que não existe | o executor, por leitura dos testes e do código de `5ad4780` |
+| **efeito inferido por leitura** | os pressupostos P1 a P6, o mecanismo de montagem (`route.ts:973-974`, `:1094-1096`), as ligações de artefato (`diag:725`, `a33-cadeia`), a ausência de sobreposição com os trechos pré-registrados e a falsidade futura de afirmações de documento | o executor, por leitura |
+| **verificação anterior não refeita** | os contextos da Fase 1 e as predições pré-registradas de `fase2` (`predicao-contextos.json`), usados como **base** em F2: conferidos por `sha256` contra o registrado, **não recapturados**; e os dois contextos de classe A e os dois controles de classe B do pacote (`sha256` do manifesto), **não recapturados** | rodadas de 01/10 e de 02/10/2026; não refeitas |
+| **verificação anterior não refeita** | as medições de `c8e1da0` e os quatro ensaios de renderização do componente | rodadas de 02/10/2026 e anteriores; não refeitas |
+| **verificação anterior não refeita** | as linhas "conferido pelo analista" do pedido (a tabela de 14 linhas) | recebidas; **relidas** nos testes de `5ad4780` nesta rodada, e reavaliadas onde a seção 4 diz "avaliado" |
+
+⚠ **A afirmação de ausência de inferência é escopada.** Nas rodadas deste trabalho **nenhuma chamada de inferência, de embedding ou de recuperação foi feita**: os clientes foram simulados,
+e a chave e o token usados são os falsos dos próprios testes. Logo, **nenhuma comparação** foi feita entre o texto que o modelo geraria com o contexto ausente e com o de controle. ⚠ **Isto
+NÃO vale para o registro inteiro**, que conserva o texto bruto de execuções reais, como a do anexo da execução 7.
+
+### As guardas desta alteração
+
+⚠ **"Só documental" descreve os arquivos alterados, e não demonstra ausência de efeito nos testes.** Este commit altera **um** arquivo, este registro. A busca de quem o lê foi **própria**,
+sobre a árvore de `5ad4780` (a base da rodada: os testes não mudaram no commit 1, e a mesma busca sobre `8885c14` dá as mesmas contagens), com padrão e escopo declarados, e **não** herdou
+o inventário das rodadas anteriores. Buscas (`git grep -n`; saída 1 é **sem resultado**, e não falha):
+
+- `-F -e 'imprecisoes-parecer-ia'`, tudo o que é rastreado, fora o próprio registro: **131** linhas, em documentos e saídas arquivadas; nos tipos `.ts .tsx .js .cjs .mjs`, **6**
+  linhas, das quais **leem** o registro `a12-nota-veredicto-fase2.test.ts:793` e `vinculo-execucao-fiacao.test.ts:49`;
+- `-F -e 'imprecisoes'` e `-E 'parecer-ia|imprecis'` (a segunda fora de `docs/`), nos mesmos tipos: **6** e **6** linhas; nenhum nome do registro é montado por partes;
+- `-E 'readdirSync|readdir\(|globSync|glob\(|ls-files|walkSync|opendirSync|fast-glob'`, nos mesmos tipos e fora de `docs/`: **9** linhas; **só** `fiacao:1464` percorre `docs`;
+- `-E "['\"]docs/"` e `-E "['\"]docs['\"]"`, nos mesmos tipos e fora de `docs/`: **81** e **8** linhas; **só** três nomeiam `docs/imprecisoes-parecer-ia.md`;
+- `git diff --stat 5ad4780 8885c14 -- . ':!docs'`: **sem saída**.
+
+| Arquivo alterado | Testes que o leem, em `5ad4780` (lido) | O que examinam |
+|---|---|---|
+| `docs/imprecisoes-parecer-ia.md` | `vinculo-execucao-fiacao.test.ts` e `a12-nota-veredicto-fase2.test.ts` | o arquivo inteiro normalizado (`fiacao:1453-1457`, `:1480-1486`, `:1705-1712`, `:1721`); duas fatias (`:1725-1747` e `:1774-1796`); um prefixo (`:1798`); a varredura (`:1459-1478`); e, no texto cru, a regex de promessa (`fase2:786-800`) |
+
+Cada guarda foi aplicada, **antes de publicar**, **ao mesmo trecho que o teste examina**, com as **mesmas expressões do teste** (`indexOf`, `slice`, `replace(/\s+/g, ' ').trim()`,
+`toLowerCase` e a regex copiada), por um script de trabalho **fora do repositório**; o aplicador de 02/10 **não** foi usado nem modificado. As linhas citadas dos testes foram conferidas
+**por conteúdo**, em `5ad4780`, e os dois arquivos de teste são os da base. **14 de 14** aplicações passam: as nove guardas; **três** verificações do texto novo (E1, que aplica G2, G5, G9
+e a expressão protegida de 02/10 ao trecho inserido, isoladamente; E2, que confere que nenhum dos quatro marcadores literais das fatias foi acrescentado; e E3, que lê as duas formulações
+vedadas só dentro do trecho inserido); e duas condições (a inserção pura e um só arquivo alterado). O trecho inserido cita `null` (13 ocorrências), `undefined` (15) e fragmentos de
+expressão regular (2 ocorrências de `\s`), e **nenhuma** guarda é acionada por isso: **medido**, e não suposto.
+
+⚠ **A medição dos trechos, com a semântica do teste.** A fatia de `:1725-1747` e a de `:1774-1796` (da linha 12332 à linha 13339) são **idênticas às da base**, e o prefixo de `:1798`
+também. O acréscimo está **fora** das duas fatias e do prefixo, e **dentro** das guardas de arquivo inteiro e da regex de promessa, que passam sobre ele; a varredura de `:1459-1478`
+alcança o registro (nenhum achado). ⚠ Nada nesta rodada autoriza alterar o teste.
+
+⚠ **As duas formulações vedadas (E3)** não são afirmadas em parte alguma deste trecho, e a busca foi **restrita ao trecho inserido**: o arquivo inteiro não foi examinado por esse critério,
+e nenhuma linha histórica foi tocada.
+
+⚠ **O controle negativo, para que "14 de 14" não signifique só que não havia o que reprovar.** O mesmo script foi aplicado a uma **cópia** do registro gerado, com um **texto vedado
+acrescentado dentro do bloco novo**: a frase vedada por G2 (com espaçamento irregular), a vedada por G5, uma passagem que a regex de G9 pega, a primeira formulação vedada como afirmação de
+comportamento e um dos marcadores das fatias; **antes de aplicar, o script conferiu que o texto vedado estava dentro do trecho inserido**. **Medido:** o script saiu com **código 1** e **7
+de 13** aplicações passaram; **falharam G2, G5, G9, E1, E2 e E3**, as que examinam o texto novo.
+
+**Os testes reais, executados sobre o texto desta alteração, antes de publicar** (Linux x86_64, Node v22.22.2, npm 10.9.7). Os dois arquivos de teste que leem o registro, executados à
+parte, passam (184 testes). `npx tsc --noEmit` sai 0, e `npm test` sai 0 com **36 suítes e 940 testes**, os mesmos do commit 1 (nenhum arquivo de teste foi tocado).
+
+**O pacote, intacto.** O manifesto dos **60** caminhos de `docs/dados/a12-sem-vinculo/`, com o `sha256` de cada um, é o de `5ad4780` antes e depois, **sem exceção**; nenhum arquivo foi
+acrescentado ou removido. O `sha256` do manifesto é `69d4cf76723b6ff1942f38252f004bf57880c20cd6601485afd87cf0a578b9d1`. **Os preservados**, conferidos por `sha256sum` antes e depois,
+**iguais**: `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json` (`85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25`, 17326 bytes) e
+`docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json` (`a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d`, 223411 bytes).
+
+### O que não foi integrado
+
+Nada foi integrado. No início desta rodada (**medido** por `git ls-remote`), `integra/a30-registros` estava em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em
+`33c1fdf6500242832994a17aa15b0a686704c029`; a cabeça da branch de sessão estava em `5ad478086d0aa4dadd42b6116cb9b96fecb7afe8` e passou a `8885c149117a049dcdc0652ec63033fbe4334c53` com o
+commit 1. Esta rodada não toca as duas primeiras.
+
+### O encerramento: a opção 3 está escolhida, a predição está escrita, e a implementação continua sem liberação
+
+⚠ **A opção 3 está escolhida, e esta é a predição escrita da rodada 1.** O que este registro **não** libera é código: **a implementação aguarda a auditoria desta predição e a liberação
+explícita do autor.** Nenhuma das duas rodadas de implementação foi iniciada.
+
+⚠ **A existência deste commit não libera código por si.** **Predição escrita, predição auditada e liberação explícita do autor são três condições, e este commit cumpre apenas a primeira.**
+A rodada 1 de implementação **só** começa depois das outras duas, e a da rodada 2 tem predição própria, em commit próprio, antes do código.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
