@@ -1036,13 +1036,30 @@ describe('ensaio 21: a regra de valor — null quando a comparação não se rea
 
 // ============================================================ o bloco do contexto (R2, R3, R4, R6)
 describe('o bloco do contexto: um bloco por requisição com o campo, nos quatro estados, sem veredito e sem afirmar conferência', () => {
-  test('R1 (parte pura): sem o campo, nenhum byte — a função devolve texto vazio', () => {
-    expect(descreverVinculoParaContexto(undefined)).toBe('');
-    expect(descreverVinculoParaContexto(null)).toBe('');
-    // CONTRAEXEMPLO: qualquer valor presente, mesmo malformado, produz bloco
+  test('R1 (parte pura): sem o campo, a função devolve o bloco de AUSÊNCIA, o REGISTRADO — não o texto vazio', () => {
+    // ⚠ O texto REGISTRADO na predição da rodada 1 (`docs/imprecisoes-parecer-ia.md`, linhas 17440 a 17444 em `50dd723`), SEM mudança de
+    //   palavra: 571 bytes, sem quebra de linha final, e o `sha256` abaixo. É o mesmo que a rota usa para `undefined` e para `null`.
+    const BLOCO_DE_AUSENCIA = [
+      '## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO',
+      '- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.',
+      '- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.',
+      '- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.',
+      '⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.',
+    ].join('\n');
+    expect(Buffer.byteLength(BLOCO_DE_AUSENCIA, 'utf8')).toBe(571);
+    expect(crypto.createHash('sha256').update(BLOCO_DE_AUSENCIA, 'utf8').digest('hex')).toBe(
+      '267226e55d0e4d031b324c9a8e2961df9be74b50fa6e217cb70e15f39d99872f'
+    );
+    expect(descreverVinculoParaContexto(undefined)).toBe(BLOCO_DE_AUSENCIA);
+    expect(descreverVinculoParaContexto(null)).toBe(BLOCO_DE_AUSENCIA);
+    expect(ocorrencias(BLOCO_DE_AUSENCIA, MARCADOR_DO_BLOCO_DO_VINCULO)).toBe(1); // o marcador do bloco do vínculo, UMA vez
+    // CONTRAEXEMPLO: qualquer valor presente, mesmo malformado, produz bloco, e não o de AUSÊNCIA (a ausência não é formato inválido)
     expect(descreverVinculoParaContexto({})).not.toBe('');
     expect(descreverVinculoParaContexto('texto')).not.toBe('');
     expect(descreverVinculoParaContexto(0)).not.toBe('');
+    expect(descreverVinculoParaContexto({})).not.toBe(BLOCO_DE_AUSENCIA);
+    expect(descreverVinculoParaContexto('texto')).not.toBe(BLOCO_DE_AUSENCIA);
+    expect(descreverVinculoParaContexto(0)).not.toBe(BLOCO_DE_AUSENCIA);
   });
 
   test.each(ESTADOS.map((e) => [e] as const))('R2: em %s há UM bloco, com o estado literal e o executionId', (estado) => {

@@ -27,6 +27,7 @@ export {};
 
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 
 import {
   frasesDaListaComVinculo,
@@ -242,50 +243,61 @@ describe('ensaio 9: vinculoDaExecucao sobrevive a normalizeRequest e aparece no 
     expect(contexto).not.toContain('## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)');
   });
 
-  test('R1: requisição SEM o campo não ganha bloco, e `undefined` explícito é o mesmo que ausente', async () => {
+  test('R1: requisição SEM o campo ganha o bloco de AUSÊNCIA, uma vez, e `undefined` explícito é o mesmo que ausente', async () => {
     const lista = elegivel();
     const sem = await executar(payloadDaTela(lista));
     const explicito = await executar({ ...payloadDaTela(lista), vinculoDaExecucao: undefined });
     const nulo = await executar({ ...payloadDaTela(lista), vinculoDaExecucao: null });
     for (const r of [sem, explicito, nulo]) {
-      expect(ocorrencias(r.contexto, MARCADOR_DO_BLOCO_DO_VINCULO)).toBe(0);
-      expect(r.contexto).not.toContain('VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO');
+      expect(ocorrencias(r.contexto, MARCADOR_DO_BLOCO_DO_VINCULO)).toBe(1);
+      expect(r.contexto).toContain('VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO');
+      expect(ocorrencias(r.contexto, BLOCO_DE_AUSENCIA)).toBe(1);
     }
     expect(explicito.contexto).toBe(sem.contexto);
     expect(nulo.contexto).toBe(sem.contexto);
     expect(sem.contexto.length).toBeGreaterThan(1000);
-    // ⚠ ÂNCORA ABSOLUTA, derivada do gabarito ANTERIOR ao estágio, e não da saída de agora:
-    //   `## Amostra e Qualidade Geral\n\n${exclusionContext}\n\n${fullRespondentList}`, com
-    //   `exclusionContext` vazio e `fullRespondentList` começando por quebra de linha, dá CINCO
-    //   quebras entre o título e a lista. Uma quebra a mais ou a menos no ponto de inserção mudaria
-    //   o contexto de TODA requisição sem o campo, e a comparação relativa acima não a veria.
-    expect(sem.contexto).toContain('## Amostra e Qualidade Geral\n\n\n\n\n## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)');
+    // ⚠ O bloco de ausência do teste é o REGISTRADO, sem mudança de palavra: 571 bytes e o `sha256` da predição.
+    expect(Buffer.byteLength(BLOCO_DE_AUSENCIA, 'utf8')).toBe(571);
+    expect(crypto.createHash('sha256').update(BLOCO_DE_AUSENCIA, 'utf8').digest('hex')).toBe(SHA256_DO_BLOCO_DE_AUSENCIA);
+    // ⚠ ÂNCORA ABSOLUTA, derivada da PREDIÇÃO da rodada 1 (registrada antes do código), e não da saída de agora:
+    //   `## Amostra e Qualidade Geral\n\n${exclusionContext}\n${blocoDoVinculo}\n${fullRespondentList}`, com
+    //   `exclusionContext` vazio, `blocoDoVinculo` = `\n${bloco de ausência}\n` e `fullRespondentList` começando
+    //   por quebra de linha, dá QUATRO quebras entre o título e o bloco e TRÊS entre o bloco e o cabeçalho da lista.
+    //   Uma quebra a mais ou a menos no ponto de inserção mudaria o contexto de TODA requisição sem o campo, e a
+    //   comparação relativa acima não a veria. A âncora ANTERIOR (cinco quebras e o cabeçalho antigo) deixa de ocorrer.
+    expect(sem.contexto).toContain(
+      `## Amostra e Qualidade Geral\n\n\n\n${BLOCO_DE_AUSENCIA}\n\n\n## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)`
+    );
+    expect(sem.contexto).not.toContain('## Amostra e Qualidade Geral\n\n\n\n\n## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)');
   });
 
-  test.each(ESTADOS.map((e) => [e] as const))('R1: em %s a diferença para o contexto sem o campo é o bloco e as CINCO frases da lista trocadas, e nada mais', async (estado) => {
+  test.each(ESTADOS.map((e) => [e] as const))('R1: em %s a diferença para o contexto sem o campo é o bloco (trocado pelo de ausência) e as CINCO frases da lista trocadas, e nada mais', async (estado) => {
     const lista = elegivel();
     const sem = await executar(payloadDaTela(lista));
     const v = vinculoDoEstado(estado, lista);
     const com = await executar(payloadDaTela(lista, v));
     const bloco = blocoDe(com.contexto);
     expect(bloco.length).toBeGreaterThan(200);
-    // ⚠ Retirado o bloco (com as quebras que o cercam) e devolvidas as cinco frases da lista à redação de
-    //   `a973c8f` (as âncoras ABSOLUTAS de R7), o resto é BYTE A BYTE o contexto sem o campo. A cláusula
-    //   "a única diferença é o bloco" DEIXOU DE VALER por decisão da rodada, e esta é a que a substitui.
+    // ⚠ Trocado o bloco (com as quebras que o cercam) pelo bloco de AUSÊNCIA e devolvidas as cinco frases da lista
+    //   às do modo `ausente`, o resto é BYTE A BYTE o contexto sem o campo. A cláusula "a única diferença é o bloco"
+    //   DEIXOU DE VALER por decisão da rodada 1 (a redação de `a973c8f` sem o campo já não existe: ver R7), e esta é
+    //   a que a substitui: o contexto sem o campo é o ponto de comparação, e cada estado difere dele só pelo bloco
+    //   e pelas cinco frases.
     // ⚠ R4: as frases são as da conferência com a lista APRESENTADA, como a rota as monta (a regra de menção ganha uma
     //   frase quando a lista apresentada não corresponde aos três conjuntos, e em `divergente` os incluídos têm a sobra).
     const apresentada = lista.map((r, i) => identificarParaApresentacao(r, i));
     const f = frasesDaListaComVinculo(lerVinculoParaTexto(v, apresentada), lista.length);
-    let reconstruido = com.contexto.replace(`\n${bloco}\n`, '');
-    const devolver = (nova: string, antiga: string) => {
+    const fAusente = frasesDaListaComVinculo(lerVinculoParaTexto(undefined, apresentada), lista.length);
+    let reconstruido = com.contexto.replace(`\n${bloco}\n`, () => `\n${BLOCO_DE_AUSENCIA}\n`);
+    const devolver = (nova: string, deAusencia: string) => {
       expect(ocorrencias(reconstruido, nova)).toBe(1);
-      reconstruido = reconstruido.replace(nova, () => antiga);
+      reconstruido = reconstruido.replace(nova, () => deAusencia);
     };
-    devolver(f.cabecalho, ANTIGA.cabecalho);
-    devolver(f.total, ANTIGA.total);
-    devolver(f.agregacao, ANTIGA.agregacao);
-    devolver(f.cabecalhoDasContagens, '');
-    devolver(f.regraDeMencao, ANTIGA.regra);
+    devolver(f.cabecalho, fAusente.cabecalho);
+    devolver(f.total, fAusente.total);
+    devolver(f.agregacao, fAusente.agregacao);
+    devolver(f.cabecalhoDasContagens, fAusente.cabecalhoDasContagens);
+    devolver(f.regraDeMencao, fAusente.regraDeMencao);
     expect(reconstruido).toBe(sem.contexto);
     expect(com.contexto).not.toBe(sem.contexto);
   });
@@ -294,7 +306,10 @@ describe('ensaio 9: vinculoDaExecucao sobrevive a normalizeRequest e aparece no 
     const lista = elegivel();
     const v = vinculoDoEstado('vinculado', lista);
     const outroNome = await executar({ ...payloadDaTela(lista), vinculoDaExecucaoX: v, campoDesconhecido: { marca: 'MARCA-QUE-NAO-DEVE-CHEGAR' } });
-    expect(ocorrencias(outroNome.contexto, MARCADOR_DO_BLOCO_DO_VINCULO)).toBe(0);
+    // ⚠ O campo de outro nome não chega: o contexto é o da AUSÊNCIA (o bloco de ausência, uma vez), e nada do vínculo `v` aparece
+    expect(ocorrencias(outroNome.contexto, MARCADOR_DO_BLOCO_DO_VINCULO)).toBe(1);
+    expect(outroNome.contexto).toContain(BLOCO_DE_AUSENCIA);
+    expect(outroNome.contexto).not.toContain('Estado do vínculo: **vinculado**');
     expect(outroNome.contexto).not.toContain('MARCA-QUE-NAO-DEVE-CHEGAR');
   });
 
@@ -322,7 +337,9 @@ describe('ensaio 9: vinculoDaExecucao sobrevive a normalizeRequest e aparece no 
 
 // ---------------------------------------------------------------------------
 // A redação de `a973c8f`, copiada da saída do handler ANTES de qualquer edição da rota, e não da
-// saída de agora. ⚠ São ÂNCORAS ABSOLUTAS: passam no código anterior e sem o campo seguem passando.
+// saída de agora. ⚠ São ÂNCORAS ABSOLUTAS do texto ANTERIOR: passavam no código anterior e sem o campo. Na rodada 1
+// (a ausência de `vinculoDaExecucao`) a classe A passou a ter a redação NOVA, e o código já não emite estas: elas ficam
+// como a referência do que NÃO pode voltar (R7) e do que o inventário das contagens acha na redação anterior.
 // ---------------------------------------------------------------------------
 const LISTA_ANTERIOR = [
   "## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)",
@@ -368,26 +385,80 @@ const ANTIGA = {
   regra: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.',
 };
 
-// ============================================================ R7 (âncoras absolutas do texto ANTERIOR)
-describe('R7: sem o campo a redação anterior fica byte a byte — âncoras ABSOLUTAS, escritas contra o texto de a973c8f', () => {
-  // ⚠ As constantes estão acima, no escopo do módulo: a lista e a exclusão de `a973c8f`.
-  test('a lista de respondentes, sem o campo, traz as frases antigas exatamente', async () => {
+// ---------------------------------------------------------------------------
+// A redação da classe A (campo omitido, `undefined` ou `null`) depois da rodada 1, como a PREDIÇÃO a registrou ANTES do código
+// (`docs/imprecisoes-parecer-ia.md`, bloco da predição datada, commit `838212c`; derivada pelas instruções do pacote
+// `docs/dados/a12-predicao-rodada1/`), e NÃO copiada da saída do handler de agora. ⚠ São ÂNCORAS ABSOLUTAS, com quatro respondentes.
+// ---------------------------------------------------------------------------
+/** O bloco de AUSÊNCIA: o texto REGISTRADO (linhas 17440 a 17444 do registro em `50dd723`), SEM mudança de palavra: 571 bytes, sem quebra de linha final. */
+const BLOCO_DE_AUSENCIA = [
+  '## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO',
+  '- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.',
+  '- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.',
+  '- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.',
+  '⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.',
+].join('\n');
+const SHA256_DO_BLOCO_DE_AUSENCIA = '267226e55d0e4d031b324c9a8e2961df9be74b50fa6e217cb70e15f39d99872f';
+
+/** A lista de respondentes da classe A: as cinco frases do ramo sem comparação (`ausente`), e a regra de menção da redação nova. */
+const LISTA_NOVA = [
+  '## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)',
+  '',
+  '- ID: r1 | Email: Respondente r1 | CR: 5.0% | Status: CONFIÁVEL',
+  '- ID: r2 | Email: Respondente r2 | CR: 5.0% | Status: CONFIÁVEL',
+  '- ID: r3 | Email: Respondente r3 | CR: 5.0% | Status: CONFIÁVEL',
+  '- ID: r4 | Email: Respondente r4 | CR: 5.0% | Status: CONFIÁVEL',
+  '',
+  '**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**',
+  '',
+  '**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.',
+  '⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.',
+  '',
+  'Contagens por status, sobre os ENVIADOS a você (etapa: envio):',
+  '- CONFIÁVEIS (CR ≤ 10%): 4',
+  '- REVISAR (10–15%): 0',
+  '- SUSPEITOS (15–20%): 0',
+  '- CRÍTICOS (>20%): 0',
+  '',
+  '',
+  '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.',
+].join('\n');
+/** O bloco de exclusão da classe A com `EXCLUSAO` (6 coletados, 5 restantes, 1 excluído) e quatro ENVIADOS: as quatro linhas com população e etapa, a última sobre a lista enviada. */
+const EXCLUSAO_NOVA = [
+  '**⚠️ FILTRAGEM DE RESPONDENTES APLICADA:**',
+  '- Amostra original coletada (população: respostas carregadas pela tela, finalizadas, de respondentes cadastrados e uma por respondente; etapa: coleta): 6 especialistas',
+  '- Restantes após a exclusão do gestor (população: respondentes não excluídos; etapa: exclusão do gestor, anterior a qualquer restrição do vínculo): 5 especialistas',
+  '- Respondentes excluídos pelo gestor (população: excluídos; etapa: exclusão do gestor): 1 (16.7% da amostra original)',
+  '- Critério de exclusão: CR > 0.10 (Saaty, 1977)',
+  '- Justificativa: A revisão individual dos julgamentos (Saaty, 2003) não foi viável após encerramento da coleta. Na AIJ por média geométrica, julgamentos individuais inconsistentes afetam a agregação do grupo (Forman & Peniwati, 1998). A exclusão foi aplicada ANTES da agregação.',
+  '- Os dados de qualidade abaixo referem-se APENAS aos 4 respondentes ENVIADOS a você (população: enviados; etapa: envio; contagem da lista de respondentes abaixo).',
+  '',
+  '**INSTRUÇÃO PARA O REVISOR:** Você DEVE mencionar esta filtragem no RESUMO DA SUBMISSÃO e na seção de CONSISTÊNCIA, usando a cadeia de justificação: limiar (Saaty, 1977) + impossibilidade de revisão (Saaty, 2003) + impacto na agregação (Forman & Peniwati, 1998).',
+].join('\n');
+
+// ============================================================ R7 (âncoras absolutas do texto da classe A)
+describe('R7: sem o campo a redação é a NOVA (bloco de ausência, frases da lista e linhas de exclusão), e a de a973c8f não sobrevive — âncoras ABSOLUTAS, escritas contra o texto PREVISTO', () => {
+  // ⚠ As constantes estão acima, no escopo do módulo: a lista e a exclusão da classe A, e as de `a973c8f`, que o código já não emite.
+  test('a lista de respondentes, sem o campo, traz as frases novas exatamente, e as de a973c8f não sobrevivem', async () => {
     const { contexto } = await executar(payloadDaTela(elegivel()));
-    expect(contexto).toContain(LISTA_ANTERIOR);
+    expect(contexto).toContain(LISTA_NOVA);
+    expect(contexto).not.toContain(LISTA_ANTERIOR);
   });
 
-  test('o bloco de exclusão, sem o campo, traz as frases antigas exatamente', async () => {
+  test('o bloco de exclusão, sem o campo, traz as linhas novas exatamente, e as de a973c8f não sobrevivem', async () => {
     const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
-    expect(contexto).toContain(EXCLUSAO_ANTERIOR);
+    expect(contexto).toContain(EXCLUSAO_NOVA);
+    expect(contexto).not.toContain(EXCLUSAO_ANTERIOR);
   });
 
   test('CONTRAEXEMPLO: as âncoras discriminam — um caractere a menos em qualquer frase reprova', async () => {
     const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
-    expect(contexto).toContain(LISTA_ANTERIOR);
-    expect(contexto).toContain(EXCLUSAO_ANTERIOR);
-    expect(contexto).not.toContain(LISTA_ANTERIOR.replace('não existem outros', 'nao existem outros'));
-    expect(contexto).not.toContain(EXCLUSAO_ANTERIOR.replace('incluídos na análise', 'incluídos na analise'));
-    expect(contexto).not.toContain(EXCLUSAO_ANTERIOR.replace('APENAS aos 5', 'APENAS aos 4'));
+    expect(contexto).toContain(LISTA_NOVA);
+    expect(contexto).toContain(EXCLUSAO_NOVA);
+    expect(contexto).not.toContain(LISTA_NOVA.replace('NÃO foi comparada', 'NAO foi comparada'));
+    expect(contexto).not.toContain(EXCLUSAO_NOVA.replace('respondentes não excluídos', 'respondentes nao excluídos'));
+    // ⚠ a população da última linha é a ENVIADA (4, o tamanho da lista), e não `activeCount` (5)
+    expect(contexto).not.toContain(EXCLUSAO_NOVA.replace('APENAS aos 4', 'APENAS aos 5'));
   });
 });
 
@@ -536,9 +607,9 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
     const mutante = contexto.replace(CALCULO_NAO_DISPONIVEL, CALCULO_NOMEADO(4));
     expect(mutante).not.toBe(contexto);
     expect(afirmaIncluidos(mutante)).toBe(true);
-    // e a redação de a973c8f, sem o campo, é a que afirmava "N = 4 em TODAS as matrizes" mesmo aqui
-    const legado = (await executar(payloadDaTela(lista))).contexto;
-    expect(legado).toContain('Portanto N = 4 em TODAS as matrizes agregadas');
+    // e a redação de a973c8f, sem o campo, afirmava "N = 4 em TODAS as matrizes" mesmo aqui: a rodada 1 a retirou da classe A
+    const semCampo = (await executar(payloadDaTela(lista))).contexto;
+    expect(semCampo).not.toContain('Portanto N = 4 em TODAS as matrizes agregadas');
   });
 
   test('vinculado com a lista de incluídos MALFORMADA: a contagem é a DECLARADA no bloco, sem lista para compará-la — nem "não disponível", nem coincidência', async () => {
@@ -647,10 +718,11 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
       expect(contexto).toContain(RESTANTES);
     });
 
-    test('sem o campo, a exclusão fica com a redação anterior, byte a byte (âncora absoluta de R7)', async () => {
+    test('sem o campo, a exclusão traz as linhas NOVAS, com população e etapa, e a redação anterior não sobrevive (âncora absoluta de R7)', async () => {
       const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
-      expect(contexto).toContain(EXCLUSAO_ANTERIOR);
-      expect(contexto).not.toContain('(população: ');
+      expect(contexto).toContain(EXCLUSAO_NOVA);
+      expect(contexto).not.toContain(EXCLUSAO_ANTERIOR);
+      expect(contexto).toContain('(população: ');
     });
   });
 
@@ -681,9 +753,11 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
       expect(comRegraAntiga).not.toBe(contexto);
       expect(contradiz(comRegraAntiga)).toBe(true);
       expect(contradiz(contexto)).toBe(false);
-      // sem o campo não há bloco que nomeie ninguém, então a regra antiga sozinha não contradiz
+      // sem o campo o bloco é o de AUSÊNCIA, que não nomeia ninguém, e a regra é a NOVA: a antiga já não existe na classe A
       const semCampo = (await executar(payloadDaTela(elegivel()))).contexto;
-      expect(semCampo).toContain(ANTIGA.regra);
+      expect(semCampo).not.toContain(ANTIGA.regra);
+      expect(semCampo).toContain(REGRA_NOVA);
+      expect(/(Na avaliação e NÃO no documento de cálculo|No documento de cálculo e NÃO na avaliação): "[^"]+"/.test(semCampo)).toBe(false);
       expect(contradiz(semCampo)).toBe(false);
     });
 
@@ -734,14 +808,25 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
       expect(contexto).not.toContain('por quatro');
     });
 
-    test('CONTRAEXEMPLO: SEM o campo, o mesmo inventário acha as contagens da redação anterior SEM população e SEM chave', async () => {
+    test('SEM o campo, o mesmo inventário não acha contagem sem população, e o CONTRAEXEMPLO é a redação ANTERIOR, em que acha as sete, SEM chave', async () => {
       const { contexto } = await executar({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO });
-      const todas = candidatas(contexto);
-      const semRotulo = todas.filter((l) => !rotulada(l) && !coberta(l));
+      const semRotuloDe = (c: string) => candidatas(c).filter((l) => !rotulada(l) && !coberta(l));
+      // a redação NOVA da classe A (bloco de ausência, frases da lista e linhas de exclusão): nenhuma contagem sem população
+      expect(semRotuloDe(contexto)).toEqual([]);
+      expect(contexto).not.toContain('Chave de leitura das contagens'); // o bloco de ausência não traz a chave
+      // CONTRAEXEMPLO: a redação de a973c8f, reposta pelas âncoras absolutas, tem as sete, e o detector as enxerga
+      const anterior = contexto
+        .replace(`\n${BLOCO_DE_AUSENCIA}\n`, () => '')
+        .replace(LISTA_NOVA, () => LISTA_ANTERIOR)
+        .replace(EXCLUSAO_NOVA, () => EXCLUSAO_ANTERIOR);
+      expect(anterior).not.toBe(contexto);
+      expect(anterior).toContain(LISTA_ANTERIOR);
+      expect(anterior).toContain(EXCLUSAO_ANTERIOR);
+      const semRotulo = semRotuloDe(anterior);
       expect(semRotulo.length).toBe(7);
       expect(semRotulo.join('\n')).toContain('Portanto N = 4 em TODAS as matrizes agregadas');
       expect(semRotulo.join('\n')).toContain('APENAS aos 5 respondentes incluídos');
-      expect(contexto).not.toContain('Chave de leitura das contagens');
+      expect(anterior).not.toContain('Chave de leitura das contagens');
     });
   });
 });
@@ -1357,7 +1442,7 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
     const contrato = ler('lib/ai-reviewer/avaliacao-qualidade.ts');
     expect(contrato).not.toMatch(/vinculo/i);
     const rota = ler(ROTA);
-    // toda referência do vínculo na rota, em ordem: o import, a cópia, a leitura para o TEXTO (a das frases da lista já recebe a lista APRESENTADA, R4) e o bloco, montado depois da lista
+    // toda referência do vínculo na rota, em ordem: o import, a cópia, as leituras para o TEXTO (as linhas de exclusão e as frases da lista, esta já com a lista APRESENTADA, R4, em TODA requisição: sem o portão `comVinculo`, que deixou de existir na rodada 1) e o bloco, montado depois da lista
     const linhas = rota.split('\n').filter((l) => /vinculo/i.test(l) && !l.trim().startsWith('//'));
     expect(linhas.map((l) => l.trim())).toEqual([
       'descreverVinculoParaContexto,',
@@ -1366,11 +1451,8 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
       'linhasDeExclusaoComVinculo,',
       "} from '@/lib/ai-reviewer/vinculo-execucao';",
       'vinculoDaExecucao: rawData.vinculoDaExecucao,',
-      "const comVinculo = lerVinculoParaTexto(data.vinculoDaExecucao).modo !== 'ausente';",
-      'const linhasDaExclusao = comVinculo',
-      '? linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados)',
-      'const frases: FrasesDaLista = comVinculo',
-      '? frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length)',
+      'const linhasDaExclusao = linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados);',
+      'const frases: FrasesDaLista = frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length);',
       'const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao, identidadesApresentadas);',
       "const blocoDoVinculo = textoDoVinculo === '' ? '' : `\\n${textoDoVinculo}\\n`;",
       '${blocoDoVinculo}',

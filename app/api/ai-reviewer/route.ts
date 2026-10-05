@@ -845,25 +845,18 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
     : '⚠️ Contagem por dimensão BOCR: não disponível nesta requisição (respostas totais, válidas, warning e críticas por dimensão). Os totais deste contexto são agregados e não identificam a dimensão: nenhuma contagem por dimensão é apresentada, e nenhuma deve ser derivada deles.';
 
   // A.12 etapa 3, estágio 1, correções antes do aceite: as frases AO REDOR do bloco do vínculo.
-  // ⚠ Requisição SEM o campo mantém a redação anterior, byte a byte (`comVinculo` falso). COM o
-  //   campo, cada contagem nomeia a população e a etapa, a exaustividade é só da lista enviada, a
-  //   relação com o cálculo vem da COMPARAÇÃO das listas (e nunca do estado), e a regra de
-  //   menção distingue o participante da divergência registrada.
-  const comVinculo = lerVinculoParaTexto(data.vinculoDaExecucao).modo !== 'ausente';
+  // ⚠ A redação é a MESMA em toda requisição, também na SEM o campo (omitido, `undefined` ou `null`): já não há
+  //   redação anterior a conservar. Cada contagem nomeia a população e a etapa, a exaustividade é só da lista
+  //   enviada, a relação com o cálculo vem da COMPARAÇÃO das listas (e nunca do estado; sem o campo não há
+  //   comparação, e nada se afirma sobre o cálculo), e a regra de menção distingue o participante da divergência
+  //   registrada.
   const nEnviados = Array.isArray(data.qualityAnalysis?.respondents) ? data.qualityAnalysis.respondents.length : 0;
 
   // Contexto de exclusão de respondentes
   let exclusionContext = '';
   if (data.exclusionInfo && data.exclusionInfo.excludedCount > 0) {
     const exclusionRate = ((data.exclusionInfo.excludedCount / data.exclusionInfo.totalCollected) * 100).toFixed(1);
-    const linhasDaExclusao = comVinculo
-      ? linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados)
-      : {
-          amostra: `- Amostra original coletada: ${data.exclusionInfo.totalCollected} especialistas`,
-          restantes: `- Respondentes incluídos na análise: ${data.exclusionInfo.activeCount} especialistas`,
-          excluidos: `- Respondentes excluídos: ${data.exclusionInfo.excludedCount} (${exclusionRate}% da amostra original)`,
-          qualidade: `- Os dados de qualidade abaixo referem-se APENAS aos ${data.exclusionInfo.activeCount} respondentes incluídos.`,
-        };
+    const linhasDaExclusao = linhasDeExclusaoComVinculo(data.exclusionInfo, exclusionRate, nEnviados);
     exclusionContext = `
 **⚠️ FILTRAGEM DE RESPONDENTES APLICADA:**
 ${linhasDaExclusao.amostra}
@@ -925,17 +918,7 @@ ${linhasDaExclusao.qualidade}
       desconhecido: respondents.filter((r: any) => r.status === 'DESCONHECIDO' || !r.status).length,
     };
 
-    const frases: FrasesDaLista = comVinculo
-      ? frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length)
-      : {
-          cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',
-          total: `**TOTAL: ${respondents.length} respondentes (esta lista é COMPLETA — não existem outros)**`,
-          agregacao:
-            `**AGREGAÇÃO POR MATRIZ: todos os ${respondents.length} respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = ${respondents.length} em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**\n` +
-            `⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos ${respondents.length} julgamentos, sem particionamento.`,
-          cabecalhoDasContagens: '',
-          regraDeMencao: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.',
-        };
+    const frases: FrasesDaLista = frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length);
 
     fullRespondentList = `
 ${frases.cabecalho}
@@ -965,10 +948,11 @@ NUNCA invente ou deduza respondentes individuais.
   }
 
   // A.12 etapa 3, estágio 1: o vínculo da avaliação de qualidade com a execução do cálculo.
-  // ⚠ Requisição SEM `vinculoDaExecucao` não ganha bloco algum: `''` deixa
-  //   `${exclusionContext}\n${blocoDoVinculo}\n${fullRespondentList}` byte a byte o texto
-  //   anterior a este estágio. ⚠ O bloco declara estado, identificador, divergência e cobertura
-  //   enviada; NÃO emite veredito, NÃO classifica e NÃO suspende.
+  // ⚠ Requisição SEM `vinculoDaExecucao` (omitido, `undefined` ou `null`) ganha o bloco de AUSÊNCIA, UMA vez, com o
+  //   marcador único, no mesmo ponto do bloco do vínculo:
+  //   `${exclusionContext}\n${blocoDoVinculo}\n${fullRespondentList}`. ⚠ O bloco declara estado, identificador,
+  //   divergência e cobertura enviada (o de ausência declara só a ausência); NÃO emite veredito, NÃO classifica e NÃO
+  //   suspende.
   // ⚠ R4: o bloco é montado DEPOIS da lista, porque compara a lista APRESENTADA.
   const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao, identidadesApresentadas);
   const blocoDoVinculo = textoDoVinculo === '' ? '' : `\n${textoDoVinculo}\n`;

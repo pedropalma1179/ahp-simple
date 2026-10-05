@@ -613,6 +613,22 @@ export const LIMITE_DO_VINCULO =
   'identificadores segundo regras declaradas, e NÃO comprova que os CRs foram calculados sobre as ' +
   'versões registradas. O bloco não é critério de nota e não suspende a classificação.';
 
+/**
+ * ⚠ O bloco da requisição SEM `vinculoDaExecucao`: campo omitido, `undefined` ou `null` (o payload recebido não distingue
+ * a omissão do `undefined`). O texto é o REGISTRADO em `docs/imprecisoes-parecer-ia.md` (bloco de 04/10/2026 do commit do
+ * registro da decisão e da especificação), SEM mudança de palavra: 571 bytes, sem quebra de linha final, `sha256`
+ * `267226e55d0e4d031b324c9a8e2961df9be74b50fa6e217cb70e15f39d99872f`. A primeira linha é o marcador do bloco do vínculo, e
+ * ele ocorre UMA vez no contexto. ⚠ A linha de limites é PRÓPRIA: não reutiliza `LIMITE_DO_VINCULO`, que fala de "vinculado"
+ * e de resumos que este bloco não traz.
+ */
+export const BLOCO_DE_AUSENCIA_DO_VINCULO = [
+  MARCADOR_DO_BLOCO_DO_VINCULO,
+  '- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.',
+  '- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.',
+  '- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.',
+  '⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.',
+].join('\n');
+
 const ESTADOS_RECONHECIDOS: string[] = ['indisponivel', 'invalido', 'vinculado', 'divergente'];
 
 const comoRegistro = (x: unknown): Record<string, any> | null =>
@@ -721,7 +737,7 @@ function linhaDaCobertura(cob: Record<string, any> | null, leitura: LeituraDoVin
  * veredito, não classifica e não suspende.**
  */
 export function descreverVinculoParaContexto(raw: unknown, apresentada?: IdentidadeApresentada[]): string {
-  if (raw === undefined || raw === null) return '';
+  if (raw === undefined || raw === null) return BLOCO_DE_AUSENCIA_DO_VINCULO;
 
   const v = comoRegistro(raw);
   if (!v || typeof v.estado !== 'string' || !ESTADOS_RECONHECIDOS.includes(v.estado)) {

@@ -453,9 +453,13 @@ Três efeitos independentes, cada um com o seu alcance:
 1. **O bloco do contexto** (`## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A
    EXECUÇÃO DO CÁLCULO`), nos quatro estados. Declara estado, identificador da execução,
    divergência e cobertura enviada, e **não emite veredito**. Requisição **sem** o campo
-   gera contexto **byte a byte** igual ao anterior ao estágio, e isso inclui as frases ao
-   redor do bloco. **COM** o campo, essas frases também mudam (subseção seguinte). Uma frase de
-   limite é a única com palavras de verificação, e todas negadas.
+   (omitido, `undefined` ou `null`) traz, no mesmo ponto, o bloco de **ausência** (571 bytes, uma
+   vez, com o mesmo marcador): declara a ausência do vínculo, que a relação entre o conjunto
+   enviado e o incluído no cálculo **não foi comparada**, e que nada se afirma sobre quantos
+   respondentes entraram no cálculo. As frases ao redor do bloco mudam **com e sem** o campo
+   (subseção seguinte). Até a rodada 1
+   (05/10/2026), a requisição sem o campo gerava contexto **byte a byte** igual ao anterior ao
+   estágio. Uma frase de limite é a única com palavras de verificação, e todas negadas.
 2. **A restrição do conjunto avaliado** (P1), em `vinculado` (onde é identidade) e
    `divergente` (onde muda a lista e o N que o contexto declara). ⚠ Retirar respondentes pode
    mudar disponibilidade, completude e coerência **pelas regras da etapa 1**, sem tocar na
@@ -466,10 +470,13 @@ Três efeitos independentes, cada um com o seu alcance:
 
 ##### As frases AO REDOR do bloco: população, etapa e relação (correções antes do aceite)
 
-⚠ **Escopo, decidido nesta rodada.** A redação abaixo vale **COM** `vinculoDaExecucao`, nos quatro
-estados e em formato não reconhecido. **SEM** o campo, o contexto segue **byte a byte** o de
-`a973c8f`, com as afirmações que ele já trazia; ampliar a correção a esse caminho é decisão do
-autor e exige regravar as linhas de base. ⚠ A cláusula "com o campo, a única diferença é o bloco
+⚠ **Escopo, decidido nesta rodada, e ampliado na rodada 1 (05/10/2026).** A redação abaixo foi
+decidida **COM** `vinculoDaExecucao`, nos quatro estados e em formato não reconhecido. Nesta
+rodada, **SEM** o campo o contexto seguia **byte a byte** o de `a973c8f`, com as afirmações que ele
+já trazia; ampliar a correção a esse caminho era decisão do autor e exigia regravar as linhas de
+base. **A decisão foi registrada em 04/10/2026 e implementada na rodada 1: SEM o campo (omitido,
+`undefined` ou `null`) valem agora as mesmas frases, no ramo sem comparação, e o bloco de
+ausência (ver "O que o modelo recebe").** ⚠ A cláusula "com o campo, a única diferença é o bloco
 inserido" **deixa de valer**: a lista de respondentes, o bloco de exclusão e a regra de menção
 também mudam.
 
@@ -549,7 +556,9 @@ estas frases **não foi testada**: só o que ele **recebe**.
 ⚠ **Escopo.** Vale **COM** `vinculoDaExecucao` em modo `comparado` (`vinculado` ou `divergente` com as duas
 listas bem formadas). Em `indisponivel`, `invalido`, formato não reconhecido e lista de incluídos malformada
 não há conjunto de incluídos: a linha nova **não existe** e nenhuma coincidência é afirmada, como antes.
-**SEM** o campo o contexto segue **byte a byte** o de `a973c8f`. P1 permanece, nenhuma cadeia de identificador
+**SEM** o campo também não há conjunto de incluídos nem comparação: o contexto traz o bloco de ausência e as
+frases do ramo sem comparação, e a lista apresentada é ignorada (rodada 1, 05/10/2026; até então o contexto
+seguia **byte a byte** o de `a973c8f`). P1 permanece, nenhuma cadeia de identificador
 é unificada e nenhuma causa de suspensão é acrescentada.
 
 **O defeito.** A comparação do texto usava as duas listas **declaradas** dentro do vínculo (`enviados` e
@@ -617,13 +626,17 @@ redação do modelo sobre estas frases **não foi testada**: só o que ele **rec
   restrição. Com exclusão do gestor **e** restrição que retire alguém, a redação de `a973c8f`
   ("os dados de qualidade abaixo referem-se APENAS aos N respondentes incluídos") usava a contagem
   anterior para dados calculados sobre a lista enviada. **Corrigido COM o campo:** a linha nomeia
-  população e etapa e usa a contagem da lista enviada. **SEM o campo permanece a redação
-  anterior**, por decisão de escopo desta rodada.
+  população e etapa e usa a contagem da lista enviada. **SEM o campo** a correção foi estendida na
+  rodada 1 (05/10/2026): as quatro linhas de exclusão são as mesmas, e a de qualidade usa o tamanho
+  da lista enviada, e não `activeCount`; até então permanecia a redação anterior, por decisão de
+  escopo da rodada.
 - ⚠ A afirmação de que N vale em todas as matrizes agregadas, na lista exaustiva, descrevia o
   conjunto **enviado**; com sobra só no documento, as matrizes foram agregadas sobre o conjunto do
   **documento**. **Corrigido COM o campo:** o contexto informa a contagem de incluídos registrada
-  no documento, nomeada, e diz que ela não é medição por célula. **SEM o campo permanece a redação
-  anterior.**
+  no documento, nomeada, e diz que ela não é medição por célula. **SEM o campo** (rodada 1,
+  05/10/2026) não há contagem de incluídos: o contexto diz que ela **não está disponível nesta
+  requisição**, nada afirma sobre quantos respondentes entraram no cálculo, e a frase "N = … em
+  TODAS as matrizes agregadas" deixou de existir; até então permanecia a redação anterior.
 - ⚠ Cobertas **só pela chave** (sem rótulo na própria linha): `Total: N especialistas`, as quatro
   contagens por status, `Taxa de Validade Geral` e `Respostas totais` por dimensão. Ficam como
   estão; rotulá-las uma a uma é decisão do autor. O ramo do prompt para lista de respondentes
@@ -660,7 +673,11 @@ redação do modelo sobre estas frases **não foi testada**: só o que ele **rec
   não distingue a origem. ⚠ **A tela continua enviando o agregado achatado**; a rota é que não o lê.
   ⚠ **A propriedade "requisição sem `vinculoDaExecucao` gera contexto byte a byte o anterior" DEIXOU DE VALER, por
   decisão do autor:** para o pedido **elegível** (o bloco muda, com ou sem o campo) e, **com** o campo, para todo
-  pedido (o item da chave muda). **Continua valendo** para o pedido não elegível sem o campo. **Integridade
+  pedido (o item da chave muda). **Continua valendo** para o pedido não elegível sem o campo.
+  ⚠ **Atualização de 05/10/2026 (rodada 1):** esta última frase **deixou de valer**. Sem o campo
+  (omitido, `undefined` ou `null`), todo pedido, elegível ou não, ganha o bloco de ausência e,
+  havendo lista de respondentes, as cinco frases do ramo sem comparação (e, com exclusão ativa, as
+  quatro linhas de exclusão com população e etapa); os pedidos COM o campo não mudaram. **Integridade
   histórica e comportamento atual estão separados:** as entradas acima, de `a973c8f` a `35a1506`, descrevem
   aquelas bases e não foram reescritas; a frase "não foi corrigida", da R4 acima, é verdadeira **para `bfa7e81`**, e
   a redistribuição por dimensão foi corrigida agora. ⚠ **O consumidor agregado (`:855-864` em `35a1506`) era

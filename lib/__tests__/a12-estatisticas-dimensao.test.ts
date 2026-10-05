@@ -48,6 +48,15 @@ export {};
  * e NUNCA do que o código novo imprime; o restante do contexto segue comparado BYTE A BYTE, sem afrouxar. Os arquivos
  * históricos ficam INTACTOS. Uma consequência declarada: a propriedade "o pedido NÃO elegível, sem o campo, é byte a byte o da
  * base" DEIXOU DE VALER, e passou a ser "é o da base com EXATAMENTE T1 e T2", que é o que a reversão confere.
+ *
+ * ⚠ **Reconciliação de 05/10/2026 (rodada 1: a ausência de `vinculoDaExecucao`).** O contexto de TODA requisição SEM o campo
+ * (14 dos 27 cenários, os `-semVinculo`) mudou em mais DUAS coisas, e só nelas: (T3) o bloco de AUSÊNCIA entrou, uma vez, no ponto
+ * do bloco do vínculo; (T4) as cinco frases da lista (havendo lista, 12 dos 14) passaram das de `a973c8f` às do ramo sem comparação.
+ * Os 13 cenários COM o campo não mudam. A reversão (`paraOTextoAnterior`) e o esperado a partir da Fase 1
+ * (`esperadoAPartirDoAnterior`) passaram a admitir EXATAMENTE essas duas trocas, cada uma CONTADA em cada ponto de chamada e SOMADA
+ * ao fim (14 blocos de ausência e 12 listas nos 27 cenários), e o restante do contexto segue comparado byte a byte, sem afrouxar.
+ * As redações (as novas, do que a predição de `838212c` registrou ANTES do código; as antigas, de `a973c8f`) são ABSOLUTAS neste
+ * arquivo, e NUNCA importadas da rota ou do módulo. Os arquivos históricos ficam INTACTOS.
  */
 
 const fs = require('node:fs');
@@ -153,6 +162,45 @@ const ABERTURA_COBERTURA_SEM_RETIRADA =
   '- Cobertura enviada: o filtro pelos identificadores do documento foi aplicado; nenhum elemento da lista avaliada foi retirado, e ';
 
 /**
+ * A.12, RODADA 1 (a ausência de `vinculoDaExecucao`): as DUAS trocas do contexto SEM o campo. ⚠ As redações são ABSOLUTAS, e NUNCA
+ * importadas da rota nem do módulo: as da AUSÊNCIA, do que a predição registrou ANTES do código (`docs/imprecisoes-parecer-ia.md`, bloco
+ * da predição datada, commit `838212c`); as ANTIGAS, do texto de `a973c8f`, que as bases de `35a1506` ainda trazem.
+ */
+/** O bloco de AUSÊNCIA: o texto REGISTRADO, SEM mudança de palavra (571 bytes, sem quebra de linha final). */
+const BLOCO_DE_AUSENCIA = [
+  '## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO',
+  '- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.',
+  '- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.',
+  '- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.',
+  '⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.',
+].join('\n');
+/** O título da seção onde o bloco entra: depois dele, QUATRO quebras, o bloco e TRÊS quebras (eram CINCO quebras, sem bloco). */
+const SECAO_DA_AMOSTRA = '## Amostra e Qualidade Geral';
+/** As cinco frases da lista de `a973c8f`, com `n` respondentes (o `cabecalhoDasContagens` antigo era vazio). */
+const FRASES_DA_LISTA_ANTIGAS = (n: number) => ({
+  cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',
+  total: `**TOTAL: ${n} respondentes (esta lista é COMPLETA — não existem outros)**`,
+  agregacao:
+    `**AGREGAÇÃO POR MATRIZ: todos os ${n} respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = ${n} em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**\n` +
+    `⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos ${n} julgamentos, sem particionamento.`,
+  regra: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.',
+});
+/** As cinco frases da lista SEM o campo (ramo sem comparação), com `n` respondentes; `contagens` precede a primeira contagem por status. */
+const FRASES_DA_LISTA_DA_AUSENCIA = (n: number) => ({
+  cabecalho: '## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)',
+  total: `**TOTAL ENVIADO A VOCÊ: ${n} respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**`,
+  agregacao:
+    '**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.\n' +
+    '⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.',
+  contagens: 'Contagens por status, sobre os ENVIADOS a você (etapa: envio):\n',
+  regra:
+    '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. ' +
+    'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.',
+});
+/** A primeira linha de contagem por status, que ocorre UMA vez no contexto e que o `cabecalhoDasContagens` novo precede. */
+const PRIMEIRA_CONTAGEM_POR_STATUS = '- CONFIÁVEIS (CR ≤ 10%): ';
+
+/**
  * NOTA E VEREDICTO, Fase 2: as DUAS trocas novas do contexto. ⚠ As redações e os blocos são do código ANTERIOR, REGISTRADOS na
  * base, e NÃO importados da rota: o teste não aprende o texto do que o código novo imprime.
  */
@@ -177,8 +225,12 @@ const DA_BASE_DA_FASE_2: Record<string, { bloco: string; causa: string | null; e
     { bloco: c.blocoAntigo, causa: c.causa, elegivel: c.elegivel },
   ])
 );
-/** O contador das duas trocas, por ponto de chamada, SOMADO ao fim: a reversão não pode passar por vacuidade. */
-type Trocas = { blocos: number; prefixos: number };
+/**
+ * O contador das trocas, por ponto de chamada, SOMADO ao fim: a reversão não pode passar por vacuidade. `blocos` e `prefixos` são T1 e T2
+ * (Fase 2); `ausencias` e `listas` são T3 e T4 (rodada 1: o bloco de ausência e as cinco frases da lista, SEM o campo).
+ */
+type Trocas = { blocos: number; prefixos: number; ausencias: number; listas: number };
+const trocasZeradas = (): Trocas => ({ blocos: 0, prefixos: 0, ausencias: 0, listas: 0 });
 
 const CABECALHO_DO_BLOCO = '## Estatísticas por Dimensão BOCR';
 const CABECALHO_SEGUINTE = '## Pesos Finais da Hierarquia de Controle';
@@ -248,9 +300,10 @@ function blocoDoTextoAnterior(individualStats: any): string {
 
 /**
  * O contexto NOVO, levado de volta ao texto anterior: o bloco (se elegível), o item da chave (se houver) e, A.12
- * `cobertura.restringiu`, a abertura da linha de cobertura do vínculo sem retirada (se houver). ⚠ NADA além disso.
+ * `cobertura.restringiu`, a abertura da linha de cobertura do vínculo sem retirada (se houver), as duas trocas da Fase 2 (T1 e T2) e, na
+ * rodada 1, SEM o campo, o bloco de ausência e as cinco frases da lista (havendo lista). ⚠ NADA além disso.
  */
-function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolean, nome: string, trocas: Trocas): string {
+function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolean, nome: string, trocas: Trocas, nRespondentes: number): string {
   let c = novo;
   if (elegivel) {
     expect(trechoDoBloco(c)).toBe(FRASE_DO_BLOCO_AVALIADA);
@@ -284,6 +337,33 @@ function paraOTextoAnterior(novo: string, individualStats: any, elegivel: boolea
     expect([nome, ocorrencias(c, `${FRASE_DE_SUSPENSAO}${d}.`)]).toEqual([nome, 1]);
     c = c.replace(`${FRASE_DE_SUSPENSAO}${d}.`, () => `${FRASE_DE_SUSPENSAO}${PREFIXO_ANTIGO_DO_ROTULO}${d}.`);
     trocas.prefixos += 1;
+  }
+  // ⚠ RODADA 1 (a ausência de `vinculoDaExecucao`): as DUAS trocas novas, e SÓ elas, contadas. SEM o campo, o bloco de AUSÊNCIA sai (UMA vez, entre as
+  //   quatro quebras que seguem o título da seção e as três que precedem a lista) e, havendo lista, as cinco frases voltam às de `a973c8f`, UMA vez cada;
+  //   COM o campo, o bloco de ausência não existe (os 13 cenários com o campo não mudam).
+  if (nome.endsWith('-semVinculo')) {
+    const comOBloco = `${SECAO_DA_AMOSTRA}\n\n\n\n${BLOCO_DE_AUSENCIA}\n\n\n`;
+    expect([nome, ocorrencias(c, comOBloco)]).toEqual([nome, 1]);
+    expect([nome, ocorrencias(c, BLOCO_DE_AUSENCIA)]).toEqual([nome, 1]);
+    c = c.replace(comOBloco, () => `${SECAO_DA_AMOSTRA}\n\n\n\n\n`);
+    trocas.ausencias += 1;
+    const nova = FRASES_DA_LISTA_DA_AUSENCIA(nRespondentes);
+    const antiga = FRASES_DA_LISTA_ANTIGAS(nRespondentes);
+    if (nRespondentes > 0) {
+      for (const k of ['cabecalho', 'total', 'agregacao', 'regra'] as const) {
+        expect([nome, k, ocorrencias(c, nova[k])]).toEqual([nome, k, 1]);
+        c = c.replace(nova[k], () => antiga[k]);
+      }
+      const comOCabecalhoDasContagens = `${nova.contagens}${PRIMEIRA_CONTAGEM_POR_STATUS}`;
+      expect([nome, ocorrencias(c, comOCabecalhoDasContagens)]).toEqual([nome, 1]);
+      c = c.replace(comOCabecalhoDasContagens, () => PRIMEIRA_CONTAGEM_POR_STATUS);
+      trocas.listas += 1;
+    } else {
+      // sem lista (nenhum respondente enviado) as cinco frases não existem, e o texto sem lista de `a973c8f` fica como está
+      for (const f of [nova.cabecalho, nova.total, nova.agregacao, nova.contagens, nova.regra]) expect([nome, ocorrencias(c, f)]).toEqual([nome, 0]);
+    }
+  } else {
+    expect([nome, ocorrencias(c, BLOCO_DE_AUSENCIA)]).toEqual([nome, 0]);
   }
   return c;
 }
@@ -683,7 +763,7 @@ describe('ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE
   ];
 
   test.each(CAUSAS)('%s (causa %s): o bloco e a Taxa são os de antes, com e sem vínculo', async (base, causa) => {
-    const trocas: Trocas = { blocos: 0, prefixos: 0 };
+    const trocas: Trocas = trocasZeradas();
     for (const comVinculo of [false, true]) {
       const nome = nomeDoCenario(base, comVinculo);
       const { payload, elegivel } = CONSTRUTORES[base](comVinculo);
@@ -705,16 +785,18 @@ describe('ensaio 4: pedido NÃO avaliado: a frase de indisponibilidade EXISTENTE
       expect([nome, ocorrencias(r.contexto, ABERTURA_COBERTURA_SEM_RETIRADA)]).toEqual([nome, esperadasSemRetirada]);
       // byte a byte: sem o campo, o contexto COMPLETO tem o sha256 da base; com o campo, só o item da chave e a abertura da cobertura diferem
       const base35a1506 = daBase(nome);
-      const anterior = paraOTextoAnterior(r.contexto, payload.individualStats, false, nome, trocas);
+      const anterior = paraOTextoAnterior(r.contexto, payload.individualStats, false, nome, trocas, payload.qualityAnalysis.respondents.length);
       expect(sha256(anterior)).toBe(base35a1506.sha256Contexto);
       expect(sha256(r.system)).toBe(base35a1506.sha256System);
       // ⚠ Fase 2: sem o campo, o pedido NÃO elegível deixou de ser byte a byte o da base, porque saíram o bloco da referência e o
       //   prefixo do rótulo; a propriedade vale COM essas duas trocas (a reversão acima confere), e a negativa abaixo mostra que a
       //   reversão NÃO passou por vacuidade: se as duas trocas não tivessem acontecido, o contexto seria o da base.
+      // ⚠ Rodada 1: sem o campo entraram também o bloco de ausência e as cinco frases da lista (havendo lista); a reversão as desfaz, contadas.
       if (!comVinculo) expect(sha256(r.contexto)).not.toBe(base35a1506.sha256Contexto);
     }
-    // as duas trocas, CONTADAS: uma por cenário (sem e com vínculo), e nas quatro causas o pedido é sempre NÃO elegível
-    expect(trocas).toEqual({ blocos: 2, prefixos: 2 });
+    // as trocas, CONTADAS: uma por cenário (sem e com vínculo), e nas quatro causas o pedido é sempre NÃO elegível; o bloco de ausência e as
+    // frases da lista (T3 e T4) só no cenário SEM o campo, e a lista só onde há respondentes (`nao-avaliada-ausente` não tem nenhum)
+    expect(trocas).toEqual({ blocos: 2, prefixos: 2, ausencias: 1, listas: base === 'nao-avaliada-ausente' ? 0 : 1 });
   });
 
   test('CONTRAEXEMPLO: trocar a frase existente pela nova é detectado, e a nova NÃO diz que a qualidade não foi avaliada', async () => {
@@ -846,13 +928,33 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
     expect(anterior.slice(inicio, inicio + 4)).toBe('### '); // o trecho antigo é o das quatro dimensões
     return anterior.slice(0, inicio) + FRASE_DO_BLOCO_AVALIADA + anterior.slice(fim);
   };
-  /** E o que se ESPERA do contexto novo: o bloco substituído e, COM o campo, o item da chave substituído. */
-  const esperadoAPartirDoAnterior = (anterior: string, comVinculo: boolean, trocas: Trocas): string => {
+  /**
+   * RODADA 1: o contexto SEM o campo da Fase 1, com as DUAS trocas novas, contadas: (T3) o bloco de AUSÊNCIA, uma vez, entre as quatro quebras que seguem o título
+   * da seção e as três que precedem a lista (eram cinco quebras); (T4) as cinco frases da lista, das de `a973c8f` às do ramo sem comparação, uma vez cada.
+   */
+  const comAAusenciaDaRodada1 = (soOBloco: string, n: number, trocas: Trocas): string => {
+    const antiga = FRASES_DA_LISTA_ANTIGAS(n);
+    const nova = FRASES_DA_LISTA_DA_AUSENCIA(n);
+    const ancora = `${SECAO_DA_AMOSTRA}\n\n\n\n\n${antiga.cabecalho}`;
+    expect(ocorrencias(soOBloco, ancora)).toBe(1);
+    let c = soOBloco.replace(ancora, () => `${SECAO_DA_AMOSTRA}\n\n\n\n${BLOCO_DE_AUSENCIA}\n\n\n${antiga.cabecalho}`);
+    trocas.ausencias += 1;
+    for (const k of ['cabecalho', 'total', 'agregacao', 'regra'] as const) {
+      expect([k, ocorrencias(c, antiga[k])]).toEqual([k, 1]);
+      c = c.replace(antiga[k], () => nova[k]);
+    }
+    expect(ocorrencias(c, PRIMEIRA_CONTAGEM_POR_STATUS)).toBe(1);
+    c = c.replace(PRIMEIRA_CONTAGEM_POR_STATUS, () => `${nova.contagens}${PRIMEIRA_CONTAGEM_POR_STATUS}`);
+    trocas.listas += 1;
+    return c;
+  };
+  /** E o que se ESPERA do contexto novo: o bloco substituído e, COM o campo, o item da chave substituído; SEM o campo, a ausência da rodada 1. */
+  const esperadoAPartirDoAnterior = (anterior: string, comVinculo: boolean, trocas: Trocas, n: number): string => {
     const soOBloco = comSoOBloco(semOBlocoDaReferencia(anterior, trocas));
     if (!comVinculo) {
       expect(soOBloco).not.toContain(ITEM_ANTIGO);
       expect(ocorrencias(soOBloco, '- Cobertura enviada')).toBe(0); // sem o campo não há linha de cobertura
-      return soOBloco;
+      return comAAusenciaDaRodada1(soOBloco, n, trocas);
     }
     expect(ocorrencias(soOBloco, ITEM_ANTIGO)).toBe(1);
     // A.12, `cobertura.restringiu`: com o campo, a captura da Fase 1 traz a abertura de antes UMA vez, e ela é substituída
@@ -862,26 +964,26 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
   };
 
   test.each([['agregado-5'], ['agregado-3']])('%s: contra o contexto completo da Fase 1, sem e com o campo', async (base) => {
-    const trocas: Trocas = { blocos: 0, prefixos: 0 };
+    const trocas: Trocas = trocasZeradas();
     for (const comVinculo of [false, true]) {
       const anterior = ler(`${PASTA_FASE1}/ctx-${base}-${comVinculo ? 'comVinculo' : 'semVinculo'}.txt`);
       const { payload } = CONSTRUTORES[base](comVinculo);
       const r = await executar(payload);
-      const esperado = esperadoAPartirDoAnterior(anterior, comVinculo, trocas);
+      const esperado = esperadoAPartirDoAnterior(anterior, comVinculo, trocas, payload.qualityAnalysis.respondents.length);
       // ⚠ o contexto COMPLETO, e não só o bloco: qualquer outro byte diferente reprova
       expect(r.contexto.length).toBe(esperado.length);
       expect(r.contexto === esperado).toBe(true);
-      // a diferença entre o novo e o anterior é EXATAMENTE o bloco (e o item, com o campo)
+      // a diferença entre o novo e o anterior é EXATAMENTE o bloco (e o item, com o campo; e, sem o campo, o bloco de ausência e as cinco frases da lista)
       expect(r.contexto).not.toBe(anterior);
       if (!comVinculo) {
         expect(ocorrencias(r.contexto, ITEM_NOVO)).toBe(0);
-        expect(r.contexto).not.toContain('Chave de leitura das contagens');
+        expect(r.contexto).not.toContain('Chave de leitura das contagens'); // o bloco de ausência não traz a chave
       }
       // CONTRAEXEMPLO: sem a substituição do item da chave, o contexto COM o campo NÃO coincide (nem com a retirada do bloco da referência)
-      if (comVinculo) expect(r.contexto === comSoOBloco(semOBlocoDaReferencia(anterior, { blocos: 0, prefixos: 0 }))).toBe(false);
+      if (comVinculo) expect(r.contexto === comSoOBloco(semOBlocoDaReferencia(anterior, trocasZeradas()))).toBe(false);
     }
-    // a retirada do bloco antigo, CONTADA: uma por contexto (sem e com o campo), e nenhum prefixo (os dois cenários são elegíveis)
-    expect(trocas).toEqual({ blocos: 2, prefixos: 0 });
+    // a retirada do bloco antigo, CONTADA: uma por contexto (sem e com o campo), e nenhum prefixo (os dois cenários são elegíveis); a ausência da rodada 1, UMA vez, no cenário SEM o campo
+    expect(trocas).toEqual({ blocos: 2, prefixos: 0, ausencias: 1, listas: 1 });
   });
 
   test('os 27 cenários da sonda: o contexto novo, levado ao texto anterior, tem o sha256 da base, e o system não muda', async () => {
@@ -890,7 +992,7 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
     expect(new Set(nomes).size).toBe(27);
     expect(new Set(LINHAS_DE_BASE.cenarios.map((c: any) => c.sha256Contexto)).size).toBe(27); // 27 contextos DISTINTOS na base
     let totalComAberturaNova = 0;
-    const trocas: Trocas = { blocos: 0, prefixos: 0 };
+    const trocas: Trocas = trocasZeradas();
     for (const nome of nomes) {
       const comVinculo = nome.endsWith('-comVinculo');
       const base = nome.replace(/-(comVinculo|semVinculo)$/, '');
@@ -905,7 +1007,7 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
       totalComAberturaNova += esperadasSemRetirada;
       // a causa da suspensão é a que a base registrou: T2 troca só o PREFIXO, e a causa não mudou
       if (!elegivel) expect([nome, r.corpo.notaSuspensa.causa]).toEqual([nome, DA_BASE_DA_FASE_2[nome].causa]);
-      const anterior = paraOTextoAnterior(r.contexto, JSON.parse(JSON.stringify(payload)).individualStats, elegivel, nome, trocas);
+      const anterior = paraOTextoAnterior(r.contexto, JSON.parse(JSON.stringify(payload)).individualStats, elegivel, nome, trocas, payload.qualityAnalysis.respondents.length);
       expect([nome, sha256(anterior)]).toEqual([nome, linha.sha256Contexto]);
       expect([nome, Buffer.byteLength(anterior, 'utf8')]).toEqual([nome, linha.bytesDoContexto]);
       expect([nome, sha256(r.system)]).toEqual([nome, linha.sha256System]);
@@ -917,7 +1019,9 @@ describe('ensaio 9: o restante do contexto fica BYTE A BYTE, com e sem `vinculoD
     expect(totalComAberturaNova).toBe(12);
     // ⚠ Fase 2: as DUAS trocas novas, SOMADAS: o bloco foi reinserido nos 27 cenários, e o prefixo, restaurado nos 9 NÃO elegíveis
     //   (18 elegíveis, que não têm frase de suspensão), e em nenhum outro: não passaram por vacuidade, nem se estenderam
-    expect(trocas).toEqual({ blocos: 27, prefixos: 9 });
+    // ⚠ Rodada 1: o bloco de ausência foi retirado nos 14 cenários SEM o campo, e as cinco frases da lista voltaram às antigas em 12 deles (os 2 sem
+    //   respondentes, `elegivel-total-zero` e `nao-avaliada-ausente`, não têm lista), e em nenhum dos 13 COM o campo: 14 dos 27 mudam, e 13 não
+    expect(trocas).toEqual({ blocos: 27, prefixos: 9, ausencias: 14, listas: 12 });
   });
 });
 

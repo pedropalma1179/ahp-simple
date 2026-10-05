@@ -393,8 +393,13 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // `docs/dados/a12-nota-veredicto-fase2/predicao-suites.json`, chave `rag4`), e o código os imprimiu: se imprimisse outro, seria
     // refutação da predição, e a constante NÃO se atualizaria. Os valores anteriores ficam nomeados: eram `241117ea…` com chunks e
     // `5b2cb948…` sem. O `system` NÃO se moveu.
-    const A12_MESSAGES_COM_CHUNKS = '71d5a2dcd602a83b84806c6b6d27570eaa936ec6da98fe9446a8ce943100860a';
-    const A12_MESSAGES_SEM_CHUNKS = '4f638afbcf61eecc80b375dc0987671720d399177020f117dcdfaf81c4328f37';
+    // ⚠ **A RODADA 1 (a ausência de `vinculoDaExecucao`, 05/10/2026) MOVE os `messages` de novo**: este ensaio não traz o campo, e o contexto passa a
+    // trazer o bloco de AUSÊNCIA (+573 bytes no conteúdo e +579 no JSON, porque as quebras de linha viram `\n` de dois caracteres). Os dois valores
+    // abaixo foram PREVISTOS ANTES do código (commit 838212c, `docs/imprecisoes-parecer-ia.md`, tabela R da seção 5b), e o código os imprimiu: se
+    // imprimisse outro, seria refutação da predição, e a constante NÃO se atualizaria. Os valores anteriores ficam nomeados: eram `71d5a2dc…` com
+    // chunks e `4f638afb…` sem. O `system` NÃO se moveu.
+    const A12_MESSAGES_COM_CHUNKS = '4df2cb20f2af2f8d8d9815645b9f759773e3c31c0c62aec90cbe109948267677';
+    const A12_MESSAGES_SEM_CHUNKS = '107cec11b6f884c5274ec1f39780f1ce83a0b5d88439298ba1e0a5b621d8c7c9';
 
     // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
     // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui

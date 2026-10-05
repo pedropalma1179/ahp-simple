@@ -21,6 +21,11 @@ export {};
  * e NÃO do que o código imprime: os quatro rótulos, as quatro descrições, o prefixo, a frase da mensagem, os três valores do
  * estado, e o sha256 de cada contexto previsto. Nenhum teste foi adaptado ao que o código imprime.
  *
+ * ⚠ **Rodada 1 (05/10/2026, a ausência de `vinculoDaExecucao`).** As sete requisições NÃO trazem o campo, e o contexto de cada uma ganhou o bloco de
+ * AUSÊNCIA e, havendo lista, as cinco frases da lista do ramo sem comparação. Os bytes, o `sha256` e a linha do motivo previstos passaram aos
+ * REGISTRADOS na predição de `838212c` (`docs/imprecisoes-parecer-ia.md`, tabela F2 da seção 5b e tabela da seção 4), em valor literal neste arquivo,
+ * e NÃO ao que o código imprime; o `previsto` da Fase 2 (`predicao-contextos.json`) segue conferido como o degrau anterior da cadeia.
+ *
  * ⚠ **A FRONTEIRA.** R1 governa os CAMPOS e o DESTAQUE. Não impede, por si, que o CORPO e a CÓPIA contenham uma decisão: eles
  * seguem exibindo e copiando o texto integral, e este arquivo CARACTERIZA isso (e não o aprova): se o corpo ou a cópia mudarem,
  * os ensaios de fronteira reprovam e forçam uma decisão consciente. Nenhum texto desta rodada promete que o veredito deixe de ser
@@ -425,6 +430,77 @@ function esperadoDoAntigo(antigo: string, suspensa: boolean): { texto: string; b
   return { texto, blocosRetirados: 1, prefixosTrocados: n };
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------
+// RODADA 1 (a ausência de `vinculoDaExecucao`, 05/10/2026). ⚠ As sete requisições NÃO trazem o campo: o contexto de cada uma ganha o bloco de AUSÊNCIA e,
+// havendo lista de respondentes, as CINCO frases da lista passam das de `a973c8f` às do ramo sem comparação. ⚠ As redações e os valores PREVISTOS abaixo
+// são os da predição registrada ANTES do código (`docs/imprecisoes-parecer-ia.md`, bloco da predição datada, commit `838212c`: tabela F2 da seção 5b e
+// tabela da seção 4), e NUNCA importados da rota nem do módulo. O `previsto` de `predicao-contextos.json` (Fase 2) segue valendo para o contexto SEM a rodada 1.
+// ---------------------------------------------------------------------------------------------------------------------------
+/** O bloco de AUSÊNCIA: o texto REGISTRADO, SEM mudança de palavra (571 bytes, sem quebra de linha final). */
+const BLOCO_DE_AUSENCIA = [
+  '## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO',
+  '- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.',
+  '- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.',
+  '- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.',
+  '⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.',
+].join('\n');
+const SECAO_DA_AMOSTRA = '## Amostra e Qualidade Geral';
+/** O começo do cabeçalho da lista (com ou sem lista): em comum nas redações antiga e da ausência, e onde as cinco quebras viram quatro, o bloco e três. */
+const COMECO_DO_CABECALHO_DA_LISTA = '## DADOS DO SISTEMA — RESPONDENTES';
+const FRASES_DA_LISTA_ANTIGAS = (n: number) => ({
+  cabecalho: '## DADOS DO SISTEMA — RESPONDENTES (lista EXAUSTIVA)',
+  total: `**TOTAL: ${n} respondentes (esta lista é COMPLETA — não existem outros)**`,
+  agregacao:
+    `**AGREGAÇÃO POR MATRIZ: todos os ${n} respondentes responderam à TOTALIDADE das comparações pareadas. Portanto N = ${n} em TODAS as matrizes agregadas: BOCR, MAGNITUDE e as quatro de subcritérios (Benefícios, Oportunidades, Custos, Riscos).**\n` +
+    `⚠ NÃO existe divisão de respondentes por mérito, dimensão ou subcritério. Cada matriz agregada resulta dos ${n} julgamentos, sem particionamento.`,
+  regra: '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista. Se precisar referenciá-los, use o ID hash fornecido.',
+});
+const FRASES_DA_LISTA_DA_AUSENCIA = (n: number) => ({
+  cabecalho: '## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)',
+  total: `**TOTAL ENVIADO A VOCÊ: ${n} respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**`,
+  agregacao:
+    '**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.\n' +
+    '⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.',
+  contagens: 'Contagens por status, sobre os ENVIADOS a você (etapa: envio):\n',
+  regra:
+    '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. ' +
+    'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.',
+});
+const PRIMEIRA_CONTAGEM_POR_STATUS = '- CONFIÁVEIS (CR ≤ 10%): ';
+
+/** Os valores PREVISTOS da rodada 1, por condição: bytes e `sha256` do contexto, e a linha do motivo (só nas suspensas). Tabela F2 da seção 5b e tabela da seção 4 da predição de `838212c`. */
+const PREVISTO_DA_RODADA_1: Record<string, { bytes: number; sha256: string; linhasDoMotivo?: number[] }> = {
+  'elegivel-auto-A': { bytes: 71330, sha256: '69342175962d4598776a273c0940a3d94e0a66651ff613b0a3b0f007104df2b0' },
+  'elegivel-auto-F': { bytes: 71496, sha256: 'f7cd09455df2998bf0fb819e28eec6ef7ae66a72767ae529fc3de71665454ce3' },
+  'disponibilidade-ausente': { bytes: 69967, sha256: 'e63be9c69a3b1d512c4bec3e96c28c50875120e93ea328aa71bc58240e44af0c', linhasDoMotivo: [64] },
+  'disponibilidade-incompleta': { bytes: 71399, sha256: 'd68f213d3d9e2aca605c969cd07afc4f73fa0700a78f13c432a803204afcb58a', linhasDoMotivo: [79] },
+  'contradicao': { bytes: 71706, sha256: '615696253e96275757401f9d833ae87d416705bd829f0e2bebee6f31e47fd5f1', linhasDoMotivo: [81] },
+  'coerencia-nao-concluida': { bytes: 71961, sha256: '19700b1d35b33b435d34daa3a5abff0ed8e609737e2aa3c79c11230d47243c33', linhasDoMotivo: [81] },
+  'coerencia-nao-avaliada-CONSTRUIDA': { bytes: 71644, sha256: '953a3e5823a0db979a8602ddb02dc0befd49ed64403a9c305af93e14dda85d9c', linhasDoMotivo: [81] },
+};
+
+/**
+ * O contexto da Fase 2 (T1 e T2), com as DUAS trocas da rodada 1, contadas: (T3) o bloco de AUSÊNCIA, uma vez, entre as quatro quebras que seguem o título da
+ * seção e as três que precedem o cabeçalho da lista (eram cinco quebras); (T4) havendo lista (`n` > 0), as cinco frases, das de `a973c8f` às do ramo sem comparação,
+ * uma vez cada. Sem lista (`n` = 0) o texto sem lista de `a973c8f` fica como está, e só o bloco entra.
+ */
+function comAAusenciaDaRodada1(daFase2: string, n: number): { texto: string; ausencias: number; listas: number } {
+  const ancora = `${SECAO_DA_AMOSTRA}\n\n\n\n\n${COMECO_DO_CABECALHO_DA_LISTA}`;
+  expect(ocorrencias(daFase2, ancora)).toBe(1);
+  expect(ocorrencias(daFase2, BLOCO_DE_AUSENCIA)).toBe(0);
+  let texto = daFase2.replace(ancora, () => `${SECAO_DA_AMOSTRA}\n\n\n\n${BLOCO_DE_AUSENCIA}\n\n\n${COMECO_DO_CABECALHO_DA_LISTA}`);
+  if (n === 0) return { texto, ausencias: 1, listas: 0 };
+  const antiga = FRASES_DA_LISTA_ANTIGAS(n);
+  const nova = FRASES_DA_LISTA_DA_AUSENCIA(n);
+  for (const k of ['cabecalho', 'total', 'agregacao', 'regra'] as const) {
+    expect([k, ocorrencias(texto, antiga[k])]).toEqual([k, 1]);
+    texto = texto.replace(antiga[k], () => nova[k]);
+  }
+  expect(ocorrencias(texto, PRIMEIRA_CONTAGEM_POR_STATUS)).toBe(1);
+  texto = texto.replace(PRIMEIRA_CONTAGEM_POR_STATUS, () => `${nova.contagens}${PRIMEIRA_CONTAGEM_POR_STATUS}`);
+  return { texto, ausencias: 1, listas: 1 };
+}
+
 // ===========================================================================================================================
 describe('A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predição registrada ANTES do código', () => {
   test('os contextos históricos da Fase 1 estão INTACTOS (o sha256 de cada um é o registrado na predição), e as requisições são as da Fase 1', async () => {
@@ -435,16 +511,23 @@ describe('A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predi�
   });
 
   test.each(CONDICOES.map((c) => [c.id] as [string]))(
-    '%s: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo: byte a byte, e com o sha256 PREVISTO',
+    '%s: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo, MAIS o bloco de ausência e as frases da lista (rodada 1): byte a byte, e com o sha256 PREVISTO',
     async (id) => {
       const c = doId(id);
       const r = await executarCondicao(c, T1);
-      const { texto: esperado, blocosRetirados, prefixosTrocados } = esperadoDoAntigo(antigoDaFase1(id), c.suspensa);
-      expect([blocosRetirados, prefixosTrocados]).toEqual([1, c.suspensa ? 1 : 0]); // as duas trocas, contadas
+      const { texto: daFase2, blocosRetirados, prefixosTrocados } = esperadoDoAntigo(antigoDaFase1(id), c.suspensa);
+      expect([blocosRetirados, prefixosTrocados]).toEqual([1, c.suspensa ? 1 : 0]); // as duas trocas da Fase 2, contadas
+      // ⚠ a cadeia: o recomposto da Fase 2 (T1 e T2) tem os bytes e o sha256 PREVISTOS ANTES do código da Fase 2 (`predicao-contextos.json`)...
+      expect(Buffer.byteLength(daFase2, 'utf8')).toBe(PREDICAO[id].previsto.bytes);
+      expect(sha256(daFase2)).toBe(PREDICAO[id].previsto.sha256);
+      // ...e as DUAS trocas da rodada 1 (T3 e T4), contadas: sem lista (`disponibilidade-ausente`) só o bloco; com lista, o bloco e as cinco frases
+      const nDaLista = c.fazer().qualityAnalysis?.respondents?.length ?? 0;
+      const { texto: esperado, ausencias, listas } = comAAusenciaDaRodada1(daFase2, nDaLista);
+      expect([ausencias, listas]).toEqual([1, nDaLista > 0 ? 1 : 0]);
       expect(r.contexto === esperado).toBe(true); // ⚠ o contexto COMPLETO, byte a byte: qualquer outro byte diferente reprova
-      // ⚠ e contra o que foi PREVISTO antes do código, e não só contra o que se recompõe agora
-      expect(Buffer.byteLength(r.contexto, 'utf8')).toBe(PREDICAO[id].previsto.bytes);
-      expect(sha256(r.contexto)).toBe(PREDICAO[id].previsto.sha256);
+      // ⚠ e contra o que foi PREVISTO antes do código da rodada 1 (`838212c`), e não só contra o que se recompõe agora
+      expect(Buffer.byteLength(r.contexto, 'utf8')).toBe(PREVISTO_DA_RODADA_1[id].bytes);
+      expect(sha256(r.contexto)).toBe(PREVISTO_DA_RODADA_1[id].sha256);
       expect(sha256(r.system)).toBe(SHA_SYSTEM); // o `system` não muda
       expect(r.contexto).not.toBe(antigoDaFase1(id)); // CONTRAEXEMPLO: o contexto MUDOU em relação ao da Fase 1 (a reversão não é vacuosa)
     }
@@ -468,7 +551,10 @@ describe('A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predi�
     expect(motivo.ocorrenciasNoAntigo).toBe(2);
     expect(ocorrencias(r.contexto, motivo.texto)).toBe(1); // ⚠ nenhum motivo se perdeu
     const linhas = r.contexto.split('\n').map((l, i) => (l.includes(motivo.texto) ? i + 1 : null)).filter(Boolean);
-    expect(linhas).toEqual(motivo.linhasNoPrevisto);
+    // ⚠ Rodada 1: o bloco de ausência entra ANTES da linha do motivo (+6 linhas sem lista, +7 com lista, que ganha também a linha do cabeçalho das contagens):
+    //   a linha PREVISTA na Fase 2 (`motivo.linhasNoPrevisto`) passou à REGISTRADA na predição de `838212c` (seção 5b e tabela da seção 4), em valor literal
+    expect(PREVISTO_DA_RODADA_1[id].linhasDoMotivo).toBeDefined();
+    expect(linhas).toEqual(PREVISTO_DA_RODADA_1[id].linhasDoMotivo);
     // e o motivo é o MESMO que a resposta devolve em `notaSuspensa.motivo`
     expect(r.corpo.notaSuspensa.motivo).toBe(motivo.texto);
   });
