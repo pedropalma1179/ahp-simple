@@ -48,11 +48,13 @@ export interface ReviewRequest {
    * A.12 etapa 3, estágio 1: o vínculo da avaliação de qualidade com a execução do cálculo.
    * ⚠ REPRESENTA o vínculo e NÃO decide o que a divergência faz com a classificação: o estado,
    * isoladamente, não acrescenta causa de suspensão nem altera a elegibilidade. Requisição sem o
-   * campo gera contexto byte a byte igual ao anterior a este estágio. ⚠ Os resumos que ele leva
+   * campo (omitido, `undefined` ou `null`) ganha o bloco de AUSÊNCIA e as frases do ramo sem
+   * comparação (rodada 1, 05/10/2026). ⚠ Os resumos que ele leva
    * são TRANSPORTADOS, e nunca verificados. ⚠ **A propriedade "sem o campo, contexto byte a byte
-   * igual ao anterior" DEIXOU DE VALER para o pedido ELEGÍVEL**, por decisão do autor (A.12,
-   * estatísticas por dimensão, saída A): o bloco de estatísticas por dimensão mudou, com ou sem
-   * este campo. Continua valendo para o pedido não elegível.
+   * igual ao anterior" DEIXOU DE VALER para TODO pedido sem o campo, elegível ou não**: para o
+   * ELEGÍVEL, por decisão do autor (A.12, estatísticas por dimensão, saída A: o bloco de
+   * estatísticas por dimensão mudou, com ou sem este campo); para o não elegível, por decisão do
+   * autor de 04/10/2026, implementada na rodada 1 (05/10/2026).
    */
   vinculoDaExecucao?: VinculoDaExecucao;
   projectName: string;

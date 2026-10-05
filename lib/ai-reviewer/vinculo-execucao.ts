@@ -728,10 +728,11 @@ function linhaDaCobertura(cob: Record<string, any> | null, leitura: LeituraDoVin
 }
 
 /**
- * O texto do bloco, ou `''` quando a requisição NÃO traz o campo.
+ * O texto do bloco do vínculo, que a rota insere UMA vez no contexto. Com o campo ausente
+ * (omitido, `undefined` ou `null`) é `BLOCO_DE_AUSENCIA_DO_VINCULO`, e a função nunca devolve `''`.
  *
- * ⚠ **Requisição sem `vinculoDaExecucao` não ganha bloco algum**, e o contexto sai byte a
- * byte o que era: é de um chamador anterior a este estágio.
+ * ⚠ **Requisição sem `vinculoDaExecucao` ganha o bloco de AUSÊNCIA.** Até a rodada 1
+ * (05/10/2026) a função devolvia `''` para ela, e nenhum bloco entrava no contexto.
  * ⚠ **Requisição COM o campo ganha UM bloco**, mesmo quando o formato não é reconhecido.
  * ⚠ O bloco declara estado, identificador, divergência e cobertura enviada. **Não emite
  * veredito, não classifica e não suspende.**
@@ -892,9 +893,9 @@ export function descreverVinculoParaContexto(raw: unknown, apresentada?: Identid
  * matrizes agregadas; a contagem de restantes da exclusão do gestor como a dos "dados de
  * qualidade abaixo"; e a regra de menção proibindo citar quem o bloco nomeia.
  *
- * ⚠ **Escopo, declarado:** a redação nova vale para requisição que TRAZ o campo (modo
- * `comparado` ou `sem-comparacao`). Requisição SEM o campo (`ausente`) mantém a redação
- * anterior, byte a byte, e a rota é quem a conserva.
+ * ⚠ **Escopo, declarado:** a redação nova vale em TODA requisição, também na SEM o campo (modo
+ * `ausente`): não há redação anterior a conservar. Até a rodada 1 (05/10/2026) ela valia só
+ * para a requisição que TRAZ o campo (modo `comparado` ou `sem-comparacao`).
  *
  * ⚠ **A relação entre enviados e incluídos é a COMPARAÇÃO DAS DUAS LISTAS**, com
  * multiplicidade, e nunca o estado: com o MESMO estado `divergente`, os enviados podem
