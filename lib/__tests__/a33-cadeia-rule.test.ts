@@ -288,6 +288,30 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 11,
+    motivo: 'A.12, a ausencia de vinculoDaExecucao, rodada 1: o contexto da requisicao SEM o campo (omitido, undefined ou null) ganha o bloco de ausencia (alterou route.ts e vinculo-execucao.ts; a tela, o componente e avaliacao-qualidade.ts nao entram nesta linha de base)',
+    commitDaBase: '50dd723755364a1a14a4edc7090c1e9ca15f96a0',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ Os bytes das mensagens dos tres casos foram PREVISTOS ANTES do codigo (commit 838212c, docs/imprecisoes-parecer-ia.md, tabela 33 da
+    //   secao 5b: C1 71994->72567, C2 70428->71001 e C3 70428->71001, cada um com +573 bytes, a mesma diferenca que a predicao registrada deu
+    //   para a condicao `disponibilidade-ausente`) e CONFERIDOS antes de aceitar a regravacao. As requisicoes desta suite NAO trazem
+    //   `vinculoDaExecucao`, NAO tem lista de respondentes nem exclusao ativa, e por isso entra so o bloco de ausencia (571 bytes e duas
+    //   quebras de linha). ⚠ A propriedade "sem o campo, o contexto e byte a byte o anterior" DEIXOU DE VALER para todo pedido sem o campo,
+    //   por decisao do autor (04/10/2026, opcao 3). `bytesSystem` nao se moveu. ⚠ MEDIDO por comparacao campo a campo (folhas escalares,
+    //   a mesma contagem das entradas anteriores): 3145 campos antes e 3158 depois, ZERO perdidos, TREZE novos (todos nesta propria
+    //   entrada) e QUATRO mudados: o resumo de codigo de route.ts e os bytes das mensagens dos tres casos (C1, C2 e C3), e nenhum outro
+    //   campo (camadas, `bytesSystem` e as demais secoes ficaram identicas).
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'montagem.casos.C1.bytesMessages',
+      'montagem.casos.C2.bytesMessages',
+      'montagem.casos.C3.bytesMessages',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

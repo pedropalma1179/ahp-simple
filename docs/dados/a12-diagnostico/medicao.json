@@ -222,6 +222,23 @@
           "quatroCasos[1..3].executadoAntesDaInterrupcao.blocoDeQualidadeNoContexto"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 13,
+        "motivo": "A.12, a ausencia de vinculoDaExecucao, rodada 1: o contexto da requisicao SEM o campo (omitido, undefined ou null) ganha o bloco de ausencia, as cinco frases da lista do ramo sem comparacao e, com exclusao ativa, as quatro linhas de exclusao com populacao e etapa (alterou route.ts e vinculo-execucao.ts; a tela e o componente NAO mudaram)",
+        "commitDaBase": "50dd723755364a1a14a4edc7090c1e9ca15f96a0",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -232,7 +249,7 @@
     },
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "511ca1a0ca2cf42380e5c6f08ebf03d1ca6cccfc2fbf1eecf2f31e1ce19700a0",
-      "app/api/ai-reviewer/route.ts": "cdfeff68e64bdfbd1bbdc93bb78149570da4c18bd7d451a332a8e217e11b6eab",
+      "app/api/ai-reviewer/route.ts": "d11288c41f78b947c30363e2b54254e5f7f53b24a1625f9a9e8006fc7cb76a12",
       "app/decisor/resultados/[projectId]/page.tsx": "02d28066f1cd6a098594e43fbeebe168fd8286bd2df911479f5e1e583867f65b",
       "components/ParecerAISection.tsx": "5082e5134bb0f370a255411b5845497ffb497c1b7b486c9f393cfd32772d457a"
     }
@@ -585,7 +602,7 @@
           "- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): 0 (0.0%)",
           "- Respostas CRÍTICAS (CR > 0.20): 0 (0.0%)"
         ],
-        "bytesDoContexto": 70188
+        "bytesDoContexto": 71380
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -627,7 +644,7 @@
           "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 69444
+        "bytesDoContexto": 70017
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -669,7 +686,7 @@
           "⚠️ A ausência de avaliação NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero por cento medido.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 70394
+        "bytesDoContexto": 71586
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",
@@ -712,7 +729,7 @@
           "⚠️ A contradição NÃO é resultado favorável nem desfavorável, e não autoriza tratar nenhum dos valores em conflito como o correto.",
           "Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados."
         ],
-        "bytesDoContexto": 70966
+        "bytesDoContexto": 72158
       },
       "respostaDecorrenteDaInterrupcao": {
         "nota": "NAO e a resposta normal do handler: o duplo lancou o sentinela dentro de messages.create",

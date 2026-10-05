@@ -250,6 +250,29 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 13,
+    motivo: 'A.12, a ausencia de vinculoDaExecucao, rodada 1: o contexto da requisicao SEM o campo (omitido, undefined ou null) ganha o bloco de ausencia, as cinco frases da lista do ramo sem comparacao e, com exclusao ativa, as quatro linhas de exclusao com populacao e etapa (alterou route.ts e vinculo-execucao.ts; a tela e o componente NAO mudaram)',
+    commitDaBase: '50dd723755364a1a14a4edc7090c1e9ca15f96a0',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ Os bytes de cada um dos QUATRO casos foram PREVISTOS ANTES do codigo (commit 838212c, docs/imprecisoes-parecer-ia.md, tabela D da
+    //   secao 5b: 70188->71380, 69444->70017, 70394->71586 e 70966->72158, na ordem C-disponivel, C-ausente, C-incompleta e C-contradicao) e
+    //   CONFERIDOS antes de aceitar a regravacao. As quatro requisicoes NAO trazem `vinculoDaExecucao`, e por isso o contexto mudou nas
+    //   QUATRO: +573 bytes em `C-ausente` (sem lista de respondentes, so o bloco de ausencia) e +1192 nos outros tres (o bloco e as cinco
+    //   frases da lista). ⚠ O bloco de qualidade NAO mudou em nenhum dos quatro: nenhuma linha de `blocoDeQualidadeNoContexto` se moveu, e os
+    //   tres casos suspensos seguem com a mesma frase de suspensao. ⚠ A propriedade "sem o campo, o contexto e byte a byte o
+    //   anterior" DEIXOU DE VALER para todo pedido sem o campo, por decisao do autor (04/10/2026, opcao 3), e por isso ate o caso suspenso
+    //   mudou; os pedidos COM o campo nao mudaram. ⚠ MEDIDO por comparacao campo a campo (folhas escalares, a mesma contagem das entradas
+    //   anteriores): 455 campos antes e 466 depois, ZERO perdidos, ONZE novos (todos nesta propria entrada) e CINCO mudados: o resumo de
+    //   codigo de route.ts e os quatro bytesDoContexto, e nenhum outro campo (as quatro `blocoDeQualidadeNoContexto` ficaram identicas).
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
