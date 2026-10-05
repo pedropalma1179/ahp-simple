@@ -1,0 +1,36 @@
+// Executa as funções NÃO MODIFICADAS de lib/ai-reviewer/vinculo-execucao.ts (transpiladas a partir do blob de 5ad4780) e imprime, em JSON, as saídas que a rota usa:
+//  (1) para os controles da fase A de 02/10 (classe B, com o vínculo entregue): bloco, cinco frases e linhas de exclusão, a partir do JSON entregue;
+//  (2) para a classe A: as cinco frases da leitura `ausente` para vários N (e, por comparação, o gabarito que o Python reimplementa).
+const cp = require('child_process'), fs = require('fs'), path = require('path');
+const B = '5ad478086d0aa4dadd42b6116cb9b96fecb7afe8';
+const ts = require('/home/user/ahp-simple/node_modules/typescript');
+const src = cp.execFileSync('git', ['-C', '/home/user/ahp-simple', 'show', `${B}:lib/ai-reviewer/vinculo-execucao.ts`], { encoding: 'utf8' });
+const out = path.join(__dirname, 'vinculo-execucao-base.cjs');
+fs.writeFileSync(out, ts.transpileModule(src, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText);
+const m = require(out);
+const PKG = '/home/user/ahp-simple/docs/dados/a12-sem-vinculo/fase-a/jsons-entregues/';
+const res = { controles: {}, ausente: {} };
+for (const cond of ['sem-exclusao', 'com-exclusao']) {
+  const p = JSON.parse(fs.readFileSync(PKG + cond + '__controle.json', 'utf8'));
+  const lista = p.qualityAnalysis.respondents;
+  const apresentada = lista.map((r, i) => m.identificarParaApresentacao(r, i));
+  const leitura = m.lerVinculoParaTexto(p.vinculoDaExecucao, apresentada);
+  const frases = m.frasesDaListaComVinculo(leitura, lista.length);
+  const bloco = m.descreverVinculoParaContexto(p.vinculoDaExecucao, apresentada);
+  let excl = null;
+  if (p.exclusionInfo && p.exclusionInfo.excludedCount > 0) {
+    const rate = ((p.exclusionInfo.excludedCount / p.exclusionInfo.totalCollected) * 100).toFixed(1);
+    excl = m.linhasDeExclusaoComVinculo(p.exclusionInfo, rate, lista.length);
+  }
+  res.controles[cond] = { n: lista.length, exclusionInfo: p.exclusionInfo ?? null, bloco, frases, excl, modo: leitura.modo, estado: leitura.estado };
+}
+for (const n of [0, 1, 2, 3, 4, 5, 6, 12, 13, 20, 100]) res.ausente[n] = m.frasesDaListaComVinculo(m.lerVinculoParaTexto(undefined), n);
+const excls = {};
+for (const [tot, act, exc, env] of [[6, 4, 2, 4], [6, 5, 1, 4], [6, 5, 1, 0], [10, 8, 2, 8], [13, 12, 1, 12]]) {
+  const rate = ((exc / tot) * 100).toFixed(1);
+  excls[`${tot}/${act}/${exc}/${env}`] = m.linhasDeExclusaoComVinculo({ totalCollected: tot, activeCount: act, excludedCount: exc }, rate, env);
+}
+res.exclusaoAusente = excls;
+fs.writeFileSync(path.join(__dirname, 'saidas-das-funcoes.json'), JSON.stringify(res, null, 1));
+console.log('ok', Object.keys(res.controles), Object.keys(res.ausente).length, 'N;', Object.keys(excls).length, 'exclusões');
+console.log('controle sem-exclusao: modo', res.controles['sem-exclusao'].modo, 'estado', res.controles['sem-exclusao'].estado, 'N', res.controles['sem-exclusao'].n);

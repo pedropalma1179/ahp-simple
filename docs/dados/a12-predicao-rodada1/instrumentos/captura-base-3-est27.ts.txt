@@ -1,0 +1,247 @@
+export {};
+/**
+ * INSTRUMENTO DE CAPTURA DA BASE, 3ª PARTE (fora do repositório, NÃO committado). Executa o tratador REAL `POST /api/ai-reviewer` do commit 5ad4780, SEM modificação, com o cliente do modelo SIMULADO
+ * (nenhuma rede, nenhuma inferência), sobre uma CÓPIA LITERAL (extraída por script, linhas 295 a 491 do arquivo de teste de 5ad4780) dos construtores de cenário de a12-estatisticas-dimensao.test.ts,
+ * e grava o contexto capturado dos 27 cenários da sonda, com `individualStats` e a elegibilidade de cada um.
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+import { prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';
+import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
+const SAIDA: string = process.env.CAPTURA_SAIDA as string;
+if (!SAIDA) throw new Error('CAPTURA_SAIDA nao definido');
+fs.mkdirSync(SAIDA, { recursive: true });
+const RAIZ = '/home/user/ahp-simple';
+const ler = (rel: string): string => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
+const sha256 = (t: string): string => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+jest.setTimeout(240000);
+/** Um elemento como o produtor de qualidade o devolve (`app/api/response-quality/route.ts:377-402`). */
+function itemDoProdutor(id: string, cr: number | undefined) {
+  const status =
+    cr === undefined || cr === 0 ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.15 ? 'REVISAR' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO';
+  const semCR = cr === undefined;
+  return {
+    respondentId: id,
+    isSimulated: false,
+    status,
+    overallScore: 50,
+    ...(semCR ? {} : { cr }),
+    metrics: semCR ? {} : { avgCR: cr, crBOCR: cr, crBenefits: cr, crOpportunities: cr, crCosts: cr, crRisks: cr },
+    flags: [],
+    recommendation: '',
+  };
+}
+
+const balde = (total: number, valid: number, warning = 0, critical = 0) => ({ total, valid, warning, critical, avgCR: 0.05 });
+
+/** COPIA LITERAL da redução de `page.tsx:1058-1088`. A tela não é executada por teste algum. */
+function individualStatsDaTela(respondentesEnviados: any[]) {
+  let totalCR = 0;
+  const acc: any = respondentesEnviados.reduce(
+    (acc: any, r: any) => {
+      let crValue = 0;
+      if (typeof r.cr === 'number') crValue = r.cr;
+      else if (r.metrics && typeof r.metrics.avgCR === 'number') crValue = r.metrics.avgCR;
+      else if (r.consistency && typeof r.consistency.cr === 'number') crValue = r.consistency.cr;
+      else if (typeof r.cr_mean === 'number') crValue = r.cr_mean;
+      totalCR += crValue;
+      const isExplicitlyBad = r.status === 'SUSPEITO' || r.status === 'CRÍTICO';
+      const isMathematicallyBad = crValue > 0.2;
+      const isMathematicallySuspect = crValue > 0.1;
+      if (isExplicitlyBad || isMathematicallyBad) acc.critical++;
+      else if (isMathematicallySuspect) acc.warning++;
+      else acc.valid++;
+      acc.total++;
+      return acc;
+    },
+    { valid: 0, warning: 0, critical: 0, total: 0 }
+  );
+  acc.avgCR = acc.total > 0 ? totalCR / acc.total : 0;
+  return acc;
+}
+
+const HEX_PAINEL = 'b'.repeat(64);
+const shaDe = (id: string) => id.padEnd(64, '0').replace(/[^0-9a-f]/g, 'c');
+
+function calculo(ids: string[] | undefined): any {
+  const metadata: any = {
+    judgmentsDigest: { algorithm: 'sha256', serialization: 'a12-julgamentos-v1', panel: HEX_PAINEL, unavailableReason: null },
+  };
+  if (ids !== undefined) {
+    metadata.includedRespondents = ids.map((id) => ({
+      respondentId: id,
+      responseDocId: `doc-${id}`,
+      identifierSource: 'respondentId',
+      judgmentsSha256: shaDe(id),
+      judgmentsUnavailableReason: null,
+    }));
+  }
+  return { executionId: 'exec-fiacao-0001', metadata };
+}
+
+const ESTADOS = ['indisponivel', 'invalido', 'vinculado', 'divergente'] as const;
+
+/** Um vínculo de cada estado, sobre a MESMA lista avaliada `lista`. ⚠ Em `divergente` a sobra é só do documento. */
+function vinculoDoEstado(estado: (typeof ESTADOS)[number], lista: any[]) {
+  const ids = lista.map((r) => r.respondentId);
+  const doc =
+    estado === 'indisponivel' ? calculo(undefined)
+    : estado === 'invalido' ? calculo([])
+    : estado === 'vinculado' ? calculo(ids)
+    : calculo([...ids, 'z-so-no-documento']);
+  const preparo = prepararVinculoDaTela({ calculo: doc, respondentesAtivos: lista, respostasAtivas: [] });
+  expect(preparo.vinculo.estado).toBe(estado);
+  expect(preparo.respondentesEnviados).toEqual(lista); // ⚠ o MESMO conjunto avaliado nos quatro estados
+  return preparo.vinculo;
+}
+
+/** O payload como `page.tsx:1236-1315` o monta. `comEstatisticas: false` retira byStatus, summary e overallStats. */
+function payloadReal(respondentes: any[], opcoes: { comVinculo: boolean; comEstatisticas?: boolean }) {
+  const stats = individualStatsDaTela(respondentes);
+  const respondentesComCR = respondentes.map((r: any) => ({
+    ...r,
+    cr: typeof r.cr === 'number' ? r.cr : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
+    isSimulated: r.isSimulated === true,
+  }));
+  const avaliacao = classificarAvaliacaoDaTela({ respondentesAvaliados: respondentes, respostasAtivas: [] });
+  const avaliada = avaliacao.estado === 'disponivel';
+  const comEstatisticas = opcoes.comEstatisticas !== false;
+  const p: any = {
+    avaliacaoDeQualidade: avaliacao,
+    projectName: 'Projeto da medicao',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    responseCount: respondentes.length,
+    finalScores: [
+      { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+      { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+    ],
+    qualityAnalysis: avaliada
+      ? {
+          respondents: respondentesComCR,
+          ...(comEstatisticas
+            ? {
+                statistics: {
+                  byStatus: { 'CONFIÁVEL': stats.valid, 'REVISAR': 0, 'SUSPEITO': stats.warning, 'CRÍTICO': stats.critical },
+                  total: stats.total,
+                  avgCR: stats.avgCR,
+                },
+                summary: { total: stats.total, ok: stats.valid, suspicious: stats.warning, critical: stats.critical },
+              }
+            : {}),
+          overall: {},
+        }
+      : { respondents: respondentesComCR },
+    overallStats: avaliada && comEstatisticas ? { total: stats.total, valid: stats.valid, warning: stats.warning, critical: stats.critical } : undefined,
+    individualStats: avaliada && stats.total > 0 ? stats : undefined,
+  };
+  if (opcoes.comVinculo) p.vinculoDaExecucao = vinculoDoEstado('vinculado', respondentesComCR);
+  return { payload: p, stats, avaliacao };
+}
+
+// ---------------------------------------------------------------------------
+// Os CENÁRIOS. ⚠ Os nomes e as construções são os da sonda da base (`35a1506`), sem alteração: é o que
+// permite comparar o sha256 do contexto de cada um contra a linha de base.
+// ---------------------------------------------------------------------------
+
+const CRS_DO_PAINEL_DE_12 = [0.1139, 0.3747, 1.0927, 0.5903, 0.6359, 0.461, 0.2519, 0.2344, 0.3158, 0.2634, 0.2402, 0.2525];
+const CONJUNTOS: Record<string, () => any[]> = {
+  'agregado-5': () => [0.05, 0.08, 0.12, 0.18, 0.25].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr)),
+  'agregado-3': () => [0.05, 0.12, 0.25].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr)),
+  'agregado-12': () => CRS_DO_PAINEL_DE_12.map((cr, i) => itemDoProdutor(`R${String(i + 1).padStart(2, '0')}`, cr)),
+  'agregado-12-gravado': () => Array.from({ length: 12 }, (_, i) => itemDoProdutor(`R${String(i + 1).padStart(2, '0')}`, 0.05)),
+  'agregado-5-com-2-desconhecidos': () => [0.05, 0.08, 0.12, 0, 0].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr)),
+  'todos-validos-3': () => [0.05, 0.06, 0.07].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr)),
+  'todos-acima-3': () => [0.12, 0.13, 0.14].map((cr, i) => itemDoProdutor(`r${i + 1}`, cr)),
+};
+
+type Cenario = { payload: any; elegivel: boolean; stats?: any };
+const CONSTRUTORES: Record<string, (comVinculo: boolean) => Cenario> = {
+  ...Object.fromEntries(
+    Object.entries(CONJUNTOS).map(([nome, respondentes]) => [
+      nome,
+      (comVinculo: boolean): Cenario => {
+        const { payload, stats } = payloadReal(respondentes(), { comVinculo });
+        return { payload, elegivel: true, stats };
+      },
+    ])
+  ),
+  'elegivel-sem-individualStats': (comVinculo) => {
+    const { payload, stats } = payloadReal(CONJUNTOS['agregado-5'](), { comVinculo });
+    delete payload.individualStats;
+    return { payload, elegivel: true, stats };
+  },
+  'duplo-por-dimensao': (comVinculo) => {
+    const { payload, stats } = payloadReal(CONJUNTOS['agregado-5'](), { comVinculo });
+    payload.individualStats = { Benefits: balde(5, 5, 0, 0), Opportunities: balde(5, 4, 1, 0), Costs: balde(5, 3, 1, 1), Risks: balde(5, 2, 2, 1) };
+    return { payload, elegivel: true, stats };
+  },
+  'nao-avaliada-ausente': (comVinculo) => {
+    const { payload } = payloadReal([], { comVinculo: false });
+    if (comVinculo) payload.vinculoDaExecucao = vinculoDoEstado('indisponivel', []);
+    return { payload, elegivel: false };
+  },
+  'nao-avaliada-incompleta': (comVinculo) => {
+    const { payload } = payloadReal([itemDoProdutor('r1', 0.05), itemDoProdutor('r2', undefined), itemDoProdutor('r3', 0.06)], { comVinculo });
+    return { payload, elegivel: false };
+  },
+  'contradicao': (comVinculo) => {
+    const { payload } = payloadReal(CONJUNTOS['agregado-5'](), { comVinculo });
+    payload.qualityAnalysis.summary.critical += 5;
+    return { payload, elegivel: false };
+  },
+  'coerencia-nao-concluida': (comVinculo) => {
+    const { payload } = payloadReal(CONJUNTOS['agregado-5'](), { comVinculo });
+    delete payload.qualityAnalysis.statistics.total;
+    return { payload, elegivel: false };
+  },
+  'elegivel-total-zero': () => {
+    const { payload } = payloadReal(CONJUNTOS['agregado-3'](), { comVinculo: false });
+    payload.qualityAnalysis = {
+      respondents: [],
+      statistics: { byStatus: { 'CONFIÁVEL': 0, 'REVISAR': 0, 'SUSPEITO': 0, 'CRÍTICO': 0 }, total: 0, avgCR: 0 },
+      summary: { total: 0, ok: 0, suspicious: 0, critical: 0 },
+      overall: {},
+    };
+    payload.overallStats = { total: 0, valid: 0, warning: 0, critical: 0 };
+    payload.responseCount = 0;
+    payload.individualStats = undefined;
+    payload.avaliacaoDeQualidade = { estado: 'disponivel', motivo: null, fonte: 'declarada' };
+    return { payload, elegivel: false };
+  },
+};
+
+const nomeDoCenario = (base: string, comVinculo: boolean) => (base === 'elegivel-total-zero' ? `${base}-semVinculo` : `${base}-${comVinculo ? 'comVinculo' : 'semVinculo'}`);
+
+const LINHAS_DE_BASE = JSON.parse(ler('docs/dados/a12-estatisticas-dimensao/saida-a/contextos-da-base-35a1506.json'));
+
+async function executar(payload: Record<string, unknown>) {
+  jest.resetModules();
+  process.env.ANTHROPIC_API_KEY = 'chave-anthropic-falsa-do-processo-de-teste';
+  delete process.env.USE_RAG_SEMANTIC;
+  const cap = { contexto: '', system: '', corpo: null as any };
+  jest.doMock('@anthropic-ai/sdk', () => ({ __esModule: true, default: class { messages = { create: async (a: any) => { cap.contexto = a.messages.map((m: any) => m.content).join('\n'); cap.system = typeof a.system === 'string' ? a.system : JSON.stringify(a.system ?? ''); return { content: [{ type: 'text', text: 'Parecer de ensaio, sem decisão editorial declarada no texto. '.repeat(3) }] }; } }; } }));
+  const silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined));
+  try {
+    const { POST } = require('@/app/api/ai-reviewer/route');
+    const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+    cap.corpo = await res.json();
+  } finally { silencios.forEach((s) => s.mockRestore()); }
+  return cap;
+}
+
+test('captura da base: os 27 cenários de a12-estatisticas-dimensao', async () => {
+  const nomes: string[] = LINHAS_DE_BASE.cenarios.map((c: any) => c.nome);
+  const resumo: any = {};
+  for (const nome of nomes) {
+    const comVinculo = nome.endsWith('-comVinculo');
+    const base = nome.replace(/-(comVinculo|semVinculo)$/, '');
+    const { payload, elegivel } = CONSTRUTORES[base](comVinculo);
+    const r = await executar(payload);
+    fs.writeFileSync(path.join(SAIDA, `est27-${nome}.txt`), r.contexto, 'utf8');
+    resumo[nome] = { comVinculo, elegivel, suspensa: !!r.corpo?.notaSuspensa?.suspensa, causa: r.corpo?.notaSuspensa?.causa ?? null, individualStats: JSON.parse(JSON.stringify(payload)).individualStats ?? null,
+      bytes: Buffer.byteLength(r.contexto, 'utf8'), sha256: sha256(r.contexto), sha256System: sha256(r.system) };
+  }
+  fs.writeFileSync(path.join(SAIDA, 'est27-resumo.json'), JSON.stringify(resumo, null, 1));
+});

@@ -1,0 +1,26 @@
+{
+ "C1": {
+  "bytesSystem": 34170,
+  "bytesMessages": 71994,
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "sha256Messages": "9c4b83489b71ec2d729f9a569da5ef72a2e53a59611002599c204e288800bd94",
+  "consultas": 5,
+  "chamouModelo": true
+ },
+ "C2": {
+  "bytesSystem": 34170,
+  "bytesMessages": 70428,
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "sha256Messages": "14b0abce5653000488ddfd4f0fb68e743eeedd18f28ec1b5bb8513edcc572e6c",
+  "consultas": 0,
+  "chamouModelo": true
+ },
+ "C3": {
+  "bytesSystem": 34170,
+  "bytesMessages": 70428,
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "sha256Messages": "14b0abce5653000488ddfd4f0fb68e743eeedd18f28ec1b5bb8513edcc572e6c",
+  "consultas": 5,
+  "chamouModelo": true
+ }
+}

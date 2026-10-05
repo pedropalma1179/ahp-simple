@@ -1,0 +1,43 @@
+// V4: aplica ÀS CAPTURAS (feitas pelo instrumento de captura sobre o código NÃO modificado de 5ad4780) a MESMA reversão que o teste a12-estatisticas-dimensao.test.ts aplica
+// (`paraOTextoAnterior`, extraída POR SCRIPT do arquivo de teste de 5ad4780, sem retranscrição) e confere sha256 e bytes contra a linha de base registrada em 35a1506.
+// Só funções de texto do teste; nenhum código de produção é executado aqui.
+const fs = require('fs'), path = require('path'), cp = require('child_process'), crypto = require('crypto');
+const ts = require('/home/user/ahp-simple/node_modules/typescript');
+const B = '5ad478086d0aa4dadd42b6116cb9b96fecb7afe8';
+const src = cp.execFileSync('git', ['-C', '/home/user/ahp-simple', 'show', `${B}:lib/__tests__/a12-estatisticas-dimensao.test.ts`], { encoding: 'utf8', maxBuffer: 1 << 28 }).split('\n');
+const fatia = (a, b) => src.slice(a - 1, b).join('\n');           // linhas 1-indexadas, inclusivas
+const programa = [fatia(61, 63), fatia(127, 181), fatia(183, 202), fatia(216, 289)].join('\n');
+const prelude = `
+const fs = require('fs'), path = require('path'), crypto = require('crypto');
+const RAIZ = '/home/user/ahp-simple';
+const igual = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const falha = (msg) => { throw new Error('asserção do teste falhou na reversão: ' + msg); };
+const expect = (v) => ({
+  toBe: (e) => { if (v !== e) falha('toBe ' + String(e).slice(0, 80) + ' <> ' + String(v).slice(0, 80)); },
+  toEqual: (e) => { if (!igual(v, e)) falha('toEqual ' + JSON.stringify(e).slice(0, 120) + ' <> ' + JSON.stringify(v).slice(0, 120)); },
+  toBeGreaterThan: (e) => { if (!(v > e)) falha('toBeGreaterThan'); },
+  toContain: (e) => { if (!String(v).includes(e)) falha('toContain'); },
+  not: { toContain: (e) => { if (String(v).includes(e)) falha('not.toContain ' + e.slice(0, 60)); } },
+});
+`;
+const js = ts.transpileModule(programa, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+const out = path.join(__dirname, 'reversao-do-teste.cjs');
+fs.writeFileSync(out, prelude + js + '\nmodule.exports = { paraOTextoAnterior, sha256, DA_BASE_DA_FASE_2 };\n');
+const { paraOTextoAnterior, sha256, DA_BASE_DA_FASE_2 } = require(out);
+
+const CAP = path.join(__dirname, '..', 'captura-base', 'saida3');
+const resumo = JSON.parse(fs.readFileSync(path.join(CAP, 'est27-resumo.json'), 'utf8'));
+const base = JSON.parse(fs.readFileSync('/home/user/ahp-simple/docs/dados/a12-estatisticas-dimensao/saida-a/contextos-da-base-35a1506.json', 'utf8')).cenarios;
+const trocas = { blocos: 0, prefixos: 0 };
+let ok = 0, ruins = [];
+for (const c of base) {
+  const r = resumo[c.nome];
+  const ctx = fs.readFileSync(path.join(CAP, `est27-${c.nome}.txt`), 'utf8');
+  const anterior = paraOTextoAnterior(ctx, r.individualStats, r.elegivel, c.nome, trocas);
+  const bytes = Buffer.byteLength(anterior, 'utf8');
+  const bom = sha256(anterior) === c.sha256Contexto && bytes === c.bytesDoContexto && r.sha256System === c.sha256System;
+  if (bom) ok++; else ruins.push(c.nome);
+}
+console.log(`V4: ${ok} de ${base.length} capturas, depois da reversão do teste, têm o sha256, os bytes e o sha256 do system registrados na base de 35a1506`);
+console.log('trocas contadas:', JSON.stringify(trocas), '(o teste espera { blocos: 27, prefixos: 9 })');
+if (ruins.length) console.log('FALHAM:', ruins);

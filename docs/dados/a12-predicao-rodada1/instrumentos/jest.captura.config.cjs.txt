@@ -1,0 +1,5 @@
+// Configuração ISOLADA (fora do repositório; NÃO é committada): reaproveita jest.config.js do projeto e aponta `roots`/`testMatch` só para o diretório do instrumento de captura.
+const path = require('node:path');
+const RAIZ = '/home/user/ahp-simple';
+const base = require(path.join(RAIZ, 'jest.config.js'));
+module.exports = { ...base, rootDir: RAIZ, roots: [process.env.CAPTURA_DIR], testMatch: [process.env.CAPTURA_ARQ || '**/captura-base.test.ts'], modulePaths: [path.join(RAIZ, 'node_modules')], collectCoverage: false, verbose: false };

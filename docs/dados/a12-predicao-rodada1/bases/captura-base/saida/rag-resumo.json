@@ -1,0 +1,26 @@
+{
+ "comResultados": {
+  "nMessages": 1,
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "sha256Messages": "71d5a2dcd602a83b84806c6b6d27570eaa936ec6da98fe9446a8ce943100860a",
+  "bytesJson": 71028
+ },
+ "vazio": {
+  "nMessages": 1,
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "sha256Messages": "4f638afbcf61eecc80b375dc0987671720d399177020f117dcdfaf81c4328f37",
+  "bytesJson": 70691
+ },
+ "erro": {
+  "nMessages": 1,
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "sha256Messages": "4f638afbcf61eecc80b375dc0987671720d399177020f117dcdfaf81c4328f37",
+  "bytesJson": 70691
+ },
+ "misto": {
+  "nMessages": 1,
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "sha256Messages": "71d5a2dcd602a83b84806c6b6d27570eaa936ec6da98fe9446a8ce943100860a",
+  "bytesJson": 71028
+ }
+}

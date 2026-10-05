@@ -1,0 +1,22 @@
+{
+ "C-disponivel": {
+  "bytesDoContexto": 70188,
+  "sha256Messages": "bc0d203f5e476ea92b678b279ec63df4c46d030d5c6eef641fb135bc17b2ebeb",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-ausente": {
+  "bytesDoContexto": 69444,
+  "sha256Messages": "8e5e84869a01dbdf356c0869298cb2c3a4587b9e87dd2b15320a39e25e76b6d5",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-incompleta": {
+  "bytesDoContexto": 70394,
+  "sha256Messages": "b62c6f4bd38993410ab056e9997ebae3378d67b80382abc57a414c09b9456ef0",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-contradicao": {
+  "bytesDoContexto": 70966,
+  "sha256Messages": "5c23981652ee1800802cc2a9771c055912a1421b922446c78adf9adb4d9568ab",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ }
+}

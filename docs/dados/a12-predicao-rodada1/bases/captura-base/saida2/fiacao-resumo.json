@@ -1,0 +1,110 @@
+{
+ "A-sem": {
+  "bytes": 70155,
+  "linhas": 1159,
+  "sha256": "5649a44b16fa534aa3e26f2bdecf90a0aa95dc9f112456ae69bebacd3a2dd663",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "A-undefined": {
+  "bytes": 70155,
+  "linhas": 1159,
+  "sha256": "5649a44b16fa534aa3e26f2bdecf90a0aa95dc9f112456ae69bebacd3a2dd663",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "A-null": {
+  "bytes": 70155,
+  "linhas": 1159,
+  "sha256": "5649a44b16fa534aa3e26f2bdecf90a0aa95dc9f112456ae69bebacd3a2dd663",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "A-outro-nome": {
+  "bytes": 70155,
+  "linhas": 1159,
+  "sha256": "5649a44b16fa534aa3e26f2bdecf90a0aa95dc9f112456ae69bebacd3a2dd663",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "A-sem-exclusao-ativa": {
+  "bytes": 71056,
+  "linhas": 1169,
+  "sha256": "61ec6783ac2ee02494cbf4246bd3eda0a73b4ffb45977bda1482302a481077ef",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "A-sem-lista": {
+  "bytes": 69357,
+  "linhas": 1141,
+  "sha256": "6787f3b947d80efe46b88b4181e7566a4c1fc19a9301dd69720c33d743d259f1",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "A-sem-lista-exclusao-ativa": {
+  "bytes": 70258,
+  "linhas": 1151,
+  "sha256": "ae0a2bfcb2c41f383579e91f70838d405d9c7ed1b4b7d5a951e67429c74aeddb",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "B-indisponivel": {
+  "bytes": 73446,
+  "linhas": 1181,
+  "sha256": "4da79801e470c40dfd0365ff8eb20530b9a0f756a9e7fc309470dc8196f26f7e",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "B-invalido": {
+  "bytes": 73573,
+  "linhas": 1182,
+  "sha256": "8c8c6f9b17302757d58c19f2ac4b822d9cf26b2ef7e8a4fb21781ddd9d767bc8",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "B-vinculado": {
+  "bytes": 74873,
+  "linhas": 1187,
+  "sha256": "a516e8b53f658da786497bfbb4362e8717ca5b68d0c3706cd4657f2f5e93cd8a",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "B-divergente": {
+  "bytes": 76146,
+  "linhas": 1187,
+  "sha256": "967a6329ebbd1edb34daf8653f576047228e4fe9250a73f599f220b61fdf54b0",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "B-vinculado-exclusao-5-4-4": {
+  "bytes": 76193,
+  "linhas": 1197,
+  "sha256": "6146af33d22bcf0eb6f646540185d49e3131fb2dbb46f4a8af4e6343a48c51e0",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "B-restricao-esvazia-a-lista": {
+  "bytes": 75329,
+  "linhas": 1178,
+  "sha256": "4f5aabd659417eec3439cdc8c5df65eee5d4e9a294c4a3c48444699e7cfee0d9",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-estado-inventado": {
+  "bytes": 71317,
+  "linhas": 1164,
+  "sha256": "9d8142a5f1e6350e304cd9be48b93d65c69fca61e3fdddb68e17a419351eca55",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-texto": {
+  "bytes": 71317,
+  "linhas": 1164,
+  "sha256": "9d8142a5f1e6350e304cd9be48b93d65c69fca61e3fdddb68e17a419351eca55",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-objeto-vazio": {
+  "bytes": 71317,
+  "linhas": 1164,
+  "sha256": "9d8142a5f1e6350e304cd9be48b93d65c69fca61e3fdddb68e17a419351eca55",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-zero": {
+  "bytes": 71317,
+  "linhas": 1164,
+  "sha256": "9d8142a5f1e6350e304cd9be48b93d65c69fca61e3fdddb68e17a419351eca55",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ },
+ "C-array": {
+  "bytes": 71317,
+  "linhas": 1164,
+  "sha256": "9d8142a5f1e6350e304cd9be48b93d65c69fca61e3fdddb68e17a419351eca55",
+  "sha256System": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98"
+ }
+}

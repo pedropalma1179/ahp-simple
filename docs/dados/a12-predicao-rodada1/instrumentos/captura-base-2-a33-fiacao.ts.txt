@@ -1,0 +1,201 @@
+export {};
+/**
+ * INSTRUMENTO DE CAPTURA DA BASE, 2ª PARTE (fora do repositório, NÃO committado). Executa o tratador REAL `POST /api/ai-reviewer` do commit 5ad4780, SEM modificação, com clientes externos
+ * SIMULADOS (nenhuma rede, nenhuma inferência), sobre cópias LITERAIS dos auxiliares de dois testes (a33-cadeia-rule e vinculo-execucao-fiacao), e grava o contexto capturado.
+ * Serve para obter o TEXTO de contextos de que o repositório guarda só o tamanho (a33-cadeia-rule) ou nada (fiacao), a validar contra o que houver registrado.
+ */
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const SAIDA: string = process.env.CAPTURA_SAIDA as string;
+if (!SAIDA) throw new Error('CAPTURA_SAIDA nao definido');
+fs.mkdirSync(SAIDA, { recursive: true });
+const REPO = '/home/user/ahp-simple/';
+const sha = (t: string) => crypto.createHash('sha256').update(t, 'utf8').digest('hex');
+jest.setTimeout(240000);
+
+// ================================================= (3) a33-cadeia-rule.test.ts: cópia literal de `capturar` e das entradas =================================================
+const CHAVES_FALSAS: Record<string, string> = {
+  VOYAGE_API_KEY: 'chave-voyage-falsa-do-processo-de-teste',
+  UPSTASH_VECTOR_REST_URL: 'https://indice-simulado.exemplo',
+  UPSTASH_VECTOR_REST_TOKEN: 'token-upstash-falso-do-processo-de-teste',
+  ANTHROPIC_API_KEY: 'chave-anthropic-falsa-do-processo-de-teste',
+};
+const NOMES_ENV = [...Object.keys(CHAVES_FALSAS), 'USE_RAG_SEMANTIC'];
+const SENTINELA = 'INTERROMPIDO-ANTES-DE-PRODUZIR-CONTEUDO';
+
+async function capturar(flag: string | null, porConsulta: Array<any[]> | null, requisicao: any) {
+  jest.resetModules();
+  const anterior: Record<string, string | undefined> = {};
+  for (const n of NOMES_ENV) anterior[n] = process.env[n];
+  for (const [n, v] of Object.entries(CHAVES_FALSAS)) process.env[n] = v;
+  if (flag === null) delete process.env.USE_RAG_SEMANTIC;
+  else process.env.USE_RAG_SEMANTIC = flag;
+  let i = 0;
+  const consultas: unknown[] = [];
+  const capturado: { system: string; messages: string } = { system: '', messages: '' };
+  let houveChamadaAoModelo = false;
+  let interrompidoAntesDeConteudo = false;
+  jest.doMock('voyageai', () => ({ VoyageAIClient: class { async embed() { return { data: [{ embedding: new Array(1024).fill(0.1) }] }; } } }));
+  jest.doMock('@upstash/vector', () => ({ Index: class { async query(q: unknown) { consultas.push(q); const r = porConsulta ? (porConsulta[i] ?? []) : []; i += 1; return r; } } }));
+  jest.doMock('@anthropic-ai/sdk', () => ({
+    __esModule: true,
+    default: class {
+      messages = {
+        create: async (a: { system: string; messages: Array<{ content: string }> }) => {
+          houveChamadaAoModelo = true;
+          capturado.system = a.system ?? '';
+          capturado.messages = (a.messages ?? []).map((m) => m.content).join('\n');
+          interrompidoAntesDeConteudo = true;
+          throw new Error(SENTINELA);
+        },
+      };
+    },
+  }));
+  const silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined));
+  try {
+    const { POST } = require('@/app/api/ai-reviewer/route');
+    await POST({ json: async () => JSON.parse(JSON.stringify(requisicao)) } as any);
+  } catch (e: any) {
+    if (!String(e && e.message).includes(SENTINELA)) throw e;
+  } finally {
+    silencios.forEach((s) => s.mockRestore());
+    for (const n of NOMES_ENV) { if (anterior[n] === undefined) delete process.env[n]; else process.env[n] = anterior[n]!; }
+  }
+  return { ...capturado, houveChamadaAoModelo, interrompidoAntesDeConteudo, consultas: consultas.length };
+}
+
+test('captura da base: a33-cadeia-rule, C1 a C3', async () => {
+  const r2 = JSON.parse(fs.readFileSync(path.join(REPO, 'docs/dados/a33-etapa4-v2/requisicao-referencia-r2.json'), 'utf8'));
+  const c1 = JSON.parse(fs.readFileSync(path.join(REPO, 'docs/dados/a33-etapa4-v2/C1-recuperacao.json'), 'utf8'));
+  const requisicao = r2.requisicao;
+  const C1_CHUNKS = c1.porConsulta.map((p: any) => p.retornoChunks);
+  const resumo: any = {};
+  for (const [nome, flag, chunks] of [['C1', 'true', C1_CHUNKS], ['C2', null, null], ['C3', 'true', [[], [], [], [], []]]] as Array<[string, string | null, any]>) {
+    const cap = await capturar(flag, chunks, requisicao);
+    fs.writeFileSync(path.join(SAIDA, `a33-${nome}-messages.txt`), cap.messages, 'utf8');
+    resumo[nome] = { bytesSystem: Buffer.byteLength(cap.system, 'utf8'), bytesMessages: Buffer.byteLength(cap.messages, 'utf8'), sha256System: sha(cap.system), sha256Messages: sha(cap.messages), consultas: cap.consultas, chamouModelo: cap.houveChamadaAoModelo };
+  }
+  fs.writeFileSync(path.join(SAIDA, 'a33-resumo.json'), JSON.stringify(resumo, null, 1));
+});
+
+// ================================================= (4) vinculo-execucao-fiacao.test.ts: cópia literal dos auxiliares =================================================
+const { prepararVinculoDaTela } = require('@/lib/ai-reviewer/vinculo-execucao');
+const CHAVE = 'chave-anthropic-falsa-do-processo-de-teste';
+const SEM_VEREDICTO = 'Parecer de ensaio, sem decisão editorial declarada no texto. '.repeat(3);
+
+const respondente = (id: string, cr: number | null) => ({
+  respondentId: id,
+  id,
+  name: `Respondente ${id}`,
+  ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }),
+  status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO',
+});
+const balde = (total: number, valid: number, warning = 0, critical = 0) => ({ total, valid, warning, critical, avgCR: 0.05 });
+function payloadDaTela(respondentes: any[], vinculo?: unknown, comOverall = true): Record<string, unknown> {
+  const n = respondentes.length;
+  const validos = respondentes.filter((r) => typeof r.cr === 'number' && r.cr <= 0.1).length;
+  const todosComCR = respondentes.length > 0 && respondentes.every((r) => typeof r.cr === 'number');
+  const p: Record<string, unknown> = {
+    avaliacaoDeQualidade: todosComCR
+      ? { estado: 'disponivel', motivo: null, fonte: 'análise de qualidade dos respondentes ativos' }
+      : n === 0
+        ? { estado: 'ausente', motivo: 'sem análise individual', fonte: 'tela' }
+        : { estado: 'incompleta', motivo: 'CR faltando', fonte: 'tela' },
+    projectName: 'Projeto do vinculo',
+    bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
+    bocrConsistency: { cr: 0.0106, lambda: 4.03 },
+    responseCount: n,
+    finalScores: [
+      { code: 'A1', name: 'Alternativa 1', score: 0.62 },
+      { code: 'A2', name: 'Alternativa 2', score: 0.38 },
+    ],
+    qualityAnalysis: todosComCR
+      ? {
+          respondents: respondentes,
+          statistics: { byStatus: { 'CONFIÁVEL': validos, 'REVISAR': 0, 'SUSPEITO': n - validos, 'CRÍTICO': 0 }, total: n, avgCR: 0.05 },
+          ...(comOverall ? { overall: { status: 'CONFIÁVEL', qualityScore: 91, recommendation: 'ok' } } : {}),
+          summary: { total: n, ok: validos, suspicious: n - validos, critical: 0 },
+        }
+      : { respondents: respondentes },
+    overallStats: todosComCR ? { total: n, valid: validos, warning: n - validos, critical: 0 } : undefined,
+    individualStats: todosComCR
+      ? { Benefits: balde(n, validos, n - validos), Opportunities: balde(n, validos, n - validos), Costs: balde(n, validos, n - validos), Risks: balde(n, validos, n - validos) }
+      : undefined,
+  };
+  if (vinculo !== undefined) p.vinculoDaExecucao = vinculo;
+  return p;
+}
+const IDS = ['r1', 'r2', 'r3', 'r4'];
+const elegivel = () => IDS.map((id) => respondente(id, 0.05));
+const HEX_PAINEL = 'b'.repeat(64);
+const shaDe = (id: string) => id.padEnd(64, '0').replace(/[^0-9a-f]/g, 'c');
+function calculo(ids: string[] | undefined, sobre: Record<string, unknown> = {}): any {
+  const metadata: any = { judgmentsDigest: { algorithm: 'sha256', serialization: 'a12-julgamentos-v1', panel: HEX_PAINEL, unavailableReason: null } };
+  if (ids !== undefined) {
+    metadata.includedRespondents = ids.map((id) => ({ respondentId: id, responseDocId: `doc-${id}`, identifierSource: 'respondentId', judgmentsSha256: shaDe(id), judgmentsUnavailableReason: null }));
+  }
+  return { executionId: 'exec-fiacao-0001', metadata, ...sobre };
+}
+const ESTADOS = ['indisponivel', 'invalido', 'vinculado', 'divergente'] as const;
+function vinculoDoEstado(estado: (typeof ESTADOS)[number], lista: any[]) {
+  const ids = lista.map((r) => r.respondentId);
+  const doc = estado === 'indisponivel' ? calculo(undefined) : estado === 'invalido' ? calculo([]) : estado === 'vinculado' ? calculo(ids) : calculo([...ids, 'z-so-no-documento']);
+  const preparo = prepararVinculoDaTela({ calculo: doc, respondentesAtivos: lista, respostasAtivas: [] });
+  if (preparo.vinculo.estado !== estado) throw new Error('estado inesperado: ' + estado);
+  return preparo.vinculo;
+}
+const EXCLUSAO = { totalCollected: 6, activeCount: 5, excludedCount: 1, reason: 'Filtragem por consistencia' };
+const ids5 = (n: number) => Array.from({ length: n }, (_, i) => `r${i + 1}`);
+function cenario(avaliados: string[], documento: string[]) {
+  return prepararVinculoDaTela({ calculo: calculo(documento), respondentesAtivos: avaliados.map((id) => respondente(id, 0.05)), respostasAtivas: [] });
+}
+
+async function executar(payload: Record<string, unknown>) {
+  jest.resetModules();
+  process.env.ANTHROPIC_API_KEY = CHAVE;
+  delete process.env.USE_RAG_SEMANTIC;
+  const cap = { contexto: '', system: '' };
+  jest.doMock('@anthropic-ai/sdk', () => ({ __esModule: true, default: class { messages = { create: async (a: any) => { cap.contexto = a.messages.map((m: any) => m.content).join('\n'); cap.system = typeof a.system === 'string' ? a.system : JSON.stringify(a.system ?? ''); return { content: [{ type: 'text', text: SEM_VEREDICTO }] }; } }; } }));
+  const silencios = ['log', 'warn', 'error'].map((m) => jest.spyOn(console, m as 'log').mockImplementation(() => undefined));
+  try {
+    const { POST } = require('@/app/api/ai-reviewer/route');
+    const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
+    await res.json();
+  } finally { silencios.forEach((s) => s.mockRestore()); }
+  return cap;
+}
+
+test('captura da base: vinculo-execucao-fiacao, cenários da classe A e controles das classes B e C', async () => {
+  const L = elegivel();
+  const cenarios: Record<string, () => Record<string, unknown>> = {
+    // ---- classe A
+    'A-sem': () => payloadDaTela(elegivel()),
+    'A-undefined': () => ({ ...payloadDaTela(elegivel()), vinculoDaExecucao: undefined }),
+    'A-null': () => ({ ...payloadDaTela(elegivel()), vinculoDaExecucao: null }),
+    'A-outro-nome': () => ({ ...payloadDaTela(L), vinculoDaExecucaoX: vinculoDoEstado('vinculado', L), campoDesconhecido: { marca: 'MARCA-QUE-NAO-DEVE-CHEGAR' } }),
+    'A-sem-exclusao-ativa': () => ({ ...payloadDaTela(elegivel()), exclusionInfo: EXCLUSAO }),
+    'A-sem-lista': () => payloadDaTela([]),
+    'A-sem-lista-exclusao-ativa': () => ({ ...payloadDaTela([]), exclusionInfo: EXCLUSAO }),
+    // ---- classe B (controles de preservação)
+    'B-indisponivel': () => payloadDaTela(L, vinculoDoEstado('indisponivel', L)),
+    'B-invalido': () => payloadDaTela(L, vinculoDoEstado('invalido', L)),
+    'B-vinculado': () => payloadDaTela(L, vinculoDoEstado('vinculado', L)),
+    'B-divergente': () => payloadDaTela(L, vinculoDoEstado('divergente', L)),
+    'B-vinculado-exclusao-5-4-4': () => { const p = cenario(ids5(5), ids5(4)); return { ...payloadDaTela(p.respondentesEnviados, p.vinculo, !p.omitirOverall), exclusionInfo: EXCLUSAO }; },
+    'B-restricao-esvazia-a-lista': () => { const p = cenario(['r1', 'r2'], ['r7', 'r8']); return { ...payloadDaTela(p.respondentesEnviados, p.vinculo, !p.omitirOverall), exclusionInfo: EXCLUSAO }; },
+    // ---- classe C (controles de preservação)
+    'C-estado-inventado': () => payloadDaTela(L, { estado: 'inventado' }),
+    'C-texto': () => payloadDaTela(L, 'texto'),
+    'C-objeto-vazio': () => payloadDaTela(L, {}),
+    'C-zero': () => payloadDaTela(L, 0),
+    'C-array': () => payloadDaTela(L, []),
+  };
+  const resumo: any = {};
+  for (const [nome, montar] of Object.entries(cenarios)) {
+    const r = await executar(montar());
+    fs.writeFileSync(path.join(SAIDA, `fiacao-${nome}.txt`), r.contexto, 'utf8');
+    resumo[nome] = { bytes: Buffer.byteLength(r.contexto, 'utf8'), linhas: r.contexto === '' ? 0 : r.contexto.split('\n').length, sha256: sha(r.contexto), sha256System: sha(r.system) };
+  }
+  fs.writeFileSync(path.join(SAIDA, 'fiacao-resumo.json'), JSON.stringify(resumo, null, 1));
+});

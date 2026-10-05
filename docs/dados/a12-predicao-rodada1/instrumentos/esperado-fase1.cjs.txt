@@ -1,0 +1,21 @@
+// Constrói, com as funções do PRÓPRIO teste (linhas extraídas por script), o contexto ESPERADO de a12-estatisticas-dimensao.test.ts:864-873 para os cenários SEM o campo, a partir dos contextos da Fase 1 versionados.
+const fs = require('fs'), path = require('path'), cp = require('child_process');
+const ts = require('/home/user/ahp-simple/node_modules/typescript');
+const B = '5ad478086d0aa4dadd42b6116cb9b96fecb7afe8';
+const src = cp.execFileSync('git', ['-C', '/home/user/ahp-simple', 'show', `${B}:lib/__tests__/a12-estatisticas-dimensao.test.ts`], { encoding: 'utf8', maxBuffer: 1 << 28 }).split('\n');
+const fatia = (a, b) => src.slice(a - 1, b).join('\n');
+const prog = ["const ocorrencias = (texto: string, agulha: string) => texto.split(agulha).length - 1;", "type Trocas = { blocos: number; prefixos: number };",
+  fatia(127, 144), fatia(159, 165), fatia(183, 202), fatia(833, 862)].join('\n');
+// esperadoAPartirDoAnterior está dentro de um describe; as três funções são arrow consts nas linhas 833-862
+const js = ts.transpileModule(prog + "\nmodule.exports = { semOBlocoDaReferencia, comSoOBloco, esperadoAPartirDoAnterior };", { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+const prelude = '';
+const m = { exports: {} };
+new Function('module', 'exports', 'require', 'expect', prelude + js)(m, m.exports, require, (v) => ({ toBe: (e) => { if (v !== e) throw new Error('toBe ' + String(e).slice(0, 50) + ' <> ' + String(v).slice(0, 50)); }, toBeGreaterThan: (e) => { if (!(v > e)) throw new Error('gt'); }, not: { toContain: (e) => { if (String(v).includes(e)) throw new Error('not.toContain'); } }, toContain: (e) => { if (!String(v).includes(e)) throw new Error('toContain'); } }));
+const out = path.join(__dirname, 'novos');
+for (const base of ['agregado-5', 'agregado-3']) {
+  const anterior = fs.readFileSync(`/home/user/ahp-simple/docs/dados/a12-estatisticas-dimensao/ctx-${base}-semVinculo.txt`, 'utf8');
+  const trocas = { blocos: 0, prefixos: 0 };
+  const esperado = m.exports.esperadoAPartirDoAnterior(anterior, false, trocas);
+  fs.writeFileSync(path.join(out, `esperado-fase1-${base}-semVinculo.txt`), esperado, 'utf8');
+  console.log(base, 'esperado (teste, :870) =', Buffer.byteLength(esperado, 'utf8'), 'bytes; trocas', JSON.stringify(trocas));
+}

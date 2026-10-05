@@ -1,0 +1,26 @@
+// Textos que o módulo NÃO modificado de lib/ai-reviewer/vinculo-execucao.ts (transpilado do blob de 5ad4780) produz para os controles de classe B da fiacao: as cinco frases, as linhas de exclusão e o bloco.
+// Só funções do módulo; o tratador (route.ts) NÃO é executado aqui. Serve à validação V3 (reconstruir o controle de classe B a partir do contexto de classe A capturado).
+const m = require('./vinculo-execucao-base.cjs');
+const fs = require('fs');
+const respondente = (id, cr) => ({ respondentId: id, id, name: `Respondente ${id}`, ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }), status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO' });
+const HEX = 'b'.repeat(64);
+const shaDe = (id) => id.padEnd(64, '0').replace(/[^0-9a-f]/g, 'c');
+const calculo = (ids) => { const metadata = { judgmentsDigest: { algorithm: 'sha256', serialization: 'a12-julgamentos-v1', panel: HEX, unavailableReason: null } }; if (ids !== undefined) metadata.includedRespondents = ids.map((id) => ({ respondentId: id, responseDocId: `doc-${id}`, identifierSource: 'respondentId', judgmentsSha256: shaDe(id), judgmentsUnavailableReason: null })); return { executionId: 'exec-fiacao-0001', metadata }; };
+const ids = (n) => Array.from({ length: n }, (_, i) => `r${i + 1}`);
+const EXCLUSAO = { totalCollected: 6, activeCount: 5, excludedCount: 1 };
+const out = {};
+function caso(nome, avaliados, documento, exclusao) {
+  const lista = avaliados.map((id) => respondente(id, 0.05));
+  const p = m.prepararVinculoDaTela({ calculo: calculo(documento), respondentesAtivos: lista, respostasAtivas: [] });
+  const enviados = p.respondentesEnviados;
+  const apresentada = enviados.map((r, i) => m.identificarParaApresentacao(r, i));
+  const leitura = m.lerVinculoParaTexto(p.vinculo, apresentada);
+  const frases = m.frasesDaListaComVinculo(leitura, enviados.length);
+  const bloco = m.descreverVinculoParaContexto(p.vinculo, apresentada);
+  const excl = exclusao ? m.linhasDeExclusaoComVinculo(EXCLUSAO, '16.7', enviados.length) : null;
+  out[nome] = { n: enviados.length, frases, bloco, excl, estado: p.vinculo.estado };
+}
+caso('B-vinculado', ids(4), ids(4), false);
+caso('B-vinculado-exclusao-5-4-4', ids(5), ids(4), true);
+fs.writeFileSync(__dirname + '/saidas-fiacao.json', JSON.stringify(out, null, 1));
+console.log(Object.entries(out).map(([k, v]) => `${k}: n=${v.n} estado=${v.estado} bloco ${v.bloco.length} chars; exclusão ${v.excl ? 'sim' : 'não'}`).join('\n'));
