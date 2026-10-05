@@ -16611,6 +16611,712 @@ rodada): o conjunto de caminhos é o mesmo (nenhum arquivo acrescentado ou remov
 Nada foi integrado. No início desta rodada (**medido** por `git ls-remote`), `integra/a30-registros` estava em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em
 `33c1fdf6500242832994a17aa15b0a686704c029`; a cabeça da branch de sessão, a base desta rodada, estava em `5f04725345d4f2dc23d8f759af4aa20a04bcecb4`. Esta rodada não toca as duas primeiras.
 
+## Registro de 04/10/2026: a decisão pela opção 3 para o caminho sem `vinculoDaExecucao` e a especificação das duas rodadas
+
+⚠ **Registro datado, por inserção pura**, sobre a base `5ad478086d0aa4dadd42b6116cb9b96fecb7afe8`. Nenhuma linha publicada deste registro foi editada. Este é o **primeiro de dois commits**
+desta rodada, ambos **exclusivamente documentais** e com **um** só arquivo, este registro: o segundo traz a predição datada da rodada 1. Há **zero byte de produção e zero byte de teste**,
+nenhum artefato de medição regravado, nenhuma integração e **nenhuma implementação**, nem da rodada 1, nem da rodada 2. As datas são as de Brasília, salvo onde marcado UTC. ⚠ **Este bloco
+registra uma decisão e uma especificação. NÃO é a predição da rodada 1, e NÃO autoriza implementação.**
+
+**O que este bloco resolve no registro, sem editar o que o registro já diz.** Três passagens publicadas registram a escolha do comportamento esperado para o caminho sem `vinculoDaExecucao`
+como **pendência do autor**: a de 02/10/2026 ("O que a rodada não decidiu", linha 16259 na base), a de 03/10/2026 (linha 16269) e a de 04/10/2026 (linha 16442). **A escolha está feita**: é
+a opção 3, na seção "A decisão". As três passagens ficam **como estão**, porque registram o que era verdade nas datas em que foram escritas, e a leitura em ordem as resolve. ⚠ O que
+**continua** pendente é a **implementação**, na seção final.
+
+**Procedência.** A mesma convenção dos blocos anteriores: **medida** (produzida por execução), **derivada** (calculada sobre o que foi medido ou lido), **lida** (leitura de código, de
+teste ou de artefato) ou **recebida** (do pedido desta rodada ou de documento recebido). Onde duas fontes se contradizem, os dois valores e a fonte de cada um ficam conservados. ⚠ Os
+registros brutos desta rodada **não estão no repositório**, que recebe só este arquivo. A seção "A separação de procedência", abaixo, diz item a item o que é **resultado executado**, o que
+é **efeito inferido por leitura** e o que é **verificação anterior não refeita**, e não mistura as três coisas numa afirmação só.
+
+**Nomes curtos.** Na especificação embutida e neste bloco: `route.ts` é `app/api/ai-reviewer/route.ts`; `vinculo-execucao.ts` é `lib/ai-reviewer/vinculo-execucao.ts`;
+`ParecerAISection.tsx` é `components/ParecerAISection.tsx`; `page.tsx` é `app/decisor/resultados/[projectId]/page.tsx`; `contratos-de-dados.md` é `docs/contratos-de-dados.md`; `fiacao` é
+`lib/__tests__/vinculo-execucao-fiacao.test.ts`; `vinculo-execucao.test.ts` e `a12-estatisticas-dimensao.test.ts` são arquivos de `lib/__tests__/`; `a12-nota-veredicto-fase2`,
+`a12-diagnostico` e `a33-cadeia-rule` são os arquivos de mesmo nome em `lib/__tests__/`, com o sufixo `.test.ts`. Todo localizador `arquivo:linha` vale para a base `5ad4780`.
+
+**O que o bloco traz, nesta ordem:** a decisão; as três classes de entrada, com os localizadores; a distinguibilidade no payload recebido; os três fatos levantados nesta sequência, com a
+evidência de cada um; o escopo das duas rodadas e a especificação vigente, na íntegra; os quatro textos literais; a limitação da cópia quanto a A.27; o que a decisão não faz, com as
+âncoras; a exigência de predição prévia; a separação de procedência; as guardas desta alteração; o que não foi integrado; e o encerramento.
+
+### A decisão
+
+**Opção 3, aprovada na conversa de 04/10/2026** (horário de Brasília). Procedência: **recebida** do pedido desta rodada, que a atribui a essa conversa; o repositório não guarda a conversa,
+e este registro não a reproduz. Nos termos da especificação (a seção 1 dela, embutida abaixo): **na ausência de `vinculoDaExecucao`, o sistema passa a usar a redação cautelosa que já
+existe, a declarar a ausência num bloco explícito do contexto, a informá-la num campo da resposta, a avisá-la ao gestor e a levar a ressalva na cópia.**
+
+A opção 3 é a do enquadramento recebido (v4, seção 4): a redação cautelosa existente na classe A, mais o campo da resposta, mais o aviso ao gestor. A especificação **fixa as decisões
+internas que o v4 deixava abertas** (v4, seções 4 e 7): há bloco na ausência; o campo é de nível principal, com sete valores e sem mensagem acompanhante; o aviso é informativo e não toca o
+portão de `ParecerAISection.tsx:240`; a cópia leva a ressalva; as classes B e C ficam como estão. O documento de origem da especificação, `enquadramento-ausencia-vinculo-v7.md`, é
+**externo ao repositório e não foi recebido** pelo executor desta sessão, que recebeu a v4 e a especificação.
+
+**As condições gerais da aprovação**, na forma em que a especificação as enuncia:
+
+- a decisão **não** acrescenta causa de suspensão, **não** altera a elegibilidade, **não** acrescenta condição ao portão do destaque, **não** bloqueia a geração em nenhuma classe e
+  **não** altera o contexto das classes B e C (seção "O que a decisão NÃO faz, e as âncoras", abaixo);
+- **cada rodada tem predição datada própria**, em commit sem byte de código, **antes** da implementação, com o caso que a contrariaria e a previsão enumerada de testes (seção 5 da
+  especificação);
+- **implementação e integração permanecem sem autorização**;
+- os **quatro textos de produto estão consolidados** (o bloco de ausência, o campo `estadoDoVinculo` com as três definições de escopo, o aviso e a ressalva na cópia): nenhum fica em
+  aberto, e nenhum depende de nova aprovação;
+- as versões anteriores do enquadramento e da especificação, e os documentos históricos do repositório, **ficam preservados como estão**, e as pendências deles **não se carregam** para a
+  especificação vigente.
+
+### As três classes de entrada
+
+O que separa as classes é `lerVinculoParaTexto` (`vinculo-execucao.ts:1089`), e o que as liga ao texto é `comVinculo`, em `route.ts:852`. **Lido** pelo executor, nesta rodada, na base.
+
+| Classe | O que chega | Leitor: `modo` e localizador | Comutador (`route.ts:852`) | Bloco que o contexto traz hoje |
+|---|---|---|---|---|
+| **A** | chave omitida, `undefined` ou `null` | `ausente` (`vinculo-execucao.ts:1098-1100`) | `comVinculo` **falso** | **nenhum**: `descreverVinculoParaContexto` devolve `''` (`vinculo-execucao.ts:724`) |
+| **B** | objeto cujo campo `estado` é **exatamente** um de `indisponivel`, `invalido`, `vinculado` e `divergente` | `comparado` ou `sem-comparacao`, com `reconhecido: true` (`vinculo-execucao.ts:1113-1138`) | verdadeiro | o bloco completo |
+| **C** | valor presente que não é B: o que não é objeto não nulo e não array, ou objeto cujo `estado` não é um dos quatro (`null` e `undefined` pertencem à A) | `sem-comparacao`, `estado: null`, `reconhecido: false` (`vinculo-execucao.ts:1102-1103`) | verdadeiro | o bloco de formato não reconhecido (`vinculo-execucao.ts:727-732`) |
+
+⚠ **A classe C declara recepção em formato não reconhecido e NÃO utilização**, e não "não recepção": o bloco diz "Vínculo recebido em formato NÃO reconhecido: nada dele foi usado."
+(`vinculo-execucao.ts:730`, dentro de `:727-732`). A classe A é o único caminho em que o contexto não traz bloco algum do vínculo.
+
+### A distinguibilidade no payload recebido
+
+| O que o cliente envia | O que o servidor recebe, em `data.vinculoDaExecucao` | Distinguível das demais? | Classe |
+|---|---|---|---|
+| a chave omitida | `undefined` (a propriedade não existe no corpo) | **não**: igual ao `undefined` | A |
+| a propriedade com valor `undefined` | `undefined`: a serialização **descarta** a propriedade, e o corpo é o da omissão | **não**: igual à omissão | A |
+| `null` explícito | `null`, com a chave presente (`{"vinculoDaExecucao":null}`) | **sim**, das duas anteriores | A |
+| objeto com `estado` exatamente igual a um dos quatro reconhecidos | o objeto; cada um dos quatro valores é distinguível | **sim** | B |
+| qualquer outro valor presente | o valor, em formato não reconhecido | **sim**, das anteriores | C |
+
+⚠ **"Não recebido" não é sinônimo da classe A.** A classe A reúne **duas situações do corpo**: a **chave ausente** (que é também o que o `undefined` vira na serialização) e o **`null`
+explícito**, e nesta última o campo **foi recebido**. A palavra que cobre as duas é **ausente**. O campo da resposta da rodada 2 as separa (`ausente_no_payload` e `nulo_explicito`, seção
+4.1 da especificação) e **não** pode separar a omissão do `undefined`, que **não se recupera** a partir do payload recebido. O valor é copiado tal como veio em `route.ts:600`, por
+`normalizeRequest`, que a rota executa sobre o corpo lido por `request.json()` (`route.ts:1414` e `:1417`).
+
+### Os três fatos levantados nesta sequência, e o que sustenta cada um
+
+⚠ **Nenhum dos três é classificado aqui, por padrão, como medição.** O enquadramento recebido (v4, seção 2) apresenta o predicado (fato 2) e a serialização (fato 3) como "medido por mim",
+e o pedido desta rodada diz que **o autor executou um ensaio de serialização** (fato 3); esses relatos são **recebidos**, e nem o repositório nem esta sessão guardam o registro dessas
+execuções. O fato 1 **não consta do v4**, que descreve a classe B como o objeto cujo `estado` "contém" um dos quatro valores; a redação "exatamente igual" é a da especificação, e é a que o
+código confirma. Para cada fato, a tabela diz **a evidência disponível e quem a produziu**. ⚠ **O predicado e a igualdade exata se confirmam por LEITURA do código, e não precisam de
+execução**; ⚠ **execução só é atribuída a quem a realizou, e apenas onde há registro dela**.
+
+| Fato | Confirmação por leitura | Execução com registro, e de quem | O que a execução não cobre |
+|---|---|---|---|
+| **1. A igualdade é exata.** `ESTADOS_RECONHECIDOS.includes` (`vinculo-execucao.ts:616`, usado em `:727` e `:1102`) compara por igualdade exata, de modo que `'Vinculado'`, `'vinculado '` e similares caem na **classe C**. | `:616` declara a lista de quatro `string`; `:727` e `:1102` a consultam com `.includes(v.estado)`, e `Array.prototype.includes` compara `string` por igualdade, sem `trim` e sem normalizar a caixa. **Lida** pelo executor, nesta rodada, na base. | **Executor**, `classes.cjs`, funções reais transpiladas para a pasta de trabalho, **22 entradas**. As quatro formas fora do vocabulário (`{estado:"Vinculado"}`, `{estado:"vinculado "}`, `{estado:"vinculado-x"}` e `{estado:"xx vinculado xx"}`) deram `sem-comparacao`, `estado: null`, `reconhecido: false` e o bloco de formato não reconhecido (**classe C**); as quatro exatas deram `reconhecido: true` (**classe B**). Em 04/10/2026 15:18 UTC (entrada `dfe086f6-a43b-497b-a3a2-305aa6cff34c` da transcrição da sessão, marca `2026-10-04T15:18:14.481Z`) e **reexecutado** em 05/10/2026 02:20 UTC, **saída idêntica** à registrada. | só as quatro variantes citadas, e não todas as formas fora do vocabulário; chama as funções do módulo, e não a rota. |
+| **2. O predicado não verifica protótipo.** `comoRegistro` (`vinculo-execucao.ts:618-619`) é só `x !== null && typeof x === 'object' && !Array.isArray(x)`: `Date`, `Map` e `Object.create(null)` passam; `string`, array e `null` não. | `:618-619`: a expressão não consulta o protótipo, e o `typeof` de um `Date`, de um `Map` e de um objeto sem protótipo é `'object'`. **Lida** pelo executor, nesta rodada, na base. | **Executor**, `predicado.cjs`. A expressão copiada de `:618-619`, avaliada diretamente: `Date`, `Map`, `Object.create(null)` e `{}` deram `true`; `string`, array, `null`, `undefined` e número deram `false`. E as funções reais, com um campo `estado` posto num `Object.create(null)`, num `Date` e num `Map`: `reconhecido: true`, **classe B**. Em 04/10/2026 15:18 UTC (entrada `7301cc62-6f30-40e7-9a97-a061406fe7b9`, marca `2026-10-04T15:18:41.973Z`) e **reexecutado** em 05/10/2026 02:20 UTC, **saída idêntica**. | a avaliação direta é uma **cópia** da expressão, e não a função; que um `Date`, um `Map` ou um objeto sem protótipo **cheguem** pelo corpo JSON da rota **não foi avaliado**. |
+| **3. Na serialização, `undefined` some e `null` fica.** `{}` e `{ vinculoDaExecucao: undefined }` produzem **ambos** `{}`, e `{ vinculoDaExecucao: null }` produz `{"vinculoDaExecucao":null}`. | `JSON.stringify` omite a propriedade de valor `undefined` e serializa `null` (comportamento da linguagem, e não código deste repositório); a tela serializa em `page.tsx:1353` (`body: JSON.stringify(finalPayload)`). **Lida**. | (i) **O autor** executou um ensaio de serialização, relatado no pedido: **recebido**, **sem registro** no repositório e nesta sessão. (ii) **O executor**, no fim de `classes.cjs`, os mesmos três valores, no Node do ambiente da sessão (v22.22.2, a mesma versão que o commit de 04/10/2026 registra para o ambiente; o script de 04/10 não imprimiu a versão): na mesma entrada de 04/10/2026 15:18 UTC e **reexecutado** em 05/10/2026 02:20 UTC, **saída idêntica**. | mede `JSON.stringify` e não o que um cliente externo, uma versão antiga publicada ou um campo perdido em trânsito enviam, que seguem **não avaliados** (alcançabilidade, no bloco de 02/10/2026). |
+
+⚠ **O ensaio de serialização que o autor executou não comprova a execução dos outros dois casos.** Para os fatos 1 e 2, a única execução com registro é a do executor, e os dois se
+confirmam por leitura sem ela.
+
+**As três dimensões, por fato.** *Origem:* lida (os três); executada pelo executor, em duas datas (os três); recebida (o segundo e o terceiro, do v4, e o terceiro também do autor).
+*Disponibilidade e cobertura:* as execuções do executor têm registro na transcrição da sessão e em arquivos de trabalho, **ambos fora do repositório**, e foram refeitas contra a base, o
+que a reexecução de 05/10/2026 fez; a execução do autor **não** está disponível; as execuções cobrem as entradas listadas, e não todas as possíveis. *Coerência:* a leitura e as execuções
+concordam nos três fatos, e **nenhuma contradição** entre fontes foi encontrada; por isso nenhum valor divergente precisa ser conservado.
+
+### A especificação das duas rodadas
+
+A especificação vigente entra **na íntegra**, logo abaixo. O quadro a seguir é só **índice** do escopo de cada rodada, derivado dela, e o texto da especificação **governa**.
+
+| Rodada | O que entra (seções 3 e 4 da especificação) | O que a rodada não toca |
+|---|---|---|
+| **1**: contexto e bloco de ausência | as frases da lista e as linhas de exclusão passam a vir de `frasesDaListaComVinculo` e de `linhasDeExclusaoComVinculo` **também na classe A** (hoje escolhidas por `comVinculo`, `route.ts:852`); o **bloco de ausência**, com o marcador único | `ParecerAISection.tsx` e `page.tsx`; o contrato e a montagem da resposta; as classes B e C no contexto; o ramo sem lista de `route.ts:959-964` |
+| **2**: resposta, tela, aviso e cópia | o campo `estadoDoVinculo` (nível principal, sete valores, sem mensagem acompanhante); o mapeamento da tela (`page.tsx:1363-1371`); o aviso (`role="status"`); a cópia (`handleCopy`, `ParecerAISection.tsx:53-56`, com o prefixo) | o portão de `ParecerAISection.tsx:240`; A.27 na cópia; a opção 4; a alcançabilidade; a distinção entre omissão e `undefined` |
+
+**A especificação, na íntegra.** O texto é a PARTE 2 do pedido desta rodada: **364 linhas e 21436 bytes**, `sha256` `2af3d87de0b95c4a7107f226a22e9293e98850dfedb472c092036c96279ac80a`
+(bytes UTF-8, linhas unidas por LF, com LF final). Entra **sem alteração de redação**. O único ajuste é o **rebaixamento de um nível dos 19 títulos**, para caber neste bloco, e as linhas
+dentro dos blocos de código ficam como estão: a linha `## DADOS DO SISTEMA — …`, que abre o bloco de ausência, é **conteúdo do texto**, e não título. ⚠ O estado do documento é **VIGENTE**:
+os textos de produto estão **consolidados**, e não são "sujeitos a aprovação". Os documentos históricos, inclusive as versões anteriores do enquadramento e da especificação, ficam
+preservados como estão. O texto segue, e a seção "Os quatro textos literais" vem depois dele.
+
+### Especificação: o comportamento na ausência de `vinculoDaExecucao` (opção 3)
+
+**Base de leitura:** `5ad478086d0aa4dadd42b6116cb9b96fecb7afe8`.
+**Enquadramento de origem:** `enquadramento-ausencia-vinculo-v7.md`, documento de trabalho fora
+do repositório.
+
+⚠ **Estado: documento VIGENTE.** A opção 3 está aprovada, e a escolha está registrada na
+conversa de **04/10/2026, horário de Brasília**. Este documento foi aceito como referência de
+trabalho e **corrigido pela conferência do executor contra `5ad4780`**, na mesma data local
+(**05/10 em UTC**).
+
+⚠ **Nenhum conteúdo deste documento depende de nova aprovação**, e as correções **não reabrem a
+escolha da opção**. Os quatro textos de produto, nas seções 3.2, 4.1, 4.3 e 4.4, estão
+**consolidados** e reunidos na seção 7.
+
+⚠ **As versões anteriores do enquadramento e da especificação ficam preservadas como histórico,
+e as pendências delas NÃO se carregam para este documento.**
+
+⚠ **Implementação e integração permanecem sem autorização.** O registro no repositório e a
+predição datada da rodada 1 são as etapas seguintes, nesta ordem.
+
+---
+
+#### 1. A decisão, e o que ela não é
+
+**O que foi decidido:** na ausência de `vinculoDaExecucao`, o sistema passa a usar a redação
+cautelosa que já existe, a declarar a ausência num bloco explícito do contexto, a informá-la num
+campo da resposta, a avisá-la ao gestor e a levar a ressalva na cópia.
+
+**O que a decisão NÃO faz**, e tem de continuar verdadeiro depois dela:
+
+| Não faz | Âncora da regra |
+|---|---|
+| não acrescenta causa de suspensão | `contratos-de-dados.md:348`, e `:344-346` que a delimita |
+| não altera a elegibilidade | idem |
+| não acrescenta condição ao portão do destaque | `ParecerAISection.tsx:240`, que fica com três condições |
+| não bloqueia a geração em nenhuma classe | `contratos-de-dados.md:363-368`, coluna **Parecer** |
+| não altera o comportamento das classes B e C no contexto | seção 3.3 |
+
+---
+
+#### 2. As três classes, e o que muda em cada uma
+
+| Classe | O que chega | Contexto hoje | Contexto depois | Campo da resposta |
+|---|---|---|---|---|
+| **A** | chave ausente no payload, ou `null` | redação sem qualificação, **sem bloco** | redação cautelosa, **com bloco de ausência** | **novo**, distinguindo as duas formas |
+| **B** | `estado` exatamente igual a um dos quatro | bloco completo e frases qualificadas | **inalterado** | **novo**, nomeando o estado |
+| **C** | demais valores presentes | bloco de formato não reconhecido | **inalterado** | **novo**, nomeando a classe |
+
+⚠ **A distinção entre chave omitida e `undefined` não é recuperável** depois da serialização, e a
+especificação **não a promete**. O que é observável no payload recebido é **chave ausente** ou
+**`null` explícito**.
+
+---
+
+#### 3. Rodada 1: contexto e bloco de ausência
+
+##### 3.1 O comportamento esperado
+
+1. **As frases da lista**, hoje escolhidas por `comVinculo` em `route.ts:852` e aplicadas em
+   `:928-938`, passam a vir de `frasesDaListaComVinculo` **também na classe A**.
+   ⚠ **Achado que barateia a mudança:** a função já aceita uma leitura em `modo: 'ausente'` e
+   devolve o **ramo 3** (`vinculo-execucao.ts:1353-1358`), que é a redação cautelosa. **Não é
+   preciso texto novo para as frases.** ⚠ **São CINCO frases, e `cabecalhoDasContagens` é uma
+   delas:** passa de vazio para `Contagens por status, sobre os ENVIADOS a você (etapa:
+   envio):`. A previsão tem de enumerá-la.
+   ⚠ **A regra de menção compartilhada cita "identificador registrado no bloco do vínculo como
+   DIVERGÊNCIA REGISTRADA", e o bloco de ausência não registra identificador algum.** É o mesmo
+   caso que a classe B sem declaração e a classe C já têm hoje, e **não contradiz** esta
+   especificação.
+2. **As linhas de exclusão**, hoje escolhidas no mesmo ponto e aplicadas em `:859-866`, passam a
+   vir de `linhasDeExclusaoComVinculo` **também na classe A**.
+   ⚠ **A mudança não é só de nomenclatura:** a linha de qualidade troca a fonte do número, de
+   `activeCount` (`route.ts:865`) para o tamanho da lista enviada (`vinculo-execucao.ts:1291`), e
+   a população, de "respondentes incluídos" para "ENVIADOS a você".
+3. **O bloco de ausência** passa a existir, com o **marcador único**.
+4. ⚠ **O ramo sem lista de `route.ts:959-964` não é alterado por esta rodada**: ele já declara a
+   lista individual indisponível, e a decisão é sobre a redação que afirma exaustividade.
+
+##### 3.2 O bloco de ausência
+
+**Texto consolidado.**
+
+O marcador é o existente, `MARCADOR_DO_BLOCO_DO_VINCULO` (`vinculo-execucao.ts:603-604`),
+**redefinido pelo significado**: abertura da seção que informa a **situação** do vínculo,
+inclusive a ausência. O título não afirma, por si, que um vínculo chegou.
+
+```
+## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO
+- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.
+- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.
+- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.
+⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.
+```
+
+⚠ **A última linha é deliberadamente diferente de `LIMITE_DO_VINCULO`** (`:610-614`), cujo texto
+fala de registros transportados e do significado de `vinculado`, que não se aplicam à ausência.
+⚠ **A frase sobre não ser critério de nota e não suspender a classificação é preservada**, porque
+é a que amarra o bloco à regra de `contratos-de-dados.md:348`.
+
+##### 3.3 O que não muda
+
+⚠ **Classe B:** bloco completo, com os mesmos campos, nos quatro estados. Nenhuma linha nova,
+nenhuma retirada.
+⚠ **Classe C:** bloco de formato não reconhecido, em `:727-732`, literalmente como está.
+⚠ **Nenhuma alteração em `ParecerAISection.tsx` nem em `page.tsx` nesta rodada**, e **nenhuma
+alteração no contrato e na montagem da resposta, conforme o critério 3.5.5.**
+
+##### 3.4 As diferenças previstas, como insumo da predição
+
+⚠ **Isto não é a predição.** É o levantamento que a predição datada da rodada 1 tem de
+transformar em previsão enumerada, com o caso que a contrariaria.
+
+| Onde | Diferença esperada | Procedência |
+|---|---|---|
+| `fiacao:251`, `:252` | o marcador e a expressão passam a ocorrer na classe A | conferido |
+| `fiacao:254-255` | **continua valendo**: as três entradas da classe A seguem com o mesmo contexto | conferido |
+| `fiacao:262` | a âncora absoluta muda, porque o cabeçalho antigo é trocado e o bloco entra | conferido |
+| `fiacao:265-290` | a reconstrução do contexto com vínculo deixa de corresponder | conferido |
+| `fiacao:297` | o caso de nome de campo errado passa a produzir o bloco de ausência | conferido |
+| `fiacao:374-390`, `:650-653` | lista e exclusão com a redação antiga | leitura |
+| `vinculo-execucao.test.ts:1040-1041` | `descreverVinculoParaContexto(undefined)` e `(null)` deixam de devolver `''` | conferido |
+| `a12-estatisticas-dimensao.test.ts:706-709` | o `sha256` do contexto completo muda | conferido |
+| mesmo arquivo, `:864-873`, `:887-920` | as transformações enumeradas precisam das novas diferenças | leitura |
+| `fiacao:1356-1377` | fixa a **lista ordenada de toda referência ao vínculo em `route.ts`**, com o literal `const comVinculo = …` que a rodada 1 remove | conferido pelo analista |
+| `a12-nota-veredicto-fase2:437-450` | compara **sete contextos byte a byte E contra `sha256` previsto antes do código** | conferido pelo analista |
+| `a12-nota-veredicto-fase2:470-471` | o número da linha do motivo no contexto, que o bloco desloca | leitura do executor |
+| `a12-diagnostico:1128-1136` | o artefato guarda o `sha256` de `route.ts` e os `bytesDoContexto` de quatro casos sem o campo | leitura e medição do executor |
+| `a33-cadeia-rule:1268`, `:1511` | os artefatos guardam o `sha256` de `route.ts` e de `knowledge.ts` | leitura do executor |
+
+⚠ **Estes cinco vieram da conferência do executor, em 04/10/2026, horário de Brasília (05/10 UTC)**, e **o levantamento é piso, não lista
+completa**: saiu de buscas por hash, comprimento, linha, fonte da rota e frases antigas, e não
+de ler todas as asserções dos doze arquivos que carregam o tratador.
+
+⚠ **Dois deles exigem REGRAVAÇÃO de artefato de medição**, por `A12_GRAVAR=1` e `A33_GRAVAR=1`,
+com entrada nova de procedência. ⚠ **Artefato de medição está sob a regra de preservação, e a
+regravação depende de autorização explícita do autor**, a ser dada no pedido da rodada 1 de
+implementação, e não neste documento.
+
+⚠ **A rodada 2 já está travada** por `a12-nota-veredicto-fase2:765-783`, que confere o `sha256`
+pré-registrado de nove trechos, entre eles `handleCopy`, contra
+`docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json`. **Leitura do executor.**
+
+⚠ **A mudança NÃO se restringe aos cenários com lista não vazia.** O bloco de ausência entra em
+**toda** a classe A que alcance a construção do contexto, inclusive sem lista e sem exclusões. A
+predição tem de decompor assim:
+
+| Condição na classe A | Mudança prevista |
+|---|---|
+| qualquer cenário que alcance a construção do contexto | **inclusão do bloco de ausência** |
+| lista não vazia | troca **adicional** das frases da lista |
+| exclusão ativa | troca **adicional** das linhas de exclusão |
+| sem lista | o texto do ramo sem lista (`route.ts:959-964`) é **preservado**, e o contexto completo muda **pelo bloco** |
+
+⚠ **O contrato do campo com nome errado passa a ser:** o campo incorreto continua ignorado, os
+seus dados não entram no contexto, e **a ausência do campo correto produz o bloco de ausência**.
+
+##### 3.5 Critérios de aceite observáveis
+
+1. Na classe A, o contexto traz o bloco de ausência **uma vez**, com o marcador único.
+2. ⚠ **Condicionado à existência de cada trecho:** quando há lista não vazia, as frases da lista
+   são as mesmas que a classe B sem declaração recebe, pelo ramo 3; quando há exclusão ativa, as
+   linhas de exclusão vêm de `linhasDeExclusaoComVinculo`. **Sem lista, o texto do ramo de
+   `route.ts:959-964` fica preservado**, e o bloco entra assim mesmo.
+3. As três entradas da classe A continuam produzindo **o mesmo contexto entre si**.
+4. Classes B e C: contexto **byte a byte** igual ao de `5ad4780`, demonstrado por comparação.
+5. ⚠ **A resposta, na rodada 1:** o **contrato e a montagem** permanecem inalterados, e, **com a
+   saída do modelo e as demais entradas variáveis fixadas**, os campos da resposta permanecem
+   iguais. ⚠ **Não se exige "nenhum byte alterado no corpo"**, que não é critério de runtime:
+   há `metadata.timestamp` e conteúdo gerado.
+6. ⚠ **Os arquivos `ParecerAISection.tsx` e `page.tsx` admitem preservação literal**, demonstrada
+   por comparação com `5ad4780`.
+7. Cada diferença da seção 3.4 ou se confirma, ou é relatada como desvio da predição.
+
+---
+
+#### 4. Rodada 2: resposta, tela, aviso e cópia
+
+##### 4.1 O campo da resposta
+
+⚠ **Fonte:** `data.vinculoDaExecucao`, lido diretamente. ⚠ **NÃO derivar de `modo`**, que une
+`undefined` e `null` em `vinculo-execucao.ts:1098`. ⚠ **`normalizeRequest` preserva a
+distinção**, porque `route.ts:600` copia o valor tal como veio.
+
+**Nome e nível:** `estadoDoVinculo`, no **nível principal** da resposta, pelo precedente de
+`mensagemDaExtracao` (`route.ts:1504`).
+
+⚠ **Os sete valores têm TIPO PRÓPRIO**, distinto de `EstadoDoVinculo` (`vinculo-execucao.ts:27`,
+quatro valores). A propriedade `estadoDoVinculo`, com inicial minúscula, **não conflita** com
+aquele tipo. O precedente de tipo próprio declarado na rota é `EstadoDaExtracao`
+(`route.ts:1403`).
+
+**Vocabulário proposto**, sete valores:
+
+| Valor | Quando |
+|---|---|
+| `ausente_no_payload` | a chave não veio; cobre omissão e `undefined`, indistinguíveis |
+| `nulo_explicito` | veio `null` |
+| `vinculado`, `divergente`, `indisponivel`, `invalido` | os quatro reconhecidos |
+| `formato_nao_reconhecido` | classe C |
+
+⚠ **Um único campo de estado**, sem mensagem acompanhante na resposta: o texto exibido ao gestor
+é composto na apresentação, para não duplicar conteúdo de produto em dois lugares.
+**Consolidado.**
+
+**Três definições que completam o contrato.** ⚠ **A terceira foi acrescentada pela conferência
+do executor, em 04/10/2026, horário de Brasília (05/10 UTC).**
+
+1. ⚠ **Escopo.** O campo é **obrigatório nas respostas bem-sucedidas que contêm parecer**. ⚠ **Os
+   sete valores NÃO são exigidos em erros ocorridos antes de ler ou normalizar a requisição**,
+   onde o estado do vínculo não é conhecível.
+2. ⚠ **Campo ausente ou desconhecido na RESPOSTA não é convertido em `ausente_no_payload`.**
+   Ausência do diagnóstico na resposta é coisa distinta de ausência do vínculo na entrada.
+   ⚠ **Nesses casos a apresentação NÃO mostra o aviso e a cópia NÃO recebe o prefixo**, e esse
+   comportamento tem **teste explícito**.
+3. ⚠ **O caminho de erro POSTERIOR à normalização.** `data` é declarada em `route.ts:1417`,
+   **dentro do `try`**, e o `catch` de `:1525-1537` **não a enxerga**. ⚠ **Decidido: o campo não
+   é exigido em nenhuma resposta de erro, e a montagem do `catch` não muda nesta
+   especificação.** A apresentação trata a resposta malsucedida pelo caminho que já existe
+   (`page.tsx:1373-1378`), **sem aviso de vínculo e sem prefixo na cópia**.
+
+##### 4.2 O mapeamento da tela
+
+O campo novo tem de atravessar o mapeamento explícito de `page.tsx:1363-1371`, que hoje
+seleciona sete campos. Sem isso, ele não chega ao componente.
+
+##### 4.3 O aviso
+
+**Texto consolidado.** Bloco `role="status"`, na família dos existentes (`:208`,
+`:220`, `:234`), exibido **somente** para `ausente_no_payload` e `nulo_explicito`.
+
+> Vínculo com a execução do cálculo ausente nesta requisição. A relação entre os respondentes
+> apresentados e os incluídos no cálculo não foi comparada nesta requisição. A ausência do
+> vínculo, por si só, não acrescenta causa de suspensão nem altera a elegibilidade para
+> classificação.
+
+⚠ **A última frase é obrigatória**, e a sua redação é a da regra: **causa de suspensão e
+elegibilidade**. ⚠ **NÃO escrever "não altera a nota, o veredito nem a classificação"**: o aviso
+não modifica esses campos, mas o **novo contexto pode influenciar o texto gerado e, por ele, a
+extração**. A promessa ampla seria falsa.
+
+⚠ **"Não recebido" não serve como título comum:** em `nulo_explicito` o campo **foi recebido**. A
+palavra que cobre as duas situações é **ausente**.
+
+⚠ **Nenhuma condição nova no portão de `:240`**, que fica com as três atuais.
+
+##### 4.4 A cópia, e a assimetria declarada
+
+**Texto consolidado.** `handleCopy` (`:53-56`) passa a compor, **somente** nas duas
+situações da classe A, **prefixando** o texto do parecer:
+
+```
+[Informação do sistema — não integra o texto gerado do parecer] Vínculo com a execução do cálculo ausente nesta requisição. A relação entre os respondentes apresentados e os incluídos no cálculo não foi comparada nesta requisição.
+
+---
+
+```
+
+⚠ **Preservar a linha em branco, o separador e o parecer íntegro depois dele.**
+
+⚠ **Nas demais situações a cópia continua escrevendo `aiReview.review` inteiro e nada mais.**
+⚠ **O retorno antecipado de `:54` é preservado:** sem parecer, não há cópia nem ressalva.
+
+**A limitação, a declarar no registro e a não contradizer em nenhum texto:**
+
+> A cópia passa a levar a ressalva do vínculo. Ela **continua sem transportar** a quarentena de
+> A.27. ⚠ **A cópia não é portadora de todos os avisos**, e o compartilhamento **não** fica
+> integralmente protegido. A.27 está **fora do escopo** desta rodada por delimitação, e não por
+> avaliação de que a quarentena seja menos relevante.
+
+##### 4.5 Critérios de aceite observáveis
+
+1. O corpo da resposta traz `estadoDoVinculo` no nível principal, com um dos sete valores, em
+   todas as classes.
+2. O valor vem de `data.vinculoDaExecucao`, e `ausente_no_payload` e `nulo_explicito` são
+   distinguidos.
+3. ⚠ **O mapeamento é conferido em dois níveis, e nenhum é dispensável:** a **atribuição no
+   código real** de `page.tsx:1363-1371`, que passa a listar o campo, e o **componente real
+   recebendo o campo**, em teste. ⚠ **A réplica do objeto pode ser auxiliar, e NÃO substitui o
+   teste do componente real.** ⚠ **A combinação dos dois NÃO é ensaio ponta a ponta**, e a
+   especificação não a apresenta como tal.
+4. O aviso aparece **apenas** nas duas situações da classe A, e o portão de `:240` segue com três
+   condições.
+5. ⚠ **A cópia é exercitada de fato, e não por renderização.** Renderizar com texto fixado **não
+   demonstra o conteúdo copiado**. ⚠ **Nível exigido: o manipulador REAL
+   de cópia, invocado pelo `onClick` do botão, com `navigator.clipboard.writeText` SIMULADO**,
+   capturando o argumento entregue. É o nível do auxiliar `conteudoCopiado`
+   (`a12-nota-veredicto-fase2:337-358`). ⚠ **O limite é declarado: NÃO é clique de DOM e NÃO é a
+   área de transferência real.** Clique de DOM exigiria `jsdom`, que não está instalado, com
+   `testEnvironment: 'node'`. Conferir cinco coisas:
+
+   | # | O que conferir |
+   |---|---|
+   | 1 | o **prefixo exato** nas duas situações da classe A |
+   | 2 | o **parecer íntegro** preservado depois do prefixo |
+   | 3 | a cópia **idêntica ao parecer** nas demais situações, inclusive com o campo ausente ou desconhecido na resposta |
+   | 4 | o comportamento **sob os estados de A.27** |
+   | 5 | **nenhuma escrita** quando não há parecer, pelo retorno antecipado de `:54` |
+
+6. A renderização é exercitada com **textos fixados** e com os estados de A.27, nomeada como
+   renderização do componente.
+7. O aviso **não aparece** e o prefixo **não é acrescentado** quando o campo vem ausente ou com
+   valor desconhecido na resposta, com teste próprio.
+
+---
+
+#### 5. O que cada predição tem de separar
+
+⚠ **Cada rodada tem predição datada própria, em commit sem byte de código, antes da
+implementação**, com o caso que a contrariaria e a previsão enumerada de testes.
+
+| Separar | Rodada 1 | Rodada 2 |
+|---|---|---|
+| **determinístico, conferível exatamente** | o contexto construído, o bloco, as frases, as linhas de exclusão e as diferenças da seção 3.4 | o campo, o mapeamento, o aviso e a composição da cópia |
+| **não medido** | o efeito do novo contexto sobre o texto que o modelo produz, e o resultado desse texto em A.27 | idem, herdado da rodada 1 |
+
+##### 5.1 O método da previsão, e ele não é prosa
+
+⚠ **`a12-nota-veredicto-fase2:447` compara contra `PREDICAO[id].previsto.sha256`, registrado
+ANTES do código.** A rodada 1 faz o mesmo por **derivação independente**, sem implementar.
+
+**As cinco condições da derivação, todas obrigatórias:**
+
+1. **Identificar o contexto-base e o seu hash.**
+2. **Enumerar as substituições e conferir as quantidades de ocorrências** de cada uma.
+3. **Preservar exatamente** espaços, quebras de linha e separadores.
+4. **Calcular bytes e hash do resultado derivado sem executar código de produção modificado.**
+5. **Registrar os valores no commit documental da predição**, ⚠ **sem alterar testes e sem
+   regravar artefatos nesta etapa.**
+
+⚠ **A derivação cobre cada cenário:** o bloco em **toda** a classe A, as frases **quando houver
+lista** e as linhas de exclusão **quando houver exclusão ativa**.
+
+⚠ **Os novos valores previstos NÃO atualizam automaticamente o objeto `PREDICAO` dos testes
+atuais.** A adaptação desses testes **pertence à implementação futura**, e não a esta etapa.
+
+⚠ **Nenhuma das duas rodadas precisa alegar que o modelo produzirá texto melhor** para demonstrar
+conformidade com a sua especificação. ⚠ **E nenhuma pode afirmar que o resultado de A.27 fica
+preservado:** o mecanismo fica, o resultado não é objeto de previsão.
+
+---
+
+#### 6. Fora do escopo
+
+- **A.27 na cópia**, por delimitação declarada.
+- **A opção 4**, não adotada.
+- **A alcançabilidade**: nenhuma rodada altera a possibilidade de uma entrada sem vínculo chegar
+  à API, e cliente externo, versão antiga publicada e campo perdido em trânsito seguem **não
+  avaliados**.
+- **A distinção entre omissão e `undefined`**, perdida na serialização.
+
+---
+
+#### 7. Os quatro textos de conteúdo, consolidados nesta versão
+
+| # | Texto consolidado |
+|---|---|
+| 1 | **O bloco de ausência** da seção 3.2, com a sua linha de limites própria |
+| 2 | **`estadoDoVinculo`**, nível principal, sete valores, **sem** mensagem acompanhante, mais as **três** definições de escopo da seção 4.1 |
+| 3 | **O aviso** da seção 4.3, na redação corrigida |
+| 4 | **A ressalva na cópia** da seção 4.4, **prefixada**, na redação corrigida |
+
+⚠ **Nenhum texto de produto fica em aberto, e nenhum depende de nova aprovação.** O que vem a
+seguir é o **registro documental** e, depois dele, a **predição datada da rodada 1**.
+
+### Os quatro textos literais, consolidados
+
+Os quatro textos de produto da decisão, **consolidados** (nenhum está sujeito a nova aprovação), reproduzidos aqui **verbatim**, cada um com lugar próprio. São os mesmos da especificação
+embutida (as seções 3.2, 4.1, 4.3 e 4.4 dela, reunidas na seção 7). ⚠ Entram **exatamente como estão**: nada foi reescrito, resumido nem "melhorado".
+
+**(a) O bloco de ausência no contexto.** O marcador é o existente, `MARCADOR_DO_BLOCO_DO_VINCULO` (`vinculo-execucao.ts:603-604`), **redefinido pelo significado**: abertura da seção que
+informa a **situação** do vínculo, inclusive a ausência.
+
+```
+## DADOS DO SISTEMA — VÍNCULO DA AVALIAÇÃO DE QUALIDADE COM A EXECUÇÃO DO CÁLCULO
+- Situação do vínculo: AUSENTE nesta requisição. O campo não chegou, ou chegou nulo.
+- A relação entre o conjunto de respondentes ENVIADO a você e o conjunto INCLUÍDO no cálculo NÃO foi comparada nesta requisição.
+- Nada se afirma aqui sobre quantos respondentes entraram no cálculo.
+⚠ Limites: a ausência deste vínculo NÃO é critério de nota e NÃO suspende a classificação. Ela não autoriza inferir divergência nem coincidência entre os dois conjuntos.
+```
+
+⚠ **A linha de limites é própria**, e **não** reaproveita `LIMITE_DO_VINCULO` (`vinculo-execucao.ts:610-614`), cujo texto fala de registros transportados e do significado de `vinculado`,
+que não se aplicam à ausência. ⚠ **A frase sobre não ser critério de nota e não suspender a classificação é obrigatória**: é a que amarra o bloco à regra de `contratos-de-dados.md:348`.
+
+**(b) O campo da resposta**, na íntegra da seção 4.1 da especificação:
+
+⚠ **Fonte:** `data.vinculoDaExecucao`, lido diretamente. ⚠ **NÃO derivar de `modo`**, que une
+`undefined` e `null` em `vinculo-execucao.ts:1098`. ⚠ **`normalizeRequest` preserva a
+distinção**, porque `route.ts:600` copia o valor tal como veio.
+
+**Nome e nível:** `estadoDoVinculo`, no **nível principal** da resposta, pelo precedente de
+`mensagemDaExtracao` (`route.ts:1504`).
+
+⚠ **Os sete valores têm TIPO PRÓPRIO**, distinto de `EstadoDoVinculo` (`vinculo-execucao.ts:27`,
+quatro valores). A propriedade `estadoDoVinculo`, com inicial minúscula, **não conflita** com
+aquele tipo. O precedente de tipo próprio declarado na rota é `EstadoDaExtracao`
+(`route.ts:1403`).
+
+**Vocabulário proposto**, sete valores:
+
+| Valor | Quando |
+|---|---|
+| `ausente_no_payload` | a chave não veio; cobre omissão e `undefined`, indistinguíveis |
+| `nulo_explicito` | veio `null` |
+| `vinculado`, `divergente`, `indisponivel`, `invalido` | os quatro reconhecidos |
+| `formato_nao_reconhecido` | classe C |
+
+⚠ **Um único campo de estado**, sem mensagem acompanhante na resposta: o texto exibido ao gestor
+é composto na apresentação, para não duplicar conteúdo de produto em dois lugares.
+**Consolidado.**
+
+**Três definições que completam o contrato.** ⚠ **A terceira foi acrescentada pela conferência
+do executor, em 04/10/2026, horário de Brasília (05/10 UTC).**
+
+1. ⚠ **Escopo.** O campo é **obrigatório nas respostas bem-sucedidas que contêm parecer**. ⚠ **Os
+   sete valores NÃO são exigidos em erros ocorridos antes de ler ou normalizar a requisição**,
+   onde o estado do vínculo não é conhecível.
+2. ⚠ **Campo ausente ou desconhecido na RESPOSTA não é convertido em `ausente_no_payload`.**
+   Ausência do diagnóstico na resposta é coisa distinta de ausência do vínculo na entrada.
+   ⚠ **Nesses casos a apresentação NÃO mostra o aviso e a cópia NÃO recebe o prefixo**, e esse
+   comportamento tem **teste explícito**.
+3. ⚠ **O caminho de erro POSTERIOR à normalização.** `data` é declarada em `route.ts:1417`,
+   **dentro do `try`**, e o `catch` de `:1525-1537` **não a enxerga**. ⚠ **Decidido: o campo não
+   é exigido em nenhuma resposta de erro, e a montagem do `catch` não muda nesta
+   especificação.** A apresentação trata a resposta malsucedida pelo caminho que já existe
+   (`page.tsx:1373-1378`), **sem aviso de vínculo e sem prefixo na cópia**.
+
+**(c) O aviso ao gestor**, bloco `role="status"` na família dos existentes (`ParecerAISection.tsx:208`, `:220` e `:234`), exibido **somente** para `ausente_no_payload` e `nulo_explicito`:
+
+```
+Vínculo com a execução do cálculo ausente nesta requisição. A relação entre os respondentes apresentados e os incluídos no cálculo não foi comparada nesta requisição. A ausência do vínculo, por si só, não acrescenta causa de suspensão nem altera a elegibilidade para classificação.
+```
+
+⚠ **A última frase é obrigatória**, e a sua redação é a da regra: **causa de suspensão e elegibilidade**. Na seção 4.3 da especificação o mesmo texto está quebrado em linhas de uma
+citação; aqui está em linha única, com o mesmo conteúdo.
+
+**(d) A ressalva na cópia**, **prefixada**, só nas mesmas duas situações da classe A (`handleCopy`, `ParecerAISection.tsx:53-56`):
+
+```
+[Informação do sistema — não integra o texto gerado do parecer] Vínculo com a execução do cálculo ausente nesta requisição. A relação entre os respondentes apresentados e os incluídos no cálculo não foi comparada nesta requisição.
+
+---
+
+```
+
+⚠ **Preservar a linha em branco, o separador e o parecer íntegro depois dele.** Nas demais situações a cópia continua escrevendo `aiReview.review` inteiro e nada mais, e o retorno
+antecipado de `ParecerAISection.tsx:54` é preservado: sem parecer, não há cópia nem ressalva.
+
+**Conferência dos quatro textos**, por script, nesta rodada. (a), (c) e (d) são **idênticos** entre as duas partes do pedido (linha a linha em (a) e (d); em (c), depois de normalizar a
+quebra de linha) e iguais às ocorrências da especificação embutida; a primeira linha de (a) é **igual, caractere a caractere**, ao `MARCADOR_DO_BLOCO_DO_VINCULO` lido do fonte
+(`vinculo-execucao.ts:603-604`). (b) vem da seção 4.1 da PARTE 2, **que governa o conteúdo**; a PARTE 1 do pedido o resume em redação mais curta, e a redação registrada é a da PARTE 2.
+`sha256` (bytes UTF-8; linhas unidas por LF, sem LF final): (a) `267226e55d0e4d031b324c9a8e2961df9be74b50fa6e217cb70e15f39d99872f`; (b)
+`14d8171c8907366bc6d94be99bba9bd74863daaf19ae934bd0cf24fcaab9d72a`; (c) `8cc0007234566e2a911f0a61b4617df02f77e911cb9a695f4cb7199eadceeb99`; (d)
+`b59c9f9f27830853d70b297a2246e53e3f673ce9ec5d6587bce8d98d2237cd25` (as linhas do bloco de código, inclusive as duas em branco).
+
+### A limitação da cópia quanto a A.27
+
+Na redação da seção 4.4 da especificação, a registrar **literalmente**, e a **não contradizer** em nenhum texto:
+
+> A cópia passa a levar a ressalva do vínculo. Ela **continua sem transportar** a quarentena de
+> A.27. ⚠ **A cópia não é portadora de todos os avisos**, e o compartilhamento **não** fica
+> integralmente protegido. A.27 está **fora do escopo** desta rodada por delimitação, e não por
+> avaliação de que a quarentena seja menos relevante.
+
+**Divergência entre as duas partes do pedido, relatada e resolvida pela regra do próprio pedido** (a PARTE 2 governa o conteúdo): a PARTE 1 reproduz este texto sem as palavras "desta
+rodada" e com marcas de ênfase diferentes (sem o "⚠" que abre a frase sobre os avisos, e com o negrito em outras palavras); **a redação registrada é a da PARTE 2**, acima.
+
+A.27 na cópia permanece **fora do escopo** das duas rodadas, por delimitação declarada (seção 6 da especificação). ⚠ A cópia que a decisão prevê **não é a cópia de hoje**, e ainda assim
+**não é portadora de todos os avisos**: a ressalva do vínculo entra, e a quarentena de A.27 **não**. Nenhum texto deste registro, de contrato ou de produto pode dizer, nem sugerir, que o
+compartilhamento do parecer fica protegido.
+
+### O que a decisão NÃO faz, e as âncoras
+
+| A decisão não... | Âncora | O que a leitura desta rodada confirma na base |
+|---|---|---|
+| acrescenta causa de suspensão, nem altera a elegibilidade | `contratos-de-dados.md:348` (a regra, literal), delimitada em `:344-346` | `:344-346` dizem que o estágio **representa** o vínculo e **não decide** o que a divergência faz com a classificação, e que nenhuma causa nova entra em `elegivelParaClassificacao`; `:348` traz a regra |
+| acrescenta condição ao portão do destaque | `ParecerAISection.tsx:240` | o portão tem **três** condições: classificação não suspensa, `presentation?.estado === 'aprovado'` e `nota` ou `veredicto` presentes |
+| bloqueia a geração em nenhuma classe | `contratos-de-dados.md:363-368`, coluna **Parecer** | a tabela cobre os **quatro estados reconhecidos** (classe B), todos com **"não bloqueia"**; **as classes A e C não estão enumeradas nela**, e a decisão as trata do mesmo modo |
+| altera o contexto das classes B e C | seção 3.3 da especificação | (nenhuma âncora de código: é o escopo da rodada 1) |
+
+### A exigência de predição prévia
+
+Duas fontes. (i) O `CLAUDE.md`, seção 2: "Toda correção que altere o que o modelo do Parecer IA recebe exige uma predição escrita antes, em `docs/imprecisoes-parecer-ia.md`, com o caso
+negativo nomeado." (ii) A **segunda frase** da regra de `contratos-de-dados.md:348`: "Alterações decorrentes do novo conjunto avaliado continuam sujeitas às regras existentes da etapa 1 e
+devem ter seus efeitos previstos e testados."
+
+**Aplicação** (derivada, por leitura). A **rodada 1 muda o que o modelo recebe** (o contexto das entradas da classe A), e a exigência vale para ela diretamente. A especificação (seção 5) a
+estende a **cada rodada**: a rodada 2 (resposta, tela, aviso e cópia) não altera a entrada do modelo, e a exigência dela vem da própria especificação, e não do gatilho do `CLAUDE.md`. A
+predição da rodada 1 é o segundo commit desta rodada; a da rodada 2 é posterior, e este registro não a antecipa.
+
+⚠ **Para a opção 4, não adotada, essa exigência específica NÃO estava demonstrada.** O enquadramento recebido (v4, seção 0, item 4, e seção 4) registra como **não demonstrada** a "colisão
+direta" da opção 4 (recusar a geração sem o vínculo) com a regra de `:348`: a rota separa classificar (`route.ts:1430`), gerar (`:1434`), validar por A.27 (`:1441`) e executar ou impedir a
+extração por suspensão (`:1456`), e recusar a geração e alterar a classificação são operações distintas (**lido** nesta rodada: as quatro linhas existem nessa ordem); e o mesmo documento
+dá à opção 4 o contexto "nenhum: não há geração". Este registro **não demonstra** a exigência para a opção 4 e **não a presume**; como a opção não foi adotada, a demonstração não foi
+feita.
+
+### A separação de procedência
+
+Cada item pertence a **uma** das três categorias, e a tabela diz **quem** e **quando**. As horas em UTC vêm marcadas; 05/10/2026 02:09 UTC é 04/10/2026 23:09 em Brasília.
+
+| Categoria | Item | Quem, quando e com quê |
+|---|---|---|
+| **resultado executado** | as três refs remotas no início desta rodada: a branch de sessão em `5ad4780`, `integra/a30-registros` em `426878f` e `main` em `33c1fdf` | executor, `git ls-remote`, 05/10/2026 02:09 UTC |
+| **resultado executado** | o registro na base: 16889 linhas, 1261470 bytes, terminação LF, sem CR | executor, `wc` e `sha256sum`, 05/10/2026 02:09 UTC |
+| **resultado executado** | os três fatos (igualdade exata, predicado sem protótipo, serialização), com as 22 entradas de `classes.cjs` | executor, 04/10/2026 15:18 UTC, e reexecução em 05/10/2026 02:20 UTC, saídas idênticas |
+| **resultado executado** | as cinco frases que `frasesDaListaComVinculo` devolve para a leitura `ausente` (n=4) são **idênticas**, campo a campo, às devolvidas para `null`, para os quatro estados reconhecidos sem declaração de cobertura e para duas entradas da classe C (uma `string` e `{}`) | executor, `frases-ausente.cjs`, 05/10/2026 01:14 UTC (entrada `31d60391-c0cc-4dd1-b9dd-094809b3f90c`) e reexecução em 05/10/2026 02:20 UTC, saída idêntica |
+| **resultado executado** | a primeira linha de (a) é igual ao `MARCADOR_DO_BLOCO_DO_VINCULO` do fonte, e (a), (c) e (d) são idênticos nas duas partes do pedido | executor, comparação por script de texto, nesta rodada |
+| **resultado executado** | `npx tsc --noEmit`, `npm test`, os dois arquivos de teste que leem o registro, as guardas e os manifestos desta alteração | executor, nesta rodada, **antes de publicar**; os números estão na seção "As guardas desta alteração" |
+| **efeito inferido por leitura** | todos os **impactos previstos sobre os testes** (os 14 do quadro da seção 3.4 da especificação): são **previsões, e não resultados**, inclusive os rotulados "conferido"; os rótulos de cada linha ("conferido", "leitura", "conferido pelo analista", "leitura do executor", "leitura e medição do executor") estão no texto embutido e **não são reclassificados aqui** | leitura do analista e do executor; **nenhum teste foi executado contra código alterado**, porque nenhum código foi alterado |
+| **efeito inferido por leitura** | a mudança do contexto da classe A (bloco, cinco frases, linhas de exclusão) e a previsão de que as três entradas da classe A seguirão com o mesmo contexto depois da mudança | leitura de `route.ts` e de `vinculo-execucao.ts`; **hoje**, `undefined` e `null` dão a mesma leitura (executado, acima); o comportamento **futuro** é previsão, e a predição datada do commit seguinte a enumera |
+| **efeito inferido por leitura** | a rodada 2 já está travada por `a12-nota-veredicto-fase2:765-783`, que confere o `sha256` pré-registrado de **nove** trechos, entre eles `handleCopy`, contra `docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json` | leitura do executor, nesta rodada: o teste e o arquivo de trechos |
+| **efeito inferido por leitura** | os localizadores de `route.ts`, `vinculo-execucao.ts`, `ParecerAISection.tsx`, `page.tsx` e `contratos-de-dados.md` citados neste bloco | leitura do executor, nesta rodada, contra a base |
+| **verificação anterior não refeita** | as medições de `c8e1da0` (02/10/2026): o contexto por captura interrompida (fase A), o corpo da resposta com texto fixado (fase B) e a alcançabilidade lida (fase D) | rodada de 02/10/2026; esta rodada confere o pacote `docs/dados/a12-sem-vinculo/` por **manifesto de hashes** (60 caminhos), o que mostra que o pacote **não mudou**, e **não reproduz** a medição |
+| **verificação anterior não refeita** | os **quatro ensaios de renderização** do componente (fase C, `renderToStaticMarkup`, texto fixado) | rodada de 02/10/2026; não refeitos |
+| **verificação anterior não refeita** | o que o enquadramento recebido (v4) diz ter conferido ("conferido por mim", "conferida por mim", "conferido e medido por mim") e o que atribui à "leitura do autor", e as linhas "conferido pelo analista" da tabela da seção 3.4 | recebido; não refeito, salvo onde o executor o releu (itens acima) |
+| **verificação anterior não refeita** | as linhas de **testes** da tabela da seção 3.4 (`fiacao:251` e as demais) | lidas pelo executor na conferência do v4 (04/10/2026, UTC) e na da especificação (05/10/2026 UTC, até 01:23); **não relidas neste commit**: a predição do commit seguinte levanta o inventário por busca própria |
+
+⚠ **A afirmação de ausência de inferência é escopada.** Nas rodadas deste trabalho (o diagnóstico de 02/10/2026, a correção de 03/10, o acréscimo de 04/10 e esta) **nenhuma chamada de
+inferência foi feita**: o bloco de 02/10/2026 o declara para as suas fases e para "o que um modelo geraria"; os de 03/10 e de 04/10 **não** o declaram, e a afirmação para essas duas
+rodadas e para esta é do executor, que as conduziu. Logo, **nenhuma comparação** foi feita entre o texto que o modelo geraria com o contexto ausente e com o de controle. ⚠ **Isto NÃO vale
+para o registro inteiro**, que conserva o texto bruto de execuções reais, como a do anexo da execução 7.
+
+### As guardas desta alteração
+
+⚠ **"Só documental" descreve os arquivos alterados, e não demonstra ausência de efeito nos testes.** A rodada altera **um** arquivo neste commit, este registro. A busca de quem o lê foi
+**própria**, sobre a árvore de `5ad4780`, com padrão e escopo declarados; o inventário das rodadas anteriores **não** foi herdado. As buscas (`git grep -n`, sobre a árvore de `5ad4780`;
+saída 0 é com resultado, e saída 1 é **sem resultado**, que não é falha):
+
+- `-F -e 'imprecisoes-parecer-ia'`, tudo o que é rastreado, fora o próprio registro: **131** linhas, em documentos e em saídas arquivadas de busca. Restrita aos tipos executáveis (`.ts`,
+  `.tsx`, `.js`, `.cjs`, `.mjs`), a mesma busca acha **6** linhas: `a12-estatisticas-dimensao.test.ts:16` (um comentário), `a12-nota-veredicto-fase2.test.ts:793` e
+  `vinculo-execucao-fiacao.test.ts:49` (**leem** o registro), `scripts/a33-snapshot-v2.cjs:757` (um rótulo) e `scripts/verify-citations.mjs:8` e `:264` (um comentário e uma mensagem);
+- `-F -e 'imprecisoes'` e `-E 'parecer-ia|imprecis'`, nos mesmos tipos (a segunda fora de `docs/`): as mesmas **6** linhas, de modo que nenhum nome do registro é montado por partes;
+- `-E 'readdirSync|readdir\(|globSync|glob\(|ls-files|walkSync|opendirSync|fast-glob'`, nos mesmos tipos e fora de `docs/`: **9** linhas. **Só** `vinculo-execucao-fiacao.test.ts:1464`
+  percorre `docs` (a varredura de `:1459-1478`, sobre `app`, `lib`, `docs`, `components` e `scripts`); `engine-census.test.ts`, `vinculo-execucao-calculo.test.ts:542`,
+  `vinculo-execucao-fiacao.test.ts:1550`, `a33-identidade-revisada-medicao.test.ts:12` e `verify-citations.mjs:52` **não** o alcançam;
+- `-E "['\"]docs/"` e `-E "['\"]docs['\"]"`, nos mesmos tipos e fora de `docs/`: **81** e **8** linhas, em arquivos que leem outros documentos e artefatos. **Só** três linhas nomeiam
+  `docs/imprecisoes-parecer-ia.md` (`a12-nota-veredicto-fase2.test.ts:793`, `vinculo-execucao-fiacao.test.ts:49` e `scripts/a33-snapshot-v2.cjs:757`);
+- `git diff --stat 5f04725 5ad4780 -- . ':!docs'`: **sem saída**, isto é, nada fora de `docs/` mudou desde o inventário de 03/10, e os testes são os mesmos.
+
+As contagens **coincidem** com as da busca de 04/10/2026 sobre `5f04725`. Não foram herdadas: esta rodada as obteve por execução nova, sobre `5ad4780`.
+
+| Arquivo alterado | Testes que o leem, em `5ad4780` (lido) | O que examinam |
+|---|---|---|
+| `docs/imprecisoes-parecer-ia.md` | `vinculo-execucao-fiacao.test.ts` e `a12-nota-veredicto-fase2.test.ts` | o arquivo inteiro normalizado (`fiacao:1453-1457`, `:1480-1486`, `:1705-1712`, `:1721`); duas fatias (`:1725-1747` e `:1774-1796`); um prefixo (`:1798`); a varredura (`:1459-1478`); e, no texto cru, a regex de promessa (`a12-nota-veredicto-fase2.test.ts:786-800`) |
+
+Cada guarda foi aplicada, **antes de publicar**, **ao mesmo trecho que o teste examina**, com as **mesmas expressões do teste** (em JavaScript: `indexOf`, `slice`,
+`replace(/\s+/g, ' ').trim()`, `toLowerCase` e a regex copiada), por um script de trabalho **fora do repositório**, que não substitui o aplicador de 02/10 (este segue amarrado àquela
+rodada e **não foi modificado**). O script confere ainda que cada guarda está onde se diz que está: as linhas citadas dos testes foram conferidas **por conteúdo**, em `5ad4780`, e os dois
+arquivos de teste são, byte a byte, os da base. **14 de 14** aplicações passam: as nove guardas; **três** verificações do texto novo (**E1**, que aplica G2, G5, G9 e a expressão protegida
+de 02/10 ao trecho inserido, isoladamente; **E2**, que confere que nenhum dos quatro marcadores literais das fatias foi acrescentado; e **E3**, que lê as duas formulações vedadas só dentro
+do trecho inserido); e duas condições desta alteração (a inserção pura no registro e um só arquivo alterado). O trecho inserido cita `null` (28 ocorrências), `undefined` (22) e fragmentos
+de expressão regular (2 ocorrências de `\s`), e **nenhuma** guarda de redação é acionada por isso: **medido**, pela aplicação das guardas ao texto, e não suposto.
+
+⚠ **A medição dos trechos, com a semântica do teste.** A fatia de `:1725-1747` e a de `:1774-1796` (da linha 12332 à linha 13339) são **idênticas às da base**, e o prefixo de `:1798`
+também. O acréscimo está **fora** das duas fatias e do prefixo, e **dentro** das guardas de arquivo inteiro e da regex de promessa, que passam sobre ele; a varredura de `:1459-1478`
+alcança o registro (nenhum achado). ⚠ A fatia, o prefixo e os marcadores **não foram tocados**, e nada nesta rodada autoriza alterar o teste.
+
+⚠ **As duas formulações vedadas (E3).** A busca foi **restrita ao trecho inserido**: o arquivo inteiro não foi examinado por esse critério, e nenhuma linha histórica foi tocada. No trecho,
+a primeira formulação vedada (a que promete que o aviso nada altera na nota, no veredito e na classificação) só ocorre **citada como redação rejeitada**, precedida de "NÃO escrever" e
+entre aspas, na seção 4.3 da especificação embutida; e a segunda (a palavra "Não recebido" como rótulo das duas situações) só ocorre **entre aspas**, como rótulo rejeitado. Nenhuma das
+duas aparece como afirmação do comportamento esperado.
+
+⚠ **O controle negativo, para que "14 de 14" não signifique só que não havia o que reprovar.** O mesmo script foi aplicado a uma **cópia** do registro gerado, com um **texto vedado
+acrescentado dentro do bloco novo**: a frase vedada por G2 (com espaçamento irregular, para exercer a normalização), a vedada por G5, uma passagem que a regex de G9 pega, a primeira
+formulação vedada como afirmação de comportamento (sem "NÃO escrever") e um dos marcadores das fatias; **antes de aplicar, o script conferiu que o texto vedado estava dentro do trecho
+inserido**. **Medido:** o script saiu com **código 1** e **7 de 13** aplicações passaram; **falharam G2, G5, G9, E1, E2 e E3**, as que examinam o texto novo. As demais passaram, o que é o
+esperado de um texto vedado que não remove nenhuma passagem exigida, não altera as fatias nem o prefixo e mantém a inserção pura.
+
+**Os testes reais, executados sobre o texto desta alteração, antes de publicar** (Linux x86_64, Node v22.22.2, npm 10.9.7). Os dois arquivos de teste que leem o registro, executados à
+parte, passam (184 testes). `npx tsc --noEmit` sai 0, e `npm test` sai 0 com **36 suítes e 940 testes**, os mesmos que o commit de 04/10/2026 registra para `5ad4780` (nenhum arquivo de
+teste foi tocado).
+
+**O pacote, intacto.** O manifesto completo dos **60** caminhos de `docs/dados/a12-sem-vinculo/`, com o `sha256` de cada um, é o de `5ad4780` antes e depois, **sem exceção** (o
+`LEIA-ME.md` não é exceção nesta rodada): o conjunto de caminhos é o mesmo (nenhum arquivo acrescentado ou removido), e os 60 `sha256` são iguais aos dos blobs. O `sha256` do manifesto (as
+linhas `<sha256>␣␣<caminho>` dos 60, em ordem de caminho com `LC_ALL=C`, uma por linha, com LF final) é `69d4cf76723b6ff1942f38252f004bf57880c20cd6601485afd87cf0a578b9d1`. **Os
+preservados**, conferidos por `sha256sum` antes e depois, **iguais**: `docs/dados/a12-identidade/medicao.json` e `medicao-preservada-03c7d8b.json`
+(`85368e20413fc03e735c85c403041c4a09e34ddd44c3f80e021bd424a7b9fe25`, 17326 bytes) e `docs/dados/a33-cadeia-rule/medicao-preservada-0d02fab.json`
+(`a5a8d99632f1fc4251876eb709a674825db0722dd78bed96d9b4f4596351569d`, 223411 bytes).
+
+### O que não foi integrado
+
+Nada foi integrado. No início desta rodada (**medido** por `git ls-remote`), `integra/a30-registros` estava em `426878f028ea78c49ed9e3d476fda052fa04a7ac` e `main` (remota) em
+`33c1fdf6500242832994a17aa15b0a686704c029`; a cabeça da branch de sessão, a base desta rodada, estava em `5ad478086d0aa4dadd42b6116cb9b96fecb7afe8`. Esta rodada não toca as duas primeiras.
+
+### O encerramento: a opção 3 está escolhida, e a implementação aguarda
+
+⚠ **A opção 3 está escolhida.** O que este registro **não** libera é código: **a implementação aguarda a predição prévia E a auditoria dela, com liberação explícita do autor.** Nenhuma das
+duas rodadas de implementação foi iniciada.
+
+⚠ **A existência do commit 2 desta rodada, o da predição datada da rodada 1, não libera código por si.** **Predição escrita, predição auditada e liberação explícita do autor são três
+condições, e o commit 2 cumpre apenas a primeira.**
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
