@@ -23,6 +23,7 @@ import {
 } from '@/lib/ai-reviewer/avaliacao-qualidade';
 import {
   descreverVinculoParaContexto,
+  estadoDoVinculoNaResposta,
   frasesDaListaComVinculo,
   identificarParaApresentacao,
   lerVinculoParaTexto,
@@ -1447,6 +1448,9 @@ export async function POST(request: NextRequest) {
         : 'nenhum_padrao_reconhecido';
     // ⚠ Aviso DIAGNÓSTICO: o valor depende SÓ do estado da extração, e independe do estado de A.27.
     const mensagemDaExtracao = estadoDaExtracao === 'nenhum_padrao_reconhecido' ? MENSAGEM_DA_EXTRACAO_SEM_PADRAO : null;
+    // ⚠ Aviso DIAGNÓSTICO do que a requisição trouxe em `vinculoDaExecucao`, lido do VALOR (e não de `modo`, que une `undefined` e
+    //   `null`). Não é critério de nota, não suspende a classificação e NÃO chega à decisão: a elegibilidade e a nota não o recebem.
+    const estadoDoVinculo = estadoDoVinculoNaResposta(data.vinculoDaExecucao);
     if (classification.suspensa) {
       console.log(`${LOG_PREFIX} Nota suspensa: ${classification.motivo}`);
     }
@@ -1486,6 +1490,9 @@ export async function POST(request: NextRequest) {
       //   `metadata.estadoDaExtracao` é `nenhum_padrao_reconhecido`, e `null` nos outros dois estados. O valor
       //   independe do estado de A.27.
       mensagemDaExtracao,
+      // ⚠ Campo de NÍVEL PRINCIPAL, só nas respostas de sucesso com parecer: o `catch` não o traz, porque `data` é declarada dentro do `try`
+      //   e a resposta de erro não o exige. Sem mensagem acompanhante: o texto ao gestor é composto na apresentação.
+      estadoDoVinculo,
       review,
       // `success` informa que a geração terminou. A autorização para apresentar
       // o texto vem exclusivamente deste contrato versionado (A.27, eixo 2).

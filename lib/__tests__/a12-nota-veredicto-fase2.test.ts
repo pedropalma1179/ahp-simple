@@ -26,10 +26,13 @@ export {};
  * REGISTRADOS na predição de `838212c` (`docs/imprecisoes-parecer-ia.md`, tabela F2 da seção 5b e tabela da seção 4), em valor literal neste arquivo,
  * e NÃO ao que o código imprime; o `previsto` da Fase 2 (`predicao-contextos.json`) segue conferido como o degrau anterior da cadeia.
  *
- * ⚠ **A FRONTEIRA.** R1 governa os CAMPOS e o DESTAQUE. Não impede, por si, que o CORPO e a CÓPIA contenham uma decisão: eles
- * seguem exibindo e copiando o texto integral, e este arquivo CARACTERIZA isso (e não o aprova): se o corpo ou a cópia mudarem,
- * os ensaios de fronteira reprovam e forçam uma decisão consciente. Nenhum texto desta rodada promete que o veredito deixe de ser
- * apresentado enquanto só o destaque está bloqueado.
+ * ⚠ **A FRONTEIRA.** R1 governa os CAMPOS e o DESTAQUE. Não impede, por si, que o CORPO e a CÓPIA contenham uma decisão: o corpo
+ * segue exibindo o texto integral, e a cópia segue copiando o texto integral FORA da classe A do vínculo. ⚠ Rodada 2 (06/10/2026): nas
+ * duas situações da classe A (`ausente_no_payload` e `nulo_explicito`) a cópia ganha um PREFIXO, e o parecer vai inteiro depois dele
+ * (`a12-vinculo-rodada2.test.ts`). As cópias DESTE arquivo são medidas sobre a réplica `aiReviewDaPagina`, que NÃO leva o campo
+ * `estadoDoVinculo`: é o caso do campo ausente da resposta, sem prefixo. Este arquivo CARACTERIZA a fronteira (e não a aprova): se o
+ * corpo ou a cópia mudarem, os ensaios de fronteira reprovam e forçam uma decisão consciente. Nenhum texto desta rodada promete que o
+ * veredito deixe de ser apresentado enquanto só o destaque está bloqueado.
  */
 
 const fs = require('node:fs');
@@ -821,7 +824,7 @@ describe('D. A apresentação: a mensagem é aviso DIAGNÓSTICO, coexiste com A.
   });
 });
 
-describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo e a cópia seguem com o texto integral', () => {
+describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo segue com o texto integral, e a cópia também FORA da classe A do vínculo (a réplica da tela não leva o campo)', () => {
   test.each(SUSPENSAS.map((c) => [c.id] as [string]))('%s: o cartão traz o prefixo da tela mais a descrição, e o corpo traz o texto integral, com a decisão que o extrator reconheceria (par medido, e não escondido)', async (id) => {
     const c = doId(id);
     const r = await executarCondicao(c, T1);
@@ -833,7 +836,7 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
     expect(s.cartao.motivo).toBe(r.corpo.notaSuspensa.motivo);
     expect(s.destaque).toBe(false);
     expect(s.mensagem.blocos).toBe(0); // a mensagem exige classificação NÃO suspensa: nunca junto do cartão
-    // o CORPO e a CÓPIA: o texto integral, INCLUSIVE a decisão (o que R1 não alcança, por decisão do autor)
+    // o CORPO e a CÓPIA (esta, sobre a réplica da tela, que NÃO leva `estadoDoVinculo`: o caso do campo ausente, sem prefixo): o texto integral, INCLUSIVE a decisão (o que R1 não alcança, por decisão do autor)
     expect(s.corpo.exibido).toBe(true);
     expect(s.corpo.igualAoTextoRecebido).toBe(true);
     expect(s.corpo.textoExibido).toContain('REVISÕES MAIORES');
@@ -848,24 +851,166 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
     expect(SUSPENSAS.filter((c) => c.construida).map((c) => [c.id, c.causa])).toEqual([['coerencia-nao-avaliada-CONSTRUIDA', 'coerencia_nao_avaliada']]);
   });
 
-  test('os trechos que o pedido manda NÃO mudar têm o sha256 PRÉ-REGISTRADO no commit da predição', () => {
-    const { trechos } = lerJson('docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json');
-    expect(trechos.length).toBe(9);
+  // ⚠ A trava das NOVE âncoras, e a TRANSIÇÃO de `handleCopy` (rodada 2, 06/10/2026). O artefato `trechos-que-nao-mudam.json` NÃO é regravado: a contagem de NOVE registros
+  // fica, o hash histórico de `handleCopy` (`310afda61d05427d…`, o do manipulador de ANTES da decisão do prefixo) fica no artefato, e a proteção NÃO se retira. Os OITO outros
+  // seguem imutáveis, por LISTA NOMINAL, e a liberação de `handleCopy` é por IDENTIFICADOR, nunca por "o hash falhou": um décimo registro, ou um segundo identificador
+  // liberado, reprova. A unicidade da âncora de início e o terminador depois dela seguem exigidos para os NOVE. O confinamento da edição de `handleCopy` é provado por reversão,
+  // com controle negativo (os ensaios abaixo).
+  const ARTEFATO_DA_TRAVA = 'docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json';
+  const TRECHOS_LIBERADOS: readonly string[] = ['handleCopy'];
+  const TRECHOS_IMUTAVEIS: readonly string[] = [
+    'calculateGrade',
+    'extractGradeFromReview (com o cabeçalho de comentário)',
+    'ranking das alternativas no contexto (finalScoresSection)',
+    'interface Elegibilidade e tipo CausaDaSuspensao',
+    'elegivelParaClassificacao',
+    'aviso de quarentena de A.27',
+    'portão do destaque',
+    'corpo do parecer (de "Review Text" até antes de "Dica de uso")',
+  ];
+
+  /** A extração do trecho, EXATAMENTE como o artefato manda: `texto.slice(i, j + incluirNoFimNCaracteres)`, com `i` na âncora de início e `j` na primeira ocorrência do terminador DEPOIS dela (NÃO se soma o comprimento inteiro do terminador). */
+  function extrairTrecho(texto: string, t: any) {
+    const i = texto.indexOf(t.ancoraDeInicio);
+    const apos = t.fimDepoisDe ? texto.indexOf(t.fimDepoisDe, i) : i;
+    const j = texto.indexOf(t.ancoraDeFim, apos);
+    return { ocorrenciasDaAncora: ocorrencias(texto, t.ancoraDeInicio), apos, j, trecho: texto.slice(i, j + t.incluirNoFimNCaracteres) };
+  }
+
+  /** Toda violação da trava: a contagem e os identificadores do artefato, a unicidade e o terminador para os NOVE, e o `sha256` para os imutáveis (a liberação é por IDENTIFICADOR, antes de olhar o hash). */
+  function violacoesDaTrava(registro: any, textosPorArquivo: Record<string, string>, liberados: readonly string[] = TRECHOS_LIBERADOS): string[] {
+    const v: string[] = [];
+    const trechos: any[] = registro.trechos;
+    if (trechos.length !== 9) v.push(`o artefato tem ${trechos.length} registros, e a trava exige 9`);
+    const esperados = [...TRECHOS_LIBERADOS, ...TRECHOS_IMUTAVEIS].sort();
+    if (JSON.stringify(trechos.map((t) => t.id).sort()) !== JSON.stringify(esperados)) v.push(`os identificadores do artefato não são os nove da lista nominal: ${JSON.stringify(trechos.map((t) => t.id))}`);
+    if (liberados.length !== 1 || liberados[0] !== 'handleCopy') v.push(`liberados: ${JSON.stringify(liberados)}, e só handleCopy pode ser liberado`);
     for (const t of trechos) {
-      const texto = ler(t.arquivo);
-      expect([t.id, ocorrencias(texto, t.ancoraDeInicio)]).toEqual([t.id, 1]); // a âncora de início ocorre UMA vez
-      const i = texto.indexOf(t.ancoraDeInicio);
-      const apos = t.fimDepoisDe ? texto.indexOf(t.fimDepoisDe, i) : i;
-      expect([t.id, apos >= 0]).toEqual([t.id, true]);
-      const j = texto.indexOf(t.ancoraDeFim, apos);
-      expect([t.id, j >= 0]).toEqual([t.id, true]);
-      const trecho = texto.slice(i, j + t.incluirNoFimNCaracteres);
-      expect([t.id, sha256(trecho)]).toEqual([t.id, t.sha256]);
+      const x = extrairTrecho(textosPorArquivo[t.arquivo], t);
+      if (x.ocorrenciasDaAncora !== 1) v.push(`${t.id}: a âncora de início ocorre ${x.ocorrenciasDaAncora} vez(es)`); // a âncora de início ocorre UMA vez, nos nove
+      if (x.apos < 0) v.push(`${t.id}: o fim-depois-de não existe depois da âncora`);
+      if (x.j < 0) v.push(`${t.id}: o terminador não existe depois da âncora`); // e o terminador continua existindo depois dela, nos nove
+      if (liberados.includes(t.id)) continue; // liberado por IDENTIFICADOR, e NÃO porque o hash falhou
+      if (sha256(x.trecho) !== t.sha256) v.push(`${t.id}: o sha256 do trecho difere do pré-registrado`);
     }
-    // CONTRAEXEMPLO: uma alteração de um byte num desses trechos é pega pelo mesmo hash
-    const um = ler('components/ParecerAISection.tsx');
-    const copia = um.slice(um.indexOf('  const handleCopy = async () => {'), um.indexOf('\n  };\n', um.indexOf('  const handleCopy = async () => {')) + 4);
-    expect(sha256(copia.replace('writeText', 'writeTexto'))).not.toBe(trechos.find((t: any) => t.id === 'handleCopy').sha256);
+    return v;
+  }
+  const textosDaTrava = (registro: any): Record<string, string> => Object.fromEntries([...new Set<string>(registro.trechos.map((t: any) => t.arquivo))].map((a) => [a, ler(a)]));
+
+  test('os trechos que o pedido manda NÃO mudar (os OITO imutáveis, por lista nominal) têm o sha256 PRÉ-REGISTRADO no commit da predição, e handleCopy, liberado por identificador, mantém a âncora única e o terminador', () => {
+    const registro = lerJson(ARTEFATO_DA_TRAVA);
+    const { trechos } = registro;
+    expect(trechos.length).toBe(9);
+    expect(TRECHOS_IMUTAVEIS.length).toBe(8);
+    expect([...TRECHOS_LIBERADOS]).toEqual(['handleCopy']);
+    expect(violacoesDaTrava(registro, textosDaTrava(registro))).toEqual([]);
+    // os oito imutáveis, UM A UM, com o mesmo `sha256` do artefato (a leitura direta, sem a função acima)
+    for (const id of TRECHOS_IMUTAVEIS) {
+      const t = trechos.find((x: any) => x.id === id);
+      expect([id, t !== undefined]).toEqual([id, true]);
+      expect([id, sha256(extrairTrecho(ler(t.arquivo), t).trecho)]).toEqual([id, t.sha256]);
+    }
+    // CONTRAEXEMPLO, REAPONTADO a um dos OITO (o de `handleCopy` deixou de discriminar), com o PAR que o torna controle: o trecho SEM alteração tem o sha256 pré-registrado, e com a alteração de um byte difere
+    const alvo = trechos.find((t: any) => t.id === 'aviso de quarentena de A.27');
+    const aviso = extrairTrecho(ler(alvo.arquivo), alvo).trecho;
+    expect(sha256(aviso)).toBe(alvo.sha256); // o controle: sem a alteração, igual
+    expect(aviso).toContain('role="alert"');
+    expect(sha256(aviso.replace('role="alert"', 'role="alerts"'))).not.toBe(alvo.sha256); // com a alteração de UM byte, diferente
+  });
+
+  test('a TRAVA tem contraexemplos: um décimo registro, um segundo liberado, um imutável alterado, a âncora duplicada, o terminador ausente e a liberação "porque o hash falhou" são PEGOS', () => {
+    const registro = lerJson(ARTEFATO_DA_TRAVA);
+    const textos = textosDaTrava(registro);
+    expect(violacoesDaTrava(registro, textos)).toEqual([]); // o controle
+    // um DÉCIMO registro
+    expect(violacoesDaTrava({ trechos: [...registro.trechos, { ...registro.trechos[0], id: 'um décimo registro' }] }, textos).length).toBeGreaterThan(0);
+    // um SEGUNDO identificador liberado
+    expect(violacoesDaTrava(registro, textos, ['handleCopy', 'portão do destaque']).length).toBeGreaterThan(0);
+    // o registro de `handleCopy` retirado (a proteção histórica NÃO se retira)
+    expect(violacoesDaTrava({ trechos: registro.trechos.filter((t: any) => t.id !== 'handleCopy') }, textos).length).toBeGreaterThan(0);
+    // um imutável alterado: o texto do componente com UM byte do portão trocado
+    const componente = 'components/ParecerAISection.tsx';
+    const portao = registro.trechos.find((t: any) => t.id === 'portão do destaque');
+    expect(violacoesDaTrava(registro, { ...textos, [componente]: textos[componente].replace("presentation?.estado === 'aprovado' && (aiReview.nota", "presentation?.estado === 'aprovadx' && (aiReview.nota") }).some((m) => m.startsWith('portão do destaque'))).toBe(true);
+    expect(portao).toBeDefined();
+    // a âncora de início de handleCopy DUPLICADA (o trecho fica igual, e ainda assim reprova)
+    const ancora = registro.trechos.find((t: any) => t.id === 'handleCopy').ancoraDeInicio;
+    expect(violacoesDaTrava(registro, { ...textos, [componente]: `${textos[componente]}\n${ancora}\n` }).some((m) => m.startsWith('handleCopy: a âncora de início ocorre 2'))).toBe(true);
+    // o terminador de handleCopy AUSENTE depois da âncora (o texto termina logo depois dela: nenhum `\n  };\n` a segue)
+    const truncado = textos[componente].slice(0, textos[componente].indexOf(ancora) + ancora.length);
+    expect(violacoesDaTrava(registro, { ...textos, [componente]: truncado }).some((m) => m.startsWith('handleCopy: o terminador não existe'))).toBe(true);
+    // a liberação "porque o hash falhou" NÃO existe: com a lista de liberados vazia, `handleCopy` é cobrado como imutável, e hoje difere do pré-registrado
+    const semLiberados = violacoesDaTrava(registro, textos, []);
+    expect(semLiberados.some((m) => m.startsWith('handleCopy: o sha256 do trecho difere'))).toBe(true);
+    expect(semLiberados.some((m) => m.startsWith('liberados: []'))).toBe(true);
+  });
+
+  test('o artefato preservado NÃO foi regravado nem trocado: o arquivo tem os bytes e o sha256 do commit da predição, e o registro de handleCopy é o pré-registrado', () => {
+    const bruto = ler(ARTEFATO_DA_TRAVA);
+    expect([Buffer.byteLength(bruto, 'utf8'), sha256(bruto)]).toEqual([4637, 'cf5b4f2d3e4a2f6de49daeb42eecb494b93d2701bed83ce05a2afef4cde81108']);
+    const handleCopy = JSON.parse(bruto).trechos.find((t: any) => t.id === 'handleCopy');
+    expect(handleCopy).toMatchObject({
+      arquivo: 'components/ParecerAISection.tsx',
+      sha256: '310afda61d05427de4725cca0cca45b06db1ef74cc2130b49807bc75915c32e2', // o hash COMPLETO, e não um prefixo abreviado
+      bytes: 293,
+      ancoraDeInicio: '  const handleCopy = async () => {',
+      ancoraDeFim: '\n  };\n',
+      incluirNoFimNCaracteres: 4,
+    });
+  });
+
+  describe('o CONFINAMENTO da edição de handleCopy: por reversão, com controle negativo', () => {
+    const COMPONENTE = 'components/ParecerAISection.tsx';
+    const SHA_PREREGISTRADO = '310afda61d05427de4725cca0cca45b06db1ef74cc2130b49807bc75915c32e2'; // COMPLETO
+    const handleCopyDe = (texto: string): string => {
+      const t = lerJson(ARTEFATO_DA_TRAVA).trechos.find((x: any) => x.id === 'handleCopy');
+      return extrairTrecho(texto, t).trecho;
+    };
+    /** As linhas da composição, DECLARADAS aqui: são do código novo, e a predição não as fixa. */
+    const LINHA_DA_COMPOSICAO = "      const textoCopiado = (vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) ? RESSALVA_DO_VINCULO_NA_COPIA : '') + aiReview.review;\n";
+    const WRITETEXT_NOVA = '      await navigator.clipboard.writeText(textoCopiado);\n';
+    const WRITETEXT_ORIGINAL = '      await navigator.clipboard.writeText(aiReview.review);\n';
+    /** Retira as linhas da composição e restabelece a linha de `writeText`. */
+    function reverter(trecho: string): string {
+      expect(ocorrencias(trecho, LINHA_DA_COMPOSICAO)).toBe(1);
+      expect(ocorrencias(trecho, WRITETEXT_NOVA)).toBe(1);
+      return trecho.replace(LINHA_DA_COMPOSICAO, '').replace(WRITETEXT_NOVA, WRITETEXT_ORIGINAL);
+    }
+
+    test('o trecho de handleCopy agora DIFERE do pré-registrado (por desenho), e a reversão da composição devolve o sha256 COMPLETO do artefato preservado, com os 293 bytes', () => {
+      const trecho = handleCopyDe(ler(COMPONENTE));
+      expect(sha256(trecho)).not.toBe(SHA_PREREGISTRADO);
+      const revertido = reverter(trecho);
+      expect([Buffer.byteLength(revertido, 'utf8'), sha256(revertido)]).toEqual([293, SHA_PREREGISTRADO]);
+    });
+
+    test('o retorno antecipado, o try, o setCopied(true), o setTimeout de 2000 ms e o console.error do catch estão no trecho, UMA vez cada, e o retorno antecipado vem ANTES da composição', () => {
+      const trecho = handleCopyDe(ler(COMPONENTE));
+      for (const parte of ['    if (!aiReview?.review) return;\n', '    try {\n', '      setCopied(true);\n', '      setTimeout(() => setCopied(false), 2000);\n', "      console.error('Erro ao copiar parecer:', err);\n"]) {
+        expect([parte, ocorrencias(trecho, parte)]).toEqual([parte, 1]);
+      }
+      expect(trecho.indexOf('if (!aiReview?.review) return;')).toBeLessThan(trecho.indexOf(LINHA_DA_COMPOSICAO.trim()));
+    });
+
+    test.each([
+      ['o retorno antecipado também alterado', (t: string) => t.replace('if (!aiReview?.review) return;', 'if (!aiReview) return;')],
+      ['o tempo do setTimeout alterado', (t: string) => t.replace('2000', '3000')],
+      ['o setCopied(true) retirado', (t: string) => t.replace('      setCopied(true);\n', '')],
+      ['o console.error do catch retirado', (t: string) => t.replace("      console.error('Erro ao copiar parecer:', err);\n", '')],
+      ['uma linha acrescentada depois da composição', (t: string) => t.replace(WRITETEXT_NOVA, `${WRITETEXT_NOVA}      console.log(textoCopiado);\n`)],
+    ])('CONTROLE NEGATIVO (%s): com essa alteração JUNTO da composição, a reversão devolve um hash DIFERENTE do pré-registrado', (_rotulo, alterar) => {
+      const trecho = handleCopyDe(ler(COMPONENTE));
+      const adulterado = alterar(trecho);
+      expect(adulterado).not.toBe(trecho); // a alteração aconteceu
+      expect(sha256(reverter(adulterado))).not.toBe(SHA_PREREGISTRADO);
+      expect(sha256(reverter(trecho))).toBe(SHA_PREREGISTRADO); // o controle: a reversão do trecho SEM essa alteração devolve o hash
+    });
+
+    test('o contraexemplo ANTIGO (trocar writeText por writeTexto no trecho de handleCopy) deixou de discriminar: o trecho novo já difere do pré-registrado, com ou sem a troca', () => {
+      const trecho = handleCopyDe(ler(COMPONENTE));
+      expect(sha256(trecho)).not.toBe(SHA_PREREGISTRADO);
+      expect(sha256(trecho.replace('writeText', 'writeTexto'))).not.toBe(SHA_PREREGISTRADO);
+    });
   });
 });
 

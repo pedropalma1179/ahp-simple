@@ -1366,6 +1366,8 @@ export default function ResultadosPage() {
           notaSuspensa: data.notaSuspensa ?? null,
           // Aviso diagnóstico da extração: texto só com a classificação não suspensa e nenhum padrão reconhecido; `null` nos demais
           mensagemDaExtracao: data.mensagemDaExtracao ?? null,
+          // Estado do vínculo com a execução do cálculo (nível principal da resposta de sucesso): `null` quando a resposta não o traz, e `null` NÃO é ausência do vínculo
+          estadoDoVinculo: data.estadoDoVinculo ?? null,
           review: data.review,
           validation: data.validation,
           metadata: data.metadata

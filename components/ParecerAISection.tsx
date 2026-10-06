@@ -6,6 +6,25 @@
 
 import React from 'react';
 import { decideReviewPresentation } from '@/lib/ai-reviewer/review-validation-contract';
+import { vinculoAusenteNaEntrada } from '@/lib/ai-reviewer/vinculo-execucao';
+
+/**
+ * O aviso ao gestor quando o vínculo com a execução do cálculo estava AUSENTE na entrada (`ausente_no_payload` ou `nulo_explicito`).
+ * O texto vem daqui, e NÃO da resposta: o campo `estadoDoVinculo` só diz QUE o vínculo estava ausente, e o texto exibido ao gestor é
+ * composto na apresentação, para não duplicar conteúdo de produto em dois lugares. ⚠ A última frase é obrigatória, e a redação é a
+ * da regra: causa de suspensão e elegibilidade.
+ */
+const AVISO_DO_VINCULO_AUSENTE =
+  'Vínculo com a execução do cálculo ausente nesta requisição. A relação entre os respondentes apresentados e os incluídos no cálculo não foi comparada nesta requisição. A ausência do vínculo, por si só, não acrescenta causa de suspensão nem altera a elegibilidade para classificação.';
+
+/**
+ * ⚠ O PREFIXO da cópia, só nas duas situações da classe A: quatro linhas, cada uma terminada por LF (a segunda e a quarta em branco),
+ * 255 bytes. ⚠ A cópia leva a ressalva do vínculo e continua SEM transportar a quarentena de A.27: ela NÃO é portadora de todos os
+ * avisos, e o compartilhamento do parecer NÃO fica integralmente protegido. A.27 está fora do escopo desta rodada por delimitação, e
+ * não por avaliação de que a quarentena seja menos relevante.
+ */
+const RESSALVA_DO_VINCULO_NA_COPIA =
+  '[Informação do sistema — não integra o texto gerado do parecer] Vínculo com a execução do cálculo ausente nesta requisição. A relação entre os respondentes apresentados e os incluídos no cálculo não foi comparada nesta requisição.\n\n---\n\n';
 
 interface ParecerAISectionProps {
   aiReview: {
@@ -23,6 +42,12 @@ interface ParecerAISectionProps {
      * demais estados. ⚠ Pode coexistir com a quarentena de A.27, NÃO a substitui e NÃO autoriza o destaque.
      */
     mensagemDaExtracao?: string | null;
+    /**
+     * Estado do vínculo com a execução do cálculo (nível principal da resposta de sucesso). ⚠ SÓ `ausente_no_payload` e `nulo_explicito`
+     * exibem o aviso e prefixam a cópia: campo ausente da resposta, `null` e valor desconhecido NÃO fazem nem uma coisa nem outra, e
+     * NÃO são convertidos em ausência do vínculo. Não é critério de nota e não chega ao portão do destaque nem ao estado de A.27.
+     */
+    estadoDoVinculo?: string | null;
     review?: string;
     validation?: unknown;
     metadata?: {
@@ -49,11 +74,13 @@ export default function ParecerAISection({
     ? decideReviewPresentation(aiReview.validation)
     : null;
 
-  // Handler para copiar o markdown do parecer
+  // Handler para copiar o markdown do parecer. ⚠ Nas duas situações da classe A do vínculo o texto copiado leva o PREFIXO antes do parecer inteiro;
+  // nas demais, é `aiReview.review` e nada mais, e sem parecer não há cópia. A cópia NÃO transporta a quarentena de A.27.
   const handleCopy = async () => {
     if (!aiReview?.review) return;
     try {
-      await navigator.clipboard.writeText(aiReview.review);
+      const textoCopiado = (vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) ? RESSALVA_DO_VINCULO_NA_COPIA : '') + aiReview.review;
+      await navigator.clipboard.writeText(textoCopiado);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
@@ -233,6 +260,15 @@ export default function ParecerAISection({
           {aiReview.mensagemDaExtracao && (
             <div className="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4" role="status">
               <p className="text-sm font-semibold text-slate-900">{aiReview.mensagemDaExtracao}</p>
+            </div>
+          )}
+
+          {/* Aviso DIAGNÓSTICO do vínculo com a execução do cálculo: só quando a resposta diz que o vínculo estava ausente na entrada
+              (`ausente_no_payload` ou `nulo_explicito`). ⚠ Campo ausente da resposta ou valor desconhecido NÃO exibem nada. Não é causa de
+              suspensão, não substitui o aviso de A.27 e NÃO autoriza o destaque: o portão abaixo não muda. */}
+          {vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) && (
+            <div className="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4" role="status">
+              <p className="text-sm text-slate-800">{AVISO_DO_VINCULO_AUSENTE}</p>
             </div>
           )}
 

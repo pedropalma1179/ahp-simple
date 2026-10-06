@@ -742,6 +742,33 @@ campos. **Medido pelo tratador real**, o nível principal traz `success`, `nota`
 `mensagemDaExtracao`, `review`, `validation` e `metadata`, e `metadata` traz `version`, `model`, `timestamp`,
 `estadoDaExtracao`, `avaliacaoDeQualidade`, `knowledgeBase` e `debug`.
 
+⚠ **Atualização de 06/10/2026 (a ausência do vínculo, rodada 2: o estado do vínculo na resposta).** A lista acima é a **medida de
+01/10/2026**. Depois da rodada 2 o nível principal traz **nove** chaves, a nova entre `mensagemDaExtracao` e `review`: `success`, `nota`,
+`veredicto`, `notaSuspensa`, `mensagemDaExtracao`, **`estadoDoVinculo`**, `review`, `validation` e `metadata`; `metadata` segue com as sete.
+
+**`estadoDoVinculo`** diz **o que a rota recebeu** em `vinculoDaExecucao`, lido do **valor** (e não de `modo`, que une `undefined` e
+`null`), e só isso. Tem **tipo próprio, de sete valores**, distinto de `EstadoDoVinculo` (que continua com quatro: os estados do próprio
+vínculo):
+
+| Valor | Quando |
+|---|---|
+| `ausente_no_payload` | a chave não veio, ou veio `undefined`: omissão e `undefined` são indistinguíveis no transporte (o JSON descarta a propriedade, e a rota não testa a presença da chave) |
+| `nulo_explicito` | veio `null` |
+| `indisponivel`, `invalido`, `vinculado`, `divergente` | o `estado` do objeto recebido é, **exatamente**, um dos quatro reconhecidos |
+| `formato_nao_reconhecido` | qualquer outro valor presente: texto, número, `false`, `[]`, objeto cujo `estado` não é um dos quatro, e assim por diante |
+
+- **É diagnóstico, e não critério de nota.** O campo **não** acrescenta causa de suspensão e **não** altera a elegibilidade para
+  classificação; **não** chega a `calculateGrade`, à elegibilidade, às causas de suspensão, ao portão do destaque nem ao estado de A.27.
+- **Só nas respostas de sucesso.** Nenhuma resposta de erro o traz, e o `catch` do tratador não mudou. **Não há mensagem acompanhante**: o
+  texto exibido ao gestor é composto na apresentação.
+- **Campo ausente da resposta, ou valor desconhecido, não é convertido em `ausente_no_payload`.** A ausência do diagnóstico na resposta é
+  coisa distinta da ausência do vínculo na entrada: nesses casos a tela **não** mostra o aviso e a cópia **não** recebe o prefixo.
+- **Na tela.** `page.tsx` leva o campo ao `aiReview` só no objeto de sucesso (`estadoDoVinculo: data.estadoDoVinculo ?? null`; `null`
+  **não** é ausência do vínculo). O componente exibe, **somente** para `ausente_no_payload` e `nulo_explicito`, o aviso, num bloco
+  `role="status"`: «Vínculo com a execução do cálculo ausente nesta requisição. A relação entre os respondentes apresentados e os incluídos
+  no cálculo não foi comparada nesta requisição. A ausência do vínculo, por si só, não acrescenta causa de suspensão nem altera a
+  elegibilidade para classificação.»
+
 | Campo | O que mudou |
 |---|---|
 | `metadata.automaticGrade` | **Saiu da resposta.** Era o valor da classificação automática (`calculateGrade`): `{ nota, veredicto, score }`, ou `null` sob suspensão. |
@@ -783,6 +810,19 @@ sugestão e a instrução que remetia a elas); os motivos da suspensão continua
 ⚠ **`calculateGrade` continua existindo**: o sinal de suspensão e os logs ainda a consomem, e a remoção dela exige separar
 esse sinal, o que esta rodada não fez. ⚠ **`coerencia_nao_avaliada` não é produzida pelo tratador real** (a rota sempre calcula
 a coerência): só se alcança com uma coerência nula simulada.
+
+⚠ **Atualização de 06/10/2026 sobre a cópia (rodada 2).** A frase «eles seguem exibindo e copiando o texto integral do parecer simulado, e
+alterá-los exige decisão própria, que não foi tomada» deixou de valer **para a cópia, nas duas situações da classe A do vínculo**
+(`ausente_no_payload` e `nulo_explicito`): ali a cópia entrega o **prefixo** de 255 bytes, **seguido do parecer inteiro**. O prefixo tem
+quatro linhas, cada uma terminada por LF: a nota do sistema «[Informação do sistema — não integra o texto gerado do parecer] Vínculo com
+a execução do cálculo ausente nesta requisição. A relação entre os respondentes apresentados e os incluídos no cálculo não foi comparada
+nesta requisição.», uma linha em branco, o separador `---` e outra linha em branco. A decisão sobre esse prefixo foi tomada (especificação,
+4.4). Nas demais situações a cópia continua escrevendo `aiReview.review` **inteiro e nada mais**, e **sem parecer não há cópia**. O
+**corpo** exibido segue com o texto integral.
+
+⚠ **A limitação da cópia quanto a A.27, citada e não reaberta.** A cópia passa a levar a ressalva do vínculo. Ela **continua sem
+transportar** a quarentena de A.27. ⚠ **A cópia não é portadora de todos os avisos**, e o compartilhamento **não** fica integralmente
+protegido. A.27 está **fora do escopo** desta rodada por delimitação, e não por avaliação de que a quarentena seja menos relevante.
 
 **Chamado por**: `resultados/page.tsx:1245`.
 

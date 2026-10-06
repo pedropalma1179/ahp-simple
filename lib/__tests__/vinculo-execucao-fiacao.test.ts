@@ -1443,9 +1443,12 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
     expect(contrato).not.toMatch(/vinculo/i);
     const rota = ler(ROTA);
     // toda referência do vínculo na rota, em ordem: o import, a cópia, as leituras para o TEXTO (as linhas de exclusão e as frases da lista, esta já com a lista APRESENTADA, R4, em TODA requisição: sem o portão `comVinculo`, que deixou de existir na rodada 1) e o bloco, montado depois da lista
+    // ⚠ Rodada 2: TRÊS linhas a mais, todas do DIAGNÓSTICO da resposta, que NÃO é texto do contexto nem entrada da decisão: o import da função que lê o VALOR recebido
+    // (`estadoDoVinculoNaResposta`, depois de `descreverVinculoParaContexto`), o cálculo desse valor (depois do bloco, no tratador) e a chave do corpo da resposta. As onze linhas de antes seguem, na mesma ordem.
     const linhas = rota.split('\n').filter((l) => /vinculo/i.test(l) && !l.trim().startsWith('//'));
     expect(linhas.map((l) => l.trim())).toEqual([
       'descreverVinculoParaContexto,',
+      'estadoDoVinculoNaResposta,',
       'frasesDaListaComVinculo,',
       'lerVinculoParaTexto,',
       'linhasDeExclusaoComVinculo,',
@@ -1456,6 +1459,8 @@ describe('ensaio 10: com o MESMO conjunto avaliado, mudar só o estado do víncu
       'const textoDoVinculo = descreverVinculoParaContexto(data.vinculoDaExecucao, identidadesApresentadas);',
       "const blocoDoVinculo = textoDoVinculo === '' ? '' : `\\n${textoDoVinculo}\\n`;",
       '${blocoDoVinculo}',
+      'const estadoDoVinculo = estadoDoVinculoNaResposta(data.vinculoDaExecucao);',
+      'estadoDoVinculo,',
     ]);
     // ⚠ e nenhuma dessas leituras chega à decisão: as três chamadas da elegibilidade recebem só a avaliação e a coerência
     const chamadas = rota.match(/elegivelParaClassificacao\([^)]*\)/g) ?? [];

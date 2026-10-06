@@ -1155,6 +1155,54 @@ export function lerVinculoParaTexto(raw: unknown, apresentada?: IdentidadeAprese
   };
 }
 
+// ---- o estado do vínculo NA RESPOSTA do Parecer IA
+
+/**
+ * ⚠ **Sete valores, de TIPO PRÓPRIO**, distinto de `EstadoDoVinculo` (que continua com quatro: os estados que o vínculo
+ * declara). Estes dizem **o que a rota recebeu** em `vinculoDaExecucao`, e só isso: a classe A (omitido, `undefined` ou `null`)
+ * separa `ausente_no_payload` de `nulo_explicito`; a classe B é um dos quatro estados reconhecidos; a classe C, qualquer outro
+ * valor presente, é `formato_nao_reconhecido`.
+ */
+export const ESTADOS_DO_VINCULO_NA_RESPOSTA = [
+  'ausente_no_payload',
+  'nulo_explicito',
+  'indisponivel',
+  'invalido',
+  'vinculado',
+  'divergente',
+  'formato_nao_reconhecido',
+] as const;
+
+export type EstadoDoVinculoNaResposta = (typeof ESTADOS_DO_VINCULO_NA_RESPOSTA)[number];
+
+/**
+ * O valor do campo `estadoDoVinculo` da resposta, lido do VALOR recebido em `vinculoDaExecucao`. Nunca lança.
+ *
+ * ⚠ **Lido do valor, e NÃO de `modo`**: `lerVinculoParaTexto` une `undefined` e `null` em `modo: 'ausente'`, e este campo existe
+ * justamente para separá-los. ⚠ **Omissão e `undefined` explícito dão o MESMO valor** (`ausente_no_payload`): o JSON descarta a
+ * propriedade de valor `undefined`, e a rota não testa a presença da chave, de modo que a distinção não é recuperável aqui.
+ * ⚠ A fronteira entre as classes B e C é a do leitor: o estado precisa ser, EXATAMENTE, um dos quatro reconhecidos.
+ *
+ * ⚠ **É diagnóstico da resposta, e não critério de nota**: não suspende a classificação e não chega à decisão (a elegibilidade, a
+ * nota, as causas de suspensão, o portão do destaque e o estado de A.27 não o recebem).
+ */
+export function estadoDoVinculoNaResposta(raw: unknown): EstadoDoVinculoNaResposta {
+  if (raw === undefined) return 'ausente_no_payload';
+  if (raw === null) return 'nulo_explicito';
+  const v = comoRegistro(raw);
+  if (v && typeof v.estado === 'string' && ESTADOS_RECONHECIDOS.includes(v.estado)) return v.estado as EstadoDoVinculo;
+  return 'formato_nao_reconhecido';
+}
+
+/**
+ * ⚠ Verdadeiro **somente** para os dois valores da classe A. Campo AUSENTE da resposta, valor desconhecido e qualquer outro valor dão
+ * `false`: a ausência do diagnóstico NA RESPOSTA é coisa distinta da ausência do vínculo NA ENTRADA, e não é convertida em
+ * `ausente_no_payload`. É o que decide, na apresentação, o aviso ao gestor e o prefixo da cópia.
+ */
+export function vinculoAusenteNaEntrada(estado: unknown): boolean {
+  return estado === 'ausente_no_payload' || estado === 'nulo_explicito';
+}
+
 // ---- as linhas novas DO BLOCO
 
 /** ⚠ Define as populações e as etapas, e diz a que população se referem as distribuições. */
