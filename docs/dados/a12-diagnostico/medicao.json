@@ -239,6 +239,24 @@
           "quatroCasos[].executadoAntesDaInterrupcao.bytesDoContexto"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 14,
+        "motivo": "A.12, a ausencia de vinculoDaExecucao, rodada 2: a resposta ganha o campo estadoDoVinculo no nivel principal (sete valores, de tipo proprio), a tela o leva ao aiReview, o componente exibe o aviso nas duas situacoes da classe A e a copia ganha o prefixo (alterou route.ts, vinculo-execucao.ts, page.tsx e ParecerAISection.tsx; o contexto enviado ao modelo NAO mudou)",
+        "commitDaBase": "b55efec88c702086e4e846998c0f6eb506db24e6",
+        "comando": "A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a12-diagnostico/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]",
+          "identificacao.codigo[components/ParecerAISection.tsx]"
+        ],
+        "camposPerdidos": 0
       }
     ],
     "vinculoDaProcedencia": "identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido",
@@ -249,9 +267,9 @@
     },
     "codigo": {
       "lib/ai-reviewer/avaliacao-qualidade.ts": "511ca1a0ca2cf42380e5c6f08ebf03d1ca6cccfc2fbf1eecf2f31e1ce19700a0",
-      "app/api/ai-reviewer/route.ts": "d11288c41f78b947c30363e2b54254e5f7f53b24a1625f9a9e8006fc7cb76a12",
-      "app/decisor/resultados/[projectId]/page.tsx": "02d28066f1cd6a098594e43fbeebe168fd8286bd2df911479f5e1e583867f65b",
-      "components/ParecerAISection.tsx": "5082e5134bb0f370a255411b5845497ffb497c1b7b486c9f393cfd32772d457a"
+      "app/api/ai-reviewer/route.ts": "ff57131817aae746d52a1126eacfbff983f416a397b9df855cd11d297fdb3b46",
+      "app/decisor/resultados/[projectId]/page.tsx": "478c288323a812c6c5dda2cf440e9af3ff4e2c312d893ffbd0d5d155f2eaed9d",
+      "components/ParecerAISection.tsx": "204beee5f55cd204badeb6317810899743ba4a9404e5644d51dd60aabb3c053d"
     }
   },
   "universo": {

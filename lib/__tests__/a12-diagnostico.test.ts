@@ -273,6 +273,25 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 14,
+    motivo: 'A.12, a ausencia de vinculoDaExecucao, rodada 2: a resposta ganha o campo estadoDoVinculo no nivel principal (sete valores, de tipo proprio), a tela o leva ao aiReview, o componente exibe o aviso nas duas situacoes da classe A e a copia ganha o prefixo (alterou route.ts, vinculo-execucao.ts, page.tsx e ParecerAISection.tsx; o contexto enviado ao modelo NAO mudou)',
+    commitDaBase: 'b55efec88c702086e4e846998c0f6eb506db24e6',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    // ⚠ NENHUM valor medido de contexto se moveu, porque a rodada 2 NAO toca o que o modelo recebe: os `bytesDoContexto` dos quatro casos ficam em
+    //   71380, 70017, 71586 e 72158 (os da entrada 13, previstos ANTES do codigo em 838212c), e as quatro `blocoDeQualidadeNoContexto` ficam identicas.
+    //   Mudam so os resumos de codigo dos TRES arquivos que a rodada 2 alterou, e o de `avaliacao-qualidade.ts` NAO muda. ⚠ MEDIDO por comparacao
+    //   campo a campo (folhas escalares, a mesma contagem das entradas anteriores): 466 campos antes e 478 depois, ZERO perdidos, DOZE novos (todos nesta propria entrada) e TRES mudados: os resumos de codigo de route.ts, page.tsx e
+    //   ParecerAISection.tsx, e nenhum outro campo (nenhum `bytesDoContexto`, nenhuma `blocoDeQualidadeNoContexto`).
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]',
+      'identificacao.codigo[components/ParecerAISection.tsx]',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

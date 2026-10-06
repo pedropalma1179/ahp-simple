@@ -312,6 +312,23 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 12,
+    motivo: 'A.12, a ausencia de vinculoDaExecucao, rodada 2: a resposta ganha o campo estadoDoVinculo no nivel principal (alterou route.ts e vinculo-execucao.ts; a tela, o componente, o contexto enviado ao modelo e avaliacao-qualidade.ts nao entram nesta linha de base)',
+    commitDaBase: 'b55efec88c702086e4e846998c0f6eb506db24e6',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ NENHUM valor medido se moveu, porque a rodada 2 NAO toca o que o modelo recebe: os bytes das mensagens dos tres casos ficam em 72567, 71001 e
+    //   71001 (os da entrada 11, previstos ANTES do codigo em 838212c), `bytesSystem` e as demais secoes ficam identicos. Muda so o resumo de codigo de
+    //   route.ts, e o de `knowledge.ts` NAO muda. ⚠ MEDIDO por comparacao campo a campo (folhas escalares, a mesma contagem das entradas anteriores):
+    //   3158 campos antes e 3168 depois, ZERO perdidos, DEZ novos (todos nesta propria entrada) e UM mudado: o resumo de codigo de route.ts, e nenhum outro campo
+    //   (camadas, `bytesSystem`, `bytesMessages` e as demais secoes ficaram identicos).
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>
