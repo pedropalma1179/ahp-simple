@@ -109,6 +109,8 @@ Não executar `npm run lint`.
 
 ## 3. Decisões pendentes
 
+⚠ **Decisões formalizadas na Fase 2 em 08/10/2026, dia na convenção local do autor, UTC-03:** as cinco decisões abaixo foram formalizadas, e a especificação aprovada está em `docs/validacao-externa-fase2-especificacao.md`. O texto a seguir permanece como diagnóstico histórico, sem alteração.
+
 ⚠ **Nenhuma destas está decidida.** São as opções levantadas, com a recomendação de
 partida registrada como recomendação.
 
