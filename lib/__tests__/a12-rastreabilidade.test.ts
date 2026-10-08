@@ -674,6 +674,17 @@ test('o artefato gravado coincide com a medicao atual', () => {
         camposRegravados: ['natureza', 'classificacaoDosCampos', 'interrupcoesPorIdentidade', 'falhaDeResumoNaoInterrompe', 'observacoesDasExecucoes', 'procedenciaDasRegravacoes'],
         camposPerdidos: 0,
       },
+      {
+        ordem: 3,
+        motivo: 'Fase 2 da validacao externa: extracao de MERITS e SUBCRITERIA_PER_MERIT de app/api/calculate/route.ts para lib/validacao-externa/conjunto-esperado.ts, autorizada pelo autor',
+        commitDaBase: '3f6c4b98725d9013cbe46a81e9d9f7a616e5de34',
+        comando: 'A12R_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-rastreabilidade.test.ts',
+        ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+        camposRegravados: ['identificacao.codigo[app/api/calculate/route.ts]', 'procedenciaDasRegravacoes'],
+        valorAnterior: { 'identificacao.codigo[app/api/calculate/route.ts]': 'b42118dd04164e0c00460ec36f0b958c5fe55d9e20b8dad72a590599ca772967' },
+        valorNovo: { 'identificacao.codigo[app/api/calculate/route.ts]': '0ff4238fa9bc9418f3bb6375091a1f1993091736de0be1963917398553a3eae2' },
+        camposPerdidos: 0,
+      },
     ],
     // ⚠ OBSERVADO, e derivado das execucoes desta suite. Sem ponto flutuante.
     observacoesDasExecucoes: OBSERVADO,

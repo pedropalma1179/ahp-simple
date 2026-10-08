@@ -57,14 +57,14 @@ import {
   extractRespondentId,
   type FonteDoIdentificador,
 } from '@/lib/identificador-respondente';
+import { MERITS, SUBCRITERIA_PER_MERIT } from '@/lib/validacao-externa/conjunto-esperado';
 import crypto from 'node:crypto';
 
 // ============================================================================
 // CONSTANTES
 // ============================================================================
 
-const MERITS = ['B', 'O', 'C', 'R'] as const;
-const SUBCRITERIA_PER_MERIT = 5;
+// MERITS e SUBCRITERIA_PER_MERIT: definidas em lib/validacao-externa/conjunto-esperado.ts (fonte única), importadas acima.
 
 // ============================================================================
 // FUNÇÕES MATEMÁTICAS BASE
