@@ -19181,6 +19181,72 @@ O controle negativo do instrumento (`o contexto mudaria se o executionId mudasse
 
 ---
 
+## Registro de 11/10/2026 (UTC): F07, A4, correções ao registro de A1 a A3 (a tabela de mutantes, a mensagem de `be213d1`, a procedência do instrumento e dos códigos de saída)
+
+⚠ **Este bloco corrige afirmações anteriores por ACRÉSCIMO.** Nenhum texto anterior foi alterado e nenhum commit foi reescrito. Ele não toca a predição P-F07-1, não executa mutante algum e não altera código.
+
+### 1. A base e o ambiente
+
+HEAD medido `60fdf968870ef7b7bedd7c7ff0268c96bd018749`, acima de `5df82ecea84f4e5e2e13bf71c9cc01236a866298` (A4, item 3), de `da094cc10a7036e6b842b0c83cfd462af54e90f6` (A4, itens 1 e 2) e de
+`e2026da2b16f0490a6ea0a856603d69e80a50a7c`, o último commit de A1 a A3 e registro. Todos os commits de F07 são **locais**: nada foi enviado ao remoto. Linux x86_64, Node v22.22.2, npm 10.9.7. Procedência:
+**medida nesta execução**.
+
+### 2. A tabela de mutantes de A1 a A3 rotulava três mortos como sobreviventes
+
+**O defeito.** A tabela de correspondência entregue com A1 a A3 foi gerada por `gera_tabela.py`, cuja função `saida()` lia o cabeçalho de cada mutante com `re.match(r'## (\S+) (.*?): (.*)$', ...)`. O `(.*?)` pára no
+**primeiro** `': '`. Três mutantes têm `':'` na própria descrição, e para eles o total ficava com o texto da descrição na frente, não casava com `'(\d+) failed, ...'`, e o mutante era lido como "0 falhas", isto é,
+**sobrevivente**. A tabela anterior dava **38 mortos e 5 sobreviventes**; o correto é **41 e 2**.
+
+| id | rodada | cabeçalho no arquivo de saída (verbatim) | falhas no arquivo | rótulo na tabela anterior | rótulo correto |
+|---|---|---|---|---|---|
+| N8 | A2 | `N8 atualidade: projeto posterior por texto: 1 failed, 76 passed, 77 total` | **1** | sobrevivente | **morto** |
+| N15 | A2 | `N15 estado: execucao exibida sem referencia chamada de referencia escolhida: 3 failed, 74 passed, 77 total` | **3** | sobrevivente | **morto** |
+| P11 | A3 | `P11 xlsx: segunda identificacao ausente: 1 failed, 30 passed, 31 total` | **1** | sobrevivente | **morto** |
+
+**A correção e a conferência.** O corte passou a ser no total que fecha a linha (`'## (\S+) (.*): ((?:\d+ failed, )?\d+ passed, \d+ total)$'`). A tabela foi **regerada lendo os mesmos arquivos de saída**, sem executar
+mutante algum, e a diferença entre a versão anterior e a nova, medida com `diff`, são **exatamente as três linhas acima**. Conferência à mão, contra os arquivos `A2__saida.txt` e `A3__saida.txt`: o N8 lista o teste «a
+comparação é em ORDEM TEMPORAL, e não por texto: fusos diferentes e formatos equivalentes»; o N15 lista três testes; o P11 lista o teste do literal «AHP-BOCR Decision Support System v5.0». Contagem na tabela regerada:
+**43 execuções** (A1: 11, sem M6, que não existe; censo: 5; A2: 15; A3: 12), **41 mortos** e **2 sobreviventes**:
+
+- **C5**, que **não é mutante que devia morrer**: é o controle de que um gravador de `calculations` dentro de comentário não conta, e passou por desenho;
+- **N12**, sobrevivente **naquela rodada** (77 de 77 passaram). Foi morto depois por um teste acrescentado em A2 («5xx MANTÉM a intenção de escolha; 409 (recusa definitiva) a remove, e só a ela»); o resultado dessa
+  nova rodada ("1 failed, 77 passed, 78 total") **existe só na saída do comando daquela sessão, e não em arquivo**. Procedência: **recebida**, não reconferível por arquivo.
+
+⚠ **O alcance do defeito, medido:** contando os cabeçalhos `## ` dos quatro arquivos de saída (A1, censo, A2, A3) com mais de um `': '`, **só estes três** têm dois; os outros 40 têm um, e foram lidos
+corretamente. ⚠ **O que "morto" prova:** que a suíte executada reprova aquela edição. Não prova que o mutante represente uma falha plausível. O balanço agregado esteve errado até a conferência à mão, o que é o
+modo de falha que o `CLAUDE.md` (seção 3) descreve para instrumentos novos: um agregado errado não se anuncia.
+
+A versão anterior da tabela e o gerador anterior ficam guardados como `TABELA-DE-MUTANTES.antes-da-correcao.md` e `gera_tabela.antes-da-correcao.py`, na pasta de entrega de A4. ⚠ **A tabela nunca esteve neste
+registro**: este bloco é o primeiro lugar do repositório onde o balanço aparece, já corrigido.
+
+### 3. A mensagem de `be213d1`
+
+A mensagem do commit `be213d1` (A1) diz, nas linhas 28 e 29: «Onze mutantes sobre rota, modulo, duplo e intencoes foram mortos; o censo teve cinco mutantes.» A primeira metade está **certa** (M1 a M5 e M7 a M12 são
+onze, todos mortos). A segunda é **imprecisa**: o censo teve **quatro mutantes, todos mortos (C1 a C4), e um controle (C5) que passa por desenho**. A mensagem não foi reescrita; esta é a correção.
+
+### 4. A procedência do instrumento e dos códigos de saída
+
+**4.1. O duplo do Firestore mudou depois da predição.** O bloco anterior (`e2026da`) afirma que o instrumento «não foi tocado depois da predição», com base em `git diff --stat 95e456e HEAD` sobre **dois** arquivos
+(`lib/__tests__/f07-entrada-do-modelo.test.ts` e `lib/__tests__/fixtures/f07-entrada-antes.json`). Isso continua **verdadeiro para esses dois**. Mas o instrumento roda sobre o duplo compartilhado
+`lib/__tests__/helpers/firestore-duplo.ts` (o teste o carrega nas linhas 52 e 55), e **esse arquivo foi alterado**: criado em `95e456e` (166 linhas) e alterado em `be213d1` (A1), com **141 inserções e 2 remoções**
+(`git show --stat be213d1 -- lib/__tests__/helpers/firestore-duplo.ts`). Não foi alterado em `0e45b9f`, `fd4b201` nem `e2026da` (saída vazia nos três). Procedência: **medida nesta execução**.
+
+⚠ **Contradição conservada, sem escolher uma das leituras.** O pedido desta entrega diz que o duplo foi alterado **em A2**; a medição diz **em A1** (`be213d1`), e A2 (`0e45b9f`) não o toca. Os dois valores e as
+duas fontes ficam aqui: **recebido** «A2»; **medido** `be213d1`. O que **não** está demonstrado é que a alteração do duplo não afete o que o instrumento mede: os sete testes do instrumento passam em `fd4b201`
+(medido no bloco anterior), e o controle negativo discrimina, mas isso não mostra que a alteração seja neutra para o ensaio. A frase «o instrumento não foi tocado» deve ser lida como «os dois arquivos do ensaio não
+foram tocados».
+
+**4.2. Os códigos de saída de A1 a A3 não estavam em arquivo.** Os arquivos de saída de `npm test`, `tsc` e `build` entregues com A1 a A3 foram redirecionados com `> arquivo 2>&1`, e o código de saída foi impresso à
+parte. Os códigos que a entrega reportou (A1, A2 e A3: `npm test` **1** com 2 falhas, `tsc` **0**, `build` **0**; `e2026da`: `npm test` **1** com 2 falhas, `tsc` e `build` **não rodados depois do commit**; `317767a`
+e `95e456e`: saída 0 do `npm test`, o de `95e456e` por derivação) vêm da saída dos comandos **na sessão**, e **não são reconferíveis por arquivo**. Procedência: **recebida de execução anterior**. Daqui em diante, na
+entrega de A4, **cada comando tem o seu código de saída em arquivo `.exit`** ao lado da saída.
+
+### 5. O que este bloco NÃO faz
+
+Não altera nenhuma predição, não reexecuta nenhum mutante, não altera código, e não reescreve nenhum commit. Não reconfere os códigos de saída de A1 a A3 (não há como, sem os estados rodados de novo).
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
