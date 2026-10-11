@@ -19131,6 +19131,56 @@ passa a estar em `executions/{executionId}`, e o teste o procura nos dois lugare
 
 ---
 
+## Registro de 11/10/2026 (UTC): F07, o resultado da comparação posterior da predição P-F07-1
+
+⚠ **Este bloco é posterior ao código de A1, A2 e A3.** Registra o resultado da comparação que o bloco anterior prometeu, e **não altera a predição**, que continua como foi escrita antes do código.
+
+### 1. A base e o ambiente
+
+HEAD medido `fd4b201374087807e77f0b0d5edc42f28298b871` (A3), acima de `0e45b9f5cde42ea197b54dc01b4eb66b14ac12d7` (A2), de `be213d1b30a81aec9c4c295377057230fda6fc57` (A1) e de `95e456e92fcff6dc932077c1dd1eaa9209a32653`, o
+commit que traz a predição; o de partida é `317767a33dd9a90c5dd79a79d40c4ac73973d1d3`. Os commits de F07 (o da predição e os de A1, A2 e A3) são **locais**: nada foi enviado ao remoto. Linux x86_64, Node v22.22.2, npm 10.9.7. Procedência:
+**medida nesta execução**.
+
+### 2. O instrumento não foi tocado depois da predição
+
+`git diff --stat 95e456e HEAD -- lib/__tests__/f07-entrada-do-modelo.test.ts lib/__tests__/fixtures/f07-entrada-antes.json` sai **vazio**, e a referência segue com **36975 bytes** e `sha256`
+`4afe749d97389bf5a3a02a4d25b1e663a8c392dce1c3ee715f17abfe04a8d65f`, os do bloco anterior. Também sai vazio `git diff --stat 317767a HEAD -- lib/ai-reviewer app/api/ai-reviewer`: **nenhum arquivo do lado do servidor que
+monta o contexto do modelo foi alterado** em A1, A2 e A3. ⚠ Isso mostra que o instrumento e o lado do servidor não foram mexidos; **não** mostra que o instrumento seja suficiente.
+
+### 3. O resultado, condição a condição
+
+`npx jest lib/__tests__/f07-entrada-do-modelo.test.ts` em `fd4b201`: **7 testes, 7 passam**. A suíte inteira, no mesmo HEAD: 42 suítes, 1672 testes, 2 falhas, e **nenhuma delas é deste instrumento** (as duas são as
+travas de identidade do código descritas no commit de A1).
+
+| # | Condição de refutação | Teste que a mede | Resultado |
+|---|---|---|---|
+| 1 | campo de F07 no payload ou no contexto | `NENHUM campo de F07 chega ao payload` | **não ocorreu** (`requestId`, `engineVersion`, `codeRevision`, `projectUpdatedAt`, `paramsDigest` ausentes do payload) |
+| 2 | `sha256` ou bytes de `system` ou `messages` mudarem | `o contexto enviado ao modelo é o da referência` | **não mudaram**: `system` 34170 bytes, `f3f2410c…`; `messages` 78606 bytes, `3f2b6380…` |
+| 3 | `executionId` do vínculo diferir do do documento | `o executionId do contexto é o do documento lido…` | **igual** |
+| 4 | um dos oito campos de cálculo diferir além de `1e-9` | `o documento de cálculo: tudo o que a referência tinha continua igual…` e `o payload que a tela montaria é igual…` | **iguais**; o documento acrescenta só campos da lista declarada |
+| 5 | vínculo deixar de ser `vinculado` com 12 enviados, ou o resumo do painel sumir | **sem asserção própria**: derivada da igualdade do payload (que carrega `vinculoDaExecucao.estado`, `enviados` e `resumoDoConteudo`) e do `messages` | **não ocorreu**, **por derivação**; a referência tem 12 incluídos e o resumo do painel presente |
+
+O controle negativo do instrumento (`o contexto mudaria se o executionId mudasse`) passa, isto é, o ensaio **discrimina** uma mudança no bloco do vínculo.
+
+### 4. O que NÃO está medido, e o que isso deixa em aberto
+
+- **A página não é executada.** O payload é um **espelho** montado por 15 âncoras de texto da tela, e as 15 seguem presentes na contagem medida. Para cobrir o que A2 e A3 fizeram na página, foi medida à mão a região do
+  código que monta e envia o payload (de `const runAiReview = async () => {` até o `fetch('/api/ai-reviewer'`): entre `317767a` e `fd4b201` ela tem **20119 bytes antes e 20284 depois**, e a **diferença é um
+  comentário e uma linha** (`setExecucaoDoParecer(identificarExecucao(calculation as any))`), que **não toca nenhuma variável do payload**. Procedência: **medida**, mas por diferença de texto, e não por execução.
+- **A tela passa a ler a execução (A2).** Os campos que o payload lê do documento são os mesmos oito, e o instrumento os compara; **mas** o instrumento roda a rota real e lê o documento que ela gravou, e **não** passa
+  pelo carregador novo da tela (`carregarApresentacaoInicial`). O que o carregador devolve é exercitado por outro teste
+  (`f07-a2-referencia.test.ts`), que confere que o documento devolvido é o da execução escolhida (identificador, contagem de respostas e marcador do projeto); **ele não compara o documento inteiro com o
+  gravado**, e o instrumento da predição não passa por esse carregador.
+- **`/api/audit-decision` recebe o documento de execução inteiro**, com os campos novos. A resposta dela **não entra** no payload do parecer (por leitura da tela), e o instrumento **não** a cobre. Procedência: leitura.
+- **O texto que o parecer geraria** não é produzido por instrumento algum aqui; o cliente do modelo é simulado.
+
+### 5. A conclusão, com o seu alcance
+
+**A predição P-F07-1 não foi refutada** pelas cinco condições, **para o caso fixo do painel de 2026**. Isso é o que está medido. **Não** se conclui daí que o parecer não muda em outros casos (documentos sem
+`executionId`, painéis com respondentes rejeitados ou excluídos, projetos sem `updatedAt`), nem que o texto gerado seja o mesmo: a predição era sobre a **entrada**.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
