@@ -271,6 +271,8 @@ const DB = String.raw`db(?:\s+as\s+any)?`;
 const CALC = String.raw`['"]calculations['"]`;
 const EXEC = String.raw`(?:['"]executions['"]|COLECAO_EXECUCOES\b)`;
 const PEDIDO = String.raw`(?:['"]executionRequests['"]|COLECAO_PEDIDOS\b)`;
+const REFER = String.raw`(?:['"]projectReference['"]|COLECAO_REFERENCIA\b)`;
+const HISTO = String.raw`(?:['"]referenceChanges['"]|COLECAO_HISTORICO\b)`;
 
 /** Os padrões, UM por categoria. Cada um tem controle positivo abaixo. */
 const PADROES = {
@@ -289,6 +291,16 @@ const PADROES = {
   // 6. executions e executionRequests: atualização, exclusão e gravação fora de transação
   execucoesAtualizaOuExclui: new RegExp(
     String.raw`(?:\b(?:setDoc|updateDoc|addDoc|deleteDoc)\(|\.(?:update|delete)\()\s*(?:doc|collection)\(\s*${DB}\s*,\s*(?:${EXEC}|${PEDIDO})`
+  ),
+  // 7. referenceChanges: criação do registro histórico
+  historicoCria: new RegExp(String.raw`\.set\(\s*doc\(\s*${DB}\s*,\s*${HISTO}`),
+  // 8. projectReference: CRIAÇÃO (primeira escolha)
+  referenciaCria: new RegExp(String.raw`\.set\(\s*doc\(\s*${DB}\s*,\s*${REFER}`),
+  // 9. projectReference: ATUALIZAÇÃO (escolhas seguintes), categoria distinta da criação
+  referenciaAtualiza: new RegExp(String.raw`\.update\(\s*doc\(\s*${DB}\s*,\s*${REFER}`),
+  // 10. referenceChanges e projectReference: qualquer outra gravação (fora de transação, exclusão, atualização do histórico)
+  referenciaEHistoricoOutras: new RegExp(
+    String.raw`(?:\b(?:setDoc|updateDoc|addDoc|deleteDoc)\(|\.delete\()\s*(?:doc|collection)\(\s*${DB}\s*,\s*(?:${REFER}|${HISTO})|\.update\(\s*doc\(\s*${DB}\s*,\s*${HISTO}`
   ),
 };
 
@@ -333,6 +345,30 @@ describe('Censo de gravadores: controle positivo dos padrões', () => {
       `tx.delete(doc(db as any, COLECAO_PEDIDOS, id)); await setDoc(doc(db, 'executionRequests', id), {});`,
       `tx.set(doc(db as any, COLECAO_EXECUCOES, id), x);`,
       `// tx.delete(doc(db, 'executionRequests', id));`],
+    ['historicoCria',
+      `tx.set(doc(db as any, COLECAO_HISTORICO, operationId), evento);`,
+      `tx.set(doc(db as any, COLECAO_REFERENCIA, projectId), r);`,
+      `// tx.set(doc(db, 'referenceChanges', operationId), evento);`],
+    ['referenciaCria',
+      `tx.set(doc(db, 'projectReference', projectId), r);`,
+      `tx.update(doc(db as any, COLECAO_REFERENCIA, projectId), r);`,
+      `/* tx.set(doc(db as any, COLECAO_REFERENCIA, projectId), r) */`],
+    ['referenciaAtualiza',
+      `tx.update(doc(db as any, COLECAO_REFERENCIA, projectId), r);`,
+      `tx.set(doc(db as any, COLECAO_REFERENCIA, projectId), r);`,
+      `// tx.update(doc(db, 'projectReference', projectId), r);`],
+    ['referenciaEHistoricoOutras',
+      `await deleteDoc(doc(db, 'projectReference', projectId));`,
+      `tx.set(doc(db as any, COLECAO_HISTORICO, id), e); tx.update(doc(db as any, COLECAO_REFERENCIA, id), r);`,
+      `// await deleteDoc(doc(db, 'projectReference', projectId));`],
+    ['referenciaEHistoricoOutras',
+      `tx.update(doc(db as any, COLECAO_HISTORICO, id), { justification: 'trocada' });`,
+      `tx.get(doc(db as any, COLECAO_HISTORICO, id));`,
+      `/* await setDoc(doc(db, 'referenceChanges', id), e) */`],
+    ['referenciaEHistoricoOutras',
+      `await setDoc(doc(db, 'referenceChanges', id), e);`,
+      `await getDoc(doc(db, 'referenceChanges', id));`,
+      `// await updateDoc(doc(db, 'projectReference', id), e);`],
   ];
 
   test.each(casos)('%s: casa no gravador sintético, não casa no vizinho, e ignora comentário', (nome, casa, naoCasa, comentario) => {
@@ -361,12 +397,13 @@ describe('Censo de gravadores das coleções de execução', () => {
     expect(ocorrenciasPorArquivo(PADROES.calculationsExclui)).toEqual({ 'app/decisor/projetos/page.tsx': 3 });
   });
 
-  test('3. calculations, REFERÊNCIAS literais em doc()/collection(): a exclusão acima e a leitura da tela de resultados', () => {
-    // 3 exclusões (categoria 2) + 1 leitura (`getDoc` na tela de resultados). Um gravador novo
-    // precisaria citar o nome da coleção, e a citação nova quebra esta igualdade.
+  test('3. calculations, REFERÊNCIAS literais em doc()/collection(): a exclusão acima e a leitura do documento anterior', () => {
+    // 3 exclusões (categoria 2) + 1 leitura (`getDoc` em `lib/referencia-leitura.ts`, que a tela de
+    // resultados usa; antes de A2 a leitura estava na própria tela). Um gravador novo precisaria
+    // citar o nome da coleção, e a citação nova quebra esta igualdade.
     expect(ocorrenciasPorArquivo(PADROES.calculationsReferencia)).toEqual({
       'app/decisor/projetos/page.tsx': 3,
-      'app/decisor/resultados/[projectId]/page.tsx': 1,
+      'lib/referencia-leitura.ts': 1,
     });
   });
 
@@ -387,5 +424,36 @@ describe('Censo de gravadores das coleções de execução', () => {
   test('6. executions e executionRequests: nenhuma atualização, exclusão ou gravação fora de transação', () => {
     // Imutáveis: as regras propostas negam `update` e `delete`, e o código versionado não os tenta.
     expect(ocorrenciasPorArquivo(PADROES.execucoesAtualizaOuExclui)).toEqual({});
+  });
+});
+
+describe('Censo de gravadores da referência do projeto (A2)', () => {
+  const ARQUIVO = 'lib/escolha-de-referencia.ts';
+
+  test('7. referenceChanges, CRIAÇÃO do registro histórico: exatamente um gravador', () => {
+    expect(ocorrenciasPorArquivo(PADROES.historicoCria)).toEqual({ [ARQUIVO]: 1 });
+  });
+
+  test('8. projectReference, CRIAÇÃO (primeira escolha): exatamente um gravador', () => {
+    expect(ocorrenciasPorArquivo(PADROES.referenciaCria)).toEqual({ [ARQUIVO]: 1 });
+  });
+
+  test('9. projectReference, ATUALIZAÇÃO (escolhas seguintes): exatamente um gravador, categoria distinta da criação', () => {
+    expect(ocorrenciasPorArquivo(PADROES.referenciaAtualiza)).toEqual({ [ARQUIVO]: 1 });
+  });
+
+  test('10. referenceChanges e projectReference: nenhuma outra gravação (histórico imutável, referência sem exclusão)', () => {
+    expect(ocorrenciasPorArquivo(PADROES.referenciaEHistoricoOutras)).toEqual({});
+  });
+
+  test('os três gravadores estão na MESMA transação, e o módulo abre uma só', () => {
+    const fonte = removerComentarios(readFileSync(join(RAIZ, ARQUIVO), 'utf8'));
+    expect(fonte.split('runTransaction(').length - 1).toBe(1);
+    const dentro = fonte.slice(fonte.indexOf('runTransaction(db'));
+    expect(ocorrenciasNoTrecho(PADROES.historicoCria, dentro)).toBe(1);
+    expect(ocorrenciasNoTrecho(PADROES.referenciaCria, dentro)).toBe(1);
+    expect(ocorrenciasNoTrecho(PADROES.referenciaAtualiza, dentro)).toBe(1);
+    // e as duas escritas da referência são ALTERNATIVAS (if/else), nunca as duas na mesma execução
+    expect(dentro).toMatch(/if \(atual === null\) \{[\s\S]*?tx\.set\(doc\(db as any, COLECAO_REFERENCIA[\s\S]*?\} else \{[\s\S]*?tx\.update\(doc\(db as any, COLECAO_REFERENCIA/);
   });
 });

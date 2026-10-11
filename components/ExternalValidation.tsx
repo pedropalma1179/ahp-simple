@@ -23,7 +23,8 @@ import {
  *   - `contrato-retorno.ts`    a forma do retorno, os três estados da entrada e as contradições;
  *   - `precedencia.ts`         o estado (manchete, as três propriedades, o selo) e a orquestração.
  *
- * Estrutura do documento de cálculo lido (coleção 'calculations'):
+ * Estrutura do documento de cálculo lido (uma execução, `executions/{executionId}`, ou o documento
+ * anterior a F07, coleção 'calculations'; o formato dos campos abaixo é o mesmo nos dois):
  *   calculation.aggregatedMatrices.bocr / .magnitude / .subcriteria.{B,O,C,R}   (JSON em texto)
  *   calculation.bocrWeights, .rescalingWeights, .subWeights
  *   calculation.bocrConsistency, .magnitudeConsistency, .subConsistency

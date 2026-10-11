@@ -45,6 +45,9 @@ import { idDoElementoNoFallback, prepararVinculoDaTela } from '@/lib/ai-reviewer
 import type { FonteDoIdentificador } from '@/lib/identificador-respondente';
 import ExternalValidation from '@/components/ExternalValidation';
 import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
+import ReferenciaDoProjeto from '@/components/ReferenciaDoProjeto';
+import { type Exibicao } from '@/lib/referencia-do-projeto';
+import { type ApresentacaoInicial, carregarApresentacaoInicial } from '@/lib/referencia-leitura';
 
 // Componentes Q1/A1
 import BOCRPrioritiesTable from '@/components/BOCRPrioritiesTable';
@@ -654,6 +657,11 @@ export default function ResultadosPage() {
   const [error, setError] = useState('');
   // F07 A1: avisos sobre pedidos de cálculo (retomada ao montar a tela; recarga sem proteção).
   const [avisosDoPedido, setAvisosDoPedido] = useState<string[]>([]);
+  // F07 A2: o que a tela exibe (uma execução, ou o documento anterior a F07), a carga inicial do
+  // painel da referência e a execução criada por recálculo nesta tela.
+  const [exibicao, setExibicao] = useState<Exibicao | null>(null);
+  const [cargaDaReferencia, setCargaDaReferencia] = useState<ApresentacaoInicial | null>(null);
+  const [execucaoRecemCalculada, setExecucaoRecemCalculada] = useState<Record<string, any> | null>(null);
 
   // Implementação de aba persistente via URL hash
   const validTabs = ['executive', 'results', 'quality', 'robustness', 'review', 'export'] as const;
@@ -1468,6 +1476,29 @@ export default function ResultadosPage() {
     await recalculateResults(newExcludedIds);
   };
 
+  /**
+   * F07 A2: exibe uma execução escolhida na lista (ou a referência, por clique em "Carregar a
+   * referência atual"). ⚠ Só roda por AÇÃO da pessoa: a tela nunca troca sozinha o que apresenta.
+   */
+  const exibirExecucao = async (documento: Record<string, any>) => {
+    setCalculation(documento as CalculationResult);
+    if (typeof documento.executionId === 'string') setExibicao({ tipo: 'execucao', executionId: documento.executionId });
+    setExcludedIds(documento.metadata?.excludedRespondentIds || []);
+    setAiReview(null);
+    setAudit(null);
+    try {
+      const auditResponse = await fetch('/api/audit-decision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calculationData: documento })
+      });
+      const auditData = await auditResponse.json();
+      if (auditData.success) setAudit(auditData.audit);
+    } catch (e) {
+      console.log('Auditoria não disponível');
+    }
+  };
+
   const recalculateResults = async (exclusions: string[]) => {
     setIsRecalculating(true);
     setLoading(true); // Bloquear UI geral
@@ -1497,6 +1528,11 @@ export default function ResultadosPage() {
         }
         // Atualizar calculation com o novo resultado (incluindo metadados atualizados)
         setCalculation(data.calculation);
+        // F07 A2: a execução nova é a EXIBIDA, e entra na lista. ⚠ Isso não a torna a referência.
+        if (typeof data.calculation?.executionId === 'string') {
+          setExibicao({ tipo: 'execucao', executionId: data.calculation.executionId });
+          setExecucaoRecemCalculada(data.calculation);
+        }
 
         // Re-executar auditoria com novos dados
         const auditResponse = await fetch('/api/audit-decision', {
@@ -1556,12 +1592,16 @@ export default function ResultadosPage() {
         const projectData = { id: projectDoc.id, ...projectDoc.data() } as Project;
         setProject(projectData);
 
-        // 2. Carregar cálculo salvo
-        const calcDoc = await getDoc(doc(db, 'calculations', projectId));
-        if (calcDoc.exists()) {
-          const calcData = calcDoc.data() as CalculationResult;
+        // 2. F07 A2: o que exibir. A REFERÊNCIA primeiro; sem referência, o documento anterior a F07
+        //    (`calculations/{projectId}`); sem ele, a execução mais recente, nomeada. Cada caminho
+        //    tem o seu estado, e a tela o diz (ver `lib/referencia-leitura.ts`).
+        const carga = await carregarApresentacaoInicial(db, projectId);
+        setCargaDaReferencia(carga);
+        if (carga.exibicao !== null && carga.documento !== null) {
+          const calcData = carga.documento as CalculationResult;
 
           setCalculation(calcData);
+          setExibicao(carga.exibicao);
 
           // Inicializar excluídos a partir do metadata salvo
           if (calcData.metadata?.excludedRespondentIds) {
@@ -2848,6 +2888,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
           </div>
         </div>
       </header>
+
+      {/* F07 A2: a referência do projeto, as execuções e o histórico de escolhas */}
+      {cargaDaReferencia !== null && (
+        <ReferenciaDoProjeto
+          projectId={projectId}
+          updatedAtDoProjeto={typeof (project as any)?.updatedAt === 'string' ? (project as any).updatedAt : null}
+          inicial={cargaDaReferencia}
+          exibicao={exibicao}
+          calculation={calculation as any}
+          execucaoRecemCalculada={execucaoRecemCalculada}
+          onExibir={exibirExecucao}
+        />
+      )}
 
       {avisosDoPedido.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 mt-4">

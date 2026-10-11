@@ -11,6 +11,9 @@
  * permite RETOMAR: reenviar o MESMO pedido, e o servidor devolve a execução já registrada sem
  * calcular de novo.
  *
+ * Tipos: `calculo` (A1, identificado pelo `requestId`) e `escolha` (A2, identificado pelo `operationId`).
+ * As regras abaixo valem para os dois.
+ *
  * Regras (A1):
  *   - **uma entrada por intenção**, com o próprio identificador na chave: duas intenções do mesmo
  *     projeto convivem, e registrar a segunda nunca apaga a primeira;
@@ -52,7 +55,23 @@ export interface IntencaoDeCalculo {
   criadaEm: string;
 }
 
-export type Intencao = IntencaoDeCalculo;
+/**
+ * A2: a escolha da referência. O identificador é o `operationId`, que o servidor VINCULA ao conteúdo
+ * (projeto, execução, revisão esperada, justificativa): reenviar a mesma intenção reenvia o mesmo
+ * conteúdo, e é por isso que a entrada guarda tudo isso.
+ */
+export interface IntencaoDeEscolha {
+  tipo: 'escolha';
+  /** O `operationId` da escolha. */
+  id: string;
+  projectId: string;
+  executionId: string;
+  expectedRevision: number;
+  justification: string;
+  criadaEm: string;
+}
+
+export type Intencao = IntencaoDeCalculo | IntencaoDeEscolha;
 export type TipoDeIntencao = Intencao['tipo'];
 
 export function chaveDaIntencao(tipo: TipoDeIntencao, id: string): string {
@@ -78,6 +97,17 @@ function eIntencao(x: any): x is Intencao {
       typeof x.projectId === 'string' &&
       Array.isArray(x.excludedRespondentIds) &&
       x.excludedRespondentIds.every((e: unknown) => typeof e === 'string') &&
+      typeof x.criadaEm === 'string'
+    );
+  }
+  if (x.tipo === 'escolha') {
+    return (
+      typeof x.id === 'string' &&
+      typeof x.projectId === 'string' &&
+      typeof x.executionId === 'string' &&
+      Number.isInteger(x.expectedRevision) &&
+      x.expectedRevision >= 0 &&
+      typeof x.justification === 'string' &&
       typeof x.criadaEm === 'string'
     );
   }
@@ -227,6 +257,28 @@ export async function executarCalculo(
   return { desfecho, persistida };
 }
 
+/**
+ * A2: nova escolha de referência. Mesma regra de `executarCalculo`: gera o `operationId`, REGISTRA a
+ * intenção e só então envia.
+ */
+export async function executarEscolha(
+  deps: DependenciasDeEnvio,
+  parametros: { projectId: string; executionId: string; expectedRevision: number; justification: string }
+): Promise<ResultadoDeNovaAcao> {
+  const intencao: IntencaoDeEscolha = {
+    tipo: 'escolha',
+    id: deps.gerarId(),
+    projectId: parametros.projectId,
+    executionId: parametros.executionId,
+    expectedRevision: parametros.expectedRevision,
+    justification: parametros.justification,
+    criadaEm: (deps.agora ?? (() => new Date().toISOString()))(),
+  };
+  const persistida = registrarIntencao(deps.armazenamento, intencao);
+  const desfecho = await resolverIntencao(deps, intencao);
+  return { desfecho, persistida };
+}
+
 export interface RelatoDaRetomada {
   desfechos: DesfechoDaIntencao[];
   ilegiveis: string[];
@@ -274,6 +326,26 @@ export function resumirRetomada(relato: RelatoDaRetomada): AvisoDaRetomada {
   const execucoes: AvisoDaRetomada['execucoes'] = [];
   let pendentes = 0;
   for (const d of relato.desfechos) {
+    if (d.intencao.tipo === 'escolha') {
+      const corpo = d.situacao === 'pendente' ? {} : d.resposta.corpo ?? {};
+      if (d.situacao === 'confirmada') {
+        linhas.push(
+          corpo.recuperada === true
+            ? `Uma escolha de referência feita antes (projeto ${d.intencao.projectId}, execução ${d.intencao.executionId}) já estava registrada; nada foi gravado de novo. A referência corrente é a revisão ${corpo.referencia?.revision ?? 'desconhecida'}.`
+            : `Uma escolha de referência feita antes (projeto ${d.intencao.projectId}, execução ${d.intencao.executionId}) não havia chegado ao servidor e foi registrada agora, como a revisão ${corpo.referencia?.revision ?? 'desconhecida'}.`
+        );
+      } else if (d.situacao === 'recusada') {
+        linhas.push(
+          `O servidor recusou uma escolha de referência feita antes (projeto ${d.intencao.projectId}, execução ${d.intencao.executionId}): ${corpo.error ?? `status ${d.resposta.status}`}`
+        );
+      } else {
+        pendentes++;
+        linhas.push(
+          `Uma escolha de referência feita antes (projeto ${d.intencao.projectId}, execução ${d.intencao.executionId}) segue sem confirmação (${d.motivo}). Ela permanece guardada neste navegador e será consultada de novo ao abrir a tela.`
+        );
+      }
+      continue;
+    }
     if (d.situacao === 'confirmada') {
       const corpo = d.resposta.corpo ?? {};
       const executionId = String(corpo.executionId ?? 'sem identificador na resposta');
@@ -308,16 +380,37 @@ export function resumirRetomada(relato: RelatoDaRetomada): AvisoDaRetomada {
 // Envio do navegador (fora dos testes de unidade)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** O envio real: POST em `/api/calculate` com o `requestId` da intenção. */
-export async function enviarPeloNavegador(intencao: Intencao): Promise<RespostaDoServidor> {
-  const resposta = await fetch('/api/calculate', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
+/** A rota e o corpo de cada tipo de intenção. O identificador da intenção é o do pedido. */
+export function pedidoDaIntencao(intencao: Intencao): { rota: string; corpo: Record<string, unknown> } {
+  if (intencao.tipo === 'escolha') {
+    return {
+      rota: '/api/project-reference',
+      corpo: {
+        projectId: intencao.projectId,
+        executionId: intencao.executionId,
+        expectedRevision: intencao.expectedRevision,
+        operationId: intencao.id,
+        justification: intencao.justification,
+      },
+    };
+  }
+  return {
+    rota: '/api/calculate',
+    corpo: {
       projectId: intencao.projectId,
       excludedRespondentIds: intencao.excludedRespondentIds,
       requestId: intencao.id,
-    }),
+    },
+  };
+}
+
+/** O envio real: POST na rota do tipo da intenção, com o identificador dela. */
+export async function enviarPeloNavegador(intencao: Intencao): Promise<RespostaDoServidor> {
+  const { rota, corpo: corpoDoPedido } = pedidoDaIntencao(intencao);
+  const resposta = await fetch(rota, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(corpoDoPedido),
   });
   let corpo: any = null;
   try {
