@@ -152,13 +152,6 @@ describe('A4.1.0: o registro e a conferência do par', () => {
     expect(r.apresentar(null).executionId).toBeNull();
     expect(r.apresentar(undefined).geracao).toBe(4);
   });
-
-  test('a ordem de pedidos: só o último bilhete é vigente', () => {
-    const o = par.criarOrdemDePedidos();
-    const b1 = o.novo();
-    const b2 = o.novo();
-    expect([o.vigente(b1), o.vigente(b2)]).toEqual([false, true]);
-  });
 });
 
 describe('A4.1: a auditoria só escreve se o par for o da apresentação corrente', () => {

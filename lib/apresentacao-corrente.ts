@@ -109,26 +109,3 @@ export function criarRegistroDaApresentacao(): RegistroDaApresentacao {
     },
   };
 }
-
-/**
- * Ordem de pedidos do MESMO tipo: o último pedido vence. Serve a quem apresenta o resultado de uma
- * leitura assíncrona (por exemplo, "Exibir" na lista de execuções): se dois cliques estão em voo, só
- * o último pode apresentar.
- */
-export interface OrdemDePedidos {
-  novo(): number;
-  vigente(bilhete: number): boolean;
-}
-
-export function criarOrdemDePedidos(): OrdemDePedidos {
-  let ultimo = 0;
-  return {
-    novo() {
-      ultimo += 1;
-      return ultimo;
-    },
-    vigente(bilhete) {
-      return bilhete === ultimo;
-    },
-  };
-}
