@@ -15,6 +15,7 @@
 import { useState } from 'react';
 import { Download, FileSpreadsheet, FileJson, FileText, CheckCircle } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { identificarExecucao, linhasCsv, linhasXlsx, objetoJson } from '@/lib/identificacao-da-execucao';
 
 interface ExportReportsProps {
   project: any;
@@ -44,6 +45,9 @@ export default function ExportReports({ project, calculation, responses }: Expor
       ];
       const ws1 = XLSX.utils.aoa_to_sheet(bocrData);
       XLSX.utils.book_append_sheet(wb, ws1, 'Pesos BOCR');
+
+      // F07 A3: a execução, com o que ELA gravou (e "ausente" onde falta)
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['EXECUÇÃO'], [], ...linhasXlsx(identificarExecucao(calculation))]), 'Execução');
       
       // Sheet 2: Subcritérios
       const subWeights = calculation?.sub_weights || {};
@@ -104,6 +108,9 @@ export default function ExportReports({ project, calculation, responses }: Expor
     
     try {
       const wb = XLSX.utils.book_new();
+
+      // F07 A3: a execução, com o que ELA gravou (e "ausente" onde falta)
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['EXECUÇÃO'], [], ...linhasXlsx(identificarExecucao(calculation))]), 'Execução');
       
       responses.forEach((response, idx) => {
         const name = response.email || `Especialista ${idx + 1}`;
@@ -137,7 +144,10 @@ export default function ExportReports({ project, calculation, responses }: Expor
     
     try {
       const bocrWeights = calculation?.bocr_weights || {};
+      // F07 A3: as linhas da execução vêm antes da tabela, separadas dela por uma linha em branco
       const csv = [
+        linhasCsv(identificarExecucao(calculation)).trimEnd(),
+        '',
         'Mérito,Peso',
         `Benefícios,${bocrWeights.B || 0}`,
         `Oportunidades,${bocrWeights.O || 0}`,
@@ -175,6 +185,8 @@ export default function ExportReports({ project, calculation, responses }: Expor
           final_scores: calculation?.final_scores_normalized,
           magnitude_weights: calculation?.magnitude_weights
         },
+        // F07 A3: a execução, com o que ELA gravou (`null` = ausente)
+        execution: objetoJson(identificarExecucao(calculation)),
         statistics: {
           total_respondents: responses.length,
           total_alternatives: Object.keys(calculation?.final_scores_normalized || {}).length

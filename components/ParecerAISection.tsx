@@ -7,6 +7,7 @@
 import React from 'react';
 import { decideReviewPresentation } from '@/lib/ai-reviewer/review-validation-contract';
 import { vinculoAusenteNaEntrada } from '@/lib/ai-reviewer/vinculo-execucao';
+import { type IdentificacaoDaExecucao, rodapeDeCopia } from '@/lib/identificacao-da-execucao';
 
 /**
  * O aviso ao gestor quando o vínculo com a execução do cálculo estava AUSENTE na entrada (`ausente_no_payload` ou `nulo_explicito`).
@@ -61,12 +62,18 @@ interface ParecerAISectionProps {
   } | null;
   loading: boolean;
   onExecute: () => void;
+  /**
+   * F07 A3: a EXECUÇÃO em que o parecer foi pedido (os valores que ela gravou). Entra no RODAPÉ do texto copiado. ⚠ Ausente ou
+   * `null` NÃO omite o rodapé: ele sai com "ausente" em cada campo. Não faz parte do que o modelo recebe.
+   */
+  execucaoAnalisada?: IdentificacaoDaExecucao | null;
 }
 
 export default function ParecerAISection({
   aiReview,
   loading,
   onExecute,
+  execucaoAnalisada,
 }: ParecerAISectionProps) {
   // Estado para feedback visual do botão Copiar
   const [copied, setCopied] = React.useState(false);
@@ -75,11 +82,12 @@ export default function ParecerAISection({
     : null;
 
   // Handler para copiar o markdown do parecer. ⚠ Nas duas situações da classe A do vínculo o texto copiado leva o PREFIXO antes do parecer inteiro;
-  // nas demais, é `aiReview.review` e nada mais, e sem parecer não há cópia. A cópia NÃO transporta a quarentena de A.27.
+  // nas demais, o parecer vem sem prefixo, e sem parecer não há cópia. ⚠ F07 A3: em TODAS as situações a cópia termina com o RODAPÉ que identifica a
+  // execução em que o parecer foi pedido (`rodapeDeCopia`), com "ausente" onde a identificação falta. A cópia NÃO transporta a quarentena de A.27.
   const handleCopy = async () => {
     if (!aiReview?.review) return;
     try {
-      const textoCopiado = (vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) ? RESSALVA_DO_VINCULO_NA_COPIA : '') + aiReview.review;
+      const textoCopiado = (vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) ? RESSALVA_DO_VINCULO_NA_COPIA : '') + aiReview.review + rodapeDeCopia(execucaoAnalisada);
       await navigator.clipboard.writeText(textoCopiado);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);

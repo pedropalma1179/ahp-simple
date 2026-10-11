@@ -3,7 +3,7 @@
 // Baseado em: Wijnmalen (2007), Demirtas & Üstün (2008), Lee (2009)
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useContext } from 'react';
 import { useParams } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
@@ -46,6 +46,15 @@ import type { FonteDoIdentificador } from '@/lib/identificador-respondente';
 import ExternalValidation from '@/components/ExternalValidation';
 import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
 import ReferenciaDoProjeto from '@/components/ReferenciaDoProjeto';
+import FaixaDeIdentificacao, { ContextoDaIdentificacao } from '@/components/IdentificacaoDaExecucao';
+import {
+  type IdentificacaoDaExecucao,
+  comentarioLatex,
+  identificarExecucao,
+  legendaDeImagem,
+  linhasCsv,
+  linhasXlsx,
+} from '@/lib/identificacao-da-execucao';
 import { type Exibicao } from '@/lib/referencia-do-projeto';
 import { type ApresentacaoInicial, carregarApresentacaoInicial } from '@/lib/referencia-leitura';
 
@@ -354,11 +363,17 @@ function ChartDownloadWrapper({
   const chartRef = useRef<HTMLDivElement>(null);
   const [downloading, setDownloading] = useState(false);
   const [showFormat, setShowFormat] = useState(false);
+  // F07 A3: a imagem exportada leva a identificação da execução. A legenda só existe DURANTE a captura.
+  const identificacao = useContext(ContextoDaIdentificacao);
+  const [comLegenda, setComLegenda] = useState(false);
 
   const handleDownload = async (format: 'png' | 'jpeg') => {
     if (!chartRef.current) return;
     setDownloading(true);
     setShowFormat(false);
+    setComLegenda(true);
+    // aguarda a legenda ser pintada antes de capturar a imagem
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
     try {
       const scale = 3;
       const options = {
@@ -385,6 +400,7 @@ function ChartDownloadWrapper({
     } catch (err) {
       console.error('Erro ao exportar gráfico:', err);
     }
+    setComLegenda(false);
     setDownloading(false);
   };
 
@@ -395,6 +411,9 @@ function ChartDownloadWrapper({
           <p className="text-sm font-semibold text-gray-700 mb-2 text-center">{title}</p>
         )}
         {children}
+        {comLegenda && (
+          <p data-legenda="execucao" className="text-[10px] text-gray-600 mt-2 text-center">{legendaDeImagem(identificacao)}</p>
+        )}
       </div>
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
         {showFormat ? (
@@ -652,6 +671,9 @@ export default function ResultadosPage() {
   const [calculation, setCalculation] = useState<CalculationResult | null>(null);
   const [audit, setAudit] = useState<any>(null);
   const [aiReview, setAiReview] = useState<any>(null);
+  // F07 A3: a identificação da execução em que o Parecer FOI PEDIDO. Fica fora do objeto `aiReview`
+  // (o mapeamento de `setAiReview` é lido e executado por testes) e fora do que o modelo recebe.
+  const [execucaoDoParecer, setExecucaoDoParecer] = useState<IdentificacaoDaExecucao | null>(null);
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -965,6 +987,8 @@ export default function ResultadosPage() {
 
     setAiReviewLoading(true);
     setAiReview(null);
+    // F07 A3: a execução em que este pedido é feito, guardada com o parecer que dele resultar
+    setExecucaoDoParecer(identificarExecucao(calculation as any));
 
     try {
       // ============================================================
@@ -1745,6 +1769,8 @@ export default function ResultadosPage() {
 
   const exportLatex = () => {
     if (!calculation || !project) return;
+    // F07 A3: a execução exibida, com os valores que ELA gravou (e "ausente" onde faltam)
+    const idDaExecucao = identificarExecucao(calculation as any);
 
     // Calcular CI para cada matriz
     const calcCI = (cr: number, lambda: number, n: number): number => {
@@ -1755,7 +1781,7 @@ export default function ResultadosPage() {
 % Projeto: ${project.name}
 % Gerado em: ${new Date().toLocaleString('pt-BR')}
 % Software: AHP-BOCR Decision Support System v5.0
-
+${comentarioLatex(idDaExecucao)}
 % ==================================================
 % TABELA 1: PESOS ESTRATÉGICOS BOCR
 % ==================================================
@@ -2068,6 +2094,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
   const exportCSV = () => {
     if (!calculation || !project) return;
+    // F07 A3: a execução exibida, com os valores que ELA gravou (e "ausente" onde faltam)
+    const idDaExecucao = identificarExecucao(calculation as any);
 
     // Calcular CI
     const calcCI = (cr: number, n: number): number => {
@@ -2077,7 +2105,9 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
     let csv = `Resultados AHP-BOCR - ${project.name}\n`;
     csv += `Gerado em:,${new Date().toLocaleString('pt-BR')}\n`;
     csv += `Número de especialistas:,${calculation.responseCount}\n`;
-    csv += `Software:,AHP-BOCR Decision Support System v5.0\n\n`;
+    csv += `Software:,AHP-BOCR Decision Support System v5.0\n`;
+    csv += linhasCsv(idDaExecucao);
+    csv += `\n`;
 
     // Pesos BOCR
     csv += `===== PESOS ESTRATÉGICOS BOCR =====\n`;
@@ -2276,6 +2306,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
 
   const exportXLSX = () => {
     if (!calculation || !project) return;
+    // F07 A3: a execução exibida, com os valores que ELA gravou (e "ausente" onde faltam)
+    const idDaExecucao = identificarExecucao(calculation as any);
 
     const wb = XLSX.utils.book_new();
     const bocrLabels = ['Benefícios', 'Oportunidades', 'Custos', 'Riscos'];
@@ -2301,6 +2333,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       [''],
       ['SOFTWARE'],
       ['Sistema:', 'AHP-BOCR Decision Support System v5.0'],
+      ['EXECUÇÃO'],
+      ...linhasXlsx(idDaExecucao),
       ['Metodologia:', 'Saaty (1977, 1980), Wijnmalen (2007), Petrillo et al. (2023)'],
       ['Instituição:', 'UNESP - Engenharia de Produção'],
     ];
@@ -2792,6 +2826,8 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
       [''],
       ['SOFTWARE'],
       ['Sistema:', 'AHP-BOCR Decision Support System v5.0'],
+      ['EXECUÇÃO'],
+      ...linhasXlsx(idDaExecucao),
       ['Desenvolvido para:', 'Dissertação de Mestrado em Engenharia de Produção'],
       ['Instituição:', 'UNESP - Universidade Estadual Paulista'],
       ['Campus:', 'Guaratinguetá'],
@@ -2867,7 +2903,11 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
   // RENDER
   // ============================================================
 
+  // F07 A3: a identificação da execução EXIBIDA, para a faixa e para a legenda das imagens (não é hook)
+  const identificacaoExibida = identificarExecucao(calculation as any);
+
   return (
+    <ContextoDaIdentificacao.Provider value={identificacaoExibida}>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
@@ -2888,6 +2928,9 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
           </div>
         </div>
       </header>
+
+      {/* F07 A3: a execução EXIBIDA, com o que ela gravou (carga inicial, escolha na lista e resultado do recálculo passam todos por `calculation`) */}
+      <FaixaDeIdentificacao identificacao={identificacaoExibida} />
 
       {/* F07 A2: a referência do projeto, as execuções e o histórico de escolhas */}
       {cargaDaReferencia !== null && (
@@ -5054,6 +5097,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
               aiReview={aiReview}
               loading={aiReviewLoading}
               onExecute={runAiReview}
+              execucaoAnalisada={execucaoDoParecer}
             />
           </div>
         )}
@@ -5156,5 +5200,6 @@ ${['Benefícios', 'Oportunidades', 'Custos', 'Riscos'].map((l, i) =>
         </div>
       </footer>
     </div>
+    </ContextoDaIdentificacao.Provider>
   );
 }

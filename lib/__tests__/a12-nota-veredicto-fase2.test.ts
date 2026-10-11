@@ -342,6 +342,18 @@ function arvoreDoComponente(aiReview: any): { arvore: No; setCopied: jest.Mock }
   }
 }
 
+/**
+ * ⚠ F07 A3: o RODAPÉ que a cópia passa a levar quando o componente é chamado SEM identificação da execução (como estes ensaios o chamam):
+ * "ausente" em cada campo, nunca omitido. O ensaio AFERE o rodapé (a cópia TERMINA com ele, escrito aqui por extenso, e não importado do módulo)
+ * e DEVOLVE o texto antes dele, que é o que as asserções abaixo sempre protegeram: o prefixo da classe A, quando há, mais o parecer INTEIRO.
+ */
+const RODAPE_SEM_IDENTIFICACAO =
+  '\n\n---\n\n[Informação do sistema — não integra o texto gerado do parecer] Execução analisada: ausente; motor de cálculo: ausente; código implantado: ausente; calculada em: ausente.\n';
+function semRodapeDaExecucao(copiado: string): string {
+  expect(copiado.endsWith(RODAPE_SEM_IDENTIFICACAO)).toBe(true);
+  return copiado.slice(0, copiado.length - RODAPE_SEM_IDENTIFICACAO.length);
+}
+
 /** ⚠ O manipulador REAL de cópia, invocado diretamente, com `writeText` SIMULADO. NÃO é clique, e NÃO é a área de transferência. */
 async function conteudoCopiado(aiReview: any): Promise<string | null> {
   const { arvore } = arvoreDoComponente(aiReview);
@@ -362,7 +374,7 @@ async function conteudoCopiado(aiReview: any): Promise<string | null> {
     if (antes) Object.defineProperty(globalThis, 'navigator', antes); else delete (globalThis as any).navigator;
   }
   expect(chamadas.length).toBe(1);
-  return chamadas[0];
+  return semRodapeDaExecucao(chamadas[0]);
 }
 
 /** O que a renderização mostra, medido sobre a ÁRVORE do componente e conferido contra o HTML. */
@@ -967,7 +979,9 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
       return extrairTrecho(texto, t).trecho;
     };
     /** As linhas da composição, DECLARADAS aqui: são do código novo, e a predição não as fixa. */
-    const LINHA_DA_COMPOSICAO = "      const textoCopiado = (vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) ? RESSALVA_DO_VINCULO_NA_COPIA : '') + aiReview.review;\n";
+    // ⚠ F07 A3 troca ESTA linha (a composição da cópia) por uma que acrescenta `+ rodapeDeCopia(execucaoAnalisada)`: o rodapé da execução. É a ÚNICA linha
+    // do trecho que muda; a reversão abaixo a retira e restabelece o `writeText` original, e o sha256 COMPLETO pré-registrado continua sendo o que sai.
+    const LINHA_DA_COMPOSICAO = "      const textoCopiado = (vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) ? RESSALVA_DO_VINCULO_NA_COPIA : '') + aiReview.review + rodapeDeCopia(execucaoAnalisada);\n";
     const WRITETEXT_NOVA = '      await navigator.clipboard.writeText(textoCopiado);\n';
     const WRITETEXT_ORIGINAL = '      await navigator.clipboard.writeText(aiReview.review);\n';
     /** Retira as linhas da composição e restabelece a linha de `writeText`. */

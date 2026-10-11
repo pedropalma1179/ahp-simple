@@ -383,6 +383,18 @@ function arvoreDoComponente(aiReview: any): { arvore: No; setCopied: jest.Mock }
 /** O HTML do bloco do aviso: um `role="status"` da família dos existentes, com o texto (c) num parágrafo. */
 const BLOCO_DO_AVISO_HTML = `<div class="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4" role="status"><p class="text-sm text-slate-800">${AVISO}</p></div>`;
 
+/**
+ * ⚠ F07 A3: o RODAPÉ que a cópia passa a levar quando o componente é chamado SEM identificação da execução (como estes ensaios o chamam):
+ * "ausente" em cada campo, nunca omitido. O ensaio AFERE o rodapé (a cópia TERMINA com ele, escrito aqui por extenso, e não importado do módulo)
+ * e DEVOLVE o texto antes dele, que é o que as asserções abaixo sempre protegeram: o prefixo da classe A, quando há, mais o parecer INTEIRO.
+ */
+const RODAPE_SEM_IDENTIFICACAO =
+  '\n\n---\n\n[Informação do sistema — não integra o texto gerado do parecer] Execução analisada: ausente; motor de cálculo: ausente; código implantado: ausente; calculada em: ausente.\n';
+function semRodapeDaExecucao(copiado: string): string {
+  expect(copiado.endsWith(RODAPE_SEM_IDENTIFICACAO)).toBe(true);
+  return copiado.slice(0, copiado.length - RODAPE_SEM_IDENTIFICACAO.length);
+}
+
 type ResultadoDaCopia = { botoes: number; chamadas: string[]; setCopied: jest.Mock; atrasos: unknown[] };
 /**
  * ⚠ O manipulador REAL de cópia (o `onClick` do botão real), invocado diretamente, com `navigator.clipboard.writeText` SIMULADO e o argumento capturado.
@@ -409,7 +421,7 @@ async function copiar(aiReview: any, esvaziarAntes?: { valor: unknown }): Promis
     espiaoTimeout.mockRestore();
     if (antes) Object.defineProperty(globalThis, 'navigator', antes); else delete (globalThis as any).navigator;
   }
-  return { botoes: botoes.length, chamadas, setCopied, atrasos };
+  return { botoes: botoes.length, chamadas: chamadas.map(semRodapeDaExecucao), setCopied, atrasos };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------------
