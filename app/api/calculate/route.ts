@@ -37,7 +37,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
-import { doc, getDoc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { aggregateMatrix, type AggregationResult } from '@/lib/aggregation';
 import { checkResponseCompleteness, describeIncompleteness } from '@/lib/completeness';
 import { calculateRespondentWeights } from '@/lib/respondent-weights';
@@ -59,6 +59,13 @@ import {
 } from '@/lib/identificador-respondente';
 import { MERITS, SUBCRITERIA_PER_MERIT } from '@/lib/validacao-externa/conjunto-esperado';
 import crypto from 'node:crypto';
+import {
+  calcularParamsDigest,
+  consultarPedido,
+  identificadorValido,
+  montarDocumentoDeExecucao,
+  registrarExecucao,
+} from '@/lib/execucoes';
 
 // ============================================================================
 // CONSTANTES
@@ -587,12 +594,46 @@ function calculateSensitivityTrajectoriesOnly(
 }
 
 // ============================================================================
+// RESPOSTAS DA IDEMPOTÊNCIA (F07 A1)
+// ============================================================================
+
+function respostaDeRequestIdReutilizado(requestId: string) {
+  return NextResponse.json({
+    success: false,
+    error: `O requestId ${requestId} já foi usado com outros parâmetros (outro projeto ou outra lista de exclusões). Cada pedido novo precisa de um requestId novo.`,
+    codigo: 'requestId-reutilizado'
+  }, { status: 409 });
+}
+
+function respostaDePedidoInconsistente(motivo: string) {
+  return NextResponse.json({
+    success: false,
+    error: `Registro de pedido inconsistente: ${motivo}.`,
+    codigo: 'pedido-inconsistente'
+  }, { status: 500 });
+}
+
+/**
+ * ⚠ O pedido já tinha execução: devolve-a SEM recalcular. `calculation` é o documento da execução
+ * como foi gravado, o mesmo que o caminho de criação devolve.
+ */
+function respostaDeExecucaoRegistrada(executionId: string, execucao: Record<string, any>) {
+  return NextResponse.json({
+    success: true,
+    message: 'Pedido já atendido: devolvida a execução registrada, sem novo cálculo.',
+    executionId,
+    recuperada: true,
+    calculation: execucao
+  });
+}
+
+// ============================================================================
 // HANDLER PRINCIPAL
 // ============================================================================
 
 export async function POST(request: NextRequest) {
   try {
-    const { projectId, excludedRespondentIds = [] } = await request.json();
+    const { projectId, excludedRespondentIds = [], requestId } = await request.json();
 
     if (!projectId) {
       return NextResponse.json({
@@ -600,6 +641,33 @@ export async function POST(request: NextRequest) {
         error: 'projectId é obrigatório'
       }, { status: 400 });
     }
+
+    // ⚠ **F07 A1: o pedido TEM identificador.** Sem `requestId` não há como saber se este pedido
+    //   já criou uma execução, e a rota não inventa um: um identificador gerado aqui seria novo a
+    //   cada tentativa e anularia a idempotência. A recusa é explícita, e a mensagem diz o que fazer:
+    //   uma tela aberta antes desta versão não envia o campo.
+    if (!identificadorValido(requestId)) {
+      return NextResponse.json({
+        success: false,
+        error: 'requestId é obrigatório e deve ser um identificador de 8 a 128 caracteres (letras, dígitos, "_" e "-"). Recarregue a página para obter a versão atual da tela e repita o pedido.',
+        codigo: 'request-id-ausente-ou-invalido'
+      }, { status: 400 });
+    }
+    if (!Array.isArray(excludedRespondentIds) || !excludedRespondentIds.every((x: unknown) => typeof x === 'string')) {
+      return NextResponse.json({
+        success: false,
+        error: 'excludedRespondentIds deve ser uma lista de textos'
+      }, { status: 400 });
+    }
+
+    // ⚠ **Primeiro tempo: o pedido já foi atendido?** Se existir, devolve a execução registrada
+    //   SEM CALCULAR (a releitura dentro da transação, abaixo, é o segundo tempo). Os parâmetros são
+    //   conferidos aqui e de novo na transação: o mesmo `requestId` com outros parâmetros é recusado.
+    const paramsDigest = calcularParamsDigest(projectId, excludedRespondentIds);
+    const anterior = await consultarPedido(db, requestId, { projectId, paramsDigest });
+    if (anterior.tipo === 'divergente') return respostaDeRequestIdReutilizado(requestId);
+    if (anterior.tipo === 'inconsistente') return respostaDePedidoInconsistente(anterior.motivo);
+    if (anterior.tipo === 'registrado') return respostaDeExecucaoRegistrada(anterior.executionId, anterior.execucao);
 
     // Buscar projeto
     const projectDoc = await getDoc(doc(db, 'projects', projectId));
@@ -762,10 +830,12 @@ export async function POST(request: NextRequest) {
     // ⚠ **ESTA ETAPA É DE RASTREABILIDADE, E NÃO É PORTÃO.** Nenhum respondente deixa de
     //   entrar no cálculo por causa do resumo.
     //
-    // ⚠ **O que isto NÃO resolve:** não preserva execuções anteriores, porque o documento
-    //   é único por projeto e sobrescrito; não preserva o conteúdo julgado, porque o
-    //   resumo IDENTIFICA e não guarda; e não vincula a avaliação de qualidade aos
-    //   incluídos, que é a etapa 3.
+    // ⚠ **O que isto NÃO resolve:** não preserva o conteúdo julgado, porque o resumo
+    //   IDENTIFICA e não guarda; e não vincula a avaliação de qualidade aos incluídos, que é
+    //   a etapa 3. ⚠ Registro histórico: a etapa 2 escreveu aqui que o cálculo "não preserva
+    //   execuções anteriores, porque o documento é único por projeto e sobrescrito". Isso valia
+    //   até F07 A1; desde então cada execução é guardada em `executions/{executionId}` (ver o
+    //   passo final desta rota).
     // ══════════════════════════════════════════════════════════════════════
     const ETAPAS_DE_SELECAO = ['validacaoCruzada', 'deduplicacao', 'filtroDeExcluidos', 'portaoDeCompletude'];
     /** ⚠ A etapa declarada de ORIGEM do valor gravado: a chave sob a qual respostas foram
@@ -925,8 +995,8 @@ export async function POST(request: NextRequest) {
 
     if (responseCount === 0) {
       // Nenhum respondente aceito: falha explícita, com os motivos NO CORPO, e
-      // nada é gravado — a única escrita desta rota é o `setDoc` do fim, então o
-      // resultado anterior permanece intacto.
+      // nada é gravado — a única escrita desta rota é o registro da execução, no fim, e
+      // ele só acontece depois deste ponto. Nenhum pedido (`executionRequests`) é criado.
       return NextResponse.json({
         success: false,
         error: rejectedIncomplete.length > 0
@@ -1089,10 +1159,11 @@ export async function POST(request: NextRequest) {
       projectId,
       calculatedAt: new Date().toISOString(),
       // ⚠ **A.12 etapa 2: QUAL execução este documento é.** Opaco, um por execução, sem
-      //   significado de ordem. ⚠ **NÃO preserva execuções anteriores:** o documento é
-      //   único por projeto e é SOBRESCRITO a cada cálculo, e preservar o histórico é
-      //   decisão separada. ⚠ A afirmação vale para o percurso examinado, a rota
-      //   `calculate` gravando em `calculations`.
+      //   significado de ordem. ⚠ **F07 A1: cada execução é GUARDADA** em
+      //   `executions/{executionId}`, e a rota não escreve mais em `calculations`; as execuções
+      //   anteriores não são sobrescritas. ⚠ O documento antigo `calculations/{projectId}`
+      //   continua existindo onde já existia (resíduo, que F07 não migra nem apaga), e a
+      //   exclusão de projeto ainda o remove.
       executionId,
       responseCount,
 
@@ -1223,14 +1294,41 @@ export async function POST(request: NextRequest) {
       // === IPC METADATA ===
     };
 
-    // Salvar no Firestore
-    await setDoc(doc(db, 'calculations', projectId), calculationResult);
-    console.log('[BOCR v5.0] Cálculo salvo com sucesso!');
+    // ══════════════════════════════════════════════════════════════════════
+    // F07 A1: REGISTRAR A EXECUÇÃO (segundo tempo, em transação)
+    // ══════════════════════════════════════════════════════════════════════
+    // ⚠ O resultado é gravado COMO FOI CALCULADO: o documento de execução é o
+    //   `calculationResult` mais os campos de identificação, sem recalcular, reordenar, preencher
+    //   ou omitir nada. ⚠ `codeRevision` e `projectUpdatedAt` AUSENTES são gravados como `null`,
+    //   nunca preenchidos. ⚠ `projectUpdatedAt` vem do MESMO objeto de projeto lido no início
+    //   desta chamada (`project`), e não de uma segunda leitura.
+    const execucao = montarDocumentoDeExecucao(calculationResult, {
+      requestId,
+      codeRevision: process.env.VERCEL_GIT_COMMIT_SHA,
+      projectUpdatedAt: project.updatedAt,
+    });
+
+    const desfecho = await registrarExecucao(db, {
+      requestId,
+      projectId,
+      paramsDigest,
+      excludedRespondentIds,
+      execucao,
+    });
+    // O resultado recém-calculado é DESCARTADO quando outra chamada com o mesmo pedido registrou
+    // primeiro; vale o registrado.
+    if (desfecho.tipo === 'divergente') return respostaDeRequestIdReutilizado(requestId);
+    if (desfecho.tipo === 'inconsistente') return respostaDePedidoInconsistente(desfecho.motivo);
+    if (desfecho.tipo === 'ja-registrada') return respostaDeExecucaoRegistrada(desfecho.executionId, desfecho.execucao);
+
+    console.log(`[BOCR v5.0] Execução ${executionId} registrada.`);
 
     return NextResponse.json({
       success: true,
       message: `Cálculo Q1/A1 concluído com ${responseCount} respostas`,
-      calculation: calculationResult
+      executionId,
+      recuperada: false,
+      calculation: execucao
     });
 
   } catch (error: any) {

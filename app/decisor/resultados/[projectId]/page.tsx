@@ -44,6 +44,7 @@ import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidad
 import { idDoElementoNoFallback, prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';
 import type { FonteDoIdentificador } from '@/lib/identificador-respondente';
 import ExternalValidation from '@/components/ExternalValidation';
+import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
 
 // Componentes Q1/A1
 import BOCRPrioritiesTable from '@/components/BOCRPrioritiesTable';
@@ -651,6 +652,8 @@ export default function ResultadosPage() {
   const [aiReviewLoading, setAiReviewLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // F07 A1: avisos sobre pedidos de cálculo (retomada ao montar a tela; recarga sem proteção).
+  const [avisosDoPedido, setAvisosDoPedido] = useState<string[]>([]);
 
   // Implementação de aba persistente via URL hash
   const validTabs = ['executive', 'results', 'quality', 'robustness', 'review', 'export'] as const;
@@ -1469,18 +1472,29 @@ export default function ResultadosPage() {
     setIsRecalculating(true);
     setLoading(true); // Bloquear UI geral
     try {
-      const response = await fetch('/api/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectId,
-          excludedRespondentIds: exclusions
-        })
+      // F07 A1: o pedido tem `requestId`, e a intenção fica guardada no navegador até o servidor
+      // confirmar. `data.calculation` é a EXECUÇÃO registrada (`executions/{executionId}`).
+      const { desfecho, persistida } = await executarCalculo(dependenciasDoNavegador(), {
+        projectId,
+        excludedRespondentIds: exclusions
       });
 
-      const data = await response.json();
+      if (desfecho.situacao === 'pendente') {
+        setError(
+          `Sem confirmação do servidor (${desfecho.motivo}). O pedido permanece guardado neste navegador: ao reabrir esta página ele é consultado, e a execução, se foi criada, é recuperada sem novo cálculo.`
+        );
+        setExcludedIds(calculation?.metadata?.excludedRespondentIds || []);
+        return;
+      }
+      const data = desfecho.resposta.corpo;
 
-      if (data.success) {
+      if (desfecho.situacao === 'confirmada') {
+        if (!persistida) {
+          setAvisosDoPedido(prev => [
+            ...prev,
+            'O armazenamento do navegador não está disponível: se esta página fosse recarregada durante o pedido, a execução não poderia ser recuperada.'
+          ]);
+        }
         // Atualizar calculation com o novo resultado (incluindo metadados atualizados)
         setCalculation(data.calculation);
 
@@ -1521,6 +1535,16 @@ export default function ResultadosPage() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        // 0. F07 A1: consultar os pedidos de cálculo deste projeto que ficaram sem resposta, ANTES
+        //    de liberar a tela. `loading` permanece ligado até aqui, então nenhuma ação nova é
+        //    possível durante a consulta. ⚠ A consulta NÃO troca o resultado apresentado: só avisa.
+        try {
+          const relato = await retomarPendentes(dependenciasDoNavegador(), { tipo: 'calculo', projectId });
+          setAvisosDoPedido(resumirRetomada(relato).linhas);
+        } catch (e: any) {
+          setAvisosDoPedido([`Não foi possível consultar os pedidos de cálculo anteriores: ${e?.message ?? String(e)}`]);
+        }
+
         // 1. Carregar projeto
         const projectDoc = await getDoc(doc(db, 'projects', projectId));
         if (!projectDoc.exists()) {
@@ -2824,6 +2848,19 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
           </div>
         </div>
       </header>
+
+      {avisosDoPedido.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 mt-4">
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-900">
+            {avisosDoPedido.map((linha, i) => (
+              <p key={i}>{linha}</p>
+            ))}
+            <button onClick={() => setAvisosDoPedido([])} className="mt-2 underline text-amber-800">
+              Dispensar este aviso
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="bg-white border-b shadow-sm">

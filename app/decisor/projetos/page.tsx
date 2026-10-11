@@ -9,6 +9,7 @@ import {
   query, orderBy, where, writeBatch
 } from 'firebase/firestore';
 import { Project, Alternative, Respondent, BOCR_CRITERIA, SUBCRITERIA } from '@/lib/data';
+import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
 
 const generateAccessCode = (existingCodes: string[] = []) => {
   // [I5] Gerar código único verificando colisões
@@ -34,6 +35,10 @@ export default function ProjetosPage() {
   // Cálculo
   const [calculating, setCalculating] = useState(false);
   const [calculateResult, setCalculateResult] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  // F07 A1: pedidos de cálculo feitos antes (recarga, rede) são consultados ao montar a tela; a ação
+  // de calcular só é liberada depois. `avisoDeRetomada` lista o que a consulta encontrou.
+  const [retomando, setRetomando] = useState(true);
+  const [avisoDeRetomada, setAvisoDeRetomada] = useState<string[]>([]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'draft' | 'closed'>('all');
@@ -120,6 +125,22 @@ export default function ProjetosPage() {
 
   useEffect(() => { loadProjects(); }, []);
 
+  // F07 A1: consulta cada pedido de cálculo guardado neste navegador e só então libera nova ação.
+  useEffect(() => {
+    let ativo = true;
+    retomarPendentes(dependenciasDoNavegador(), { tipo: 'calculo' })
+      .then(relato => {
+        if (ativo) setAvisoDeRetomada(resumirRetomada(relato).linhas);
+      })
+      .catch(e => {
+        if (ativo) setAvisoDeRetomada([`Não foi possível consultar os pedidos de cálculo anteriores: ${e?.message ?? String(e)}`]);
+      })
+      .finally(() => {
+        if (ativo) setRetomando(false);
+      });
+    return () => { ativo = false; };
+  }, []);
+
 
 
   // Atalho Ctrl+K
@@ -196,16 +217,22 @@ export default function ProjetosPage() {
     setCalculating(true);
     setCalculateResult(null);
     try {
-      const response = await fetch('/api/calculate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ projectId })
-      });
-      const data = await response.json();
-      if (data.success) {
-        setCalculateResult({ type: 'success', text: data.message });
+      // F07 A1: o pedido tem `requestId`, e a intenção fica guardada no navegador até o servidor
+      // confirmar; uma recarga no meio do envio é retomada ao montar a tela, sem segunda execução.
+      const { desfecho, persistida } = await executarCalculo(dependenciasDoNavegador(), { projectId });
+      const aviso = persistida
+        ? ''
+        : ' Aviso: o armazenamento do navegador não está disponível, e uma recarga agora não permitiria recuperar este pedido.';
+      if (desfecho.situacao === 'confirmada') {
+        const data = desfecho.resposta.corpo;
+        setCalculateResult({ type: 'success', text: `${data.message} Execução ${data.executionId}.${aviso}` });
+      } else if (desfecho.situacao === 'recusada') {
+        setCalculateResult({ type: 'error', text: desfecho.resposta.corpo?.error ?? `Pedido recusado (status ${desfecho.resposta.status}).` });
       } else {
-        setCalculateResult({ type: 'error', text: data.error });
+        setCalculateResult({
+          type: 'error',
+          text: `Sem confirmação do servidor (${desfecho.motivo}). O pedido permanece guardado neste navegador: ao reabrir esta tela ele é consultado, e a execução, se foi criada, é recuperada sem novo cálculo.${aviso}`
+        });
       }
     } catch (error: any) {
       setCalculateResult({ type: 'error', text: error.message });
@@ -419,6 +446,20 @@ export default function ProjetosPage() {
           </div>
         )
       }
+
+      {/* F07 A1: o que a consulta dos pedidos de cálculo anteriores encontrou */}
+      {avisoDeRetomada.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-900">
+            {avisoDeRetomada.map((linha, i) => (
+              <p key={i}>{linha}</p>
+            ))}
+            <button onClick={() => setAvisoDeRetomada([])} className="mt-2 underline text-amber-800">
+              Dispensar este aviso
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Modal de confirmação */}
       {
@@ -1127,7 +1168,7 @@ export default function ProjetosPage() {
             respondents={projectRespondents[managingProject.id] || []}
             onClose={() => { setManagingProject(null); setCalculateResult(null); }}
             onCalculate={() => handleCalculate(managingProject.id)}
-            calculating={calculating}
+            calculating={calculating || retomando}
             calculateResult={calculateResult}
             onReloadRespondents={loadProjects}
           />

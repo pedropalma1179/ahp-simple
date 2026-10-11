@@ -1,0 +1,173 @@
+rules_version = '2';
+
+// F07: conjunto COMPLETO proposto. Substitui integralmente o conjunto atual.
+// Nao contem nenhum match abrangente de topo: o que nao esta aqui nao e alcancado.
+//
+// Limite declarado: estas regras governam clientes sujeitos a elas. Elas nao
+// demonstram a PROCEDENCIA do conteudo gravado, apenas a forma e os vinculos.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===================================================================
+    // Colecoes atuais: comportamento preservado, exatamente como hoje.
+    // ===================================================================
+    match /projects/{document=**}     { allow read, write: if true; }
+    match /respondents/{document=**}  { allow read, write: if true; }
+    match /responses/{document=**}    { allow read, write: if true; }
+    match /calculations/{document=**} { allow read, write: if true; }
+
+    // ===================================================================
+    // executions: criada SOMENTE junto do executionRequests que a aponta.
+    // ===================================================================
+    match /executions/{executionId} {
+
+      function formaOk() {
+        let d = request.resource.data;
+        return d.keys().hasAll(['projectId', 'requestId', 'executionId',
+                                'engineVersion', 'calculatedAt',
+                                'includedRespondents', 'judgmentsDigest'])
+            && d.projectId is string && d.projectId.size() > 0
+            && d.requestId is string && d.requestId.size() > 0
+            && d.executionId == executionId
+            && d.engineVersion is string && d.engineVersion.size() > 0
+            && d.calculatedAt is string && d.calculatedAt.size() > 0
+            && d.includedRespondents is list
+            && d.judgmentsDigest is map;
+      }
+
+      // O pedido NAO existia antes e PASSA A EXISTIR apontando para esta execucao.
+      // `!exists` le o estado anterior; `getAfter` le o posterior. Os dois juntos
+      // demonstram criacao nesta mesma operacao.
+      function pedidoCriadoAgora() {
+        let p = /databases/$(database)/documents/executionRequests/$(request.resource.data.requestId);
+        return !exists(p)
+            && getAfter(p).data.executionId == executionId
+            && getAfter(p).data.projectId == request.resource.data.projectId;
+      }
+
+      allow read: if true;
+      allow create: if formaOk() && pedidoCriadoAgora();
+      allow update, delete: if false;
+    }
+
+    // ===================================================================
+    // executionRequests: criado SOMENTE junto da execucao que ele aponta.
+    // ===================================================================
+    match /executionRequests/{requestId} {
+
+      function formaOk() {
+        let d = request.resource.data;
+        return d.keys().hasAll(['projectId', 'executionId', 'paramsDigest', 'createdAt'])
+            && d.projectId is string && d.projectId.size() > 0
+            && d.executionId is string && d.executionId.size() > 0
+            && d.paramsDigest is string && d.paramsDigest.size() > 0
+            && d.createdAt is string && d.createdAt.size() > 0;
+      }
+
+      function execucaoCriadaAgora() {
+        let p = /databases/$(database)/documents/executions/$(request.resource.data.executionId);
+        return !exists(p)
+            && getAfter(p).data.requestId == requestId
+            && getAfter(p).data.projectId == request.resource.data.projectId;
+      }
+
+      allow read: if true;
+      allow create: if formaOk() && execucaoCriadaAgora();
+      allow update, delete: if false;
+    }
+
+    // ===================================================================
+    // referenceChanges: o historico. Criado SOMENTE junto da referencia.
+    // ===================================================================
+    match /referenceChanges/{operationId} {
+
+      function formaOk() {
+        let d = request.resource.data;
+        return d.keys().hasAll(['projectId', 'executionId', 'revision',
+                                'expectedRevision', 'justification',
+                                'chosenAt', 'authorship', 'operationId'])
+            && d.operationId == operationId
+            && d.projectId is string && d.projectId.size() > 0
+            && d.executionId is string && d.executionId.size() > 0
+            && d.revision is int
+            && d.expectedRevision is int
+            && d.revision == d.expectedRevision + 1
+            && d.justification is string && d.justification.size() > 0
+            && d.chosenAt is string && d.chosenAt.size() > 0
+            && d.authorship == 'nao-autenticada';
+      }
+
+      // Espelho de registroCriadoAgora(): o estado ANTERIOR tambem e exigido.
+      // Sem a primeira linha, uma referencia ja gravada com este operationId
+      // permitiria criar o historico sozinho depois, e nascimento conjunto nao
+      // estaria demonstrado. A referencia pode existir (segunda escolha em
+      // diante), mas nao pode JA carregar este operationId.
+      function referenciaGravadaAgora() {
+        let p = /databases/$(database)/documents/projectReference/$(request.resource.data.projectId);
+        return (!exists(p) || get(p).data.operationId != operationId)
+            && getAfter(p).data.operationId == operationId
+            && getAfter(p).data.executionId == request.resource.data.executionId
+            && getAfter(p).data.revision == request.resource.data.revision
+            && getAfter(p).data.chosenAt == request.resource.data.chosenAt;
+      }
+
+      allow read: if true;
+      allow create: if formaOk() && referenciaGravadaAgora();
+      allow update, delete: if false;
+    }
+
+    // ===================================================================
+    // projectReference: a referencia escolhida. Um documento por projeto.
+    // ===================================================================
+    match /projectReference/{projectId} {
+
+      function formaOk() {
+        let d = request.resource.data;
+        return d.keys().hasAll(['executionId', 'revision', 'operationId',
+                                'chosenAt', 'justification', 'authorship'])
+            && d.executionId is string && d.executionId.size() > 0
+            && d.revision is int
+            && d.operationId is string && d.operationId.size() > 0
+            && d.justification is string && d.justification.size() > 0
+            && d.chosenAt is string && d.chosenAt.size() > 0
+            && d.authorship == 'nao-autenticada';
+      }
+
+      // O registro de escolha NAO existia antes e PASSA A EXISTIR, correspondendo
+      // campo a campo. Sem o `!exists`, um registro gravado antes satisfaria o
+      // `getAfter` e a escrita conjunta nao estaria demonstrada.
+      function registroCriadoAgora() {
+        let p = /databases/$(database)/documents/referenceChanges/$(request.resource.data.operationId);
+        return !exists(p)
+            && getAfter(p).data.projectId == projectId
+            && getAfter(p).data.executionId == request.resource.data.executionId
+            && getAfter(p).data.revision == request.resource.data.revision
+            && getAfter(p).data.justification == request.resource.data.justification
+            && getAfter(p).data.chosenAt == request.resource.data.chosenAt;
+      }
+
+      // A execucao precisa existir E pertencer a ESTE projeto.
+      function execucaoDesteProjeto() {
+        let p = /databases/$(database)/documents/executions/$(request.resource.data.executionId);
+        return exists(p) && get(p).data.projectId == projectId;
+      }
+
+      allow read: if true;
+
+      allow create: if formaOk()
+                    && request.resource.data.revision == 1
+                    && execucaoDesteProjeto()
+                    && registroCriadoAgora();
+
+      allow update: if formaOk()
+                    && request.resource.data.revision == resource.data.revision + 1
+                    && execucaoDesteProjeto()
+                    && registroCriadoAgora();
+
+      allow delete: if false;
+    }
+
+    // Nenhum match abrangente. Fim.
+  }
+}

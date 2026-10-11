@@ -16,6 +16,26 @@
  *
  * O módulo é uma instância só por arquivo de teste (o registro de módulos do jest é por
  * arquivo), então `duplo` é o mesmo objeto para a rota e para o teste.
+ *
+ * ⚠ **TRANSAÇÕES (`runTransaction`).** O duplo reproduz o que as entregas de F07 usam do serviço:
+ *   - o SDK web faz CONTROLE OTIMISTA: cada documento lido guarda a versão vista, e a confirmação
+ *     só vale se nenhum deles mudou; se algum mudou, a função da transação é REPETIDA do início, e
+ *     a releitura enxerga o estado novo (é o que a idempotência por pedido usa);
+ *   - leitura depois de escrita na mesma transação é ERRO ("all reads before all writes");
+ *   - as escritas só são aplicadas na confirmação, todas ou nenhuma: um valor inválido em QUALQUER
+ *     uma impede todas;
+ *   - documento lido e ausente também é protegido (versão 0), então a criação concorrente de um
+ *     documento que a transação viu ausente provoca a repetição.
+ * O que o duplo NÃO reproduz: latência, limite de tentativas do serviço (aqui `MAXIMO_DE_TENTATIVAS`),
+ * limites de tamanho e de escritas por transação, regras de segurança, índices.
+ *
+ * Ganchos de teste (nenhum existe no serviço real):
+ *   - `antesDaConfirmacao` roda depois da função da transação e ANTES da conferência de versões, e
+ *     permite simular que outra chamada confirmou no meio (ou parar duas chamadas num ponto comum,
+ *     para que a corrida seja determinística e não dependa da ordem de microtarefas);
+ *   - `depoisDeLer` roda depois que um `getDoc` FORA de transação capturou o que devolverá, e permite
+ *     criar um documento na janela entre a leitura e a transação seguinte (o que o leitor vê já foi
+ *     decidido: a mudança só é vista pela leitura seguinte).
  */
 
 type Registro = Record<string, unknown>;
@@ -66,15 +86,57 @@ function estruturado<T>(x: T): T {
   return saida as T;
 }
 
+export const MAXIMO_DE_TENTATIVAS = 5;
+
+export interface LeituraRegistrada {
+  via: 'getDoc' | 'getDocs' | 'transacao';
+  col: string;
+  /** Ausente em `getDocs`. */
+  id?: string;
+}
+
+export interface TentativaDeTransacao {
+  /** Ordem de abertura da transação, a partir de 1. */
+  numero: number;
+  tentativa: number;
+  desfecho: 'confirmada' | 'repetida-por-contencao' | 'erro';
+}
+
 class Duplo {
   /** coleção -> id -> { dados, versao } */
   private colecoes = new Map<string, Map<string, { dados: Registro; versao: number }>>();
+  /**
+   * Versão por documento, MONOTÔNICA e global. Uma exclusão também avança a versão (o documento
+   * apagado e recriado não volta a uma versão já vista por quem leu antes).
+   */
+  private versoes = new Map<string, number>();
+  private relogio = 0;
+  private abertas = 0;
   /** Todas as escritas aplicadas, na ordem. */
   escritas: EscritaRegistrada[] = [];
+  /** Toda leitura feita pelo módulo simulado, na ordem. */
+  leituras: LeituraRegistrada[] = [];
+  /** Cada tentativa de cada transação, na ordem. */
+  tentativas: TentativaDeTransacao[] = [];
+  /** Gancho de teste: ver o cabeçalho. */
+  antesDaConfirmacao: ((ctx: { numero: number; tentativa: number }) => void | Promise<void>) | null = null;
+  depoisDeLer: ((leitura: LeituraRegistrada) => void | Promise<void>) | null = null;
 
   reset(): void {
     this.colecoes = new Map();
+    this.versoes = new Map();
+    this.relogio = 0;
+    this.abertas = 0;
     this.escritas = [];
+    this.leituras = [];
+    this.tentativas = [];
+    this.antesDaConfirmacao = null;
+    this.depoisDeLer = null;
+  }
+
+  /** Quantas leituras houve na coleção, opcionalmente por via. */
+  quantasLeituras(col: string, via?: LeituraRegistrada['via']): number {
+    return this.leituras.filter(l => l.col === col && (via === undefined || l.via === via)).length;
   }
 
   private col(nome: string) {
@@ -90,6 +152,7 @@ class Duplo {
   semear(col: string, id: string, dados: Registro): void {
     validarCampos(dados, `${col}/${id}`);
     this.col(col).set(id, { dados: estruturado(dados), versao: 1 });
+    this.versoes.set(`${col}/${id}`, ++this.relogio);
   }
 
   ler(col: string, id: string): Registro | undefined {
@@ -97,8 +160,9 @@ class Duplo {
     return e ? estruturado(e.dados) : undefined;
   }
 
+  /** Versão do documento; 0 se nunca existiu. Avança em toda escrita, inclusive exclusão. */
   versao(col: string, id: string): number {
-    return this.col(col).get(id)?.versao ?? 0;
+    return this.versoes.get(`${col}/${id}`) ?? 0;
   }
 
   todos(col: string): { id: string; data: Registro }[] {
@@ -124,7 +188,73 @@ class Duplo {
     } else {
       c.delete(e.id);
     }
+    this.versoes.set(`${e.col}/${e.id}`, ++this.relogio);
     this.escritas.push({ op: e.op, col: e.col, id: e.id, data: e.data ? estruturado(e.data) : undefined });
+  }
+
+  /**
+   * Abre uma transação. `fn` recebe o objeto `tx` com `get`, `set`, `update` e `delete`.
+   * Ver o cabeçalho do arquivo para o que é reproduzido.
+   */
+  async transacao<T>(fn: (tx: any) => Promise<T>, leitura: (col: string, id: string) => unknown): Promise<T> {
+    const numero = ++this.abertas;
+    for (let tentativa = 1; tentativa <= MAXIMO_DE_TENTATIVAS; tentativa++) {
+      const lidas = new Map<string, { col: string; id: string; versao: number }>();
+      const pendentes: EscritaRegistrada[] = [];
+      const tx: any = {
+        get: async (ref: { __col: string; __id: string }) => {
+          if (pendentes.length > 0) {
+            throw new Error('Firestore transactions require all reads to be executed before all writes.');
+          }
+          this.leituras.push({ via: 'transacao', col: ref.__col, id: ref.__id });
+          const k = `${ref.__col}/${ref.__id}`;
+          if (!lidas.has(k)) lidas.set(k, { col: ref.__col, id: ref.__id, versao: this.versao(ref.__col, ref.__id) });
+          return leitura(ref.__col, ref.__id);
+        },
+        set: (ref: { __col: string; __id: string }, data: Registro) => {
+          pendentes.push({ op: 'set', col: ref.__col, id: ref.__id, data });
+          return tx;
+        },
+        update: (ref: { __col: string; __id: string }, data: Registro) => {
+          pendentes.push({ op: 'update', col: ref.__col, id: ref.__id, data });
+          return tx;
+        },
+        delete: (ref: { __col: string; __id: string }) => {
+          pendentes.push({ op: 'delete', col: ref.__col, id: ref.__id });
+          return tx;
+        },
+      };
+
+      let resultado: T;
+      try {
+        resultado = await fn(tx);
+        if (this.antesDaConfirmacao) await this.antesDaConfirmacao({ numero, tentativa });
+      } catch (e) {
+        this.tentativas.push({ numero, tentativa, desfecho: 'erro' });
+        throw e;
+      }
+
+      const mudou = [...lidas.values()].some(l => this.versao(l.col, l.id) !== l.versao);
+      if (mudou) {
+        this.tentativas.push({ numero, tentativa, desfecho: 'repetida-por-contencao' });
+        continue;
+      }
+
+      // Todas ou nenhuma: valida tudo ANTES de aplicar a primeira.
+      try {
+        for (const e of pendentes) {
+          if (e.op !== 'delete') validarCampos(e.data, `${e.col}/${e.id}`);
+          if (e.op === 'update' && !this.col(e.col).has(e.id)) throw new Error(`No document to update: ${e.col}/${e.id}`);
+        }
+      } catch (e) {
+        this.tentativas.push({ numero, tentativa, desfecho: 'erro' });
+        throw e;
+      }
+      for (const e of pendentes) this.aplicar(e);
+      this.tentativas.push({ numero, tentativa, desfecho: 'confirmada' });
+      return resultado;
+    }
+    throw new Error(`Transaction failed after ${MAXIMO_DE_TENTATIVAS} attempts (contention)`);
   }
 }
 
@@ -145,8 +275,15 @@ export function moduloFirestoreSimulado() {
     query: (ref: ConsultaSimulada, ...filtros: any[]) => ({ __col: ref.__col, __filtros: [...ref.__filtros, ...filtros] }),
     where: (field: string, op: string, value: unknown) => ({ field, op, value }),
     doc: (_db: unknown, col: string, id: string): Ref => ({ __col: col, __id: id }),
-    getDoc: async (ref: Ref) => instantanea(ref),
+    getDoc: async (ref: Ref) => {
+      const leitura: LeituraRegistrada = { via: 'getDoc', col: ref.__col, id: ref.__id };
+      duplo.leituras.push(leitura);
+      const lida = instantanea(ref); // capturada ANTES do gancho
+      if (duplo.depoisDeLer) await duplo.depoisDeLer(leitura);
+      return lida;
+    },
     getDocs: async (q: ConsultaSimulada) => {
+      duplo.leituras.push({ via: 'getDocs', col: q.__col });
       const docs = duplo
         .todos(q.__col)
         .filter(d => q.__filtros.every(f => f.op === '==' && (d.data as any)[f.field] === f.value))
@@ -162,5 +299,7 @@ export function moduloFirestoreSimulado() {
     deleteDoc: async (ref: Ref) => {
       duplo.aplicar({ op: 'delete', col: ref.__col, id: ref.__id });
     },
+    runTransaction: async (_db: unknown, fn: (tx: any) => Promise<any>) =>
+      duplo.transacao(fn, (col, id) => instantanea({ __col: col, __id: id })),
   };
 }

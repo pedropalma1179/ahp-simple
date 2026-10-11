@@ -37,29 +37,14 @@ const SNAPSHOT_HISTORICO = path.join(RAIZ, 'docs', 'calculations-13jul2026.json'
 // ---------------------------------------------------------------------------
 
 type Doc = { id: string; data: Record<string, unknown> };
+// ⚠ F07 A1 (adaptação): o Firestore simulado é o DUPLO COMPARTILHADO (`helpers/firestore-duplo.ts`),
+// que reproduz `runTransaction`. `store` continua existindo, mas só como a LISTA dos documentos de
+// entrada que o MODELO da tela (`carregarComoATela`) percorre; `montarStore` alimenta os dois com os
+// mesmos dados. A rota lê do duplo, e o que ela grava é lido de `executions/{executionId}`.
 const store: Record<string, Doc[]> = { projects: [], respondents: [], responses: [] };
-const setDocSpy = jest.fn();
 
 jest.mock('@/lib/firebase', () => ({ db: { __mock: true } }));
-
-jest.mock('firebase/firestore', () => ({
-  collection: (_db: unknown, name: string) => ({ __col: name }),
-  query: (ref: unknown) => ref,
-  where: (field: string, _op: string, value: unknown) => ({ field, value }),
-  doc: (_db: unknown, col: string, id: string) => ({ __col: col, __id: id }),
-  getDoc: async (ref: { __col: string; __id: string }) => {
-    const achado = store[ref.__col]?.find(d => d.id === ref.__id);
-    return { exists: () => Boolean(achado), id: ref.__id, data: () => achado?.data };
-  },
-  getDocs: async (ref: { __col: string }) => {
-    const docs = (store[ref.__col] ?? []).map(d => ({ id: d.id, data: () => d.data }));
-    return { docs, size: docs.length };
-  },
-  setDoc: (...args: unknown[]) => {
-    setDocSpy(...args);
-    return Promise.resolve();
-  },
-}));
+jest.mock('firebase/firestore', () => require('./helpers/firestore-duplo').moduloFirestoreSimulado());
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { POST } = require('@/app/api/calculate/route');
@@ -67,6 +52,7 @@ const { prepararVinculoDaTela } = require('@/lib/ai-reviewer/vinculo-execucao');
 const { classificarAvaliacaoDaTela } = require('@/lib/ai-reviewer/avaliacao-qualidade');
 const { compararIdentificadores } = require('@/lib/ai-reviewer/vinculo-execucao');
 const fixture = require('./fixtures/panel-2026.json');
+const { duplo } = require('./helpers/firestore-duplo');
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 const PROJETO = 'projeto-vinculo-execucao';
@@ -82,6 +68,14 @@ const copia = (x: any) => JSON.parse(JSON.stringify(x));
 type Entrada = { docId: string; respondentId?: string; judgments: any[]; completedAt?: string; extra?: any };
 
 function montarStore(cadastrados: string[], respostas: Entrada[]) {
+  montarStoreDeEntrada(cadastrados, respostas);
+  duplo.reset();
+  for (const d of store.projects) duplo.semear('projects', d.id, d.data);
+  for (const d of store.respondents) duplo.semear('respondents', d.id, d.data);
+  for (const d of store.responses) duplo.semear('responses', d.id, d.data);
+}
+
+function montarStoreDeEntrada(cadastrados: string[], respostas: Entrada[]) {
   store.projects = [
     { id: PROJETO, data: { name: 'Painel do vinculo', description: '', alternatives: ALTERNATIVAS } },
   ];
@@ -98,11 +92,15 @@ function montarStore(cadastrados: string[], respostas: Entrada[]) {
   }));
 }
 
+let contadorDePedidos = 0;
 async function rodar(body: Record<string, unknown> = { projectId: PROJETO }) {
-  setDocSpy.mockClear();
-  const res = await POST({ json: async () => body } as any);
+  // Um `requestId` novo a cada chamada: duas chamadas no mesmo teste são dois pedidos distintos.
+  const comId = 'requestId' in body ? body : { ...body, requestId: `req-vinculo-${String(++contadorDePedidos).padStart(4, '0')}` };
+  const res = await POST({ json: async () => comId } as any);
   const corpo = await res.json();
-  return { status: res.status ?? 200, corpo, gravado: setDocSpy.mock.calls[0]?.[1] as any };
+  // O que a rota gravou: o documento de EXECUÇÃO (antes, `setDoc` em `calculations`).
+  const gravado = corpo?.executionId ? (duplo.ler('executions', corpo.executionId) as any) : undefined;
+  return { status: res.status ?? 200, corpo, gravado };
 }
 
 /** Um painel de `n` respondentes completos, cadastrados, com `respondentId` presente. */

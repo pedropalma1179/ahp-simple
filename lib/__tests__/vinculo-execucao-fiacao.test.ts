@@ -1648,8 +1648,13 @@ describe('ensaio 12: julgamentos-resumo.ts não é importado pela tela, e não e
       }
     };
     for (const dir of ['app', 'lib', 'components']) varrer(dir);
+    // ⚠ **F07 A1 passa a exigir um segundo arquivo com `createHash(`: `lib/execucoes.ts`.** Ele resume
+    //   os PARÂMETROS DO PEDIDO de cálculo (`paramsDigest`: projeto + lista de exclusões), e NÃO
+    //   serializa nem resume julgamentos. A igualdade é EXATA, de propósito: um terceiro arquivo com
+    //   `createHash(` reprova este teste, e a versão e a função de serialização continuam em UM só
+    //   arquivo, que é o que o teste protege.
     expect(definem).toEqual({
-      hash: ['lib/julgamentos-resumo.ts'],
+      hash: ['lib/execucoes.ts', 'lib/julgamentos-resumo.ts'],
       versao: ['lib/julgamentos-resumo.ts'],
       funcao: ['lib/julgamentos-resumo.ts'],
     });

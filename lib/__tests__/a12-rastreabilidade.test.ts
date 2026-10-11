@@ -38,30 +38,11 @@ const MODULO_IDENT = 'lib/identificador-respondente.ts';
 // Firestore simulado. ⚠ É duplo de TESTE, e não caminho de produção.
 // ---------------------------------------------------------------------------
 
-type Doc = { id: string; data: Record<string, unknown> };
-const store: Record<string, Doc[]> = { projects: [], respondents: [], responses: [] };
-const setDocSpy = jest.fn();
-
+// ⚠ F07 A1 (adaptação): o Firestore simulado é o DUPLO COMPARTILHADO (`helpers/firestore-duplo.ts`),
+// que reproduz `runTransaction`. O que a rota grava é lido de `executions/{executionId}` (antes,
+// do `setDoc` em `calculations/{projectId}`), e "não escreve" passa a ser `duplo.escritas` vazio.
 jest.mock('@/lib/firebase', () => ({ db: { __mock: true } }));
-
-jest.mock('firebase/firestore', () => ({
-  collection: (_db: unknown, name: string) => ({ __col: name }),
-  query: (ref: unknown) => ref,
-  where: (field: string, _op: string, value: unknown) => ({ field, value }),
-  doc: (_db: unknown, col: string, id: string) => ({ __col: col, __id: id }),
-  getDoc: async (ref: { __col: string; __id: string }) => {
-    const achado = store[ref.__col]?.find(d => d.id === ref.__id);
-    return { exists: () => Boolean(achado), id: ref.__id, data: () => achado?.data };
-  },
-  getDocs: async (ref: { __col: string }) => {
-    const docs = (store[ref.__col] ?? []).map(d => ({ id: d.id, data: () => d.data }));
-    return { docs, size: docs.length };
-  },
-  setDoc: (...args: unknown[]) => {
-    setDocSpy(...args);
-    return Promise.resolve();
-  },
-}));
+jest.mock('firebase/firestore', () => require('./helpers/firestore-duplo').moduloFirestoreSimulado());
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { POST } = require('@/app/api/calculate/route');
@@ -72,6 +53,7 @@ const {
 } = require('@/lib/identificador-respondente');
 const { resumirJulgamentos, resumirPainel, SERIALIZACAO_JULGAMENTOS } = require('@/lib/julgamentos-resumo');
 const fixture = require('./fixtures/panel-2026.json');
+const { duplo } = require('./helpers/firestore-duplo');
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 const PROJETO = 'projeto-a12-rastreabilidade';
@@ -88,27 +70,29 @@ const copia = (x: any) => JSON.parse(JSON.stringify(x));
 type Entrada = { docId: string; respondentId?: string; judgments: any[]; completedAt?: string; extra?: any };
 
 function montarStore(cadastrados: string[], respostas: Entrada[]) {
-  store.projects = [
-    { id: PROJETO, data: { name: 'Painel de rastreabilidade', description: '', alternatives: ALTERNATIVAS } },
-  ];
-  store.respondents = cadastrados.map(id => ({ id, data: { projectId: PROJETO } }));
-  store.responses = respostas.map(r => ({
-    id: r.docId,
-    data: {
+  duplo.reset();
+  duplo.semear('projects', PROJETO, { name: 'Painel de rastreabilidade', description: '', alternatives: ALTERNATIVAS });
+  for (const id of cadastrados) duplo.semear('respondents', id, { projectId: PROJETO });
+  for (const r of respostas) {
+    duplo.semear('responses', r.docId, {
       projectId: PROJETO,
       ...(r.respondentId === undefined ? {} : { respondentId: r.respondentId }),
       judgments: r.judgments,
       ...(r.completedAt === undefined ? {} : { completedAt: r.completedAt }),
       ...(r.extra ?? {}),
-    },
-  }));
+    });
+  }
 }
 
+let contadorDePedidos = 0;
 async function rodar(body: Record<string, unknown> = { projectId: PROJETO }) {
-  setDocSpy.mockClear();
-  const res = await POST({ json: async () => body } as any);
+  // Um `requestId` novo a cada chamada: duas chamadas no mesmo teste são dois pedidos distintos.
+  const comId = 'requestId' in body ? body : { ...body, requestId: `req-a12-${String(++contadorDePedidos).padStart(4, '0')}` };
+  const res = await POST({ json: async () => comId } as any);
   const corpo = await res.json();
-  return { status: res.status ?? 200, corpo, gravado: setDocSpy.mock.calls[0]?.[1] as any };
+  // O que a rota gravou: o documento de EXECUÇÃO.
+  const gravado = corpo?.executionId ? (duplo.ler('executions', corpo.executionId) as any) : undefined;
+  return { status: res.status ?? 200, corpo, gravado };
 }
 
 /** Um painel de dez respondentes com o prefixo dado. */
@@ -143,6 +127,11 @@ const semInstanteNemExecucao = (d: any) => {
   const c = copia(d);
   delete c.calculatedAt;
   delete c.executionId;
+  // ⚠ F07 A1 passa a exigir que o auxiliar ignore TAMBÉM `requestId`: é o identificador do PEDIDO, e
+  //   cada execução nasce de um pedido distinto, como o `executionId`. Os demais campos que F07
+  //   acrescenta (`engineVersion`, `codeRevision`, `projectUpdatedAt`, `includedRespondents`,
+  //   `judgmentsDigest` no topo) NÃO são ignorados: são iguais entre duas execuções do mesmo painel.
+  delete c.requestId;
   return JSON.stringify(c);
 };
 
@@ -239,12 +228,12 @@ test('3: identificadores das quatro etapas coincidem, e divergencia PARA e nomei
   expect(etapas.find((e: any) => e.etapa === 'deduplicacao').valor).toBe('respondente_1');
   expect(div.corpo.identificadorDivergente.valoresDistintos.length).toBeGreaterThan(1);
   // ⚠ E NAO ESCREVE.
-  expect(setDocSpy).not.toHaveBeenCalled();
+  expect(duplo.escritas).toEqual([]);
 
   OBSERVADO.execucaoValida = { http: ok.status, incluidos: ok.gravado.metadata.includedRespondents.length };
   OBSERVADO.divergenciaDeIdentificador = {
     http: div.status,
-    escreveu: setDocSpy.mock.calls.length > 0,
+    escreveu: duplo.escritas.length > 0,
     etapasNomeadas: etapas.map((e: any) => e.etapa),
     valoresDistintos: div.corpo.identificadorDivergente.valoresDistintos.length,
   };
@@ -648,6 +637,10 @@ test('o artefato gravado coincide com a medicao atual', () => {
     falhaDeResumoNaoInterrompe:
       '⚠ DISTINTA das duas acima: a falha de serializacao NAO interrompe, o respondente CONTINUA entrando no calculo, e o registro fica em judgmentsSha256 nulo com judgmentsUnavailableReason nomeando o motivo e o caminho.',
     oQueIstoNaoResolve: [
+      // ⚠ F07 A1: esta primeira linha DEIXOU DE VALER (cada execucao e guardada em
+      //   `executions/{executionId}` e nada e sobrescrito). O texto NAO foi editado aqui porque ele
+      //   gera `docs/dados/a12-rastreabilidade/medicao.json`, que esta entrega nao pode regravar; a
+      //   correcao do texto e a regravacao do artefato ficam para quem autorizar a regravacao.
       'NAO preserva execucoes anteriores: o documento e unico por projeto e e sobrescrito',
       'NAO preserva o conteudo julgado: o resumo IDENTIFICA e nao guarda',
       'NAO vincula a avaliacao de qualidade aos incluidos, que e a etapa 3',

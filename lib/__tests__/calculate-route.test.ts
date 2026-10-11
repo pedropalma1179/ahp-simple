@@ -28,7 +28,14 @@
  * pendência de unificação da seção 2.4 continua de pé, e este teste não a reduz.**
  *
  * O Firestore entra por mock, com os documentos montados do fixture do painel de
- * 2026, e o `setDoc` é espionado — é o que permite afirmar "nenhuma escrita".
+ * 2026. ⚠ **F07 A1 (adaptação deste arquivo):** o mock é o DUPLO COMPARTILHADO
+ * (`helpers/firestore-duplo.ts`, que reproduz `runTransaction`), e o registro de escritas dele é o
+ * que permite afirmar "nenhuma escrita". O que a adaptação passa a EXIGIR da rota:
+ *   - o pedido traz `requestId` (sem ele a rota recusa; ver `f07-a1-execucoes.test.ts`);
+ *   - o cálculo grava `executions/{executionId}` e `executionRequests/{requestId}`, e NADA em
+ *     `calculations`;
+ *   - o documento da execução contém o `calculationResult` que a rota devolve.
+ * Antes, o teste exigia uma única chamada `setDoc` em `calculations/{projectId}`.
  */
 
 import fixture from './fixtures/panel-2026.json';
@@ -37,34 +44,11 @@ import fixture from './fixtures/panel-2026.json';
 // Firestore simulado
 // ---------------------------------------------------------------------------
 
-type Doc = { id: string; data: Record<string, unknown> };
-const store: Record<string, Doc[]> = { projects: [], respondents: [], responses: [] };
-const setDocSpy = jest.fn();
-
 jest.mock('@/lib/firebase', () => ({ db: { __mock: true } }));
+jest.mock('firebase/firestore', () => require('./helpers/firestore-duplo').moduloFirestoreSimulado());
 
-jest.mock('firebase/firestore', () => ({
-  collection: (_db: unknown, name: string) => ({ __col: name }),
-  query: (ref: unknown) => ref,
-  where: (field: string, _op: string, value: unknown) => ({ field, value }),
-  doc: (_db: unknown, col: string, id: string) => ({ __col: col, __id: id }),
-  getDoc: async (ref: { __col: string; __id: string }) => {
-    const found = store[ref.__col]?.find(d => d.id === ref.__id);
-    return {
-      exists: () => Boolean(found),
-      id: ref.__id,
-      data: () => found?.data
-    };
-  },
-  getDocs: async (ref: { __col: string }) => {
-    const docs = (store[ref.__col] ?? []).map(d => ({ id: d.id, data: () => d.data }));
-    return { docs, size: docs.length };
-  },
-  setDoc: (...args: unknown[]) => {
-    setDocSpy(...args);
-    return Promise.resolve();
-  }
-}));
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { duplo } = require('./helpers/firestore-duplo');
 
 // O import tem de vir depois dos mocks.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -79,40 +63,42 @@ const PUB = (fixture as any).reference_published;
 const RESPOSTAS = (fixture as any).responses as { id: string; judgments: any[] }[];
 
 function montarStore(respostas: { id: string; judgments: any[]; completedAt?: string }[]) {
-  store.projects = [
-    {
-      id: PROJECT_ID,
-      data: {
-        name: 'Painel de 2026',
-        description: 'fixture',
-        alternatives: [
-          { code: 'A1', name: 'Gêmeo Digital', description: '' },
-          { code: 'A2', name: 'IA Temperatura', description: '' }
-        ]
-      }
-    }
-  ];
-  store.respondents = respostas.map(r => ({ id: r.id, data: { projectId: PROJECT_ID } }));
-  store.responses = respostas.map((r, i) => ({
-    id: `resp-${i}`,
-    data: {
+  duplo.reset();
+  duplo.semear('projects', PROJECT_ID, {
+    name: 'Painel de 2026',
+    description: 'fixture',
+    alternatives: [
+      { code: 'A1', name: 'Gêmeo Digital', description: '' },
+      { code: 'A2', name: 'IA Temperatura', description: '' }
+    ]
+  });
+  respostas.forEach(r => duplo.semear('respondents', r.id, { projectId: PROJECT_ID }));
+  respostas.forEach((r, i) =>
+    duplo.semear('responses', `resp-${i}`, {
       projectId: PROJECT_ID,
       respondentId: r.id,
       judgments: r.judgments,
       completedAt: r.completedAt ?? `2026-05-0${(i % 9) + 1}T12:00:00.000Z`
-    }
-  }));
+    })
+  );
 }
 
+/** Um `requestId` NOVO a cada pedido: dois pedidos no mesmo teste são dois pedidos distintos. */
+let contadorDePedidos = 0;
 function pedir(body: Record<string, unknown> = { projectId: PROJECT_ID }) {
-  return POST({ json: async () => body } as any);
+  const comId = 'requestId' in body || !('projectId' in body) ? body : { ...body, requestId: `req-calc-${String(++contadorDePedidos).padStart(4, '0')}` };
+  return POST({ json: async () => comId } as any);
+}
+
+/** O documento de execução gravado por uma resposta bem-sucedida. */
+function execucaoGravada(body: any) {
+  return duplo.ler('executions', body.executionId) as any;
 }
 
 const q4 = (x: number) => Number(x.toFixed(4));
 const q2 = (x: number) => Number(x.toFixed(2));
 
 beforeEach(() => {
-  setDocSpy.mockClear();
   montarStore(JSON.parse(JSON.stringify(RESPOSTAS)));
 });
 
@@ -169,9 +155,11 @@ describe('handler real de /api/calculate — painel completo', () => {
       }).toEqual(esperado);
     }
 
-    // Gravou uma vez, no documento do projeto
-    expect(setDocSpy).toHaveBeenCalledTimes(1);
-    expect(setDocSpy.mock.calls[0][0]).toEqual({ __col: 'calculations', __id: PROJECT_ID });
+    // F07 A1: gravou a EXECUÇÃO e o PEDIDO, juntos, e nada em `calculations`
+    expect(duplo.escritas.map((e: any) => `${e.col}/${e.id}`).sort()).toEqual(
+      [`executions/${body.executionId}`, 'executionRequests/req-calc-0001'].sort()
+    );
+    expect(duplo.escritas.some((e: any) => e.col === 'calculations')).toBe(false);
   });
 
   test('o documento gravado não carrega mais ipcMetadata', async () => {
@@ -180,7 +168,7 @@ describe('handler real de /api/calculate — painel completo', () => {
     const res = await pedir();
     const body = await res.json();
     const c = body.calculation ?? body.data ?? body;
-    const gravado = setDocSpy.mock.calls[0][1] as any;
+    const gravado = execucaoGravada(body);
     expect(gravado.ipcMetadata).toBeUndefined();
     expect(c.ipcMetadata).toBeUndefined();
     expect(c.bocrConsistency.cr).toBeLessThan(0.1);
@@ -206,7 +194,7 @@ describe('handler real de /api/calculate — portão de completude', () => {
     const res = await pedir();
     expect(res.status).toBe(200);
     const body = await res.json();
-    const gravado = setDocSpy.mock.calls[0][1] as any;
+    const gravado = execucaoGravada(body);
 
     expect(gravado.metadata.rejectedIncomplete).toEqual([
       { respondentId: 'R05', matrizes: ['O: 1 comparação(ões) sem resposta'] }
@@ -218,7 +206,6 @@ describe('handler real de /api/calculate — portão de completude', () => {
     const completo = await pedir();
     const refBody = await completo.json();
     const refCalc = refBody.calculation ?? refBody.data ?? refBody;
-    setDocSpy.mockClear();
 
     const respostas = JSON.parse(JSON.stringify(RESPOSTAS));
     mutilar(respostas, 'R05');
@@ -232,7 +219,7 @@ describe('handler real de /api/calculate — portão de completude', () => {
     // O respondente rejeitado não entra na agregação: com onze, os pesos mudam.
     expect(c.bocrWeights.map(q4)).not.toEqual(refCalc.bocrWeights.map(q4));
     // E a decisão do gestor continua num campo separado, vazia.
-    const gravado = setDocSpy.mock.calls[0][1] as any;
+    const gravado = execucaoGravada(body);
     expect(gravado.metadata.excludedRespondentIds).toEqual([]);
     expect(gravado.metadata.rejectedIncomplete).toHaveLength(1);
   });
@@ -251,13 +238,13 @@ describe('handler real de /api/calculate — portão de completude', () => {
       respondentId: 'R01',
       matrizes: ['O: 1 comparação(ões) sem resposta']
     });
-    // O resultado anterior não é sobrescrito.
-    expect(setDocSpy).not.toHaveBeenCalled();
+    // Nada é gravado: nem execução, nem pedido.
+    expect(duplo.escritas).toEqual([]);
   });
 
   test('painel completo grava rejectedIncomplete vazio, que é o valor esperado hoje', async () => {
-    await pedir();
-    const gravado = setDocSpy.mock.calls[0][1] as any;
+    const res = await pedir();
+    const gravado = execucaoGravada(await res.json());
     expect(gravado.metadata.rejectedIncomplete).toEqual([]);
   });
 });
@@ -266,22 +253,19 @@ describe('handler real de /api/calculate — guardas que já existem', () => {
   test('sem projectId devolve 400 e não escreve', async () => {
     const res = await pedir({} as any);
     expect(res.status).toBe(400);
-    expect(setDocSpy).not.toHaveBeenCalled();
+    expect(duplo.escritas).toEqual([]);
   });
 
   test('projeto inexistente devolve 404 e não escreve', async () => {
     const res = await pedir({ projectId: 'nao-existe' });
     expect(res.status).toBe(404);
-    expect(setDocSpy).not.toHaveBeenCalled();
+    expect(duplo.escritas).toEqual([]);
   });
 
   test('nenhuma resposta com completedAt devolve 400 e não escreve', async () => {
-    store.responses = store.responses.map(d => ({
-      ...d,
-      data: { ...d.data, completedAt: '' }
-    }));
+    for (const d of duplo.todos('responses')) duplo.semear('responses', d.id, { ...d.data, completedAt: '' });
     const res = await pedir();
     expect(res.status).toBe(400);
-    expect(setDocSpy).not.toHaveBeenCalled();
+    expect(duplo.escritas).toEqual([]);
   });
 });
