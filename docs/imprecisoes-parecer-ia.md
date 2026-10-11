@@ -19412,6 +19412,40 @@ contra o artefato gravado em `docs/dados/`. A4 alterou a página, e o artefato s
 
 ---
 
+## Registro de 11/10/2026 (UTC): F07, A4, adendo ao registro da etapa 1 (três precisões)
+
+⚠ **Este adendo corrige por ACRÉSCIMO três passagens do bloco anterior** («A4, etapa 1»), que não é reescrito. Procedência de cada medida abaixo: **medida nesta execução**, salvo onde dito.
+
+### 1. A saída completa do `git grep` de `setReferenciaCarregada`
+
+O bloco anterior diz que `git grep -n setReferenciaCarregada -- components lib app` mostra «a declaração do estado, a escolha confirmada e a passagem ao fluxo». Essas são as **três ocorrências do componente**
+(`components/ReferenciaDoProjeto.tsx:60`, `:162` e `:198`), e são os únicos usos. A saída **completa** do comando tem **11 linhas**: as 3 do componente, **7 no teste novo**
+(`lib/__tests__/f07-a4-referencia-carregada.test.ts`, que cita o nome para conferir a fiação) e **1 comentário** em `lib/fluxos-da-referencia.ts:9`. O levantamento está em `levantamentos/levantamentos-de-a4.txt`, na
+pasta de entrega.
+
+### 2. Sobre que árvore cada mutante de A4 foi aplicado
+
+O bloco anterior diz «rodados contra `da094cc` (M1 a M4, 33 testes) e depois dos commits seguintes». A ordem exata, **derivada da sequência de comandos da sessão** (não de arquivo): A4-M1 a A4-M4 foram aplicados sobre a árvore
+que virou `da094cc`; A4-M5 e A4-M5b, sobre a que virou `5df82ec`, **antes** de o teste de A2 (`f07-a2-referencia.test.ts`) ser adaptado, e só rodaram o arquivo `f07-a4-referencia-carregada`; A4-M6 a A4-M11, sobre a que
+virou `60fdf96`, **antes** de uma edição só de comentário no cabeçalho de `lib/intencoes.ts`. Os arquivos `M*__saida.txt` e `M*__saida.exit` guardam o que cada execução imprimiu e o código de saída.
+
+### 3. As duas falhas esperadas NÃO são causadas por A4
+
+A seção 8 do bloco anterior diz que «A4 alterou a página, e o artefato só se atualiza no item 6». **Isso atribui a A4 uma falha que ela não criou.** Medido nos arquivos de saída de cada estado (`npm-test-por-estado/`
+da entrega de A1 a A3 e `estados/` desta): `be213d1` (A1) já tem **as mesmas duas falhas** (`a12-diagnostico` e `a12-rastreabilidade`, «o artefato gravado coincide com a medicao atual»), e os estados `0e45b9f`, `fd4b201` e
+`e2026da` também. O artefato gravado guarda `sha256` de código que A1 e A3 alteraram:
+
+| teste | arquivo cujo `sha256` difere | desde |
+|---|---|---|
+| `a12-rastreabilidade` | `app/api/calculate/route.ts` | `be213d1` (A1) |
+| `a12-diagnostico` | `app/decisor/resultados/[projectId]/page.tsx` | `be213d1` (A1) |
+| `a12-diagnostico` | `components/ParecerAISection.tsx` | `fd4b201` (A3) |
+
+O valor **gravado** de `page.tsx` é `478c2883…` em todos os estados; o **medido** era `104093…` em `e2026da` e é `74c50cff…` neste HEAD. **A4 muda o hash medido de `page.tsx`, numa falha que já existia**; não acrescenta
+falha. As duas falhas seguem declaradas «esperadas por desenho» (a regravação é o item 6, da etapa 2), e o total observado nesta etapa é o do bloco anterior: **45 suítes, 1743 testes, 1741 passam, 2 falham**.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
