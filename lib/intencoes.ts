@@ -23,7 +23,11 @@
  *     recusa definitiva do servidor (4xx, exceto 408 e 429). Erro de rede, 5xx, 408, 429 e resposta
  *     ilegível MANTÊM a entrada: o servidor pode ter criado o registro;
  *   - ao montar a tela, `retomarPendentes` consulta cada intenção do projeto e só então a tela libera
- *     nova ação.
+ *     nova ação;
+ *   - **F07 A4, item 4: a retomada de um CÁLCULO não é automática.** `retomarPendentes` NÃO reenvia a
+ *     intenção de `calculo`: devolve-a em `aguardandoConfirmacao`, e só `confirmarReenvio`, chamada por
+ *     AÇÃO da pessoa, a envia (com o mesmo `requestId` e os mesmos parâmetros). A intenção de `escolha`
+ *     continua sendo retomada sem confirmação. Ver o portão em `retomarPendentes`.
  *
  * ⚠ **O QUE ISTO NÃO GARANTE.**
  *   - O armazenamento do navegador pode estar indisponível (janela privada, dados bloqueados) ou ser
@@ -33,7 +37,8 @@
  *   - A entrada pertence a ESTE navegador. Outro dispositivo, ou o mesmo em outro perfil, não a vê.
  *   - Retomar uma intenção cujo pedido NUNCA chegou ao servidor calcula agora, com os dados de
  *     agora. A execução resultante traz o próprio `calculatedAt`, e a tela avisa que o cálculo foi
- *     feito na retomada (`recuperada: false`).
+ *     feito na retomada (`recuperada: false`). ⚠ Desde A4 isso só acontece DEPOIS da confirmação da
+ *     pessoa (`confirmarReenvio`); a montagem da tela não reenvia mais pedido de cálculo.
  */
 
 export interface Armazenamento {
@@ -284,12 +289,34 @@ export interface RelatoDaRetomada {
   ilegiveis: string[];
   /** `false`: o armazenamento não pôde ser percorrido, e a ausência de pendentes NÃO está provada. */
   verificavel: boolean;
+  /**
+   * F07 A4: as intenções de CÁLCULO encontradas e NÃO enviadas. Cada uma espera a confirmação da pessoa
+   * (`confirmarReenvio`), e permanece guardada até lá. Nenhuma está também em `desfechos`.
+   */
+  aguardandoConfirmacao: IntencaoDeCalculo[];
 }
+
+/** O que `resumirRetomada` precisa: o relato sem a lista de espera, que o resumo não usa. */
+export type RelatoParaResumir = Pick<RelatoDaRetomada, 'desfechos' | 'ilegiveis' | 'verificavel'>;
 
 /**
  * Consulta CADA intenção pendente (do projeto, se informado), uma a uma, na ordem das chaves. Uma
  * que continue sem decisão permanece guardada; nenhuma apaga outra. A tela libera nova ação quando
- * a promessa se resolve.
+ * a promessa se resolve E não há intenção de cálculo esperando a confirmação da pessoa.
+ *
+ * ⚠⚠ **O PORTÃO DA CONFIRMAÇÃO (F07 A4, item 4).** Intenção de `calculo` NÃO é enviada aqui: vai para
+ * `aguardandoConfirmacao`, e nada sai pela rede por causa dela. Antes de A4 esta função reenviava o
+ * pedido na montagem da tela, sem a pessoa saber; se o pedido nunca tinha chegado ao servidor, o
+ * cálculo era feito NA MONTAGEM, com os dados de agora, e a pessoa o via como "retomada".
+ *
+ * ⚠ **LIMITAÇÃO CONHECIDA E DECIDIDA: a confirmação vale para TODA retomada de cálculo pelo endpoint
+ * atual** (`POST /api/calculate` com `requestId`). Esse endpoint calcula se o pedido nunca chegou e
+ * devolve a execução registrada se chegou; não existe, hoje, consulta SOMENTE-LEITURA que diga, sem
+ * calcular, se o pedido chegou. Por isso a tela não pode distinguir os dois casos antes de enviar, e a
+ * confirmação cobre os dois. Isto foi decidido: nesta entrega NÃO se cria outro endpoint.
+ *
+ * Fora do portão: a intenção de `escolha` (reenviá-la é idempotente pelo `operationId` e não calcula
+ * nada) e qualquer consulta somente de leitura.
  */
 export async function retomarPendentes(
   deps: DependenciasDeEnvio,
@@ -297,10 +324,26 @@ export async function retomarPendentes(
 ): Promise<RelatoDaRetomada> {
   const lista = listarIntencoes(deps.armazenamento, filtro);
   const desfechos: DesfechoDaIntencao[] = [];
+  const aguardandoConfirmacao: IntencaoDeCalculo[] = [];
   for (const intencao of lista.intencoes) {
+    if (intencao.tipo === 'calculo') {
+      aguardandoConfirmacao.push(intencao);
+      continue;
+    }
     desfechos.push(await resolverIntencao(deps, intencao));
   }
-  return { desfechos, ilegiveis: lista.ilegiveis, verificavel: lista.verificavel };
+  return { desfechos, ilegiveis: lista.ilegiveis, verificavel: lista.verificavel, aguardandoConfirmacao };
+}
+
+/**
+ * Reenvia UMA intenção de cálculo, por AÇÃO da pessoa (a confirmação). O envio leva o MESMO `requestId` e
+ * os MESMOS parâmetros que a intenção guardou, e a regra de remoção é a de sempre (`resolverIntencao`):
+ * só confirmação ou recusa definitiva remove a entrada. Esta é a única via pela qual uma intenção de
+ * cálculo guardada é enviada de novo.
+ */
+export async function confirmarReenvio(deps: DependenciasDeEnvio, intencao: IntencaoDeCalculo): Promise<DesfechoDaIntencao> {
+  if (intencao.tipo !== 'calculo') throw new Error('confirmarReenvio só reenvia intenção de cálculo');
+  return resolverIntencao(deps, intencao);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -321,7 +364,7 @@ export interface AvisoDaRetomada {
  * pendente" quando o armazenamento não pôde ser percorrido: aí o texto diz que não foi possível
  * verificar.
  */
-export function resumirRetomada(relato: RelatoDaRetomada): AvisoDaRetomada {
+export function resumirRetomada(relato: RelatoParaResumir): AvisoDaRetomada {
   const linhas: string[] = [];
   const execucoes: AvisoDaRetomada['execucoes'] = [];
   let pendentes = 0;

@@ -273,6 +273,22 @@ function enviarPerdendoAResposta(registro: any[]) {
   };
 }
 
+/**
+ * F07 A4, item 4: `retomarPendentes` NÃO envia mais a intenção de CÁLCULO; ela a devolve em
+ * `aguardandoConfirmacao`, e só `confirmarReenvio` (a ação da pessoa) a envia. Os testes de A1.3 e A1.4
+ * eram sobre o que o servidor e o armazenamento fazem DEPOIS do reenvio (recuperar a mesma execução, não
+ * calcular de novo, remover só a confirmada). Este auxiliar faz as DUAS etapas, na ordem das chaves, e
+ * devolve o relato com os desfechos do reenvio, de modo que as asserções de antes valem sobre o mesmo
+ * comportamento. O que A4 acrescenta (nada é enviado antes da confirmação, a recusa não envia) está em
+ * `f07-a4-retomada-confirmada.test.ts`.
+ */
+async function retomarConfirmando(modulo: any, deps: any, filtro?: any): Promise<any> {
+  const relato = await modulo.retomarPendentes(deps, filtro);
+  const reenviados: any[] = [];
+  for (const intencao of relato.aguardandoConfirmacao) reenviados.push(await modulo.confirmarReenvio(deps, intencao));
+  return { ...relato, desfechos: [...relato.desfechos, ...reenviados], aguardandoConfirmacao: [] };
+}
+
 function sequenciaDeIds(...ids: string[]) {
   let i = 0;
   return () => ids[i++] ?? `req-extra-${i}`;
@@ -292,7 +308,7 @@ describe('A1.3: recuperação depois de resposta perdida, sem segunda execução
     expect(arm.mapa.size).toBe(1);
 
     const leiturasDeCalculoAntes = duplo.quantasLeituras('responses') + duplo.quantasLeituras('respondents');
-    const relato = await intencoes.retomarPendentes({ armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo', projectId: PROJETO });
+    const relato = await retomarConfirmando(intencoes, { armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo', projectId: PROJETO });
 
     expect(relato.desfechos).toHaveLength(1);
     expect(relato.desfechos[0].situacao).toBe('confirmada');
@@ -319,7 +335,7 @@ describe('A1.3: recuperação depois de resposta perdida, sem segunda execução
     expect(nova.desfecho.situacao).toBe('pendente');
     expect(duplo.quantos('executions')).toBe(0);
 
-    const relato = await intencoes.retomarPendentes({ armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo' });
+    const relato = await retomarConfirmando(intencoes, { armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo' });
     expect(relato.desfechos[0].situacao).toBe('confirmada');
     expect(relato.desfechos[0].resposta.corpo.recuperada).toBe(false);
     expect(duplo.quantos('executions')).toBe(1);
@@ -383,7 +399,8 @@ describe('A1.4: a mesma recuperação DEPOIS DE RECARREGAR e com DUAS intençõe
     const leiturasAntes = duplo.quantasLeituras('responses') + duplo.quantasLeituras('respondents');
     const enviados: string[] = [];
     // a primeira consulta: a A responde, a B recebe 503
-    const relato1 = await fresco.retomarPendentes(
+    const relato1 = await retomarConfirmando(
+      fresco,
       {
         armazenamento: arm,
         enviar: async (i: any) => {
@@ -401,7 +418,7 @@ describe('A1.4: a mesma recuperação DEPOIS DE RECARREGAR e com DUAS intençõe
     expect([...arm.mapa.keys()]).toEqual([intencoes.chaveDaIntencao('calculo', 'req-cliente-pend-B')]);
 
     // 3) outra recarga: a B, agora, responde
-    const relato2 = await intencoes.retomarPendentes({ armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo', projectId: PROJETO });
+    const relato2 = await retomarConfirmando(intencoes, { armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo', projectId: PROJETO });
     expect(relato2.desfechos.map((d: any) => d.situacao)).toEqual(['confirmada']);
     expect(arm.mapa.size).toBe(0);
 
@@ -421,7 +438,7 @@ describe('A1.4: a mesma recuperação DEPOIS DE RECARREGAR e com DUAS intençõe
     semearProjeto(OUTRO_PROJETO);
     await intencoes.executarCalculo({ armazenamento: arm, enviar: async () => { throw new Error('x'); }, gerarId: sequenciaDeIds('req-cliente-outro-1') }, { projectId: OUTRO_PROJETO });
     await intencoes.executarCalculo({ armazenamento: arm, enviar: async () => { throw new Error('x'); }, gerarId: sequenciaDeIds('req-cliente-este-01') }, { projectId: PROJETO });
-    const relato = await intencoes.retomarPendentes({ armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo', projectId: PROJETO });
+    const relato = await retomarConfirmando(intencoes, { armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() }, { tipo: 'calculo', projectId: PROJETO });
     expect(relato.desfechos).toHaveLength(1);
     expect([...arm.mapa.keys()]).toEqual([intencoes.chaveDaIntencao('calculo', 'req-cliente-outro-1')]);
   });
@@ -706,7 +723,7 @@ describe('lib/intencoes.ts', () => {
     arm.setItem('ahp:intencao:calculo:req-chave-nao-bate', JSON.stringify(intencaoDe('req-outro-id-aaa')));
     intencoes.registrarIntencao(arm, intencaoDe('req-boa-00001'));
     arm.setItem('outra-coisa', 'não é intenção');
-    const relato = await intencoes.retomarPendentes({ armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() });
+    const relato = await retomarConfirmando(intencoes, { armazenamento: arm, enviar: enviarParaARota, gerarId: sequenciaDeIds() });
     expect(relato.desfechos).toHaveLength(1);
     expect(relato.ilegiveis.sort()).toEqual([
       'ahp:intencao:calculo:req-chave-nao-bate',
@@ -723,7 +740,7 @@ describe('lib/intencoes.ts', () => {
     const excl = [idsDoPainel(PROJETO)[1]];
     await intencoes.executarCalculo({ armazenamento: arm, enviar: async () => { throw new Error('x'); }, gerarId: sequenciaDeIds('req-reenvio-001') }, { projectId: PROJETO, excludedRespondentIds: excl });
     const enviados: any[] = [];
-    await intencoes.retomarPendentes({ armazenamento: arm, enviar: async (i: any) => { enviados.push(copia(i)); return enviarParaARota(i); }, gerarId: sequenciaDeIds() });
+    await retomarConfirmando(intencoes, { armazenamento: arm, enviar: async (i: any) => { enviados.push(copia(i)); return enviarParaARota(i); }, gerarId: sequenciaDeIds() });
     expect(enviados).toHaveLength(1);
     expect(enviados[0]).toMatchObject({ id: 'req-reenvio-001', projectId: PROJETO, excludedRespondentIds: excl });
     expect(duplo.ler('executionRequests', 'req-reenvio-001').excludedRespondentIds).toEqual(excl);

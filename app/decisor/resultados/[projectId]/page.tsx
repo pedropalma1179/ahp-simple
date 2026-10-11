@@ -45,6 +45,14 @@ import { idDoElementoNoFallback, prepararVinculoDaTela } from '@/lib/ai-reviewer
 import type { FonteDoIdentificador } from '@/lib/identificador-respondente';
 import ExternalValidation from '@/components/ExternalValidation';
 import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
+import ConfirmacaoDeRetomada from '@/components/ConfirmacaoDeRetomada';
+import {
+  acaoNovaLiberada,
+  estadoInicialDaRetomada,
+  recusarReenvio,
+  reenviarPorConfirmacao,
+  type EstadoDaRetomada,
+} from '@/lib/retomada-com-confirmacao';
 import ReferenciaDoProjeto from '@/components/ReferenciaDoProjeto';
 import FaixaDeIdentificacao, { ContextoDaIdentificacao } from '@/components/IdentificacaoDaExecucao';
 import {
@@ -688,6 +696,13 @@ export default function ResultadosPage() {
   const [error, setError] = useState('');
   // F07 A1: avisos sobre pedidos de cálculo (retomada ao montar a tela; recarga sem proteção).
   const [avisosDoPedido, setAvisosDoPedido] = useState<string[]>([]);
+  // F07 A4, item 4: os pedidos de cálculo guardados deste projeto NÃO são reenviados ao montar a tela.
+  // Cada um espera a confirmação da pessoa (lib/retomada-com-confirmacao.ts), e enquanto houver um sem
+  // decisão nenhum recálculo é liberado (os botões e o próprio fluxo `recalcularResultados`).
+  const [retomada, setRetomada] = useState<EstadoDaRetomada>({ pendencias: [] });
+  const retomadaRef = useRef<EstadoDaRetomada>(retomada);
+  retomadaRef.current = retomada;
+  const bloqueadoPorPendencia = !acaoNovaLiberada(retomada);
   // F07 A2: o que a tela exibe (uma execução, ou o documento anterior a F07), a carga inicial do
   // painel da referência e a execução criada por recálculo nesta tela.
   const [exibicao, setExibicao] = useState<Exibicao | null>(null);
@@ -1555,10 +1570,24 @@ export default function ResultadosPage() {
       exclusoes: exclusions,
       exclusoesApresentadas: calculation?.metadata?.excludedRespondentIds || [],
       executar: parametros => executarCalculo(dependenciasDoNavegador(), parametros),
+      liberado: () => acaoNovaLiberada(retomadaRef.current),
       registro: registroDaApresentacao,
       acoes: acoesDaTela,
       enviarAuditoria: enviarAuditoriaPeloNavegador,
     });
+  };
+
+  // F07 A4, item 4: a confirmação (por ação da pessoa) reenvia o MESMO pedido; a recusa não envia nada.
+  const reenviarPedido = async (id: string) => {
+    const intencao = retomada.pendencias.find(p => p.intencao.id === id)?.intencao;
+    if (!intencao) return;
+    const { linhas } = await reenviarPorConfirmacao({ deps: dependenciasDoNavegador(), intencao, ajustar: setRetomada });
+    setAvisosDoPedido(prev => [...prev, ...linhas]);
+  };
+  const manterPedido = (id: string) => {
+    const intencao = retomada.pendencias.find(p => p.intencao.id === id)?.intencao;
+    if (!intencao) return;
+    recusarReenvio({ intencao, ajustar: setRetomada });
   };
 
   // Verificar autenticação
@@ -1577,6 +1606,7 @@ export default function ResultadosPage() {
         try {
           const relato = await retomarPendentes(dependenciasDoNavegador(), { tipo: 'calculo', projectId });
           setAvisosDoPedido(resumirRetomada(relato).linhas);
+          setRetomada(estadoInicialDaRetomada(relato.aguardandoConfirmacao));
         } catch (e: any) {
           setAvisosDoPedido([`Não foi possível consultar os pedidos de cálculo anteriores: ${e?.message ?? String(e)}`]);
         }
@@ -2913,6 +2943,16 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
         />
       )}
 
+      {/* F07 A4, item 4: a confirmação antes de reenviar um pedido de cálculo guardado */}
+      <div className="max-w-7xl mx-auto px-4 mt-4 empty:hidden">
+        <ConfirmacaoDeRetomada
+          estado={retomada}
+          nomeDoProjeto={() => project?.name}
+          onReenviar={reenviarPedido}
+          onManter={manterPedido}
+        />
+      </div>
+
       {avisosDoPedido.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 mt-4">
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-900">
@@ -3831,7 +3871,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                       {selectedForExclusion.length > 0 && (
                         <button
                           onClick={handleBatchExclusion}
-                          disabled={isRecalculating}
+                          disabled={isRecalculating || bloqueadoPorPendencia}
                           className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:opacity-50"
                         >
                           🗑 Excluir {selectedForExclusion.length} Resposta(s)
@@ -3840,7 +3880,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                       {excludedIds.length > 0 && (
                         <button
                           onClick={handleRestoreAll}
-                          disabled={isRecalculating}
+                          disabled={isRecalculating || bloqueadoPorPendencia}
                           className="px-4 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200 disabled:opacity-50"
                         >
                           ↩ Restaurar Todos ({excludedIds.length})
@@ -3898,7 +3938,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
                                       type="checkbox"
                                       checked={isSelected}
                                       onChange={() => handleToggleSelection(r.respondentId)}
-                                      disabled={isRecalculating}
+                                      disabled={isRecalculating || bloqueadoPorPendencia}
                                       className="w-4 h-4 rounded border-gray-300 text-indigo-600"
                                     />
                                   )}

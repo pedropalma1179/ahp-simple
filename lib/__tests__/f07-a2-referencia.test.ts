@@ -468,9 +468,18 @@ describe('A2.6: a persistência da intenção de escolha segue a regra de A1', (
     await intencoes.executarEscolha({ armazenamento: arm, enviar: quebrado, gerarId: ids('op-cliente-iso1') }, { projectId: P1, executionId: EXEC_A, expectedRevision: 0, justification: 'j' });
     await intencoes.executarCalculo({ armazenamento: arm, enviar: quebrado, gerarId: ids('req-cliente-iso1') }, { projectId: P1 });
     expect(arm.mapa.size).toBe(2);
-    const soCalculo = await intencoes.retomarPendentes({ armazenamento: arm, enviar: async () => { throw new Error('ainda sem rede'); }, gerarId: ids() }, { tipo: 'calculo' });
-    expect(soCalculo.desfechos).toHaveLength(1);
-    expect(soCalculo.desfechos[0].intencao.tipo).toBe('calculo');
+    // F07 A4, item 4: a intenção de CÁLCULO não é enviada pela consulta (espera a confirmação); a de escolha
+    // não entra neste filtro. Depois da confirmação (`confirmarReenvio`), o desfecho é o do cálculo.
+    const enviar = jest.fn(async () => { throw new Error('ainda sem rede'); });
+    const deps = { armazenamento: arm, enviar, gerarId: ids() };
+    const soCalculo = await intencoes.retomarPendentes(deps, { tipo: 'calculo' });
+    expect(soCalculo.desfechos).toHaveLength(0);
+    expect(enviar).not.toHaveBeenCalled();
+    expect(soCalculo.aguardandoConfirmacao).toHaveLength(1);
+    expect(soCalculo.aguardandoConfirmacao[0].tipo).toBe('calculo');
+    const depois = await intencoes.confirmarReenvio(deps, soCalculo.aguardandoConfirmacao[0]);
+    expect(depois.situacao).toBe('pendente');
+    expect(depois.intencao.tipo).toBe('calculo');
     expect(arm.mapa.size).toBe(2);
   });
 });

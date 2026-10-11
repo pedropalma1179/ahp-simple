@@ -27,6 +27,7 @@
 import type { Exibicao } from '@/lib/referencia-do-projeto';
 import type { ParDaApresentacao, RegistroDaApresentacao, ConferenciaDoPar } from '@/lib/apresentacao-corrente';
 import type { ResultadoDeNovaAcao } from '@/lib/intencoes';
+import { MENSAGEM_DE_ACAO_BLOQUEADA } from '@/lib/retomada-com-confirmacao';
 
 /** Os setters que os fluxos usam. A página passa os de `useState`; o teste passa um armazém simples. */
 export interface AcoesDaTela {
@@ -157,7 +158,7 @@ export async function escreverSeVigente<T>(
 export const MENSAGEM_DA_AUDITORIA_INDISPONIVEL =
   'A auditoria não está disponível para este cálculo. O cálculo foi concluído e está apresentado; a auditoria não foi atualizada.';
 
-export type DesfechoDoRecalculo = 'concluido' | 'concluido-sem-auditoria' | 'pendente' | 'recusado' | 'falhou';
+export type DesfechoDoRecalculo = 'concluido' | 'concluido-sem-auditoria' | 'pendente' | 'recusado' | 'falhou' | 'bloqueado';
 
 /**
  * O recálculo com exclusões.
@@ -179,11 +180,21 @@ export async function recalcularResultados(args: {
   /** As exclusões do documento que está apresentado AGORA (para onde voltar se o cálculo falhar). */
   exclusoesApresentadas: string[];
   executar: (parametros: { projectId: string; excludedRespondentIds: string[] }) => Promise<ResultadoDeNovaAcao>;
+  /**
+   * F07 A4, item 4: `false` enquanto houver pedido de cálculo anterior SEM DECISÃO da pessoa
+   * (`lib/retomada-com-confirmacao.ts`). Nesse caso nenhum cálculo novo é pedido. Omitido = liberado.
+   */
+  liberado?: () => boolean;
   registro: RegistroDaApresentacao;
   acoes: AcoesDaTela;
   enviarAuditoria: EnviarAuditoria;
 }): Promise<DesfechoDoRecalculo> {
   const { projectId, exclusoes, exclusoesApresentadas, registro, acoes } = args;
+  if (args.liberado && !args.liberado()) {
+    acoes.setExcludedIds(exclusoesApresentadas); // o chamador já trocou as exclusões locais: voltam
+    acoes.acrescentarAviso(MENSAGEM_DE_ACAO_BLOQUEADA);
+    return 'bloqueado';
+  }
   acoes.setIsRecalculating(true);
   acoes.setLoading(true); // Bloquear UI geral
   try {

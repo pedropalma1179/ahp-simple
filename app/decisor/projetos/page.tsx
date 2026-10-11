@@ -10,6 +10,15 @@ import {
 } from 'firebase/firestore';
 import { Project, Alternative, Respondent, BOCR_CRITERIA, SUBCRITERIA } from '@/lib/data';
 import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
+import ConfirmacaoDeRetomada from '@/components/ConfirmacaoDeRetomada';
+import {
+  MENSAGEM_DE_ACAO_BLOQUEADA,
+  acaoNovaLiberada,
+  estadoInicialDaRetomada,
+  recusarReenvio,
+  reenviarPorConfirmacao,
+  type EstadoDaRetomada,
+} from '@/lib/retomada-com-confirmacao';
 
 const generateAccessCode = (existingCodes: string[] = []) => {
   // [I5] Gerar código único verificando colisões
@@ -39,6 +48,11 @@ export default function ProjetosPage() {
   // de calcular só é liberada depois. `avisoDeRetomada` lista o que a consulta encontrou.
   const [retomando, setRetomando] = useState(true);
   const [avisoDeRetomada, setAvisoDeRetomada] = useState<string[]>([]);
+  // F07 A4, item 4: os pedidos de cálculo guardados NÃO são reenviados ao montar a tela. Cada um espera
+  // a confirmação da pessoa (lib/retomada-com-confirmacao.ts), e enquanto houver um sem decisão a ação
+  // de calcular continua bloqueada.
+  const [retomada, setRetomada] = useState<EstadoDaRetomada>({ pendencias: [] });
+  const bloqueadoPorPendencia = !acaoNovaLiberada(retomada);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'draft' | 'closed'>('all');
@@ -126,11 +140,14 @@ export default function ProjetosPage() {
   useEffect(() => { loadProjects(); }, []);
 
   // F07 A1: consulta cada pedido de cálculo guardado neste navegador e só então libera nova ação.
+  // F07 A4: a consulta NÃO envia nada; os pedidos de cálculo encontrados esperam a confirmação da pessoa.
   useEffect(() => {
     let ativo = true;
     retomarPendentes(dependenciasDoNavegador(), { tipo: 'calculo' })
       .then(relato => {
-        if (ativo) setAvisoDeRetomada(resumirRetomada(relato).linhas);
+        if (!ativo) return;
+        setAvisoDeRetomada(resumirRetomada(relato).linhas);
+        setRetomada(estadoInicialDaRetomada(relato.aguardandoConfirmacao));
       })
       .catch(e => {
         if (ativo) setAvisoDeRetomada([`Não foi possível consultar os pedidos de cálculo anteriores: ${e?.message ?? String(e)}`]);
@@ -213,7 +230,24 @@ export default function ProjetosPage() {
     window.location.href = '/';
   };
 
+  // F07 A4, item 4: a confirmação (por ação da pessoa) reenvia o MESMO pedido; a recusa não envia nada.
+  const reenviarPedido = async (id: string) => {
+    const intencao = retomada.pendencias.find(p => p.intencao.id === id)?.intencao;
+    if (!intencao) return;
+    const { linhas } = await reenviarPorConfirmacao({ deps: dependenciasDoNavegador(), intencao, ajustar: setRetomada });
+    setAvisoDeRetomada(prev => [...prev, ...linhas]);
+  };
+  const manterPedido = (id: string) => {
+    const intencao = retomada.pendencias.find(p => p.intencao.id === id)?.intencao;
+    if (!intencao) return;
+    recusarReenvio({ intencao, ajustar: setRetomada });
+  };
+
   const handleCalculate = async (projectId: string) => {
+    if (bloqueadoPorPendencia) {
+      setCalculateResult({ type: 'error', text: MENSAGEM_DE_ACAO_BLOQUEADA });
+      return;
+    }
     setCalculating(true);
     setCalculateResult(null);
     try {
@@ -460,6 +494,16 @@ export default function ProjetosPage() {
           </div>
         </div>
       )}
+
+      {/* F07 A4, item 4: a confirmação antes de reenviar um pedido de cálculo guardado */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 empty:hidden">
+        <ConfirmacaoDeRetomada
+          estado={retomada}
+          nomeDoProjeto={projectId => projects.find(p => p.id === projectId)?.name}
+          onReenviar={reenviarPedido}
+          onManter={manterPedido}
+        />
+      </div>
 
       {/* Modal de confirmação */}
       {
@@ -1169,6 +1213,7 @@ export default function ProjetosPage() {
             onClose={() => { setManagingProject(null); setCalculateResult(null); }}
             onCalculate={() => handleCalculate(managingProject.id)}
             calculating={calculating || retomando}
+            bloqueadoPorPendencia={bloqueadoPorPendencia}
             calculateResult={calculateResult}
             onReloadRespondents={loadProjects}
           />
@@ -1855,6 +1900,7 @@ function ManageProjectModal({
   onClose,
   onCalculate,
   calculating,
+  bloqueadoPorPendencia = false,
   calculateResult,
   onReloadRespondents
 }: {
@@ -1863,6 +1909,8 @@ function ManageProjectModal({
   onClose: () => void;
   onCalculate: () => void;
   calculating: boolean;
+  /** F07 A4: há pedido de cálculo anterior sem decisão da pessoa. */
+  bloqueadoPorPendencia?: boolean;
   calculateResult: { type: 'success' | 'error'; text: string } | null;
   onReloadRespondents: () => void;
 }) {
@@ -2136,13 +2184,13 @@ function ManageProjectModal({
             <div className="flex gap-2">
               <button
                 onClick={onCalculate}
-                disabled={calculating || completedCount === 0}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${calculating || completedCount === 0
+                disabled={calculating || bloqueadoPorPendencia || completedCount === 0}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${calculating || bloqueadoPorPendencia || completedCount === 0
                   ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   : 'bg-green-600 hover:bg-green-700 text-white'
                   }`}
               >
-                {calculating ? '⏳ Calculando...' : '🧮 Calcular Resultados'}
+                {calculating ? '⏳ Calculando...' : bloqueadoPorPendencia ? '⏸ Decida o pedido anterior' : '🧮 Calcular Resultados'}
               </button>
               <a
                 href={`/decisor/resultados/${project.id}`}
