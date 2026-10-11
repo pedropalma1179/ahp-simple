@@ -19247,6 +19247,171 @@ Não altera nenhuma predição, não reexecuta nenhum mutante, não altera códi
 
 ---
 
+## Registro de 11/10/2026 (UTC): F07, A4, etapa 1: os três fluxos assíncronos, a confirmação da retomada e a parada antes do que depende de decisão
+
+⚠ **Este bloco registra a ETAPA 1 de A4** (itens 1, 2, 3, 4 e 7). **Não registra os itens 5 e 6**, que dependem de decisão do autor e não foram implementados (seção 10). Não altera nenhuma predição anterior.
+
+### 1. A base, a cadeia e o ambiente
+
+Base `e2026da2b16f0490a6ea0a856603d69e80a50a7c`. Cadeia local, em ordem: `da094cc` (itens 1 e 2), `5df82ec` (item 3), `60fdf96` (item 4), `d76edbc` (item 7, correções ao registro de A1 a A3) e `2c2e618`
+(retirada de um construto sem uso, seção 3). **Nada foi enviado ao remoto.** Linux x86_64, Node v22.22.2, npm 10.9.7. Procedência: **medida nesta execução**.
+
+### 2. A predição: A4 não altera o que o modelo do Parecer IA recebe
+
+O `CLAUDE.md` (seção 2) exige predição escrita antes **só onde a correção altera o que o modelo recebe**. Medido, entre `e2026da` e este HEAD:
+
+- `git diff --stat e2026da HEAD -- lib/ai-reviewer app/api/ai-reviewer` sai **vazio**: nenhum arquivo do lado do servidor que monta o contexto foi alterado;
+- a região de `runAiReview` que monta e envia o payload (de `const runAiReview = async () => {` até o `fetch('/api/ai-reviewer'`) passou de **20307 para 20672 bytes**, e a diferença é **quatro linhas**: três de
+  comentário e `const parDoParecer = registroDaApresentacao.capturar();`, que **não toca nenhuma variável do payload**;
+- o instrumento da predição de F07 (`lib/__tests__/f07-entrada-do-modelo.test.ts`) passa: **7 de 7**.
+
+Procedência: **medida**, por diferença de texto e pelo instrumento; ⚠ **a página não é executada**. Por isso A4 não traz predição. A decisão 5-B (seção 10) muda o que a TELA faz com uma resposta tardia, não o que o
+modelo recebe.
+
+### 3. Item 1: o par (execução, geração) e o que cada ponto assíncrono é
+
+**O vínculo é um par**, em `lib/apresentacao-corrente.ts`: a **geração** avança a cada troca do que a tela apresenta, inclusive quando a execução é a mesma (A, B, A são três gerações), e o **identificador** é o
+`executionId` do documento apresentado. Nenhum substitui o outro. **A ausência de identificador nunca conta como igualdade**: com `executionId` ausente nos dois lados, a conferência devolve `vinculo: 'so-geracao'`
+(**garantia mais fraca, declarada no código e no resultado**), e com o identificador presente de um lado só, recusa. Nada nesse módulo troca a execução exibida.
+
+**O identificador é redundante em comportamento.** Pelo registro, cada geração identifica uma única apresentação e cada apresentação tem um único identificador; duas respostas da mesma geração têm sempre o mesmo
+identificador. O mutante que retira a comparação do identificador **sobrevive** (A4-M2, seção 7), e isso é **declarado, não corrigido com um cenário que o sistema não produz**. O caso de dois identificadores
+presentes e diferentes com a mesma geração só existe se `conferirPar` for chamada à mão com um par que o registro não gera.
+
+**Levantamento.** Padrão `fetch(`; escopo `app/` (fora de `app/api/`) e `components/`; `git grep -n "fetch(" -- app components ':!app/api'`: **5 ocorrências**, e `app/avaliacao/` não tem nenhuma. O teste
+`LEVANTAMENTO` reprova se aparecer um sexto, ou se a contagem por arquivo mudar.
+
+| onde | destino | tratamento |
+|---|---|---|
+| `app/decisor/resultados/[projectId]/page.tsx:1037` | `/api/response-quality` (carga) | **não se aplica o par**: a análise de qualidade é do PROJETO (as respostas), não de uma execução |
+| `app/decisor/resultados/[projectId]/page.tsx:1419` | `/api/ai-reviewer` (Parecer IA) | **par implementado, conduta pendente (5-B)** |
+| `app/decisor/resultados/[projectId]/page.tsx:1472` | `/api/response-quality` | idem a `:1037` |
+| `components/ExternalValidation.tsx:287` | `GET /api/validate-external` (saúde do serviço) | **não se aplica**: não está vinculado a execução |
+| `components/ExternalValidation.tsx:306` | validação externa | **tratado** por `escreverSeVigente` (par capturado ao pedir, conferido ao chegar) |
+
+As **três auditorias** (`/api/audit-decision`), que eram três `fetch` na página (`recalculateResults`, `exibirExecucao` e a auditoria da carga inicial), passaram para **um único** envio,
+`enviarAuditoriaPeloNavegador`, e **os três fluxos** foram extraídos da página para `lib/fluxos-da-tela.ts` com os setters injetados: **a página é `'use client'` e não é montável por teste algum**, então o teste
+exercita a função que a página chama, e a fiação da página (uma chamada de cada fluxo, `registro: registroDaApresentacao` nas três, o `fetch` de `/api/audit-decision` ausente da página) é conferida **por leitura**.
+O envio do cálculo (`executarCalculo`) não é resposta sobre a apresentação: ele produz uma NOVA apresentação.
+
+**Auditoria fora do par é descartada sem aviso**: a auditoria da apresentação corrente ou já está na tela ou continua em voo.
+
+**Parecer IA.** O par está implementado: capturado ao pedir (`page.tsx:1025`) e conferido antes de cada um dos três `setAiReview({` (`page.tsx:1431`, `:1447` e `:1455`) por
+`decidirEscritaDoParecer`. A **conduta** para a resposta fora do par é decidida em **`lib/fluxos-da-tela.ts:289`, `condutaDoParecerForaDoPar`**, que nesta etapa devolve `'aplicar'`, isto é, **a conduta de antes de
+A4: a resposta tardia ainda É escrita**, com um `console.warn`. A decisão 5-B muda **esta função** e mais nada. ⚠ **O manipulador `runAiReview` NÃO é exercitado por teste**: ele permanece na página; os testes
+exercitam `decidirEscritaDoParecer`, e a fiação é por leitura.
+
+**Os critérios, medidos.** (1) respostas fora de ordem, nos dois sentidos, e (2) a resposta tardia sem escrita alguma: testes do grupo `A4.1`; (3) a sequência A, B, A, que distingue o par do identificador: a resposta
+pedida na primeira apresentação de A é descartada na terceira; (4) o documento legado sem `executionId`, com `vinculo: 'so-geracao'`. Todos passam em `f07-a4-fluxos-da-tela.test.ts`.
+
+**O achado não tratado.** Ao revisar o uso do que A4 criou, `criarOrdemDePedidos` (um bilhete para o "último clique vence") não tinha chamador fora do próprio teste e foi **retirado** (`2c2e618`, por ser construto
+sem uso). O que ele serviria a resolver **existe e não está tratado**: dois cliques seguidos em "Exibir" ou em "Carregar a referência atual" fazem duas leituras de `executions/{id}` (`lerExecucao`,
+`components/ReferenciaDoProjeto.tsx:134`), e a leitura mais lenta pode apresentar a execução do primeiro clique **depois** da do segundo. Cada apresentação continua consistente consigo (a auditoria é pedida para o
+par dela), então **não há mistura entre execuções**; o que pode acontecer é a execução exibida não ser a do último clique. Procedência: **leitura do código**, não medida, e o levantamento acima é de `fetch(`, não
+de leituras do Firestore. **Fica para decisão do autor** se entra em A4 ou em tarefa própria.
+
+**A âncora A.33.** A extração moveu para o módulo o `setExcludedIds(calcData.metadata.excludedRespondentIds);` da carga inicial, e `scripts/a33-payload-referencia.cjs` (`ANCORAS_DA_TELA`) fixa esse fragmento na tela,
+com contagem 1. A decisão (de implementação, tomada nesta entrega) foi **manter o fragmento verbatim na página**, antes de `apresentarCargaInicial`, e retirá-lo do módulo, em vez de editar o script de referência e o
+teste: o script é um artefato de medição, e editá-lo para acomodar o código é o ajuste de critério que o `CLAUDE.md` proíbe. A chamada é a mesma de antes, no mesmo instante (antes do primeiro `await`).
+
+### 4. Item 2: a falha da auditoria contamina o cálculo confirmado
+
+**Comportamento.** Em `recalcularResultados`, o cálculo confirmado conclui o seu estado (resultado, exibição, exclusões do pedido, parecer e auditoria anteriores limpos) **antes** da auditoria, e a auditoria tem
+**tratamento de erro próprio**: se falhar, o cálculo não é revertido, as exclusões não voltam e a mensagem não afirma falha de recálculo; a tela acrescenta o aviso «A auditoria não está disponível para este
+cálculo. O cálculo foi concluído e está apresentado; a auditoria não foi atualizada.» (faixa de avisos, **sem nova apresentação**, porque `setError` substituiria a tela inteira). A **reversão das exclusões no
+caminho de falha do CÁLCULO foi mantida**. `exibirExecucao` e a auditoria da carga inicial **não tinham a mistura** (cada uma já tinha `try`/`catch` próprio que só registrava no log, em `e2026da`
+`page.tsx:1513-1523` e `:1636-1648`); o teste `A4.2` confere que continuam assim.
+
+**REGISTRO (o padrão é anterior a F07).** Em `317767a`, `recalculateResults` ocupa as linhas **1468 a 1512** de `app/decisor/resultados/[projectId]/page.tsx`, com a auditoria **dentro do mesmo `try`** do
+cálculo: `try {` na **1471**; `setCalculation(data.calculation)` na **1485**; a requisição `/api/audit-decision` em **1488-1494** (leitura do corpo na 1493, `setAudit` na 1494); `setAiReview(null)` na **1497**; `catch`
+na **1504**, com `setError('Erro de conexão ao recalcular: ' + e.message)` na **1506** e `setExcludedIds(calculation?.metadata?.excludedRespondentIds || [])` na **1507**. Em `e2026da` a mesma estrutura segue (início
+na 1526; `setCalculation(data.calculation)` na 1554; requisição na 1562; `setAudit` na 1568; `setAiReview(null)` na 1571; `catch` na 1578; `setError` na 1580): **F07 (A1) trocou apenas o modo de pedir o cálculo**.
+Efeito do padrão, **por leitura, não por execução**: com a auditoria lançando, o resultado novo já estava apresentado (a `setCalculation` já tinha rodado), a `setAiReview(null)` **não** rodava (o parecer anterior
+ficava sobre números novos), as exclusões voltavam às do documento ANTERIOR, e `error` substituía a tela inteira com «Erro de conexão ao recalcular». Procedência: **medida por leitura de `317767a` e `e2026da`**.
+
+**Os critérios, medidos.** (1) cálculo confirmado com auditoria que lança: o estado tem o resultado novo, as exclusões do pedido e nenhum parecer anterior, sem mensagem de falha de recálculo; (2) cálculo que falha: as
+exclusões voltam e a mensagem é de erro de recálculo; (3) o mutante que une os dois tratamentos (A4-M4, seção 7) falha o teste 1 e a sua variante, e **não** falha o 2.
+
+### 5. Item 3: a revisão carregada só avança depois de apresentar
+
+`carregarReferencia` avançava `referenciaCarregada` **antes** de ler e exibir a execução. Agora a ordem é ler, apresentar, avançar (`lib/fluxos-da-referencia.ts`, `carregarReferenciaAtual`). Leitura `null`, leitura
+que lança e apresentação que lança **mantêm a revisão e o aviso de mudança, acrescentam a linha «não pôde ser carregada» e não deixam a exceção escapar**. A regra de que a escolha usa a revisão CARREGADA não mudou.
+
+**Os outros avanços de `referenciaCarregada`** (`git grep -n setReferenciaCarregada -- components lib app`): a declaração do estado, a **escolha confirmada** (`components/ReferenciaDoProjeto.tsx:162`) e a passagem
+ao fluxo (`:198`). **A escolha confirmada NÃO é o mesmo caso**: acontece depois da resposta confirmada do servidor, a revisão é a que a própria pessoa acabou de gravar, e não envolve apresentar nada. **O avanço
+com referência ausente** (`referencia === null`) segue como antes: não há execução a apresentar e nada pode falhar. O botão «Exibir» (`exibir`) mantém o comportamento de antes, inclusive a exceção que escapa de
+uma leitura que lança; **não foi alterado**, por não ser o pedido.
+
+### 6. Item 4: a confirmação antes de toda retomada de cálculo
+
+`retomarPendentes` (`lib/intencoes.ts`) **não envia mais a intenção de cálculo**: devolve-a em `aguardandoConfirmacao`, e só `confirmarReenvio`, por ação da pessoa, a reenvia, com o mesmo `requestId` e os mesmos
+parâmetros. A intenção de **escolha** continua retomada sem confirmação, e consultas somente de leitura ficam fora. **A confirmação vale para TODA retomada de cálculo pelo endpoint atual**: é **limitação
+conhecida e decidida** (não existe consulta somente-leitura que diga se o pedido chegou; **não se cria outro endpoint nesta entrega**), declarada no código junto do portão. A tela mostra o projeto, **quando** o
+pedido foi criado, as exclusões e a frase de que, se o pedido nunca chegou, o cálculo usará os dados de agora; a recusa mantém a entrada e diz que continua pendente.
+
+**Leitura desta entrega de «sem decisão»**, que é interpretação e não texto do pedido: a ação nova de cálculo **fica bloqueada** (nas duas páginas, com botões desabilitados e guarda no manipulador ou no fluxo)
+enquanto houver pendência **aguardando decisão ou em envio**. **Recusar reenviar é uma decisão**: libera a ação nova, e o pedido continua guardado e dito pendente. Se o autor entender que a recusa também deve
+bloquear, é uma linha (`acaoNovaLiberada`).
+
+**Levantamento.** `retomarPendentes(` em `app/` e `components/`: **3 chamadas**, duas de cálculo (`app/decisor/projetos/page.tsx` e `app/decisor/resultados/[projectId]/page.tsx`, ambas com a confirmação) e uma de
+escolha (`components/ReferenciaDoProjeto.tsx`, sem). Nenhum arquivo de `app/` ou `components/` chama `resolverIntencao`, `confirmarReenvio` ou `enviarPeloNavegador` diretamente. Os caminhos de exclusão de
+`app/decisor/projetos/page.tsx` **não foram tocados**.
+
+**Testes de A1 e A2 que contavam o reenvio automático** (sete testes) foram adaptados para fazer as duas etapas por um auxiliar declarado no próprio teste; o conteúdo que verificavam (recuperar a mesma execução, não
+calcular de novo, remover só a confirmada) é o mesmo.
+
+### 7. Os mutantes de A4
+
+**12 execuções, 11 mortos, 1 sobrevivente.** Cada uma aplica UMA substituição de texto, roda o jest no arquivo de testes indicado e restaura o arquivo. Cinco execuções (extras: M8 a M11 e M5b) foram escolhidas por
+mim, além das que o pedido listava; **o pedido não exigia a morte de nenhum mutante de A4** e a tabela relata o que foi medido, não o que foi previsto. Rodados contra `da094cc` (M1 a M4, 33 testes) e depois dos
+commits seguintes; o teste retirado em `2c2e618` não aparece na lista de falhas de nenhum mutante.
+
+| id | item | edição | arquivo de testes | resultado medido | veredito |
+|---|---|---|---|---|---|
+| A4-M1 | item 1 | `lib/apresentacao-corrente.ts`, `conferirPar`: a geração deixa de ser comparada | `f07-a4-fluxos-da-tela` | código de saída do jest 1; 6 falhas de 33<br>«a conferência diz de que VÍNCULO ela se vale: par completo, ou só a geração (garantia mais fraca)»<br>«a AUSÊNCIA de identificador nunca é tratada como igualdade: a conferência declara que vale só a gera…»<br>«(critério 3) A, B, A: a resposta pedida na PRIMEIRA apresentação de A é descartada quando chega na T…»<br>«(critério 4) documento LEGADO sem executionId: a resposta de outra apresentação é descartada, e a du…»<br>«numa apresentação que a tela já deixou: o par NÃO confere, e a conduta vigente é ESCREVER (a de ante…»<br>«A, B, A: o par do parecer pedido na primeira apresentação de A não confere na terceira» | morto |
+| A4-M2 | item 1 | `lib/apresentacao-corrente.ts`, `conferirPar`: dois identificadores presentes e diferentes passam a ser aceitos | `f07-a4-fluxos-da-tela` | código de saída do jest 0; 33 passed, 33 total<br>(nenhum) | **sobrevivente** |
+| A4-M3 | item 1 | `lib/apresentacao-corrente.ts`, `conferirPar`: `null` e `null` passam a contar como igualdade de identificador (`identificador-e-geracao`) | `f07-a4-fluxos-da-tela` | código de saída do jest 1; 3 falhas de 33<br>«a conferência diz de que VÍNCULO ela se vale: par completo, ou só a geração (garantia mais fraca)»<br>«a AUSÊNCIA de identificador nunca é tratada como igualdade: a conferência declara que vale só a gera…»<br>«(critério 4) documento LEGADO sem executionId: a resposta de outra apresentação é descartada, e a du…» | morto |
+| A4-M4 | item 2 | `lib/fluxos-da-tela.ts`, `recalcularResultados`: a auditoria volta para o `try` do cálculo, e `indisponivel` lança para o `catch` do cálculo | `f07-a4-fluxos-da-tela` | código de saída do jest 1; 3 falhas de 33<br>«(critério 1) cálculo confirmado e auditoria que LANÇA: o estado tem o resultado novo, as exclusões d…»<br>«(critério 1, variante) a falha da auditoria na leitura do corpo (rejeição depois do envio) dá o mesm…»<br>«o que a tela mostra ENQUANTO a auditoria está em voo já é completo (resultado, exibição, exclusões e…» | morto |
+| A4-M5 | item 3 | `lib/fluxos-da-referencia.ts`, `carregarReferenciaAtual`: a revisão avança ANTES da leitura (a ordem original) | `f07-a4-referencia-carregada` | código de saída do jest 1; 5 falhas de 14<br>«(critério 1) a leitura devolve null: a revisão NÃO avança, o aviso de mudança permanece e a tela avi…»<br>«(critério 2) a leitura LANÇA: a revisão não avança, a exceção NÃO escapa, e o aviso diz que não pôde…»<br>«(critério 3) sucesso: a ORDEM é ler, apresentar, avançar, e a revisão avançada é a referência vista …»<br>«a apresentação que LANÇA (síncrona): a revisão não avança, a exceção não escapa»<br>«uma falha seguida de um sucesso: a segunda tentativa avança normalmente (a falha não deixou estado p…» | morto |
+| A4-M5b | item 3 | `components/ReferenciaDoProjeto.tsx`, `carregarReferencia`: o corpo volta a ser `setReferenciaCarregada(referencia)` seguido de `exibir(...)` | `f07-a4-referencia-carregada` | código de saída do jest 1; 1 falhas de 14<br>«o componente chama `carregarReferenciaAtual` uma vez, e a linha antiga (`setReferenciaCarregada(refe…» | morto |
+| A4-M6 | item 4 | `lib/intencoes.ts`, `retomarPendentes`: o portão é retirado, e o cálculo é reenviado na consulta | `f07-a4-retomada-confirmada` | código de saída do jest 1; 8 falhas de 25<br>«(critério 1) com pedidos de cálculo guardados, a consulta NÃO envia nada: a lista de envios fica VAZ…»<br>«o mesmo vale para o pedido que CHEGOU: a consulta também não o reenvia (a tela não sabe qual dos doi…»<br>«(critério 2) a confirmação envia o MESMO requestId e os MESMOS parâmetros, e o servidor registra o p…»<br>«a confirmação do pedido que CHEGOU recupera a MESMA execução, sem calcular de novo»<br>«(critério 3) a recusa mantém a entrada guardada e NÃO envia; a tela diz que continua pendente»<br>«(critério 4) A DIFERENÇA ENTRE OS TIPOS: a intenção de ESCOLHA é retomada SEM confirmação, a de CÁLC…»<br>«`reenviarPorConfirmacao`: marca o envio, reenvia pelo envio injetado, e devolve as linhas do desfech…»<br>«`reenviarPorConfirmacao`: um envio que LANÇA vira pendência mantida, e a exceção não escapa» | morto |
+| A4-M7 | item 4 | `lib/intencoes.ts`, `retomarPendentes`: o portão passa a valer também para a escolha | `f07-a4-retomada-confirmada` | código de saída do jest 1; 1 falhas de 25<br>«(critério 4) A DIFERENÇA ENTRE OS TIPOS: a intenção de ESCOLHA é retomada SEM confirmação, a de CÁLC…» | morto |
+| A4-M8 | item 4 (extra) | `lib/intencoes.ts`, `confirmarReenvio`: reenvia com outro `requestId` (`id + "-novo"`) | `f07-a4-retomada-confirmada` | código de saída do jest 1; 2 falhas de 25<br>«(critério 2) a confirmação envia o MESMO requestId e os MESMOS parâmetros, e o servidor registra o p…»<br>«a confirmação do pedido que CHEGOU recupera a MESMA execução, sem calcular de novo» | morto |
+| A4-M9 | item 4 (extra) | `lib/retomada-com-confirmacao.ts`, `acaoNovaLiberada`: sempre `true` | `f07-a4-retomada-confirmada` | código de saída do jest 1; 2 falhas de 25<br>«(critério 3) a recusa mantém a entrada guardada e NÃO envia; a tela diz que continua pendente»<br>«a ação nova NÃO é liberada com pendência sem decisão ou em envio, e é liberada com a lista vazia, ma…» | morto |
+| A4-M10 | item 4 (extra) | `app/decisor/resultados/[projectId]/page.tsx`: o argumento `liberado` do recálculo é retirado | `f07-a4-retomada-confirmada` | código de saída do jest 1; 1 falhas de 25<br>«resultados: o recálculo fica bloqueado com pendência sem decisão (`liberado` no fluxo, e os três con…» | morto |
+| A4-M11 | item 4 (extra) | `app/decisor/projetos/page.tsx`: a guarda de `handleCalculate` é retirada | `f07-a4-retomada-confirmada` | código de saída do jest 1; 1 falhas de 25<br>«projetos: o cálculo fica bloqueado com pendência sem decisão (guarda no manipulador, e o modal desab…» | morto |
+
+**O sobrevivente, A4-M2, é redundante e não equivalente por texto:** a comparação do identificador existe e informa o `vinculo`, mas, dado o registro, não muda o aceitar/descartar (seção 3). **Predição do pedido e
+medida:** o pedido previa que o mutante «remover o portão» falharia os testes 1 e 3 (e o «também na escolha», o 4); o medido para A4-M6 é **8 falhas**, que incluem o 1 e o 3 e também o 2 e o 4, e para A4-M7, **1**
+(o 4). Para A4-M5 (ordem original) o pedido previa os testes 1 e 2; o medido é **5**, que os incluem. As previsões do pedido foram **confirmadas como limite inferior**; a diferença está nas tabelas acima.
+
+### 8. A suíte, no estado final desta etapa
+
+`npx tsc --noEmit`: saída **0**. `npm run build`: saída **0**. `npm test`: saída **1**, **45 suítes, 1743 testes, 1741 passam, 2 falham**. ⚠ **As duas falhas são ESPERADAS POR DESENHO**: `a12-diagnostico` e
+`a12-rastreabilidade`, o teste «o artefato gravado coincide com a medicao atual», que conferem por `sha256` a identidade do código de `app/decisor/resultados/[projectId]/page.tsx` (e dos demais arquivos listados)
+contra o artefato gravado em `docs/dados/`. A4 alterou a página, e o artefato só se atualiza no **item 6 (etapa 2)**, com a entrada nova e a correção de `oQueIstoNaoResolve[0]`. **Não foram regravados.** Procedência:
+**medida nesta execução**, com o código de saída de cada comando em arquivo `.exit`. O total cresce por testes novos (A4 acrescentou os arquivos `f07-a4-fluxos-da-tela`, `f07-a4-referencia-carregada` e
+`f07-a4-retomada-confirmada`), e não por mudança de resultado: **não é critério de aceite**.
+
+### 9. O que NÃO está demonstrado
+
+- **Nenhuma tela é montada.** O comportamento da página no navegador não foi observado; a fiação de cada fluxo é conferida por leitura do fonte, e um teste de leitura não prova comportamento.
+- **A extração dos corpos é «estrutural»** e não está demonstrada como neutra além do que os testes sobre os módulos e a leitura da página mostram; não houve execução do corpo antigo contra o novo.
+- **`runAiReview` não é exercitado**; só a função de decisão e a fiação.
+- **A leitura Firestore de `lerExecucao`** nunca é exercitada com o Firestore real; os testes injetam uma função que devolve `null` ou lança.
+- **O reenvio da confirmação foi testado contra o handler REAL da rota e o duplo do Firestore**, que reproduz o protocolo e não o serviço.
+- **A corrida de dois cliques em «Exibir»** (seção 3) está declarada e não tratada.
+
+### 10. Pendente de decisão do autor (a etapa 2 NÃO foi iniciada)
+
+- **5-A, a origem da versão:** `engineVersion` (`lib/engine-version.ts:30`, `'ahp-bocr-motor-5.0.0'`, gravado por `lib/execucoes.ts:99`) e `metadata.version: '5.0'` (`app/api/calculate/route.ts:1249`) são duas
+  fontes; ninguém lê `metadata.version` além de `app/api/backup/route.ts:75`; e `lib/ahp-engine.ts:25` tem outra `ENGINE_VERSION = 'engine-1.0.0'`, de nome igual e não importada. Opções e custos estão no relato da
+  entrega.
+- **5-B, a resposta tardia do Parecer IA:** descartar, ou manter em quarentena visível pelo desenho de A.27. O ponto do código é `lib/fluxos-da-tela.ts:289`.
+- **Item 6** (atualização delimitada dos artefatos de medição) **só depois** do item 5.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
