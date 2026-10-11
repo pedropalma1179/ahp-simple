@@ -37,6 +37,7 @@ import {
 } from '@/lib/referencia-do-projeto';
 import { type ApresentacaoInicial, lerExecucao, listarHistorico } from '@/lib/referencia-leitura';
 import { dependenciasDoNavegador, executarEscolha, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
+import { carregarReferenciaAtual } from '@/lib/fluxos-da-referencia';
 
 interface Props {
   projectId: string;
@@ -126,12 +127,18 @@ export default function ReferenciaDoProjeto({
 
   const mudanca = useMemo(() => compararReferencia(referenciaCarregada, referencia), [referenciaCarregada, referencia]);
 
-  const exibir = async (executionId: string) => {
+  /** O documento da execução: o que a tela já tem, ou a leitura. `null` = não existe; a leitura PODE lançar. */
+  const obterDocumento = async (executionId: string): Promise<Record<string, any> | null> => {
     let documento = documentos.current.get(executionId) ?? null;
     if (documento === null) {
       documento = await lerExecucao(db, executionId);
       if (documento !== null) documentos.current.set(executionId, documento);
     }
+    return documento;
+  };
+
+  const exibir = async (executionId: string) => {
+    const documento = await obterDocumento(executionId);
     if (documento === null) {
       setAvisos(a => [...a, `A execução ${executionId} não foi encontrada.`]);
       return;
@@ -176,9 +183,22 @@ export default function ReferenciaDoProjeto({
     }
   };
 
+  /**
+   * F07 A4, item 3: a revisão carregada SÓ avança depois de a execução ser apresentada. Falha na leitura
+   * (`null` ou exceção) mantém a revisão, mantém o aviso de mudança e avisa que a referência não pôde
+   * ser carregada (ver `lib/fluxos-da-referencia.ts`). A exceção não escapa daqui.
+   */
   const carregarReferencia = async () => {
-    setReferenciaCarregada(referencia);
-    if (referencia !== null) await exibir(referencia.executionId);
+    await carregarReferenciaAtual({
+      referencia,
+      revisaoCarregada: referenciaCarregada?.revision ?? null,
+      acoes: {
+        lerExecucao: obterDocumento,
+        apresentar: documento => { onExibir(documento); },
+        avancarReferenciaCarregada: setReferenciaCarregada,
+        acrescentarAviso: texto => setAvisos(a => (a.includes(texto) ? a : [...a, texto])),
+      },
+    });
   };
 
   return (

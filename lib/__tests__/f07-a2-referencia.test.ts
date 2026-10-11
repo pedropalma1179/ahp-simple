@@ -936,8 +936,22 @@ describe('A2.14: fiação, por LEITURA (nenhuma tela é executada por teste algu
     expect(f).toMatch(/expectedRevision: referenciaCarregada\?\.revision \?\? 0/);
     expect(f).toMatch(/retomarPendentes\(dependenciasDoNavegador\(\), \{ tipo: 'escolha', projectId \}\)/);
     expect(f).toMatch(/useState\(true\)/); // consultandoPendentes começa ligado
-    // o aviso de mudança NÃO chama onExibir: só o clique em "Carregar a referência atual" (carregarReferencia)
-    expect(ocorrencias(f, 'onExibir(documento)')).toBe(1);
+    // o aviso de mudança NÃO chama onExibir: só o clique em "Exibir" (`exibir`) e o clique em "Carregar a
+    // referência atual" (`carregarReferencia`).
+    // ⚠ F07 A4 (item 3): `carregarReferencia` deixou de passar por `exibir` e entrega o documento por
+    //   `acoes.apresentar` (lib/fluxos-da-referencia.ts), então `onExibir(documento)` aparece em DUAS
+    //   funções de clique, e não em uma. O que este teste exigia (nenhuma chamada fora de clique) é
+    //   conferido por posição: as duas ocorrências estão depois de `const exibir` e dentro de `exibir` ou
+    //   de `carregarReferencia`, e nenhum `useEffect` do componente a contém.
+    expect(ocorrencias(f, 'onExibir(documento)')).toBe(2);
+    const iExibir = f.indexOf('const exibir = async');
+    const iCarregar = f.indexOf('const carregarReferencia = async');
+    const iFimCarregar = f.indexOf('\n  };\n', iCarregar);
+    const dentroDeExibir = f.slice(iExibir, f.indexOf('\n  };\n', iExibir));
+    const dentroDeCarregar = f.slice(iCarregar, iFimCarregar);
+    expect([iExibir > 0, iCarregar > iExibir]).toEqual([true, true]);
+    expect([ocorrencias(dentroDeExibir, 'onExibir(documento)'), ocorrencias(dentroDeCarregar, 'onExibir(documento)')]).toEqual([1, 1]);
+    for (const m of f.matchAll(/useEffect\(\(\) => \{[\s\S]*?\n  \}, \[[^\]]*\]\);/g)) expect(m[0].includes('onExibir(')).toBe(false);
   });
 
   test('a rota de escolha não importa Node além do necessário e não grava nada fora do módulo de escolha', () => {
