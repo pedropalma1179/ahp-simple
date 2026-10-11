@@ -19062,6 +19062,73 @@ apontar para ele, e as outras duas ficam como estão.
 
 ⚠ **A implementação da rodada 2 continua bloqueada**, e a integração segue sem autorização. A liberação da implementação definitiva é decisão do autor, depois da auditoria desta entrega.
 
+## Registro de 11/10/2026 (UTC): F07, a entrada atual do modelo do Parecer IA e a predição de que ela não muda, escritas antes do código
+
+⚠ **Este bloco é anterior ao código de F07.** F07 é a frente que deixa de sobrescrever `calculations/{projectId}` e passa a criar uma execução por cálculo (A1), a registrar a escolha da
+referência (A2) e a identificar a execução nas saídas (A3). A regra central do `CLAUDE.md` (seção 2) exige predição escrita antes, com o caso negativo nomeado, para toda correção que possa
+alterar o que o modelo do Parecer IA recebe. Este bloco registra a **entrada atual**, medida no HEAD de partida, e a **predição** sobre ela.
+
+### 1. A base e o ambiente
+
+HEAD de partida `317767a33dd9a90c5dd79a79d40c4ac73973d1d3`, branch `claude/loving-shannon-661fy9`, conferido por `git rev-parse` em 11/10/2026, 04:02Z; `git status --short` com zero linhas.
+`npm test` no HEAD, antes de qualquer alteração: **38 suítes, 1488 testes, saída 0**. Linux x86_64, Node v22.22.2, npm 10.9.7, rede vazia (`unshare -n`).
+
+### 2. O que a entrada do modelo é hoje, por leitura do código
+
+- A tela monta o payload de `/api/ai-reviewer` **campo a campo**, em `app/decisor/resultados/[projectId]/page.tsx:1244` (`const payload = {`) e `:1332` (`const finalPayload = {`), **sem espalhar o
+  objeto de cálculo**. Os campos que vêm do documento de cálculo são oito: `bocrWeights`, `personalWeights` e `rescalingWeights` (derivados de `bocrWeights` e `rescalingWeights`),
+  `bocrConsistency`, `subWeights`, `subConsistency`, `finalScores`, `responseCount` e `sensitivityInflections`. O objeto `calculation` inteiro vai a outro lugar, `/api/audit-decision`
+  (`:1491` e `:1552`), cuja resposta **não** entra no payload do parecer.
+- O `executionId` **já é entrada do modelo hoje**: `prepararVinculoDaTela` lê `calculo.executionId`, `calculo.metadata.includedRespondents` e `calculo.metadata.judgmentsDigest`, e
+  `lib/ai-reviewer/vinculo-execucao.ts:763` o imprime no bloco do vínculo ("Execução do cálculo (identificador opaco)").
+- O texto copiado em `components/ParecerAISection.tsx:82` é **saída**, e não entrada.
+
+### 3. O instrumento, e o que ele mede
+
+`lib/__tests__/f07-entrada-do-modelo.test.ts`, com a referência `lib/__tests__/fixtures/f07-entrada-antes.json` (36975 bytes, `sha256`
+`4afe749d97389bf5a3a02a4d25b1e663a8c392dce1c3ee715f17abfe04a8d65f`), capturada no HEAD `317767a` por `F07_CAPTURAR=1`. Ele roda a **rota real** de cálculo sobre o painel de 2026
+(`fixtures/panel-2026.json`, 12 respondentes completos), com relógio e `randomUUID` fixos, pega o documento gravado, monta o payload como a tela o monta e o passa pelo **handler real** de
+`/api/ai-reviewer`, com os três clientes externos simulados, capturando o `system` e o `messages` que chegariam ao modelo.
+
+- **Real:** a rota de cálculo, `prepararVinculoDaTela`, `classificarAvaliacaoDaTela` e o handler do parecer. **Espelho:** a montagem do payload pela tela, com **15 âncoras de texto**
+  conferidas na tela (contagem 1 cada). ⚠ A tela é `'use client'` e nenhum teste a executa; a ancoragem é por leitura. **Fora do escopo do instrumento:** `qualityAnalysis.statistics`,
+  `overallStats`, `individualStats` e a demografia, que vêm da API de qualidade e das respostas, e não do documento de cálculo.
+- **Medido na referência:** o documento tem 12 incluídos, todos com resumo individual, e `judgmentsDigest.panel` presente; o vínculo é `vinculado`, origem `analiseDeQualidade`, 12 enviados;
+  o `system` tem **34170 bytes**, `sha256` `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98`; o `messages` tem **78606 bytes**, `sha256`
+  `3f2b63801d43c72965b7e6232e8def72988cc8c77abf04ae764f755ba50fb3c0`. Uma segunda execução, em processo novo, reproduz os dois.
+- ⚠ **O instrumento errou na primeira execução, e foi corrigido antes de valer.** O duplo do Firestore copiava os documentos por `structuredClone`, que dentro do jest devolve objetos de outro
+  realm; o serializador de julgamentos recusa objeto que não seja simples, e a primeira captura saiu com os **12 resumos individuais e o do painel nulos** (`messages` com 79583 bytes). Só a
+  leitura da referência à mão mostrou isso. A cópia passou a ser recursiva, no realm do chamador. A referência acima é a da segunda captura.
+- ⚠ **Comparação por tolerância, e não por resumo de números.** Os números do documento passam por `toPrecision(12)` na referência e são comparados com tolerância relativa de `1e-9`, porque a
+  comparação de resumos de conteúdo com ponto flutuante já divergiu entre ambientes neste repositório (`docs/dados/a12-rastreabilidade`, causa não determinada). `system` e `messages` são
+  comparados por `sha256` do texto, em que os números já saem formatados pelo código.
+- ⚠ **Nenhuma redação é gerada:** o cliente do modelo é simulado. O instrumento mede a **entrada**, e não o que o parecer escreveria.
+
+### 4. A predição
+
+**Predição P-F07-1.** Para o caso fixo acima, **a entrada do modelo não muda** com A1, A2 e A3: o payload montado pela tela tem os mesmos campos e os mesmos valores, e o `system` e o
+`messages` têm o mesmo `sha256` e o mesmo número de bytes. A razão é de construção: o payload é montado campo a campo a partir de oito campos de `calculation`, e F07 **acrescenta** campos ao
+documento de execução (`requestId`, `engineVersion`, `codeRevision`, `projectUpdatedAt`) sem alterar os oito; o `executionId` e o que o vínculo lê de `metadata` continuam sendo os mesmos
+valores; a tela passa a ler a execução (A2), mas os campos lidos são os mesmos.
+
+**O caso negativo, nomeado.** A predição é refutada se, para o caso fixo, ocorrer qualquer um destes:
+
+1. **um campo de F07 aparecer no payload ou no contexto** (`requestId`, `engineVersion`, `codeRevision`, `projectUpdatedAt`, `paramsDigest`);
+2. **o `sha256` do `system` ou do `messages` mudar**, ou os bytes mudarem;
+3. **o `executionId` do bloco do vínculo diferir do `executionId` do documento lido**;
+4. **um dos oito campos de cálculo do documento de execução diferir do documento de `317767a`** além da tolerância de `1e-9`;
+5. **o vínculo deixar de ser `vinculado`** com 12 enviados, ou o resumo do painel deixar de estar presente.
+
+**O que a predição NÃO cobre.** (a) O texto que o parecer geraria, que nenhum instrumento aqui produz. (b) Documentos legados sem `executionId`, que seguem `indisponivel`. (c) Qualquer mudança
+posterior à de F07 em `lib/ai-reviewer/` ou na montagem do payload: se a tela passar a enviar um campo novo, a predição não vale e há outra a registrar antes. (d) As saídas de A3
+(exportações, imagem do gráfico e texto copiado): são **saída**, e alterar só uma exportação ou o texto copiado não exige predição por esse motivo.
+
+### 5. A comparação posterior
+
+⚠ **A comparação posterior verifica a predição, e não a substitui.** Ela é o mesmo arquivo de teste, que continua no repositório e roda em `npm test`: depois de A1, o documento de cálculo
+passa a estar em `executions/{executionId}`, e o teste o procura nos dois lugares (`calculations` e `executions`) sem mudar de lógica. O resultado da comparação é relatado na entrega de F07.
+
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7

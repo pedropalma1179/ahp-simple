@@ -1,0 +1,1650 @@
+{
+ "_natureza": "F07: entrada do modelo para o caso fixo, capturada no HEAD 317767a ANTES de qualquer alteração. Ver lib/__tests__/f07-entrada-do-modelo.test.ts.",
+ "documentoDeCalculo": {
+  "projectId": "projeto-f07-entrada",
+  "calculatedAt": "2026-10-11T12:00:00.000Z",
+  "executionId": "00000000-0000-4000-8000-0000000f0700",
+  "responseCount": 12,
+  "bocrWeights": [
+   0.372276646888,
+   0.151702811508,
+   0.197436896196,
+   0.278583645407
+  ],
+  "bocrConsistency": {
+   "cr": 0.0106058256562,
+   "ci": 0.00954524309057,
+   "lambda": 4.02863572927
+  },
+  "rescalingWeights": {
+   "sb": 0.43934850977,
+   "so": 0.159285931643,
+   "sc": 0.186784878108,
+   "sr": 0.214580680479
+  },
+  "magnitudeConsistency": {
+   "cr": 0.0258352759103,
+   "ci": 0.0232517483193,
+   "lambda": 4.06975524496
+  },
+  "subWeights": {
+   "B": [
+    0.223030934616,
+    0.303763182205,
+    0.226808915298,
+    0.0956795311701,
+    0.150717436711
+   ],
+   "O": [
+    0.232724308911,
+    0.164698597431,
+    0.231653501841,
+    0.142882059416,
+    0.228041532401
+   ],
+   "C": [
+    0.157298263663,
+    0.154297512013,
+    0.416621441152,
+    0.166323971214,
+    0.105458811958
+   ],
+   "R": [
+    0.289482248162,
+    0.287591965914,
+    0.208312402792,
+    0.127561231733,
+    0.0870521513988
+   ]
+  },
+  "subConsistency": {
+   "B": {
+    "cr": 0.0110205424091,
+    "lambda": 5.04937202999
+   },
+   "O": {
+    "cr": 0.00923710135365,
+    "lambda": 5.04138221406
+   },
+   "C": {
+    "cr": 0.0259998444755,
+    "lambda": 5.11647930325
+   },
+   "R": {
+    "cr": 0.0139744056021,
+    "lambda": 5.0626053371
+   }
+  },
+  "aggregatedMatrices": {
+   "bocr": "[[1,2.840271682449184,1.9820051500277909,1.0958726911352443],[0.35207899518178976,1,0.7125908921079473,0.6737295476527683],[0.5045395568149651,1.403329752141309,1,0.7080353712106306],[0.9125147547604939,1.4842751122968225,1.41235881802085,1]]",
+   "magnitude": "[[1,2.9607688096668197,2.840271682449184,1.6150744476616494],[0.33775011298924473,1,0.6502497031564451,1.0211637098909785],[0.35207899518178976,1.5378707520292518,1,0.8096595719814021],[0.619166504335344,0.9792749099032926,1.2350869854509297,1]]",
+   "subcriteria": {
+    "B": "[[1,0.6644651164103906,0.9792749099032926,2.2973097500999025,1.7209779834049963],[1.504969900304555,1,1.393406297433106,2.4997564434054445,2.2504549061950376],[1.0211637098909785,0.7176657675813378,1,3.1125761722008147,1.1602659835119289],[0.4352917580907465,0.40003897285196693,0.321277277944632,1,0.6367732194731706],[0.5810649582056104,0.44435460459447845,0.8618713417531807,1.5704178024750197,1]]",
+    "O": "[[1,1.603653669254229,0.9786062309324216,1.846885818396239,0.8148689460463829],[0.6235760371284187,1,0.602046613090961,1.2009369551760027,0.9183859021684453],[1.0218614682712517,1.6610009561650232,1,1.5378707520292516,0.8993522716024583],[0.5414519890939222,0.8326831776556043,0.6502497031564451,1,0.7176657675813378],[1.2271912003173566,1.088866888787003,1.1119113517311836,1.393406297433106,1]]",
+    "C": "[[1,1.0958726911352443,0.2405966845207236,0.9999999999999999,2.0089635421924563],[0.9125147547604939,1,0.35977595896393066,0.8503058428586056,1.8994041511369624],[4.156333251191854,2.7795075659856834,1,2.125557509551097,2.64394471084848],[1.0000000000000002,1.1760474285795148,0.4704648053541459,1,1.4214459771821246],[0.49776911277775754,0.5264808963386813,0.37822273510367227,0.7035089732938009,1]]",
+    "R": "[[1,0.8448699243264528,1.2451517748507208,3.316673774254895,2.8789038514264367],[1.1836141531457876,1,1.4033297521413088,1.9673275917795172,3.2446256832788727],[0.8031149456618558,0.7125908921079475,1,1.7443859949244094,2.1406951429280725],[0.3015068915617588,0.5083037538732758,0.5732676156020925,1,1.8994041511369626],[0.347354427798803,0.3082019615247097,0.4671379777282001,0.5264808963386812,1]]"
+   }
+  },
+  "bocrPrioritiesTable": [
+   {
+    "code": "A1",
+    "name": "Gêmeo Digital",
+    "B": 0.600107286324,
+    "O": 0.528850450813,
+    "C": 0.490336193185,
+    "R": 0.48044015993,
+    "C_reciprocal": 0.509663806815,
+    "R_reciprocal": 0.51955984007
+   },
+   {
+    "code": "A2",
+    "name": "IA Temperatura",
+    "B": 0.399892713676,
+    "O": 0.471149549187,
+    "C": 0.509663806815,
+    "R": 0.51955984007,
+    "C_reciprocal": 0.490336193185,
+    "R_reciprocal": 0.48044015993
+   }
+  ],
+  "altScores": {
+   "B1": {
+    "A1": 0.687653077652,
+    "A2": 0.312346922348
+   },
+   "B2": {
+    "A1": 0.556179492009,
+    "A2": 0.443820507991
+   },
+   "B3": {
+    "A1": 0.583578663311,
+    "A2": 0.416421336689
+   },
+   "B4": {
+    "A1": 0.576666993125,
+    "A2": 0.423333006875
+   },
+   "B5": {
+    "A1": 0.598845469801,
+    "A2": 0.401154530199
+   },
+   "O1": {
+    "A1": 0.387356395311,
+    "A2": 0.612643604689
+   },
+   "O2": {
+    "A1": 0.447409880022,
+    "A2": 0.552590119978
+   },
+   "O3": {
+    "A1": 0.587270760659,
+    "A2": 0.412729239341
+   },
+   "O4": {
+    "A1": 0.47173592391,
+    "A2": 0.52826407609
+   },
+   "O5": {
+    "A1": 0.708509066093,
+    "A2": 0.291490933907
+   },
+   "C1": {
+    "A1": 0.540451192899,
+    "A2": 0.459548807101
+   },
+   "C2": {
+    "A1": 0.505235525897,
+    "A2": 0.494764474103
+   },
+   "C3": {
+    "A1": 0.473504723188,
+    "A2": 0.526495276812
+   },
+   "C4": {
+    "A1": 0.407743726417,
+    "A2": 0.592256273583
+   },
+   "C5": {
+    "A1": 0.590541436814,
+    "A2": 0.409458563186
+   },
+   "R1": {
+    "A1": 0.594050012915,
+    "A2": 0.405949987085
+   },
+   "R2": {
+    "A1": 0.370739341716,
+    "A2": 0.629260658284
+   },
+   "R3": {
+    "A1": 0.36570845077,
+    "A2": 0.63429154923
+   },
+   "R4": {
+    "A1": 0.568234868831,
+    "A2": 0.431765131169
+   },
+   "R5": {
+    "A1": 0.610958187795,
+    "A2": 0.389041812205
+   }
+  },
+  "altMeritScores": [
+   {
+    "code": "A1",
+    "name": "Gêmeo Digital",
+    "B": 0.600107286324,
+    "O": 0.528850450813,
+    "C": 0.490336193185,
+    "R": 0.48044015993
+   },
+   {
+    "code": "A2",
+    "name": "IA Temperatura",
+    "B": 0.399892713676,
+    "O": 0.471149549187,
+    "C": 0.509663806815,
+    "R": 0.51955984007
+   }
+  ],
+  "finalScores": [
+   {
+    "code": "A1",
+    "name": "Gêmeo Digital",
+    "B": 0.600107286324,
+    "O": 0.528850450813,
+    "C": 0.490336193185,
+    "R": 0.48044015993,
+    "C_reciprocal": 0.509663806815,
+    "R_reciprocal": 0.51955984007,
+    "scoreSubtractive": 0.0641294672283,
+    "scoreSubtractiveNorm": 1,
+    "rankSubtractive": 1,
+    "isNegative": false,
+    "scoreQuotientSums": 1.78700263754,
+    "scoreQuotientSumsNorm": 0.59563737505,
+    "rankQuotientSums": 1,
+    "scoreAdditiveResidual": 0.549001342957,
+    "scoreAdditiveResidualNorm": 0.549001342957,
+    "rankAdditiveResidual": 1,
+    "scoreMultiplicative": 1.05990420603,
+    "scoreMultiplicativeNorm": 0.549358253591,
+    "rankMultiplicative": 1,
+    "scoreMultSimple": 1.3471889901,
+    "scoreMultSimpleNorm": 0.654387535794,
+    "rankMultSimple": 1
+   },
+   {
+    "code": "A2",
+    "name": "IA Temperatura",
+    "B": 0.399892713676,
+    "O": 0.471149549187,
+    "C": 0.509663806815,
+    "R": 0.51955984007,
+    "C_reciprocal": 0.490336193185,
+    "R_reciprocal": 0.48044015993,
+    "scoreSubtractive": 0.0269369516765,
+    "scoreSubtractiveNorm": 0,
+    "rankSubtractive": 2,
+    "isNegative": false,
+    "scoreQuotientSums": 1.21314932134,
+    "scoreQuotientSumsNorm": 0.40436262495,
+    "rankQuotientSums": 2,
+    "scoreAdditiveResidual": 0.450998657043,
+    "scoreAdditiveResidualNorm": 0.450998657043,
+    "rankAdditiveResidual": 2,
+    "scoreMultiplicative": 0.869445538151,
+    "scoreMultiplicativeNorm": 0.450641746409,
+    "rankMultiplicative": 2,
+    "scoreMultSimple": 0.711513103704,
+    "scoreMultSimpleNorm": 0.345612464206,
+    "rankMultSimple": 2
+   }
+  ],
+  "ranking": [
+   {
+    "position": 1,
+    "code": "A1",
+    "name": "Gêmeo Digital"
+   },
+   {
+    "position": 2,
+    "code": "A2",
+    "name": "IA Temperatura"
+   }
+  ],
+  "methodConcordance": {
+   "totalMethods": 5,
+   "agreeMethods": 5,
+   "agreementPercent": 100,
+   "consensusWinner": "A1",
+   "divergentMethods": [],
+   "rankingsByMethod": {
+    "Subtractive": [
+     "A1",
+     "A2"
+    ],
+    "QuotientSums": [
+     "A1",
+     "A2"
+    ],
+    "AdditiveResidual": [
+     "A1",
+     "A2"
+    ],
+    "Multiplicative": [
+     "A1",
+     "A2"
+    ],
+    "MultSimple": [
+     "A1",
+     "A2"
+    ]
+   },
+   "robustnessLevel": "excellent",
+   "robustnessLabel": "Excelente (5/5 métodos concordam)"
+  },
+  "sensitivityAnalysis": [
+   {
+    "merit": "B",
+    "meritName": "Benefícios",
+    "inflectionPoint": null,
+    "currentWinner": "A1",
+    "newWinner": null,
+    "currentWeight": 37.2276646888
+   },
+   {
+    "merit": "O",
+    "meritName": "Oportunidades",
+    "inflectionPoint": null,
+    "currentWinner": "A1",
+    "newWinner": null,
+    "currentWeight": 15.1702811508
+   },
+   {
+    "merit": "C",
+    "meritName": "Custos",
+    "inflectionPoint": null,
+    "currentWinner": "A1",
+    "newWinner": null,
+    "currentWeight": 19.7436896196
+   },
+   {
+    "merit": "R",
+    "meritName": "Riscos",
+    "inflectionPoint": null,
+    "currentWinner": "A1",
+    "newWinner": null,
+    "currentWeight": 27.8583645407
+   }
+  ],
+  "sensitivityInflections": {
+   "B": null,
+   "O": null,
+   "C": null,
+   "R": null
+  },
+  "sensitivityTrajectories": {
+   "B": [
+    {
+     "weight": 0,
+     "scores": {
+      "A1": -0.054201575084,
+      "A2": -0.0612836474564
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 5,
+     "scores": {
+      "A1": -0.0383086842323,
+      "A2": -0.0494348516925
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 10,
+     "scores": {
+      "A1": -0.0224157933807,
+      "A2": -0.0375860559286
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 15,
+     "scores": {
+      "A1": -0.00652290252905,
+      "A2": -0.0257372601647
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 20,
+     "scores": {
+      "A1": 0.00936998832258,
+      "A2": -0.0138884644008
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 25,
+     "scores": {
+      "A1": 0.0252628791742,
+      "A2": -0.00203966863697
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 30,
+     "scores": {
+      "A1": 0.0411557700259,
+      "A2": 0.00980912712691
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 35,
+     "scores": {
+      "A1": 0.0570486608775,
+      "A2": 0.0216579228908
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 40,
+     "scores": {
+      "A1": 0.0729415517291,
+      "A2": 0.0335067186547
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 45,
+     "scores": {
+      "A1": 0.0888344425808,
+      "A2": 0.0453555144185
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 50,
+     "scores": {
+      "A1": 0.104727333432,
+      "A2": 0.0572043101824
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 55,
+     "scores": {
+      "A1": 0.120620224284,
+      "A2": 0.0690531059463
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 60,
+     "scores": {
+      "A1": 0.136513115136,
+      "A2": 0.0809019017102
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 65,
+     "scores": {
+      "A1": 0.152406005987,
+      "A2": 0.0927506974741
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 70,
+     "scores": {
+      "A1": 0.168298896839,
+      "A2": 0.104599493238
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 75,
+     "scores": {
+      "A1": 0.184191787691,
+      "A2": 0.116448289002
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 80,
+     "scores": {
+      "A1": 0.200084678542,
+      "A2": 0.128297084766
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 85,
+     "scores": {
+      "A1": 0.215977569394,
+      "A2": 0.14014588053
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 90,
+     "scores": {
+      "A1": 0.231870460245,
+      "A2": 0.151994676293
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 95,
+     "scores": {
+      "A1": 0.247763351097,
+      "A2": 0.163843472057
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 100,
+     "scores": {
+      "A1": 0.263656241949,
+      "A2": 0.175692267821
+     },
+     "winner": "A1",
+     "inflection": false
+    }
+   ],
+   "O": [
+    {
+     "weight": 0,
+     "scores": {
+      "A1": 0.0605333369386,
+      "A2": 0.0183332397145
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 5,
+     "scores": {
+      "A1": 0.0617185919296,
+      "A2": 0.021168952473
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 10,
+     "scores": {
+      "A1": 0.0629038469205,
+      "A2": 0.0240046652315
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 15,
+     "scores": {
+      "A1": 0.0640891019115,
+      "A2": 0.0268403779901
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 20,
+     "scores": {
+      "A1": 0.0652743569024,
+      "A2": 0.0296760907486
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 25,
+     "scores": {
+      "A1": 0.0664596118934,
+      "A2": 0.0325118035072
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 30,
+     "scores": {
+      "A1": 0.0676448668843,
+      "A2": 0.0353475162657
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 35,
+     "scores": {
+      "A1": 0.0688301218753,
+      "A2": 0.0381832290243
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 40,
+     "scores": {
+      "A1": 0.0700153768662,
+      "A2": 0.0410189417828
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 45,
+     "scores": {
+      "A1": 0.0712006318572,
+      "A2": 0.0438546545414
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 50,
+     "scores": {
+      "A1": 0.0723858868481,
+      "A2": 0.0466903672999
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 55,
+     "scores": {
+      "A1": 0.0735711418391,
+      "A2": 0.0495260800585
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 60,
+     "scores": {
+      "A1": 0.07475639683,
+      "A2": 0.052361792817
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 65,
+     "scores": {
+      "A1": 0.075941651821,
+      "A2": 0.0551975055755
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 70,
+     "scores": {
+      "A1": 0.0771269068119,
+      "A2": 0.0580332183341
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 75,
+     "scores": {
+      "A1": 0.0783121618029,
+      "A2": 0.0608689310926
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 80,
+     "scores": {
+      "A1": 0.0794974167938,
+      "A2": 0.0637046438512
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 85,
+     "scores": {
+      "A1": 0.0806826717848,
+      "A2": 0.0665403566097
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 90,
+     "scores": {
+      "A1": 0.0818679267757,
+      "A2": 0.0693760693683
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 95,
+     "scores": {
+      "A1": 0.0830531817667,
+      "A2": 0.0722117821268
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 100,
+     "scores": {
+      "A1": 0.0842384367576,
+      "A2": 0.0750474948854
+     },
+     "winner": "A1",
+     "inflection": false
+    }
+   ],
+   "C": [
+    {
+     "weight": 0,
+     "scores": {
+      "A1": 0.102437049593,
+      "A2": 0.0569829946233
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 5,
+     "scores": {
+      "A1": 0.0927358278094,
+      "A2": 0.0493739702905
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 10,
+     "scores": {
+      "A1": 0.083034606026,
+      "A2": 0.0417649459578
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 15,
+     "scores": {
+      "A1": 0.0733333842426,
+      "A2": 0.034155921625
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 20,
+     "scores": {
+      "A1": 0.0636321624591,
+      "A2": 0.0265468972923
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 25,
+     "scores": {
+      "A1": 0.0539309406757,
+      "A2": 0.0189378729595
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 30,
+     "scores": {
+      "A1": 0.0442297188923,
+      "A2": 0.0113288486267
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 35,
+     "scores": {
+      "A1": 0.0345284971088,
+      "A2": 0.00371982429397
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 40,
+     "scores": {
+      "A1": 0.0248272753254,
+      "A2": -0.00388920003879
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 45,
+     "scores": {
+      "A1": 0.0151260535419,
+      "A2": -0.0114982243716
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 50,
+     "scores": {
+      "A1": 0.00542483175851,
+      "A2": -0.0191072487043
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 55,
+     "scores": {
+      "A1": -0.00427639002493,
+      "A2": -0.0267162730371
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 60,
+     "scores": {
+      "A1": -0.0139776118084,
+      "A2": -0.0343252973698
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 65,
+     "scores": {
+      "A1": -0.0236788335918,
+      "A2": -0.0419343217026
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 70,
+     "scores": {
+      "A1": -0.0333800553752,
+      "A2": -0.0495433460354
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 75,
+     "scores": {
+      "A1": -0.0430812771587,
+      "A2": -0.0571523703681
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 80,
+     "scores": {
+      "A1": -0.0527824989421,
+      "A2": -0.0647613947009
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 85,
+     "scores": {
+      "A1": -0.0624837207255,
+      "A2": -0.0723704190337
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 90,
+     "scores": {
+      "A1": -0.072184942509,
+      "A2": -0.0799794433664
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 95,
+     "scores": {
+      "A1": -0.0818861642924,
+      "A2": -0.0875884676992
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 100,
+     "scores": {
+      "A1": -0.0915873860759,
+      "A2": -0.0951974920319
+     },
+     "winner": "A1",
+     "inflection": false
+    }
+   ],
+   "R": [
+    {
+     "weight": 0,
+     "scores": {
+      "A1": 0.128704512378,
+      "A2": 0.0803912284464
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 5,
+     "scores": {
+      "A1": 0.117114627937,
+      "A2": 0.0707972918225
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 10,
+     "scores": {
+      "A1": 0.105524743496,
+      "A2": 0.0612033551986
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 15,
+     "scores": {
+      "A1": 0.0939348590544,
+      "A2": 0.0516094185746
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 20,
+     "scores": {
+      "A1": 0.0823449746131,
+      "A2": 0.0420154819507
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 25,
+     "scores": {
+      "A1": 0.0707550901718,
+      "A2": 0.0324215453268
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 30,
+     "scores": {
+      "A1": 0.0591652057306,
+      "A2": 0.0228276087029
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 35,
+     "scores": {
+      "A1": 0.0475753212893,
+      "A2": 0.013233672079
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 40,
+     "scores": {
+      "A1": 0.035985436848,
+      "A2": 0.00363973545508
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 45,
+     "scores": {
+      "A1": 0.0243955524067,
+      "A2": -0.00595420116884
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 50,
+     "scores": {
+      "A1": 0.0128056679654,
+      "A2": -0.0155481377927
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 55,
+     "scores": {
+      "A1": 0.00121578352416,
+      "A2": -0.0251420744167
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 60,
+     "scores": {
+      "A1": -0.0103741009171,
+      "A2": -0.0347360110406
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 65,
+     "scores": {
+      "A1": -0.0219639853584,
+      "A2": -0.0443299476645
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 70,
+     "scores": {
+      "A1": -0.0335538697997,
+      "A2": -0.0539238842884
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 75,
+     "scores": {
+      "A1": -0.045143754241,
+      "A2": -0.0635178209123
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 80,
+     "scores": {
+      "A1": -0.0567336386822,
+      "A2": -0.0731117575362
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 85,
+     "scores": {
+      "A1": -0.0683235231235,
+      "A2": -0.0827056941601
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 90,
+     "scores": {
+      "A1": -0.0799134075648,
+      "A2": -0.0922996307841
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 95,
+     "scores": {
+      "A1": -0.0915032920061,
+      "A2": -0.101893567408
+     },
+     "winner": "A1",
+     "inflection": false
+    },
+    {
+     "weight": 100,
+     "scores": {
+      "A1": -0.103093176447,
+      "A2": -0.111487504032
+     },
+     "winner": "A1",
+     "inflection": false
+    }
+   ]
+  },
+  "alerts": {
+   "hasNegativePriorities": false,
+   "negativeAlternatives": [],
+   "lowConcordance": false
+  },
+  "metadata": {
+   "projectName": "Painel de 2026",
+   "alternativesCount": 2,
+   "methodsCount": 5,
+   "primaryMethod": "Subtractive",
+   "version": "5.0",
+   "q1Features": [
+    "BOCR Priorities Table (Lee 2009)",
+    "Reciprocal Normalized Values (Lee 2009a)",
+    "Negative Priority Detection (Lee 2009a)",
+    "Method Concordance Analysis (Lee 2009, Alizadeh 2020)",
+    "Sensitivity Classification (Alizadeh 2020)"
+   ],
+   "references": {
+    "primary": "Wijnmalen (2007) Eq.17: vb·sb·B + vo·so·O - vc·sc·C - vr·sr·R",
+    "alternative": "Wijnmalen (2007) Eq.12: (sb·B + so·O) / (sc·C + sr·R)",
+    "demirtas": "Demirtas & Ustun (2008) Eq.2: vb·B + vo·O + vc·(1-C) + vr·(1-R)",
+    "lee2009": "Lee (2009) Wind farms: 5 synthesis methods comparison",
+    "lee2009a": "Lee (2009a) Supplier selection: Negative priorities, concordance analysis",
+    "alizadeh2020": "Alizadeh et al. (2020) Energy policy: Sensitivity classification"
+   },
+   "excludedRespondentIds": [],
+   "includedRespondents": [
+    {
+     "respondentId": "R01",
+     "responseDocId": "resp-0",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "4d4d678c78b6dab85636b8bf5db1dbc18af19f48ffed1cf139995fbdf5a0d8b2",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R02",
+     "responseDocId": "resp-1",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "8f704e7e3687743f223c6847e8d4dbd42492656189930b80a4095ac234e1edc7",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R03",
+     "responseDocId": "resp-2",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "5d7c8886d6deaec5571454e4d82529eb601393460fa63faf0c3933e643729028",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R04",
+     "responseDocId": "resp-3",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "fd7ff01e42f3dd9b6d45f8a07064289aa6a83c070cfa0c3429d209f4fe754e54",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R05",
+     "responseDocId": "resp-4",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "9284830a2ee663c40d2629f543aec5f0ccf754a5adbdd873a517a6f30ec3c6f7",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R06",
+     "responseDocId": "resp-5",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "6d8251a00d38eef39f38b0b1fad07ac9d52e5594c6f522534b24cfc6b6f90307",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R07",
+     "responseDocId": "resp-6",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "c70bae2b69475a6675e1c8d00e3ad454be35bf08c7ab6f56225e851a11783c9c",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R08",
+     "responseDocId": "resp-7",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "40c9ae361ae6034acc6f40c827b63b30ba18e429381cbffd56b8d45a3423d009",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R09",
+     "responseDocId": "resp-8",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "82eb913cfca1a293b8e3dfa8c8e3b9b99e1647d62190cd0bccc69dca108924ba",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R10",
+     "responseDocId": "resp-9",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "e0d8fd45e8262fa942bf3fa058572e1e7f3fd19c57a53f183524c214f668b1e2",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R11",
+     "responseDocId": "resp-10",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "454ae31bb45735d37e1bee52ac5ff5f9380837f106fd2f7167be8ac5d4096635",
+     "judgmentsUnavailableReason": null
+    },
+    {
+     "respondentId": "R12",
+     "responseDocId": "resp-11",
+     "identifierSource": "respondentId",
+     "judgmentsSha256": "3cfdf2bc365a3493cca45f2edb28fc86912a101e2bc6d26d2d449bad1b917e9e",
+     "judgmentsUnavailableReason": null
+    }
+   ],
+   "judgmentsDigest": {
+    "algorithm": "sha256",
+    "serialization": "a12-julgamentos-v1",
+    "panel": "5d21454204e8c83346e9d0e8ab6dcdc2ab713400376dd5312317b92bdb907584",
+    "unavailableReason": null
+   },
+   "rejectedIncomplete": []
+  }
+ },
+ "payload": {
+  "avaliacaoDeQualidade": {
+   "estado": "disponivel",
+   "motivo": null,
+   "fonte": "análise de qualidade dos respondentes ativos"
+  },
+  "vinculoDaExecucao": {
+   "estado": "vinculado",
+   "motivo": "Os 12 identificadores dos incluídos no documento de cálculo correspondem um a um aos 12 respondentes avaliados. É correspondência de identificadores segundo as regras declaradas, e não comprova que os CRs foram calculados sobre as versões registradas.",
+   "violacoes": null,
+   "executionId": "00000000-0000-4000-8000-0000000f0700",
+   "origemDaListaAvaliada": "analiseDeQualidade",
+   "avaliadosAntesDaRestricao": [
+    {
+     "identificador": "R01",
+     "campo": "respondentId",
+     "posicaoNaLista": 0
+    },
+    {
+     "identificador": "R02",
+     "campo": "respondentId",
+     "posicaoNaLista": 1
+    },
+    {
+     "identificador": "R03",
+     "campo": "respondentId",
+     "posicaoNaLista": 2
+    },
+    {
+     "identificador": "R04",
+     "campo": "respondentId",
+     "posicaoNaLista": 3
+    },
+    {
+     "identificador": "R05",
+     "campo": "respondentId",
+     "posicaoNaLista": 4
+    },
+    {
+     "identificador": "R06",
+     "campo": "respondentId",
+     "posicaoNaLista": 5
+    },
+    {
+     "identificador": "R07",
+     "campo": "respondentId",
+     "posicaoNaLista": 6
+    },
+    {
+     "identificador": "R08",
+     "campo": "respondentId",
+     "posicaoNaLista": 7
+    },
+    {
+     "identificador": "R09",
+     "campo": "respondentId",
+     "posicaoNaLista": 8
+    },
+    {
+     "identificador": "R10",
+     "campo": "respondentId",
+     "posicaoNaLista": 9
+    },
+    {
+     "identificador": "R11",
+     "campo": "respondentId",
+     "posicaoNaLista": 10
+    },
+    {
+     "identificador": "R12",
+     "campo": "respondentId",
+     "posicaoNaLista": 11
+    }
+   ],
+   "incluidosNoDocumento": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12"
+   ],
+   "divergencia": {
+    "sobraNoDocumento": [],
+    "sobraNaAvaliacao": [],
+    "repetidosNaAvaliacao": []
+   },
+   "enviados": [
+    "R01",
+    "R02",
+    "R03",
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12"
+   ],
+   "cobertura": {
+    "restringiu": true,
+    "avaliadosAntesDaRestricao": 12,
+    "enviados": 12,
+    "incluidosNoDocumento": 12,
+    "enviadosDiferemDosAvaliados": false,
+    "enviadosIguaisAoDocumento": true
+   },
+   "resumoDoConteudo": {
+    "verificado": false,
+    "cobre": "incluidosNoDocumento",
+    "painel": {
+     "serialization": "a12-julgamentos-v1",
+     "algorithm": "sha256",
+     "panel": "5d21454204e8c83346e9d0e8ab6dcdc2ab713400376dd5312317b92bdb907584",
+     "unavailableReason": null
+    },
+    "motivoSemPainel": null,
+    "mapaPorRespondentId": {
+     "R01": {
+      "responseDocId": "resp-0",
+      "judgmentsSha256": "4d4d678c78b6dab85636b8bf5db1dbc18af19f48ffed1cf139995fbdf5a0d8b2",
+      "judgmentsUnavailableReason": null
+     },
+     "R02": {
+      "responseDocId": "resp-1",
+      "judgmentsSha256": "8f704e7e3687743f223c6847e8d4dbd42492656189930b80a4095ac234e1edc7",
+      "judgmentsUnavailableReason": null
+     },
+     "R03": {
+      "responseDocId": "resp-2",
+      "judgmentsSha256": "5d7c8886d6deaec5571454e4d82529eb601393460fa63faf0c3933e643729028",
+      "judgmentsUnavailableReason": null
+     },
+     "R04": {
+      "responseDocId": "resp-3",
+      "judgmentsSha256": "fd7ff01e42f3dd9b6d45f8a07064289aa6a83c070cfa0c3429d209f4fe754e54",
+      "judgmentsUnavailableReason": null
+     },
+     "R05": {
+      "responseDocId": "resp-4",
+      "judgmentsSha256": "9284830a2ee663c40d2629f543aec5f0ccf754a5adbdd873a517a6f30ec3c6f7",
+      "judgmentsUnavailableReason": null
+     },
+     "R06": {
+      "responseDocId": "resp-5",
+      "judgmentsSha256": "6d8251a00d38eef39f38b0b1fad07ac9d52e5594c6f522534b24cfc6b6f90307",
+      "judgmentsUnavailableReason": null
+     },
+     "R07": {
+      "responseDocId": "resp-6",
+      "judgmentsSha256": "c70bae2b69475a6675e1c8d00e3ad454be35bf08c7ab6f56225e851a11783c9c",
+      "judgmentsUnavailableReason": null
+     },
+     "R08": {
+      "responseDocId": "resp-7",
+      "judgmentsSha256": "40c9ae361ae6034acc6f40c827b63b30ba18e429381cbffd56b8d45a3423d009",
+      "judgmentsUnavailableReason": null
+     },
+     "R09": {
+      "responseDocId": "resp-8",
+      "judgmentsSha256": "82eb913cfca1a293b8e3dfa8c8e3b9b99e1647d62190cd0bccc69dca108924ba",
+      "judgmentsUnavailableReason": null
+     },
+     "R10": {
+      "responseDocId": "resp-9",
+      "judgmentsSha256": "e0d8fd45e8262fa942bf3fa058572e1e7f3fd19c57a53f183524c214f668b1e2",
+      "judgmentsUnavailableReason": null
+     },
+     "R11": {
+      "responseDocId": "resp-10",
+      "judgmentsSha256": "454ae31bb45735d37e1bee52ac5ff5f9380837f106fd2f7167be8ac5d4096635",
+      "judgmentsUnavailableReason": null
+     },
+     "R12": {
+      "responseDocId": "resp-11",
+      "judgmentsSha256": "3cfdf2bc365a3493cca45f2edb28fc86912a101e2bc6d26d2d449bad1b917e9e",
+      "judgmentsUnavailableReason": null
+     }
+    },
+    "enviadosSemEntradaNoMapa": [],
+    "enviadosComResumoIndisponivel": [],
+    "entradasDeNaoEnviados": []
+   }
+  },
+  "projectName": "Painel de 2026",
+  "projectDescription": "fixture",
+  "alternatives": [
+   {
+    "code": "A1",
+    "name": "Gêmeo Digital",
+    "description": ""
+   },
+   {
+    "code": "A2",
+    "name": "IA Temperatura",
+    "description": ""
+   }
+  ],
+  "bocrWeights": [
+   0.372276646888,
+   0.151702811508,
+   0.197436896196,
+   0.278583645407
+  ],
+  "personalWeights": {
+   "Benefits": 0.372276646888,
+   "Opportunities": 0.151702811508,
+   "Costs": 0.197436896196,
+   "Risks": 0.278583645407
+  },
+  "rescalingWeights": {
+   "Benefits": 0.43934850977,
+   "Opportunities": 0.159285931643,
+   "Costs": 0.186784878108,
+   "Risks": 0.214580680479
+  },
+  "bocrConsistency": {
+   "cr": 0.0106058256562,
+   "ci": 0.00954524309057,
+   "lambda": 4.02863572927
+  },
+  "subWeights": {
+   "B": [
+    0.223030934616,
+    0.303763182205,
+    0.226808915298,
+    0.0956795311701,
+    0.150717436711
+   ],
+   "O": [
+    0.232724308911,
+    0.164698597431,
+    0.231653501841,
+    0.142882059416,
+    0.228041532401
+   ],
+   "C": [
+    0.157298263663,
+    0.154297512013,
+    0.416621441152,
+    0.166323971214,
+    0.105458811958
+   ],
+   "R": [
+    0.289482248162,
+    0.287591965914,
+    0.208312402792,
+    0.127561231733,
+    0.0870521513988
+   ]
+  },
+  "subConsistency": {
+   "B": {
+    "cr": 0.0110205424091,
+    "lambda": 5.04937202999
+   },
+   "O": {
+    "cr": 0.00923710135365,
+    "lambda": 5.04138221406
+   },
+   "C": {
+    "cr": 0.0259998444755,
+    "lambda": 5.11647930325
+   },
+   "R": {
+    "cr": 0.0139744056021,
+    "lambda": 5.0626053371
+   }
+  },
+  "finalScores": [
+   {
+    "code": "A1",
+    "name": "Gêmeo Digital",
+    "B": 0.600107286324,
+    "O": 0.528850450813,
+    "C": 0.490336193185,
+    "R": 0.48044015993,
+    "C_reciprocal": 0.509663806815,
+    "R_reciprocal": 0.51955984007,
+    "scoreSubtractive": 0.0641294672283,
+    "scoreSubtractiveNorm": 1,
+    "rankSubtractive": 1,
+    "isNegative": false,
+    "scoreQuotientSums": 1.78700263754,
+    "scoreQuotientSumsNorm": 0.59563737505,
+    "rankQuotientSums": 1,
+    "scoreAdditiveResidual": 0.549001342957,
+    "scoreAdditiveResidualNorm": 0.549001342957,
+    "rankAdditiveResidual": 1,
+    "scoreMultiplicative": 1.05990420603,
+    "scoreMultiplicativeNorm": 0.549358253591,
+    "rankMultiplicative": 1,
+    "scoreMultSimple": 1.3471889901,
+    "scoreMultSimpleNorm": 0.654387535794,
+    "rankMultSimple": 1
+   },
+   {
+    "code": "A2",
+    "name": "IA Temperatura",
+    "B": 0.399892713676,
+    "O": 0.471149549187,
+    "C": 0.509663806815,
+    "R": 0.51955984007,
+    "C_reciprocal": 0.490336193185,
+    "R_reciprocal": 0.48044015993,
+    "scoreSubtractive": 0.0269369516765,
+    "scoreSubtractiveNorm": 0,
+    "rankSubtractive": 2,
+    "isNegative": false,
+    "scoreQuotientSums": 1.21314932134,
+    "scoreQuotientSumsNorm": 0.40436262495,
+    "rankQuotientSums": 2,
+    "scoreAdditiveResidual": 0.450998657043,
+    "scoreAdditiveResidualNorm": 0.450998657043,
+    "rankAdditiveResidual": 2,
+    "scoreMultiplicative": 0.869445538151,
+    "scoreMultiplicativeNorm": 0.450641746409,
+    "rankMultiplicative": 2,
+    "scoreMultSimple": 0.711513103704,
+    "scoreMultSimpleNorm": 0.345612464206,
+    "rankMultSimple": 2
+   }
+  ],
+  "responseCount": 12,
+  "sensitivityInflections": {
+   "B": null,
+   "O": null,
+   "C": null,
+   "R": null
+  },
+  "qualityAnalysis": {
+   "respondents": [
+    {
+     "respondentId": "R01",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R02",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R03",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R04",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R05",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R06",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R07",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R08",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R09",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R10",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R11",
+     "cr": 0.05,
+     "isSimulated": false
+    },
+    {
+     "respondentId": "R12",
+     "cr": 0.05,
+     "isSimulated": false
+    }
+   ]
+  },
+  "demographicsSummary": {
+   "total": 0,
+   "hasData": false
+  }
+ },
+ "sha256": {
+  "system": "f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98",
+  "messages": "3f2b63801d43c72965b7e6232e8def72988cc8c77abf04ae764f755ba50fb3c0"
+ },
+ "bytes": {
+  "system": 34170,
+  "messages": 78606
+ }
+}
