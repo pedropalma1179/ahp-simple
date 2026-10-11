@@ -380,10 +380,24 @@ describe('A3.5: onde a identificação entra em cada saída da página, por LEIT
     expect(ocorrencias(pagina, '<FaixaDeIdentificacao identificacao={identificacaoExibida} />')).toBe(1);
     expect(ocorrencias(pagina, '<ContextoDaIdentificacao.Provider value={identificacaoExibida}>')).toBe(1);
     expect(ocorrencias(pagina, '</ContextoDaIdentificacao.Provider>')).toBe(1);
-    // os três caminhos que trocam o documento exibido chamam `setCalculation` (a faixa segue o estado)
-    expect(ocorrencias(pagina, 'setCalculation(calcData);')).toBe(1); // carga
-    expect(ocorrencias(pagina, 'setCalculation(data.calculation);')).toBe(1); // resultado do recálculo
-    expect(ocorrencias(pagina, 'setCalculation(documento as CalculationResult);')).toBe(1); // escolha na lista
+    // os três caminhos que trocam o documento exibido chamam `setCalculation` (a faixa segue o estado).
+    // ⚠ F07 A4 MOVEU os três corpos para `lib/fluxos-da-tela.ts`; a página passa o seu `setCalculation` por
+    //   `acoesDaTela`, UMA vez. O que este teste exigia (os três caminhos trocam o documento por
+    //   `setCalculation`) passa a ser conferido nos três fluxos, cada um com `registro.apresentar(...)` ANTES.
+    expect(ocorrencias(pagina, 'setCalculation: documento => setCalculation(documento as CalculationResult),')).toBe(1);
+    const fluxos = ler('lib/fluxos-da-tela.ts');
+    expect(ocorrencias(fluxos, 'acoes.setCalculation(')).toBe(3);
+    for (const [funcao, apresentar] of [
+      ['export async function exibirExecucaoEscolhida', 'registro.apresentar(documento);'], // escolha na lista
+      ['export async function apresentarCargaInicial', 'registro.apresentar(documento);'], // carga
+      ['export async function recalcularResultados', 'registro.apresentar(documentoNovo);'], // resultado do recálculo
+    ]) {
+      const i = fluxos.indexOf(funcao);
+      const corpo = fluxos.slice(i, fluxos.indexOf('\n}\n', i));
+      expect([funcao, corpo.includes(apresentar), corpo.indexOf(apresentar) < corpo.indexOf('acoes.setCalculation(')]).toEqual([funcao, true, true]);
+    }
+    // e a página chama cada fluxo uma vez
+    for (const chamada of ['await exibirExecucaoEscolhida(', 'await apresentarCargaInicial(', 'await recalcularResultados(']) expect([chamada, ocorrencias(pagina, chamada)]).toEqual([chamada, 1]);
   });
 
   test('o Parecer: a execução é capturada ao PEDIR o parecer, vai ao componente como propriedade, e NÃO entra no que o modelo recebe', () => {

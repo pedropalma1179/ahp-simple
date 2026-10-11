@@ -742,7 +742,19 @@ describe('fiação das telas, por LEITURA (nenhuma tela é executada por teste a
   test.each(PAGINAS)('%s: nenhum fetch direto a /api/calculate, e o cálculo passa por executarCalculo', rel => {
     const f = ler(rel);
     expect(ocorrencias(f, "'/api/calculate'")).toBe(0);
-    expect(ocorrencias(f, 'await executarCalculo(')).toBe(1);
+    // ⚠ F07 A4: o corpo do recálculo da página de resultados MOVEU para `lib/fluxos-da-tela.ts`
+    //   (`recalcularResultados`), e a página lhe entrega `executarCalculo` como a função `executar`. A
+    //   chamada deixou de ser `await executarCalculo(` nela; o que este teste exige (o cálculo passa por
+    //   `executarCalculo`, uma vez) é conferido nas duas formas.
+    if (rel.includes('resultados')) {
+      expect(ocorrencias(f, 'await executarCalculo(')).toBe(0);
+      expect(ocorrencias(f, 'executar: parametros => executarCalculo(dependenciasDoNavegador(), parametros),')).toBe(1);
+      const fluxos = ler('lib/fluxos-da-tela.ts');
+      expect(ocorrencias(fluxos, "'/api/calculate'")).toBe(0);
+      expect(ocorrencias(fluxos, 'await args.executar(')).toBe(1);
+    } else {
+      expect(ocorrencias(f, 'await executarCalculo(')).toBe(1);
+    }
     expect(ocorrencias(f, 'retomarPendentes(')).toBe(1);
   });
 

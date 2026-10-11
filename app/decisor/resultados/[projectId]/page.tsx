@@ -57,6 +57,15 @@ import {
 } from '@/lib/identificacao-da-execucao';
 import { type Exibicao } from '@/lib/referencia-do-projeto';
 import { type ApresentacaoInicial, carregarApresentacaoInicial } from '@/lib/referencia-leitura';
+import { type RegistroDaApresentacao, criarRegistroDaApresentacao } from '@/lib/apresentacao-corrente';
+import {
+  type AcoesDaTela,
+  apresentarCargaInicial,
+  decidirEscritaDoParecer,
+  enviarAuditoriaPeloNavegador,
+  exibirExecucaoEscolhida,
+  recalcularResultados,
+} from '@/lib/fluxos-da-tela';
 
 // Componentes Q1/A1
 import BOCRPrioritiesTable from '@/components/BOCRPrioritiesTable';
@@ -684,6 +693,12 @@ export default function ResultadosPage() {
   const [exibicao, setExibicao] = useState<Exibicao | null>(null);
   const [cargaDaReferencia, setCargaDaReferencia] = useState<ApresentacaoInicial | null>(null);
   const [execucaoRecemCalculada, setExecucaoRecemCalculada] = useState<Record<string, any> | null>(null);
+  // F07 A4: a apresentação CORRENTE, para conferir a quem pertence uma resposta assíncrona. Fica em
+  // `useRef` (e não em estado) para que a conferência feita no RETORNO de um `fetch` veja a
+  // apresentação de agora, e não a do fecho em que o pedido foi feito. Ver `lib/apresentacao-corrente.ts`.
+  const registroDaApresentacaoRef = useRef<RegistroDaApresentacao | null>(null);
+  if (registroDaApresentacaoRef.current === null) registroDaApresentacaoRef.current = criarRegistroDaApresentacao();
+  const registroDaApresentacao = registroDaApresentacaoRef.current;
 
   // Implementação de aba persistente via URL hash
   const validTabs = ['executive', 'results', 'quality', 'robustness', 'review', 'export'] as const;
@@ -989,6 +1004,10 @@ export default function ResultadosPage() {
     setAiReview(null);
     // F07 A3: a execução em que este pedido é feito, guardada com o parecer que dele resultar
     setExecucaoDoParecer(identificarExecucao(calculation as any));
+    // F07 A4: o PAR (execução, geração) da apresentação em que este pedido é feito. A resposta só é
+    // conferida contra a apresentação corrente quando chega. A CONDUTA para uma resposta fora do par
+    // é a decisão 5-B e está em `condutaDoParecerForaDoPar` (`lib/fluxos-da-tela.ts`).
+    const parDoParecer = registroDaApresentacao.capturar();
 
     try {
       // ============================================================
@@ -1394,6 +1413,7 @@ export default function ResultadosPage() {
 
       if (data.success && data.review) {
         console.log('✅ [AI-REVIEW] Sucesso! Nota:', data.nota, 'Veredicto:', data.veredicto);
+        if (!decidirEscritaDoParecer(registroDaApresentacao, parDoParecer).escreve) return; // F07 A4: ponto da decisão 5-B
         // Setar objeto completo com nota, veredicto e review
         setAiReview({
           nota: data.nota,
@@ -1409,6 +1429,7 @@ export default function ResultadosPage() {
         });
       } else {
         console.error('❌ [AI-REVIEW] Erro na resposta:', data.error);
+        if (!decidirEscritaDoParecer(registroDaApresentacao, parDoParecer).escreve) return; // F07 A4: ponto da decisão 5-B
         setAiReview({
           error: true,
           message: data.error || 'Erro ao executar revisão'
@@ -1416,6 +1437,7 @@ export default function ResultadosPage() {
       }
     } catch (e: any) {
       console.error('❌ [AI-REVIEW] Exceção:', e);
+      if (!decidirEscritaDoParecer(registroDaApresentacao, parDoParecer).escreve) return; // F07 A4: ponto da decisão 5-B
       setAiReview({
         error: true,
         message: 'Erro de conexão: ' + (e.message || String(e))
@@ -1501,88 +1523,42 @@ export default function ResultadosPage() {
   };
 
   /**
+   * F07 A4: os setters que os fluxos assíncronos usam. Os corpos de `exibirExecucao`, do recálculo e da
+   * auditoria da carga inicial moram em `lib/fluxos-da-tela.ts` (testados), e esta página os chama com
+   * os SEUS setters. A página não é montada por teste algum.
+   */
+  const acoesDaTela: AcoesDaTela = {
+    setCalculation: documento => setCalculation(documento as CalculationResult),
+    setExibicao,
+    setExcludedIds,
+    setAiReview,
+    setAudit,
+    setExecucaoRecemCalculada,
+    setError,
+    setIsRecalculating,
+    setLoading,
+    acrescentarAviso: texto => setAvisosDoPedido(prev => [...prev, texto]),
+  };
+
+  /**
    * F07 A2: exibe uma execução escolhida na lista (ou a referência, por clique em "Carregar a
    * referência atual"). ⚠ Só roda por AÇÃO da pessoa: a tela nunca troca sozinha o que apresenta.
+   * F07 A4: a resposta da auditoria só escreve se o par (execução, geração) ainda for o da tela.
    */
   const exibirExecucao = async (documento: Record<string, any>) => {
-    setCalculation(documento as CalculationResult);
-    if (typeof documento.executionId === 'string') setExibicao({ tipo: 'execucao', executionId: documento.executionId });
-    setExcludedIds(documento.metadata?.excludedRespondentIds || []);
-    setAiReview(null);
-    setAudit(null);
-    try {
-      const auditResponse = await fetch('/api/audit-decision', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ calculationData: documento })
-      });
-      const auditData = await auditResponse.json();
-      if (auditData.success) setAudit(auditData.audit);
-    } catch (e) {
-      console.log('Auditoria não disponível');
-    }
+    await exibirExecucaoEscolhida({ documento, registro: registroDaApresentacao, acoes: acoesDaTela, enviarAuditoria: enviarAuditoriaPeloNavegador });
   };
 
   const recalculateResults = async (exclusions: string[]) => {
-    setIsRecalculating(true);
-    setLoading(true); // Bloquear UI geral
-    try {
-      // F07 A1: o pedido tem `requestId`, e a intenção fica guardada no navegador até o servidor
-      // confirmar. `data.calculation` é a EXECUÇÃO registrada (`executions/{executionId}`).
-      const { desfecho, persistida } = await executarCalculo(dependenciasDoNavegador(), {
-        projectId,
-        excludedRespondentIds: exclusions
-      });
-
-      if (desfecho.situacao === 'pendente') {
-        setError(
-          `Sem confirmação do servidor (${desfecho.motivo}). O pedido permanece guardado neste navegador: ao reabrir esta página ele é consultado, e a execução, se foi criada, é recuperada sem novo cálculo.`
-        );
-        setExcludedIds(calculation?.metadata?.excludedRespondentIds || []);
-        return;
-      }
-      const data = desfecho.resposta.corpo;
-
-      if (desfecho.situacao === 'confirmada') {
-        if (!persistida) {
-          setAvisosDoPedido(prev => [
-            ...prev,
-            'O armazenamento do navegador não está disponível: se esta página fosse recarregada durante o pedido, a execução não poderia ser recuperada.'
-          ]);
-        }
-        // Atualizar calculation com o novo resultado (incluindo metadados atualizados)
-        setCalculation(data.calculation);
-        // F07 A2: a execução nova é a EXIBIDA, e entra na lista. ⚠ Isso não a torna a referência.
-        if (typeof data.calculation?.executionId === 'string') {
-          setExibicao({ tipo: 'execucao', executionId: data.calculation.executionId });
-          setExecucaoRecemCalculada(data.calculation);
-        }
-
-        // Re-executar auditoria com novos dados
-        const auditResponse = await fetch('/api/audit-decision', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ calculationData: data.calculation })
-        });
-        const auditData = await auditResponse.json();
-        if (auditData.success) setAudit(auditData.audit);
-
-        // Limpar AI review anterior pois dados mudaram
-        setAiReview(null);
-
-      } else {
-        setError(data.error || 'Erro ao recalcular');
-        // Reverter estado local em caso de erro
-        setExcludedIds(calculation?.metadata?.excludedRespondentIds || []);
-      }
-    } catch (e: any) {
-      console.error('Erro no recálculo:', e);
-      setError('Erro de conexão ao recalcular: ' + e.message);
-      setExcludedIds(calculation?.metadata?.excludedRespondentIds || []);
-    } finally {
-      setIsRecalculating(false);
-      setLoading(false);
-    }
+    await recalcularResultados({
+      projectId,
+      exclusoes: exclusions,
+      exclusoesApresentadas: calculation?.metadata?.excludedRespondentIds || [],
+      executar: parametros => executarCalculo(dependenciasDoNavegador(), parametros),
+      registro: registroDaApresentacao,
+      acoes: acoesDaTela,
+      enviarAuditoria: enviarAuditoriaPeloNavegador,
+    });
   };
 
   // Verificar autenticação
@@ -1623,29 +1599,21 @@ export default function ResultadosPage() {
         setCargaDaReferencia(carga);
         if (carga.exibicao !== null && carga.documento !== null) {
           const calcData = carga.documento as CalculationResult;
-
-          setCalculation(calcData);
-          setExibicao(carga.exibicao);
-
-          // Inicializar excluídos a partir do metadata salvo
+          // Inicializar excluídos a partir do metadata salvo. ⚠ Fica AQUI, e não em
+          // `apresentarCargaInicial`, porque a âncora A.33 (`scripts/a33-payload-referencia.cjs`,
+          // r2) fixa este fragmento da tela: "a fonte das exclusões da tela é o próprio documento de
+          // cálculo". É a mesma chamada de antes, no mesmo instante (antes do primeiro `await`).
           if (calcData.metadata?.excludedRespondentIds) {
             setExcludedIds(calcData.metadata.excludedRespondentIds);
           }
-
-          // 3. Executar auditoria
-          try {
-            const auditResponse = await fetch('/api/audit-decision', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ calculationData: calcData })
-            });
-            const auditData = await auditResponse.json();
-            if (auditData.success) {
-              setAudit(auditData.audit);
-            }
-          } catch (e) {
-            console.log('Auditoria não disponível');
-          }
+          // F07 A4: o estado da carga e a auditoria dela, com o par da apresentação (ver `lib/fluxos-da-tela.ts`)
+          await apresentarCargaInicial({
+            documento: carga.documento,
+            exibicao: carga.exibicao,
+            registro: registroDaApresentacao,
+            acoes: acoesDaTela,
+            enviarAuditoria: enviarAuditoriaPeloNavegador,
+          });
         } else {
           setError('Resultados não calculados ainda. Execute o cálculo primeiro.');
         }

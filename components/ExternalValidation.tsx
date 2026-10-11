@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { type RegistroDaApresentacao, criarRegistroDaApresentacao } from '@/lib/apresentacao-corrente';
+import { escreverSeVigente } from '@/lib/fluxos-da-tela';
 import { prepararEnvio } from '@/lib/validacao-externa/matriz-utilizavel';
 import {
   descreverOrigem,
@@ -270,6 +272,15 @@ export default function ExternalValidation({ calculation, project }: ExternalVal
   const [loading, setLoading] = useState(false);
   const [apresentacao, setApresentacao] = useState<Apresentacao | null>(null);
   const [serviceStatus, setServiceStatus] = useState<'unknown' | 'online' | 'offline'>('unknown');
+  // F07 A4: a validação é PEDIDA sobre o `calculation` apresentado. Se a pessoa troca a execução
+  // apresentada enquanto o pedido está em voo, o resultado da execução anterior NÃO pode ser escrito
+  // sobre a tela de agora. Cada mudança do `calculation` recebido é uma nova apresentação (geração).
+  const registroRef = useRef<RegistroDaApresentacao | null>(null);
+  if (registroRef.current === null) registroRef.current = criarRegistroDaApresentacao();
+  const registro = registroRef.current;
+  useEffect(() => {
+    registro.apresentar(calculation);
+  }, [calculation, registro]);
 
   const checkHealth = async () => {
     try {
@@ -288,9 +299,11 @@ export default function ExternalValidation({ calculation, project }: ExternalVal
   const runValidation = async () => {
     setLoading(true);
     setApresentacao(null);
+    const par = registro.capturar();
     try {
-      // `executarValidacao` não lança: toda falha vira um estado apresentável.
-      setApresentacao(await executarValidacao(calculation, (url, init) => fetch(url, init)));
+      // `executarValidacao` não lança: toda falha vira um estado apresentável. F07 A4: o resultado só é
+      // escrito se a apresentação ainda for a que originou o pedido; fora do par, é descartado.
+      await escreverSeVigente(registro, par, () => executarValidacao(calculation, (url, init) => fetch(url, init)), setApresentacao);
     } finally {
       setLoading(false);
     }
