@@ -37,7 +37,13 @@ import {
 } from '@/lib/referencia-do-projeto';
 import { type ApresentacaoInicial, lerExecucao, listarHistorico } from '@/lib/referencia-leitura';
 import { dependenciasDoNavegador, executarEscolha, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
-import { type OrdemDeCliques, carregarReferenciaAtual, criarOrdemDeCliques, exibirExecucaoDaLista } from '@/lib/fluxos-da-referencia';
+import {
+  type OrdemDeCliques,
+  carregarReferenciaAtual,
+  criarOrdemDeCliques,
+  enviarEscolhaDaReferencia,
+  exibirExecucaoDaLista,
+} from '@/lib/fluxos-da-referencia';
 
 interface Props {
   projectId: string;
@@ -72,6 +78,16 @@ export default function ReferenciaDoProjeto({
   const ordemDeCliquesRef = useRef<OrdemDeCliques | null>(null);
   if (ordemDeCliquesRef.current === null) ordemDeCliquesRef.current = criarOrdemDeCliques();
   const ordemDeCliques = ordemDeCliquesRef.current;
+  // F07 A5, ponto 1: a escolha confirmada só avança a revisão carregada se a execução da referência devolvida é a
+  // que a tela apresenta NO RETORNO do envio. A propriedade `exibicao` que o manipulador `escolher` capturou
+  // quando o pedido começou é a do INÍCIO, e conferi-la reintroduz o defeito em miniatura. Esta referência é
+  // atualizada a cada renderização, e `exibicaoVigente` a lê depois do `await`.
+  // ⚠ LIMITE DA LIGAÇÃO (declarado): a atribuição no corpo da renderização evita o atraso de um `useEffect`, mas
+  // não é garantia absoluta. Renderização e apresentação confirmada (commit) pelo React são momentos distintos, e a
+  // referência pode ficar ADIANTE do que foi comprometido (uma renderização descartada); e fica ATRÁS de um
+  // `setExibicao` já pedido e ainda não renderizado. O mesmo dispositivo (`retomadaRef`) é usado na página.
+  const exibicaoVigenteRef = useRef<Exibicao | null>(exibicao);
+  exibicaoVigenteRef.current = exibicao;
 
   // O histórico, uma vez.
   useEffect(() => {
@@ -162,41 +178,26 @@ export default function ReferenciaDoProjeto({
     });
   };
 
+  /**
+   * F07 A5, ponto 1: o envio da escolha e a aplicação da resposta moram em `lib/fluxos-da-referencia.ts`
+   * (`enviarEscolhaDaReferencia`). A revisão carregada só avança se a execução da referência devolvida é a que a
+   * tela apresenta NO RETORNO (`exibicaoVigente`, lida depois do `await`); do contrário, o painel passa a SABER a
+   * referência (como no caminho recusado) e a revisão carregada permanece.
+   */
   const escolher = async (executionId: string, justificativa: string) => {
-    setEscolha({ emAndamento: true, mensagem: null, tipo: null });
-    try {
-      const { desfecho, persistida } = await executarEscolha(dependenciasDoNavegador(), {
-        projectId,
-        executionId,
-        expectedRevision: referenciaCarregada?.revision ?? 0,
-        justification: justificativa,
-      });
-      const aviso = persistida ? '' : ' Aviso: o armazenamento do navegador não está disponível, e uma recarga durante o envio não permitiria recuperar este pedido.';
-      if (desfecho.situacao === 'confirmada') {
-        const corpo = desfecho.resposta.corpo;
-        setReferencia(corpo.referencia ?? null);
-        setReferenciaCarregada(corpo.referencia ?? null);
-        if (corpo.evento && !corpo.recuperada) setHistorico(h => [corpo.evento, ...h.filter(x => x.operationId !== corpo.evento.operationId)]);
-        setEscolha({
-          emAndamento: false,
-          tipo: 'sucesso',
-          mensagem: `Referência escolhida: revisão ${corpo.referencia?.revision ?? '?'}, execução ${executionId}.${aviso}`,
-        });
-      } else if (desfecho.situacao === 'recusada') {
-        const corpo = desfecho.resposta.corpo;
-        // O servidor devolve a referência corrente: o painel passa a sabê-la, mas NÃO a "carrega".
-        if ('referencia' in corpo) setReferencia(corpo.referencia ?? null);
-        setEscolha({ emAndamento: false, tipo: 'erro', mensagem: `Nada foi gravado. ${corpo.error ?? `Pedido recusado (status ${desfecho.resposta.status}).`}` });
-      } else {
-        setEscolha({
-          emAndamento: false,
-          tipo: 'aviso',
-          mensagem: `Sem confirmação do servidor (${desfecho.motivo}). A escolha permanece guardada neste navegador e será consultada ao reabrir esta tela.${aviso}`,
-        });
-      }
-    } catch (e: any) {
-      setEscolha({ emAndamento: false, tipo: 'erro', mensagem: e?.message ?? String(e) });
-    }
+    await enviarEscolhaDaReferencia({
+      executionId,
+      justificativa,
+      referenciaCarregada,
+      acoes: {
+        enviar: parametros => executarEscolha(dependenciasDoNavegador(), { projectId, ...parametros }),
+        setEscolha,
+        atualizarReferenciaConhecida: setReferencia,
+        avancarReferenciaCarregada: setReferenciaCarregada,
+        acrescentarEventoAoHistorico: evento => setHistorico(h => [evento, ...h.filter(x => x.operationId !== evento.operationId)]),
+        exibicaoVigente: () => exibicaoVigenteRef.current,
+      },
+    });
   };
 
   /**

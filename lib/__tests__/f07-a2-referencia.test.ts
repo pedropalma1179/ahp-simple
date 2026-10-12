@@ -942,7 +942,11 @@ describe('A2.14: fiação, por LEITURA (nenhuma tela é executada por teste algu
   test('o contêiner assina a referência e o projeto, usa a revisão CARREGADA na escolha e consulta as pendentes antes de liberar', () => {
     const f = ler('components/ReferenciaDoProjeto.tsx');
     expect(ocorrencias(f, 'onSnapshot(')).toBe(2);
-    expect(f).toMatch(/expectedRevision: referenciaCarregada\?\.revision \?\? 0/);
+    // ⚠ F07 A5 (ponto 1): o corpo de `escolher` MOVEU para `enviarEscolhaDaReferencia` (lib/fluxos-da-referencia.ts). A
+    //   revisão esperada continua saindo de `referenciaCarregada` (a CARREGADA), agora no módulo, e o componente a
+    //   passa; o comportamento é exercitado em f07-a5-referencia-carregada (critério 5).
+    expect(ler('lib/fluxos-da-referencia.ts')).toMatch(/expectedRevision: referenciaCarregada\?\.revision \?\? 0/);
+    expect(f).toMatch(/referenciaCarregada,\n/);
     expect(f).toMatch(/retomarPendentes\(dependenciasDoNavegador\(\), \{ tipo: 'escolha', projectId \}\)/);
     expect(f).toMatch(/useState\(true\)/); // consultandoPendentes começa ligado
     // o aviso de mudança NÃO chama onExibir: só o clique em "Exibir" (`exibir`) e o clique em "Carregar a

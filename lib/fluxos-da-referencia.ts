@@ -21,7 +21,8 @@
  * referência atual".
  */
 
-import type { ReferenciaDoProjeto } from '@/lib/referencia-do-projeto';
+import { type Exibicao, type ReferenciaDoProjeto, type RegistroDeEscolha, estadoDaApresentacao } from '@/lib/referencia-do-projeto';
+import type { ResultadoDeNovaAcao } from '@/lib/intencoes';
 
 export interface AcoesDaCargaDaReferencia {
   /** Lê o documento da execução. `null` = não existe. PODE LANÇAR (rede, permissão). */
@@ -220,4 +221,118 @@ export function criarOrdemDeCliques(): OrdemDeCliques {
       return bilhete === ultimo;
     },
   };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F07 A5, ponto 1: a escolha confirmada só AVANÇA a revisão carregada se a execução da referência devolvida é a
+// que a tela APRESENTA NO RETORNO.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A referência devolvida corresponde à execução que a tela apresenta? É a MESMA condição com que a tela
+ * rotula o estado `referencia-escolhida` (`estadoDaApresentacao`): a exibição é uma execução e é a da referência.
+ * Sem referência (`null`) ou sem exibição conhecida, não corresponde.
+ */
+export function referenciaCorrespondeAApresentada(referencia: ReferenciaDoProjeto | null, exibicao: Exibicao | null): boolean {
+  if (referencia === null) return false;
+  return estadoDaApresentacao(referencia, exibicao ?? { tipo: 'anterior-a-f07' }).estado === 'referencia-escolhida';
+}
+
+/** O estado do envio da escolha, como o painel o mostra (a mesma forma de `EstadoDaEscolha`). */
+export interface EstadoDoEnvioDaEscolha {
+  emAndamento: boolean;
+  mensagem: string | null;
+  tipo: 'sucesso' | 'erro' | 'aviso' | null;
+}
+
+export interface AcoesDaEscolha {
+  /** Registra a intenção e envia a escolha (`executarEscolha` de `lib/intencoes.ts`). PODE LANÇAR. */
+  enviar(parametros: { executionId: string; expectedRevision: number; justification: string }): Promise<ResultadoDeNovaAcao>;
+  setEscolha(estado: EstadoDoEnvioDaEscolha): void;
+  /** A referência que o painel SABE (a mais recente vista). Atualiza `mudanca`; NÃO muda o que a tela carregou. */
+  atualizarReferenciaConhecida(referencia: ReferenciaDoProjeto | null): void;
+  /** Avança a revisão que a tela carregou (a base de `expectedRevision` da próxima escolha). */
+  avancarReferenciaCarregada(referencia: ReferenciaDoProjeto | null): void;
+  acrescentarEventoAoHistorico(evento: RegistroDeEscolha): void;
+  /**
+   * A exibição vigente **NO INSTANTE DA CHAMADA**. ⚠ Chamada DEPOIS do `await` do envio, e tem de devolver o que a
+   * tela exibe AGORA. A propriedade `exibicao` que o manipulador capturou quando o pedido começou NÃO serve: é a
+   * do início, e usá-la reintroduz o defeito em miniatura (a troca da exibição durante o envio passaria batida).
+   */
+  exibicaoVigente(): Exibicao | null;
+}
+
+export type DesfechoDaEscolha =
+  /** Confirmada, e a execução da referência é a apresentada no retorno: a revisão carregada avançou. */
+  | 'confirmada-carregada'
+  /** Confirmada, mas a tela apresenta OUTRA coisa no retorno: só a referência conhecida foi atualizada. */
+  | 'confirmada-sem-carregar'
+  | 'recusada'
+  | 'pendente'
+  /** O envio, ou a aplicação da resposta, lançou. */
+  | 'falhou';
+
+const AVISO_DE_ARMAZENAMENTO_INDISPONIVEL =
+  ' Aviso: o armazenamento do navegador não está disponível, e uma recarga durante o envio não permitiria recuperar este pedido.';
+
+/**
+ * O envio de uma escolha de referência (o corpo de `escolher` do componente, movido para cá sem alterar os textos
+ * nem a ordem dos efeitos) e a aplicação da resposta.
+ *
+ * Antes de F07 A5, a resposta confirmada fazia `setReferenciaCarregada(corpo.referencia)` sem condição: escolher X
+ * enquanto a tela apresentava Y avançava a revisão para uma referência de que nada foi apresentado, derrotando a
+ * proteção da revisão esperada da escolha seguinte e calando o aviso de mudança. O caminho `recusada` já fazia o
+ * certo (o painel passa a SABER a referência, mas não a "carrega"); agora o confirmado faz o mesmo quando a
+ * execução devolvida não é a apresentada. A condição é uniforme: não distingue resposta recuperada (reenvio, que
+ * devolve a referência de HOJE com o evento antigo) de resposta nova.
+ *
+ * @param referenciaCarregada a revisão que a tela carregou NO CLIQUE; é a base de `expectedRevision`.
+ */
+export async function enviarEscolhaDaReferencia(args: {
+  executionId: string;
+  justificativa: string;
+  referenciaCarregada: ReferenciaDoProjeto | null;
+  acoes: AcoesDaEscolha;
+}): Promise<DesfechoDaEscolha> {
+  const { executionId, justificativa, referenciaCarregada, acoes } = args;
+  acoes.setEscolha({ emAndamento: true, mensagem: null, tipo: null });
+  try {
+    const { desfecho, persistida } = await acoes.enviar({
+      executionId,
+      expectedRevision: referenciaCarregada?.revision ?? 0,
+      justification: justificativa,
+    });
+    const aviso = persistida ? '' : AVISO_DE_ARMAZENAMENTO_INDISPONIVEL;
+    if (desfecho.situacao === 'confirmada') {
+      const corpo = desfecho.resposta.corpo;
+      const referencia: ReferenciaDoProjeto | null = corpo.referencia ?? null;
+      acoes.atualizarReferenciaConhecida(referencia);
+      // ⚠ A exibição é lida AQUI, depois do `await`: a do RETORNO, e não a do início do pedido.
+      const apresentada = referenciaCorrespondeAApresentada(referencia, acoes.exibicaoVigente());
+      if (apresentada) acoes.avancarReferenciaCarregada(referencia);
+      if (corpo.evento && !corpo.recuperada) acoes.acrescentarEventoAoHistorico(corpo.evento);
+      acoes.setEscolha({
+        emAndamento: false,
+        tipo: 'sucesso',
+        mensagem: `Referência escolhida: revisão ${corpo.referencia?.revision ?? '?'}, execução ${executionId}.${aviso}`,
+      });
+      return apresentada ? 'confirmada-carregada' : 'confirmada-sem-carregar';
+    }
+    if (desfecho.situacao === 'recusada') {
+      const corpo = desfecho.resposta.corpo;
+      // O servidor devolve a referência corrente: o painel passa a sabê-la, mas NÃO a "carrega".
+      if ('referencia' in corpo) acoes.atualizarReferenciaConhecida(corpo.referencia ?? null);
+      acoes.setEscolha({ emAndamento: false, tipo: 'erro', mensagem: `Nada foi gravado. ${corpo.error ?? `Pedido recusado (status ${desfecho.resposta.status}).`}` });
+      return 'recusada';
+    }
+    acoes.setEscolha({
+      emAndamento: false,
+      tipo: 'aviso',
+      mensagem: `Sem confirmação do servidor (${desfecho.motivo}). A escolha permanece guardada neste navegador e será consultada ao reabrir esta tela.${aviso}`,
+    });
+    return 'pendente';
+  } catch (e: any) {
+    acoes.setEscolha({ emAndamento: false, tipo: 'erro', mensagem: e?.message ?? String(e) });
+    return 'falhou';
+  }
 }

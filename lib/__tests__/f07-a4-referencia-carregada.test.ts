@@ -146,30 +146,47 @@ describe('A4.3: a fiação do componente, por LEITURA (nenhuma tela é montada)'
   test('o componente chama `carregarReferenciaAtual` uma vez, e a linha antiga (`setReferenciaCarregada(referencia)` antes da leitura) não existe mais', () => {
     expect(ocorrencias(componente, 'await carregarReferenciaAtual({')).toBe(1);
     expect(ocorrencias(componente, 'setReferenciaCarregada(referencia)')).toBe(0);
-    expect(ocorrencias(componente, 'avancarReferenciaCarregada: setReferenciaCarregada,')).toBe(1);
+    // ⚠ F07 A5 (ponto 1) MOVEU o corpo de `escolher` para `enviarEscolhaDaReferencia` (lib/fluxos-da-referencia.ts), e o
+    //   componente passou a entregar `setReferenciaCarregada` a DUAS funções de fluxo (a escolha e o carregamento).
+    //   Antes: 1 passagem; agora: 2 no arquivo, e UMA dentro de `carregarReferencia`, que é o que este teste cobre.
+    expect(ocorrencias(componente, 'avancarReferenciaCarregada: setReferenciaCarregada,')).toBe(2);
+    const i = componente.indexOf('const carregarReferencia = async () => {');
+    const corpo = componente.slice(i, componente.indexOf('\n  };\n', i));
+    expect(ocorrencias(corpo, 'avancarReferenciaCarregada: setReferenciaCarregada,')).toBe(1);
   });
 
   test('LEVANTAMENTO dos avanços de `referenciaCarregada`: só dois (a escolha CONFIRMADA e o carregamento), e o da escolha vem depois da confirmação do servidor', () => {
-    // padrão: `setReferenciaCarregada` em app/ components/ lib/ (fora dos testes): a declaração do estado,
-    // a escolha confirmada e a passagem ao fluxo. Conferido com `git grep` na entrega (3 ocorrências).
+    // ⚠ F07 A5 (ponto 1) MOVEU o corpo de `escolher` para o módulo. O levantamento é o mesmo, nos dois arquivos:
+    //   no COMPONENTE, `setReferenciaCarregada` aparece 3 vezes (a declaração do estado e as duas passagens aos
+    //   fluxos), nenhuma delas chamada direta; no MÓDULO, `avancarReferenciaCarregada(` é chamada 3 vezes (a
+    //   ausência de referência, o carregamento e a escolha). A ordem "depois da confirmação do servidor" é
+    //   conferida agora no módulo. A condição nova do avanço da escolha está em f07-a5-referencia-carregada.
     expect(ocorrencias(componente, 'setReferenciaCarregada')).toBe(3);
+    expect(ocorrencias(componente, 'setReferenciaCarregada(')).toBe(0);
     const declaracao = "const [referenciaCarregada, setReferenciaCarregada] = useState";
     expect(ocorrencias(componente, declaracao)).toBe(1);
-    // o avanço da escolha está DENTRO do ramo `confirmada`, depois de `executarEscolha` ter respondido
-    const iEscolha = componente.indexOf('const escolher = async');
-    const iExecutar = componente.indexOf('await executarEscolha(', iEscolha);
-    const iConfirmada = componente.indexOf("if (desfecho.situacao === 'confirmada') {", iExecutar);
-    const iAvanco = componente.indexOf('setReferenciaCarregada(corpo.referencia ?? null);', iConfirmada);
-    const iRecusada = componente.indexOf("} else if (desfecho.situacao === 'recusada') {", iConfirmada);
+    const modulo = ler('lib/fluxos-da-referencia.ts');
+    expect(ocorrencias(modulo, 'acoes.avancarReferenciaCarregada(')).toBe(3);
+    // o avanço da escolha está DENTRO do ramo `confirmada`, depois de o envio ter respondido
+    const iEscolha = modulo.indexOf('export async function enviarEscolhaDaReferencia');
+    const iEnviar = modulo.indexOf('await acoes.enviar(', iEscolha);
+    const iConfirmada = modulo.indexOf("if (desfecho.situacao === 'confirmada') {", iEnviar);
+    const iAvanco = modulo.indexOf('acoes.avancarReferenciaCarregada(referencia);', iConfirmada);
+    const iRecusada = modulo.indexOf("if (desfecho.situacao === 'recusada') {", iConfirmada);
     expect(iEscolha).toBeGreaterThan(0);
-    expect(iExecutar).toBeGreaterThan(iEscolha);
-    expect(iConfirmada).toBeGreaterThan(iExecutar);
+    expect(iEnviar).toBeGreaterThan(iEscolha);
+    expect(iConfirmada).toBeGreaterThan(iEnviar);
     expect(iAvanco).toBeGreaterThan(iConfirmada);
     expect(iAvanco).toBeLessThan(iRecusada);
   });
 
   test('a regra de que a escolha usa a revisão CARREGADA não mudou', () => {
-    expect(ocorrencias(componente, 'expectedRevision: referenciaCarregada?.revision ?? 0,')).toBe(1);
+    // ⚠ F07 A5 (ponto 1): a expressão MOVEU com o corpo de `escolher` para o módulo, e o componente passa
+    //   `referenciaCarregada` (o valor do clique). A regra é a mesma, e agora é exercitada por teste de comportamento
+    //   (f07-a5-referencia-carregada, critério 5).
+    expect(ocorrencias(ler('lib/fluxos-da-referencia.ts'), 'expectedRevision: referenciaCarregada?.revision ?? 0,')).toBe(1);
+    expect(ocorrencias(componente, 'expectedRevision')).toBe(0);
+    expect(ocorrencias(componente, '      referenciaCarregada,\n')).toBe(1); // a passagem do estado a `enviarEscolhaDaReferencia` (o carregamento passa só `revisaoCarregada`, para a mensagem)
   });
 
   test('`exibir` (o botão Exibir) segue com o aviso de não encontrada e `onExibir` direto', () => {
@@ -188,6 +205,14 @@ describe('A4.3: a fiação do componente, por LEITURA (nenhuma tela é montada)'
   test('o módulo é puro: não importa Firestore, React, Next nem o componente', () => {
     const fonte = ler('lib/fluxos-da-referencia.ts');
     const importacoes = fonte.split('\n').filter(l => /^import /.test(l));
-    expect(importacoes).toEqual(["import type { ReferenciaDoProjeto } from '@/lib/referencia-do-projeto';"]);
+    // ⚠ F07 A5 (ponto 1): o módulo passou a importar `estadoDaApresentacao` (a condição única de «referência
+    //   escolhida», de lib/referencia-do-projeto, módulo puro) e, SÓ COMO TIPO (apagado na compilação), o
+    //   `ResultadoDeNovaAcao` de lib/intencoes. A lista exata é a nova; a propriedade (nenhum Firestore, React,
+    //   Next nem componente) é a mesma.
+    expect(importacoes).toEqual([
+      "import { type Exibicao, type ReferenciaDoProjeto, type RegistroDeEscolha, estadoDaApresentacao } from '@/lib/referencia-do-projeto';",
+      "import type { ResultadoDeNovaAcao } from '@/lib/intencoes';",
+    ]);
+    for (const l of importacoes) expect(l).not.toMatch(/firebase|react|next|@\/components/);
   });
 });
