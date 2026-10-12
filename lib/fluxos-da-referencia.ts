@@ -36,6 +36,12 @@ export interface AcoesDaCargaDaReferencia {
   avancarReferenciaCarregada(referencia: ReferenciaDoProjeto | null): void;
   /** Acrescenta uma linha à faixa de avisos do painel. Não substitui o painel. */
   acrescentarAviso(texto: string): void;
+  /**
+   * F07 A5, ponto 4: `false` se este clique já foi SUPERADO por um clique mais novo em "Exibir" ou em
+   * "Carregar a referência atual" (ver `criarOrdemDeCliques`). Omitido = sempre vigente (o comportamento de
+   * A4, que os testes de A4 continuam exercitando sem este membro).
+   */
+  vigente?(): boolean;
 }
 
 export type DesfechoDaCargaDaReferencia =
@@ -46,7 +52,9 @@ export type DesfechoDaCargaDaReferencia =
   /** A leitura devolveu `null`: nada foi apresentado, a revisão NÃO avançou. */
   | 'nao-encontrada'
   /** A leitura ou a apresentação lançou: a revisão NÃO avançou, e a exceção NÃO escapa. */
-  | 'falhou';
+  | 'falhou'
+  /** F07 A5: um clique mais novo superou este antes de a leitura voltar. Nada foi apresentado, a revisão NÃO avançou e NÃO há aviso. */
+  | 'superada';
 
 /** A linha de aviso quando a referência não pôde ser carregada. Diz o que a tela MANTÉM. */
 export function mensagemDeFalhaDaCarga(
@@ -80,13 +88,19 @@ export async function carregarReferenciaAtual(args: {
     return 'sem-referencia';
   }
 
+  // F07 A5, ponto 4: a leitura é aguardada, e a tela pode ter apresentado OUTRA coisa por um clique mais novo
+  // enquanto isso. Um clique superado não tem efeito algum: nem apresenta, nem avança a revisão, nem avisa.
+  const superada = () => acoes.vigente !== undefined && !acoes.vigente();
+
   let documento: Record<string, any> | null;
   try {
     documento = await acoes.lerExecucao(referencia.executionId);
   } catch (e) {
+    if (superada()) return 'superada';
     acoes.acrescentarAviso(mensagemDeFalhaDaCarga(referencia, `falha ao ler a execução (${textoDoErro(e)})`, revisaoCarregada));
     return 'falhou';
   }
+  if (superada()) return 'superada';
   if (documento === null) {
     acoes.acrescentarAviso(mensagemDeFalhaDaCarga(referencia, `a execução ${referencia.executionId} não foi encontrada`, revisaoCarregada));
     return 'nao-encontrada';
@@ -115,6 +129,8 @@ export interface AcoesDaExibicao {
   apresentar(documento: Record<string, any>): void | Promise<unknown>;
   /** Acrescenta uma linha à faixa de avisos do painel. */
   acrescentarAviso(texto: string): void;
+  /** F07 A5, ponto 4: `false` se este clique já foi SUPERADO por um mais novo. Omitido = sempre vigente. */
+  vigente?(): boolean;
 }
 
 export type DesfechoDaExibicao =
@@ -123,7 +139,9 @@ export type DesfechoDaExibicao =
   /** A leitura devolveu `null`: aviso «não foi encontrada», nada foi apresentado. */
   | 'nao-encontrada'
   /** A leitura ou a apresentação lançou: aviso distinto, nada mudou na tela, e a exceção NÃO escapa. */
-  | 'falhou';
+  | 'falhou'
+  /** F07 A5: um clique mais novo superou este antes de a leitura voltar. Nada foi apresentado e NÃO há aviso. */
+  | 'superada';
 
 /** A linha de aviso do documento ausente. É o texto de antes de A5, sem alteração. */
 export const avisoDeExecucaoNaoEncontrada = (executionId: string): string => `A execução ${executionId} não foi encontrada.`;
@@ -147,13 +165,16 @@ export const avisoDeExecucaoNaoApresentada = (executionId: string, motivo: strin
  */
 export async function exibirExecucaoDaLista(args: { executionId: string; acoes: AcoesDaExibicao }): Promise<DesfechoDaExibicao> {
   const { executionId, acoes } = args;
+  const superada = () => acoes.vigente !== undefined && !acoes.vigente();
   let documento: Record<string, any> | null;
   try {
     documento = await acoes.lerExecucao(executionId);
   } catch (e) {
+    if (superada()) return 'superada'; // a falha é de um clique que a tela já deixou: nada a avisar sobre a tela de agora
     acoes.acrescentarAviso(avisoDeExecucaoNaoLida(executionId, textoDoErro(e)));
     return 'falhou';
   }
+  if (superada()) return 'superada';
   if (documento === null) {
     acoes.acrescentarAviso(avisoDeExecucaoNaoEncontrada(executionId));
     return 'nao-encontrada';
@@ -165,4 +186,38 @@ export async function exibirExecucaoDaLista(args: { executionId: string; acoes: 
     return 'falhou';
   }
   return 'apresentada';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F07 A5, ponto 4: a corrida entre dois cliques. O ÚLTIMO clique vence.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * A ordem dos cliques que apresentam uma execução da lista ("Exibir" e "Carregar a referência atual" são do
+ * MESMO conjunto). Cada clique pega um bilhete NO INSTANTE DO CLIQUE (antes de qualquer `await`), e só o
+ * bilhete mais novo é vigente quando a leitura volta.
+ *
+ * Por que isto não é o par de `lib/apresentacao-corrente.ts`: o par é avançado por `registro.apresentar`, NO
+ * MOMENTO DA APRESENTAÇÃO, isto é, depois de a leitura voltar. Dois cliques em voo ainda não apresentaram
+ * nada, então o par não tem como saber que a leitura de um deles é de um clique anterior ao outro.
+ * (`criarOrdemDePedidos`, retirada em A4 por não ter chamador, voltou como esta, agora com dois chamadores.)
+ */
+export interface OrdemDeCliques {
+  /** Pega o bilhete do clique que ACABA de acontecer; o anterior deixa de ser vigente. */
+  novo(): number;
+  /** `true` só para o bilhete mais novo. */
+  vigente(bilhete: number): boolean;
+}
+
+export function criarOrdemDeCliques(): OrdemDeCliques {
+  let ultimo = 0;
+  return {
+    novo() {
+      ultimo += 1;
+      return ultimo;
+    },
+    vigente(bilhete) {
+      return bilhete === ultimo;
+    },
+  };
 }

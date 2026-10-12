@@ -37,7 +37,7 @@ import {
 } from '@/lib/referencia-do-projeto';
 import { type ApresentacaoInicial, lerExecucao, listarHistorico } from '@/lib/referencia-leitura';
 import { dependenciasDoNavegador, executarEscolha, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
-import { carregarReferenciaAtual, exibirExecucaoDaLista } from '@/lib/fluxos-da-referencia';
+import { type OrdemDeCliques, carregarReferenciaAtual, criarOrdemDeCliques, exibirExecucaoDaLista } from '@/lib/fluxos-da-referencia';
 
 interface Props {
   projectId: string;
@@ -65,6 +65,13 @@ export default function ReferenciaDoProjeto({
   const [avisos, setAvisos] = useState<string[]>(inicial.avisos);
   const [escolha, setEscolha] = useState<EstadoDaEscolha>({ emAndamento: false, mensagem: null, tipo: null });
   const [consultandoPendentes, setConsultandoPendentes] = useState(true);
+  // F07 A5, ponto 4: "Exibir" e "Carregar a referência atual" leem o documento (`await`) antes de apresentá-lo. Se
+  // a pessoa clica em outra execução enquanto a primeira leitura está em voo, a leitura mais lenta não pode
+  // definir o que fica na tela: o ÚLTIMO clique vence. A ordem está num `useRef` (e não em estado) para que o
+  // bilhete pego no clique seja conferido contra a ordem de AGORA quando a leitura voltar.
+  const ordemDeCliquesRef = useRef<OrdemDeCliques | null>(null);
+  if (ordemDeCliquesRef.current === null) ordemDeCliquesRef.current = criarOrdemDeCliques();
+  const ordemDeCliques = ordemDeCliquesRef.current;
 
   // O histórico, uma vez.
   useEffect(() => {
@@ -143,12 +150,14 @@ export default function ReferenciaDoProjeto({
    * (ver `lib/fluxos-da-referencia.ts`). O caminho de "Carregar a referência atual" é `carregarReferencia`.
    */
   const exibir = async (executionId: string) => {
+    const bilhete = ordemDeCliques.novo(); // NO CLIQUE, antes de qualquer `await`
     await exibirExecucaoDaLista({
       executionId,
       acoes: {
         lerExecucao: obterDocumento,
         apresentar: documento => { onExibir(documento); },
         acrescentarAviso: texto => setAvisos(a => [...a, texto]),
+        vigente: () => ordemDeCliques.vigente(bilhete),
       },
     });
   };
@@ -196,6 +205,7 @@ export default function ReferenciaDoProjeto({
    * ser carregada (ver `lib/fluxos-da-referencia.ts`). A exceção não escapa daqui.
    */
   const carregarReferencia = async () => {
+    const bilhete = ordemDeCliques.novo(); // NO CLIQUE, antes de qualquer `await` (a mesma ordem de "Exibir")
     await carregarReferenciaAtual({
       referencia,
       revisaoCarregada: referenciaCarregada?.revision ?? null,
@@ -204,6 +214,7 @@ export default function ReferenciaDoProjeto({
         apresentar: documento => { onExibir(documento); },
         avancarReferenciaCarregada: setReferenciaCarregada,
         acrescentarAviso: texto => setAvisos(a => (a.includes(texto) ? a : [...a, texto])),
+        vigente: () => ordemDeCliques.vigente(bilhete),
       },
     });
   };
