@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { type RegistroDaApresentacao, criarRegistroDaApresentacao } from '@/lib/apresentacao-corrente';
-import { escreverSeVigente } from '@/lib/fluxos-da-tela';
+import { pedirValidacaoDaApresentacao, trocarApresentacaoDaValidacao } from '@/lib/fluxos-da-tela';
 import { prepararEnvio } from '@/lib/validacao-externa/matriz-utilizavel';
 import {
   descreverOrigem,
@@ -275,11 +275,13 @@ export default function ExternalValidation({ calculation, project }: ExternalVal
   // F07 A4: a validação é PEDIDA sobre o `calculation` apresentado. Se a pessoa troca a execução
   // apresentada enquanto o pedido está em voo, o resultado da execução anterior NÃO pode ser escrito
   // sobre a tela de agora. Cada mudança do `calculation` recebido é uma nova apresentação (geração).
+  // F07 A5: e o resultado JÁ escrito para a apresentação anterior é retirado da tela na troca (o registro
+  // protege a escrita futura; a limpeza cuida do que já está na tela; as duas são necessárias).
   const registroRef = useRef<RegistroDaApresentacao | null>(null);
   if (registroRef.current === null) registroRef.current = criarRegistroDaApresentacao();
   const registro = registroRef.current;
   useEffect(() => {
-    registro.apresentar(calculation);
+    trocarApresentacaoDaValidacao(registro, calculation, { setApresentacao, setLoading });
   }, [calculation, registro]);
 
   const checkHealth = async () => {
@@ -297,16 +299,14 @@ export default function ExternalValidation({ calculation, project }: ExternalVal
   };
 
   const runValidation = async () => {
-    setLoading(true);
-    setApresentacao(null);
-    const par = registro.capturar();
-    try {
-      // `executarValidacao` não lança: toda falha vira um estado apresentável. F07 A4: o resultado só é
-      // escrito se a apresentação ainda for a que originou o pedido; fora do par, é descartado.
-      await escreverSeVigente(registro, par, () => executarValidacao(calculation, (url, init) => fetch(url, init)), setApresentacao);
-    } finally {
-      setLoading(false);
-    }
+    // `executarValidacao` não lança: toda falha vira um estado apresentável. F07 A4: o resultado só é
+    // escrito se a apresentação ainda for a que originou o pedido; fora do par, é descartado. F07 A5: e o
+    // indicador de "validando" só é desligado pelo pedido que ainda é o da apresentação corrente.
+    await pedirValidacaoDaApresentacao({
+      registro,
+      produzir: () => executarValidacao(calculation, (url, init) => fetch(url, init)),
+      acoes: { setApresentacao, setLoading },
+    });
   };
 
   const envioPrevisto = calculation ? prepararEnvio(calculation) : null;

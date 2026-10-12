@@ -171,6 +171,58 @@ export async function escreverSeVigente<T>(
   return 'escrita';
 }
 
+/** O que a validação externa escreve na tela. Genérico: o módulo não conhece o tipo do resultado. */
+export interface AcoesDaValidacao<T> {
+  setApresentacao(valor: T | null): void;
+  setLoading(b: boolean): void;
+}
+
+/**
+ * F07 A5, ponto 2: a tela passou a apresentar OUTRA coisa (outro `calculation`). Registra a nova
+ * apresentação e RETIRA da tela o resultado da anterior, que seria mostrado sob os números de outra
+ * execução e sem rótulo que o dissesse (o tipo do resultado não traz o identificador da execução).
+ *
+ * ⚠ O par (identidade, geração) de A4 protege a escrita FUTURA (`escreverSeVigente`); não protege o que
+ * JÁ foi escrito. Esta função cuida do já escrito. As duas são necessárias e complementares: a limpeza
+ * não impede a escrita tardia (que chega DEPOIS dela), e o par não retira o que já está na tela.
+ *
+ * `setLoading(false)`: o indicador de "validando" pertence ao pedido da apresentação que a tela deixou; se
+ * ficasse ligado, a pessoa não poderia pedir a validação da apresentação nova até o pedido antigo
+ * terminar. (A conclusão do pedido antigo não o desliga de novo: ver `pedirValidacaoDaApresentacao`.)
+ */
+export function trocarApresentacaoDaValidacao<T>(
+  registro: RegistroDaApresentacao,
+  documento: Record<string, any> | null | undefined,
+  acoes: AcoesDaValidacao<T>
+): ParDaApresentacao {
+  const par = registro.apresentar(documento);
+  acoes.setApresentacao(null);
+  acoes.setLoading(false);
+  return par;
+}
+
+/**
+ * A pessoa pediu a validação da apresentação CORRENTE. O resultado só é escrito se a apresentação ainda
+ * for a que originou o pedido (`escreverSeVigente`), e o indicador de "validando" só é desligado pelo
+ * pedido que ainda é o da apresentação corrente: o `finally` de um pedido antigo não pode desligar o
+ * indicador do pedido novo. A exceção de `produzir` NÃO é capturada aqui (como em `escreverSeVigente`).
+ */
+export async function pedirValidacaoDaApresentacao<T>(args: {
+  registro: RegistroDaApresentacao;
+  produzir: () => Promise<T>;
+  acoes: AcoesDaValidacao<T>;
+}): Promise<'escrita' | 'descartada'> {
+  const { registro, produzir, acoes } = args;
+  acoes.setLoading(true);
+  acoes.setApresentacao(null);
+  const par = registro.capturar();
+  try {
+    return await escreverSeVigente(registro, par, produzir, acoes.setApresentacao as (valor: T) => void);
+  } finally {
+    if (registro.conferir(par).aceita) acoes.setLoading(false);
+  }
+}
+
 export const MENSAGEM_DA_AUDITORIA_INDISPONIVEL =
   'A auditoria não está disponível para este cálculo. O cálculo foi concluído e está apresentado; a auditoria não foi atualizada.';
 

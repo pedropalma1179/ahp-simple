@@ -634,9 +634,17 @@ describe('A4: a fiação da página e do componente, por LEITURA (nenhuma tela �
   });
 
   test('ExternalValidation: a validação passa por escreverSeVigente, com o par capturado ao pedir', () => {
+    // ⚠ F07 A5 (ponto 2) MOVEU para `lib/fluxos-da-tela.ts` o corpo de `runValidation` e o do efeito da troca
+    //   (`pedirValidacaoDaApresentacao` e `trocarApresentacaoDaValidacao`), para que a limpeza na troca seja
+    //   testada. O que este teste exigia (o par é capturado ao pedir, a escrita passa por `escreverSeVigente`, e
+    //   cada `calculation` novo é uma apresentação) passa a ser conferido nas duas formas: o componente chama o
+    //   módulo, e o módulo faz o que o componente fazia. A ligação completa está em `f07-a5-validacao-externa`.
     const f = ler('components/ExternalValidation.tsx');
-    expect(ocorrencias(f, 'escreverSeVigente(registro, par, ')).toBe(1);
-    expect(ocorrencias(f, 'const par = registro.capturar();')).toBe(1);
-    expect(ocorrencias(f, 'registro.apresentar(calculation);')).toBe(1);
+    const m = ler('lib/fluxos-da-tela.ts');
+    expect(ocorrencias(f, 'await pedirValidacaoDaApresentacao({')).toBe(1);
+    expect(ocorrencias(m, 'await escreverSeVigente(registro, par, produzir, ')).toBe(1);
+    expect(ocorrencias(m, 'const par = registro.capturar();')).toBe(1);
+    expect(ocorrencias(f, 'trocarApresentacaoDaValidacao(registro, calculation, ')).toBe(1);
+    expect(ocorrencias(m, 'const par = registro.apresentar(documento);')).toBeGreaterThanOrEqual(1);
   });
 });
