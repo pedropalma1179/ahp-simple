@@ -453,8 +453,15 @@ describe('A4.4: a fiação das páginas, por LEITURA (nenhuma tela é montada)',
   test('projetos: o cálculo fica bloqueado com pendência sem decisão (guarda no manipulador, e o modal desabilita o botão)', () => {
     const f = ler(PROJETOS);
     expect(f).toContain('const bloqueadoPorPendencia = !acaoNovaLiberada(retomada);');
+    // ⚠ F07 A6 (V1): o corpo de `handleCalculate` MOVEU para `calcularProjetoDaLista` (lib/fluxos-dos-projetos.ts).
+    //   A guarda era conferida no manipulador; agora a página entrega `bloqueado: bloqueadoPorPendencia` (o valor do
+    //   clique) e a guarda mora no módulo, ANTES do `await` (a ordem é conferida). A propriedade que o teste
+    //   verificava é a mesma: com pendência sem decisão, nenhum envio.
     const i = f.indexOf('const handleCalculate = async (projectId: string) => {');
-    expect(f.slice(i, i + 400)).toContain('if (bloqueadoPorPendencia) {');
+    expect(f.slice(i, i + 400)).toContain('bloqueado: bloqueadoPorPendencia,');
+    const modulo = ler('lib/fluxos-dos-projetos.ts');
+    expect(ocorrencias(modulo, 'if (bloqueado) {')).toBe(1);
+    expect(modulo.indexOf('if (bloqueado) {')).toBeLessThan(modulo.indexOf('await executar('));
     expect(ocorrencias(f, 'bloqueadoPorPendencia={bloqueadoPorPendencia}')).toBe(1);
     expect(ocorrencias(f, 'disabled={calculating || bloqueadoPorPendencia || completedCount === 0}')).toBe(1);
   });

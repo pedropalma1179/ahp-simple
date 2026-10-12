@@ -770,7 +770,16 @@ describe('fiação das telas, por LEITURA (nenhuma tela é executada por teste a
       expect(ocorrencias(fluxos, "'/api/calculate'")).toBe(0);
       expect(ocorrencias(fluxos, 'await args.executar(')).toBe(1);
     } else {
-      expect(ocorrencias(f, 'await executarCalculo(')).toBe(1);
+      // ⚠ F07 A6 (V1): o corpo de `handleCalculate` da página de projetos MOVEU para `lib/fluxos-dos-projetos.ts`
+      //   (`calcularProjetoDaLista`), e a página lhe entrega `executarCalculo` como a função `executar`, no mesmo
+      //   formato da página de resultados. A chamada deixou de ser `await executarCalculo(` nela; o que este teste
+      //   exigia (o cálculo passa por `executarCalculo`, uma vez, e nunca por `fetch` direto) é conferido nas duas
+      //   formas. O comportamento do fluxo movido está em f07-a6-projetos-modal.test.ts.
+      expect(ocorrencias(f, 'await executarCalculo(')).toBe(0);
+      expect(ocorrencias(f, 'executar: parametros => executarCalculo(dependenciasDoNavegador(), parametros),')).toBe(1);
+      const fluxos = ler('lib/fluxos-dos-projetos.ts');
+      expect(ocorrencias(fluxos, "'/api/calculate'")).toBe(0);
+      expect(ocorrencias(fluxos, 'await executar(')).toBe(1);
     }
     expect(ocorrencias(f, 'retomarPendentes(')).toBe(1);
   });

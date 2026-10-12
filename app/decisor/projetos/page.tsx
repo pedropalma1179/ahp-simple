@@ -11,8 +11,8 @@ import {
 import { Project, Alternative, Respondent, BOCR_CRITERIA, SUBCRITERIA } from '@/lib/data';
 import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
 import ConfirmacaoDeRetomada from '@/components/ConfirmacaoDeRetomada';
+import { calcularProjetoDaLista } from '@/lib/fluxos-dos-projetos';
 import {
-  MENSAGEM_DE_ACAO_BLOQUEADA,
   acaoNovaLiberada,
   estadoInicialDaRetomada,
   recusarReenvio,
@@ -39,6 +39,14 @@ export default function ProjetosPage() {
   // Modais
   const [editingProject, setEditingProject] = useState<(Project & { id: string }) | null>(null);
   const [managingProject, setManagingProject] = useState<(Project & { id: string }) | null>(null);
+  // F07 A6, V1: o modal aberto AGORA, lido pelo cálculo no RETORNO (depois do `await`). A propriedade
+  // `managingProject` que o manipulador capturou quando o clique aconteceu é a do INÍCIO, e conferi-la
+  // reintroduz o defeito. ⚠ LIMITE (o mesmo declarado em A5, ponto 1): atribuir no corpo da renderização evita o
+  // atraso de um `useEffect`, mas não é garantia absoluta; renderização e apresentação confirmada pelo React são
+  // momentos distintos, e a referência pode ficar ADIANTE do comprometido (renderização descartada) e ATRÁS de um
+  // `setManagingProject` já pedido e ainda não renderizado.
+  const managingProjectRef = useRef(managingProject);
+  managingProjectRef.current = managingProject;
   const [showNewProject, setShowNewProject] = useState(false);
 
   // Cálculo
@@ -243,36 +251,19 @@ export default function ProjetosPage() {
     recusarReenvio({ intencao, ajustar: setRetomada });
   };
 
+  /**
+   * F07 A6, V1: o corpo de `handleCalculate` mora em `lib/fluxos-dos-projetos.ts` (`calcularProjetoDaLista`),
+   * movido sem alterar os textos nem a ordem dos efeitos. O desfecho só é escrito em `calculateResult` se o modal
+   * aberto NO RETORNO (`managingProjectRef`, lida depois do `await`) é o do projeto que originou o pedido.
+   */
   const handleCalculate = async (projectId: string) => {
-    if (bloqueadoPorPendencia) {
-      setCalculateResult({ type: 'error', text: MENSAGEM_DE_ACAO_BLOQUEADA });
-      return;
-    }
-    setCalculating(true);
-    setCalculateResult(null);
-    try {
-      // F07 A1: o pedido tem `requestId`, e a intenção fica guardada no navegador até o servidor
-      // confirmar; uma recarga no meio do envio é retomada ao montar a tela, sem segunda execução.
-      const { desfecho, persistida } = await executarCalculo(dependenciasDoNavegador(), { projectId });
-      const aviso = persistida
-        ? ''
-        : ' Aviso: o armazenamento do navegador não está disponível, e uma recarga agora não permitiria recuperar este pedido.';
-      if (desfecho.situacao === 'confirmada') {
-        const data = desfecho.resposta.corpo;
-        setCalculateResult({ type: 'success', text: `${data.message} Execução ${data.executionId}.${aviso}` });
-      } else if (desfecho.situacao === 'recusada') {
-        setCalculateResult({ type: 'error', text: desfecho.resposta.corpo?.error ?? `Pedido recusado (status ${desfecho.resposta.status}).` });
-      } else {
-        setCalculateResult({
-          type: 'error',
-          text: `Sem confirmação do servidor (${desfecho.motivo}). O pedido permanece guardado neste navegador: ao reabrir esta tela ele é consultado, e a execução, se foi criada, é recuperada sem novo cálculo.${aviso}`
-        });
-      }
-    } catch (error: any) {
-      setCalculateResult({ type: 'error', text: error.message });
-    } finally {
-      setCalculating(false);
-    }
+    await calcularProjetoDaLista({
+      projectId,
+      bloqueado: bloqueadoPorPendencia,
+      executar: parametros => executarCalculo(dependenciasDoNavegador(), parametros),
+      modalAberto: () => managingProjectRef.current?.id ?? null,
+      acoes: { setCalculating, setCalculateResult },
+    });
   };
 
   const getStatusInfo = (status: string) => {
