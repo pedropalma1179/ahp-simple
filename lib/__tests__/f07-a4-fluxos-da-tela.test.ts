@@ -145,6 +145,24 @@ describe('A4.1.0: o registro e a conferência do par', () => {
     expect(par.conferirPar({ executionId: null, geracao: 6 }, { executionId: null, geracao: 7 })).toMatchObject({ aceita: false, motivo: 'geracao-diferente' });
   });
 
+  // F07 A5: o ÚNICO ramo de `conferirPar` que nenhum teste alcançava: dois identificadores PRESENTES e
+  // DISTINTOS na MESMA geração. ⚠ É teste de CONTRATO de uma função pura exportada, no mesmo estilo dos
+  // testes acima, e NÃO demonstra que o registro da tela produza esse cenário: o registro congela UM
+  // identificador por apresentação (cada geração tem um só), então duas respostas da mesma geração têm
+  // sempre o mesmo identificador. A explicação da redundância do mutante A4-M2 continua valendo.
+  test('(A5, contrato) dois identificadores PRESENTES e DISTINTOS na mesma geração: recusa, com o motivo próprio; iguais: aceita com o par completo', () => {
+    expect(par.conferirPar({ executionId: 'exec-A', geracao: 7 }, { executionId: 'exec-B', geracao: 7 })).toEqual({
+      aceita: false,
+      vinculo: null,
+      motivo: 'identificador-diferente',
+    });
+    expect(par.conferirPar({ executionId: 'exec-B', geracao: 7 }, { executionId: 'exec-A', geracao: 7 })).toMatchObject({ aceita: false, motivo: 'identificador-diferente' });
+    // o par igual, para a mesma função: aceita, com o vínculo do par completo (e não só da geração)
+    expect(par.conferirPar({ executionId: 'exec-A', geracao: 7 }, { executionId: 'exec-A', geracao: 7 })).toMatchObject({ aceita: true, vinculo: 'identificador-e-geracao' });
+    // a geração decide ANTES: gerações diferentes com identificadores distintos dão 'geracao-diferente', e não 'identificador-diferente'
+    expect(par.conferirPar({ executionId: 'exec-A', geracao: 6 }, { executionId: 'exec-B', geracao: 7 })).toMatchObject({ aceita: false, motivo: 'geracao-diferente' });
+  });
+
   test('um identificador de texto vazio ou que não é texto conta como AUSENTE (vem de identificarExecucao)', () => {
     const r = par.criarRegistroDaApresentacao();
     expect(r.apresentar({ executionId: '' }).executionId).toBeNull();
