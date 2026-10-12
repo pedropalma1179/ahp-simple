@@ -57,14 +57,18 @@ export const enviarAuditoriaPeloNavegador: EnviarAuditoria = async documento => 
   return resposta.json();
 };
 
-export type DesfechoDaAuditoria = 'aplicada' | 'descartada' | 'sem-sucesso' | 'indisponivel';
+export type DesfechoDaAuditoria = 'aplicada' | 'descartada' | 'sem-sucesso' | 'indisponivel' | 'indisponivel-tardia';
 
 /**
  * Pede a auditoria de UMA apresentação e escreve a resposta SE o par ainda for o da apresentação
  * corrente.
  *
- *   - `indisponivel`: o envio ou a leitura do corpo lançou. Nada é escrito, e quem chamou decide o
- *     que dizer;
+ *   - `indisponivel`: o envio ou a leitura do corpo lançou, e a apresentação que pediu a auditoria
+ *     AINDA é a corrente. Nada é escrito, e quem chamou decide o que dizer (o recálculo avisa na tela);
+ *   - `indisponivel-tardia` (F07 A5): o envio ou a leitura do corpo lançou, mas a tela JÁ deixou a
+ *     apresentação que pediu a auditoria. Nada é escrito e NÃO há o que avisar sobre a tela de agora: o
+ *     desfecho existe para preservar a informação de que houve falha (quem quiser, registra no log). A
+ *     alternativa, conferir o par antes de devolver `indisponivel`, perderia essa informação;
  *   - `descartada`: a resposta chegou, mas a tela já apresenta outra coisa. Nada é escrito;
  *   - `sem-sucesso`: a resposta chegou para a apresentação corrente com `success` falso. Nada é
  *     escrito (como antes de A4);
@@ -81,7 +85,9 @@ export async function solicitarAuditoria(args: {
   try {
     corpo = await args.enviar(args.documento);
   } catch {
-    return 'indisponivel';
+    // ⚠ A5: a falha é da apresentação CORRENTE ou de uma que a tela já deixou? A conferência é feita AQUI,
+    //   no retorno, contra a apresentação de agora, e o desfecho distingue as duas.
+    return args.registro.conferir(args.par).aceita ? 'indisponivel' : 'indisponivel-tardia';
   }
   // ⚠ A conferência é feita NO RETORNO, contra a apresentação de AGORA.
   if (!args.registro.conferir(args.par).aceita) return 'descartada';
@@ -90,6 +96,16 @@ export async function solicitarAuditoria(args: {
     return 'aplicada';
   }
   return 'sem-sucesso';
+}
+
+/**
+ * O registro no LOG de uma auditoria que falhou. Só registra: os dois chamadores que não têm onde avisar
+ * (`exibirExecucaoEscolhida` e `apresentarCargaInicial`) continuam só registrando, como antes de A5. A
+ * falha tardia tem texto próprio para que o log distinga as duas.
+ */
+export function registrarFalhaDaAuditoria(desfecho: DesfechoDaAuditoria): void {
+  if (desfecho === 'indisponivel') console.log('Auditoria não disponível');
+  else if (desfecho === 'indisponivel-tardia') console.log('Auditoria não disponível (de uma apresentação que a tela já deixou; sem aviso)');
 }
 
 /**
@@ -112,7 +128,7 @@ export async function exibirExecucaoEscolhida(args: {
   acoes.setAiReview(null);
   acoes.setAudit(null);
   const r = await solicitarAuditoria({ documento, par, registro, enviar: args.enviarAuditoria, aplicar: acoes.setAudit });
-  if (r === 'indisponivel') console.log('Auditoria não disponível');
+  registrarFalhaDaAuditoria(r);
   return r;
 }
 
@@ -134,7 +150,7 @@ export async function apresentarCargaInicial(args: {
   // ⚠ As exclusões da carga inicial NÃO são escritas aqui: a página as escreve, no texto de antes, porque
   //   a âncora A.33 (`scripts/a33-payload-referencia.cjs`) fixa esse fragmento da tela.
   const r = await solicitarAuditoria({ documento, par, registro, enviar: args.enviarAuditoria, aplicar: acoes.setAudit });
-  if (r === 'indisponivel') console.log('Auditoria não disponível');
+  registrarFalhaDaAuditoria(r);
   return r;
 }
 
@@ -251,8 +267,10 @@ export async function recalcularResultados(args: {
 
     // ── A AUDITORIA, com tratamento de erro PRÓPRIO ───────────────────────────────────────────
     const r = await solicitarAuditoria({ documento: documentoNovo, par, registro, enviar: args.enviarAuditoria, aplicar: acoes.setAudit });
+    registrarFalhaDaAuditoria(r);
     if (r === 'indisponivel') {
-      console.log('Auditoria não disponível');
+      // ⚠ Só a falha da apresentação CORRENTE produz aviso: a mensagem afirma que o cálculo "está
+      //   apresentado", o que seria falso para uma tela que já apresenta outra coisa (A5).
       acoes.acrescentarAviso(MENSAGEM_DA_AUDITORIA_INDISPONIVEL);
       return 'concluido-sem-auditoria';
     }
