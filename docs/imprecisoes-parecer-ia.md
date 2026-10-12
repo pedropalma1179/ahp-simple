@@ -19446,6 +19446,187 @@ falha. As duas falhas seguem declaradas «esperadas por desenho» (a regravaçã
 
 ---
 
+## Registro de 12/10/2026 (UTC): F07, A5 (tarefa A.28), os cinco pontos abertos de A4
+
+⚠ **Base:** `bbeae3979fe58f43d99b53ed14b18fecf83ed572`, ramo `claude/loving-shannon-661fy9`; HEAD confirmado por comando antes de começar (`git rev-parse HEAD`, árvore limpa). **Procedência:** cada afirmação abaixo é **medida nesta sessão** (comando e saída em arquivo da entrega), **derivada** (de leitura do código ou de conta sobre medidas) ou **recebida** (do pedido), e o rótulo está na própria afirmação. **Ambiente da medição:** Linux 6.18.44 x86_64, Node v22.22.2, npm 10.9.7. É ambiente observado, e não requisito do repositório.
+
+⚠ **Nenhuma tela é montada por teste algum.** Todo teste de módulo ou de manipulador abaixo vem com a conferência da sua **ligação ao componente**, que é **leitura de código** (um teste que lê o fonte do componente), e não execução da interface. Um módulo correto ligado errado não corrige nada.
+
+⚠ **As duas falhas de identidade permanecem vermelhas e esperadas por desenho** (`a12-diagnostico` e `a12-rastreabilidade`, «o artefato gravado coincide com a medicao atual»). A etapa 2 continua parada: as decisões 5-A e 5-B não foram tomadas; `metadata.version` e `condutaDoParecerForaDoPar` não foram alterados.
+
+### 1. A causa comum, e a formulação adotada
+
+Estado ou resposta de uma apresentação anterior aplicado à apresentação atual [recebida]. O par (identidade, geração) de A4 protege a **escrita futura**; não protege o que já foi escrito, nem o que é decidido fora do momento do retorno. Por isso a varredura (seção 8) foi calibrada na causa, e não em «fecho desatualizado».
+
+### 2. Os commits (sete, sobre `bbeae39`)
+
+| Commit | Natureza | O que muda |
+|---|---|---|
+| `6745dfb` | teste | o ramo de `conferirPar` que nenhum teste alcançava: dois identificadores distintos na mesma geração |
+| `9d3df6d` | correção (ponto 3) | `solicitarAuditoria` distingue falha dentro e fora do par |
+| `e6420c2` | correção (ponto 2) | a validação externa retira o resultado anterior na troca de apresentação |
+| `c880252` | correção (ponto 5) | a falha de «Exibir» deixa de escapar do manipulador |
+| `3c5c9b7` | correção (ponto 4) | o último clique vence |
+| `a7ebe7b` | correção (ponto 1) | a escolha confirmada só avança a revisão carregada se a execução devolvida é a apresentada no retorno |
+| `f1c02cb` | teste | a falha de leitura do «Carregar a referência atual» superado também não avisa (sobrevivente A5-M4d) |
+
+Arquivos de produção alterados [medida: `git diff --name-only bbeae39 HEAD`]: `components/ExternalValidation.tsx`, `components/ReferenciaDoProjeto.tsx`, `lib/fluxos-da-referencia.ts`, `lib/fluxos-da-tela.ts`. **Nenhum outro.** A página de resultados (`app/decisor/resultados/[projectId]/page.tsx`) está **idêntica** à base (`git diff --quiet`, saída 0), e `app/avaliacao/` e `app/decisor/projetos/` não foram tocados.
+
+### 3. Ponto 1: `referenciaCarregada` avançava sem apresentação
+
+**Defeito [recebido, conferido]:** `escolher` fazia `setReferenciaCarregada(corpo.referencia ?? null)` sem condição na resposta de sucesso (`ReferenciaDoProjeto.tsx:162` em `bbeae39`). Escolher X enquanto a tela apresenta Y é ação normal e visível (o botão «Exibir» só é desabilitado na linha exibida, e «Escolher» só na referência), e nada de X foi apresentado. Consequência: `expectedRevision` partia de uma revisão que a tela nunca apresentou, e `mudanca` deixava de acusar.
+
+**Condição adotada:** `referenciaCorrespondeAApresentada(referencia, exibicao)` (`lib/fluxos-da-referencia.ts:236`) é **a mesma** com que a tela rotula «referência escolhida» (`estadoDaApresentacao(...).estado === 'referencia-escolhida'`), e não uma segunda cópia. Sem a condição, atualiza-se só a referência conhecida e mantém-se a revisão carregada, como o caminho `recusada` já fazia.
+
+**Estrutura:** o corpo de `escolher` foi **movido**, sem alterar textos nem a ordem dos efeitos, para `enviarEscolhaDaReferencia` (`lib/fluxos-da-referencia.ts:291`). **Mudança estrutural não é apresentada como neutra:** a preservação foi medida no caminho alterado por testes de cada ramo (confirmada, recusada com e sem `error`/`referencia`, pendente com e sem aviso de armazenamento, exceção, ordem dos efeitos), com os textos fixados byte a byte.
+
+**Ligação ao componente [leitura do fonte]:** `ReferenciaDoProjeto.tsx:187-199` (`escolher` chama `enviarEscolhaDaReferencia({ executionId, justificativa, referenciaCarregada, acoes })`; `acoes.exibicaoVigente` é `() => exibicaoVigenteRef.current`, `:198`); a referência é criada em `:89` e **atribuída no corpo da renderização** em `:90`.
+
+**A armadilha, e o teste que a distingue:** depois do `await`, o `exibicao` do manipulador é a propriedade capturada quando o pedido começou. A exibição é lida **depois** do `await`, por uma referência. O teste do critério 4 troca a exibição durante o voo nos dois sentidos (começa em X e passa a Y: não avança; começa em Y e passa a X: avança), e o mutante A5-M1b (ler a exibição antes do `await`) é morto por ele. A ligação (que o componente injete a referência, e não o fecho) não é demonstrável por teste de módulo: os mutantes A5-M1e e A5-M1f só são mortos pela **leitura do fonte**.
+
+⚠ **Limite da ligação adotada, declarado no componente:** atribuir no corpo da renderização evita o atraso de um `useEffect`, mas **não é garantia absoluta**. Renderização e apresentação confirmada (commit) pelo React são momentos distintos: a referência pode ficar **adiante** do que foi comprometido (renderização descartada) e fica **atrás** de um `setExibicao` já pedido e ainda não renderizado. O mesmo dispositivo já é usado na página (`retomadaRef`, `page.tsx:703-704`). Não é demonstrável por teste de módulo, e **não foi demonstrado**.
+
+**Critérios [medidos, `lib/__tests__/f07-a5-referencia-carregada.test.ts`, 17 testes]:** 1 (apresentada: avança), 2 (não apresentada: conhecida atualizada, revisão fica, `mudanca` acusa; também com exibição nula e no documento anterior a F07), 3 (reenvio: a referência de hoje só avança se for a apresentada; o evento antigo não entra no histórico), 4 (troca em voo), 5 (`expectedRevision` da escolha seguinte: 5 sem avanço, 6 com avanço, 0 sem carregada).
+
+⚠ **Alcançabilidade do critério 4 [derivada, de `PainelDaReferencia.tsx`]:** enquanto a escolha está em voo, o painel desabilita os três botões (`ocupado = consultandoPendentes || escolha.emAndamento`, `:79`; usado em `:95`, `:174`, `:179` e `:212`). A exibição **não** muda por clique **durante** o envio. O que a muda é uma leitura de «Exibir» ou de «Carregar» que **já estava em voo** quando a escolha começou (o botão «Escolher» não depende dessas leituras), ou um recálculo. O teste do critério 4 exercita a função com a exibição trocada durante o voo, e **não** demonstra que esses caminhos ocorram na tela montada.
+
+⚠ **Sobre o reenvio:** o servidor devolve a referência de hoje com o evento recuperado (`f07-a2-referencia.test.ts`, caso «se OUTRA escolha veio depois, o reenvio devolve o evento antigo e a referência de HOJE»). Pela **leitura**, `escolher` gera um `operationId` novo a cada chamada (`gerarId`), e a retomada na montagem (`retomarPendentes`) só escreve avisos. **Não encontrei caminho pelo qual o componente receba `recuperada: true` numa chamada de `escolher`**; a condição é uniforme, não ramifica em `recuperada`, e cobre o caso se ele existir. Ausência de caminho encontrada, não provada.
+
+### 4. Ponto 2: a validação externa conservava o resultado da apresentação anterior
+
+**Defeito [recebido, conferido]:** o efeito do `calculation` só chamava `registro.apresentar(calculation)` e não limpava `apresentacao`; `setApresentacao(null)` estava só em `runValidation`. O tipo `Apresentacao` não traz identificador de execução, então o resultado ficava na tela **sem rótulo**.
+
+**Correção:** `trocarApresentacaoDaValidacao` (`lib/fluxos-da-tela.ts:193`) registra a nova apresentação, limpa o resultado e desliga o indicador; `pedirValidacaoDaApresentacao` (`:210`) ficou com o corpo de `runValidation`. **Sem quarentena**, como mandado. Ligação [leitura]: `ExternalValidation.tsx:283-285` (o efeito) e `:305` (`pedirValidacaoDaApresentacao({ registro, produzir, acoes: { setApresentacao, setLoading } })`); `fetch(` no componente continua sendo os 2 conhecidos.
+
+**REGISTRO, a pergunta do critério 4: o registro próprio do componente (o par) permanece necessário.** Demonstrado, e não só afirmado: o mutante **A5-M2b** torna a escrita do pedido incondicional (sem `escreverSeVigente`) e é **morto por 5 testes**, entre eles «a resposta TARDIA da apresentação anterior chega DEPOIS da limpeza e NÃO é escrita». A limpeza na troca e o par são complementares e **nenhum torna o outro redundante**: a limpeza não impede a escrita tardia (que chega depois dela), e o par não retira o que já está na tela. O registro não foi removido.
+
+**Alcançabilidade [derivada, de `page.tsx:2845`]:** `if (loading) return <indicador>` devolve o indicador **no lugar da página inteira**, e `recalcularResultados` liga `loading` durante o cálculo. Então `ExternalValidation` é **desmontado e remontado** em todo recálculo, e o resultado antigo some por isso. O defeito do ponto 2 era alcançável pela troca por «Exibir» ou por «Carregar a referência atual», que **não** ligam `loading`.
+
+### 5. Ponto 3: a falha tardia da auditoria escapava da conferência do par
+
+**Defeito [recebido, conferido]:** o `catch` de `solicitarAuditoria` devolvia `'indisponivel'` antes de conferir o par; só `recalcularResultados` escrevia o aviso, que afirma que o cálculo «está apresentado».
+
+**Correção:** o desfecho passou a distinguir dentro e fora do par (`'indisponivel'` e `'indisponivel-tardia'`, `lib/fluxos-da-tela.ts:60`, conferência no `catch` em `:90`), que é a forma preferida no pedido porque **preserva** a informação de que houve falha. `registrarFalhaDaAuditoria` (`:106`) registra no log, com texto próprio para a tardia. Só a falha da apresentação corrente produz aviso. Os dois chamadores que só registravam (`exibirExecucaoEscolhida`, `:131`, e `apresentarCargaInicial`, `:153`) continuam **só registrando**. `escreverSeVigente` **não foi unificado** com `solicitarAuditoria`: ele não captura a exceção de `produzir`, de propósito, e por isso não tem o defeito.
+
+⚠ **Alcançabilidade [derivada]:** durante o recálculo a página inteira é o indicador de carga até a auditoria terminar (o `finally` de `recalcularResultados` é quem desliga `loading`). O único caminho que escreve o aviso (o recálculo) só encontraria a tela em outra apresentação se uma leitura de «Exibir» **já estava em voo** quando o recálculo começou. A correção foi feita como pedida; a alcançabilidade é baixa, e fica registrada.
+
+### 6. Ponto 5: a falha de «Exibir» não era tratada
+
+**Defeito [recebido, conferido]:** `obterDocumento` chega a `lerExecucao` (`lib/referencia-leitura.ts`), que faz `getDoc` sem tratamento próprio e **lança**; `exibir` não tinha `try`. A premissa foi medida: o teste do critério 1 usa a `lerExecucao` **real** contra um `getDoc` que rejeita, e confere que ela lança antes de conferir o tratamento.
+
+**Correção:** `exibirExecucaoDaLista` (`lib/fluxos-da-referencia.ts:167`) captura a falha de leitura e a de apresentação, com avisos distintos entre si e distintos do caso `null`; o texto do caso `null` é o de antes, byte a byte. A ação volta a ser possível (o mesmo manipulador, na mesma tela). **`carregarReferenciaAtual` não foi alterado nem unificado:** teste próprio confere que a falha de leitura do «Carregar» continua avisando «não pôde ser carregada» e sem avançar a revisão. Ligação [leitura]: `ReferenciaDoProjeto.tsx:168-178`.
+
+### 7. Ponto 4: a corrida entre dois cliques
+
+**Defeito [recebido, conferido]:** a leitura é aguardada e `onExibir` era chamado sem condição; o par só avança no momento da apresentação, depois da leitura, então não tem como saber que a leitura é de um clique anterior.
+
+**Correção:** `criarOrdemDeCliques` (`lib/fluxos-da-referencia.ts:213`): cada clique pega um bilhete **no clique**, antes do `await`, e só o mais novo é vigente quando a leitura volta. Um clique superado não apresenta, não avança a revisão e não avisa (`'superada'`). **Uma única ordem por painel**, compartilhada por «Exibir» e «Carregar a referência atual» (`ReferenciaDoProjeto.tsx:78-80`; bilhetes em `:169` e `:209`; `vigente` em `:176` e `:218`). `criarOrdemDePedidos`, retirada em A4 por não ter chamador (`2c2e618`), voltou como esta, agora com dois chamadores.
+
+**Testes [medidos, 19 dos 28 de `f07-a5-exibir.test.ts`]:** as duas ordens de resolução; «Carregar» seguido de «Exibir» e o inverso; **48 combinações** (3 cliques, 8 sequências de Exibir/Carregar, 6 ordens de resolução) com **uma** apresentação, a do último clique, e todo avanço de revisão logo depois da apresentação da **mesma** execução; clique superado sem aviso (leitura que lança, que devolve `null`, no «Exibir» e no «Carregar»); o clique vigente que falha avisa; dois cliques sequenciais têm efeito; o clique único é como antes.
+
+⚠ **Limite declarado:** a ordem cobre cliques nestes dois botões. Uma apresentação vinda de **outra origem** (recálculo) enquanto uma leitura está em voo não é coberta. Além disso a ordem vive no componente, que a página desmonta durante o recálculo (seção 4): cliques em voo do painel desmontado ficam fora da ordem nova.
+
+### 8. A varredura (resumo; o documento completo está na entrega)
+
+Universo declarado **antes** dos números: 29 arquivos de cliente (`'use client'`, fora de `app/api`), 12 de servidor; `fetch(` em `app/ components/ lib/`: **13 ocorrências, 6 de servidor (fora do conjunto) e 7 do navegador**. Os três do navegador sem portão não são variantes porque a resposta não pertence a uma apresentação: duas chamadas a `/api/response-quality` (o corpo é `{ responses: projectResponses, includeSimulated: true }`, sem valor da apresentação, e `projectResponses` só muda na carga) e a verificação de saúde do serviço.
+
+**Falha de calibração, registrada:** a janela de 8 linhas (`-A8`) não casou com a ocorrência conhecida (o `await` está em `:152` e a ocorrência em `:162`); a falha era de **escopo**, e a janela de 12 casou. Generalizações, uma por vez, todas paradas pelo limite de ruído (>50%) ou pela fronteira da causa: escritas após `await` (35 linhas lidas, 66% de ruído), `projetos/page.tsx` (11 linhas, 73%), estados (32 lidos, 84% sem candidato), manipuladores (17, 65%). **Parar diz que o eixo esgotou o retorno; a cobertura NÃO está demonstrada.** Não se acrescentou categoria ao censo.
+
+**Candidatos fora dos cinco pontos, nenhum corrigido:**
+- **V1** `app/decisor/projetos/page.tsx:262-272`: `handleCalculate` escreve `setCalculateResult` depois do `await` sem conferir se o modal ainda é do mesmo projeto (real por leitura). Fora dos cinco pontos e em página com caminhos que esta entrega não toca.
+- **V3** `resultados/page.tsx`: `aiReviewLoading` desliga no `finally` incondicionalmente e `execucaoDoParecer` é sobrescrito por pedido mais novo; com a conduta atual (`'aplicar'`) um parecer tardio fica com o rodapé de cópia de outra execução. **Depende da decisão 5-B.**
+- **V5** o limite da seção 7.
+- **V6** (outra causa) o desmonte do painel durante o recálculo devolve `referenciaCarregada` a `inicial.referencia`; a direção do erro é a segura (o servidor recusa a escolha com revisão antiga).
+- Não reais: **V2** (`setCalculating(false)` incondicional, mas a bandeira é da página e desabilita o único gatilho) e **V4** (`loadData` sem cancelamento; sem caminho encontrado entre dois `/resultados/[projectId]` sem carga completa, não provado).
+
+### 9. Controles de mutação (só o que A5 altera)
+
+**Previsão datada antes de rodar: 12/10/2026 01:49:24 UTC** (arquivo `previsao-mutantes-F07-A5.txt`, na entrega), com o resultado previsto e o teste que deveria matar cada mutante. Cada mutante é **uma** substituição de texto exata, com uma ocorrência, sobre o **código real** (nunca sobre cópia); depois de cada um o arquivo é restaurado e conferido por `git diff --quiet` (as 28 execuções, os 27 mutantes mais a repetição do A5-M4d, voltaram ao commit). Testes rodados por mutante: os 11 arquivos `lib/__tests__/f07-*` (296 testes na linha de base, **saída 0**, antes de mutar). Nenhum mutante morreu por erro de compilação (o instrumento distingue `MORTO-POR-COMPILACAO`, e o número é zero).
+
+
+**Resultado [medido, `mutantes/` na entrega]:** previsão de 27 mutantes, **27 conferidos**: 26 mortos e **1 sobrevivente** (A5-M4d), como previsto.
+
+### 9.1 O sobrevivente, e o que se fez
+
+**A5-M4d** retira a conferência de clique superado do ramo de **falha de leitura** de `carregarReferenciaAtual`. Sobreviveu (296 de 296 passam): os testes de A5.4 só faziam falhar a leitura do «Exibir» superado, e a do «Carregar» superado não era exercitada. **Não é redundante nem equivalente:** o cenário é alcançável (clicar «Carregar a referência atual» e, antes de a leitura falhar, clicar «Exibir» em outra execução), e o aviso «não pôde ser carregada» apareceria sobre uma tela que já apresenta outra coisa. A previsão de sobrevivência veio da leitura dos meus próprios testes; o teste que faltava foi acrescentado **depois** da medição (commit `f1c02cb`), e não antes, para que o mutante medisse a lacuna. O mesmo mutante, rodado de novo (`A5-M4d-r2`), é **morto** por esse teste (1 falha, 296 passam).
+
+### 9.2 Seis mutantes só morrem pela leitura do fonte
+
+A5-M1e, A5-M1f, A5-M2e, A5-M4g, A5-M4h e A5-M5d alteram a **ligação ao componente**, e os testes de comportamento **não os alcançam**: os auxiliares desses testes injetam a própria fiação. Foram mortos pelos testes de **leitura do fonte** (conferem locais e argumentos). Isso é o esperado, e é também o limite: a ligação do componente é conferida por leitura, e não por execução da interface.
+
+### 9.3 O que não foi rodado
+
+Nenhum mutante sobre `conferirPar` (o caso de contrato do commit `6745dfb`): o pedido manda **não** rodar a campanha de mutação de novo por causa dele. A campanha de A4 e a de A1 a A3 não foram repetidas, e a tabela de mutantes de A4 não foi regerada.
+
+## 9.4 Tabela dos 27 mutantes
+
+| Mutante | Ponto | Arquivo | Mutação | Previsto | Resultado | Testes que falharam |
+|---|---|---|---|---|---|---|
+| A5-M1a | 1 | `lib/fluxos-da-referencia.ts` | o avanço da revisão carregada na escolha confirmada volta a ser incondicional (o defeito de antes) | MORTO | **MORTO** | 6 |
+| A5-M1b | 1 | `lib/fluxos-da-referencia.ts` | a exibição é lida ANTES do `await` do envio (a armadilha do fecho, no módulo) | MORTO | **MORTO** | 1 |
+| A5-M1c | 1 | `lib/fluxos-da-referencia.ts` | sem exibição conhecida, a condição passa a corresponder | MORTO | **MORTO** | 2 |
+| A5-M1d | 1 | `lib/fluxos-da-referencia.ts` | a revisão esperada sem referência carregada deixa de ser 0 | MORTO | **MORTO** | 4 |
+| A5-M1e | 1 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: o componente injeta a propriedade `exibicao` do fecho, e não a referência atualizada (o defeito em miniatura) | MORTO | **MORTO** | 2 |
+| A5-M1f | 1 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: a referência nunca é atualizada (fica na exibição inicial) | MORTO | **MORTO** | 1 |
+| A5-M2a | 2 | `lib/fluxos-da-tela.ts` | a troca da apresentação não retira o resultado da validação anterior | MORTO | **MORTO** | 2 |
+| A5-M2b | 2 | `lib/fluxos-da-tela.ts` | REGISTRO: a escrita do pedido deixa de conferir o par. Mostra que a limpeza na troca NÃO torna o par redundante | MORTO | **MORTO** | 5 |
+| A5-M2c | 2 | `lib/fluxos-da-tela.ts` | o `finally` de um pedido antigo desliga o indicador do pedido novo | MORTO | **MORTO** | 2 |
+| A5-M2d | 2 | `lib/fluxos-da-tela.ts` | a troca não desliga o indicador de «validando» do pedido da apresentação que a tela deixou | MORTO | **MORTO** | 1 |
+| A5-M2e | 2 | `components/ExternalValidation.tsx` | LIGAÇÃO: o efeito do `calculation` volta a só registrar a apresentação, sem limpar (o componente de antes de A5) | MORTO | **MORTO** | 2 |
+| A5-M3a | 3 | `lib/fluxos-da-tela.ts` | a falha da auditoria volta a devolver sempre `indisponivel`, antes da conferência (o defeito de antes) | MORTO | **MORTO** | 5 |
+| A5-M3b | 3 | `lib/fluxos-da-tela.ts` | o recálculo avisa na tela também a falha tardia | MORTO | **MORTO** | 2 |
+| A5-M3c | 3 | `lib/fluxos-da-tela.ts` | dentro e fora do par trocados | MORTO | **MORTO** | 11 |
+| A5-M3d | 3 | `lib/fluxos-da-tela.ts` | a falha tardia deixa de ser registrada no log | MORTO | **MORTO** | 2 |
+| A5-M4a | 4 | `lib/fluxos-da-referencia.ts` | "Exibir": um clique superado cuja leitura voltou apresenta mesmo assim | MORTO | **MORTO** | 9 |
+| A5-M4b | 4 | `lib/fluxos-da-referencia.ts` | "Carregar a referência atual": um clique superado apresenta e avança a revisão | MORTO | **MORTO** | 3 |
+| A5-M4c | 4 | `lib/fluxos-da-referencia.ts` | "Exibir": a falha de um clique superado avisa sobre a tela de agora | MORTO | **MORTO** | 1 |
+| A5-M4d | 4 | `lib/fluxos-da-referencia.ts` | "Carregar a referência atual": a falha de leitura de um clique superado avisa | SOBREVIVE | **SOBREVIVE** | 0 |
+| A5-M4e | 4 | `lib/fluxos-da-referencia.ts` | todo bilhete é vigente | MORTO | **MORTO** | 12 |
+| A5-M4f | 4 | `lib/fluxos-da-referencia.ts` | o bilhete nunca avança | MORTO | **MORTO** | 12 |
+| A5-M4g | 4 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: "Exibir" não passa `vigente` (cada clique é sempre vigente) | MORTO | **MORTO** | 2 |
+| A5-M4h | 4 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: o bilhete é pego DEPOIS de um `await`, e não no clique | MORTO | **MORTO** | 1 |
+| A5-M5a | 5 | `lib/fluxos-da-referencia.ts` | a exceção da leitura de "Exibir" volta a escapar do manipulador | MORTO | **MORTO** | 5 |
+| A5-M5b | 5 | `lib/fluxos-da-referencia.ts` | a falha de leitura usa o aviso de «não encontrada» | MORTO | **MORTO** | 4 |
+| A5-M5c | 5 | `lib/fluxos-da-referencia.ts` | a exceção da apresentação volta a escapar | MORTO | **MORTO** | 1 |
+| A5-M5d | 5 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: `exibir` volta ao corpo de antes de A5 (sem `try`, sem módulo, sem ordem de cliques) | MORTO | **MORTO** | 5 |
+
+### 10. A5 não altera o que o Parecer IA recebe (medido; sem predição de saída, e por quê)
+
+`CLAUDE.md`, seção 2: predição só cabe onde a correção altera o que o modelo recebe. **Medido neste HEAD** (`nao-altera-entrada-do-modelo-F07-A5.txt`, na entrega): `git diff --stat bbeae39 HEAD -- lib/ai-reviewer app/api/ai-reviewer` e a mesma consulta sobre `lib/rag`, `app/api`, `lib/validacao-externa` e `docs/dados` saem **vazias** (saída 0); a página de resultados é **idêntica** (`git diff --quiet`, saída 0); as linhas alteradas de `lib/fluxos-da-tela.ts` não mencionam Parecer, conduta, `decidirEscritaDoParecer`, `metadata.version` nem `aiReview` (`grep` sai 1). Logo as correções de A5 não alteram o que o modelo recebe, e a verificação é **contra a fonte**, e não contra a saída do modelo.
+
+### 11. Medições por estado (`estados/` na entrega, com o código de saída de cada comando em arquivo)
+
+Todos os estados, **exatamente as 2 falhas de identidade esperadas**; `tsc` sai 0 em todos; `npm test` sai 1 em todos (pelas 2 esperadas); `npm run build` sai 0 onde rodou.
+
+| Estado | Commit | Suítes | Testes | Passam | Falham |
+|---|---|---|---|---|---|
+| base (medida nesta sessão; o pedido a trazia como recebida) | `bbeae39` | 45 | 1743 | 1741 | 2 |
+| contrato de `conferirPar` | `6745dfb` | 45 | 1744 | 1742 | 2 |
+| ponto 3 | `9d3df6d` | 46 | 1753 | 1751 | 2 |
+| ponto 2 | `e6420c2` | 47 | 1766 | 1764 | 2 |
+| ponto 5 | `c880252` | 48 | 1775 | 1773 | 2 |
+| ponto 4 | `3c5c9b7` | 48 | 1793 | 1791 | 2 |
+| ponto 1 | `a7ebe7b` | 49 | 1810 | 1808 | 2 |
+
+O crescimento é por testes novos (1 + 9 + 13 + 9 + 18 + 17 = 67, mais 1 do commit `f1c02cb` = 68; 1743 + 68 = 1811). Os totais finais deste HEAD constam do relato da entrega, medidos depois do último commit. **Não use a variação da suíte como critério:** os comportamentos que precisavam passar estão nas seções 3 a 7, e os testes de **leitura** adaptados (A2.14; cinco de `f07-a4-referencia-carregada`, um no commit do ponto 5 e quatro no do ponto 1; um de `f07-a4-fluxos-da-tela`) têm o motivo declarado no cabeçalho de cada edição: o corpo que liam **mudou de arquivo**, e a propriedade que verificavam (a mesma) passou a ser conferida onde o código está. Nenhum teste foi removido.
+
+### 12. Erratas e contradições (ambos os valores ficam, com a fonte)
+
+- **Mensagem do commit `3c5c9b7`** diz «24 novos» testes em `f07-a5-exibir.test.ts`. O número medido é **18** (o arquivo passou de 9 a 27 testes, e a 28º é do commit `f1c02cb`). O erro é meu, o commit não pode ser emendado, e a correção é esta.
+- **Previsão minha errada, medida e corrigida:** ao adaptar o teste de leitura «a regra de que a escolha usa a revisão CARREGADA», escrevi que `referenciaCarregada,` aparece 2 vezes no componente; a medição deu **1**, e a asserção foi corrigida para o valor medido, com o motivo (só `escolher` passa o estado; `carregarReferencia` passa `revisaoCarregada`).
+- **Contagem de linhas de escrita** em `avaliacao/page.tsx` na janela de 12: o passo 3 da varredura registrou **43**; a remedição deu **47** (padrão amplo) e **38** (sem `setTimeout(`/`setItem(`). O 43 não bate com nenhuma das duas, e o comando que o produziu não foi preservado. Nenhum valor foi escolhido em silêncio.
+- **Quadro do universo:** a primeira redação dizia 30 arquivos de cliente; a contagem deu **29**.
+
+### 13. O que continua aberto, e as decisões que são do autor
+
+1. **5-A** (origem da versão) e **5-B** (conduta do Parecer tardio) continuam sem decisão. V3 depende da 5-B.
+2. **V1** (`projetos/page.tsx`) e **V5** (apresentação por recálculo com leitura em voo) são reais por leitura e **não foram corrigidos**: fora dos cinco pontos, e a primeira numa página com caminhos que esta entrega não toca. Decisão do autor.
+3. **A mensagem de sucesso da escolha** não distingue o caso em que a revisão **não** avançou («Referência escolhida: revisão N, execução X.»). A tela sinaliza pelo estado «outra execução» e pelo aviso de mudança, que oferece «Carregar a referência atual». Não alterei o texto (fora do pedido); a próxima escolha, partindo da revisão antiga, será recusada pelo servidor até a pessoa carregar a nova, que é o efeito pretendido do critério 5.
+4. **`referencia` nula numa resposta de sucesso** (que o servidor não envia): a nova condição devolve «não corresponde», e a revisão carregada **não** vai a `null`. Antes ia. Caso inalcançável pelo contrato do servidor; registrado por completo.
+5. **`carregarReferenciaAtual` com referência nula** continua gravando `null` como revisão carregada (A4, inalterado): é o reconhecimento de que a referência deixou de existir, e não a afirmação de que uma execução foi apresentada.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
