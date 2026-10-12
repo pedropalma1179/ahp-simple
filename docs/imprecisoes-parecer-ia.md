@@ -19656,6 +19656,139 @@ As **2 falhas são as de identidade esperadas por desenho** (`a12-diagnostico` e
 
 ---
 
+## Registro de 12/10/2026 (UTC): F07, A6 (continuidade de A.28), correção delimitada de V1 e V5
+
+⚠ **Estado de partida [medido nesta execução]:** HEAD `46ffd447771737b223295e2d35d89bc9fde4f5a1`, ramo `claude/loving-shannon-661fy9`, 9 commits sobre `bbeae3979fe58f43d99b53ed14b18fecf83ed572`, 373 desde a raiz, 21 à frente do remoto, árvore limpa. **Procedência:** cada afirmação é **medida nesta execução** (comando e saída em arquivo da entrega), **derivada** (de leitura do código ou de conta sobre medidas) ou **recebida** (do pedido), e o rótulo está na própria afirmação. **Ambiente:** Linux 6.18.44 x86_64, Node v22.22.2, npm 10.9.7. É ambiente observado, e não requisito do repositório.
+
+⚠ **Nenhuma tela é montada por teste algum.** Todo teste de módulo vem com a conferência da sua **ligação ao componente ou à página**, que é **leitura de código**. Um módulo correto ligado errado não corrige nada.
+
+⚠ **As duas falhas de identidade (`a12-diagnostico`, `a12-rastreabilidade`) permanecem vermelhas e esperadas por desenho** em todos os estados medidos. A etapa 2 e as decisões 5-A e 5-B seguem sem tomar; `metadata.version`, `condutaDoParecerForaDoPar`, `docs/dados/` e os três pontos da decisão 5-B na página de resultados não foram tocados (seção 7).
+
+### 1. Os commits
+
+| Commit | Natureza | Conteúdo |
+|---|---|---|
+| `ed43c62` | correção, V1 | `calcularProjetoDaLista` (módulo novo `lib/fluxos-dos-projetos.ts`) e a página de projetos; mais a adaptação de dois testes de leitura (`f07-a1-execucoes`, `f07-a4-retomada-confirmada`), com o motivo declarado |
+| `3f4e6db` | teste, V1 | `f07-a6-projetos-modal.test.ts` (21 testes) |
+| `226fd05` | correção, V5 | `interrompida`, `leituraSuperada`, `acompanharLeitura` em `lib/fluxos-da-referencia.ts`; `montadaRef` e a prop no painel; uma linha na página de resultados |
+| `0b024a3` | teste, V5 | `f07-a6-leitura-em-voo.test.ts` (25 testes) |
+| (este) | documentos | este bloco, por inserção pura |
+
+Arquivos de produção alterados [medido, `git diff --name-only 46ffd44 HEAD`]: `app/decisor/projetos/page.tsx`, `app/decisor/resultados/[projectId]/page.tsx` (**uma linha**, a prop nova), `components/ReferenciaDoProjeto.tsx`, `lib/fluxos-da-referencia.ts` e `lib/fluxos-dos-projetos.ts` (novo). `lib/fluxos-da-tela.ts` (inclusive `recalcularResultados`) está **idêntico** a `46ffd44`.
+
+### 2. V1: o resultado do cálculo aparecia no modal de outro projeto
+
+**Defeito [recebido, conferido]:** `handleCalculate` escrevia o desfecho em `calculateResult` **depois** do `await`, sem conferir de qual projeto era o modal aberto no retorno. Todos os localizadores do pedido casaram com a âncora em `46ffd44` (`:41`, `:45`, `:46`, `:246`, `:256`, `:274`, `:1213`, `:1214`, `:1217`), **sem divergência**. `managingProject`: **5 ocorrências em 5 linhas** (`git grep -o` e `git grep -n` coincidem; o setter `setManagingProject`, com `M` maiúsculo, é outra palavra e tem 3: a declaração, `:924` e `:1213`), medido em `medicoes/V1-managingProject-F07-A6.txt`.
+
+**Correção:** `calcularProjetoDaLista` (`lib/fluxos-dos-projetos.ts`) só escreve o desfecho se `modalAberto()`, lida **no retorno**, é o `projectId` do pedido; do contrário, **descarta**. Os quatro desfechos (confirmada, recusada, sem confirmação, a chamada lança) passam pela mesma porta. O `finally` continua desligando `calculating` (a bandeira é da página e desabilita o único gatilho, então só há um pedido em voo por vez). O caminho bloqueado, anterior ao `await`, continua escrevendo a mensagem de ação bloqueada.
+
+**Extração como mudança estrutural [declarada]:** o corpo de `handleCalculate` foi **movido** para o módulo para **exercitar o código real que decide no retorno**, inclusive o `catch` e o `finally`; não porque a função não fosse exportada. A preservação foi medida no caminho alterado: os cinco fragmentos de texto das quatro mensagens ocorrem **uma vez** no fonte anterior e **uma vez** no módulo (`medicoes/V1-textos-preservados-F07-A6.txt`), e os testes fixam os textos byte a byte. Dois testes de **leitura** quebraram por desenho e foram adaptados, com o motivo no código: `f07-a1-execucoes` (a chamada deixou de ser `await executarCalculo(` na página) e `f07-a4-retomada-confirmada` (a guarda mora no módulo).
+
+**Ligação [leitura]:** `app/decisor/projetos/page.tsx`, `handleCalculate` chama `calcularProjetoDaLista({ projectId, bloqueado: bloqueadoPorPendencia, executar: parametros => executarCalculo(dependenciasDoNavegador(), parametros), modalAberto: () => managingProjectRef.current?.id ?? null, acoes: { setCalculating, setCalculateResult } })`; a referência é criada com `useRef(managingProject)` e **atribuída no corpo da renderização** (`managingProjectRef.current = managingProject;`).
+
+⚠ **Limite da ligação adotada, declarado na página (o mesmo de A5, ponto 1):** atribuir no corpo da renderização evita o atraso de um `useEffect`, mas **não é garantia absoluta**. Renderização e apresentação confirmada (commit) pelo React são momentos distintos: a referência pode ficar **adiante** do que foi comprometido (renderização descartada) e **atrás** de um `setManagingProject` já pedido e ainda não renderizado. Não é demonstrável por teste de módulo, e **não foi demonstrado**.
+
+⚠ **O descarte é descarte [restrição 4 do pedido].** O desfecho descartado **não foi guardado** nem levado a outra superfície da tela (isso seria mudança de produto, não autorizada). Fica uma linha em `console.log`, com texto que o distingue de uma falha e que cita o projeto, o tipo e o texto; o log do navegador não é superfície da tela e não sobrevive à aba. **Consequência de produto, para o autor:** quem fechou o modal de A e o reabre depois não vê o desfecho do cálculo; a execução, se foi criada, aparece na lista de execuções do projeto.
+
+**Critérios [medidos, `lib/__tests__/f07-a6-projetos-modal.test.ts`, 21 testes]:** 1 a 5 (confirmada, recusada, sem confirmação e a chamada que lança, cada um com o modal **fechado** e com o modal de **outro projeto** aberto: oito casos, nada é escrito, `calculating` vai a falso, o descarte vai ao log); 6 (o caminho ordinário, com o texto de hoje); 7 (o bloqueado); mais o mesmo projeto reaberto (escrito), a conferência **no retorno** (zero leituras do modal antes, uma depois) e um segundo cálculo em B depois do descarte de A.
+
+### 3. V5: a leitura em voo substituía a apresentação feita pelo recálculo
+
+**Defeito [recebido, conferido]:** a ordem de cliques de A5 ordena cliques **nos dois botões**; uma apresentação vinda de outro caminho não tira o bilhete. No recálculo há ainda o **desmonte**: `lib/fluxos-da-tela.ts:267` (`acoes.setLoading(true)`) faz `app/decisor/resultados/[projectId]/page.tsx:2845` (`if (loading)`) trocar a página inteira pelo indicador de carga e desmontar o painel; a leitura iniciada antes volta com o fecho da instância **antiga**, que ainda alcança `exibirExecucao` da página e ainda vê a ordem antiga (o bilhete segue o mais novo). A ordem medida em `fluxos-da-tela.ts`: `setLoading(true)`, depois `await args.executar(...)`, e só então `registro.apresentar`; **durante a ida ao servidor o painel está desmontado e a apresentação ainda não mudou**. Todos os localizadores do pedido casaram com a âncora, **sem divergência**.
+
+**Correção, em duas perguntas distintas (restrições 7 e 8 do pedido):**
+1. *esta instância do painel ainda está montada?* (`montadaRef`, mantida por um efeito de montagem e limpeza). Responde à janela em que nada avançou;
+2. *a apresentação que esta leitura ia produzir ainda é a da tela?* (o par do **registro da página**, capturado no clique por `acompanharLeitura` e conferido no retorno). O registro está num `useRef` da **página**, que sobrevive ao remonte do painel, e por isso vale também para o fecho da instância antiga.
+
+As duas se somam à ordem de A5 **sem substituí-la**: `leituraSuperada(acoes)` é `vigente` **ou** `interrompida`, os dois membros opcionais e independentes (`superada()` usa essa função nos dois fluxos, que **não foram unificados**). Uma leitura superada não apresenta, não avisa e não avança a revisão, nos quatro desfechos (documento, `null`, exceção, e a apresentação que lançaria, que nem é invocada).
+
+**Interface nova do componente [declarada]:** a prop obrigatória `registroDaApresentacao: ConsultaDaApresentacao` (só consulta: `capturar` e `conferir`, nunca `apresentar`), passada pela página em **uma linha** (`registroDaApresentacao={registroDaApresentacao}`, depois de `onExibir={exibirExecucao}`). Fora dos três pontos da decisão 5-B. `recalcularResultados` **não foi alterado**.
+
+**Ligação [leitura]:** `components/ReferenciaDoProjeto.tsx`, em `exibir` e em `carregarReferencia`: depois de `const bilhete = ordemDeCliques.novo();`, `const leitura = acompanharLeitura({ montada: () => montadaRef.current, apresentacao: registroDaApresentacao });` e `interrompida: leitura.interrompida,` em `acoes`; `vigente: () => ordemDeCliques.vigente(bilhete),` **intacta**. `montadaRef` começa em `true` e um `useEffect(..., [])` liga na montagem e desliga na limpeza.
+
+⚠ **Limites declarados no componente:** (a) entre o pedido de desmonte e o commit do React, `montadaRef` ainda diz «montada»; (b) o par é o da apresentação do clique, então **qualquer** `registro.apresentar` posterior interrompe a leitura, inclusive uma que a própria pessoa pediu por outro botão. **Consequência de produto, para o autor:** um recálculo (que sempre desmonta o painel) iniciado enquanto uma leitura de «Exibir» está em voo **descarta o clique em silêncio**, mesmo que o recálculo falhe e nada novo seja apresentado; é o que o pedido manda («o retorno de uma instância desmontada é inerte de todo modo»).
+
+**Critérios [medidos, `lib/__tests__/f07-a6-leitura-em-voo.test.ts`, 25 testes]:** 1 a 4 (a leitura volta depois de Y por outro caminho, com o painel montado: documento, exceção, `null`, nos dois botões); 5 e 7 (o painel desmontado, o recálculo **real** parado na ida ao servidor, a leitura voltando nessa janela; **premissas conferidas dentro do teste**: o par ainda confere e a ordem antiga ainda acha o clique o mais novo, ou seja, uma conferência só contra a apresentação, sozinha, deixaria passar; três retornos × dois botões = 6 casos); 6 e 7 (depois do remonte e de Y, a ordem antiga e a nova coexistem; a nova não é prejudicada); um recálculo que **falha** também deixa a leitura antiga inerte; 8, 9 e 10.
+
+**Critério 9 [medido]:** os testes do último clique de A5 passam **sem alteração** (`f07-a5-exibir.test.ts`, inclusive as 48 combinações e as duas ordens de resolução, e os outros três `f07-a5-*`, idênticos a `46ffd44` por `git diff --quiet`, saída 0). Nenhuma parada por esse motivo.
+
+### 4. Controles de mutação (só o que A6 altera)
+
+**Previsão datada antes de rodar: 12/10/2026 03:01:53 UTC** (`previsao-mutantes-F07-A6.txt`, na entrega), com o resultado previsto e o teste que deveria matar cada mutante. **Universo:** 26 mutantes (V1: 10, V5: 16); 17 de comportamento (7 em `lib/fluxos-dos-projetos.ts`, 10 em `lib/fluxos-da-referencia.ts`) e 9 de **ligação** (3 em `app/decisor/projetos/page.tsx`, 4 em `components/ReferenciaDoProjeto.tsx`, 2 em `app/decisor/resultados/[projectId]/page.tsx`). Mínimo exigido cumprido: pelo menos um por ponto e um de ligação **por arquivo de componente ou página alterado**. **Linha de base, antes de mutar [medida]:** `npx jest lib/__tests__/f07-`, **13 suítes e 343 testes, 343 passam, saída 0**. Cada mutante é **uma** substituição de texto exata, com uma ocorrência, sobre o **código real**, nunca sobre cópia; depois de cada um o arquivo é restaurado e conferido por `git diff --quiet` (**as 26 execuções voltaram ao commit**, saída 0). Nenhum mutante morreu por erro de compilação do jest.
+
+**Resultado [medido]: 26 mortos, 0 sobreviventes, e as 26 previsões se confirmaram.** Como o resultado é o que se esperava, ele recebeu a mesma conferência que um resultado contrário: conferi, mutante a mutante, **quais testes falharam** (`resultado-mutantes-F07-A6.json`) e se eram os previstos. Os quatro ramos da leitura, cada um revertido para «só a ordem» (A6-M2g a A6-M2j), são mortos pelos testes **de A6** dos critérios 3 e 4 (os testes de A5 não os alcançam, porque só a interrupção os distingue); o ramo de exceção do «Carregar» (A6-M2i), que A5-M4d encontrou vazio, é morto pelo critério 3. A ordem de A5 é protegida: A6-M2e (a ordem ignorada) é morta pelos testes de A5 e de A6.
+
+**Nenhuma repetição foi necessária** (não houve sobrevivente): o modo `--repetir` do instrumento, que grava a entrada `-r2` no JSON e preserva o par `_antes`/`_depois`, **existe e não foi exercitado**.
+
+**Os nove de ligação só morrem pela leitura do fonte** (A6-M1h, M1i, M1j, M3a, M3b, M3c, M3d, M3e, M3f): os auxiliares dos testes de comportamento repetem a fiação e não os alcançam. É o esperado e é o limite. Para esses nove foi registrado também o `tsc` com o mutante: **oito saem 0** (o compilador não os vê) e **um sai 2** (A6-M3e, a página que deixa de passar a prop obrigatória: o compilador também o pega).
+
+⚠ **Defeito do instrumento, achado ao conferir um caso (A6-M1h):** a contagem `n_falhas` da campanha (linhas que começam por `✕`) deu 3 para um mutante cujo jest reporta **2** testes falhos, porque a mensagem de falha despeja trechos do fonte da página que contêm um `✕`. A contagem de referência é a da linha `Tests:` do jest; o modo `--reapurar` recalculou as 26, e **só A6-M1h divergia** (3 linhas, 2 testes). As duas contagens ficam no JSON, cada uma com a fonte, e a tabela usa a do jest.
+
+#### 4.1 Tabela dos 26 mutantes
+
+| Mutante | Ponto | Arquivo | Mutação | Previsto | Resultado | Testes que falharam | `tsc` com o mutante |
+|---|---|---|---|---|---|---|---|
+| A6-M1a | V1 | `lib/fluxos-dos-projetos.ts` | a conferência nunca descarta (o defeito de antes) | MORTO | **MORTO** | 11 | n/a |
+| A6-M1b | V1 | `lib/fluxos-dos-projetos.ts` | só descarta se NÃO há modal; o modal de B passa | MORTO | **MORTO** | 7 | n/a |
+| A6-M1c | V1 | `lib/fluxos-dos-projetos.ts` | o modal é lido no INÍCIO (o valor capturado antes do `await`) | MORTO | **MORTO** | 11 | n/a |
+| A6-M1d | V1 | `lib/fluxos-dos-projetos.ts` | o `finally` deixa de desligar `calculating` | MORTO | **MORTO** | 12 | n/a |
+| A6-M1e | V1 | `lib/fluxos-dos-projetos.ts` | o `catch` escreve sem conferir o modal | MORTO | **MORTO** | 3 | n/a |
+| A6-M1f | V1 | `lib/fluxos-dos-projetos.ts` | o caminho bloqueado deixa de bloquear | MORTO | **MORTO** | 2 | n/a |
+| A6-M1g | V1 | `lib/fluxos-dos-projetos.ts` | um dos quatro textos muda | MORTO | **MORTO** | 1 | n/a |
+| A6-M1h | V1 | `app/decisor/projetos/page.tsx` | LIGAÇÃO: a página injeta o fecho `managingProject` (o valor do clique), e não a referência | MORTO | **MORTO** | 2 | 0 |
+| A6-M1i | V1 | `app/decisor/projetos/page.tsx` | LIGAÇÃO: a referência do modal nunca é atualizada | MORTO | **MORTO** | 1 | 0 |
+| A6-M1j | V1 | `app/decisor/projetos/page.tsx` | LIGAÇÃO: a página deixa de entregar o bloqueio por pendência | MORTO | **MORTO** | 2 | 0 |
+| A6-M2a | V5 | `lib/fluxos-da-referencia.ts` | só a apresentação: a instância desmontada deixa de ser inerte | MORTO | **MORTO** | 9 | n/a |
+| A6-M2b | V5 | `lib/fluxos-da-referencia.ts` | só a montagem: uma apresentação vinda de outro caminho, com o painel montado, não interrompe | MORTO | **MORTO** | 9 | n/a |
+| A6-M2c | V5 | `lib/fluxos-da-referencia.ts` | o par é capturado no RETORNO (compara o presente com o presente) | MORTO | **MORTO** | 9 | n/a |
+| A6-M2d | V5 | `lib/fluxos-da-referencia.ts` | `leituraSuperada` ignora `interrompida` | MORTO | **MORTO** | 18 | n/a |
+| A6-M2e | V5 | `lib/fluxos-da-referencia.ts` | `leituraSuperada` ignora a ordem de cliques de A5 | MORTO | **MORTO** | 15 | n/a |
+| A6-M2f | V5 | `lib/fluxos-da-referencia.ts` | a ordem E a interrupção passam a ser exigidas juntas (&& no lugar de ||) | MORTO | **MORTO** | 31 | n/a |
+| A6-M2g | V5 | `lib/fluxos-da-referencia.ts` | «Exibir», ramo da EXCEÇÃO: só a ordem confere (o aviso aparece sobre a tela de agora) | MORTO | **MORTO** | 2 | n/a |
+| A6-M2h | V5 | `lib/fluxos-da-referencia.ts` | «Exibir», ramo do DOCUMENTO e do `null`: só a ordem confere | MORTO | **MORTO** | 9 | n/a |
+| A6-M2i | V5 | `lib/fluxos-da-referencia.ts` | «Carregar», ramo da EXCEÇÃO: só a ordem confere (o ramo que A5-M4d encontrou vazio, agora pela interrupção) | MORTO | **MORTO** | 2 | n/a |
+| A6-M2j | V5 | `lib/fluxos-da-referencia.ts` | «Carregar», ramo do DOCUMENTO e do `null`: só a ordem confere | MORTO | **MORTO** | 5 | n/a |
+| A6-M3a | V5 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: «Exibir» passa `montada: () => true` (a instância nunca é desmontada) | MORTO | **MORTO** | 2 | 0 |
+| A6-M3b | V5 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: «Carregar» deixa de entregar `interrompida` | MORTO | **MORTO** | 1 | 0 |
+| A6-M3c | V5 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: a limpeza do efeito não desliga `montadaRef` (o desmonte passa batido) | MORTO | **MORTO** | 1 | 0 |
+| A6-M3d | V5 | `components/ReferenciaDoProjeto.tsx` | LIGAÇÃO: em «Exibir» o par é capturado DEPOIS de um `await`, e não no clique | MORTO | **MORTO** | 1 | 0 |
+| A6-M3e | V5 | `app/decisor/resultados/[projectId]/page.tsx` | LIGAÇÃO: a página deixa de passar o registro ao painel | MORTO | **MORTO** | 1 | 2 |
+| A6-M3f | V5 | `app/decisor/resultados/[projectId]/page.tsx` | LIGAÇÃO: a página passa um registro próprio, que nunca interrompe | MORTO | **MORTO** | 1 | 0 |
+
+### 5. A6 não altera o que o Parecer IA recebe [medido, `nao-altera-F07-A6.txt`]
+
+`CLAUDE.md`, seção 2: predição de saída só cabe se a correção alterar o que o modelo recebe. **Medido entre `46ffd44` e o HEAD:** `lib/ai-reviewer`, `app/api`, `lib/rag`, `lib/validacao-externa` e `docs/dados` saem **vazios** em `git diff --stat`; `lib/fluxos-da-tela.ts`, `lib/apresentacao-corrente.ts`, `lib/retomada-com-confirmacao.ts`, `lib/intencoes.ts` e `lib/referencia-do-projeto.ts` são **idênticos** (`git diff --quiet`, saída 0); as linhas alteradas em `app/`, `lib/` e `components/` **não mencionam** `metadata.version`, `condutaDoParecerForaDoPar` nem `decidirEscritaDoParecer` (`grep` sai 1); a página de resultados mudou **uma linha** (a prop, `@@ -2942,0 +2943 @@`) e a âncora dos **três pontos da decisão 5-B** (`decidirEscritaDoParecer(registroDaApresentacao, parDoParecer).escreve) return; // F07 A4: ponto da decisão 5-B`) ocorre **3 vezes** em `46ffd44` e **3** no HEAD; `app/avaliacao/` não foi tocado; o teste do censo é idêntico. Logo **não há predição de saída a registrar**, e a verificação é contra a fonte.
+
+### 6. Medições por estado [medidas, com `build` em TODOS os estados]
+
+Cada estado num `git worktree` limpo do commit, com `tsc --noEmit`, `npm test` e `npm run build`, e o código de saída de cada comando gravado em arquivo pelo próprio comando. Todos os estados: **exatamente as 2 falhas de identidade esperadas** (conferidas pelo nome nos nove arquivos `__npm-test.txt`).
+
+| Estado | Commit | O que é | `tsc` | `npm test` | `build` | Suítes | Testes | Falhas = as 2 esperadas |
+|---|---|---|---|---|---|---|---|---|
+| D0 | `46ffd44` | base (medida nesta sessão; o pedido a trazia como recebida) | 0 | 1 | 0 | 2 failed, 47 passed, 49 total | 2 failed, 1809 passed, 1811 total | sim |
+| D1 | `ed43c62` | correção de V1 | 0 | 1 | 0 | 2 failed, 47 passed, 49 total | 2 failed, 1809 passed, 1811 total | sim |
+| D2 | `3f4e6db` | testes de V1 | 0 | 1 | 0 | 2 failed, 48 passed, 50 total | 2 failed, 1830 passed, 1832 total | sim |
+| D3 | `226fd05` | correção de V5 | 0 | 1 | 0 | 2 failed, 48 passed, 50 total | 2 failed, 1830 passed, 1832 total | sim |
+| D4 | `0b024a3` | testes de V5 | 0 | 1 | 0 | 2 failed, 49 passed, 51 total | 2 failed, 1855 passed, 1857 total | sim |
+
+O crescimento (1811 em `46ffd44`, 1857 em `0b024a3`) é todo de testes novos: 21 + 25 = 46. Nenhum teste foi removido. Dois testes anteriores foram **adaptados** (`f07-a1-execucoes`, `f07-a4-retomada-confirmada`), com o motivo no código: o corpo de `handleCalculate` mudou de arquivo, e a propriedade que verificavam foi mantida e passou a ser conferida onde o código está. Os testes do último clique de A5 **não foram alterados**.
+
+### 7. Erros meus, contagens e contradições (ambos os valores ficam, com a fonte)
+
+- **O relato de A5 errou sobre o seu próprio anexo.** A mensagem final de A5 disse que o `head-F07-A5.txt` registrava 20 commits à frente do remoto. Li o arquivo entregue: registra **21** (`commits à frente do remoto: 21`, linha 25), que é o valor correto. O artefato estava certo e o relato sobre ele, errado; a correção já foi feita no turno seguinte, e consta aqui.
+- **Defeito do instrumento de contagem de falhas** (seção 4): 3 linhas contra 2 testes em A6-M1h.
+- **Um teste meu falhou por erro do teste, e não do código:** o teste de ligação do critério «par capturado no clique» procurava `await` no trecho antes da linha do par, e o trecho incluía o comentário do bilhete («antes de qualquer `await`»). Corrigi o **teste** (a busca passou a ignorar comentários), e não o código; o motivo está no próprio teste.
+- A saída de `cat` do resumo do estado D2, lida cedo demais, saiu vazia porque o arquivo existia e ainda estava sendo escrito; esperei o fim da medição antes de usar o valor.
+
+### 8. Candidatos novos e o que fica para decisão do autor (nenhum corrigido)
+
+1. **Clique de «Exibir» descartado em silêncio quando um recálculo começa durante a leitura**, mesmo que o recálculo falhe e nada novo seja apresentado (seção 3). É o comportamento pedido, e é decisão de produto se a pessoa deve ser avisada.
+2. **O desfecho do cálculo descartado em V1 só vai ao log** (seção 2). Decisão de produto se deve aparecer em outra superfície.
+3. **Não avaliado:** a cauda de `escolher` (A5, ponto 1) quando o painel é desmontado durante o envio. Os setters da instância desmontada não fazem nada e a assinatura informa a instância nova da referência; não escrevi teste nem varredura para isso.
+4. **V3** continua parado pela decisão 5-B; **V6** (o remonte devolve `referenciaCarregada` ao valor inicial, erro na direção segura) continua registrado como observação de outra causa; **5-A** e **5-B** seguem sem decisão. V2 e V4 não foram reabertos.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
