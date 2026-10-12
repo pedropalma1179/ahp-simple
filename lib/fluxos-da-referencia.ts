@@ -103,3 +103,66 @@ export async function carregarReferenciaAtual(args: {
   acoes.avancarReferenciaCarregada(referencia);
   return 'carregada';
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F07 A5, ponto 5: "Exibir" na lista de execuções. A falha de leitura não escapa do manipulador.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface AcoesDaExibicao {
+  /** O documento da execução (o que a tela já tem, ou a leitura). `null` = não existe. PODE LANÇAR. */
+  lerExecucao(executionId: string): Promise<Record<string, any> | null>;
+  /** Entrega o documento à tela, que o apresenta (`onExibir`). Se lançar, a apresentação não aconteceu. */
+  apresentar(documento: Record<string, any>): void | Promise<unknown>;
+  /** Acrescenta uma linha à faixa de avisos do painel. */
+  acrescentarAviso(texto: string): void;
+}
+
+export type DesfechoDaExibicao =
+  /** O documento foi entregue à tela. */
+  | 'apresentada'
+  /** A leitura devolveu `null`: aviso «não foi encontrada», nada foi apresentado. */
+  | 'nao-encontrada'
+  /** A leitura ou a apresentação lançou: aviso distinto, nada mudou na tela, e a exceção NÃO escapa. */
+  | 'falhou';
+
+/** A linha de aviso do documento ausente. É o texto de antes de A5, sem alteração. */
+export const avisoDeExecucaoNaoEncontrada = (executionId: string): string => `A execução ${executionId} não foi encontrada.`;
+
+/** A linha de aviso quando a leitura LANÇOU. Distinta da de ausente: a execução pode existir. */
+export const avisoDeExecucaoNaoLida = (executionId: string, motivo: string): string =>
+  `A execução ${executionId} não pôde ser lida: ${motivo}. A tela continua exibindo o que exibia; tente exibir de novo.`;
+
+/** A linha de aviso quando a leitura deu certo e a apresentação lançou. */
+export const avisoDeExecucaoNaoApresentada = (executionId: string, motivo: string): string =>
+  `A execução ${executionId} foi lida, mas não pôde ser apresentada: ${motivo}. A tela continua exibindo o que exibia.`;
+
+/**
+ * O clique em "Exibir" de uma execução da lista. Antes de A5, `exibir` não tinha `try`: uma leitura que
+ * lançava (`lerExecucao` faz `getDoc` sem tratamento próprio) deixava a exceção escapar do manipulador, sem
+ * aviso algum. Agora a leitura e a apresentação que lançam viram aviso, e a tela não muda.
+ *
+ * ⚠ Este é o caminho de "Exibir". O de "Carregar a referência atual" é `carregarReferenciaAtual` (A4,
+ * item 3), que NÃO foi alterado por este ponto e não foi unificado com este: ele tem a regra própria de
+ * avançar a revisão carregada só depois de apresentar.
+ */
+export async function exibirExecucaoDaLista(args: { executionId: string; acoes: AcoesDaExibicao }): Promise<DesfechoDaExibicao> {
+  const { executionId, acoes } = args;
+  let documento: Record<string, any> | null;
+  try {
+    documento = await acoes.lerExecucao(executionId);
+  } catch (e) {
+    acoes.acrescentarAviso(avisoDeExecucaoNaoLida(executionId, textoDoErro(e)));
+    return 'falhou';
+  }
+  if (documento === null) {
+    acoes.acrescentarAviso(avisoDeExecucaoNaoEncontrada(executionId));
+    return 'nao-encontrada';
+  }
+  try {
+    acoes.apresentar(documento);
+  } catch (e) {
+    acoes.acrescentarAviso(avisoDeExecucaoNaoApresentada(executionId, textoDoErro(e)));
+    return 'falhou';
+  }
+  return 'apresentada';
+}

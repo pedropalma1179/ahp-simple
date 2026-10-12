@@ -37,7 +37,7 @@ import {
 } from '@/lib/referencia-do-projeto';
 import { type ApresentacaoInicial, lerExecucao, listarHistorico } from '@/lib/referencia-leitura';
 import { dependenciasDoNavegador, executarEscolha, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
-import { carregarReferenciaAtual } from '@/lib/fluxos-da-referencia';
+import { carregarReferenciaAtual, exibirExecucaoDaLista } from '@/lib/fluxos-da-referencia';
 
 interface Props {
   projectId: string;
@@ -137,13 +137,20 @@ export default function ReferenciaDoProjeto({
     return documento;
   };
 
+  /**
+   * F07 A5, ponto 5: o clique em "Exibir". A leitura que lança vira aviso (a exceção não escapa do
+   * manipulador) e a tela não muda; o caso `null` mantém o aviso de antes, e os dois são distinguíveis
+   * (ver `lib/fluxos-da-referencia.ts`). O caminho de "Carregar a referência atual" é `carregarReferencia`.
+   */
   const exibir = async (executionId: string) => {
-    const documento = await obterDocumento(executionId);
-    if (documento === null) {
-      setAvisos(a => [...a, `A execução ${executionId} não foi encontrada.`]);
-      return;
-    }
-    onExibir(documento);
+    await exibirExecucaoDaLista({
+      executionId,
+      acoes: {
+        lerExecucao: obterDocumento,
+        apresentar: documento => { onExibir(documento); },
+        acrescentarAviso: texto => setAvisos(a => [...a, texto]),
+      },
+    });
   };
 
   const escolher = async (executionId: string, justificativa: string) => {

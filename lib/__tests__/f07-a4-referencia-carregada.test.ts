@@ -172,12 +172,17 @@ describe('A4.3: a fiação do componente, por LEITURA (nenhuma tela é montada)'
     expect(ocorrencias(componente, 'expectedRevision: referenciaCarregada?.revision ?? 0,')).toBe(1);
   });
 
-  test('`exibir` (o botão Exibir) segue com o mesmo comportamento: o aviso de não encontrada, e `onExibir` direto', () => {
+  test('`exibir` (o botão Exibir) segue com o aviso de não encontrada e `onExibir` direto', () => {
+    // ⚠ F07 A5 (ponto 5) MOVEU o corpo de `exibir` para `exibirExecucaoDaLista` (lib/fluxos-da-referencia.ts), para
+    //   que a falha de leitura passe a ser tratada. O que este teste exigia (o aviso de não encontrada, com o texto
+    //   de antes, e a entrega direta do documento a `onExibir`) passa a ser conferido nas duas formas: o componente
+    //   chama o módulo com `onExibir`, e o módulo mantém o texto. O teste de comportamento está em f07-a5-exibir.
     const i = componente.indexOf('const exibir = async (executionId: string) => {');
     const corpo = componente.slice(i, componente.indexOf('\n  };', i));
-    expect(corpo).toContain('const documento = await obterDocumento(executionId);');
-    expect(corpo).toContain('`A execução ${executionId} não foi encontrada.`');
+    expect(corpo).toContain('await exibirExecucaoDaLista({');
     expect(corpo).toContain('onExibir(documento);');
+    const modulo = fs.readFileSync(path.join(RAIZ, 'lib/fluxos-da-referencia.ts'), 'utf8');
+    expect(modulo).toContain('`A execução ${executionId} não foi encontrada.`');
   });
 
   test('o módulo é puro: não importa Firestore, React, Next nem o componente', () => {
