@@ -19627,6 +19627,35 @@ O crescimento é por testes novos (1 + 9 + 13 + 9 + 18 + 17 = 67, mais 1 do comm
 
 ---
 
+## Registro de 12/10/2026 (UTC): F07, A5, adendo ao bloco anterior (localizadores exatos e totais do HEAD)
+
+⚠ **Este adendo corrige por ACRÉSCIMO duas passagens do bloco «F07, A5 (tarefa A.28)», que não é reescrito.** Procedência: **medida nesta execução**.
+
+### 1. Duas faixas de linhas do componente estavam curtas
+
+O bloco anterior cita `components/ReferenciaDoProjeto.tsx:187-199` para `escolher` e `:168-178` para `exibir`. As faixas **exatas**, lidas do arquivo em `deff9e0`, são:
+
+| Manipulador | Faixa exata | Onde o bloco anterior parava |
+|---|---|---|
+| `exibir` (`const exibir = async` até `};`) | `:168-179` | `:178` |
+| `escolher` | `:187-201` | `:199` |
+| `carregarReferencia` | `:208-221` | (não citada em faixa) |
+
+Os locais pontuais citados no bloco anterior (`:89-90`, `:78-80`, `:169`, `:176`, `:198`, `:209`, `:218`, `:235-237`) **conferem** com o arquivo. Nenhum argumento citado mudou.
+
+### 2. Os totais do HEAD, que o bloco anterior deixou para o relato
+
+Medidos num `git worktree` limpo do commit, com `tsc --noEmit`, `npm test` e `npm run build` (ambiente: Linux x86_64, Node v22.22.2, npm 10.9.7):
+
+| Estado | Commit | `tsc` | `npm test` | `npm run build` | Suítes | Testes |
+|---|---|---|---|---|---|---|
+| teste do «Carregar» superado | `f1c02cb` | 0 | 1 | 0 | 49 (47 passam, 2 falham) | 1811 (1809 passam, **2 falham**) |
+| registro do bloco anterior (HEAD antes deste adendo) | `deff9e0` | 0 | 1 | 0 | 49 (47 passam, 2 falham) | 1811 (1809 passam, **2 falham**) |
+
+As **2 falhas são as de identidade esperadas por desenho** (`a12-diagnostico` e `a12-rastreabilidade`), conferidas pelo nome nos nove estados medidos de `bbeae39` a `deff9e0`. O crescimento total é de 68 testes (1743 em `bbeae39`, 1811 aqui), todos por testes novos; nenhum foi removido.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
