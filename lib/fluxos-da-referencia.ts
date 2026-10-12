@@ -43,6 +43,14 @@ export interface AcoesDaCargaDaReferencia {
    * A4, que os testes de A4 continuam exercitando sem este membro).
    */
   vigente?(): boolean;
+  /**
+   * F07 A6, V5: `true` se, desde o clique, a instância do painel que o recebeu foi DESMONTADA ou a tela passou a
+   * apresentar OUTRA coisa por qualquer caminho (o recálculo inclusive). É uma segunda pergunta, independente de
+   * `vigente` (a ordem entre cliques): nenhuma das duas substitui a outra. Omitido = nunca interrompida (o
+   * comportamento de A4 e de A5, que os testes deles continuam exercitando sem este membro). Ver
+   * `acompanharLeitura`.
+   */
+  interrompida?(): boolean;
 }
 
 export type DesfechoDaCargaDaReferencia =
@@ -91,7 +99,8 @@ export async function carregarReferenciaAtual(args: {
 
   // F07 A5, ponto 4: a leitura é aguardada, e a tela pode ter apresentado OUTRA coisa por um clique mais novo
   // enquanto isso. Um clique superado não tem efeito algum: nem apresenta, nem avança a revisão, nem avisa.
-  const superada = () => acoes.vigente !== undefined && !acoes.vigente();
+  // F07 A6, V5: o mesmo vale para uma leitura interrompida (instância desmontada, ou outra apresentação).
+  const superada = () => leituraSuperada(acoes);
 
   let documento: Record<string, any> | null;
   try {
@@ -132,6 +141,8 @@ export interface AcoesDaExibicao {
   acrescentarAviso(texto: string): void;
   /** F07 A5, ponto 4: `false` se este clique já foi SUPERADO por um mais novo. Omitido = sempre vigente. */
   vigente?(): boolean;
+  /** F07 A6, V5: `true` se a instância foi desmontada ou a tela passou a apresentar outra coisa desde o clique. Omitido = nunca. */
+  interrompida?(): boolean;
 }
 
 export type DesfechoDaExibicao =
@@ -166,7 +177,7 @@ export const avisoDeExecucaoNaoApresentada = (executionId: string, motivo: strin
  */
 export async function exibirExecucaoDaLista(args: { executionId: string; acoes: AcoesDaExibicao }): Promise<DesfechoDaExibicao> {
   const { executionId, acoes } = args;
-  const superada = () => acoes.vigente !== undefined && !acoes.vigente();
+  const superada = () => leituraSuperada(acoes);
   let documento: Record<string, any> | null;
   try {
     documento = await acoes.lerExecucao(executionId);
@@ -219,6 +230,64 @@ export function criarOrdemDeCliques(): OrdemDeCliques {
     },
     vigente(bilhete) {
       return bilhete === ultimo;
+    },
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F07 A6, V5: a leitura em voo e a apresentação vinda de OUTRO caminho (o recálculo).
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Uma leitura está SUPERADA se um clique mais novo a superou (`vigente`, a ordem de A5) OU se foi interrompida
+ * (`interrompida`, A6). Os dois membros são opcionais e independentes; ausentes, a leitura não é superada.
+ * ⚠ Uma pergunta não substitui a outra: a ordem não sabe de apresentações vindas de fora dos botões, e a
+ * interrupção não ordena dois cliques que ainda não apresentaram nada.
+ */
+export function leituraSuperada(acoes: { vigente?(): boolean; interrompida?(): boolean }): boolean {
+  return (acoes.vigente !== undefined && !acoes.vigente()) || (acoes.interrompida !== undefined && acoes.interrompida());
+}
+
+/**
+ * O que o painel sabe da apresentação da tela: o par da apresentação CORRENTE e a conferência contra ele. É o
+ * `RegistroDaApresentacao` da PÁGINA (`lib/apresentacao-corrente.ts`), que sobrevive ao desmonte do painel; aqui
+ * só aparecem os dois métodos de consulta, e nunca `apresentar`. O tipo do par é genérico para este módulo não
+ * importar o de `apresentacao-corrente`.
+ */
+export interface ConsultaDaApresentacao<P = unknown> {
+  capturar(): P;
+  conferir(par: P): { aceita: boolean };
+}
+
+/**
+ * Chamada NO CLIQUE, antes de qualquer `await`: guarda o par da apresentação de AGORA e devolve a pergunta
+ * «esta leitura foi interrompida?», feita no retorno. Duas perguntas distintas, e as duas precisam de resposta:
+ *
+ *   1. **esta instância do painel ainda está montada?** (`montada`). O recálculo liga `loading`, a página troca o
+ *      painel pelo indicador de carga e o desmonta; a leitura iniciada antes volta com o fecho da instância
+ *      ANTIGA. Na janela entre o desmonte e a apresentação do resultado novo (a ida ao servidor) nada avançou
+ *      ainda, então a pergunta 2, sozinha, não a pega. O retorno de uma instância desmontada é inerte de todo
+ *      modo, mesmo que a apresentação não tenha mudado;
+ *   2. **a apresentação que esta leitura ia produzir ainda é a da tela?** (`apresentacao.conferir(par)`). Pega a
+ *      apresentação vinda de outro caminho com o painel ainda montado. O registro é o da página, e não o de uma
+ *      montagem: é o mesmo depois de um remonte, e por isso vale também para o fecho da instância antiga.
+ *
+ * ⚠ Nenhuma das duas substitui a ordem de cliques de A5: entre dois cliques ainda sem apresentação, quem ordena é
+ * `OrdemDeCliques`. Os três se somam em `leituraSuperada`.
+ *
+ * ⚠ LIMITE (declarado): `montada` é mantida pelo componente em um efeito (montagem e limpeza). Entre o pedido de
+ * desmonte e o commit do React a referência ainda diz «montada». E o par é o da apresentação do clique: qualquer
+ * `registro.apresentar` posterior interrompe a leitura, inclusive uma apresentação que o próprio usuário pediu por
+ * outro botão (o que é o comportamento pedido).
+ */
+export function acompanharLeitura<P>(args: {
+  montada(): boolean;
+  apresentacao: ConsultaDaApresentacao<P>;
+}): { interrompida(): boolean } {
+  const parDoClique = args.apresentacao.capturar();
+  return {
+    interrompida() {
+      return !args.montada() || !args.apresentacao.conferir(parDoClique).aceita;
     },
   };
 }

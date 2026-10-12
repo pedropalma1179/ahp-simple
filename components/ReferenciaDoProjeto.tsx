@@ -38,7 +38,9 @@ import {
 import { type ApresentacaoInicial, lerExecucao, listarHistorico } from '@/lib/referencia-leitura';
 import { dependenciasDoNavegador, executarEscolha, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
 import {
+  type ConsultaDaApresentacao,
   type OrdemDeCliques,
+  acompanharLeitura,
   carregarReferenciaAtual,
   criarOrdemDeCliques,
   enviarEscolhaDaReferencia,
@@ -57,10 +59,17 @@ interface Props {
   execucaoRecemCalculada?: Record<string, any> | null;
   /** Pedido de exibição de uma execução. A tela decide o que fazer com o documento. */
   onExibir: (documento: Record<string, any>) => void;
+  /**
+   * F07 A6, V5: a apresentação CORRENTE da tela, só para consulta (o par e a conferência). É o registro da
+   * PÁGINA, que sobrevive ao desmonte deste painel (o recálculo troca a página pelo indicador de carga). Uma leitura
+   * iniciada por «Exibir» ou «Carregar a referência atual» que volta depois de a tela apresentar outra coisa por
+   * qualquer caminho não apresenta, não avisa e não avança a revisão. Interface nova do componente.
+   */
+  registroDaApresentacao: ConsultaDaApresentacao;
 }
 
 export default function ReferenciaDoProjeto({
-  projectId, updatedAtDoProjeto, inicial, exibicao, calculation, execucaoRecemCalculada, onExibir,
+  projectId, updatedAtDoProjeto, inicial, exibicao, calculation, execucaoRecemCalculada, onExibir, registroDaApresentacao,
 }: Props) {
   const [referencia, setReferencia] = useState<ReferenciaDoProjeto | null>(inicial.referencia);
   const [referenciaCarregada, setReferenciaCarregada] = useState<ReferenciaDoProjeto | null>(inicial.referencia);
@@ -78,6 +87,17 @@ export default function ReferenciaDoProjeto({
   const ordemDeCliquesRef = useRef<OrdemDeCliques | null>(null);
   if (ordemDeCliquesRef.current === null) ordemDeCliquesRef.current = criarOrdemDeCliques();
   const ordemDeCliques = ordemDeCliquesRef.current;
+  // F07 A6, V5: esta INSTÂNCIA ainda está montada? A ordem de cliques acima vive neste painel e é recriada no
+  // remonte; o fecho de uma leitura iniciada antes do desmonte continua vendo a ordem ANTIGA, onde o seu bilhete
+  // segue sendo o mais novo. O desmonte acontece quando a página troca o painel pelo indicador de carga (o
+  // recálculo liga `loading`), e vem ANTES de a apresentação nova avançar; o retorno de uma instância desmontada
+  // é inerte de todo modo. ⚠ LIMITE: entre o pedido de desmonte e o commit do React a referência ainda diz
+  // «montada»; começa em `true` porque um clique não acontece antes de o painel existir.
+  const montadaRef = useRef(true);
+  useEffect(() => {
+    montadaRef.current = true;
+    return () => { montadaRef.current = false; };
+  }, []);
   // F07 A5, ponto 1: a escolha confirmada só avança a revisão carregada se a execução da referência devolvida é a
   // que a tela apresenta NO RETORNO do envio. A propriedade `exibicao` que o manipulador `escolher` capturou
   // quando o pedido começou é a do INÍCIO, e conferi-la reintroduz o defeito em miniatura. Esta referência é
@@ -167,6 +187,7 @@ export default function ReferenciaDoProjeto({
    */
   const exibir = async (executionId: string) => {
     const bilhete = ordemDeCliques.novo(); // NO CLIQUE, antes de qualquer `await`
+    const leitura = acompanharLeitura({ montada: () => montadaRef.current, apresentacao: registroDaApresentacao }); // F07 A6, V5: o par de AGORA
     await exibirExecucaoDaLista({
       executionId,
       acoes: {
@@ -174,6 +195,7 @@ export default function ReferenciaDoProjeto({
         apresentar: documento => { onExibir(documento); },
         acrescentarAviso: texto => setAvisos(a => [...a, texto]),
         vigente: () => ordemDeCliques.vigente(bilhete),
+        interrompida: leitura.interrompida,
       },
     });
   };
@@ -207,6 +229,7 @@ export default function ReferenciaDoProjeto({
    */
   const carregarReferencia = async () => {
     const bilhete = ordemDeCliques.novo(); // NO CLIQUE, antes de qualquer `await` (a mesma ordem de "Exibir")
+    const leitura = acompanharLeitura({ montada: () => montadaRef.current, apresentacao: registroDaApresentacao }); // F07 A6, V5
     await carregarReferenciaAtual({
       referencia,
       revisaoCarregada: referenciaCarregada?.revision ?? null,
@@ -216,6 +239,7 @@ export default function ReferenciaDoProjeto({
         avancarReferenciaCarregada: setReferenciaCarregada,
         acrescentarAviso: texto => setAvisos(a => (a.includes(texto) ? a : [...a, texto])),
         vigente: () => ordemDeCliques.vigente(bilhete),
+        interrompida: leitura.interrompida,
       },
     });
   };

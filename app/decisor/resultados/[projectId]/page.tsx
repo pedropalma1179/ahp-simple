@@ -2940,6 +2940,7 @@ BOCR (n=4) & ${(calculation.bocrConsistency.lambda || 0).toFixed(4)} & ${(calcCI
           calculation={calculation as any}
           execucaoRecemCalculada={execucaoRecemCalculada}
           onExibir={exibirExecucao}
+          registroDaApresentacao={registroDaApresentacao}
         />
       )}
 
