@@ -376,6 +376,21 @@ describe('A5.4: um clique superado não avisa; o clique vigente avisa como antes
     expect(tela.eventos).toEqual(['apresentar:exec-Y']);
   });
 
+  test('a leitura do "Carregar a referência atual" SUPERADO lança: sem aviso e sem avançar a revisão (o mesmo vale para "Carregar", e não só para "Exibir")', async () => {
+    const tela = criarTelaDeCliques();
+    const lCarregar = novaLeitura();
+    const lExibir = novaLeitura();
+    const carregar = clicarCarregar(tela, refDe('exec-X', 5), lCarregar);
+    const exibir = clicarExibir(tela, 'exec-Y', lExibir);
+    lExibir.resolver(docDe('exec-Y'));
+    await esvaziar();
+    lCarregar.rejeitar(new Error('rede caiu'));
+    expect(await carregar).toBe('superada');
+    expect(await exibir).toBe('apresentada');
+    expect(tela.avisos).toEqual([]);
+    expect(tela.eventos).toEqual(['apresentar:exec-Y']); // sem `avancar:`
+  });
+
   test('a leitura do clique SUPERADO devolve `null`: sem o aviso «não foi encontrada»', async () => {
     const tela = criarTelaDeCliques();
     const l1 = novaLeitura();
