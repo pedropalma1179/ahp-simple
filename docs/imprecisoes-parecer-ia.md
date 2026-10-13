@@ -19789,6 +19789,235 @@ O crescimento (1811 em `46ffd44`, 1857 em `0b024a3`) é todo de testes novos: 21
 
 ---
 
+## Registro de 13/10/2026 (UTC): F07, A7 (continuidade de A.28), as decisões 5-B e 5-A, com V3
+
+⚠ **Estado de partida [medido nesta execução]:** HEAD `c5050e607f76a09017ad310e584225572acfa452`, ramo `claude/loving-shannon-661fy9`, 0 commits sobre `c5050e6`, 5 sobre `46ffd44`, 14 sobre `bbeae39`, 378 desde a raiz, 26 à frente do remoto, árvore limpa (`head-inicial-F07-A7.txt`). **Procedência:** cada afirmação é **medida nesta execução** (comando e saída em arquivo da entrega), **lida** do fonte, **derivada** (de leitura do código ou de conta sobre medidas) ou **recebida** (do pedido), e o rótulo está na própria afirmação. **Ambiente:** Linux 6.18.44 x86_64, Node v22.22.2, npm 10.9.7. É ambiente observado, e não requisito do repositório.
+
+⚠ **As decisões 5-B e 5-A foram tomadas pelo autor [recebido, no pedido de A7]**, e este bloco registra o teor de cada uma:
+
+- **5-B:** a resposta **tardia** do Parecer IA (a de um pedido feito numa apresentação que a tela já deixou) é **DESCARTADA**. Nada é escrito em `aiReview`, não há quarentena e não há aviso novo na faixa da tela; o descarte fica só numa linha de `console.warn`. O custo da conduta (uma chamada paga ao modelo que se perde sem que a pessoa saiba que existiu) foi aceito pelo autor ao decidir.
+- **5-A:** a versão do motor tem **uma origem**, a tupla `(5, 0, 0)`, da qual se derivam, em código, `engineVersion` = `ahp-bocr-motor-5.0.0` e `metadata.version` = `5.0`, **byte a byte iguais** aos de antes. O nome ativo da constante deixa de colidir com a `ENGINE_VERSION` de `lib/ahp-engine.ts`, que não foi tocada.
+- **V3** (o indicador de «analisando» e a identificação do Parecer pertencem à apresentação que a tela deixou) foi pedido junto com 5-B, porque são três propriedades do mesmo caminho.
+
+⚠ **A etapa de atualização dos artefatos de medição segue PENDENTE.** Ela vem depois desta entrega auditada, e `docs/dados/` **não foi tocado** (seção 5, medido). Nenhum artefato de medição foi regravado por A7.
+
+⚠ **Nenhuma tela é montada por teste algum.** Todo teste de módulo vem com a conferência da sua **ligação à página**, que é **leitura de código**; em A7 há uma técnica a mais, que **executa** trechos do fonte da página (seção 2.5), e o seu limite está declarado.
+
+⚠ **As duas falhas de identidade (`a12-diagnostico`, `a12-rastreabilidade`) permanecem vermelhas e esperadas por desenho** em todos os estados medidos, com os mesmos dois nomes (seção 6). A etapa 2, que o registro de A6 declarou sem tomar, **não é tocada por A7**.
+
+### 1. Os commits
+
+| Commit | Natureza | Conteúdo |
+|---|---|---|
+| `45c487d` | correção, ponto 1 | `lib/fluxos-da-tela.ts` (conduta `'descartar'`, `concluirPedidoDoParecer`, dois membros novos em `AcoesDaTela`, limpeza nos três fluxos de apresentação) e a página de resultados; mais as adaptações de testes existentes que a mudança exige, com o motivo declarado (seção 2.4) |
+| `151e82c` | teste, ponto 1 | `f07-a7-parecer-tardio.test.ts` (33 testes) |
+| `7c043ff` | correção, ponto 2 | `lib/engine-version.ts` (tupla e duas derivações), `lib/execucoes.ts`, `app/api/calculate/route.ts`; mais as adaptações dos dois testes que importavam o nome antigo (seção 3.2) |
+| `d55d95c` | teste, ponto 2 | `f07-a7-versao-do-motor.test.ts` (13 testes) |
+| (este) | documentos | este bloco, por inserção pura |
+
+Arquivos de produção alterados [medido, `git diff --name-only c5050e6 HEAD`]: `app/api/calculate/route.ts` (**um import e uma linha**), `app/decisor/resultados/[projectId]/page.tsx`, `lib/engine-version.ts`, `lib/execucoes.ts` (**duas linhas**) e `lib/fluxos-da-tela.ts`. A página de resultados mudou **quatro hunks** [medido, `nao-altera-F07-A7.txt`]: o import, um comentário, o `finally` e duas linhas no objeto `acoesDaTela`.
+
+### 2. Ponto 1: a decisão 5-B e V3
+
+**Estado de antes [lido e medido em `c5050e6`]:** `condutaDoParecerForaDoPar` devolvia `'aplicar'` (a resposta tardia era escrita); o `finally` de `runAiReview` fazia `setAiReviewLoading(false)` incondicional; e `execucaoDoParecer` (a identificação, fora do objeto `aiReview`) e o indicador não eram tocados pela troca de apresentação. Todos os localizadores do pedido casaram com o fonte, **sem divergência** (`lib/fluxos-da-tela.ts:33-46`, `:128`, `:310`, `:359`, `:369-377`; página `:1009`, `:1431`, `:1447`, `:1455`, `:1462`, `:1545`; testes de A4 `:371-380` e `:390-396`).
+
+#### 2.1 As três propriedades, independentes
+
+1. **A resposta fora do par não escreve `aiReview`**, nos três ramos de `runAiReview` (sucesso, erro na resposta, exceção). `condutaDoParecerForaDoPar` devolve `'descartar'` (`lib/fluxos-da-tela.ts:384`); `decidirEscritaDoParecer` (`:394`) devolve `escreve: false` e escreve o aviso no log, que passa a dizer `DESCARTADA (decisão 5-B): nada foi escrito na tela` (o texto antigo, «decisão 5-B pendente», não existe mais). A página chama a decisão **nos mesmos três pontos de antes** (`page.tsx:1433`, `:1449`, `:1457`), sem alteração.
+2. **A conclusão de um pedido da apresentação que a tela deixou não desliga o indicador do pedido de agora.** Um `return` dentro do `try` **também executa o `finally`**; por isso descartar (propriedade 1) **não basta**: sem esta propriedade, a conclusão tardia de X desligaria o indicador do pedido que a pessoa fez depois, em Y. O `finally` da página chama agora `concluirPedidoDoParecer(registroDaApresentacao, parDoParecer, { setAiReviewLoading })` (`page.tsx:1466`), que lê a conferência **na conclusão** e só desliga o indicador se o par do pedido (capturado no clique, como antes) ainda é o corrente (`lib/fluxos-da-tela.ts:421`). É o precedente de `pedirValidacaoDaApresentacao`.
+3. **A troca de apresentação retira a identificação do Parecer e desliga o indicador do pedido antigo.** `AcoesDaTela` ganhou **dois membros obrigatórios**, `setExecucaoDoParecer` e `setAiReviewLoading` (`:44`, `:49`), passados pela página no objeto `acoesDaTela` (`page.tsx:1554-1555`). Sem o segundo, a propriedade 2 sozinha deixaria o indicador do pedido antigo ligado para sempre (a conclusão dele já não o desliga).
+
+#### 2.2 Onde cada fluxo limpa [lido, `lib/fluxos-da-tela.ts`]
+
+| Fluxo | `setAiReview(null)` | `setExecucaoDoParecer(null)` | `setAiReviewLoading(false)` |
+|---|---|---|---|
+| `exibirExecucaoEscolhida` (`:129`; é o caminho de «Exibir» **e** de «Carregar a referência atual») | sim (já era) | **sim (novo, `:144`)** | **sim (novo, `:145`)** |
+| `recalcularResultados` confirmado (`:265`) | sim (já era) | **sim (novo, `:334`)** | **sim (novo, `:335`)** |
+| `apresentarCargaInicial` (`:155`) | **não (já era assim)** | **não** | **sim (novo, `:170`)** |
+
+As limpezas novas ficam **depois de `setAudit(null)`** em `exibirExecucaoEscolhida` e em `recalcularResultados` (a sequência `setCalculation, setExibicao, setExcludedIds, setAiReview, setAudit` que um teste de A4 fixa não mudou). O recálculo que **não apresenta nada** (bloqueado, pendente, recusado, falhou) **não limpa** (testado).
+
+**Decisão declarada sobre `apresentarCargaInicial` (a página não limpava `aiReview` ali, e o pedido mandava decidir, declarar e testar):** a carga desliga **só o indicador**. Razões: (a) sem isso, o indicador de um pedido deixado para trás ficaria ligado para sempre, porque a conclusão dele já não o desliga; é o caso complementar da propriedade 2; (b) o par `aiReview` + identificação anda junto: retirar a identificação sem retirar o `aiReview` deixaria um Parecer na tela sem a execução que ele analisou, e retirar os dois mudaria o que a carga já fazia. **Não demonstrei que a carga rode duas vezes na mesma instância:** o efeito depende de `[projectId]`, e se a navegação entre dois projetos remonta a página é uma propriedade do roteador que não medi. Se rodar, o Parecer antigo permanece, **rotulado com a execução que ele analisou** (a identificação não foi retirada), que é o comportamento de antes. Testado: a carga desliga o indicador e **não** escreve `aiReview` nem a identificação.
+
+#### 2.3 Estrutura: nenhum código foi movido
+
+Ao contrário de V1 e V5 (A6), **não extraí o corpo de `runAiReview`**: o objeto de `setAiReview({` dos três ramos e a posição do `setExecucaoDoParecer(identificarExecucao(...))` são **lidos** por outros testes (`f07-a3-identificacao`, `vinculo-execucao-fiacao`) e, no caso do objeto, também **executados** (`a12-vinculo-rodada2`), e todos dependem da forma exata do texto da página. O que se acrescentou ao módulo foi só a regra do `finally` (`concluirPedidoDoParecer`), e a conduta passou a ser outra. Preservação [medida]: `trocarApresentacaoDaValidacao`, `pedirValidacaoDaApresentacao`, `escreverSeVigente`, `solicitarAuditoria` e `registrarFalhaDaAuditoria` têm o **corpo byte a byte igual** ao de `c5050e6` (hash do trecho, `nao-altera-F07-A7.txt`); `lib/apresentacao-corrente.ts` e `lib/fluxos-da-referencia.ts` estão **idênticos**; as três escritas `setAiReview({` e os três pontos `decidirEscritaDoParecer(...)` da página são **3 e 3** antes e depois.
+
+#### 2.4 Testes antigos contra o código novo [medido, `medicoes/ponto1-testes-antigos-contra-codigo-novo.txt`]
+
+Rodei a suíte **inteira** com o código novo e os testes **ainda sem adaptar**: **41 falhas** (`Tests: 41 failed, 1816 passed, 1857 total`), em 5 suítes. **2** são as de identidade esperadas. **39** são minhas, em dois grupos:
+
+- **2 autorizadas pelo pedido (item 2.4 dele):** o teste de A4 «numa apresentação que a tela já deixou…» (esperava `escreve: true`, `'aplicar'` e o texto «decisão 5-B pendente») e o de leitura «o ponto da decisão 5-B é UMA função…» (o marcador `PONTO DO CÓDIGO ONDE ENTRA A DECISÃO 5-B` deixou de ser verdadeiro, porque a decisão já entrou). Adaptados preservando a propriedade: a conduta é verificada como `escreve: false` / `'descartar'` / texto `DESCARTADA (decisão 5-B)`, e o marcador passou a `PONTO DO CÓDIGO DA DECISÃO 5-B`, ainda **uma vez**, e ainda **uma função** que as três escritas da página usam. **Os pares verificados (`aceita: false`, `vinculo: null`, `motivo: 'geracao-diferente'`) estão intactos.** Também troquei o **título do `describe`** («…a CONDUTA ainda é a de antes (decisão 5-B pendente)» para «…a CONDUTA é a decidida (decisão 5-B: descartar)»): é só rótulo, não falhava, e não está na lista de linhas do pedido; declaro a ampliação para o autor poder rejeitá-la.
+- **37 por consequência da interface nova**, e não por mudança de comportamento: os três bancos de teste que montam o objeto de `AcoesDaTela` (`f07-a4-fluxos-da-tela`, `f07-a5-auditoria-tardia`, `f07-a6-leitura-em-voo`) não tinham os dois membros novos, e os fluxos reais passaram a chamá-los (`TypeError: acoes.setExecucaoDoParecer is not a function`). Adaptei **só os bancos** (dois setters cada), **sem alterar nenhuma asserção**. Um quarto banco, o de `f07-a4-retomada-confirmada`, também não tem os membros e **não foi alterado**: o caminho que ele exercita (recálculo bloqueado) não os chama; fica anotado como limite (seção 8).
+
+Depois das adaptações: **1857 testes, 2 falhas (as de identidade)** [medido, `medicoes/ponto1-testes-adaptados.txt`].
+
+#### 2.5 Como os testes exercitam o código da página, e o limite [técnica nova de A7]
+
+`runAiReview` não pode ser montada. A bancada de `f07-a7-parecer-tardio.test.ts` **lê do fonte da página** dois trechos e os **executa** (transpilados por `typescript`, em contexto isolado, com os setters da bancada e as funções **reais** de `lib/fluxos-da-tela.ts` injetados): o **prólogo** (de `setAiReviewLoading(true);` à captura do par; `page.tsx:1019-1027`) e a **cauda** (de `fetch('/api/ai-reviewer')` ao fim do `finally`; `:1421-1467`), com um `try {` entre os dois. Assim os três `return` do `try`, o `catch` e o `finally` que se testam **são os da página**, e não uma cópia. Conferi **a olho** o código composto antes de aceitar o primeiro resultado (o instrumento é novo, e passou de primeira): prólogo, cauda e as pontas do JavaScript transpilado estão impressos em `medicoes/dump-splice-saida.txt` (o script é `medicoes/dump-splice.cjs`), e a campanha de mutação (seção 4) é a prova de que ele discrimina (os seis mutantes sobre o texto da página que ele executa foram mortos **por execução**).
+
+⚠ **Limites declarados:** (a) o trecho **entre** o prólogo e o `fetch` (análise de qualidade e montagem do payload, `page.tsx:1028-1420`) **não é executado**: uma promessa controlada o substitui, e ela **não é código da página**; (b) `fetch` e `response.json()` são duplos controlados; (c) o React não é executado, então que o `setAiReviewLoading` e o `setExecucaoDoParecer` **de `useState`** alcancem a tela é **leitura**; (d) a ligação (o objeto `acoesDaTela`, o `finally`, o import) é conferida por leitura, em testes próprios.
+
+#### 2.6 Critérios do ponto 1 [medidos, `lib/__tests__/f07-a7-parecer-tardio.test.ts`, 33 testes]
+
+| Critério | O que o teste exercita | Onde o código chama |
+|---|---|---|
+| 1 a 3 | pedido em X, a tela vai a Y (fluxo **real** `exibirExecucaoEscolhida`), a resposta chega: sucesso, erro na resposta, exceção de rede e corpo ilegível (4 ramos, **executando a cauda da página**): `aiReview` não é escrito, nenhum aviso, nenhum `setError`; mais o mesmo pedido **sem** troca, em que as respostas **são** escritas | `page.tsx:1433`, `:1449`, `:1457` |
+| 4 | o mesmo, mais um pedido em Y (prólogo **real**), e a conclusão de X chega: o indicador de Y **continua ligado**, a identificação continua a de Y, e a resposta de Y escreve e desliga; e a ordem inversa | `page.tsx:1466` → `lib/fluxos-da-tela.ts:421` |
+| 5 e 6 | caminho comum: o `aiReview` de sucesso com **os mesmos campos** de antes, a identificação do pedido, o indicador desliga; erro (mensagem do servidor, ou `Erro ao executar revisão`) e exceção (`Erro de conexão: …`) | `page.tsx:1433-1460` |
+| 7 | «Exibir» (`exibirExecucaoDaLista` **real**) e «Carregar a referência atual» (`carregarReferenciaAtual` **real**) com `apresentar` = `exibirExecucaoEscolhida`; o recálculo confirmado; e os quatro recálculos que não apresentam nada **não** limpam | `page.tsx:1570` (`exibirExecucao`), `:1574` (recálculo); `components/ReferenciaDoProjeto.tsx` (`onExibir(documento)`, 2 vezes) |
+| 8 | trocar sem pedido novo: «Exibir» (4 ramos), carga inicial, recálculo confirmado: o indicador não fica ligado, e a conclusão tardia não o religa | `lib/fluxos-da-tela.ts:145`, `:170`, `:335` |
+| 9 | a suíte inteira; os testes de A4 do par do Parecer passam, **salvo os dois autorizados** (seção 2.4) | n/a |
+
+**Parada por esse motivo: nenhuma.** Nenhum outro teste de A4 do par do Parecer precisou mudar.
+
+### 3. Ponto 2: a decisão 5-A
+
+**Estado de antes [lido, `c5050e6`]:** `lib/engine-version.ts:30` `export const ENGINE_VERSION = 'ahp-bocr-motor-5.0.0';`, `lib/execucoes.ts:37` (import) e `:99` (`engineVersion: ENGINE_VERSION,`), `app/api/calculate/route.ts:1249` (`version: '5.0',`), `lib/ahp-engine.ts:25` (`ENGINE_VERSION = 'engine-1.0.0'`, outra coisa, de nome igual). Todos os localizadores casaram, **sem divergência**. `metadata.version` do documento de cálculo **não tem leitor** no repositório [`git grep` de `metadata?.version`: só `app/api/backup/route.ts:75`, que valida o campo **homônimo do formato de backup** e **não foi tocado**].
+
+#### 3.1 A correção
+
+`lib/engine-version.ts` exporta agora **três** nomes, e **nenhum contém `ENGINE_VERSION`**: `VERSAO_DO_MOTOR = [5, 0, 0] as const` (a **única** origem, `:45`), `ROTULO_DO_MOTOR_DA_EXECUCAO` = ``ahp-bocr-motor-${VERSAO_DO_MOTOR.join('.')}`` (os **três** componentes, `:48`) e `VERSAO_CURTA_DO_CALCULO` = `VERSAO_DO_MOTOR.slice(0, 2).join('.')` (os **dois** primeiros, `:51`). `5.0.0` e `5.0` são textos **diferentes**: tomar os três na curta, ou dois no rótulo, ou concatenar sem o separador, erraria um dos dois (os mutantes M3b, M3c e M3d, seção 4, são exatamente esses três erros). O nome antigo foi **aposentado**, e não mantido: ficaria como segunda constante de nome igual ao de `lib/ahp-engine.ts`. O **arquivo** `lib/engine-version.ts` **não foi renomeado** (o caminho é a outra metade da guarda). `lib/execucoes.ts` e a rota importam as constantes novas.
+
+#### 3.2 Testes que importavam o nome antigo, e a guarda
+
+`f07-a1-execucoes.test.ts` (`:34`, `:495`, `:625-626`) e `f07-a3-identificacao.test.ts` (`:25`, `:64`, `:67`, `:77`) passaram a importar `ROTULO_DO_MOTOR_DA_EXECUCAO`, **com a mesma propriedade** (a execução grava o que o módulo exporta; a versão mostrada é a da execução, e não a constante do código). Medido contra o código novo antes de adaptar: **4 falhas** (duas em cada arquivo) além das 2 de identidade [`medicoes/ponto2-testes-antigos-contra-codigo-novo.txt`].
+
+**A guarda de `f07-a3-identificacao.test.ts:107`** («nenhum arquivo que apresenta a identificação lê a constante de versão do motor do código») tinha o padrão `/ENGINE_VERSION|engine-version/`, que **já pegava** qualquer `import` do módulo (o caminho `engine-version` está no `import`), mas **não pegava um nome usado sem o caminho**. O padrão agora também cobre `VERSAO_DO_MOTOR`, `ROTULO_DO_MOTOR_DA_EXECUCAO` e `VERSAO_CURTA_DO_CALCULO` (derivado, `guarda-padrao-antigo-x-novo-F07-A7.txt`: o padrão antigo dá `false` e o novo `true` para o nome sozinho; os dois dão `true` para o `import` e `false` para o texto sem nenhum dos nomes). **Provada por mutante** (seção 4, M6a a M6d).
+
+#### 3.3 A entrada do Parecer IA: o exame do item 3.3 [medido, `entrada-do-modelo/`]
+
+`metadata.version` fica no documento de cálculo que o Parecer IA pode receber, e preservar os dois textos não basta para concluir que o payload e o contexto não mudam. Sequência cumprida:
+
+1. **Antes do código [medido, 13/10/2026 11:34:17 UTC, `exame-3-3-antes-do-codigo-F07-A7.txt`]:** capturei a entrada de referência no HEAD `151e82c` (ponto 2 ainda sem uma linha de código), com o instrumento existente (`f07-entrada-do-modelo.test.ts`: rota **real** de cálculo + handler **real** de `/api/ai-reviewer`; a montagem do payload pela tela é **espelho**, ancorado por leitura), em **três casos**: C1 (o painel de 2026 completo, relógio e UUID fixos), C2 (o mesmo com um respondente excluído) e C3 (sonda de sensibilidade: o documento do C1 com `metadata.version` e `engineVersion` **trocados** por outros textos). Gravei os textos **integrais** (documento, payload, `system`, `messages`), e não só o SHA-256.
+2. **O exame indicou que a mudança NÃO altera a entrada**, por dois caminhos independentes: **[lido]** a tela monta o payload de `calculation.{bocrWeights, rescalingWeights, bocrConsistency, subWeights, subConsistency, sensitivityInflections, responseCount, finalScores}` e de `prepararVinculoDaTela`, que lê só `executionId`, `metadata.includedRespondents` e `metadata.judgmentsDigest`; **[medido]** no C3, trocar os dois textos muda o documento (SHA-256 diferente) e deixa `payload.json`, `system.txt` e `messages.json` **byte a byte iguais** aos do C1 (`cmp` 0). Nos casos C1 e C2, nem o payload nem o contexto contêm `engineVersion`, `ahp-bocr-motor` ou `5.0.0`. **Como o exame não indicou mudança, a predição de saída de `CLAUDE.md` seção 2 não se aplica** (só cabe onde a correção altera o que o modelo recebe). Registrei, com data e **antes do código**, a **expectativa** (as quatro saídas de C1 e C2, byte a byte iguais depois) e o **caso negativo** (qualquer diferença seria **achado não antecipado**, relatado como tal).
+3. **Depois [medido, `comparacao-3-3-F07-A7.txt`]:** capturei de novo no HEAD `d55d95c` e comparei com `cmp`: **15 arquivos comparados (3 casos × documento, payload, `system`, `messages`, metadados), 0 diferem**, inclusive o documento gravado pela rota (`engineVersion` `ahp-bocr-motor-5.0.0` e `version` `5.0` nos dois estados, na mesma ordem de chaves). A sensibilidade (C1 × C3) deu o mesmo nos **dois** estados: documento difere, payload, `system` e `messages` iguais. A expectativa se confirmou; **nenhum achado não antecipado**. Como o resultado é o esperado, recebeu a mesma conferência de um contrário: impressos o código que rodou em cada estado (`git show` do commit capturado) e os dois textos do documento de C1 nos dois estados.
+4. O instrumento **permanente** (`f07-entrada-do-modelo.test.ts`, que compara com a referência anterior a F07) segue passando nos estados medidos (seção 6), e **três mutantes que alteram `metadata.version`** (M3c, M3d, M5b) foram mortos também por ele.
+
+⚠ **Limites:** (a) a montagem do payload é espelho, e a página não foi executada; (b) dois casos de dados; (c) o cliente do modelo é simulado: isto verifica a **entrada**, e não o parecer que seria escrito; (d) o C3 mostra que os dois textos não chegam ao modelo **por este caminho**; `/api/audit-decision` e a validação externa recebem o documento inteiro, mas não são o Parecer IA e não foram medidos aqui.
+
+#### 3.4 Critérios do ponto 2 [medidos, `lib/__tests__/f07-a7-versao-do-motor.test.ts`, 13 testes]
+
+| Critério | O que o teste exercita |
+|---|---|
+| 1 | os dois textos contra **literais** (`ahp-bocr-motor-5.0.0`, `5.0`, e os bytes em hexadecimal), a rota **real** de cálculo gravando `engineVersion` e `metadata.version` na execução e na resposta, e `montarDocumentoDeExecucao` |
+| 2 | a tupla é `(5, 0, 0)`; o módulo **real**, transpilado e avaliado com **outra** tupla, troca **os dois** textos (`[7,3,9]`, `[10,2,11]`, `[5,0,1]`: dois algarismos, para a concatenação ingênua errar); o fonte tem **uma** tupla, **três** exports e nenhum literal de versão; em **toda a produção** o prefixo `ahp-bocr-motor-` aparece uma vez e nenhum `version: '5.0'` literal resta; a rota e o gravador importam e usam as constantes |
+| 3 | os exports são os três novos e nenhum contém `ENGINE_VERSION`; `lib/ahp-engine.ts` mantém a sua `ENGINE_VERSION = 'engine-1.0.0'`, uma vez; ninguém em produção importa o nome antigo |
+| 4 | a guarda de `f07-a3-identificacao.test.ts:107` cobre os nomes novos: provada por mutante (seção 4) |
+| 5 | os dois testes que importavam o nome antigo, adaptados (seção 3.2) |
+| 6 | o exame 3.3 (seção 3.3) |
+| 7 | as falhas de identidade seguem as mesmas duas, com os mesmos nomes, em todos os estados (seção 6) |
+
+### 4. Controles de mutação (só o que A7 altera)
+
+**Previsão datada antes de rodar: 13/10/2026 11:40:06 UTC** (`previsao-mutantes-F07-A7.txt`, na entrega), com o resultado previsto e o teste que deveria matar cada mutante, e **duas ressalvas conhecidas antes de rodar** (os mutantes de origem cortada preservam o valor, então os testes de valor sozinhos não os matam; os de guarda injetam o nome sem o caminho). **Universo:** 36 mutantes (5-B: 5; V3 indicador: 5; V3 troca: 7; ligação da página: 4; versão, valor: 6; versão, origem: 4; nome: 1; guarda: 4), dos quais **22 de comportamento** (11 em `lib/fluxos-da-tela.ts`, 7 em `lib/engine-version.ts`, 2 em `lib/execucoes.ts`, 2 na rota), **10 sobre a página** (6 executados pela técnica da seção 2.5, 4 de **ligação**, só por leitura) e **4 de guarda** (um em cada arquivo guardado). Cada mutante é **uma** substituição de texto exata, com uma ocorrência, sobre o **código real**; depois de cada um o arquivo é restaurado e conferido por `git diff --quiet` (**as 38 execuções voltaram ao commit**, saída 0). **Linha de base, antes de mutar [medida]:** `npx jest lib/__tests__/f07-`, **15 suítes e 389 testes, 389 passam, saída 0**.
+
+**Resultado [medido]: 34 mortos, 2 mortos por compilação, 0 sobreviventes.** As 36 previsões («MORTO») valem para os 34; para os outros 2 a previsão era **MORTO por uma guarda**, e eles morreram, **mas não por ela**:
+
+⚠ **A7-M6a e A7-M6c morreram por `ReferenceError`, e não pela guarda que queriam provar.** Injetei o **nome** sem declarar nem importar (`const x = ROTULO_DO_MOTOR_DA_EXECUCAO;`), para que só a metade «nome» do padrão pudesse pegá-lo; o componente passou a lançar `ReferenceError: … is not defined` ao ser importado, e a suíte `f07-a3-identificacao` **nem rodou** («Test suite failed to run», 358 passam, 0 falham). O mutante foi morto, **a guarda não foi demonstrada**. **Repeti os dois com outra definição** (`A7-M6a-r2`, `A7-M6c-r2`): a tela **declara localmente** um nome igual (`const ROTULO_DO_MOTOR_DA_EXECUCAO = 'copia-local-da-tela';`), que **executa sem erro**. Previsão datada antes de repetir: 13/10/2026 11:44:29 UTC (`previsao-repeticao-F07-A7.txt`): MORTO, com **exatamente um** teste falhando, o da guarda. **Resultado [medido]: os dois MORTOS, com 1 teste falhando (o da guarda de `:107`), 388 passando.** As entradas originais ficam no JSON e na tabela, com os arquivos `_antes`/`_depois` preservados; as repetições são entradas `-r2` com `definicao_nova: true`.
+
+**Conferência de quais testes mataram** [medida, `resultado-mutantes-F07-A7.json`], porque o resultado coincide com a previsão e merece a mesma conferência que um contrário:
+
+- **A conduta (5-B)**: A7-M1a (voltar a `'aplicar'`) e A7-M1c (a decisão ignora a conduta) são mortos por `f07-a7-parecer-tardio` **e** pelo teste de A4 adaptado; cada um dos **três ramos** (A7-M2c, M2d, M2e: a página escrevendo sem consultar a decisão) é morto **por execução da cauda da página** e também pela contagem de A4.
+- **O indicador (V3)**: A7-M1b (sem conferir o par), A7-M1k (o pedido corrente deixa de desligar), A7-M2a (o `finally` volta ao `setAiReviewLoading(false)` de antes), A7-M2b (o par lido na conclusão) e A7-M2i (setter que não faz nada) são mortos **só** por `f07-a7-parecer-tardio` (conferido: nenhum outro arquivo falha). M1b e M1k alteram o módulo; M2a, M2b e M2i alteram o `finally` da página, que os testes **executam** (os de critério 4, e os de 5 e 6 para M2i).
+- **A troca (V3)**: A7-M1d a A7-M1h (omitir cada uma das cinco limpezas) mortos pelos testes dos critérios 7 e 8; os dois de **excesso** (A7-M1i, a carga que também retira o `aiReview`; A7-M1j, o recálculo bloqueado que desliga o indicador) são mortos pelos testes de «o que não deve limpar»; **A7-M1j foi morto também por um banco que não é meu** (`f07-a4-retomada-confirmada`, que não tem o membro novo, então a chamada extra lança `TypeError`): é um kill por banco incompleto, e não por asserção; o teste de A7 o mata sozinho.
+- **Ligação da página (4)**: A7-M2f e A7-M2g (omitir um dos membros em `acoesDaTela`) só morrem pela **leitura** do fonte, e o **compilador também os pega** (`tsc` sai 2, membro obrigatório); A7-M2h (passar um setter que não faz nada) só pela leitura (`tsc` sai 0, o compilador **não** vê); A7-M2j («Exibir» e «Carregar» deixam de chamar o fluxo) pela leitura, em **quatro** testes de A3, A4, A5 e A7 (`tsc` sai 0).
+- **Versão, valor (A7-M3a a M3d, M4b, M5b):** mortos pelos literais; M3c, M3d e M5b também por `f07-entrada-do-modelo`, e M4b por `f07-a1-execucoes`.
+- **Versão, origem cortada (A7-M3e, M3f, M4a, M5a):** estes **preservam o valor** dos dois textos, e os testes de valor **não os matam** (conferido: os que falham são os de **origem** do critério 2: «trocar a tupla troca os DOIS textos», «o fonte declara UMA tupla…», «em TODA a produção o prefixo aparece uma vez», «um import cada»). É a razão de o critério 2 existir.
+- **O nome antigo de volta (A7-M3g):** morto pelo critério 3 e por dois do critério 2.
+- **Guarda (4):** A7-M6d (o `import` da página) só pela guarda de `:107`. A7-M6b (o nome em `lib/referencia-do-projeto.ts`) é morto pela guarda **e** por dois testes de A2 (`ReferenceError`), então a guarda falhou, mas não sozinha; M6a-r2 e M6c-r2 (acima) são os que a provam **sozinha**.
+
+**Repetições.** O modo `--repetir` do instrumento, que grava a entrada `-r2` no JSON e preserva o par `_antes`/`_depois`, foi exercitado desta vez (duas repetições, as de M6a e M6c). A contagem de referência de testes falhos é a da linha `Tests:` do jest; o modo `--reapurar` recalculou as 38 entradas e **não houve divergência** entre as linhas com `✕` e os testes falhos (o defeito do instrumento achado em A6-M1h não se repetiu).
+
+#### 4.1 Tabela dos 38 resultados
+
+| Mutante | Ponto | Arquivo | Mutação | Previsto | Resultado | Testes que falharam (linha `Tests:`) | `tsc` com o mutante |
+|---|---|---|---|---|---|---|---|
+| A7-M1a | P1-5B | `lib/fluxos-da-tela.ts` | reverte a conduta para APLICAR (a de antes de A7) | MORTO | **MORTO** | 19 | n/a |
+| A7-M1c | P1-5B | `lib/fluxos-da-tela.ts` | `decidirEscritaDoParecer` ignora a conduta e sempre escreve | MORTO | **MORTO** | 18 | n/a |
+| A7-M2c | P1-5B | `app/decisor/resultados/[projectId]/page.tsx` | a página escreve o SUCESSO sem consultar a decisão (ramo 1 de 3) | MORTO | **MORTO** | 8 | n/a |
+| A7-M2d | P1-5B | `app/decisor/resultados/[projectId]/page.tsx` | a página escreve o ERRO DA RESPOSTA sem consultar a decisão (ramo 2 de 3) | MORTO | **MORTO** | 6 | n/a |
+| A7-M2e | P1-5B | `app/decisor/resultados/[projectId]/page.tsx` | a página escreve a EXCEÇÃO sem consultar a decisão (ramo 3 de 3) | MORTO | **MORTO** | 8 | n/a |
+| A7-M1b | P1-V3-indicador | `lib/fluxos-da-tela.ts` | o indicador é desligado SEM conferir o par | MORTO | **MORTO** | 7 | n/a |
+| A7-M1k | P1-V3-indicador | `lib/fluxos-da-tela.ts` | o pedido da apresentação corrente deixa de desligar o indicador | MORTO | **MORTO** | 9 | n/a |
+| A7-M2a | P1-V3-indicador | `app/decisor/resultados/[projectId]/page.tsx` | o `finally` da página volta a desligar o indicador SEM conferir o par (o código de antes) | MORTO | **MORTO** | 6 | n/a |
+| A7-M2b | P1-V3-indicador | `app/decisor/resultados/[projectId]/page.tsx` | o par é lido na CONCLUSÃO (compara o presente com o presente), e não o capturado no clique | MORTO | **MORTO** | 6 | n/a |
+| A7-M2i | P1-V3-indicador | `app/decisor/resultados/[projectId]/page.tsx` | a página entrega um setter que não faz nada à conclusão | MORTO | **MORTO** | 9 | n/a |
+| A7-M1d | P1-V3-troca | `lib/fluxos-da-tela.ts` | `exibirExecucaoEscolhida` deixa de retirar a identificação do Parecer | MORTO | **MORTO** | 2 | n/a |
+| A7-M1e | P1-V3-troca | `lib/fluxos-da-tela.ts` | `exibirExecucaoEscolhida` deixa de desligar o indicador do pedido antigo | MORTO | **MORTO** | 5 | n/a |
+| A7-M1f | P1-V3-troca | `lib/fluxos-da-tela.ts` | `recalcularResultados` deixa de retirar a identificação do Parecer | MORTO | **MORTO** | 2 | n/a |
+| A7-M1g | P1-V3-troca | `lib/fluxos-da-tela.ts` | `recalcularResultados` deixa de desligar o indicador do pedido antigo | MORTO | **MORTO** | 3 | n/a |
+| A7-M1h | P1-V3-troca | `lib/fluxos-da-tela.ts` | `apresentarCargaInicial` deixa de desligar o indicador do pedido deixado para trás | MORTO | **MORTO** | 2 | n/a |
+| A7-M1i | P1-V3-troca | `lib/fluxos-da-tela.ts` | EXCESSO: a carga inicial passa a retirar também o `aiReview` (mudaria o que ela já fazia) | MORTO | **MORTO** | 2 | n/a |
+| A7-M1j | P1-V3-troca | `lib/fluxos-da-tela.ts` | EXCESSO: o recálculo bloqueado desliga o indicador, sem ter trocado a apresentação | MORTO | **MORTO** | 3 | n/a |
+| A7-M2f | P1-ligacao | `app/decisor/resultados/[projectId]/page.tsx` | LIGAÇÃO: a página deixa de passar `setExecucaoDoParecer` aos fluxos | MORTO | **MORTO** | 1 | 2 |
+| A7-M2g | P1-ligacao | `app/decisor/resultados/[projectId]/page.tsx` | LIGAÇÃO: a página deixa de passar `setAiReviewLoading` aos fluxos | MORTO | **MORTO** | 1 | 2 |
+| A7-M2h | P1-ligacao | `app/decisor/resultados/[projectId]/page.tsx` | LIGAÇÃO: a página passa aos fluxos um `setAiReviewLoading` que não faz nada | MORTO | **MORTO** | 1 | 0 |
+| A7-M2j | P1-ligacao | `app/decisor/resultados/[projectId]/page.tsx` | LIGAÇÃO: «Exibir» e «Carregar a referência atual» deixam de chamar o fluxo que retira o Parecer | MORTO | **MORTO** | 4 | 0 |
+| A7-M3a | P2-valor | `lib/engine-version.ts` | a tupla muda a correção: o rótulo vira ...5.0.1 | MORTO | **MORTO** | 8 | n/a |
+| A7-M3b | P2-valor | `lib/engine-version.ts` | o rótulo usa só dois componentes (ahp-bocr-motor-5.0) | MORTO | **MORTO** | 7 | n/a |
+| A7-M3c | P2-valor | `lib/engine-version.ts` | a versão curta usa os três componentes («5.0.0») | MORTO | **MORTO** | 7 | n/a |
+| A7-M3d | P2-valor | `lib/engine-version.ts` | concatenação ingênua, sem o separador («50») | MORTO | **MORTO** | 7 | n/a |
+| A7-M3e | P2-origem | `lib/engine-version.ts` | ORIGEM cortada: a versão curta vira literal (o VALOR continua «5.0») | MORTO | **MORTO** | 3 | n/a |
+| A7-M3f | P2-origem | `lib/engine-version.ts` | ORIGEM cortada: o rótulo vira literal (o VALOR continua o mesmo) | MORTO | **MORTO** | 4 | n/a |
+| A7-M3g | P2-nome | `lib/engine-version.ts` | o nome antigo ENGINE_VERSION volta a ser exportado (a colisão de nomes) | MORTO | **MORTO** | 3 | n/a |
+| A7-M4a | P2-origem | `lib/execucoes.ts` | ORIGEM cortada em execucoes.ts: literal no lugar da constante (mesmo VALOR) | MORTO | **MORTO** | 2 | n/a |
+| A7-M4b | P2-valor | `lib/execucoes.ts` | a execução grava o rótulo truncado (ahp-bocr-motor-5.0) | MORTO | **MORTO** | 4 | n/a |
+| A7-M5a | P2-origem | `app/api/calculate/route.ts` | ORIGEM cortada na rota: o literal «5.0» de antes de A7 volta | MORTO | **MORTO** | 2 | n/a |
+| A7-M5b | P2-valor | `app/api/calculate/route.ts` | a rota grava «5.0.0» em metadata.version | MORTO | **MORTO** | 3 | n/a |
+| A7-M6a | P2-guarda | `components/IdentificacaoDaExecucao.tsx` | uma tela do laço usa o NOME ROTULO_DO_MOTOR_DA_EXECUCAO (sem importar o caminho) | MORTO | **MORTO-POR-COMPILACAO** | 0 | n/a |
+| A7-M6b | P2-guarda | `lib/referencia-do-projeto.ts` | lib/referencia-do-projeto.ts preencheria um campo ausente com o NOME VERSAO_CURTA_DO_CALCULO | MORTO | **MORTO** | 3 | n/a |
+| A7-M6c | P2-guarda | `components/ParecerAISection.tsx` | a tela do Parecer usa o NOME VERSAO_DO_MOTOR (sem importar o caminho) | MORTO | **MORTO-POR-COMPILACAO** | 0 | n/a |
+| A7-M6d | P2-guarda | `app/decisor/resultados/[projectId]/page.tsx` | a página importa o módulo da versão do motor | MORTO | **MORTO** | 1 | n/a |
+| A7-M6a-r2 (repetição) | P2-guarda | `components/IdentificacaoDaExecucao.tsx` | REPETIÇÃO de M6a: a tela DECLARA localmente um nome igual a ROTULO_DO_MOTOR_DA_EXECUCAO (executa sem erro; sem o caminho do módulo) | MORTO | **MORTO** | 1 | n/a |
+| A7-M6c-r2 (repetição) | P2-guarda | `components/ParecerAISection.tsx` | REPETIÇÃO de M6c: a tela DECLARA localmente um nome igual a VERSAO_DO_MOTOR (executa sem erro; sem o caminho do módulo) | MORTO | **MORTO** | 1 | n/a |
+
+### 5. O que A7 não altera [medido, `nao-altera-F07-A7.txt`]
+
+Entre `c5050e6` e o HEAD, `git diff`:
+
+- **`lib/ai-reviewer`, `lib/rag`, `lib/validacao-externa` e `docs/dados` saem vazios**; em `app/api` só `calculate/route.ts` mudou (**um import e uma linha**, a de `metadata.version`, com o mesmo valor); `app/api/backup/route.ts` (que valida o campo homônimo do backup) está **idêntico**; `app/avaliacao/` não foi tocado.
+- **`lib/ahp-engine.ts` está idêntico** (a linha 25 segue `export const ENGINE_VERSION = 'engine-1.0.0';`); o **arquivo** `lib/engine-version.ts` mantém o caminho.
+- `lib/apresentacao-corrente.ts`, `lib/fluxos-da-referencia.ts`, `lib/retomada-com-confirmacao.ts`, `lib/intencoes.ts`, `lib/referencia-do-projeto.ts` e `components/ReferenciaDoProjeto.tsx` estão **idênticos**.
+- Em `lib/fluxos-da-tela.ts`, os corpos de `trocarApresentacaoDaValidacao`, `pedirValidacaoDaApresentacao`, `escreverSeVigente`, `solicitarAuditoria` e `registrarFalhaDaAuditoria` são **byte a byte iguais** (hash do trecho). Uma linha alterada **cita** `pedirValidacaoDaApresentacao`: é **comentário** que acrescentei em `concluirPedidoDoParecer` (a contagem do instrumento deu 1, e não 0; localizei a linha em vez de aceitar o número).
+- **O teste do censo é idêntico** (não ganhou regra para a constante), assim como os outros `f07-a5-*` e `f07-a6-*` que não são os adaptados.
+- **Os cinco testes anteriores alterados** são `f07-a1-execucoes`, `f07-a3-identificacao`, `f07-a4-fluxos-da-tela`, `f07-a5-auditoria-tardia` e `f07-a6-leitura-em-voo`, cada um com o motivo declarado (seções 2.4 e 3.2); **novos**: `f07-a7-parecer-tardio` e `f07-a7-versao-do-motor`.
+
+### 6. Medições por estado [medidas, com `build` em TODOS os estados]
+
+Cada estado num `git worktree` limpo do commit, com `tsc --noEmit`, `npm test` e `npm run build`, e o código de saída de cada comando gravado em arquivo pelo próprio comando. Todos os estados: **exatamente as 2 falhas de identidade esperadas**, conferidas **pelo nome** nos 5 arquivos `__npm-test.txt` (as suítes que falham são `a12-diagnostico` e `a12-rastreabilidade`, e o teste que falha em cada uma é «o artefato gravado coincide com a medicao atual»). Em nenhum estado `tsc` ou `build` falhou.
+
+| Estado | Commit | O que é | `tsc` | `npm test` | `build` | Suítes | Testes | Falhas = as 2 esperadas |
+|---|---|---|---|---|---|---|---|---|
+| D0 | `c5050e6` | base (medida nesta sessão; o pedido a trazia como recebida) | 0 | 1 | 0 | 2 failed, 49 passed, 51 total | 2 failed, 1855 passed, 1857 total | sim |
+| D1 | `45c487d` | correção do ponto 1 (5-B e V3) | 0 | 1 | 0 | 2 failed, 49 passed, 51 total | 2 failed, 1855 passed, 1857 total | sim |
+| D2 | `151e82c` | testes do ponto 1 | 0 | 1 | 0 | 2 failed, 50 passed, 52 total | 2 failed, 1888 passed, 1890 total | sim |
+| D3 | `7c043ff` | correção do ponto 2 (5-A) | 0 | 1 | 0 | 2 failed, 50 passed, 52 total | 2 failed, 1888 passed, 1890 total | sim |
+| D4 | `d55d95c` | testes do ponto 2 | 0 | 1 | 0 | 2 failed, 51 passed, 53 total | 2 failed, 1901 passed, 1903 total | sim |
+
+O crescimento (1857 testes em `c5050e6`, 1903 em `d55d95c`; 51 suítes e 53) é **todo de testes novos**: 33 + 13 = 46, e a diferença medida é **46** (coincide). Nenhum teste foi removido. Cinco testes anteriores foram **adaptados**, com o motivo no commit e neste registro (seções 2.4 e 3.2); os bancos de `f07-a4-retomada-confirmada` e de `engine-census` **não foram alterados**.
+
+### 7. Erros meus, contagens e contradições (ambos os valores ficam, com a fonte)
+
+- **Dois mutantes de guarda morreram pelo motivo errado** (seção 4): A7-M6a e A7-M6c por `ReferenceError`, e não pela guarda. Repetidos com outra definição, com previsão datada antes.
+- **Eu escrevi à mão um literal hexadecimal errado** no teste de valor (`…70 20 62…` em vez de `…70 2d 62…`, um espaço no lugar do hífen). Recalculei os bytes por programa antes da primeira execução e corrigi; **o teste nunca rodou com o literal errado**, mas o erro era meu e existiu no arquivo por alguns minutos.
+- **O instrumento de comparação da seção 3.3 perdeu uma linha na primeira geração** (o delimitador do `sed` colidiu com a `/` de `calculate/route.ts`): a linha da rota não saiu no relatório. Corrigi o delimitador, regenerei, e o relatório entregue é o regenerado.
+- **A contagem «nenhuma linha alterada cita as funções protegidas» saiu 1, e não 0** (seção 5): era um comentário meu. Localizei a linha antes de afirmar.
+- **O primeiro lote de bancos de teste falhou 37 testes por uma consequência da interface** (seção 2.4); medi antes de adaptar, e declaro a conta: 41 = 2 (identidade) + 2 (autorizadas) + 37 (bancos).
+- **O pedido citava `lib/identificacao-da-execucao.ts`, a página e `ExportReports` como as fontes da guarda (como o li); o teste real varre nove arquivos** (`lib/identificacao-da-execucao.ts`, quatro componentes, `lib/referencia-do-projeto.ts`, `lib/referencia-leitura.ts`, a página e `ExportReports`). Mantive o conjunto de arquivos como está e estendi só o padrão; registro a diferença entre o pedido e o arquivo.
+
+### 8. Candidatos novos e o que fica para decisão do autor (nenhum corrigido)
+
+1. **A carga inicial rodar duas vezes na mesma instância** (seção 2.2): se acontecer, o Parecer antigo permanece, rotulado com a execução que ele analisou, e o indicador é desligado. **Não medido** se a navegação entre projetos remonta a página.
+2. **A chamada paga que se perde** na conduta 5-B não aparece em superfície alguma; o descarte vai só ao log do navegador. Decisão de produto, aceita pelo autor ao decidir; fica o registro de que a pessoa não é avisada.
+3. **O banco de `f07-a4-retomada-confirmada` não tem os dois membros novos** (seção 2.4). Passa porque o recálculo bloqueado não os chama; um teste futuro que exercite outro caminho nesse banco falharia por `TypeError`.
+4. **O comentário de `lib/identificacao-da-execucao.ts` (`:11`)** diz que um teste reprova se `ENGINE_VERSION` aparecer; a guarda agora cobre também os três nomes novos. O comentário não é falso, mas ficou incompleto. Não corrigi de passagem.
+5. **`metadata.version` não tem leitor** no repositório fora de `app/api/backup/route.ts:75`, que lê **outro** campo de mesmo nome (formato do backup). Continua sendo um texto gravado que ninguém consome; a derivação da tupla não muda isso.
+6. **Não avaliado:** a cauda de `escolher` (A5, ponto 1) com o painel desmontado durante o envio; **V6** (o remonte devolve `referenciaCarregada` ao valor inicial) segue como observação de outra causa; as duas escolhas de produto de A6 (o clique de «Exibir» descartado em silêncio quando um recálculo começa durante a leitura, e o desfecho do cálculo descartado em V1 que só vai ao log) seguem sem decisão.
+7. **A etapa de atualização dos artefatos de medição** segue pendente (acima). Em particular, `docs/dados/` guarda estado anterior a 5-B e 5-A e não foi regravado.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
