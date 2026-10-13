@@ -295,6 +295,27 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 15,
+    motivo: 'F07 A8: os resumos de codigo de page.tsx e de ParecerAISection.tsx estavam DEFASADOS, e a defasagem NAO vem so de A7. O resumo de page.tsx ainda era o do conteudo de 40de635 e mudou por SETE commits posteriores (be213d1 A1, 0e45b9f A2, fd4b201 A3, da094cc e 60fdf96 A4, 226fd05 A6 e 45c487d A7 ponto 1); o de ParecerAISection.tsx ainda era o de 40de635 e mudou por UM (fd4b201 A3). Os resumos de app/api/ai-reviewer/route.ts e de avaliacao-qualidade.ts NAO mudaram, e nenhum bytesDoContexto nem blocoDeQualidadeNoContexto se moveu (a guarda mediu 2 campos mudados, 0 novos e 0 perdidos contra a versao de 35f8535). O artefato nao foi regravado em nenhum desses commits, e por isso nenhum deles e atribuido sozinho a mudanca de cada resumo.',
+    commitDaBase: '13729a9abc5e22ba889134cb63751ae49b3b703b',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.2' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    camposRegravados: [
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]',
+      'identificacao.codigo[components/ParecerAISection.tsx]',
+    ],
+    valorAnterior: {
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]': '478c288323a812c6c5dda2cf440e9af3ff4e2c312d893ffbd0d5d155f2eaed9d',
+      'identificacao.codigo[components/ParecerAISection.tsx]': '204beee5f55cd204badeb6317810899743ba4a9404e5644d51dd60aabb3c053d',
+    },
+    valorNovo: {
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]': '260efc71958aad89d62d7dfa45e0ba94b3ca59ac4f2ea1de91b430648fdba7d8',
+      'identificacao.codigo[components/ParecerAISection.tsx]': 'f91c0f5e5aca7b5e8b44de2c2b1101dfa53fabd9a926f9c5bb81d9d7a5ef4104',
+    },
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';

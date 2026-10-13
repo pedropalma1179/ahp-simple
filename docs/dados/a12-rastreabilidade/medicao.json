@@ -18,7 +18,7 @@
   },
   "identificacao": {
     "codigo": {
-      "app/api/calculate/route.ts": "0ff4238fa9bc9418f3bb6375091a1f1993091736de0be1963917398553a3eae2",
+      "app/api/calculate/route.ts": "9a2ae0d8acbb4c8abed7422916c8209554e3a768c3e067ddbf656a80a773d444",
       "lib/julgamentos-resumo.ts": "f0800a4ed74e9928598c879fa193d624494ab90c5b28894913873454f06a5deb",
       "lib/identificador-respondente.ts": "e42396dc6fa0d12f46db2df8cc3a857ebe43008f52b5bb51556600c50c4f129a"
     },
@@ -76,7 +76,7 @@
   ],
   "falhaDeResumoNaoInterrompe": "⚠ DISTINTA das duas acima: a falha de serializacao NAO interrompe, o respondente CONTINUA entrando no calculo, e o registro fica em judgmentsSha256 nulo com judgmentsUnavailableReason nomeando o motivo e o caminho.",
   "oQueIstoNaoResolve": [
-    "NAO preserva execucoes anteriores: o documento e unico por projeto e e sobrescrito",
+    "ANTES de F07 A1 (commit be213d1, 11/10/2026) NAO preservava execucoes anteriores: a rota gravava com setDoc um documento unico por projeto, calculations/{projectId}, e o sobrescrevia. DESDE F07 A1 a rota nao escreve mais em calculations: cada execucao e gravada em um documento proprio, executions/{executionId}, junto com o pedido em executionRequests/{requestId}",
     "NAO preserva o conteudo julgado: o resumo IDENTIFICA e nao guarda",
     "NAO vincula a avaliacao de qualidade aos incluidos, que e a etapa 3",
     "NAO alcanca o arquivo historico de 13/07/2026"
@@ -137,6 +137,31 @@
       },
       "valorNovo": {
         "identificacao.codigo[app/api/calculate/route.ts]": "0ff4238fa9bc9418f3bb6375091a1f1993091736de0be1963917398553a3eae2"
+      },
+      "camposPerdidos": 0
+    },
+    {
+      "ordem": 4,
+      "motivo": "F07 A8: (1) o resumo de app/api/calculate/route.ts estava DEFASADO e a defasagem NAO vem so de A7: ainda era o do conteudo de 104a44a e mudou por DOIS commits posteriores (be213d1 A1, a rota deixa de gravar calculations e passa a gravar a execucao e o pedido; 7c043ff A7 ponto 2, a versao do motor sai de uma origem unica); (2) oQueIstoNaoResolve[0], que dizia sem data que a rota NAO preserva execucoes anteriores, foi SITUADO antes de F07 A1 (be213d1) com o comportamento atual registrado, e nao apagado (o texto foi alterado em 13729a9, antes desta regravacao, por ser campo do artefato). Os resumos de julgamentos-resumo.ts e de identificador-respondente.ts NAO mudaram, e a guarda mediu 2 campos mudados, 0 novos e 0 perdidos contra a versao de 35f8535. O artefato nao foi regravado em A1 nem em A7, e por isso nenhum dos dois commits e atribuido sozinho a mudanca do resumo.",
+      "commitDaBase": "13729a9abc5e22ba889134cb63751ae49b3b703b",
+      "comando": "A12R_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-rastreabilidade.test.ts",
+      "ambiente": {
+        "plataforma": "linux",
+        "arch": "x64",
+        "node": "v22.22.2"
+      },
+      "artefato": "docs/dados/a12-rastreabilidade/medicao.json",
+      "camposRegravados": [
+        "identificacao.codigo[app/api/calculate/route.ts]",
+        "oQueIstoNaoResolve[0]"
+      ],
+      "valorAnterior": {
+        "identificacao.codigo[app/api/calculate/route.ts]": "0ff4238fa9bc9418f3bb6375091a1f1993091736de0be1963917398553a3eae2",
+        "oQueIstoNaoResolve[0]": "NAO preserva execucoes anteriores: o documento e unico por projeto e e sobrescrito"
+      },
+      "valorNovo": {
+        "identificacao.codigo[app/api/calculate/route.ts]": "9a2ae0d8acbb4c8abed7422916c8209554e3a768c3e067ddbf656a80a773d444",
+        "oQueIstoNaoResolve[0]": "ANTES de F07 A1 (commit be213d1, 11/10/2026) NAO preservava execucoes anteriores: a rota gravava com setDoc um documento unico por projeto, calculations/{projectId}, e o sobrescrevia. DESDE F07 A1 a rota nao escreve mais em calculations: cada execucao e gravada em um documento proprio, executions/{executionId}, junto com o pedido em executionRequests/{requestId}"
       },
       "camposPerdidos": 0
     }
