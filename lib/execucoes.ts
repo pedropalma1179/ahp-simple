@@ -34,7 +34,7 @@
 
 import crypto from 'node:crypto';
 import { doc, getDoc, runTransaction } from 'firebase/firestore';
-import { ENGINE_VERSION } from '@/lib/engine-version';
+import { ROTULO_DO_MOTOR_DA_EXECUCAO } from '@/lib/engine-version';
 
 export const COLECAO_EXECUCOES = 'executions';
 export const COLECAO_PEDIDOS = 'executionRequests';
@@ -96,7 +96,7 @@ export function montarDocumentoDeExecucao(
   return {
     ...calculationResult,
     requestId: extras.requestId,
-    engineVersion: ENGINE_VERSION,
+    engineVersion: ROTULO_DO_MOTOR_DA_EXECUCAO,
     codeRevision: textoOuNull(extras.codeRevision),
     projectUpdatedAt: textoOuNull(extras.projectUpdatedAt),
     includedRespondents: meta.includedRespondents,

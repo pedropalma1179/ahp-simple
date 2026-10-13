@@ -58,6 +58,7 @@ import {
   type FonteDoIdentificador,
 } from '@/lib/identificador-respondente';
 import { MERITS, SUBCRITERIA_PER_MERIT } from '@/lib/validacao-externa/conjunto-esperado';
+import { VERSAO_CURTA_DO_CALCULO } from '@/lib/engine-version';
 import crypto from 'node:crypto';
 import {
   calcularParamsDigest,
@@ -1246,7 +1247,7 @@ export async function POST(request: NextRequest) {
         alternativesCount: alternatives.length,
         methodsCount: 5,
         primaryMethod: 'Subtractive',
-        version: '5.0',
+        version: VERSAO_CURTA_DO_CALCULO, // F07 A7, 5-A: derivada da tupla de lib/engine-version.ts (valor '5.0', como antes)
         q1Features: [
           'BOCR Priorities Table (Lee 2009)',
           'Reciprocal Normalized Values (Lee 2009a)',

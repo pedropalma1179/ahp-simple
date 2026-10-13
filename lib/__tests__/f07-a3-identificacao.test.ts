@@ -22,7 +22,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 const fs = require('node:fs');
 const path = require('node:path');
 const id = require('@/lib/identificacao-da-execucao');
-const { ENGINE_VERSION } = require('@/lib/engine-version');
+const { ROTULO_DO_MOTOR_DA_EXECUCAO } = require('@/lib/engine-version'); // F07 A7, 5-A: o nome antigo da constante foi aposentado
 const FaixaDeIdentificacao = require('@/components/IdentificacaoDaExecucao').default;
 const ParecerAISection = require('@/components/ParecerAISection').default;
 /* eslint-enable @typescript-eslint/no-var-requires */
@@ -61,10 +61,10 @@ describe('A3.1: os valores vêm da execução LIDA', () => {
   });
 
   test('a versão do motor mostrada é a da EXECUÇÃO, e não a constante do código: valores diferentes ficam diferentes', () => {
-    expect(COMPLETO.engineVersion).not.toBe(ENGINE_VERSION); // as duas existem e DIFEREM
+    expect(COMPLETO.engineVersion).not.toBe(ROTULO_DO_MOTOR_DA_EXECUCAO); // as duas existem e DIFEREM
     const texto = [id.legendaDeImagem(id.identificarExecucao(COMPLETO)), id.rodapeDeCopia(id.identificarExecucao(COMPLETO)), id.comentarioLatex(id.identificarExecucao(COMPLETO)), id.linhasCsv(id.identificarExecucao(COMPLETO))].join('\n');
     expect(texto).toContain('motor-de-teste-9.9');
-    expect(texto).not.toContain(ENGINE_VERSION);
+    expect(texto).not.toContain(ROTULO_DO_MOTOR_DA_EXECUCAO);
   });
 
   test('execução SEM engineVersion: sai "ausente", mesmo existindo a constante no código (nunca preenchido)', () => {
@@ -74,7 +74,7 @@ describe('A3.1: os valores vêm da execução LIDA', () => {
     expect(i.engineVersion).toBeNull();
     const texto = id.rodapeDeCopia(i) + id.legendaDeImagem(i) + id.comentarioLatex(i) + id.linhasCsv(i);
     expect(texto).toContain('ausente');
-    expect(texto).not.toContain(ENGINE_VERSION);
+    expect(texto).not.toContain(ROTULO_DO_MOTOR_DA_EXECUCAO);
   });
 
   test.each([
@@ -104,7 +104,8 @@ describe('A3.1: os valores vêm da execução LIDA', () => {
       EXPORT_REPORTS,
     ]) {
       const codigo = semComentarios(ler(arquivo));
-      expect([arquivo, /ENGINE_VERSION|engine-version/.test(codigo)]).toEqual([arquivo, false]);
+      // F07 A7, 5-A: o padrão cobre também os NOMES NOVOS da versão do motor (a constante antiga foi aposentada); nenhum deles contém `ENGINE_VERSION`
+      expect([arquivo, /ENGINE_VERSION|engine-version|VERSAO_DO_MOTOR|ROTULO_DO_MOTOR_DA_EXECUCAO|VERSAO_CURTA_DO_CALCULO/.test(codigo)]).toEqual([arquivo, false]);
     }
   });
 });

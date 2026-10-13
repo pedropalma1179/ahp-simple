@@ -31,7 +31,7 @@ const { duplo } = require('./helpers/firestore-duplo');
 const { POST } = require('@/app/api/calculate/route');
 const execucoes = require('@/lib/execucoes');
 const intencoes = require('@/lib/intencoes');
-const { ENGINE_VERSION } = require('@/lib/engine-version');
+const { ROTULO_DO_MOTOR_DA_EXECUCAO } = require('@/lib/engine-version'); // F07 A7, 5-A: o nome antigo da constante foi aposentado
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 const RAIZ = path.resolve(__dirname, '..', '..');
@@ -492,7 +492,7 @@ describe('o documento de execução e o pedido', () => {
     expect(gravada).toEqual(r.corpo.calculation);
 
     expect(gravada.requestId).toBe(REQ_A);
-    expect(gravada.engineVersion).toBe(ENGINE_VERSION);
+    expect(gravada.engineVersion).toBe(ROTULO_DO_MOTOR_DA_EXECUCAO);
     expect(gravada.codeRevision).toBe('f07a1c0de000000000000000000000000000abcd');
     expect(gravada.projectUpdatedAt).toBe('2026-06-01T10:00:00.000Z');
     // `includedRespondents` e `judgmentsDigest` no topo são o MESMO valor que `metadata` traz
@@ -622,8 +622,8 @@ describe('o documento de execução e o pedido', () => {
   });
 
   test('a constante da versão do motor é texto não vazio e a regra de atualização está no cabeçalho do módulo', () => {
-    expect(typeof ENGINE_VERSION).toBe('string');
-    expect(ENGINE_VERSION.length).toBeGreaterThan(0);
+    expect(typeof ROTULO_DO_MOTOR_DA_EXECUCAO).toBe('string');
+    expect(ROTULO_DO_MOTOR_DA_EXECUCAO.length).toBeGreaterThan(0);
     const fonte = fs.readFileSync(path.join(RAIZ, 'lib', 'engine-version.ts'), 'utf8');
     expect(fonte).toMatch(/REGRA DE ATUALIZAÇÃO/);
     expect(fonte).toMatch(/CONVENÇÃO/);
