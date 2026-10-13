@@ -21,6 +21,9 @@ export {};
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+// F07 A8: a PROCEDÊNCIA da regravação é conferida contra o git e contra a medição (ver o helper). O escritor RECUSA.
+const P = require('./helpers/procedencia-da-regravacao');
+const { exigirProcedenciaCorrespondente } = P;
 
 const RAIZ = path.resolve(__dirname, '..', '..');
 const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a12-diagnostico', 'medicao.json');
@@ -297,6 +300,28 @@ const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
 const O_QUE_A_PROCEDENCIA_NAO_E =
   'NAO substitui commitDaBase, que identifica a base da PRIMEIRA medicao';
+
+/**
+ * ⚠ **F07 A8: A ÂNCORA DA VERSÃO ANTERIOR do artefato**, fixada aqui para que os testes que a usam NÃO dependam do git
+ * em tempo de execução. O CI faz `actions/checkout@v4` sem `fetch-depth` (clone raso), e um teste que lesse o estado
+ * anterior por `git show` reprovaria lá (é o que o precedente de `a33-identidade-aplicada.test.ts` registra). Os dois
+ * resumos vêm do git, UMA vez, e foram conferidos por uma segunda implementação, independente do helper:
+ *
+ *   - `sha256DoHistorico`: as primeiras `entradas` da lista, em serialização canônica (chaves ordenadas);
+ *   - `sha256DosCaminhos`: o conjunto de CAMINHOS de folha do artefato, SEM as folhas das entradas de procedência de
+ *     índice >= `entradas`. Se nada se perdeu, e nada entrou fora das entradas novas, é igual ao da versão anterior.
+ *
+ * ⚠ **Quem regravar de novo troca esta âncora** (`entradas` passa a contar a entrada acrescentada, e os dois resumos
+ * são recalculados sobre a versão que então estiver no HEAD). O escritor, que lê o git, confere o resto na hora.
+ */
+const ANCORA_DA_VERSAO_ANTERIOR = {
+  obtidaDe: 'git show 35f8535:docs/dados/a12-diagnostico/medicao.json',
+  entradas: 14,
+  sha256DoHistorico: 'b65d2a73984eafad3a7ad50486683f12e3771aa97841e9dbcab5fcfa219fbb21',
+  sha256DosCaminhos: '75726a16e29884f061e269d2ccc9ca74c2f260ba4eaddc923bda8c1d6afa7d7b',
+};
+const COMANDO_DE_REGRAVACAO = 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts';
+const CAMINHO_DA_LISTA = ['identificacao', 'procedenciaDasRegravacoes'];
 
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
@@ -895,6 +920,17 @@ beforeAll(async () => {
   };
 
   if (GRAVAR) {
+    // ⚠ F07 A8: o escritor RECUSA regravar sem procedência correspondente a ESTA regravação. A guarda lê o git
+    //   (HEAD e a versão anterior do artefato) e lança com TODAS as violações; nada é escrito. Ver o helper.
+    exigirProcedenciaCorrespondente({
+      raiz: RAIZ,
+      artefato: 'docs/dados/a12-diagnostico/medicao.json',
+      novo: M,
+      caminhoDaLista: ['identificacao', 'procedenciaDasRegravacoes'],
+      comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+      commitDaBaseOriginal: M.identificacao.commitDaBase,
+      caminhoDoCodigo: ['identificacao', 'codigo'],
+    });
     fs.mkdirSync(path.dirname(ARTEFATO), { recursive: true });
     fs.writeFileSync(ARTEFATO, JSON.stringify(M, null, 2) + '\n');
   }
@@ -1175,4 +1211,65 @@ test('o artefato gravado coincide com a medicao atual', () => {
   }
   expect(gravado.identificacao.artefatos).toEqual(M.identificacao.artefatos);
   expect(gravado.identificacao.codigo).toEqual(M.identificacao.codigo);
+});
+
+// ============================================================ F07 A8: a procedência, conferida contra a medição
+/**
+ * ⚠ **Os testes abaixo NÃO comparam a lista com a constante que a gerou** (isso o teste de cima já faz, e as duas
+ * saem da mesma mão). Cada um examina um FATO: a estrutura da lista, o histórico contra a âncora tirada do git, o
+ * conjunto de caminhos contra a âncora, e a existência de cada caminho citado no artefato.
+ *
+ * ⚠ **Vacuidade, declarada:** com a lista no tamanho da âncora (nenhuma entrada nova), os testes sobre as entradas
+ * NOVAS não têm o que examinar. Que a conferência não é vazia como CÓDIGO está provado em `f07-a8-procedencia.test.ts`
+ * (entradas sintéticas que reprovam por cada motivo); que ela examina entradas REAIS vale a partir da entrada 15.
+ */
+describe('A8: a procedencia das regravacoes, conferida contra a medicao e contra a ancora', () => {
+  const gravado = () => JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  const listaGravada = () => gravado().identificacao.procedenciaDasRegravacoes;
+  const COMMIT_HISTORICO = 'f964049b3f6639b874111356d8f84b5463793a34';
+
+  test.each([
+    ['a constante do teste (o que a PROXIMA regravacao escreveria)', () => PROCEDENCIA_DAS_REGRAVACOES],
+    ['o artefato gravado', listaGravada],
+  ])('a lista acumula, tem ordem sequencial, bases distintas e nenhuma igual ao commitDaBase historico: %s', (_n, lista: any) => {
+    expect(P.violacoesDaLista(lista(), { commitDaBaseOriginal: COMMIT_HISTORICO })).toEqual([]);
+    expect(lista().length).toBeGreaterThanOrEqual(ANCORA_DA_VERSAO_ANTERIOR.entradas);
+  });
+
+  test.each([
+    ['a constante do teste', () => PROCEDENCIA_DAS_REGRAVACOES],
+    ['o artefato gravado', listaGravada],
+  ])('o HISTORICO anterior esta INTACTO: as %s primeiras entradas tem o resumo da ancora: %s', (_n, lista: any) => {
+    expect(P.resumoDoHistorico(lista(), ANCORA_DA_VERSAO_ANTERIOR.entradas)).toBe(ANCORA_DA_VERSAO_ANTERIOR.sha256DoHistorico);
+  });
+
+  test('o commitDaBase historico do artefato e o de sempre, e nenhuma base de regravacao o repete', () => {
+    expect(M.identificacao.commitDaBase).toBe(COMMIT_HISTORICO);
+    expect(gravado().identificacao.commitDaBase).toBe(COMMIT_HISTORICO);
+    for (const e of PROCEDENCIA_DAS_REGRAVACOES) expect(e.commitDaBase).not.toBe(COMMIT_HISTORICO);
+  });
+
+  test('toda entrada ANTIGA cita caminhos que EXISTEM no artefato (as abreviacoes e os containers antigos continuam valendo)', () => {
+    const g = gravado();
+    PROCEDENCIA_DAS_REGRAVACOES.slice(0, ANCORA_DA_VERSAO_ANTERIOR.entradas).forEach((e: any) => {
+      expect([e.ordem, P.violacoesDaEntrada(e, g, { comando: COMANDO_DE_REGRAVACAO, estrita: false })]).toEqual([e.ordem, []]);
+    });
+  });
+
+  test.each([
+    ['contra a MEDICAO desta execucao', () => M],
+    ['contra o artefato gravado', gravado],
+  ])('cada entrada NOVA e bem formada e ESTRITA (folha exata, nao vazia, nao generica, valores anterior e novo): %s', (_n, alvo: any) => {
+    const novas = PROCEDENCIA_DAS_REGRAVACOES.slice(ANCORA_DA_VERSAO_ANTERIOR.entradas);
+    for (const e of novas) {
+      expect([e.ordem, P.violacoesDaEntrada(e, alvo(), { comando: COMANDO_DE_REGRAVACAO, estrita: true })]).toEqual([e.ordem, []]);
+    }
+  });
+
+  test.each([
+    ['contra a MEDICAO desta execucao', () => M],
+    ['contra o artefato gravado', gravado],
+  ])('camposPerdidos e ZERO medido: o conjunto de caminhos, tirado o das entradas novas, e o da versao anterior: %s', (_n, alvo: any) => {
+    expect(P.resumoDosCaminhos(alvo(), CAMINHO_DA_LISTA.join('.'), ANCORA_DA_VERSAO_ANTERIOR.entradas)).toBe(ANCORA_DA_VERSAO_ANTERIOR.sha256DosCaminhos);
+  });
 });

@@ -21,10 +21,35 @@ export {};
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+// F07 A8: a PROCEDÊNCIA da regravação é conferida contra o git e contra a medição (ver o helper). O escritor RECUSA.
+const P = require('./helpers/procedencia-da-regravacao');
+const { exigirProcedenciaCorrespondente } = P;
 
 const RAIZ = path.resolve(__dirname, '..', '..');
 const ARTEFATO = path.join(RAIZ, 'docs', 'dados', 'a12-rastreabilidade', 'medicao.json');
 const GRAVAR = process.env.A12R_GRAVAR === '1';
+
+/**
+ * ⚠ **F07 A8: A ÂNCORA DA VERSÃO ANTERIOR do artefato**, fixada aqui para que os testes que a usam NÃO dependam do git
+ * em tempo de execução (o CI faz `actions/checkout@v4` sem `fetch-depth`: clone raso, e `git show` de um commit antigo
+ * reprova lá; é o precedente de `a33-identidade-aplicada.test.ts`). Os dois resumos vêm do git, UMA vez, e foram
+ * conferidos por uma segunda implementação, independente do helper:
+ *
+ *   - `sha256DoHistorico`: as primeiras `entradas` da lista, em serialização canônica (chaves ordenadas);
+ *   - `sha256DosCaminhos`: o conjunto de CAMINHOS de folha do artefato, SEM as folhas das entradas de procedência de
+ *     índice >= `entradas`. Se nada se perdeu, e nada entrou fora das entradas novas, é igual ao da versão anterior.
+ *
+ * ⚠ **Quem regravar de novo troca esta âncora** (`entradas` passa a contar a entrada acrescentada, e os dois resumos
+ * são recalculados sobre a versão que então estiver no HEAD). O escritor, que lê o git, confere o resto na hora.
+ */
+const ANCORA_DA_VERSAO_ANTERIOR = {
+  obtidaDe: 'git show 35f8535:docs/dados/a12-rastreabilidade/medicao.json',
+  entradas: 3,
+  sha256DoHistorico: 'fe3b1440dd4cbe3144ba38a9d7d2f288f44243a65f0e9a2d3771291c58ece5ca',
+  sha256DosCaminhos: '58c78dba191e4266977bb061bc93cc271f025fe5ac66b53b47c37d951fd23115',
+};
+const COMANDO_DE_REGRAVACAO = 'A12R_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-rastreabilidade.test.ts';
+const CAMINHO_DA_LISTA = ['procedenciaDasRegravacoes'];
 
 const sha256 = (b: Buffer | string) =>
   crypto.createHash('sha256').update(typeof b === 'string' ? Buffer.from(b, 'utf8') : b).digest('hex');
@@ -581,7 +606,12 @@ test('MIGRADO: um julgamento pulado muda a celula, e a matriz continua completa'
  * apenas contagens, rótulos, códigos de estado HTTP e resumos de **fixtures fixas** —
  * conferido que os julgamentos do fixture só têm inteiros e textos.
  */
-test('o artefato gravado coincide com a medicao atual', () => {
+/**
+ * ⚠ F07 A8: a medição, como FUNÇÃO. O texto do objeto é o de sempre, na mesma ordem de chaves e com a mesma indentação;
+ * só deixou de estar dentro do corpo de um único teste, para que os testes da procedência (mais abaixo) a examinem
+ * sem repeti-la. O artefato gravado não muda por causa disto.
+ */
+function medirAgora() {
   const medicao = {
     rodada: 'A.12 etapa 2, rastreabilidade da execucao atual',
     natureza:
@@ -682,8 +712,23 @@ test('o artefato gravado coincide com a medicao atual', () => {
     // ⚠ OBSERVADO, e derivado das execucoes desta suite. Sem ponto flutuante.
     observacoesDasExecucoes: OBSERVADO,
   };
+  return medicao;
+}
+
+test('o artefato gravado coincide com a medicao atual', () => {
+  const medicao = medirAgora();
 
   if (GRAVAR) {
+    // ⚠ F07 A8: o escritor RECUSA regravar sem procedência correspondente a ESTA regravação. A guarda lê o git
+    //   (HEAD e a versão anterior do artefato) e lança com TODAS as violações; nada é escrito. Ver o helper.
+    exigirProcedenciaCorrespondente({
+      raiz: RAIZ,
+      artefato: 'docs/dados/a12-rastreabilidade/medicao.json',
+      novo: medicao,
+      caminhoDaLista: ['procedenciaDasRegravacoes'],
+      comando: 'A12R_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-rastreabilidade.test.ts',
+      caminhoDoCodigo: ['identificacao', 'codigo'],
+    });
     fs.mkdirSync(path.dirname(ARTEFATO), { recursive: true });
     fs.writeFileSync(ARTEFATO, JSON.stringify(medicao, null, 2) + '\n', 'utf8');
   }
@@ -704,4 +749,63 @@ test('o artefato gravado coincide com a medicao atual', () => {
   };
   andar(OBSERVADO, 'observacoesDasExecucoes');
   expect(naoInteiros).toEqual([]);
+});
+
+// ============================================================ F07 A8: a procedência, conferida contra a medição
+/**
+ * ⚠ **Este artefato NÃO tinha teste de invariantes da lista de procedência.** O único exame era a comparação do objeto
+ * de medição com o que ele mesmo escreveu (`o artefato gravado coincide com a medicao atual`), e a lista de procedência
+ * dele sai da mesma mão do que a compara. Aqui entra o equivalente do que `a12-diagnostico.test.ts` tem, mais o que
+ * faltava lá: o histórico contra a âncora tirada do git, o conjunto de caminhos contra a âncora, e a existência de cada
+ * caminho citado.
+ *
+ * ⚠ **Vacuidade, declarada:** com a lista no tamanho da âncora (nenhuma entrada nova), os testes sobre as entradas NOVAS
+ * não têm o que examinar. Que a conferência não é vazia como CÓDIGO está provado em `f07-a8-procedencia.test.ts`; que
+ * examina entradas REAIS vale a partir da entrada 4.
+ */
+describe('A8: a procedencia das regravacoes, conferida contra a medicao e contra a ancora', () => {
+  const gravado = () => JSON.parse(fs.readFileSync(ARTEFATO, 'utf8'));
+  const listaGravada = () => gravado().procedenciaDasRegravacoes;
+  const listaDaMedicao = () => medirAgora().procedenciaDasRegravacoes;
+  const BASE_DA_PRIMEIRA = '6aea77127b8e4ee6072c0677d011848b9d2911c4';
+
+  test.each([
+    ['a lista da medicao (o que a PROXIMA regravacao escreveria)', listaDaMedicao],
+    ['o artefato gravado', listaGravada],
+  ])('a lista acumula, tem ordem sequencial e bases distintas: %s', (_n, lista: any) => {
+    expect(P.violacoesDaLista(lista())).toEqual([]);
+    expect(lista().length).toBeGreaterThanOrEqual(ANCORA_DA_VERSAO_ANTERIOR.entradas);
+  });
+
+  test.each([
+    ['a lista da medicao', listaDaMedicao],
+    ['o artefato gravado', listaGravada],
+  ])('o HISTORICO anterior esta INTACTO: as primeiras entradas tem o resumo da ancora: %s', (_n, lista: any) => {
+    expect(P.resumoDoHistorico(lista(), ANCORA_DA_VERSAO_ANTERIOR.entradas)).toBe(ANCORA_DA_VERSAO_ANTERIOR.sha256DoHistorico);
+    expect(lista()[0].commitDaBase).toBe(BASE_DA_PRIMEIRA); // a base da PRIMEIRA regravacao fica
+  });
+
+  test('toda entrada ANTIGA cita caminhos que EXISTEM no artefato (os containers antigos continuam valendo)', () => {
+    const g = gravado();
+    listaDaMedicao().slice(0, ANCORA_DA_VERSAO_ANTERIOR.entradas).forEach((e: any) => {
+      expect([e.ordem, P.violacoesDaEntrada(e, g, { comando: COMANDO_DE_REGRAVACAO, estrita: false })]).toEqual([e.ordem, []]);
+    });
+  });
+
+  test.each([
+    ['contra a MEDICAO desta execucao', () => medirAgora()],
+    ['contra o artefato gravado', gravado],
+  ])('cada entrada NOVA e bem formada e ESTRITA (folha exata, nao vazia, nao generica, valores anterior e novo): %s', (_n, alvo: any) => {
+    const novas = listaDaMedicao().slice(ANCORA_DA_VERSAO_ANTERIOR.entradas);
+    for (const e of novas) {
+      expect([e.ordem, P.violacoesDaEntrada(e, alvo(), { comando: COMANDO_DE_REGRAVACAO, estrita: true })]).toEqual([e.ordem, []]);
+    }
+  });
+
+  test.each([
+    ['contra a MEDICAO desta execucao', () => medirAgora()],
+    ['contra o artefato gravado', gravado],
+  ])('camposPerdidos e ZERO medido: o conjunto de caminhos, tirado o das entradas novas, e o da versao anterior: %s', (_n, alvo: any) => {
+    expect(P.resumoDosCaminhos(alvo(), CAMINHO_DA_LISTA.join('.'), ANCORA_DA_VERSAO_ANTERIOR.entradas)).toBe(ANCORA_DA_VERSAO_ANTERIOR.sha256DosCaminhos);
+  });
 });
