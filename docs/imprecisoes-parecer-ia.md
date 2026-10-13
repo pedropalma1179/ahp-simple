@@ -20016,6 +20016,185 @@ O crescimento (1857 testes em `c5050e6`, 1903 em `d55d95c`; 51 suítes e 53) é 
 6. **Não avaliado:** a cauda de `escolher` (A5, ponto 1) com o painel desmontado durante o envio; **V6** (o remonte devolve `referenciaCarregada` ao valor inicial) segue como observação de outra causa; as duas escolhas de produto de A6 (o clique de «Exibir» descartado em silêncio quando um recálculo começa durante a leitura, e o desfecho do cálculo descartado em V1 que só vai ao log) seguem sem decisão.
 7. **A etapa de atualização dos artefatos de medição** segue pendente (acima). Em particular, `docs/dados/` guarda estado anterior a 5-B e 5-A e não foi regravado.
 
+## Registro de 13/10/2026 (UTC): F07, A8 (continuidade de A.28), a atualização dos artefatos de medição, com procedência preservada
+
+⚠ **Estado de partida [medido nesta execução]:** HEAD `35f8535c36295d28c4d0192985e725c4955c0af0`, ramo `claude/loving-shannon-661fy9`, 0 commits sobre `35f8535`, 5 sobre `c5050e6`, 383 desde a raiz, 31 à frente do remoto (`origin/claude/loving-shannon-661fy9` = `317767a33dd9a90c5dd79a79d40c4ac73973d1d3`), árvore limpa (`head-inicial-F07-A8.txt`). **Procedência:** cada afirmação é **medida nesta execução** (comando e saída em arquivo da entrega), **lida** do fonte, **derivada** (de leitura ou de conta sobre medidas) ou **recebida** (do pedido), e o rótulo está na própria afirmação. **Ambiente:** Linux 6.18.44-fc-v114 x86_64, Node v22.22.2, npm 10.9.7. É ambiente observado, e não requisito do repositório.
+
+⚠ **Escopo [recebido]:** atualizar `docs/dados/a12-diagnostico/medicao.json` e `docs/dados/a12-rastreabilidade/medicao.json` **acrescentando procedência e preservando integralmente o histórico**; situar no tempo a afirmação «não preserva execuções anteriores»; fazer o **escritor** de cada artefato **recusar** regravação sem procedência correspondente. **Fora do escopo e não tocado:** código funcional, dados científicos, as outras 14 pastas de `docs/dados/` (idênticas por hash de árvore), `docs/contratos-de-dados.md`, qualquer `push`, publicação de regras e implantação. Nenhum `medicao.json` foi editado à mão: os dois foram regravados **pelo escritor, pelo comando próprio**, e o diff é a evidência.
+
+### 1. Resultado
+
+1. **As duas falhas de identidade fecharam** (`a12-diagnostico` e `a12-rastreabilidade`, «o artefato gravado coincide com a medicao atual»), **sem dispensar a verificação**: o teste de identidade continua comparando o artefato com a medição, e o que mudou foi o artefato. **Medido:** `npm test` sai **0** em `1fd3bce` (54 suítes, 2018 testes, 0 falhas). Em todos os estados medidos em A7, e nos estados D0 a D2 desta rodada, as duas falhas existiam e `npm test` saía 1.
+2. **Cada artefato ganhou uma entrada de procedência** (diagnóstico: ordem 15; rastreabilidade: ordem 4), com a **mesma base** (`13729a9`, o HEAD sobre o qual se regravou), distinta das bases das 14 e das 3 entradas anteriores. **Nenhuma entrada anterior foi alterada** [medido].
+3. **O escritor passou a recusar** regravar sem procedência correspondente, medindo contra o git, e não comparando duas listas declaradas pelo próprio teste (seção 3).
+4. **A afirmação «não preserva execuções anteriores» foi situada**, e não apagada (seção 4).
+
+### 2. Os commits
+
+| Commit | Natureza | Conteúdo |
+|---|---|---|
+| `935bae9` | teste (guarda) | `lib/__tests__/helpers/procedencia-da-regravacao.ts` (a guarda e os utilitários), `f07-a8-procedencia.test.ts` (93 testes), as asserções novas nos dois testes dos artefatos (10 em `a12-diagnostico`, 9 em `a12-rastreabilidade`) e a chamada da guarda no bloco `if (GRAVAR)` de cada escritor |
+| `13729a9` | texto do artefato | `a12-rastreabilidade.test.ts`: o texto situado de `oQueIstoNaoResolve[0]`, a remoção do comentário que apontava a dívida e 3 testes novos. Vem **antes** de qualquer regravação porque o texto é campo do artefato |
+| `1fd3bce` | dados | os dois `medicao.json` regravados pelo escritor, e as duas entradas de procedência nas constantes dos dois testes |
+| (este) | documentos | este bloco, por inserção pura |
+
+Ordem e razão [recebido, 2.5.1 do pedido]: o texto antes das regravações evita uma segunda regravação e uma quinta entrada; a guarda antes de qualquer regravação evita regravar sem ela. **Uma entrada não pode citar o commit que a contém** (seria circular): por isso `commitDaBase` é o **HEAD sobre o qual se regravou** (`13729a9`), e o commit dos dados é o seguinte.
+
+Os escritores rodaram com **o delta de metadados (as duas entradas, com o texto do `motivo`) ainda NÃO commitado na árvore** [medido: `git status --short` antes das regravações listava os dois testes modificados, e depois, os dois testes e os dois artefatos]. O commit `1fd3bce` entrou depois, com os quatro arquivos.
+
+Arquivos de produção alterados [medido, `git diff --name-only 35f8535 HEAD`, `nao-altera-F07-A8.txt`]: **nenhum**.
+
+### 3. O escritor que recusa
+
+#### 3.1 O defeito de antes [medido]
+
+Os escritores de `35f8535`, executados num `git worktree` descartável com a variável de ambiente (`gravar-diag-no-worktree.txt`, `gravar-rastr-no-worktree.txt`), **saíram 0**, sem exigir nenhuma entrada. Os 93 testes novos, contra o bloco antigo dos escritores (sem a chamada da guarda), **reprovam 8** (`guarda-contra-escritor-antigo.txt`; 85 passam), entre eles «SEM entrada correspondente o bloco LANÇA e NÃO escreve nada» nos dois escritores, com `Received function did not throw`: o escritor antigo **não recusava**. A comparação que existia (a lista de procedência contra a constante do próprio teste) comparava a constante com o que ela mesma escreveu.
+
+#### 3.2 O que a guarda confere
+
+`exigirProcedenciaCorrespondente` é chamada pelos escritores **só sob a variável de ambiente** (`A12_GRAVAR=1`, `A12R_GRAVAR=1`) e **antes de qualquer escrita**. Falha fechada: lança `Error` iniciado por `REGRAVACAO RECUSADA para <artefato>`, lista **todas** as violações e termina em `Nada foi escrito.` Lê quatro fatos que não saem do próprio teste: (a) o HEAD do repositório; (b) a versão anterior do artefato, `git show HEAD:<artefato>`; (c) a diferença **por folha** entre ela e a medição que o escritor vai gravar (mudadas, novas, perdidas, fora da lista de procedência); (d) o conteúdo, no HEAD, dos arquivos de código cujos resumos o artefato grava. E exige: a lista tem **exatamente uma entrada a mais**, com as anteriores canonicamente idênticas; a nova tem a `ordem` seguinte, `commitDaBase` **igual ao HEAD** e distinto das anteriores, `comando` exato, ambiente completo e `camposPerdidos` 0; `camposRegravados` **exatamente igual ao medido** (nem mais, nem menos), cada caminho uma **folha exata** que existe, nunca container nem raiz; `valorAnterior` igual ao do HEAD e `valorNovo` igual ao medido; e o resumo de código medido igual ao do HEAD (alteração não commitada recusa).
+
+#### 3.3 A recusa no repositório real [medida, antes de preparar as entradas]
+
+Com `35f8535` mais os commits 1 e 2 (HEAD `13729a9`), rodei os dois escritores pelos comandos próprios **sem entrada nova**: ambos **recusaram**, saída 1 (`recusa-real-diag.txt`, `recusa-real-rastr.txt`). Diagnóstico: «tem 14 entrada(s), e a regravação exige 15»; mediu contra o HEAD **2 campos mudados** (`page.tsx`, `ParecerAISection.tsx`), 0 novos, 0 perdidos. Rastreabilidade: «3» e «4»; 2 mudados (`route.ts`, `oQueIstoNaoResolve[0]`), 0 novos, 0 perdidos. **Os artefatos ficaram intactos** (sha256 `fa9da7a0…` e `6772513e…`, iguais antes e depois; `git status --short` vazio). No diagnóstico a guarda roda num `beforeAll`, por isso a recusa reprova os 29 testes do arquivo (e não um); na rastreabilidade, 1.
+
+Isso confere com a divergência de 2.1 do pedido: **só os três campos esperados** divergiam, e foram os que a guarda mediu.
+
+#### 3.4 Testes [medidos]
+
+`f07-a8-procedencia.test.ts` (**93 testes**): as folhas e os caminhos (colchetes aninhados, chave com ponto e barra, container vazio como folha, as abreviações antigas); as violações da lista e da entrada (cada uma com caso que passa e contraexemplo que reprova); a recusa em repositório git temporário **na forma de cada artefato** (20 testes em cada forma: aceita a regravação correta; recusa sem entrada, entrada vazia, genérica, com caminho inexistente, declarando menos ou mais do que mudou, campo perdido, histórico alterado, base que não é o HEAD, base repetida, ordem errada, comando errado, `valorAnterior` ou `valorNovo` errados, `camposPerdidos` não zero e código não commitado; nomeia todas as violações de uma vez; falha fechada sem repositório; não escreve); os **blocos reais** dos dois escritores, lidos do fonte e executados (5 testes cada, técnica de A7: com entrada escreve, sem entrada lança e não escreve, sem a variável não faz nada, passa à guarda os argumentos certos); e a **ligação por leitura** (cada arquivo importa a guarda uma vez, e só o bloco do escritor a chama).
+
+Nos dois testes dos artefatos entraram as asserções que faltavam (2.3.1 do pedido): a lista **acumula**, `ordem` sequencial, bases distintas e nenhuma igual ao `commitDaBase` histórico (`f964049b…`, só no diagnóstico); o **histórico anterior intacto**; cada caminho citado **existe**; as entradas novas **estritas**; `camposPerdidos` 0 **medido** (o conjunto de caminhos, tirado o das entradas novas, igual ao da versão anterior). A rastreabilidade **não tinha** nenhum teste de invariantes da lista; passou a ter.
+
+⚠ **Vacuidade, declarada:** com a lista no tamanho da âncora, as asserções sobre as entradas **novas** não tinham o que examinar (em `935bae9` e `13729a9`). Que a conferência não é vazia **como código** está provado pelos testes de entradas sintéticas; que examina **entradas reais** vale desde `1fd3bce` (entradas 15 e 4).
+
+#### 3.5 As âncoras [medidas]
+
+O histórico e o conjunto de caminhos da versão anterior estão **fixados nos testes** (`ANCORA_DA_VERSAO_ANTERIOR`: `sha256` do histórico das 14 e das 3 entradas, e dos caminhos de folha), e **não** lidos por `git show` em tempo de execução, porque o CI faz o checkout sem `fetch-depth` (clone raso) [lido: `CLAUDE.md` seção 5, configuração datada no SHA `f3ddf94`; **não reconferida** nesta execução, não li o workflow]. Os resumos vieram do git, uma vez, e foram **conferidos por uma segunda implementação em Python**, independente do helper (`ancoras-calculadas-pelo-helper.json` e `ancoras-calculadas-em-python.json`, iguais nos quatro resumos e nas contagens de folhas). Quem regravar de novo troca a âncora; o comentário no teste diz como.
+
+### 4. A afirmação sobre a sobrescrita, situada
+
+**Texto de antes** (`oQueIstoNaoResolve[0]`): `NAO preserva execucoes anteriores: o documento e unico por projeto e e sobrescrito`.
+
+**Texto de agora:** `ANTES de F07 A1 (commit be213d1, 11/10/2026) NAO preservava execucoes anteriores: a rota gravava com setDoc um documento unico por projeto, calculations/{projectId}, e o sobrescrevia. DESDE F07 A1 a rota nao escreve mais em calculations: cada execucao e gravada em um documento proprio, executions/{executionId}, junto com o pedido em executionRequests/{requestId}`.
+
+**O que sustenta cada metade [lido e medido]:** antes de A1, `be213d1^:app/api/calculate/route.ts:1227` é `await setDoc(doc(db, 'calculations', projectId), calculationResult);` (**lido**: documento por projeto, sem `merge`). Desde A1: em `HEAD`, `app/api/calculate/route.ts` só cita `calculations` em **três linhas de comentário** (`:838`, `:1164`, `:1165`; **medido** por `git grep`); `lib/execucoes.ts:180-181` grava `executions/{executionId}` e `executionRequests/{requestId}` na mesma transação (**lido**); e `calculate-route.test.ts:158-162` fixa, **executando a rota**, que as escritas são exatamente essas duas e que nenhuma é em `calculations`. A data é a do commit `be213d1` (`git log`, 2026-10-11). **Nada foi afirmado além disso:** o texto não diz o que existe hoje no Firestore (não acessado) nem que alguma execução antiga tenha sido preservada.
+
+**O texto antigo não se perdeu:** fica em `valorAnterior` da entrada 4 do artefato, ao lado do novo. O comentário `⚠ F07 A1: esta primeira linha DEIXOU DE VALER…` (`:640-643` no pedido e em `35f8535`, **medido** por `git grep -n`) **foi removido** [medido: 1 ocorrência do comentário em `35f8535`, 0 em `1fd3bce`], e três testes novos fixam o texto situado e a ausência de comentário no literal. **Medido:** rodei os três antes de editar o texto e os três reprovaram; não gravei predição datada para eles, porque a correção não altera o que o modelo recebe.
+
+### 5. Os dois artefatos [medidos, diferença por folha contra a cópia de `35f8535`]
+
+| | `a12-diagnostico` | `a12-rastreabilidade` |
+|---|---|---|
+| Folhas antes e depois | 483 e 498 | 113 e 128 |
+| Campos **mudados** | 2: `identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]` e `identificacao.codigo[components/ParecerAISection.tsx]` | 2: `identificacao.codigo[app/api/calculate/route.ts]` e `oQueIstoNaoResolve[0]` |
+| Campos **novos** | 15, **todos** na entrada nova (`identificacao.procedenciaDasRegravacoes[14]`) | 15, **todos** na entrada nova (`procedenciaDasRegravacoes[3]`) |
+| Campos **perdidos** | 0 | 0 |
+| Entradas | 14 e 15; as 14 primeiras **idênticas** (comparação canônica) | 3 e 4; as 3 primeiras **idênticas** |
+| `commitDaBase` da entrada nova | `13729a9abc5e22ba889134cb63751ae49b3b703b` | o mesmo |
+
+As folhas contam também os containers vazios (diagnóstico: 483 = **478 escalares e 5 vazios**; as entradas antigas contavam só escalares).
+
+**Valores** (sha256 completos): `page.tsx` `478c288323a812c6c5dda2cf440e9af3ff4e2c312d893ffbd0d5d155f2eaed9d` para `260efc71958aad89d62d7dfa45e0ba94b3ca59ac4f2ea1de91b430648fdba7d8`; `ParecerAISection.tsx` `204beee5f55cd204badeb6317810899743ba4a9404e5644d51dd60aabb3c053d` para `f91c0f5e5aca7b5e8b44de2c2b1101dfa53fabd9a926f9c5bb81d9d7a5ef4104`; `route.ts` `0ff4238fa9bc9418f3bb6375091a1f1993091736de0be1963917398553a3eae2` para `9a2ae0d8acbb4c8abed7422916c8209554e3a768c3e067ddbf656a80a773d444`. Os resumos dos outros arquivos de código (`app/api/ai-reviewer/route.ts`, `lib/ai-reviewer/avaliacao-qualidade.ts`, `lib/julgamentos-resumo.ts`, `lib/identificador-respondente.ts`) **não mudaram**, e nenhum `bytesDoContexto` nem `blocoDeQualidadeNoContexto` se moveu (a diferença por folha tem só os campos acima). Como **nenhum arquivo de produção mudou** (seção 7), o que o modelo do Parecer IA recebe não foi alterado por esta etapa, e a predição de `CLAUDE.md` seção 2 não se aplica.
+
+**Invariantes [medidos]:** a lista acumula; `ordem` sequencial (1 a 15 e 1 a 4); bases distintas em cada lista; o `commitDaBase` histórico do diagnóstico (`f964049b3f6639b874111356d8f84b5463793a34`, em `identificacao.commitDaBase`) **preservado** e nenhuma base de regravação igual a ele; `camposPerdidos` 0 em todas as entradas. A rastreabilidade **não tem** esse campo [medido em `35f8535` e no HEAD de `1fd3bce`]; os invariantes dela (acumulação, ordem, bases distintas, base da primeira entrada fixa em `6aea771…`) são **novos** neste registro.
+
+**A causa não é só A7 [medido, conteúdo contra o git]:** para cada arquivo achei o commit mais recente cujo conteúdo tem o sha256 que o artefato gravava e listei os commits posteriores que o alteraram:
+
+| Arquivo | O artefato registrava o conteúdo de | Commits posteriores que o alteraram | Quantos |
+|---|---|---|---|
+| `app/decisor/resultados/[projectId]/page.tsx` | `40de635` | `be213d1` (A1), `0e45b9f` (A2), `fd4b201` (A3), `da094cc` e `60fdf96` (A4), `226fd05` (A6), `45c487d` (A7 ponto 1) | 7 |
+| `components/ParecerAISection.tsx` | `40de635` | `fd4b201` (A3) | 1 |
+| `app/api/calculate/route.ts` | `104a44a` | `be213d1` (A1), `7c043ff` (A7 ponto 2) | 2 |
+
+Por isso o `motivo` de cada entrada nomeia as **causas acumuladas por campo** e declara que o artefato não foi regravado em nenhum desses commits, de modo que nenhum é atribuído sozinho à mudança de cada resumo.
+
+**Divergências entre o pedido e a medição (ambos os valores ficam, com a fonte):**
+
+- A tabela 2.1 do pedido [recebido] trazia as colunas «gravado» e «atual» **na ordem inversa** da medida: o valor que estava **gravado** no artefato é o de `478c2883…`, `204beee5…` e `0ff4238f…`, e o **atual** (o do arquivo) é o de `260efc71…`, `f91c0f5e…` e `9a2ae0d8…`. Usei a medida.
+- O hash gravado de `ParecerAISection.tsx` aparecia no pedido abreviado; o completo medido termina em `…c053d`.
+- O pedido [recebido] previa 8, 2 e 3 commits posteriores (2.2); medi **7, 1 e 2**, porque `40de635` e `104a44a` são os commits **cujo conteúdo o artefato já registrava** e não contam como posteriores.
+
+### 6. Controles de mutação (só o que A8 acrescenta)
+
+**Previsão datada antes de rodar: 13/10/2026 18:44:58 UTC** (`previsao-mutantes-F07-A8.txt`, HEAD `1fd3bce`), com o teste que deve matar cada mutante e a lista dos testes tautológicos. **Universo:** 24 mutantes nas classes do pedido: (a) a entrada nova sobrescreve a anterior, 2; (b) `ordem` não sequencial, 2; (c) `commitDaBase`, 3 (o histórico trocado pela base da regravação; a base da regravação igual ao histórico; a base repetida da entrada anterior); (d) `camposRegravados` vazio, 2, ou genérico, 2; (e) folha inexistente, 2; (g) histórico antigo alterado, 4; (f) a recusa retirada, 3, e a recusa parcial (a guarda deixa de conferir um fato), 4. Cada mutante é **uma** substituição exata de **uma** ocorrência, sobre o código real; **nenhum** toca `docs/dados/` (o artefato gravado fica como está, e o mutante muda a constante do teste ou a guarda). Depois de cada um o arquivo é restaurado e conferido por `git diff --quiet` (**as 24 execuções voltaram ao commit**, saída 0). **Linha de base, antes de mutar [medida]:** os **3 arquivos de teste** da A8 (`a12-diagnostico`, `a12-rastreabilidade`, `f07-a8-procedencia`): **3 suítes, 150 testes, 150 passam, saída 0**.
+
+**Testes tautológicos, declarados antes de rodar:** os que comparam a constante do teste com o artefato que ela mesma escreveu: «cada regravacao registra procedencia PROPRIA, e a lista ACUMULA» e «o artefato gravado coincide com a medicao atual» (diagnóstico), e este último na rastreabilidade. **Uma morte só por eles não vale.**
+
+**Resultado [medido]: 24 mortos, 0 sobreviventes, 0 por compilação.** Em **todos** a atribuição confere: pelo menos um dos testes previstos falhou **fora dos tautológicos**, e nenhum mutante morreu só pelos tautológicos. A contagem da linha `Tests:` do jest e a do JSON do jest coincidem nas 24 execuções, e o total foi 150 em todas.
+
+**Conferência à mão do instrumento (ele é novo)**, porque o resultado coincide com a previsão: li as falhas do **caso mais visível**, A8-Ma1 (a entrada nova no lugar da anterior): falharam 4 testes, o tautológico e três que examinam um fato (a lista acumula; o histórico intacto; os caminhos). Li também A8-Mc1 (1 falha: só «o commitDaBase historico do artefato e o de sempre», **o único teste que o pega**; o de identidade não o vê, porque não compara `commitDaBase`) e A8-Mb1. E rodei um **controle negativo** pelo mesmo instrumento: uma troca de acentos num comentário de `a12-diagnostico.test.ts` deu **SOBREVIVE** (saída 0, 0 falhas, 150 testes), o que mostra que o instrumento sabe reportar um sobrevivente.
+
+⚠ **O que a previsão já dizia e se confirmou:** os testes «contra o artefato gravado» **não** falharam em nenhum mutante de constante (classes a, b, c, d, e e g), porque o artefato não é mutado; quem matou foram os testes «contra a constante» e «contra a medição». ⚠ **E o limite:** essas classes mudam a **constante**, e comparar constante com artefato, sozinho, nunca prova que a entrada descreve a regravação; o que prova é a guarda do escritor (classe f), que lê o git.
+
+Quem matou cada classe [medido, `resultado-mutantes-F07-A8.json`]: (a) a lista acumula e o histórico intacto; (b) a lista acumula (ordem sequencial); (c) o `commitDaBase` histórico, e a lista (base igual ao histórico, base repetida); (d) e (e) as entradas novas estritas «contra a MEDICAO desta execucao»; (g) o histórico intacto; (f) os testes de `f07-a8-procedencia`: nos dois mutantes que retiram a **chamada** da guarda nos escritores (A8-Mf1 e Mf2, 4 falhas cada) morrem o bloco «SEM entrada correspondente o bloco LANÇA» e a ligação por leitura; na guarda que mede e **não lança** (A8-Mf3), **36** falhas; os quatro parciais (A8-Mf4 a Mf7, com 2, 4, 2 e 2 falhas) foram mortos pelos testes de «RECUSA» do fato que deixaram de conferir, nas duas formas de artefato.
+
+| Mutante | Classe | Arquivo | Mutação | Resultado | Testes que falharam (linha `Tests:`) | Falhas fora dos tautológicos |
+|---|---|---|---|---|---|---|
+| A8-Ma1 | (a) sobrescreve | `lib/__tests__/a12-diagnostico.test.ts` | diag: a entrada 14 é retirada e a 15 fica no lugar dela (a lista não acumula: 14 entradas, a última de ordem 15) | **MORTO** | 4 | 3 |
+| A8-Ma2 | (a) sobrescreve | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: a entrada 3 é retirada e a 4 fica no lugar dela (a lista não acumula: 3 entradas, a última de ordem 4) | **MORTO** | 4 | 3 |
+| A8-Mb1 | (b) ordem | `lib/__tests__/a12-diagnostico.test.ts` | diag: a entrada nova tem ordem 16 (salta a 15) | **MORTO** | 2 | 1 |
+| A8-Mb2 | (b) ordem | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: a entrada nova tem ordem 5 (salta a 4) | **MORTO** | 2 | 1 |
+| A8-Mc1 | (c) commitDaBase | `lib/__tests__/a12-diagnostico.test.ts` | diag: `identificacao.commitDaBase` (o histórico) é trocado pela base da regravação (13729a9...) | **MORTO** | 1 | 1 |
+| A8-Mc2 | (c) commitDaBase | `lib/__tests__/a12-diagnostico.test.ts` | diag: a base da regravação é IGUAL ao commitDaBase histórico (f964049b...) | **MORTO** | 3 | 2 |
+| A8-Mc3 | (c) commitDaBase | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: a base da entrada 4 repete a da entrada 3 (base repetida) | **MORTO** | 2 | 1 |
+| A8-Md1 | (d) campos vazio | `lib/__tests__/a12-diagnostico.test.ts` | diag: camposRegravados da entrada 15 vazio | **MORTO** | 3 | 2 |
+| A8-Md2 | (d) campos genérico | `lib/__tests__/a12-diagnostico.test.ts` | diag: camposRegravados da entrada 15 cita o CONTAINER `identificacao.codigo` (genérico) | **MORTO** | 3 | 2 |
+| A8-Md3 | (d) campos vazio | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: camposRegravados da entrada 4 vazio | **MORTO** | 3 | 2 |
+| A8-Md4 | (d) campos genérico | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: camposRegravados da entrada 4 cita os CONTAINERS `identificacao` e `oQueIstoNaoResolve` | **MORTO** | 3 | 2 |
+| A8-Me1 | (e) folha inexistente | `lib/__tests__/a12-diagnostico.test.ts` | diag: um caminho de camposRegravados com o nome do arquivo errado (a folha não existe) | **MORTO** | 3 | 2 |
+| A8-Me2 | (e) folha inexistente | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: um caminho de camposRegravados com índice além do fim da lista (oQueIstoNaoResolve[7]) | **MORTO** | 3 | 2 |
+| A8-Mg1 | (g) histórico | `lib/__tests__/a12-diagnostico.test.ts` | diag: a base da entrada 14 (a última do histórico) tem o último dígito alterado | **MORTO** | 2 | 1 |
+| A8-Mg2 | (g) histórico | `lib/__tests__/a12-diagnostico.test.ts` | diag: a base da entrada 13 tem o último dígito alterado | **MORTO** | 2 | 1 |
+| A8-Mg3 | (g) histórico | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: a base da entrada 2 tem o último dígito alterado | **MORTO** | 2 | 1 |
+| A8-Mg4 | (g) histórico | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: o motivo da entrada 3 ganha um caractere | **MORTO** | 2 | 1 |
+| A8-Mf1 | (f) recusa retirada | `lib/__tests__/a12-diagnostico.test.ts` | diag: o escritor deixa de CHAMAR a guarda (a chamada vira uma expressão `void ({...})`) | **MORTO** | 4 | 4 |
+| A8-Mf2 | (f) recusa retirada | `lib/__tests__/a12-rastreabilidade.test.ts` | rastr: o escritor deixa de CHAMAR a guarda | **MORTO** | 4 | 4 |
+| A8-Mf3 | (f) recusa retirada | `lib/__tests__/helpers/procedencia-da-regravacao.ts` | a guarda mede as violações e NÃO lança: a recusa vira aceitação | **MORTO** | 36 | 36 |
+| A8-Mf4 | (f) recusa parcial | `lib/__tests__/helpers/procedencia-da-regravacao.ts` | a guarda deixa de recusar a entrada que declara MENOS campos do que mudaram | **MORTO** | 2 | 2 |
+| A8-Mf5 | (f) recusa parcial | `lib/__tests__/helpers/procedencia-da-regravacao.ts` | a guarda deixa de exigir que commitDaBase seja o HEAD | **MORTO** | 4 | 4 |
+| A8-Mf6 | (f) recusa parcial | `lib/__tests__/helpers/procedencia-da-regravacao.ts` | a guarda deixa de recusar a reescrita de uma entrada antiga | **MORTO** | 2 | 2 |
+| A8-Mf7 | (f) recusa parcial | `lib/__tests__/helpers/procedencia-da-regravacao.ts` | a guarda deixa de comparar o resumo do código medido com o do HEAD | **MORTO** | 2 | 2 |
+
+### 7. O que A8 não altera [medido, `nao-altera-F07-A8.txt`]
+
+Entre `35f8535` e o HEAD de `1fd3bce`, `git diff`:
+
+- **Nenhum arquivo de produção:** `lib/ai-reviewer`, `lib/rag`, `lib/validacao-externa`, `app`, `components` e `scripts` saem com 0 arquivos alterados, e em `lib` fora dos testes também 0. `package.json`, `package-lock.json`, `tsconfig.json`, as configurações do jest e do next, `.github` e `docs/calculations-13jul2026.json` estão **idênticos**.
+- **`docs/dados`: só os dois `medicao.json`.** As outras **14 pastas** têm o **mesmo hash de árvore** de `35f8535` (comparação pasta a pasta). `docs/dados/a12-rastreabilidade/REGISTRO.md`, ao lado do artefato, **não foi tocado**.
+- **O teste do censo é idêntico.** Testes anteriores alterados: `a12-diagnostico.test.ts` e `a12-rastreabilidade.test.ts`, cada um com o motivo nos commits e neste registro; **novos:** `f07-a8-procedencia.test.ts` e o helper.
+
+### 8. Medições por estado [medidas, com `build` em TODOS os estados]
+
+Cada estado num `git worktree` limpo do commit, com `tsc --noEmit`, `npm test` e `npm run build`, e o código de saída de cada comando gravado em arquivo pelo próprio comando. **Previsão datada antes de medir: 13/10/2026 18:49:22 UTC** (`previsao-estados-F07-A8.txt`): D0 a D2 com as 2 falhas de identidade e saída 1; D3 com saída 0; `tsc` e `build` 0 em todos. **Confirmada**, sem nenhuma falha fora das duas esperadas.
+
+| Estado | Commit | O que é | `tsc` | `npm test` | `build` | Suítes | Testes | Falhas |
+|---|---|---|---|---|---|---|---|---|
+| D0 | `35f8535` | base de A8 (HEAD da entrega de A7) | 0 | 1 | 0 | 2 failed, 51 passed, 53 total | 2 failed, 1901 passed, 1903 total | sim (as 2 de identidade) |
+| D1 | `935bae9` | a guarda do escritor e os testes | 0 | 1 | 0 | 2 failed, 52 passed, 54 total | 2 failed, 2013 passed, 2015 total | sim (as 2 de identidade) |
+| D2 | `13729a9` | o texto situado | 0 | 1 | 0 | 2 failed, 52 passed, 54 total | 2 failed, 2016 passed, 2018 total | sim (as 2 de identidade) |
+| D3 | `1fd3bce` | os dois artefatos regravados | 0 | 0 | 0 | 54 passed, 54 total | 2018 passed, 2018 total | sem falhas |
+
+O crescimento (1903 testes em D0, 2015 em D1, 2018 em D2 e D3) **fecha por contagem por arquivo** [medida, `D0__contagem-3-arquivos.json` e os de D1 e D2]: de D0 a D1, `a12-diagnostico` 19 para 29 (+10), `a12-rastreabilidade` 16 para 25 (+9) e `f07-a8-procedencia` 0 para 93, somando **+112**; de D1 a D2, `a12-rastreabilidade` 25 para 28 (+3); de D2 a D3, nenhum. Nenhum teste foi removido ou desabilitado. O estado do commit deste registro (D4) foi medido na entrega (`CODIGOS-DE-SAIDA-F07-A8.md`), e não aqui, porque o registro não pode citar o commit que o contém.
+
+### 9. Erros meus, contagens e contradições (ambos os valores ficam, com a fonte)
+
+- **O prefixo do commit `13729a9` é `docs(f07)`, mas o commit altera só um arquivo de teste** (`a12-rastreabilidade.test.ts`, cujo literal gera o campo do artefato). O prefixo está impreciso; o corpo da mensagem diz o conteúdo certo. Não reescrevi (sem `amend`).
+- **Os títulos de 2 testes de `a12-diagnostico.test.ts` saem embaralhados** (por exemplo «o HISTORICO anterior esta INTACTO: as a constante do teste primeiras entradas tem o resumo da ancora: () => PROCEDENCIA_DAS_REGRAVACOES»): usei dois `%s` num `test.each` de linhas de dois elementos, e o segundo `%s` consumiu a função. O título é feio e **não** muda o que o teste verifica; mantive o texto para não abrir um quinto commit, e fica como candidato (seção 10).
+- **Três deslizes de teste, corrigidos antes do commit 1:** uma expectativa confusa em `diferencaDeFolhas` (reescrita com os três conjuntos explícitos), um helper `H()` de hash, no teste, substituído por sha1 do conteúdo, e o protótipo da primeira medição que falhou por caminho relativo e por `typescript` não resolvível (corrigido com `NODE_PATH`).
+- **Contagem de folhas:** o diagnóstico tem 483 folhas contando os 5 containers vazios, e 478 escalares (a contagem que as entradas antigas usavam). As duas valem, com a regra de cada uma declarada.
+- **Divergências do pedido** na seção 5 (colunas invertidas, hash abreviado, 8, 2 e 3 contra 7, 1 e 2).
+- **O instrumento da campanha é novo** e passou de primeira; a conferência à mão e o controle negativo estão na seção 6.
+
+### 10. Candidatos e limites (nenhum corrigido)
+
+1. **A mesma afirmação sem data, em outros lugares** [lido, localizado por `git grep`]: `docs/contratos-de-dados.md:325` («A sobrescrita apaga execuções anteriores…»; o próprio texto diz que vale «para o percurso examinado», a rota `calculate` gravando em `calculations`); `docs/dados/a12-rastreabilidade/REGISTRO.md:33` (na pasta de dados, intocável nesta rodada); o cabeçalho de `a12-rastreabilidade.test.ts` (`:12-15`, «Ela não preserva execuções anteriores»); e a célula de A.12 em `docs/objetivo-estados-caminho.md:811`. `docs/contratos-de-dados.md:330` [recebido como vizinho, no pedido] fala de **outra coisa**, a sobrescrita **das respostas**, que continua verdadeira: lido, e não é candidato por esse motivo. Nenhum foi editado, por estar fora do escopo.
+2. **Os títulos embaralhados** da seção 9, em `a12-diagnostico.test.ts`.
+3. **Comparar constante com artefato nunca prova, sozinho, que a entrada descreve a regravação** (seção 6). A guarda do escritor prova o que o git mostra: que a entrada existe, acumula, tem a base certa e declara exatamente o que mudou. **Que o `motivo` seja verdadeiro é texto**, e a atribuição de causa por campo (seção 5) é leitura minha sobre o git, não um fato que a guarda confira.
+4. **As âncoras ficam datadas na versão de `35f8535`** (14 e 3 entradas). Quem regravar de novo precisa trocá-las no mesmo commit da entrada nova; senão os testes das entradas «novas» passam a exigir, das entradas 15 e 4, valores que já não valem. Está dito no comentário do teste, mas depende de quem regrava.
+5. **Dependência externa dos testes novos:** `f07-a8-procedencia.test.ts` cria repositórios git em diretório temporário, então depende do binário `git` e de escrita no diretório temporário. O cabeçalho do arquivo diz que o repositório é «de verdade, em diretório temporário», mas **não declarei a dependência como tal** nem executei o arquivo nas condições do CI (nada foi publicado). **Não avaliado:** a execução em checkout raso e em outro ambiente; os testes dos dois `a12-*` não leem o git do repositório em tempo de execução (só o escritor, sob a variável de ambiente). A configuração do CI citada na seção 3.5 é a de `CLAUDE.md` e **não foi reconferida**.
+6. **Não avaliado:** o que há hoje em `calculations` e `executions` no Firestore (não acessado). Seguem fora de escopo e sem decisão: a cauda de `escolher`, `apresentarCargaInicial` rodar duas vezes, os comportamentos de descarte de A6, V6 e uma nova varredura.
+
 ---
 
 ## Anexo 3: metadados e trechos da execução 7
