@@ -47,6 +47,9 @@ function criarTela() {
     setExibicao: () => m('setExibicao'),
     setExcludedIds: (ids: string[]) => { estado.excludedIds = ids; m('setExcludedIds'); },
     setAiReview: (v: any) => { estado.aiReview = v; m('setAiReview'); },
+    // F07 A7: os dois membros novos de `AcoesDaTela` (V3). O banco só os aceita; nenhuma asserção deste arquivo os examina.
+    setExecucaoDoParecer: () => m('setExecucaoDoParecer'),
+    setAiReviewLoading: () => m('setAiReviewLoading'),
     setAudit: (a: any) => { estado.audit = a; m('setAudit'); },
     setExecucaoRecemCalculada: () => m('setExecucaoRecemCalculada'),
     setError: (t: string) => { estado.error = t; m('setError'); },

@@ -20,8 +20,9 @@
  *   2. **O cálculo confirmado conclui o próprio estado ANTES de a auditoria ser pedida**, e a falha da
  *      auditoria tem tratamento de erro PRÓPRIO: não reverte o cálculo, não troca exclusões e não
  *      anuncia falha de recálculo.
- *   3. **O Parecer IA tem o par implementado e a CONDUTA ainda por decidir** (decisão 5-B): ver
- *      `condutaDoParecerForaDoPar`.
+ *   3. **O Parecer IA tem o par e a conduta decidida** (decisão 5-B, tomada pelo autor: a resposta tardia é
+ *      DESCARTADA): ver `condutaDoParecerForaDoPar`. F07 A7: o indicador de "analisando" e a identificação
+ *      do Parecer também pertencem à apresentação que a tela deixou: ver `concluirPedidoDoParecer`.
  */
 
 import type { Exibicao } from '@/lib/referencia-do-projeto';
@@ -35,6 +36,17 @@ export interface AcoesDaTela {
   setExibicao(exibicao: Exibicao | null): void;
   setExcludedIds(ids: string[]): void;
   setAiReview(valor: any): void;
+  /**
+   * F07 A7, V3: a identificação da execução em que o Parecer FOI PEDIDO (`execucaoDoParecer` da página). Fica
+   * fora do objeto `aiReview`, então `setAiReview(null)` não a retira: quem retira o Parecer retira também
+   * esta.
+   */
+  setExecucaoDoParecer(identificacao: any): void;
+  /**
+   * F07 A7, V3: o indicador de "analisando" do Parecer. Pertence ao pedido da apresentação corrente; ao trocar
+   * a apresentação, o do pedido antigo é desligado aqui (ver `concluirPedidoDoParecer`).
+   */
+  setAiReviewLoading(b: boolean): void;
   setAudit(auditoria: any): void;
   setExecucaoRecemCalculada(documento: any): void;
   /** O erro que SUBSTITUI a tela inteira por uma tela de erro (`if (error) return …`). */
@@ -127,6 +139,10 @@ export async function exibirExecucaoEscolhida(args: {
   acoes.setExcludedIds(documento.metadata?.excludedRespondentIds || []);
   acoes.setAiReview(null);
   acoes.setAudit(null);
+  // F07 A7, V3: o Parecer retirado leva consigo a identificação, e o indicador do pedido antigo (se havia
+  // um em voo) é desligado, porque a conclusão dele não o desligará mais (`concluirPedidoDoParecer`).
+  acoes.setExecucaoDoParecer(null);
+  acoes.setAiReviewLoading(false);
   const r = await solicitarAuditoria({ documento, par, registro, enviar: args.enviarAuditoria, aplicar: acoes.setAudit });
   registrarFalhaDaAuditoria(r);
   return r;
@@ -147,6 +163,11 @@ export async function apresentarCargaInicial(args: {
   const par = registro.apresentar(documento);
   acoes.setCalculation(documento);
   acoes.setExibicao(args.exibicao);
+  // F07 A7, V3: só o INDICADOR. Esta carga NÃO retira o Parecer (nem a identificação dele), como antes de A7:
+  // o `aiReview` e a identificação formam um par, e retirá-los aqui seria mudar o que esta carga já fazia. O
+  // indicador, ao contrário, ficaria ligado para sempre se um pedido em voo fosse deixado para trás, porque a
+  // conclusão dele não o desliga mais quando o par não é o da apresentação corrente.
+  acoes.setAiReviewLoading(false);
   // ⚠ As exclusões da carga inicial NÃO são escritas aqui: a página as escreve, no texto de antes, porque
   //   a âncora A.33 (`scripts/a33-payload-referencia.cjs`) fixa esse fragmento da tela.
   const r = await solicitarAuditoria({ documento, par, registro, enviar: args.enviarAuditoria, aplicar: acoes.setAudit });
@@ -309,6 +330,9 @@ export async function recalcularResultados(args: {
       // é de OUTRA execução e não pode sobreviver a uma falha da nova)
       acoes.setAiReview(null);
       acoes.setAudit(null);
+      // F07 A7, V3: ver `exibirExecucaoEscolhida`.
+      acoes.setExecucaoDoParecer(null);
+      acoes.setAiReviewLoading(false);
     } catch (e: any) {
       // ⚠ Só chega aqui falha do CÁLCULO (ou da escrita do seu estado). A auditoria NÃO está neste `try`.
       console.error('Erro no recálculo:', e);
@@ -334,30 +358,31 @@ export async function recalcularResultados(args: {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// O Parecer IA: o par está implementado; a CONDUTA ainda é a de antes (decisão 5-B)
+// O Parecer IA: o par, a conduta decidida (5-B: descartar) e o indicador (V3)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type CondutaDoParecerTardio = 'aplicar' | 'descartar';
 
 /**
- * ⚠⚠ **PONTO DO CÓDIGO ONDE ENTRA A DECISÃO 5-B** (a resposta tardia do Parecer IA).
+ * ⚠⚠ **PONTO DO CÓDIGO DA DECISÃO 5-B** (a resposta tardia do Parecer IA).
  *
  * Uma resposta do Parecer IA fora do par é aquela cujo pedido foi feito numa apresentação que a tela
- * já deixou. Há duas condutas defensáveis, e levam a telas diferentes:
+ * já deixou. Havia duas condutas defensáveis, e levavam a telas diferentes:
  *
  *   1. `'descartar'`: nada é escrito. Custo: trabalho perdido e uma chamada paga ao modelo jogada fora,
  *      sem que a pessoa saiba que existiu;
  *   2. manter em quarentena visível, pelo desenho de A.27. Custo: um parecer sobre outros números
- *      convive na tela com os números apresentados, e a leitura depende do qualificador. (Não
- *      implementada: exigiria um estado novo.)
+ *      convive na tela com os números apresentados, e a leitura depende do qualificador. (Exigiria um
+ *      estado novo.)
  *
- * **Nesta etapa a função devolve `'aplicar'`, que é a conduta de ANTES de A4:** a resposta é escrita
- * mesmo fora do par. Isso é deliberado: a entrega manda NÃO alterar a conduta do Parecer tardio antes
- * da decisão do autor. A conferência do par já é feita e registrada (`console.warn`); só a conduta
- * falta. Quando a decisão 5-B for tomada, é ESTA função que muda.
+ * **O autor decidiu pela primeira (decisão 5-B): a resposta tardia é DESCARTADA.** Não há quarentena e
+ * não há aviso novo na faixa; o descarte fica só no `console.warn` de `decidirEscritaDoParecer`. O custo
+ * da conduta 1 (a chamada paga que se perde, sem a pessoa saber) foi aceito pelo autor ao decidir. O
+ * valor `'aplicar'` continua no tipo apenas para que o texto do aviso dependa da conduta efetiva, e
+ * nenhum caminho o devolve.
  */
 export function condutaDoParecerForaDoPar(_conferencia: ConferenciaDoPar): CondutaDoParecerTardio {
-  return 'aplicar';
+  return 'descartar';
 }
 
 export interface DecisaoDeEscritaDoParecer {
@@ -371,7 +396,34 @@ export function decidirEscritaDoParecer(registro: RegistroDaApresentacao, parDoP
   if (conferencia.aceita) return { escreve: true, conferencia };
   const conduta = condutaDoParecerForaDoPar(conferencia);
   console.warn(
-    `[AI-REVIEW] Resposta fora do par da apresentação corrente (${conferencia.motivo}). Conduta ${conduta === 'aplicar' ? 'ainda vigente de antes de A4: a resposta É escrita (decisão 5-B pendente)' : 'descartar'}.`
+    `[AI-REVIEW] Resposta fora do par da apresentação corrente (${conferencia.motivo}). ${conduta === 'descartar' ? 'DESCARTADA (decisão 5-B): nada foi escrito na tela' : 'ESCRITA apesar de fora do par'}.`
   );
   return { escreve: conduta === 'aplicar', conferencia };
+}
+
+/**
+ * F07 A7, V3 (propriedade 2): a CONCLUSÃO de um pedido do Parecer IA (o `finally` de `runAiReview`). O
+ * indicador de "analisando" só é desligado pelo pedido que ainda é o da apresentação corrente.
+ *
+ * Por que isto é separado da decisão 5-B: descartar a resposta tardia (os três `return` de `runAiReview`)
+ * NÃO impede o `finally` de rodar, porque um `return` dentro do `try` executa o `finally`. Sem esta
+ * conferência, a conclusão de um pedido da apresentação X desligaria o indicador do pedido que a pessoa
+ * fez depois, na apresentação Y (é o raciocínio de `pedirValidacaoDaApresentacao`, aplicado ao Parecer).
+ *
+ * O caso complementar é do outro lado: se a tela deixa X SEM que haja pedido novo, o indicador do pedido de
+ * X não seria desligado por ninguém (a conclusão dele não o desliga mais). Quem o desliga é a troca de
+ * apresentação (`exibirExecucaoEscolhida`, `apresentarCargaInicial` e `recalcularResultados`).
+ *
+ * ⚠ A conferência é lida AQUI, no retorno, contra a apresentação de agora; o par é o capturado ao clicar.
+ *
+ * @returns `true` se desligou o indicador; `false` se o pedido já não é o da apresentação corrente.
+ */
+export function concluirPedidoDoParecer(
+  registro: RegistroDaApresentacao,
+  parDoPedido: ParDaApresentacao,
+  acoes: { setAiReviewLoading(b: boolean): void }
+): boolean {
+  if (!registro.conferir(parDoPedido).aceita) return false;
+  acoes.setAiReviewLoading(false);
+  return true;
 }

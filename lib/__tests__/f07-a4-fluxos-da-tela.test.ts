@@ -66,6 +66,10 @@ function criarTela() {
     setExibicao: (e: any) => { estado.exibicao = e; marcar('setExibicao'); },
     setExcludedIds: (ids: string[]) => { estado.excludedIds = ids; marcar('setExcludedIds'); },
     setAiReview: (v: any) => { estado.aiReview = v; marcar('setAiReview'); },
+    // F07 A7: os dois membros novos de `AcoesDaTela` (V3). O banco só os registra; as asserções de A4 não os examinam
+    // (os testes de A7 sobre eles estão em `f07-a7-parecer-tardio.test.ts`).
+    setExecucaoDoParecer: (v: any) => { estado.execucaoDoParecer = v; marcar('setExecucaoDoParecer'); },
+    setAiReviewLoading: (b: boolean) => { estado.aiReviewLoading = b; marcar('setAiReviewLoading'); },
     setAudit: (a: any) => { estado.audit = a; marcar('setAudit'); },
     setExecucaoRecemCalculada: (d: any) => { estado.execucaoRecemCalculada = d; marcar('setExecucaoRecemCalculada'); },
     setError: (m: string) => { estado.error = m; marcar('setError'); },
@@ -359,7 +363,7 @@ describe('A4.1: a auditoria só escreve se o par for o da apresentação corrent
   });
 });
 
-describe('A4.1: o Parecer IA tem o par, e a CONDUTA ainda é a de antes (decisão 5-B pendente)', () => {
+describe('A4.1: o Parecer IA tem o par, e a CONDUTA é a decidida (decisão 5-B: descartar)', () => {
   test('na mesma apresentação: escreve, e o par confere', () => {
     const r = par.criarRegistroDaApresentacao();
     const p = r.apresentar(DOC_A);
@@ -368,15 +372,15 @@ describe('A4.1: o Parecer IA tem o par, e a CONDUTA ainda é a de antes (decisã
     expect(d.conferencia).toMatchObject({ aceita: true, vinculo: 'identificador-e-geracao' });
   });
 
-  test('numa apresentação que a tela já deixou: o par NÃO confere, e a conduta vigente é ESCREVER (a de antes de A4), com aviso no log', () => {
+  test('numa apresentação que a tela já deixou: o par NÃO confere, e a conduta é DESCARTAR (decisão 5-B), com aviso no log', () => {
     const r = par.criarRegistroDaApresentacao();
     const p = r.apresentar(DOC_A);
     r.apresentar(DOC_B);
     const d = fluxos.decidirEscritaDoParecer(r, p);
     expect(d.conferencia).toEqual({ aceita: false, vinculo: null, motivo: 'geracao-diferente' });
-    expect(d.escreve).toBe(true); // ← é aqui que a decisão 5-B muda alguma coisa
-    expect(fluxos.condutaDoParecerForaDoPar(d.conferencia)).toBe('aplicar');
-    expect((console.warn as jest.Mock).mock.calls.some(c => String(c[0]).includes('decisão 5-B pendente'))).toBe(true);
+    expect(d.escreve).toBe(false); // ← a decisão 5-B (F07 A7): a resposta tardia é descartada
+    expect(fluxos.condutaDoParecerForaDoPar(d.conferencia)).toBe('descartar');
+    expect((console.warn as jest.Mock).mock.calls.some(c => String(c[0]).includes('DESCARTADA (decisão 5-B)'))).toBe(true);
   });
 
   test('A, B, A: o par do parecer pedido na primeira apresentação de A não confere na terceira', () => {
@@ -392,7 +396,7 @@ describe('A4.1: o Parecer IA tem o par, e a CONDUTA ainda é a de antes (decisã
     expect(ocorrencias(pagina, 'decidirEscritaDoParecer(registroDaApresentacao, parDoParecer)')).toBe(3);
     expect(ocorrencias(pagina, 'setAiReview({')).toBe(3);
     expect(ocorrencias(pagina, 'const parDoParecer = registroDaApresentacao.capturar();')).toBe(1);
-    expect(ocorrencias(ler('lib/fluxos-da-tela.ts'), 'PONTO DO CÓDIGO ONDE ENTRA A DECISÃO 5-B')).toBe(1);
+    expect(ocorrencias(ler('lib/fluxos-da-tela.ts'), 'PONTO DO CÓDIGO DA DECISÃO 5-B')).toBe(1);
   });
 });
 

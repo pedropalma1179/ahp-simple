@@ -69,6 +69,7 @@ import { type RegistroDaApresentacao, criarRegistroDaApresentacao } from '@/lib/
 import {
   type AcoesDaTela,
   apresentarCargaInicial,
+  concluirPedidoDoParecer,
   decidirEscritaDoParecer,
   enviarAuditoriaPeloNavegador,
   exibirExecucaoEscolhida,
@@ -1021,7 +1022,8 @@ export default function ResultadosPage() {
     setExecucaoDoParecer(identificarExecucao(calculation as any));
     // F07 A4: o PAR (execução, geração) da apresentação em que este pedido é feito. A resposta só é
     // conferida contra a apresentação corrente quando chega. A CONDUTA para uma resposta fora do par
-    // é a decisão 5-B e está em `condutaDoParecerForaDoPar` (`lib/fluxos-da-tela.ts`).
+    // é a decisão 5-B (DESCARTAR) e está em `condutaDoParecerForaDoPar` (`lib/fluxos-da-tela.ts`). F07 A7:
+    // o `finally` só desliga o indicador se este pedido ainda é o da apresentação corrente.
     const parDoParecer = registroDaApresentacao.capturar();
 
     try {
@@ -1459,7 +1461,9 @@ export default function ResultadosPage() {
       });
     } finally {
       console.log('🏁 [AI-REVIEW] Finalizando...');
-      setAiReviewLoading(false);
+      // F07 A7, V3: um `return` do `try` (resposta fora do par) também passa por aqui. O indicador de um pedido
+      // da apresentação que a tela deixou NÃO pode desligar o do pedido da apresentação de agora.
+      concluirPedidoDoParecer(registroDaApresentacao, parDoParecer, { setAiReviewLoading });
     }
   };
 
@@ -1547,6 +1551,8 @@ export default function ResultadosPage() {
     setExibicao,
     setExcludedIds,
     setAiReview,
+    setExecucaoDoParecer,
+    setAiReviewLoading,
     setAudit,
     setExecucaoRecemCalculada,
     setError,

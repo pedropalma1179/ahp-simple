@@ -62,6 +62,9 @@ function criarPagina() {
     setExibicao: () => undefined,
     setExcludedIds: () => undefined,
     setAiReview: () => undefined,
+    // F07 A7: os dois membros novos de `AcoesDaTela` (V3). O banco só os aceita; nenhuma asserção deste arquivo os examina.
+    setExecucaoDoParecer: () => undefined,
+    setAiReviewLoading: () => undefined,
     setAudit: () => undefined,
     setExecucaoRecemCalculada: () => undefined,
     setError: () => undefined,
