@@ -667,11 +667,7 @@ function medirAgora() {
     falhaDeResumoNaoInterrompe:
       '⚠ DISTINTA das duas acima: a falha de serializacao NAO interrompe, o respondente CONTINUA entrando no calculo, e o registro fica em judgmentsSha256 nulo com judgmentsUnavailableReason nomeando o motivo e o caminho.',
     oQueIstoNaoResolve: [
-      // ⚠ F07 A1: esta primeira linha DEIXOU DE VALER (cada execucao e guardada em
-      //   `executions/{executionId}` e nada e sobrescrito). O texto NAO foi editado aqui porque ele
-      //   gera `docs/dados/a12-rastreabilidade/medicao.json`, que esta entrega nao pode regravar; a
-      //   correcao do texto e a regravacao do artefato ficam para quem autorizar a regravacao.
-      'NAO preserva execucoes anteriores: o documento e unico por projeto e e sobrescrito',
+      'ANTES de F07 A1 (commit be213d1, 11/10/2026) NAO preservava execucoes anteriores: a rota gravava com setDoc um documento unico por projeto, calculations/{projectId}, e o sobrescrevia. DESDE F07 A1 a rota nao escreve mais em calculations: cada execucao e gravada em um documento proprio, executions/{executionId}, junto com o pedido em executionRequests/{requestId}',
       'NAO preserva o conteudo julgado: o resumo IDENTIFICA e nao guarda',
       'NAO vincula a avaliacao de qualidade aos incluidos, que e a etapa 3',
       'NAO alcanca o arquivo historico de 13/07/2026',
@@ -807,5 +803,55 @@ describe('A8: a procedencia das regravacoes, conferida contra a medicao e contra
     ['contra o artefato gravado', gravado],
   ])('camposPerdidos e ZERO medido: o conjunto de caminhos, tirado o das entradas novas, e o da versao anterior: %s', (_n, alvo: any) => {
     expect(P.resumoDosCaminhos(alvo(), CAMINHO_DA_LISTA.join('.'), ANCORA_DA_VERSAO_ANTERIOR.entradas)).toBe(ANCORA_DA_VERSAO_ANTERIOR.sha256DosCaminhos);
+  });
+});
+
+// ============================================================ F07 A8: a afirmação sobre a sobrescrita, situada no tempo
+/**
+ * ⚠ **A primeira linha de `oQueIstoNaoResolve` dizia, sem data, que a rota NÃO preserva execuções anteriores.** Vale para o
+ * período anterior a F07 A1 (`be213d1`, 11/10/2026): ali a rota gravava `setDoc(doc(db, 'calculations', projectId), …)`, um
+ * documento por projeto, sobrescrito a cada cálculo (medido em `be213d1^:app/api/calculate/route.ts:1227`). Desde A1 a rota
+ * não escreve mais em `calculations`; `calculate-route.test.ts` fixa as duas escritas (`executions/{executionId}` e
+ * `executionRequests/{requestId}`) e a ausência de `calculations`. A afirmação foi SITUADA, e não apagada: o texto antigo
+ * continua dizendo o que valia antes.
+ *
+ * ⚠ Estes testes examinam a MEDIÇÃO e o FONTE. O artefato gravado é coberto pela comparação de identidade, que o iguala à
+ * medição.
+ */
+describe('A8: oQueIstoNaoResolve[0] esta situado antes de A1, e o comentario que apontava a divida saiu', () => {
+  const linha = () => medirAgora().oQueIstoNaoResolve;
+
+  test('a primeira linha diz ANTES de A1 o que valia, e DESDE A1 o que vale, com a base e as duas colecoes', () => {
+    const primeira: string = linha()[0];
+    expect(primeira.startsWith('ANTES de F07 A1 (commit be213d1, 11/10/2026) NAO preservava execucoes anteriores: ')).toBe(true);
+    expect(primeira).toContain('calculations/{projectId}');
+    expect(primeira).toContain('o sobrescrevia');
+    expect(primeira).toContain('DESDE F07 A1 a rota nao escreve mais em calculations');
+    expect(primeira).toContain('executions/{executionId}');
+    expect(primeira).toContain('executionRequests/{requestId}');
+    // a ordem importa: o que valia ANTES precede o que vale DESDE
+    expect(primeira.indexOf('ANTES de F07 A1')).toBeLessThan(primeira.indexOf('DESDE F07 A1'));
+  });
+
+  test('a afirmacao NAO ficou sem data: nenhuma linha comeca no presente sem situar, e as outras tres seguem como estavam', () => {
+    const l: string[] = linha();
+    expect(l.length).toBe(4);
+    expect(l.some(x => x.startsWith('NAO preserva execucoes anteriores'))).toBe(false);
+    expect(l.slice(1)).toEqual([
+      'NAO preserva o conteudo julgado: o resumo IDENTIFICA e nao guarda',
+      'NAO vincula a avaliacao de qualidade aos incluidos, que e a etapa 3',
+      'NAO alcanca o arquivo historico de 13/07/2026',
+    ]);
+  });
+
+  test('o comentario que apontava a divida (F07 A1: a linha DEIXOU DE VALER) saiu do fonte; nenhum comentario sobrou no literal', () => {
+    const fonte = fs.readFileSync(__filename, 'utf8').split('\n');
+    const abre = fonte.findIndex(l => /^ {4}oQueIstoNaoResolve: \[$/.test(l));
+    expect(abre).toBeGreaterThan(-1);
+    const fecha = fonte.findIndex((l, i) => i > abre && /^ {4}\],$/.test(l));
+    expect(fecha).toBeGreaterThan(abre);
+    const corpo = fonte.slice(abre + 1, fecha);
+    expect(corpo.length).toBe(4); // quatro linhas de texto, e nenhuma de comentario
+    expect(corpo.filter(l => l.trim().startsWith('//'))).toEqual([]);
   });
 });
