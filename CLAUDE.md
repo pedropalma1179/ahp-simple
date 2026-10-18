@@ -386,3 +386,62 @@ um referencial não autoriza adotar ferramenta nem alterar produção.
   em `calculations` e o cache em `responses` têm tratamentos distintos**, descritos
   em B.1 e B.3 do âncora: são coleções diferentes, e recomputar uma não limpa a
   outra.
+
+## 10. Skills instaladas: precedência e limites
+
+Vale enquanto houver biblioteca de skills instalada nesta bancada.
+
+**Precedência.** No trabalho neste repositório, as skills devem respeitar as
+instruções aplicáveis do projeto e as decisões explícitas do autor. A instalação
+de uma skill não amplia a autorização da tarefa.
+
+⚠ **Os limites abaixo vinculam por comportamento, não por número de linha.** Os
+localizadores que os sustentam vêm de uma versão determinada do plugin e servem
+para achar a regra. Se a versão mudar e as linhas andarem, o limite continua
+valendo sobre o comportamento descrito.
+
+**Encerramento de ramo.** Não acione `finishing-a-development-branch` como
+encerramento automático. Integração, publicação e descarte de ramos exigem
+autorização específica do autor.
+
+**Isolamento e dependências.** Não altere nem commite o `.gitignore` apenas para
+satisfazer uma skill. Prepare worktrees, ramos e dependências dentro da
+autorização da tarefa, aproveitando autorizações já concedidas. Se o isolamento
+necessário não estiver autorizado, suspenda a ação dependente e encaminhe a
+necessidade.
+
+**Apagar.** Skills de execução de plano mandam remover o workspace do plano
+quando a revisão fecha, inclusive por `rm -rf`. Isso nunca alcança `docs/`,
+`docs/dados/`, evidência preservada, cache congelado ou
+`docs/calculations-13jul2026.json`. A regra de desenvolvimento guiado por teste
+que manda apagar o código e recomeçar vale somente para código escrito na tarefa
+corrente, nunca para artefato preservado.
+
+**Escrita fora do repositório.** Responder a comentário de pull request, abrir
+issue, montar e enviar pacote de diagnóstico, e commitar ou empurrar skill
+exigem a palavra do autor. Nenhuma delas é autorizada por estar numa skill.
+
+**Servidor local.** O companheiro visual da `brainstorming` sobe servidor e abre
+aba de navegador. Só com autorização.
+
+**Commits.** Quando uma skill de plano prescrever passo de commit, ele vale
+apenas se o prompt da tarefa o autorizar, sempre com caminhos explícitos e nunca
+`git add -A`.
+
+**Continuam valendo, independentemente de qualquer skill:** as proibições
+permanentes de push, amend, rebase, reset e force, com os commits locais
+permanecendo locais até decisão do autor; não rodar `npm run lint`; não rodar
+`scripts/ingest-rag.ts` sem autorização; não escrever em produção nem no
+Firestore; e preservar o estado histórico nomeado na seção 9.
+
+**Práticas aproveitáveis dentro do escopo autorizado:** testes quando
+pertinentes, verificação antes de declarar conclusão, depuração orientada à causa
+e recebimento de revisão conforme o âncora, seção «Recebimento de revisão». Essas
+práticas não autorizam ampliar a tarefa, refatorar, delegar ou alterar código por
+iniciativa da skill. Autorização geral de subagentes, se desejada, é decisão
+explícita do autor.
+
+Atribuição: a biblioteca cuja instalação está proposta é o projeto Superpowers, de Jesse Vincent
+(github.com/obra/superpowers, licença MIT), que traz regra equivalente de
+precedência. ⚠ Fonte e licença constam de leitura relatada pela bancada de
+análise, sem reconferência independente.

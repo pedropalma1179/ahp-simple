@@ -1291,6 +1291,51 @@ intra-mérito.
 
 ---
 
+# Recebimento de revisão
+
+Regra de processo entre bancadas, fixada em 18/10/2026. Complementa a terceira
+decisão sobre prompts, de 13/09/2026, registrada em 0.4: como o prompt literal
+fica fora do repositório, o que vale ao receber uma revisão fica aqui.
+
+**Alcance: o papel, não a bancada.** Vale para qualquer executor que receba
+revisão de trabalho seu, incluindo esta bancada quando estiver executando
+trabalho revisado por outro. Quem audita e quem implementa trocam de lado entre
+tarefas, e a obrigação acompanha o papel exercido.
+
+**A obrigação central:** receber cada item com julgamento técnico. Parecer
+recebido não é autorização automática para implementar. Verificar antes de
+responder vale nos dois sentidos, para quem recebe e para quem revisa.
+
+**Resposta por item acionável, em três estados.** Para cada item do parecer que
+pede ação, responda:
+
+- **aceito**, com o fundamento e o encaminhamento;
+- **contestado**, com evidência ou razão técnica;
+- **pendente**, com a dúvida ou a decisão necessária.
+
+Aceito não é implementado e verificado. São estados distintos e se declaram em
+separado.
+
+**Parada por item, não por tarefa.** Suspenda a ação afetada quando houver
+conflito com decisão anterior do autor, necessidade de autorização adicional ou
+ambiguidade que impeça executar corretamente dentro das restrições vigentes.
+Explicite o ponto e a decisão necessária. Continue as ações independentes já
+autorizadas, salvo parada global expressa na tarefa.
+
+⚠ Registrar a dúvida no relato final não basta quando ela condiciona a
+implementação.
+
+**Vinculação.** O prompt de tarefa remete a esta seção identificando seção e
+commit aplicável. O prompt continua responsável por declarar as autorizações,
+proibições e paradas específicas daquela tarefa.
+
+Esta regra é adaptada da skill `receiving-code-review` do projeto Superpowers
+(github.com/obra/superpowers, commit `bb92a77`, versão 7.0.0, licença MIT,
+Copyright (c) 2025 Jesse Vincent). ⚠ A fonte e a licença constam de leitura
+relatada pela bancada de análise, sem reconferência independente.
+
+---
+
 # Pendência de segurança, fora do escopo do saneamento
 
 **As regras do Firestore não foram verificadas, e o repositório é público desde
