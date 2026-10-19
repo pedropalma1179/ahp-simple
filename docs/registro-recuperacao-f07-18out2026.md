@@ -88,6 +88,9 @@ exercitou outra versão.
 
 ## O servidor, por consulta datada
 
+⚠ **Esta seção está retificada.** O título e o texto abaixo atribuem ao servidor uma
+leitura feita num bundle local. Ver o erratum de 19/10/2026, ao fim deste registro.
+
 | Instante | Ramo | SHA |
 |---|---|---|
 | 18/10/2026, 18:33:54 UTC | `refs/heads/claude/loving-shannon-661fy9` | `bbeae3979fe58f43d99b53ed14b18fecf83ed572` |
@@ -111,3 +114,42 @@ Push, publicação e instalação do plugin, que seguem sem autorização; a con
 de clone raso daquele ambiente, achado aberto; o destino da ref
 `f07-a8-recuperado`; e as correções das seções 2.3 e 1.6 do âncora, que são
 tarefa própria e não entram aqui.
+
+---
+
+## Erratum de 19/10/2026: o que foi lido como servidor era um bundle local
+
+Retificação da seção «O servidor, por consulta datada». O texto original fica
+preservado acima, como escrito em 18/10/2026.
+
+- **Os `git ls-remote origin` consultaram o bundle local, não o servidor** [medido
+  em 19/10/2026]. O único remoto configurado na bancada de análise é `origin`,
+  apontando para `/home/claude/f07-a4/recebidos/f07-A4-etapa1.bundle`, arquivo
+  recebido do executor em 11/10/2026. O `git bundle list-heads` nesse arquivo
+  devolve `bbeae3979fe58f43d99b53ed14b18fecf83ed572` para
+  `refs/heads/claude/loving-shannon-661fy9`.
+- **`bbeae39` identifica a ponta anunciada por aquele bundle.** É evidência
+  recebida do executor, não leitura de servidor. Os instantes registrados datam as
+  leituras do bundle; não demonstram o estado do servidor nesses instantes nem
+  quando sua ponta mudou.
+- **As distâncias continuam válidas contra esse commit:** 23 a partir de `cd4cbcd`
+  [medido], 24 a partir do commit documental `948e91a4` e 26 a partir de
+  `1a78d2b2422a311ca25803c760584aaa51abde92` [derivadas]. Elas **não demonstram**
+  distância até o servidor nem publicação.
+- **O estado do GitHub, apurado depois desta redação.** Na redação deste erratum, o
+  estado do GitHub não estava apurado: a leitura pela API devolveu 403 na sessão da
+  bancada de análise, e esta bancada não tem o repositório remoto configurado.
+  Posteriormente, em 19/10/2026 às 21:19:06 UTC, o executor consultou
+  `https://github.com/pedropalma1179/ahp-simple` pelo proxy do ambiente [recebido].
+  O ramo `claude/loving-shannon-661fy9` anunciou
+  `317767a33dd9a90c5dd79a79d40c4ac73973d1d3`; a conferência local registrou 38
+  commits até `1a78d2b2422a311ca25803c760584aaa51abde92` e ancestralidade com saída
+  0 [recebido]. A consulta não demonstra quando a ponta mudou nem ineditismo global
+  dos commits.
+- **A lacuna de deploy apontada em 19/10/2026 perde o fundamento.** O deploy do
+  commit `317767a`, de 08/10/2026, é evidência histórica de que aquele commit
+  esteve no GitHub. A ausência de deploy para `bbeae39` **não prova** ausência
+  desse commit no GitHub, e nenhum dos dois diz onde o servidor está hoje.
+
+A atribuição errada foi feita pela bancada de análise e passou pela revisão sem a
+exigência de identificar o destino do remoto. As duas afirmações ficam retiradas.
