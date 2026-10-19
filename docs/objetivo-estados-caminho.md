@@ -466,11 +466,11 @@ indicador único de robustez é o que o sistema faz hoje, e é o que precisa mud
 | Dependência de uma ponderação específica | discordar dos pesos muda a conclusão | negociar a ponderação antes |
 | Dispersão alta no painel | não há consenso a invocar | investigar a discordância |
 
-E o caso oposto, que é argumento forte e derivável: se uma alternativa supera a
-outra em **todos** os méritos, respeitada a direção de preferência de Custos e
-Riscos, nenhuma ponderação positiva inverte o resultado. O gestor pode dizer ao
-financeiro que discordar dos pesos não muda a conclusão. Isso é a dominância, e
-ela é **um qualificador entre outros**.
+E o caso oposto, que é argumento forte: se uma alternativa supera a outra em **todos** os méritos, respeitada a
+direção de preferência de Custos e Riscos, **nenhuma ponderação positiva inverte** o resultado. O gestor pode dizer
+ao financeiro que discordar dos pesos não muda a conclusão. ⚠ Isso é **não inversão**, e não vitória estrita: as
+expressões abrangidas, suas condições de domínio e a implementação com truncamento seguem a identificar. Isso é a
+dominância, e ela é **um qualificador entre outros**.
 
 **Evidência de campo a recuperar quando esta seção for reescrita:** o sistema
 tinha, antes de A.1, **seis conjuntos distintos de limiares de CR na mesma
@@ -506,10 +506,10 @@ construída do zero.** Quatro passagens a desenvolvem:
 
 - **Discussão da Tabela 12.** "A convergência decorre da relação de dominância
   entre as alternativas [...] A ordenação da A1 à frente da A2 é, portanto,
-  consequência algébrica dessa dominância." O fundamento é Saaty e Vargas (1984):
-  a dominância de uma linha sobre outra preserva a ordem pelo autovetor principal
-  **sem exigência de consistência**, e a ordem é fator estrutural que a
-  inconsistência mascara sem eliminar.
+  consequência algébrica dessa dominância." ⚠ A nota invoca Saaty e Vargas (1984),
+  que trata da dominância **entre linhas de uma matriz** e da ordem pelo autovetor
+  principal sem exigência de consistência. **Dominância entre alternativas ao longo
+  dos méritos é outro objeto**, e o elo entre os dois segue a estabelecer.
 - **Seção 4.10.** Vai além da concordância entre métodos: como A1 domina nos
   quatro méritos e os pesos pessoais e rescaling weights são não negativos, "a
   diferença de score em favor da A1 permanece positiva para qualquer combinação
@@ -522,15 +522,15 @@ construída do zero.** Quatro passagens a desenvolvem:
   alternativas, estudos futuros podem incorporar sensibilidade multivariada e
   exploração estocástica do espaço de pesos por simulação de Monte Carlo."
 
-⚠ **Lacuna na cadeia de autoridade, registrada em 11/09/2026.** A nota da Tabela
-12 do manuscrito fundamenta os cinco métodos de síntese em Lee (2009b), que é o
-artigo de seleção de fornecedores publicado na *Expert Systems with Applications*.
-**Ele não está no RAG.** Nem Demirtas e Ustun (2008), a outra fonte de fórmula.
+⚠ **Lacuna na cadeia de autoridade, registrada em 11/09/2026 e redelimitada em 19/10/2026.** A nota da Tabela 12
+fundamenta os cinco métodos de síntese em Lee (2009b), o artigo de seleção de fornecedores da *Expert Systems with
+Applications*. **Ele não está na base versionada**: o que existe é `lib/rag/articles/lee2009_wind.ts`, outra
+publicação. **Demirtas e Üstün (2008) está**, em `lib/rag/articles/demirtas2008_integrated.ts`, importado em
+`lib/rag/index.ts:29`. Conferido por leitura em `cd4cbcd`.
 
-Consequência: o parecer **nunca pode verificar a procedência do método central do
-sistema**. Não é defeito de metadado, é buraco na cadeia de autoridade, e é o
-mesmo problema que a A.6 e a pendência do Lee da ESWA veem de outros ângulos: a
-base não cobre as fontes que o sistema declara usar. Endereçado em A.11.
+Consequência: a base versionada não oferece lastro para conferir a atribuição a Lee (2009b). A composição do índice
+semântico permanece não apurada. É a mesma lacuna que A.6 e a pendência do Lee da ESWA veem de outro ângulo, e está
+endereçada em A.11.
 
 **Consequência para o Bloco D.** O que falta não é o argumento: é o software
 parar de chamar concordância de robustez, que é a D.6. E as verificações D.1 a
@@ -636,26 +636,26 @@ formulário; **ausente** procurei e não encontrei.
 
 ## 2.3 Defeitos que afetam o estado futuro
 
-**`robustnessLevel` chama de robustez a concordância entre métodos.** Persistido
-em `calculations.methodConcordance`, exibido e enviado à IA. Sob dominância, os
-cinco métodos concordarem é consequência algébrica.
+⚠ Estado conferido por leitura em `cd4cbcd`. Item que fechar sai desta seção e
+fica registrado na tabela do bloco correspondente, com o commit.
 
-**`'REVISAR': 0` fixo** em `resultados/page.tsx`, no objeto de contagem de status montado para o payload do parecer. A distribuição de status
-que chega à IA nunca tem essa categoria preenchida.
+**`robustnessLevel` chama de robustez a concordância entre métodos.** Em `calculate/route.ts:431-446` o nível deriva de
+`agreementPercent`, e o rótulo diz "5/5 métodos concordam". Persiste em `executions/{executionId}`, pelo spread de
+`lib/execucoes.ts:97` e pela gravação em `:180`, e é exibido por `MethodComparisonTable.tsx:173`. **Não chega ao
+modelo** nos caminhos capturados. Sob dominância, os cinco métodos concordarem é consequência algébrica, e chamar isso
+de robustez é o defeito.
 
-**Classificação categórica de sensibilidade** em
-`calculateSensitivityWithClassification`, dentro de `calculate/route.ts`, com os
-limiares de `SENSITIVITY_THRESHOLDS` em 50, 20 e 10. Construto sem respaldo, e é uma leitura de fragilidade
-que 1.6 substitui.
+**`'REVISAR': 0` fixo** em `app/decisor/resultados/[projectId]/page.tsx:1358`, no objeto de qualidade montado para o
+payload do parecer. A distribuição de status que chega à IA nunca tem essa categoria preenchida.
 
-**Rótulo de modelo divergente.** `ParecerAISection.tsx` diz "Claude Sonnet 4.5"
-em dois pontos e `resultados/page.tsx` num terceiro; o `MODEL_CONFIG.id` de
-`ai-reviewer/route.ts` é `claude-opus-4-6`.
+**A classificação categórica de sensibilidade saiu da rota** em `5837d0d`, e o construto sobrevive em
+`lib/knowledge.ts:406` e na cadeia de rótulos da página. A string que o declara continua no metadata persistido, em
+`calculate/route.ts:1256`. O mapa dos oito endereços e o estado de cada um estão na tabela do Bloco A. É a leitura de
+fragilidade que 1.6 substitui.
 
-**O antigo `dominanceAnalyzer.ts` não media dominância de alternativas.** Media
-concentração de peso entre méritos, por uma razão arbitrária de 3:1, e injetava
-narrativa sobre Upper Echelons Theory no prompt. Foi removido em A.3; o ratio
-máximo/mínimo factual continua no payload, sem classificação automática.
+**O antigo `dominanceAnalyzer.ts` não media dominância de alternativas.** Media concentração de peso entre méritos, por
+razão arbitrária de 3:1, e injetava narrativa sobre Upper Echelons Theory no prompt. Removido em A.3. O ratio factual
+segue no payload, e `ai-reviewer/route.ts:464-474` o converte em penalidade de nota, com limiares 5 e 10.
 
 ## 2.4 O que já está saneado
 
