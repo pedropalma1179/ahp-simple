@@ -27,7 +27,8 @@
  * foi capturada com a qualidade individual do formato ANTERIOR (categorias de pessoa a partir do
  * `cr` em cache). O pedido ATUAL leva, por respondente, o CR por matriz recalculado dos julgamentos,
  * e o contexto muda por isso. Por isso:
- *   - o `system` continua com o MESMO SHA-256 da referência (o prompt de sistema não foi tocado);
+ *   - o `system` mudou SÓ nos três pontos dos exemplos do H-CR-S (Ajuste 1, segunda etapa): desfeitas as três substituições, o SHA-256 e os bytes são
+ *     EXATAMENTE os da referência; o hash e o tamanho atuais são os medidos e estão em `helpers/system-do-ajuste-1.ts`;
  *   - o payload é igual ao da referência em TODOS os campos exceto os de qualidade
  *     (`qualityAnalysis`, e `avaliacaoDeQualidade` quando o seu texto declara a fonte), que são
  *     conferidos à parte, e os dois campos do registro da execução que a tela já enviava e o espelho
@@ -71,6 +72,7 @@ const { duplo } = require('./helpers/firestore-duplo');
 const { POST: CALCULAR } = require('@/app/api/calculate/route');
 const { montarPedidoDoParecer } = require('@/lib/ai-reviewer/montagem-do-pedido');
 const { consistenciaIndividualDeJulgamentos } = require('@/lib/consistencia-individual');
+const { conferirSystemDeDepois, reverterOsExemplos, SYSTEM_ESPERADO } = require('./helpers/system-do-ajuste-1');
 const fixture = require('./fixtures/panel-2026.json');
 /* eslint-enable @typescript-eslint/no-var-requires */
 
@@ -435,11 +437,14 @@ describe('F07: a entrada do modelo, caso fixo do painel de 2026', () => {
    */
   const MESSAGES_APOS_O_AJUSTE_1 = { sha256: 'bfd0ab36e8664ec6fe8f68a183c8b8107eccd74e40d9f47ca476bc313b65cb03', bytes: 80678 };
 
-  test('o system é o da referência (prompt de sistema intocado) e o messages é o medido após o Ajuste 1, distinto da referência', () => {
+  test('o system é o da referência SÓ fora dos três pontos dos exemplos (desfeitas as substituições, igual) e o messages é o medido após o Ajuste 1, distinto da referência', () => {
     const ref = referencia();
-    // o prompt de sistema NÃO mudou: mesmo SHA-256 e mesmos bytes
-    expect(sha256(entrada.system)).toBe(ref.sha256.system);
-    expect(Buffer.byteLength(entrada.system, 'utf8')).toBe(ref.bytes.system);
+    // ⚠ ATUALIZADO POR MEDIÇÃO (predição P-SP-1): o `system` atual é o de DEPOIS dos exemplos; o da referência (`f3f2410c…`, 34170 bytes) fica nomeado.
+    expect(conferirSystemDeDepois(entrada.system)).toEqual(SYSTEM_ESPERADO);
+    // e a ligação com a REFERÊNCIA gravada em `f07-entrada-antes.json`: desfeitas as três substituições, mesmo SHA-256 e mesmos bytes
+    const revertido = reverterOsExemplos(entrada.system);
+    expect(sha256(revertido)).toBe(ref.sha256.system);
+    expect(Buffer.byteLength(revertido, 'utf8')).toBe(ref.bytes.system);
     // o messages MUDOU, e o hash antigo fica nomeado: o teste reprova se alguém restaurar o contexto anterior
     expect(sha256(entrada.messages)).not.toBe(ref.sha256.messages);
     expect({ sha256: sha256(entrada.messages), bytes: Buffer.byteLength(entrada.messages, 'utf8') }).toEqual(MESSAGES_APOS_O_AJUSTE_1);

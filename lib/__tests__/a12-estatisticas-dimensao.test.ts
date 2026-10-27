@@ -47,6 +47,8 @@ import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidad
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { blocoDoMaximo, blocoComMaximo, blocoRecalculado, blocoIndisponivel } = require('./helpers/consistencia-de-ensaio');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { conferirSystemDeDepois, reverterOsExemplos, SYSTEM_ESPERADO } = require('./helpers/system-do-ajuste-1');
 
 const RAIZ = path.resolve(__dirname, '..', '..');
 const ler = (rel: string): string => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
@@ -618,14 +620,17 @@ describe('ensaio 8: nenhum quociente do agregado é apresentado como contagem me
 });
 
 // ============================================================ o system
-describe('o `system` do modelo não muda com o Ajuste 1: o sha256 de cada cenário é o da base medida em `35a1506`', () => {
-  test('em todos os cenários da base com respondentes, o `system` capturado tem o sha256 da base', async () => {
+describe('o `system` do modelo muda SÓ nos três pontos dos exemplos do H-CR-S: desfeitas as substituições, o sha256 é o da base medida em `35a1506`', () => {
+  test('em todos os cenários da base com respondentes, o `system` capturado, com as três substituições desfeitas, tem o sha256 da base', async () => {
     const linhas = JSON.parse(ler(`${PASTA_SAIDA_A}/contextos-da-base-35a1506.json`));
     const sha256System = new Set<string>(linhas.cenarios.map((c: any) => c.sha256System));
     // O `system` não depende do payload: um só valor em todos os cenários da base, e é o que o handler atual produz.
     expect(sha256System.size).toBe(1);
     const { payload } = payloadAtual(CONJUNTOS['agregado-5'](), { comVinculo: false });
     const r = await executar(payload);
-    expect(sha256(r.system)).toBe([...sha256System][0]);
+    // ⚠ ATUALIZADO POR MEDIÇÃO (Ajuste 1, segunda etapa; predição P-SP-1): o `system` ATUAL não é mais o da base (`f3f2410c…`); é o de DEPOIS dos exemplos,
+    //   e a ligação com a base é que, desfeitas as três substituições, o hash volta a ser exatamente o dela.
+    expect(sha256(reverterOsExemplos(r.system))).toBe([...sha256System][0]);
+    expect(conferirSystemDeDepois(r.system)).toEqual(SYSTEM_ESPERADO);
   });
 });

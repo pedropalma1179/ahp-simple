@@ -50,6 +50,7 @@ const crypto = require('node:crypto');
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import ParecerAISection from '@/components/ParecerAISection';
+import { conferirSystemDeDepois, SYSTEM_ESPERADO } from './helpers/system-do-ajuste-1';
 
 const RAIZ = path.resolve(__dirname, '..', '..');
 const ler = (rel: string): string => fs.readFileSync(path.join(RAIZ, rel), 'utf8');
@@ -75,7 +76,9 @@ const ROTULO = {
   coerencia_nao_avaliada: 'Destaque de nota e veredito suspenso: coerência interna não avaliada nesta requisição',
 } as const;
 const ESTADOS = ['padrao_reconhecido', 'nenhum_padrao_reconhecido', 'nao_executada_por_suspensao'] as const;
-const SHA_SYSTEM = 'f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98';
+// ⚠ ATUALIZADO POR MEDIÇÃO (Ajuste 1, segunda etapa; predição P-SP-1): o `system` mudou nos três pontos dos exemplos do H-CR-S. O valor ANTIGO,
+//   `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98`, fica nomeado em `helpers/system-do-ajuste-1.ts`, e a conferência abaixo exige
+//   que desfeitas as três substituições o `system` volte a ter o hash ANTIGO.
 
 // ---------------------------------------------------------------------------------------------------------------------------
 // Cliente do modelo SIMULADO, e o simulado DECLARADO de `avaliarCoerencia` (só para a causa construída)
@@ -627,7 +630,7 @@ describe('A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predi�
       expect(ocorrencias(r.contexto, BLOCO_DE_AUSENCIA)).toBe(1); // a ausência de vínculo (as requisições não trazem o campo)
       const nova = FRASES_DA_LISTA_DA_AUSENCIA(nDaLista);
       for (const k of ['cabecalho', 'total', 'agregacao'] as const) expect([k, ocorrencias(r.contexto, nDaLista > 0 ? nova[k] : '\u0000')]).toEqual([k, nDaLista > 0 ? 1 : 0]);
-      expect(sha256(r.system)).toBe(SHA_SYSTEM); // o `system` não muda
+      expect(conferirSystemDeDepois(r.system)).toEqual(SYSTEM_ESPERADO); // o `system` é o medido depois dos exemplos, e só mudou nos três pontos
       expect({ bytes: Buffer.byteLength(r.contexto, 'utf8'), sha256: sha256(r.contexto) }).toEqual(MEDIDO_APOS_O_AJUSTE_1[id]);
       // CONTRAEXEMPLO: o contexto MUDOU em relação ao de antes do Ajuste 1 (o pinado não é o previsto da rodada 1) e à Fase 1
       expect(MEDIDO_APOS_O_AJUSTE_1[id].sha256).not.toBe(PREVISTO_DA_RODADA_1[id].sha256);
@@ -983,9 +986,14 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
   const ARTEFATO_DA_TRAVA = 'docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json';
   // ⚠ AJUSTE 1 (A.12 item (c)): `calculateGrade` FOI LIBERADO, por IDENTIFICADOR e por decisão consciente, como `handleCopy` na rodada 2. O motivo é
   // estrutural, e não de conveniência: o trecho pré-registrado (7468 bytes) pontuava a partir de `byStatus`, `overallStats` e das categorias de
-  // pessoa (CONFIÁVEL/REVISAR/SUSPEITO/CRÍTICO), que o pedido já não leva (são o construto sem lastro que A.12 (c) manda remover), e tinha um ramo
-  // defensivo que SUSPENDERIA toda requisição sem distribuição, isto é, TODA requisição atual. Deixá-lo como estava suspenderia a classificação de
-  // todo pedido. O hash histórico (`02bf0fd9…`) fica no artefato, a proteção NÃO se retira, e o trecho novo ganha a sua guarda (o teste da liberação, abaixo).
+  // pessoa (CONFIÁVEL/REVISAR/SUSPEITO/CRÍTICO), que o pedido já não leva (são o construto sem lastro que A.12 (c) manda remover). MEDIDO (segunda etapa do
+  // Ajuste 1, `docs/imprecisoes-parecer-ia.md`): executado o texto da função de `bcb6bdb` sobre a requisição normalizada de agora, o trecho NÃO suspendia; contava
+  // 0 de 12 em todas as categorias, calculava validade 0,0%, subtraía 40 pontos e devolvia NOTA D (score 60) para o painel completo: um valor desfavorável FABRICADO
+  // pela ausência do campo retirado. ⚠ Esse valor só chegaria ao LOG (a nota e o veredicto da resposta vêm do texto do modelo), de modo que o trecho antigo não
+  // quebraria a resposta: a liberação não foi forçada por quebra funcional, e sim pelo item (c), que manda retirar o construto. Uma versão anterior deste comentário
+  // dizia que o ramo defensivo «declarada disponível sem distribuição» suspenderia toda requisição atual; estava errado (esse ramo continua inalcançável pelo
+  // contrato: `disponivel` exige lista de respondentes não vazia, e a lista não vazia é contada antes dele). O hash histórico (`02bf0fd9…`) fica no artefato, a
+  // proteção NÃO se retira, e o trecho novo ganha a sua guarda (o teste da liberação, abaixo).
   // Os SETE outros seguem imutáveis, por lista nominal.
   const TRECHOS_LIBERADOS: readonly string[] = ['handleCopy', 'calculateGrade'];
   const TRECHOS_IMUTAVEIS: readonly string[] = [

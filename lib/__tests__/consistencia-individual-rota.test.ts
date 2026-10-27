@@ -21,6 +21,7 @@ import { POST as QUALIDADE } from '@/app/api/response-quality/route';
 import { montarPedidoDoParecer } from '@/lib/ai-reviewer/montagem-do-pedido';
 import { verificarIntegridadeDoRegistro } from '@/lib/ai-reviewer/registro-da-execucao';
 import { REFERENCIA } from './helpers/referencia-cr-individuais';
+import { conferirSystemDeDepois, FRASES_RETIRADAS, reverterOsExemplos, SYSTEM_ESPERADO } from './helpers/system-do-ajuste-1';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fixture = require('./fixtures/panel-2026.json');
@@ -259,13 +260,14 @@ describe('P-CR-2, literal da predição: zero ocorrências dos rótulos, do scor
     'CONFIÁVEL', 'CONFIÁVEIS', 'CONFIAVEL', 'REVISAR', 'SUSPEIT', 'CRÍTIC', 'CRITIC', 'DESCONHECIDO',
     'Status:', 'Taxa de Validade', 'qualityScore', 'overallScore', 'avgScore', 'recommendation',
   ];
-  test('painel completo, com cache favorável: nenhum token no `messages` do SDK nem no corpo que a tela enviaria; o `system` não muda', async () => {
+  test('painel completo, com cache favorável: nenhum token no `messages` do SDK nem no corpo que a tela enviaria; o `system` é o medido depois dos exemplos', async () => {
     const { captura, pedido } = await executarCadeia(respostas(true));
     const corpoEnviado = JSON.stringify(pedido.corpo);
     for (const t of TOKENS_DA_P_CR_2) {
       expect({ t, noMessages: captura.messages.includes(t), noCorpo: corpoEnviado.includes(t) }).toEqual({ t, noMessages: false, noCorpo: false });
     }
-    expect(sha(captura.system)).toBe('f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98');
+    // ⚠ ATUALIZADO POR MEDIÇÃO (Ajuste 1, segunda etapa; predição P-SP-1): antes, `f3f2410c…` (34170 bytes). Ver `helpers/system-do-ajuste-1.ts`.
+    expect(conferirSystemDeDepois(captura.system)).toEqual(SYSTEM_ESPERADO);
   });
 });
 
@@ -394,19 +396,40 @@ describe('o registro da execução é o que FOI enviado ao SDK', () => {
   });
 });
 
-describe('o que NÃO mudou: o `system` e o limite desta correção', () => {
-  test('o `system` capturado tem o sha256 do `system` de antes do Ajuste 1 (o prompt de sistema não foi tocado)', async () => {
+describe('o `system` depois dos exemplos (H-CR-S, Ajuste 1 segunda etapa): só os três pontos mudaram, e as duas frases saíram', () => {
+  test('o `system` capturado é o MEDIDO depois da alteração, e desfeitas as três substituições volta a ser, byte a byte, o de antes (`f3f2410c…`, 34170 bytes)', async () => {
     const { captura } = await executarCadeia(respostas(true));
-    expect(sha(captura.system)).toBe('f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98');
+    // ⚠ ATUALIZADO POR MEDIÇÃO (predição P-SP-1): o valor ANTIGO é `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98`, e fica nomeado em
+    //   `helpers/system-do-ajuste-1.ts`. A segunda conferência é a que diz que NADA além dos três pontos mudou.
+    expect(conferirSystemDeDepois(captura.system)).toEqual(SYSTEM_ESPERADO);
   });
 
-  test('LIMITE REGISTRADO (H-CR-S), caracterizado e NÃO aprovado: o exemplo «CORRETO» do `system` ainda afirma «CRs entre 1,1% e 9,6%, todos abaixo do limiar»', async () => {
-    // ⚠ Este teste CARACTERIZA um defeito conhecido que esta correção NÃO conserta (o prompt de sistema não está no escopo): o exemplo ensina o formato de uma
-    //   frase cujo conteúdo é o intervalo do cache diluído (1,1% a 9,6%), que o painel recalculado desmente (11,39% a 109,27% no governante). Ele existe para
-    //   FORÇAR uma decisão consciente na tarefa que alterar o prompt de sistema: se este teste reprovar, o exemplo mudou, e a tarefa deve registrar a predição.
+  test('P-SP-2: as frases-alvo SAÍRAM do `system`; o controle (vizinhos que NÃO eram alvo) permanece', async () => {
     const { captura } = await executarCadeia(respostas(true));
-    expect(captura.system).toContain('Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar.');
-    // e o CONTEXTO desta correção diz o contrário, com números: 47 das 72 matrizes acima do limiar
-    expect(captura.messages).toContain('47 de 72');
+    for (const f of FRASES_RETIRADAS) expect({ f, presente: captura.system.includes(f) }).toEqual({ f, presente: false });
+    for (const p of ['9,6%', 'todos os 12 respondentes', '12 respondentes individuais', 'atendem o limiar']) {
+      expect({ p, n: ocorrencias(captura.system, p) }).toEqual({ p, n: 0 });
+    }
+    // o exemplo de D8 mantém a lição (verbo direto) com um sujeito que o contexto traz e que NÃO é o CR individual
+    expect(captura.system).toContain('Exemplo correto: "o CR agregado atende o limiar"');
+    // CONTROLE (não-vacuidade): as duas frases «Todos os valores estão abaixo do limiar.» do exemplo de pontuação (sem sujeito de painel) NÃO eram alvo e ficam;
+    //   e a instrução de estrutura «% que atende Saaty (1977)» também fica, registrada como limite (denominador não declarado)
+    expect(ocorrencias(captura.system, 'abaixo do limiar')).toBe(2);
+    expect(ocorrencias(captura.system, '% que atende Saaty (1977)')).toBe(1);
   });
+
+  test('o CONTEXTO diz, com números, o que o exemplo não diz mais: 47 das 72 matrizes acima do limiar, e a lição de redação não afirma nada sobre os respondentes', async () => {
+    const { captura } = await executarCadeia(respostas(true));
+    expect(captura.messages).toContain('47 de 72');
+    // o `system` não tem mais NENHUM enunciado de conformidade dos respondentes individuais com o limiar
+    const ENUNCIADO = /respondentes[^.\n]{0,40}(atendem|abaixo do limiar)/;
+    expect(captura.system).not.toMatch(ENUNCIADO);
+    // CONTROLE (não-vacuidade): o detector pega o `system` ANTIGO, reconstruído desfazendo as três substituições
+    expect(reverterOsExemplos(captura.system)).toMatch(ENUNCIADO);
+  });
+
+  // ⚠ LIMITE (P-SP-5, saída real NÃO avaliada): os três testes acima medem o TEXTO do `system`, e não o que o modelo escreverá. Nenhum mock confirma ou
+  //   refuta que o parecer real deixe de repetir «CRs entre 1,1% e 9,6%» ou «todos abaixo do limiar»: só a próxima geração real observa isso, e ela é uma
+  //   observação nova com registro novo. Se o texto real repetir qualquer um dos dois, há SEGUNDO canal (a linha 324 do `system`, as instruções do
+  //   `messages`, ou o próprio modelo), e a hipótese de canal único está refutada. Por isso não há teste de «saída» aqui: o duplo devolve texto fixo.
 });

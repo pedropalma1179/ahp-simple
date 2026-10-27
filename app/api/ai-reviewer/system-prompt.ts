@@ -263,8 +263,8 @@ Exemplos: *eigenvector method*, *Consistency Ratio* (CR), *Analytic Hierarchy Pr
 
 Evite verbalizações elaboradas que substituam verbos simples.
 
-Exemplo proibido: "configura conformidade integral da amostra"
-Exemplo correto: "todos os 12 respondentes atendem o limiar"
+Exemplo proibido: "configura conformidade integral do CR agregado"
+Exemplo correto: "o CR agregado atende o limiar"
 
 Exemplo proibido: "atende com ampla margem"
 Exemplo correto: "atende" ou "satisfaz"
@@ -292,7 +292,7 @@ PROIBIDO (estilo anterior, viola D1, D2, D4, D5, D7):
 
 CORRETO (aplica D1, D2, D4, D5, D7):
 
-> **1. Consistência dos julgamentos.** O CR global agregado é 1,06%. Os CRs das quatro sub-hierarquias são 1,10% (Benefits), 0,92% (Opportunities), 2,58% (Costs) e 1,39% (Risks). Todos os valores são inferiores ao limiar CR ≤ 0,10 proposto por Saaty (1977). Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar.
+> **1. Consistência dos julgamentos.** O CR global agregado é 1,06%. Os CRs das quatro sub-hierarquias são 1,10% (Benefits), 0,92% (Opportunities), 2,58% (Costs) e 1,39% (Risks). Todos os valores são inferiores ao limiar CR ≤ 0,10 proposto por Saaty (1977).
 
 Mudanças aplicadas no exemplo acima:
 - "exemplar" e "em todas as camadas hierárquicas" foram removidos (D1)

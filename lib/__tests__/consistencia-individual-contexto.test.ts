@@ -127,6 +127,30 @@ describe('o painel de 2026 inteiro: 12 enviados, 72 matrizes, 47 acima de 0,10, 
     expect(t).toContain('Nenhuma delas é o CR das matrizes AGREGADAS por média geométrica');
   });
 
+  test('A DIREÇÃO da contagem: 47 de 72 estão ACIMA de 0,10 e 25 de 72 DENTRO; o contexto diz «acima», e as seis linhas por matriz somam os mesmos 47', () => {
+    // o oráculo (tabela copiada à mão, em %): acima é > 10; dentro é ≤ 10. Não vem de módulo algum.
+    const celulas = IDS.flatMap((id) => MATRIZES_NAO_TRIVIAIS.map((m) => (REFERENCIA[id] as any)[m] as number));
+    const acimaDaTabela = celulas.filter((x) => x > 10).length;
+    const dentroDaTabela = celulas.filter((x) => x <= 10).length;
+    expect([celulas.length, acimaDaTabela, dentroDaTabela]).toEqual([72, 47, 25]);
+    // o resumo do painel: o complemento do «acima» é o «dentro», e nenhum campo do resumo chama 47 de «dentro»
+    const r = resumoDe(painelCompleto());
+    expect(r.matrizesAvaliadas - r.matrizesAcimaDoLimiar).toBe(dentroDaTabela);
+    // o texto: a ÚNICA sentença com «47 de 72» traz o operador «CR > 0.10», e nenhuma palavra de «dentro» ou «abaixo» no contexto do painel
+    const t = blocoDeConsistenciaDoPainel(r, CABECALHO);
+    const comOs47 = t.split('\n').filter((l) => l.includes('47 de 72'));
+    expect(comOs47).toHaveLength(1);
+    expect(comOs47[0]).toContain('Matrizes com CR > 0.10');
+    expect(comOs47[0]).not.toMatch(/dentro|abaixo|≤|atend/i);
+    expect(t).not.toMatch(/25 de 72/);
+    // as seis linhas por matriz do TEXTO («acima de 0.10: N») somam os 47 do painel, e cada uma é a contagem da sua coluna na tabela
+    const linhasPorMatriz = estatisticasPorMatriz(r).split('\n').filter((l) => /acima de 0\.10: \d+/.test(l));
+    expect(linhasPorMatriz).toHaveLength(6);
+    const doTexto = linhasPorMatriz.map((l) => Number(/acima de 0\.10: (\d+)/.exec(l)![1]));
+    expect(doTexto.reduce((a, b) => a + b, 0)).toBe(47);
+    expect(doTexto).toEqual(MATRIZES_NAO_TRIVIAIS.map((m) => IDS.filter((id) => (REFERENCIA[id] as any)[m] > 10).length));
+  });
+
   test('a linha de R03 traz a MAGNITUDE (109.27%), a média das seis (29.02%) e o máximo com a matriz governante, e o zero calculado como 0.00%', () => {
     const linha = trechoDaLinhaDoRespondente(lerConsistenciaDoRespondente(doPainel('R03')));
     expect(linha).toBe(

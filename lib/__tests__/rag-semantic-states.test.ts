@@ -422,7 +422,14 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // indicador, os dois limiares de DI, a entrada de Dodevska na bibliografia e a
     // regra que autorizava apresentar DI em "AÇÕES DE MITIGAÇÃO". **Medido depois da
     // última edição do prompt**, conforme o aviso acima.
-    const SYSTEM_SEM_FAIRNESS = 'f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98';
+    //
+    // ⚠ **OS EXEMPLOS DO H-CR-S MOVEM O `system` DE NOVO (Ajuste 1, segunda etapa; predição P-SP-1)**, e o valor anterior fica nomeado: era
+    // `f3f2410c…` (34170 bytes), o da remoção da fairness. Saíram do prompt a frase «todos os 12 respondentes atendem o limiar» (trocada por um exemplo
+    // sobre o CR agregado) e a frase «Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar.». O `system` abaixo é o
+    // MEDIDO depois da última edição, e a segunda conferência do laço exige que, desfeitas as três substituições, o hash volte a ser o ANTIGO: é o que
+    // prova que o estado da recuperação semântica continua sem tocar o `system`, e que só os três pontos mudaram.
+    const { SYSTEM_ANTES, SYSTEM_DEPOIS, reverterOsExemplos } = require('./helpers/system-do-ajuste-1');
+    const SYSTEM_SEM_FAIRNESS = SYSTEM_DEPOIS.sha256;
 
     const REFERENCIA: Record<string, { system: string; messages: string }> = {
       comResultados: { system: SYSTEM_SEM_FAIRNESS, messages: A12_MESSAGES_COM_CHUNKS },
@@ -441,6 +448,7 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     for (const [nome, desfechos] of Object.entries(casos)) {
       const r = await executar('true', false, desfechos);
       expect(resumo(r.system)).toBe(REFERENCIA[nome].system);
+      expect(resumo(reverterOsExemplos(r.system))).toBe(SYSTEM_ANTES.sha256);
       expect(resumo(JSON.stringify(r.messages))).toBe(REFERENCIA[nome].messages);
     }
 

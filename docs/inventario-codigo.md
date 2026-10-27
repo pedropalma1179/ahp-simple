@@ -503,6 +503,16 @@ de `app/`**.
 copiada à mão em `helpers/referencia-cr-individuais.ts`; os blocos de ensaio dos testes que montam pedidos à mão, em
 `helpers/consistencia-de-ensaio.ts`. ⚠ São testes de **contexto**: nenhum diz o que o modelo escreveria.
 
+### Ajuste 1, segunda etapa (27/10/2026): exemplos do `system`, portão e direção da contagem
+
+`app/api/ai-reviewer/system-prompt.ts` mudou em **três pontos** (e só neles): no par de D8 que ensinava «todos os 12 respondentes atendem o limiar»
+(agora o sujeito é o CR agregado) e no exemplo «CORRETO» integral, de onde saiu a frase «Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%,
+todos abaixo do limiar» (a faixa do cache diluído que A.25 desmente). O `system` renderizado passou de `f3f2410c…` (34170 bytes) para `d56267e9…` (34073 bytes).
+`lib/__tests__/helpers/system-do-ajuste-1.ts` guarda os dois valores e as três substituições, e `reverterOsExemplos` as desfaz: o que liga o `system` de hoje à
+medição de `35a1506`, à referência de F07 e a A.33 é que, desfeitas, o hash volta a ser o antigo. `portao-da-classificacao.test.ts` exercita a **rota real**
+com o provedor simulado e mede, por condição (ausente, incompleto, inválido, duplicado, formato desconhecido, cache legado sem bloco e contraditório), que a
+classificação fica suspensa e que o texto do modelo não restabelece nota nem veredicto. ⚠ Todos medem **contexto e portão**; nenhum diz o que o modelo escreveria.
+
 ### `lib/__tests__/fixtures/panel-2026.json`
 
 864 julgamentos anônimos, matrizes agregadas observadas, `altScores`, valores
