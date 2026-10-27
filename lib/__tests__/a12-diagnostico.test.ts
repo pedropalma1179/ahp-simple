@@ -316,6 +316,30 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     },
     camposPerdidos: 0,
   },
+  {
+    ordem: 16,
+    motivo: 'Registro de execucao do Parecer IA, exportavel por geracao: alterou app/api/ai-reviewer/route.ts (captura no ponto da chamada ao provedor e metadata.registroDaExecucao, so sob pedido da requisicao), app/decisor/resultados/[projectId]/page.tsx (projectId e o pedido do registro no payload) e components/ParecerAISection.tsx (botao de download e bloco do registro). O que o modelo recebe NAO mudou, medido por comparacao de system, messages, model, max_tokens e thinking antes e depois em 7 cenarios (91 campos, 0 divergentes). Nenhum bytesDoContexto nem blocoDeQualidadeNoContexto se moveu (a guarda mediu 3 campos mudados, 0 novos e 0 perdidos contra a versao de 49b7f76). O resumo de avaliacao-qualidade.ts NAO mudou.',
+    commitDaBase: '56c06a580efa7d8c39926e57bd0ecfb4360c51f8',
+    comando: 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.0' },
+    artefato: 'docs/dados/a12-diagnostico/medicao.json',
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]',
+      'identificacao.codigo[components/ParecerAISection.tsx]',
+    ],
+    valorAnterior: {
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]': 'ff57131817aae746d52a1126eacfbff983f416a397b9df855cd11d297fdb3b46',
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]': '260efc71958aad89d62d7dfa45e0ba94b3ca59ac4f2ea1de91b430648fdba7d8',
+      'identificacao.codigo[components/ParecerAISection.tsx]': 'f91c0f5e5aca7b5e8b44de2c2b1101dfa53fabd9a926f9c5bb81d9d7a5ef4104',
+    },
+    valorNovo: {
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]': 'be3788e03a1a10c8938cdc3d6f41c6ac4dfc59a5da055d42f9e2cbb5e5a1a5cf',
+      'identificacao.codigo[app/decisor/resultados/[projectId]/page.tsx]': '00f8654f20f7e2895478d86c1e3977ab3b448f0fe961eac2217d259c08b00afc',
+      'identificacao.codigo[components/ParecerAISection.tsx]': 'b9693ff9b7b66087e7db9f1c8493432f1552fc14578883890e97e7b5d91ffc41',
+    },
+    camposPerdidos: 0,
+  },
 ];
 const VINCULO_DA_PROCEDENCIA =
   'identificacao.codigo traz o sha256 dos arquivos DESTA execucao, e e o vinculo com o codigo medido';
@@ -336,10 +360,10 @@ const O_QUE_A_PROCEDENCIA_NAO_E =
  * são recalculados sobre a versão que então estiver no HEAD). O escritor, que lê o git, confere o resto na hora.
  */
 const ANCORA_DA_VERSAO_ANTERIOR = {
-  obtidaDe: 'git show 35f8535:docs/dados/a12-diagnostico/medicao.json',
-  entradas: 14,
-  sha256DoHistorico: 'b65d2a73984eafad3a7ad50486683f12e3771aa97841e9dbcab5fcfa219fbb21',
-  sha256DosCaminhos: '75726a16e29884f061e269d2ccc9ca74c2f260ba4eaddc923bda8c1d6afa7d7b',
+  obtidaDe: 'git show 49b7f76:docs/dados/a12-diagnostico/medicao.json',
+  entradas: 15,
+  sha256DoHistorico: '3ba44ab2bfd11aa3b59c00bb86a0a6a675e49f50bbf7aa6009807b231df2bdc9',
+  sha256DosCaminhos: 'bcd71a72c0a19f10f9da681e1273e3642cadc187cf60c9bf7866e16a5b245da5',
 };
 const COMANDO_DE_REGRAVACAO = 'A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts';
 const CAMINHO_DA_LISTA = ['identificacao', 'procedenciaDasRegravacoes'];

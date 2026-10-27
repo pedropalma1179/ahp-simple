@@ -329,6 +329,20 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 13,
+    motivo: 'Registro de execucao do Parecer IA, exportavel por geracao: alterou app/api/ai-reviewer/route.ts (captura no ponto da chamada ao provedor e metadata.registroDaExecucao, so sob pedido da requisicao). O contexto enviado ao modelo nao muda; knowledge.ts e as demais fontes de codigo desta medicao nao entram nesta linha de base.',
+    commitDaBase: '56c06a580efa7d8c39926e57bd0ecfb4360c51f8',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.0' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // ⚠ NENHUM valor medido deve se mover, porque esta mudanca NAO toca o que o modelo recebe (A/B: system, messages, model, max_tokens e
+    //   thinking identicos antes e depois em 7 cenarios). MEDIDO por comparacao campo a campo (folhas escalares, a mesma contagem das entradas anteriores): 3267 campos antes e 3277 depois, ZERO perdidos, 10 novos (todos nesta propria entrada) e UM mudado: o resumo de codigo de route.ts, e nenhum outro campo (camadas, `bytesSystem`, `bytesMessages` e as demais secoes ficaram identicas).
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

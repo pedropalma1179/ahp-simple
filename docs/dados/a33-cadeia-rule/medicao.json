@@ -5,7 +5,7 @@
     "commitMedido": "ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d",
     "codigo": {
       "app/api/ai-reviewer/knowledge.ts": "7d76ce6e92103edf8d6d5106cb5a592e6328800f4c5045bc046b1eb51fed3d34",
-      "app/api/ai-reviewer/route.ts": "ff57131817aae746d52a1126eacfbff983f416a397b9df855cd11d297fdb3b46"
+      "app/api/ai-reviewer/route.ts": "be3788e03a1a10c8938cdc3d6f41c6ac4dfc59a5da055d42f9e2cbb5e5a1a5cf"
     },
     "dados": {
       "docs/dados/a33-etapa4-v2/casos.json": "49b6c5ad94ef461c8973511b765e35b58f3de2958d76ca16642c7c0c6217afc7",
@@ -221,6 +221,22 @@
           "plataforma": "linux",
           "arch": "x64",
           "node": "v22.22.2"
+        },
+        "artefato": "docs/dados/a33-cadeia-rule/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]"
+        ],
+        "camposPerdidos": 0
+      },
+      {
+        "ordem": 13,
+        "motivo": "Registro de execucao do Parecer IA, exportavel por geracao: alterou app/api/ai-reviewer/route.ts (captura no ponto da chamada ao provedor e metadata.registroDaExecucao, so sob pedido da requisicao). O contexto enviado ao modelo nao muda; knowledge.ts e as demais fontes de codigo desta medicao nao entram nesta linha de base.",
+        "commitDaBase": "56c06a580efa7d8c39926e57bd0ecfb4360c51f8",
+        "comando": "A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.0"
         },
         "artefato": "docs/dados/a33-cadeia-rule/medicao.json",
         "camposRegravados": [
