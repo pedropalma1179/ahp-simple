@@ -50,6 +50,7 @@ import {
   elegivelParaClassificacao,
 } from '@/lib/ai-reviewer/avaliacao-qualidade';
 
+import { blocoComMaximo } from './helpers/consistencia-de-ensaio';
 const crypto = require('node:crypto');
 
 // ---------------------------------------------------------------------------
@@ -93,8 +94,12 @@ function calculo(
   return doc;
 }
 
-const analise = (...ids: string[]) => ids.map((id) => ({ respondentId: id, cr: 0.05 }));
-const respostas = (...ids: string[]) => ids.map((id) => ({ visitorId: id, cr: 0.05 }));
+// ⚠ AJUSTE 1 (27/10/2026): a avaliação só está disponível com o CR POR MATRIZ recalculado dos julgamentos (o bloco
+// `consistenciaIndividual`); um `cr` solto era o cache legado e deixou de ser medição. Os respondentes e as respostas «com CR»
+// destes ensaios passam a trazer o bloco (CR governante 0,05), e o `cr` solto fica só como o campo legado que a tela ainda lê.
+const analise = (...ids: string[]) => ids.map((id) => ({ respondentId: id, cr: 0.05, consistenciaIndividual: blocoComMaximo(0.05) }));
+const respostas = (...ids: string[]) => ids.map((id) => ({ visitorId: id, cr: 0.05, consistenciaIndividual: blocoComMaximo(0.05) }));
+const COM_CR = { cr: 0.05, consistenciaIndividual: blocoComMaximo(0.05) };
 
 const prep = (calc: any, ativos: any[] = [], resp: any[] = []) =>
   prepararVinculoDaTela({ calculo: calc, respondentesAtivos: ativos, respostasAtivas: resp });
@@ -1263,7 +1268,7 @@ describe('ensaio 10 (parte pura) e seção 7: o estado do vínculo, isoladamente
   });
 
   test('o mesmo vale quando o conjunto NÃO é elegível: mudar só o estado não muda causa nem rótulo', () => {
-    const ativos = [{ respondentId: 'a', cr: 0.05 }, { respondentId: 'b' }]; // b sem CR → incompleta
+    const ativos = [{ respondentId: 'a', ...COM_CR }, { respondentId: 'b' }]; // b sem CR → incompleta
     const causas = [
       prep(calculo(undefined), ativos),
       prep(calculo([]), ativos),
@@ -1279,7 +1284,7 @@ describe('ensaio 10 (parte pura) e seção 7: o estado do vínculo, isoladamente
 
   test('CONTRAEXEMPLO: o NOVO conjunto muda a classificação pela regra da etapa 1, e a causa é NOMEADA (disponibilidade)', () => {
     // avaliação {a com CR, b sem CR}; documento só com {a}: a restrição retira b
-    const ativos = [{ respondentId: 'a', cr: 0.05 }, { respondentId: 'b' }];
+    const ativos = [{ respondentId: 'a', ...COM_CR }, { respondentId: 'b' }];
     const sem = prep(calculo(undefined), ativos);
     const com = prep(calculo(['a']), ativos);
     expect(sem.vinculo.estado).toBe('indisponivel');

@@ -731,6 +731,27 @@ dimensão declara a contagem por dimensão **não disponível nesta requisição
 ⚠ **O dashboard envia `'REVISAR': 0` fixo** (`resultados/page.tsx:1167`). A
 distribuição de status que chega à IA nunca tem essa categoria preenchida.
 
+⚠ **Atualizado em 27/10/2026 (Ajuste 1).** Os dois parágrafos acima são a descrição histórica. A tela **não envia mais**
+`statistics`, `overall`, `summary`, `overallStats` nem `individualStats`, e o `'REVISAR': 0` fixo saiu junto. O
+`qualityAnalysis` enviado é `{ respondents }`, e cada respondente leva **só a identidade** (`respondentId`, `id`, `name`,
+`email`, `isSimulated`) **e o bloco `consistenciaIndividual`** (CR por matriz recalculado dos julgamentos, ver
+`POST /api/response-quality`). `normalizeRequest` copia só isso; o resto do formato anterior, se chegar, é ignorado e nem
+vai ao registro da execução normalizado (a cópia da entrada **recebida** o conserva). Quem monta o pedido é
+`montarPedidoDoParecer` (`lib/ai-reviewer/montagem-do-pedido.ts`), função pura que a tela chama.
+
+**A avaliação de qualidade é `disponivel` só quando TODO respondente enviado traz o bloco recalculado.** Um respondente sem
+bloco (formato anterior, `cr` em cache) torna a avaliação `incompleta`, e a classificação global fica suspensa. A
+coerência do formato novo é a **V6**: o resumo declarado do bloco (`media`, `maximo`, `matrizGovernante`) tem de conferir com as
+suas seis matrizes; divergência suspende a classificação e conserva os dois valores. `calculateGrade` é **só o portão**
+(elegibilidade): não há mais pontuação por categoria de pessoa, e nota e veredicto continuam vindo só do texto do modelo.
+
+**O contexto** traz, por respondente, o CR por matriz, a média das seis, o máximo e a matriz governante; para o painel
+**enviado**, as contagens com o denominador escrito (respondentes enviados, com CR, sem CR por condição; matrizes
+avaliadas = recalculados × 6; matrizes acima de 0,10 e respondentes com ao menos uma); e a seção «Estatísticas por
+Dimensão BOCR» com o CR por matriz (n, acima do limiar, mínimo, média entre respondentes, máximo). Respondente sem CR vai
+**marcado, com a condição, e fora dos denominadores**; nunca com zero. O texto diz que o CR descreve a matriz e não a pessoa,
+e que a contagem acima do limiar não é critério de exclusão de participantes.
+
 ⚠ Os nomes dos méritos mudam de forma entre camadas: `B,O,C,R` no Firestore,
 `Benefits, Opportunities, Costs, Risks` na entrada da IA, `sb,so,sc,sr` no
 rescaling. Três convenções para a mesma coisa.
@@ -836,6 +857,24 @@ protegido. A.27 está **fora do escopo** desta rodada por delimitação, e não 
 
 **Entrada**: `{ responses, includeSimulated = true }`.
 **Saída**: por respondente, CRs, status, score e padrões detectados.
+
+⚠ **Atualizado em 27/10/2026 (Ajuste 1, A.12 item (c) e A.25).** O parágrafo acima é a descrição histórica. Hoje:
+
+**Entrada**: `{ responses, includeSimulated = true, alternatives }`. `alternatives` são as alternativas do projeto (a tela as envia nas duas chamadas); sem elas, a rota infere os códigos dos julgamentos de alternativas, e sem estes o CR é `nao_calculavel`.
+
+**Saída, por respondente** (campos novos em negrito): `respondentId`, `isSimulated`, `status`, `overallScore`, `cr`, **`fonteDoCR`**, **`consistenciaIndividual`**, **`cacheLegado`**, `metrics`, `flags`, `recommendation`. O CR é **recalculado dos julgamentos** pelo motor (`lib/consistencia-individual.ts`, que chama `calculateRespondentWeights`); o cache `responses.avgCR` e afins **não prevalece** sobre julgamentos válidos.
+
+| Campo | Contrato |
+|---|---|
+| `consistenciaIndividual` | **o bloco que o Parecer IA transporta**, esquema `consistencia-individual-v1`: `fonte` (`recalculado_dos_julgamentos` ou `indisponivel`), `condicao` (`validos_completos`, `ausentes`, `incompletos`, `invalidos`, `duplicados`, `mistos`, `nao_calculavel`), `detalhe`, `defeitos` (contagens), `crPorMatriz` (BOCR, MAGNITUDE, SUB-B, SUB-O, SUB-C, SUB-R), `media`, `maximo`, `matrizGovernante`, `matrizesComCR`, `matrizesEsperadas` (= 6) |
+| `crPorMatriz.*` | número do motor, **sem clamp** (o resíduo −3,97e−16 de R12/SUB-B se conserva), ou `null`. ⚠ **`null` é «não calculado»; `0` é consistência perfeita calculada, um resultado válido.** A normalização do zero negativo é só de apresentação |
+| `media`, `maximo`, `matrizGovernante` | do motor (`meanCR`, `maxCR`, `governingMatrix`): média aritmética das **seis** matrizes não triviais, o maior CR delas, e a matriz em que ocorre. As vinte matrizes de alternativas (2×2) ficam fora: o CR delas é zero por construção |
+| `cr`, `metrics.avgCR` | quando recalculado, o **CR governante (o máximo)**, e não a média. O nome `avgCR` é contrato com os consumidores; a medida, desde A.1, é o máximo. `null` quando não há CR (antes, `0`) |
+| `metrics.crMagnitude`, `meanCR`, `maxCR`, `governingMatrix` | **novos**: a Magnitude, a média das seis, o máximo e a matriz governante, com os nomes certos |
+| `fonteDoCR` | `recalculado_dos_julgamentos`, `cache_legado` (só quando os julgamentos não servem e o cache existe; a descrição vai na flag) ou `indisponivel` |
+| `cacheLegado` | `{ presente, avgCR, camposPorMatriz }`: o cache, **rotulado e à parte**, que **nunca** entra em `consistenciaIndividual`. ⚠ A semântica de `avgCR` no cache é heterogênea: média sobre as 26 matrizes nas respostas de maio de 2026, e máximo das seis nas gravadas depois de A.1 |
+| `status`, `overallScore`, `flags`, `recommendation` | continuam na resposta **para a tela**. ⚠ O Parecer IA **não os recebe**: a montagem do pedido (`lib/ai-reviewer/montagem-do-pedido.ts`) leva só a identidade e `consistenciaIndividual` |
+| `statistics.porFonteDoCR`, `knownCRCount` | contagens por fonte do CR, para que a média de `statistics.avgCR` não misture fontes sem dizer |
 
 ### `POST /api/validate-external`
 

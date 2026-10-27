@@ -1,42 +1,25 @@
 export {};
 
 /**
- * A.12, estatísticas por dimensão BOCR, SAÍDA A: o consumidor LATENTE dos totais (o antigo quarto ramo
- * de `route.ts:855-864`), com INSTRUMENTO DECLARADO.
+ * A.12, estatísticas por dimensão BOCR: o consumidor LATENTE dos totais por dimensão (o antigo quarto ramo de `route.ts:855-864`).
  *
- * ⚠ **O que este arquivo NÃO é.** Ele NÃO é a execução de um caminho alcançável pela API. O ramo que
- * somava as quatro dimensões de `individualStats` **não é alcançado hoje**, e as duas evidências disso
- * não têm o mesmo alcance:
+ * ⚠ **REESCRITO NO AJUSTE 1 (consistência individual, A.12 item (c)).** A versão anterior forçava a elegibilidade com um duplo de
+ * `elegivelParaClassificacao`, para que o ramo que SOMAVA as quatro dimensões de `individualStats` executasse sem `byStatus`, `summary`
+ * nem `overallStats`, e guardava que a Taxa de Validade Geral NÃO dependesse dos quocientes por dimensão (no código de `35a1506`, com a
+ * elegibilidade forçada, a Taxa saía 0.0%, 100.0% ou 70.0% conforme o caso, todos derivados dos quatro valores por dimensão).
  *
- * - **cobertura observada** (medida): 0 de 32 combinações de presença de campos na Fase 1, e 0 execuções
- *   de `:856` e de `:861` pela suíte existente;
- * - **leitura das condições** (lida, e é ela que sustenta a afirmação GERAL): pedido elegível implica
- *   coerência V3 concluída (`avaliacao-qualidade.ts:765-793`, `:693-698`, `:497-503`), V3 exige
- *   `qualityAnalysis.statistics.byStatus` (`:497-503`), e com `byStatus` presente o ramo tomado é o
- *   primeiro (`route.ts:704-705`, `:840`). A contagem observada é apoio, e não prova.
+ * O ramo que somava as dimensões, a Taxa e o `individualStats` como entrada SAÍRAM do que a rota lê: a Taxa de Validade Geral é taxa de
+ * pessoas e foi removida, e a rota nem lê o agregado. O duplo de elegibilidade deixou de ter função (a elegibilidade agora se obtém
+ * naturalmente, com o CR por matriz recalculado de todos os respondentes enviados), e foi retirado.
  *
- * ⚠ **O instrumento.** A ELEGIBILIDADE é FORÇADA por um duplo de teste declarado (`jest.mock` de
- * `elegivelParaClassificacao`), de modo que o código real dos totais execute com `avaliada` verdadeira e
- * SEM `byStatus`, `summary` nem `overallStats`. É a única exceção à regra de que os ensaios de
- * apresentação passam pelo caminho real, e existe porque, sem ela, o ensaio seria vazio: um teste do
- * percurso atual passa mesmo que a soma indevida permaneça.
- *
- * ⚠ **O que ele guarda.** Que a Taxa de Validade Geral NÃO dependa dos quocientes por dimensão. No
- * código de `35a1506`, com a elegibilidade forçada e só o `individualStats`, a Taxa saía 0.0%, 100.0% ou
- * 70.0% conforme o caso, **todos derivados** dos quatro valores por dimensão (medido na Fase 1). Sem
- * base, a Taxa é "não calculada", e nunca 0.0%. **Falha se a dependência for restabelecida.**
- *
- * ⚠ A correção ali PREVINE um defeito latente. Ela não é apresentada como correção de defeito ativo.
+ * **Garantia que continua, na forma que ainda faz sentido:** a Taxa NÃO existe no contexto, e o contexto NÃO muda com o
+ * `individualStats`, em nenhuma das seis formas que a versão anterior ensaiava. Se a dependência fosse restabelecida (a Taxa
+ * reaparecer, ou o contexto variar com o agregado), este arquivo reprova. ⚠ A correção ali PREVENIA um defeito latente; a remoção
+ * dele não é apresentada como correção de defeito ativo.
  */
 
 process.env.ANTHROPIC_API_KEY = 'chave-anthropic-falsa-do-processo-de-teste';
 delete process.env.USE_RAG_SEMANTIC;
-
-// ⚠ DUPLO DE TESTE, declarado: a ELEGIBILIDADE é forçada, para que o código REAL dos totais execute.
-jest.mock('@/lib/ai-reviewer/avaliacao-qualidade', () => {
-  const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
-  return { ...real, elegivelParaClassificacao: () => ({ elegivel: true, causa: null, motivo: null, rotulo: null }) };
-});
 
 const captura: { contexto: string; chamadas: number } = { contexto: '', chamadas: 0 };
 jest.mock('@anthropic-ai/sdk', () => ({
@@ -54,6 +37,8 @@ jest.mock('@anthropic-ai/sdk', () => ({
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { POST } = require('@/app/api/ai-reviewer/route');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { blocoDoMaximo } = require('./helpers/consistencia-de-ensaio');
 
 let silencios: jest.SpyInstance[] = [];
 beforeAll(() => {
@@ -62,21 +47,19 @@ beforeAll(() => {
 afterAll(() => silencios.forEach((s) => s.mockRestore()));
 jest.setTimeout(60000);
 
-const FRASE_DO_BLOCO_AVALIADA =
+const FRASE_ANTIGA_DO_BLOCO_POR_DIMENSAO =
   '⚠️ Contagem por dimensão BOCR: não disponível nesta requisição (respostas totais, válidas, warning e críticas por dimensão). ' +
   'Os totais deste contexto são agregados e não identificam a dimensão: nenhuma contagem por dimensão é apresentada, e nenhuma deve ser derivada deles.';
-const TAXA_SEM_BASE = '**Taxa de Validade Geral:** não calculada — nenhuma das contagens agregadas recebidas nesta requisição (por status, resumo ou totais gerais) traz total positivo.';
-const TAXA_NAO_AVALIADA = '**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.';
 
-async function executar(payload: any): Promise<string> {
+async function executar(payload: any): Promise<{ contexto: string; corpo: any }> {
   captura.contexto = '';
   const antes = captura.chamadas;
   const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
-  await res.json();
+  const corpo = await res.json();
   // ⚠ CONTROLE de captura NÃO VAZIA
   expect(captura.chamadas).toBe(antes + 1);
   expect(captura.contexto).toContain('## Pesos Finais da Hierarquia de Controle');
-  return captura.contexto;
+  return { contexto: captura.contexto, corpo };
 }
 
 const item = (id: string, cr: number) => ({
@@ -86,11 +69,11 @@ const item = (id: string, cr: number) => ({
   cr,
   metrics: { avgCR: cr },
   status: cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.15 ? 'REVISAR' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO',
+  consistenciaIndividual: blocoDoMaximo(cr),
 });
 
-/** Pedido com a avaliação DECLARADA disponível e SÓ a lista de respondentes: sem `byStatus`, `summary` nem `overallStats`. */
+/** Pedido com a lista de respondentes COM o bloco recalculado, SEM `byStatus`, `summary` nem `overallStats`, e com o `individualStats` dado. */
 const pedido = (n: number, individualStats: any) => ({
-  avaliacaoDeQualidade: { estado: 'disponivel', motivo: null, fonte: 'declarada' },
   projectName: 'P',
   bocrWeights: { Benefits: 0.37, Opportunities: 0.15, Costs: 0.2, Risks: 0.28 },
   bocrConsistency: { cr: 0.01, lambda: 4.03 },
@@ -99,12 +82,6 @@ const pedido = (n: number, individualStats: any) => ({
   qualityAnalysis: { respondents: Array.from({ length: n }, (_, i) => item(`r${i + 1}`, 0.05)) },
   individualStats,
 });
-
-const linhaDaTaxa = (c: string): string => {
-  const linhas = c.split('\n').filter((l) => l.startsWith('**Taxa de Validade Geral:**'));
-  expect(linhas.length).toBe(1);
-  return linhas[0];
-};
 
 const trechoDoBloco = (c: string): string => {
   const cab = '## Estatísticas por Dimensão BOCR';
@@ -115,7 +92,7 @@ const trechoDoBloco = (c: string): string => {
   return c.slice(i, j).trim();
 };
 
-/** Cada forma de `individualStats`, com o que o código de `35a1506` imprimia como Taxa (medido na Fase 1, no mesmo instrumento). */
+/** Cada forma de `individualStats` que a versão anterior ensaiava, com o que o código de `35a1506` imprimia como Taxa (medido na Fase 1). */
 const FORMAS: Array<[string, number, any, string]> = [
   ['agregado achatado de 5: 2 válidas, 1 warning, 2 críticas', 5, { valid: 2, warning: 1, critical: 2, total: 5, avgCR: 0.136 }, '0.0%'],
   ['agregado achatado de 5, todas válidas', 5, { valid: 5, warning: 0, critical: 0, total: 5, avgCR: 0.05 }, '100.0%'],
@@ -135,40 +112,50 @@ const FORMAS: Array<[string, number, any, string]> = [
   ['sem `individualStats`', 5, undefined, '0.0%'],
 ];
 
-describe('consumidor LATENTE de `:855-864` (INSTRUMENTO DECLARADO: elegibilidade FORÇADA; o ramo NÃO é alcançado hoje, e este arquivo NÃO executa caminho alcançável)', () => {
-  test.each(FORMAS)('Taxa SEM base, %s: "não calculada", nunca um percentual derivado do `individualStats`', async (_rotulo, n, individualStats, taxaQueOCodigoAnteriorImprimia) => {
-    const contexto = await executar(pedido(n, individualStats));
-    const taxa = linhaDaTaxa(contexto);
-    // o controle de que a elegibilidade FOI forçada: `avaliada` é verdadeira, e a Taxa não é a do pedido não avaliado
-    expect(taxa).not.toBe(TAXA_NAO_AVALIADA);
-    // o que se guarda: sem base, "não calculada", e nenhum percentual, derivado ou não
-    expect(taxa).toBe(TAXA_SEM_BASE);
-    expect(taxa).not.toMatch(/%/);
-    // e o número que o código de `35a1506` imprimia (derivado do `individualStats`) NÃO aparece como Taxa
-    expect(taxa).not.toContain(taxaQueOCodigoAnteriorImprimia);
+describe('consumidor LATENTE dos totais por dimensão (AJUSTE 1: o ramo, a Taxa e o agregado saíram; a dependência não pode voltar)', () => {
+  test.each(FORMAS)('Taxa AUSENTE, %s: o contexto não traz Taxa de Validade, derivada do `individualStats` ou não', async (_rotulo, n, individualStats, taxaQueOCodigoAnteriorImprimia) => {
+    const { contexto, corpo } = await executar(pedido(n, individualStats));
+    // o controle de que o pedido é ELEGÍVEL pelo caminho natural: sem duplo, com o bloco recalculado de todos os enviados
+    expect(corpo.notaSuspensa).toBeNull();
+    expect(contexto).not.toContain('Taxa de Validade');
+    // e o número que o código de `35a1506` imprimia como Taxa (derivado do `individualStats`) NÃO aparece como Taxa em canal nenhum
+    expect(contexto).not.toContain(`**Taxa de Validade Geral:** ${taxaQueOCodigoAnteriorImprimia}`);
+    expect(contexto).not.toMatch(/das respostas com CR ≤ 0\.10/);
   });
 
-  test.each(FORMAS)('bloco por dimensão, %s: a frase própria, sem dígito, e sem o `individualStats` recebido', async (_rotulo, n, individualStats) => {
-    const contexto = await executar(pedido(n, individualStats));
+  test.each(FORMAS)('bloco por dimensão, %s: o CR por matriz dos enviados, sem a frase antiga e sem o `individualStats` recebido', async (_rotulo, n, individualStats) => {
+    const { contexto } = await executar(pedido(n, individualStats));
     const trecho = trechoDoBloco(contexto);
-    expect(trecho).toBe(FRASE_DO_BLOCO_AVALIADA);
-    expect(/\d/.test(trecho)).toBe(false);
+    expect(trecho).toContain(`CR individual por matriz, sobre os ${n} respondentes enviados com CR recalculado dos julgamentos`);
+    expect(trecho).not.toBe(FRASE_ANTIGA_DO_BLOCO_POR_DIMENSAO);
     expect(contexto).not.toMatch(/^- Respostas totais: \d+$/m);
     expect(contexto).not.toContain('CR médio da dimensão');
   });
 
-  test('o mesmo pedido, com base MEDIDA (`byStatus`), volta a ter a Taxa medida: a base é o que decide, e não o `individualStats`', async () => {
+  test('o contexto de um mesmo painel é o MESMO, byte a byte, em qualquer forma de `individualStats` (a dependência não pode voltar)', async () => {
+    const cinco = FORMAS.filter(([, n]) => n === 5);
+    expect(cinco.length).toBe(4); // achatado de 5 (duas), por dimensão, e sem `individualStats`: quatro formas de 5
+    const contextos: string[] = [];
+    for (const [, n, individualStats] of FORMAS.filter(([, n]) => n === 5)) {
+      contextos.push((await executar(pedido(n, individualStats))).contexto);
+    }
+    for (const c of contextos) expect(c === contextos[0]).toBe(true);
+    // e o agregado de OUTRO tamanho muda o contexto só porque muda o painel (n de respondentes), nunca o agregado: o de 3 difere do de 5
+    const tres = (await executar(pedido(3, FORMAS[2][2]))).contexto;
+    expect(tres === contextos[0]).toBe(false);
+  });
+
+  test('CONTROLE: o mesmo pedido com `byStatus` e `summary` de qualquer valor tem o mesmo contexto: nem a base da Taxa antiga é lida', async () => {
     const p: any = pedido(5, { valid: 2, warning: 1, critical: 2, total: 5, avgCR: 0.136 });
+    const semBase = (await executar(p)).contexto;
     p.qualityAnalysis.statistics = { byStatus: { 'CONFIÁVEL': 2, 'REVISAR': 0, 'SUSPEITO': 1, 'CRÍTICO': 2 }, total: 5, avgCR: 0.136 };
-    const comBase = await executar(p);
-    expect(linhaDaTaxa(comBase)).toBe('**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10');
-    // e a Taxa medida NÃO muda se o `individualStats` mudar: ele não é lido
-    p.individualStats = undefined;
-    const semAgregado = await executar(p);
-    expect(linhaDaTaxa(semAgregado)).toBe('**Taxa de Validade Geral:** 40.0% das respostas com CR ≤ 0.10');
-    // ⚠ "válidas iguais a zero sobre base positiva" é RESULTADO, e fica: 0.0% medido não é "sem base"
+    p.qualityAnalysis.summary = { total: 5, ok: 2, suspicious: 1, critical: 2 };
+    p.overallStats = { total: 5, valid: 2, warning: 1, critical: 2 };
+    const comBase = (await executar(p)).contexto;
+    expect(comBase === semBase).toBe(true);
+    // «0 válidas sobre base positiva» também não muda nada: era RESULTADO na versão anterior (0.0%) e hoje não é lido
     p.qualityAnalysis.statistics = { byStatus: { 'CONFIÁVEL': 0, 'REVISAR': 0, 'SUSPEITO': 2, 'CRÍTICO': 3 }, total: 5, avgCR: 0.3 };
-    const zeroMedido = await executar(p);
-    expect(linhaDaTaxa(zeroMedido)).toBe('**Taxa de Validade Geral:** 0.0% das respostas com CR ≤ 0.10');
+    const zeroMedido = (await executar(p)).contexto;
+    expect(zeroMedido === semBase).toBe(true);
   });
 });

@@ -20263,6 +20263,121 @@ Todas são sobre **contexto**: o objeto que o SDK recebe, o payload que a tela e
 
 ---
 
+## Registro de 27/10/2026 (UTC): Ajuste 1, resultados medidos contra as predições P-CR-1 a P-CR-10
+
+⚠ **Este bloco é posterior ao código e não altera o bloco das predições, acima.** Código, testes e este registro estão no *working tree*, **sem commit**: o pedido proíbe commit, push, merge, implantação, escrita no Firestore, chamada real ao modelo e reingestão do Upstash. Duas consequências, ditas aqui para não ficarem implícitas. **(1)** A regra do `CLAUDE.md` «commite logo após cada bloco de registro» **não foi cumprida**, porque o pedido a impede: a ordem «predição antes do código» é a das operações da sessão (o bloco das predições foi salvo antes da primeira edição de código que altera o que o modelo recebe), e **o git não a comprova**, porque nada foi commitado. **(2)** Os dois artefatos regeneráveis (`a12-diagnostico`, `a33-cadeia-rule`) só podem ser regravados depois de um commit com o código medido (seção 6).
+
+⚠ **Isto é teste de CONTEXTO.** Tudo o que segue mede o que o modelo **receberia**: o objeto passado ao SDK, interceptado por um duplo, e o registro da execução. **Nenhuma chamada real ao modelo foi feita**, e nenhum mock confirma ou refuta o que o parecer escreverá. A próxima geração real, depois da implantação, é uma **observação nova**, com registro novo; este bloco não a antecipa.
+
+### 1. O que mudou, por responsabilidade
+
+| Responsabilidade | Arquivo | Mudança |
+|---|---|---|
+| origem do CR | `lib/consistencia-individual.ts` (novo) | produtor único: valida os julgamentos pela mesma `checkResponseCompleteness` do instrumento e chama `calculateRespondentWeights`; devolve as seis matrizes não triviais, a média, o máximo e a matriz governante do motor, ou a **condição** que impede o CR (`ausentes`, `incompletos`, `invalidos`, `duplicados`, `mistos`, `nao_calculavel`), com `null` e nunca zero |
+| origem do CR | `app/api/response-quality/route.ts` | o CR vem do recálculo; o cache `responses.avgCR` não prevalece sobre julgamentos válidos; `0` calculado é CR conhecido (antes virava `DESCONHECIDO`); as métricas ganham `crMagnitude`, `meanCR`, `maxCR`, `governingMatrix`; o cache fica em `cacheLegado`, rotulado, e só serve à **tela** quando os julgamentos não servem |
+| montagem | `lib/ai-reviewer/montagem-do-pedido.ts` (novo) | a montagem do pedido, **movida** de `runAiReview` para uma função pura que a tela chama e que os testes executam; por respondente vai só a identidade e o bloco `consistenciaIndividual`; nada de `statistics`, `overall`, `summary`, `overallStats`, `individualStats`; sem análise, o bloco sai dos julgamentos das respostas pelo mesmo módulo |
+| transporte | `app/api/ai-reviewer/route.ts` (`normalizeRequest`), `lib/ai-reviewer/review-request.ts` | lista branca: identidade + bloco; o resto do formato anterior não é copiado |
+| contexto | `lib/ai-reviewer/consistencia-individual-contexto.ts` (novo), `route.ts` (`generateReview`), `vinculo-execucao.ts` (dois itens da chave de leitura) | CR por matriz por respondente; contagens do painel **enviado** com denominador escrito; seção «Estatísticas por Dimensão BOCR» com o CR por matriz; sai a distribuição por categoria, a Taxa de Validade Geral, a lista de críticos e o item «Classificação de qualidade (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO)» |
+| portão | `app/api/ai-reviewer/route.ts` (`calculateGrade`), `avaliacao-qualidade.ts` | `calculateGrade` virou **só o portão** (elegibilidade); a disponibilidade exige o CR recalculado em TODO enviado; V6 (resumo declarado do bloco contra as suas seis matrizes) substitui V1–V5 para o formato novo |
+| tela | `app/decisor/resultados/[projectId]/page.tsx` | chama a montagem, repassa `alternatives` às duas chamadas de qualidade, e envia o corpo devolvido |
+
+**Não tocados:** os resultados BOCR, as cinco sínteses, a política de participação, o corpus bibliográfico, os parâmetros de geração, o `system-prompt.ts` e o Firestore. O `system` capturado tem o mesmo `sha256` de antes (`f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98`, 34170 bytes).
+
+### 2. Medições desta execução
+
+Ambiente: Linux x86_64, Node v22.22.0, npm 10.9.4, base `bcb6bdbbf1e4013da890081a143afb2b449338d7`.
+
+| Verificação | Resultado [medido] |
+|---|---|
+| `npx tsc --noEmit` | sai **0** |
+| `npm test` | **sai 1**, com **62 suítes e 2257 testes: 2251 passam e 6 reprovam** (baseline `bcb6bdb`: 57 suítes e 2105 testes, todos passando). As 6 reprovações são as dos dois artefatos regeneráveis (seção 6); nenhuma outra |
+| `npm run build` | sai **0**; gera **18** páginas. O baseline `bcb6bdb`, construído no mesmo ambiente, também gera **18**: a nota «17 páginas» do `CLAUDE.md` §5 está desatualizada, **antes** deste ajuste; não foi corrigida aqui |
+| comparação dos 280 corpos de resposta (35 cenários × 8 textos), código de `bcb6bdb` contra o atual, mesmo harness | **272 idênticos**; **8 diferentes**, todos do cenário `A-contradicao`, e nos 8 o **único** campo diferente é `notaSuspensa.motivo` (V5 → V6) |
+| mutações que o conjunto novo deve pegar | 6 de 6 pegas (seção 3) |
+
+⚠ **A variação do total de testes não é critério** (`CLAUDE.md` §5). Os comportamentos exigidos estão na seção 3; os testes removidos ou substituídos, na seção 5.
+
+### 3. Cada predição contra a medição
+
+| Predição | Resultado | Onde se mede | Observação |
+|---|---|---|---|
+| **P-CR-1** valores e denominadores | **confirmada** | `consistencia-individual-rota.test.ts` (12 respondentes × linha completa), `consistencia-individual.test.ts` | 72 células, 12 médias, 12 máximos e 12 matrizes governantes conferem com a tabela de `docs/referencia-cr-individuais.md` §2 (copiada à mão em `helpers/referencia-cr-individuais.ts`, e não calculada por módulo algum); **72 avaliadas, 47 acima de 0,10, 12 de 12**; Magnitude no `messages`; R03 com `29.02%` e `109.27%`. R03 refeito à mão: 27,21 + 109,27 + 7,18 + 0,00 + 13,11 + 17,36 = 174,13; 174,13 / 6 = 29,02 |
+| **P-CR-2** rótulos e scores removidos | **confirmada** | `consistencia-individual-rota.test.ts`, bloco «P-CR-2, literal» | 14 tokens (`CONFIÁVEL`, `CONFIÁVEIS`, `CONFIAVEL`, `REVISAR`, `SUSPEIT`, `CRÍTIC`, `CRITIC`, `DESCONHECIDO`, `Status:`, `Taxa de Validade`, `qualityScore`, `overallScore`, `avgScore`, `recommendation`): **0** ocorrências no `messages` e no corpo que a tela enviaria. No contexto de antes (captura de `bcb6bdb`): `CONFIÁVEL` 12, `REVISAR` 4, `SUSPEIT` 3, `CRÍTIC` 3, `Status:` 12, `Taxa de Validade` 1. `system` inalterado |
+| **P-CR-3** o cache não prevalece | **confirmada** | `consistencia-individual-rota.test.ts`, `-pedido.test.ts`, `response-quality-consistencia.test.ts` | com cache favorável (`avgCR` 0,02) ou alto (0,9) ou sem cache, o `messages` tem o mesmo `sha256`, o corpo enviado tem os mesmos bytes, e o bloco por respondente é idêntico; o cache aparece só em `cacheLegado`, rotulado. Com julgamentos incompletos, o cache serve **à tela** (`fonteDoCR: cache_legado`) e o bloco fica `indisponivel`, **sem valor algum** |
+| **P-CR-4** condições explícitas; ausência não vira zero | **confirmada** | `consistencia-individual.test.ts`, `-rota.test.ts` | ausente (sem campo e lista vazia), incompleto, inválido, duplicado: cada um com a condição nomeada, **nenhum** CR do respondente, **66** matrizes (11 × 6), avaliação `incompleta` e classificação suspensa. Zero calculado (72 julgamentos iguais a 1): `0.00%` nas seis matrizes, contado entre as 72, **fora** das acima do limiar (46 de 72, 11 de 12), avaliação `disponivel` |
+| **P-CR-5** painel reduzido | **confirmada** | `consistencia-individual-rota.test.ts`, `-contexto.test.ts`, `-pedido.test.ts` | com R03 e R05 excluídos (o par da predição), e também com R03 e R06: 10 enviados, **60** matrizes, **37** acima, **10 de 10**; nenhum número do painel de 12 no texto. Na restrição pelo documento de cálculo, a lista enviada também é a reduzida, e o vínculo registra a divergência anterior à restrição |
+| **P-CR-6** nome das medidas | **confirmada** | `consistencia-individual-contexto.test.ts`, `-rota.test.ts` | «Média das 6 matrizes» e «máximo» são de UM respondente; «média entre respondentes» é de UMA matriz; o CR agregado (1,06%) segue na sua seção; o texto diz que o CR descreve a matriz e não classifica a pessoa, e que a contagem acima do limiar não é critério de exclusão |
+| **P-CR-7** o que não muda | **parcialmente refutada** | comparação antes/depois, seção 4 | o que está confinado: tudo fora dos seis trechos da seção 4 é **idêntico** (1215 → 1208 linhas, 6 trechos de diferença). **O que a predição errou:** ela listou, no bloco do vínculo, «só as frases que nomeavam “contagens por status” e “distribuições e taxas de qualidade”», e mudou **também o item da chave de leitura sobre «Estatísticas por Dimensão»** (o antigo dizia que «nenhuma contagem por dimensão é apresentada neste contexto», o que deixou de ser verdade). A medição foi por **diferença de linhas de um cenário** (o fixture), e não por `sha256` de cada seção em vários cenários |
+| **P-CR-8** registro | **confirmada** (com o nome do campo corrigido) | `consistencia-individual-rota.test.ts` | o `messages` do SDK é igual, byte a byte, a `prompts.mensagens[0].content` do registro (a predição escreveu `prompts.user`; o campo real é `prompts.mensagens`); `prompts.system` e `modelo.parametrosEnviados` também; `verificarIntegridadeDoRegistro` devolve `ok`; `entrada.normalizada` tem os blocos e nenhum rótulo ou score, e `entrada.recebidaPelaApi` conserva o corpo recebido |
+| **P-CR-9** H-CR-S, saída real | **NÃO AVALIADA** | nenhum teste a mede | depende da próxima geração real, que não foi feita. Ver seção 7, item 1 |
+| **P-CR-10** portão e nota | **confirmada** | `consistencia-individual-rota.test.ts`, `a12-qualidade-ausente.test.ts` | painel completo: avaliação `disponivel`, coerência `coerente` (V6), `notaSuspensa: null`; nota e veredicto só do texto do modelo; sem valor automático de nota (o log passou a dizer «Sem valor automático de nota (A.12, item (c))») |
+
+**Mutações aplicadas ao código, uma de cada vez, para ver se o conjunto novo as pega** (a primeira conferência de um instrumento novo é de escopo, e não de todos os ramos): (M1) a montagem repassa `status` e `cr` do respondente: 2 testes reprovam; (M3) a API usa o cache antes do recálculo: 14 reprovam; (M4) o contexto omite a Magnitude: 20; (M5) o denominador passa a ser `enviados × 6` em vez de `recalculados × 6`: 7; (M7) a ausência vira `0`: 22; (M8) o cache preenche o bloco quando os julgamentos não servem: 2. Todas restauradas, e a suíte nova volta a passar.
+
+### 4. O contexto antes e depois, para o painel do fixture
+
+Capturado pelo handler real de `/api/response-quality`, a montagem (antiga, a da tela; nova, a função), e o handler real de `/api/ai-reviewer`, com o cliente do modelo substituído por um duplo que guarda o objeto recebido. ⚠ **O cache do «antes» é CONSTRUÍDO** (`avgCR` = soma dos seis CRs do motor sobre 26, a forma que `docs/referencia-cr-individuais.md` §3.1 descreve), e não o gravado em maio de 2026: a execução real preservada de 27/10/2026 a que o pedido se refere **não está no repositório** e não foi lida. O «antes» mostra, portanto, o que o código antigo faria com um cache dessa forma, e não a execução real.
+
+| | antes (`bcb6bdb`) | depois |
+|---|---|---|
+| `system` | 34170 B, `f3f2410c…` | 34170 B, `f3f2410c…` (igual) |
+| `messages` | 76170 B, 1215 linhas | 79335 B, 1208 linhas |
+| R01 na lista | `CR: 1.1% \| Status: CONFIÁVEL` | `BOCR 1.21% \| MAGNITUDE 5.72% \| SUB-B 8.45% \| SUB-O 0.30% \| SUB-C 11.39% \| SUB-R 0.51% \| média das 6 matrizes: 4.60% \| máximo: 11.39% (matriz governante: SUB-C)` |
+| R03 na lista | `CR: 6.7% \| Status: CONFIÁVEL` | `… MAGNITUDE 109.27% … média das 6 matrizes: 29.02% \| máximo: 109.27% (matriz governante: MAGNITUDE)` |
+| painel | `CONFIÁVEIS 11, REVISAR 1, SUSPEITOS 0, CRÍTICOS 0`; «Taxa de Validade Geral: 91.7%» | `12 enviados, 12 com CR; 72 matrizes; 47 de 72 (65.3%) acima de 0.10; 12 de 12 respondentes` |
+| seção por dimensão | «Contagem por dimensão BOCR: não disponível nesta requisição» | CR por matriz sobre os 12: BOCR n = 12, 8 acima, mín. 1.21%, média 21.04%, máx. 48.02%; MAGNITUDE 10 acima, 5.72% a 109.27%; SUB-B 4; SUB-O 5; SUB-C 10; SUB-R 10 |
+
+Os seis trechos que diferem: (1) dois itens da chave de leitura do vínculo; (2) as 12 linhas de respondente; (3) o bloco de contagens; (4) o bloco «Distribuição de Qualidade» com a nota de Saaty e a «Taxa de Validade Geral» (13 linhas, removidas); (5) a seção «Estatísticas por Dimensão»; (6) um item da lista de recursos. **Todo o resto é idêntico** (a única diferença restante, o identificador de execução, é aleatório na captura e foi normalizado). Arquivo de trabalho, não versionado: `diff-contexto-antes-depois.txt`, no diretório de trabalho da sessão.
+
+⚠ **A média da R01 muda de 1,1% para 4,60% e o máximo é 11,39%:** o «antes» diluía a grandeza sobre 26 matrizes (`docs/referencia-cr-individuais.md` §3.1). É o efeito de A.25 chegando ao modelo, e não é discordância entre dois cálculos.
+
+### 5. Os testes antigos que fixavam o defeito: o que mudou, e por quê
+
+175 testes de 14 suítes reprovaram por construção depois da mudança. Cada atualização está justificada no próprio arquivo. O que se fez, por suíte:
+
+| Suíte | O que fixava | O que se fez |
+|---|---|---|
+| `rag-semantic-states` | `sha256` do contexto completo | constantes atualizadas **por medição**, as antigas nomeadas, e guardas |
+| `a33-snapshot-v2` | âncoras de texto na tela | âncoras lidas da tela **e** da montagem; `REVISAR: 0` fixo afirmado **ausente** |
+| `vinculo-execucao`, `vinculo-execucao-calculo` | respondentes sem bloco | os auxiliares passaram a levar o bloco |
+| `f07-entrada-do-modelo` | espelho da montagem da tela, `sha256` do `messages` | o espelho foi substituído pela **montagem real**; payload igual à referência em tudo que não é qualidade; `system` com o mesmo `sha256`; `messages` com `sha256` novo medido (o antigo, `3f2b6380…`, nomeado); contagens 47/72 e 12/12 no contexto |
+| `a12-coerencia` | V1–V5 sobre o formato anterior | as funções V1–V5 seguem testadas como funções; elegibilidade e causas passaram a compor com uma avaliação disponível **construída** (`elegivelPelaCoerencia`), para o `toBe(false)` não passar pela disponibilidade; apresentação via V6 |
+| `a12-qualidade-ausente` | pontuação por categoria, log «Resultado», «Divergência» | trocados pelo que substituiu (CR por matriz, denominadores, portão sem valor automático), com a afirmação trocada dita em cada teste |
+| `a12-estatisticas-dimensao` (1059 linhas) | **cadeia de equivalência** com os 27 `sha256` de `35a1506` por trocas declaradas | **reescrito** (19 testes): a cadeia não pode valer sem reimplementar no teste o texto do construto removido. Mapa no cabeçalho: o que se manteve (nenhum quociente do agregado como contagem; independência do contexto em relação a todo agregado do formato anterior, ampliada a seis combinações; zero calculado × ausência; frase de indisponibilidade; chave de leitura), o que foi substituído (a Taxa → a Taxa não existe) e o que foi **encerrado** (a cadeia byte a byte e o controle de alcance). Os 27 `sha256` e os arquivos de `docs/dados/` ficam **intactos** |
+| `a12-estatisticas-dimensao-consumidor-latente` | Taxa não derivada do `individualStats`, com a elegibilidade forçada por duplo | reescrito (14 testes): o duplo saiu (a elegibilidade agora é natural); a Taxa não existe; o contexto não muda com o `individualStats` |
+| `vinculo-execucao-fiacao` | leitura de `page.tsx` e linhas de lista | âncoras lidas da tela **e** da montagem; `LISTA_NOVA` com as linhas e o bloco de contagens do texto atual (convenção de medição, conferidas à mão); a lista de críticos saiu; o inventário de contagens cobre as linhas novas e **reprova** se as categorias voltarem |
+| `a12-vinculo-rodada2` | `BASE_SHA256` de 35 cenários × 8 textos (golden de `b55efec`) | 34 cenários passam **sem alteração do golden**; `A-contradicao` (V5 → V6) teve os 8 valores **recapturados**, com o antigo nomeado e a conferência do instrumento (seção 2) |
+| `a12-nota-veredicto-fase2` | contexto byte a byte por trocas declaradas; **a trava de A.12 Fase 2 declarava `calculateGrade` imutável** (7468 bytes) | ver o parágrafo abaixo |
+
+⚠ **A trava de `calculateGrade`.** A Fase 2 de nota e veredicto pré-registrou o `sha256` de nove trechos de código, e `calculateGrade` era um dos oito imutáveis. O Ajuste 1 **teve de alterá-lo**: o trecho pontuava a partir de `byStatus`, `overallStats` e das categorias de pessoa (o construto que A.12 (c) manda remover) e tinha um ramo defensivo que **suspenderia toda requisição sem distribuição**, isto é, **toda requisição atual**. Deixá-lo como estava suspenderia a classificação de todo pedido. Foi **liberado por identificador**, como `handleCopy` na rodada 2: o registro histórico (`02bf0fd9…`, 7468 bytes) fica no artefato, a proteção não se retira, a lista dos liberados é exata (`handleCopy` e `calculateGrade`, e nenhum outro), e o trecho novo (921 bytes, `5bc1e847…`, medido por um trecho de código independente do arquivo de teste) tem a sua guarda: só o portão, sem pontuação, sem categoria, com contraexemplo. **É uma decisão do autor que esta tarefa tomou por exigência do item (c), e ele pode revertê-la** (seção 7, item 4).
+
+Contexto da `a12-nota-veredicto-fase2` fora da trava: a parte da cadeia que só depende de arquivos históricos continua conferida inteira; a que comparava com o código atual passou a `bytes` e `sha256` **medidos** dos sete contextos (convenção de medição, e **não** predição); `coerencia_nao_concluida` passou a **construída**, como `coerencia_nao_avaliada` já era.
+
+### 6. O impedimento: seis testes reprovam, e é por desenho
+
+| Suíte | Teste | Por quê |
+|---|---|---|
+| `a12-diagnostico` | `o artefato gravado coincide com a medicao atual` | o artefato guarda o contexto de antes do Ajuste 1 (por exemplo, o caso `C-disponivel` com «Respostas CONFIÁVEIS … 100.0%»); a medição atual é outra |
+| `a12-diagnostico` | duas conferências `contra a MEDICAO desta execucao` (A8) | a entrada de procedência nova só pode ser escrita depois de um commit com o código medido |
+| `a33-cadeia-rule` | `RE2: o inventario gravado coincide com o medido agora` | `sha256` de `app/api/ai-reviewer/route.ts` gravado ≠ atual |
+| `a33-cadeia-rule` | `complemento: os metadados historicos…` e `complemento: cada regravacao registra procedencia PROPRIA…` | o mesmo `sha256` de `route.ts` |
+
+⚠ **Nada foi regravado, desligado ou ajustado para passar.** As 38 das 41 conferências de `a33-cadeia-rule` que não dependem do `sha256` da rota passam, e as 26 das 29 de `a12-diagnostico` (a regra de elegibilidade e o contexto dos quatro casos, na versão nova, passam). **Procedimento depois de um commit autorizado** (não executado): `A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts` e o comando equivalente de `a33-cadeia-rule`, cada um acrescentando a sua entrada de procedência, com a base real; os históricos ficam preservados.
+
+### 7. Limitações e achados
+
+1. **H-CR-S, não corrigida e não avaliada.** O exemplo «CORRETO» do `system` (`system-prompt.ts:295`) ensina a frase «Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar», que é o intervalo do cache diluído que A.25 desmente. O contexto agora diz o contrário, com números; o `system` não foi tocado (fora do escopo e do pedido). O teste `LIMITE REGISTRADO (H-CR-S)` **caracteriza** o exemplo, sem aprová-lo, para forçar uma decisão consciente (e uma predição nova) na tarefa que o alterar. O mesmo vale para `system-prompt.ts:267` («todos os 12 respondentes atendem o limiar»).
+2. **Nenhuma chamada real ao modelo.** O que o parecer escreverá com este contexto é desconhecido, e a hipótese de que a correção do contexto basta fica **em aberto** até a próxima geração real. Se o texto real repetir «1,1% a 9,6%» ou «todos abaixo do limiar», a hipótese está refutada.
+3. **A tela não é executada por teste.** A montagem é; a fiação (`runAiReview` chama a montagem e envia o corpo) é conferida por leitura, `tsc` e `build`. O **clique** e o *fetch* reais não foram exercitados. A tela de resultados continua mostrando **status por pessoa ao gestor**, para a tabela dela, porque a API de qualidade os mantém na resposta «para a tela»: isto é a interface do gestor, e não o Parecer IA, e está **fora do escopo** deste ajuste.
+4. **A trava de `calculateGrade`** (seção 5) é decisão do autor. Alternativa: reverter a mudança de `calculateGrade` obrigaria a manter, no transporte, as categorias que o item (c) manda retirar.
+5. **Código que deixou de decidir.** Os ramos P1–P3 de `ramoDeQualidade` (V1–V5) ainda são **calculados** quando o pedido chega sem bloco, mas **nunca decidem**: sem bloco, a avaliação é `incompleta` e a disponibilidade vem antes da coerência. As causas `coerencia_nao_concluida` e `coerencia_nao_avaliada` **não nascem mais de pedido algum** (com bloco, o ramo é P4 e V6 sempre conclui). O texto dos dois ramos de `generateReview` continua no código. **Não removido:** código sem uso se registra, e a remoção exige decisão própria (`CLAUDE.md` §8). `omitirOverall`, devolvido por `prepararVinculoDaTela`, também ficou sem consumidor na tela.
+6. **Cobertura do CR: só os respondentes enviados.** O resumo do painel descreve o conjunto **enviado**; não diz nada sobre os respondentes excluídos pelo gestor nem sobre os fora do documento de cálculo, além do que o bloco do vínculo já registra.
+7. **O cache de produção não foi lido nem alterado.** Nenhuma escrita no Firestore, nenhum cálculo contra a produção, e as coleções `calculations` e `responses` (B.1 e B.3 do âncora) não foram tocadas.
+8. **A âncora (`docs/objetivo-estados-caminho.md`) não foi atualizada**: o estado de A.12 item (c) e de A.25 é decisão do autor, depois de ler este bloco.
+9. **Pendência do pedido anterior.** A autorização «autorizado» que precedeu este pedido (a verificação somente-leitura do *Preview*, passo 4 da sequência de implantação) **não foi executada**: o pedido de código foi priorizado. Continua pendente, e a implantação do Preview ainda é a do commit `bcb6bdb`, que **não contém** este ajuste.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção

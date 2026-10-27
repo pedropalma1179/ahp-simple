@@ -97,12 +97,18 @@ async function executar(payload: Record<string, unknown>): Promise<Resposta> {
 // Payloads com a forma que a tela monta. ⚠ São duplos de TESTE.
 // ---------------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { blocoDoMaximo } = require('./helpers/consistencia-de-ensaio');
+
+// Ajuste 1: o respondente do pedido ATUAL traz o bloco `consistenciaIndividual` (CR por matriz recalculado; `cr` é o governante, ou
+// `null` para «sem CR»). Os campos do formato anterior (`cr`, `metrics`, `status`) continuam no payload DE PROPÓSITO: a rota não os lê.
 const respondente = (id: string, cr: number | null) => ({
   respondentId: id,
   id,
   name: `Respondente ${id}`,
   ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }),
   status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO',
+  consistenciaIndividual: blocoDoMaximo(cr),
 });
 
 const balde = (total: number, valid: number, warning = 0, critical = 0) => ({ total, valid, warning, critical, avgCR: 0.05 });
@@ -151,6 +157,11 @@ function payloadDaTela(respondentes: any[], vinculo?: unknown, comOverall = true
   if (vinculo !== undefined) p.vinculoDaExecucao = vinculo;
   return p;
 }
+
+/** O trecho da linha de um respondente com CR governante 0.05 (BOCR 5.00%, as outras cinco 2.50%): conferido à mão (média 0.175/6 = 2.92%). */
+const TRECHO_5_PCT = 'CR por matriz (recalculado dos julgamentos): BOCR 5.00% | MAGNITUDE 2.50% | SUB-B 2.50% | SUB-O 2.50% | SUB-C 2.50% | SUB-R 2.50% | média das 6 matrizes: 2.92% | máximo: 5.00% (matriz governante: BOCR)';
+/** A linha do respondente na lista APRESENTADA, no pedido ATUAL (antes: `- ID: x | Email: y | CR: 5.0% | Status: CONFIÁVEL`). */
+const LINHA_DO_RESPONDENTE = (id: string, email: string) => `- ID: ${id} | Email: ${email} | ${TRECHO_5_PCT}`;
 
 const IDS = ['r1', 'r2', 'r3', 'r4'];
 const elegivel = () => IDS.map((id) => respondente(id, 0.05));
@@ -386,6 +397,10 @@ const ANTIGA = {
 };
 
 // ---------------------------------------------------------------------------
+// ⚠ AJUSTE 1: as linhas POR RESPONDENTE e o bloco de CONTAGENS de `LISTA_NOVA` (abaixo) são o texto ATUAL, escrito pela convenção de
+// «atualização por medição» (o valor sai da execução, conferido à mão contra o desenho do Ajuste 1: CR 0.05 no governante e 0.025 nas
+// outras cinco, média das seis 2.92%, 4 respondentes × 6 matrizes = 24 matrizes, nenhuma acima de 0.10), e NÃO a predição de rodada 1.
+// As demais frases da lista seguem como a predição de rodada 1 as registrou.
 // A redação da classe A (campo omitido, `undefined` ou `null`) depois da rodada 1, como a PREDIÇÃO a registrou ANTES do código
 // (`docs/imprecisoes-parecer-ia.md`, bloco da predição datada, commit `838212c`; derivada pelas instruções do pacote
 // `docs/dados/a12-predicao-rodada1/`), e NÃO copiada da saída do handler de agora. ⚠ São ÂNCORAS ABSOLUTAS, com quatro respondentes.
@@ -404,22 +419,22 @@ const SHA256_DO_BLOCO_DE_AUSENCIA = '267226e55d0e4d031b324c9a8e2961df9be74b50fa6
 const LISTA_NOVA = [
   '## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)',
   '',
-  '- ID: r1 | Email: Respondente r1 | CR: 5.0% | Status: CONFIÁVEL',
-  '- ID: r2 | Email: Respondente r2 | CR: 5.0% | Status: CONFIÁVEL',
-  '- ID: r3 | Email: Respondente r3 | CR: 5.0% | Status: CONFIÁVEL',
-  '- ID: r4 | Email: Respondente r4 | CR: 5.0% | Status: CONFIÁVEL',
+  '- ID: r1 | Email: Respondente r1 | CR por matriz (recalculado dos julgamentos): BOCR 5.00% | MAGNITUDE 2.50% | SUB-B 2.50% | SUB-O 2.50% | SUB-C 2.50% | SUB-R 2.50% | média das 6 matrizes: 2.92% | máximo: 5.00% (matriz governante: BOCR)',
+  '- ID: r2 | Email: Respondente r2 | CR por matriz (recalculado dos julgamentos): BOCR 5.00% | MAGNITUDE 2.50% | SUB-B 2.50% | SUB-O 2.50% | SUB-C 2.50% | SUB-R 2.50% | média das 6 matrizes: 2.92% | máximo: 5.00% (matriz governante: BOCR)',
+  '- ID: r3 | Email: Respondente r3 | CR por matriz (recalculado dos julgamentos): BOCR 5.00% | MAGNITUDE 2.50% | SUB-B 2.50% | SUB-O 2.50% | SUB-C 2.50% | SUB-R 2.50% | média das 6 matrizes: 2.92% | máximo: 5.00% (matriz governante: BOCR)',
+  '- ID: r4 | Email: Respondente r4 | CR por matriz (recalculado dos julgamentos): BOCR 5.00% | MAGNITUDE 2.50% | SUB-B 2.50% | SUB-O 2.50% | SUB-C 2.50% | SUB-R 2.50% | média das 6 matrizes: 2.92% | máximo: 5.00% (matriz governante: BOCR)',
   '',
   '**TOTAL ENVIADO A VOCÊ: 4 respondentes (etapa: envio; contagem desta lista). A lista é COMPLETA para o conjunto enviado; a relação entre ele e o conjunto incluído no cálculo NÃO foi comparada.**',
   '',
   '**CÁLCULO — a contagem de incluídos no documento de cálculo NÃO está disponível nesta requisição.** Nada se afirma aqui sobre quantos respondentes entraram no cálculo, nem sobre a participação em cada célula das matrizes agregadas.',
   '⚠ Esta requisição não traz divisão de respondentes por mérito, dimensão ou subcritério; não atribua um N a nenhuma matriz.',
   '',
-  'Contagens por status, sobre os ENVIADOS a você (etapa: envio):',
-  '- CONFIÁVEIS (CR ≤ 10%): 4',
-  '- REVISAR (10–15%): 0',
-  '- SUSPEITOS (15–20%): 0',
-  '- CRÍTICOS (>20%): 0',
-  '',
+  'Consistência individual por matriz, sobre os ENVIADOS a você (etapa: envio):',
+  '- Respondentes enviados: 4. Com CR recalculado dos julgamentos nas 6 matrizes: 4. Sem CR: 0.',
+  '- Matrizes avaliadas: 24 (4 respondentes × 6 matrizes não triviais: BOCR, MAGNITUDE, SUB-B, SUB-O, SUB-C, SUB-R). As vinte matrizes de alternativas (2×2) ficam fora: o CR delas é zero por construção.',
+  '- Matrizes com CR > 0.10 (limiar de aceitação por matriz, Saaty, 1977): 0 de 24 (0.0%).',
+  '- Respondentes com ao menos uma matriz com CR > 0.10: 0 de 4.',
+  '- Como ler: o CR descreve uma matriz de julgamentos, e não classifica a pessoa. A contagem de matrizes acima do limiar é descritiva e não é critério de exclusão de participantes. «Média das 6 matrizes» e «máximo» são de UM respondente; «média entre respondentes» é a média dos CRs de UMA matriz sobre os respondentes enviados. Nenhuma delas é o CR das matrizes AGREGADAS por média geométrica, que consta na seção de consistência agregada.',
   '',
   '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.',
 ].join('\n');
@@ -544,8 +559,9 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
     expect(contexto).not.toContain('DIFEREM (');
     expect(contexto).toContain(CALCULO_NOMEADO(4));
     // as contagens por status nomeiam a população e a etapa, e a primeira vem logo depois do cabeçalho
+    // Ajuste 1: eram as contagens de PESSOAS por status; hoje é o painel do CR por matriz, com a mesma população e etapa no cabeçalho
     expect(contexto).toContain(
-      'Contagens por status, sobre os ENVIADOS a você (etapa: envio):\n- CONFIÁVEIS (CR ≤ 10%): 4\n- REVISAR (10–15%): 0\n- SUSPEITOS (15–20%): 0\n- CRÍTICOS (>20%): 0'
+      'Consistência individual por matriz, sobre os ENVIADOS a você (etapa: envio):\n- Respondentes enviados: 4. Com CR recalculado dos julgamentos nas 6 matrizes: 4. Sem CR: 0.'
     );
     expect(contexto).toContain('## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)');
     expect(frasesAntigasPresentes(contexto)).toEqual([]);
@@ -782,11 +798,16 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
     const rotulada = (l: string) =>
       /etapa:/.test(l) ||
       /^- (Estado do vínculo|Contagens: incluídos no documento de cálculo|Cobertura enviada|Relação entre os ENVIADOS)/.test(l);
-    /** ⚠ Cobertas SÓ pela chave de leitura, e declaradas: nenhuma reescrita neste estágio. */
+    /**
+     * ⚠ Cobertas SÓ pela chave de leitura, e declaradas. Ajuste 1: eram o «Total» de especialistas, as quatro contagens de pessoas por
+     * status e a Taxa de Validade Geral (SAÍRAM, e não podem voltar: se reaparecerem o inventário as acha sem população e reprova).
+     * Hoje são as linhas do CR por matriz, todas SOBRE OS ENVIADOS: as quatro contagens do painel, a linha «Como ler» e as seis
+     * linhas «n = N respondentes com CR» da seção por dimensão. A chave («enviados a você: a lista de respondentes, o CR por matriz de
+     * cada um e as contagens de matrizes deste contexto referem-se a eles») e o cabeçalho de cada bloco (com «etapa: envio») dizem a quê.
+     */
     const coberta = (l: string) =>
-      /^- Total: \d+ especialistas$/.test(l) ||
-      /^- Respostas (CONFIÁVEIS|para REVISAR|SUSPEITAS|CRÍTICAS)/.test(l) ||
-      /^\*\*Taxa de Validade Geral:\*\*/.test(l);
+      /^- (Respondentes enviados|Matrizes avaliadas|Como ler): /.test(l) ||
+      /^- (BOCR|MAGNITUDE|SUB-B|SUB-O|SUB-C|SUB-R): n = \d+ respondentes com CR; /.test(l);
     // ⚠ A.12, estatísticas por dimensão (saída A): as quatro linhas "- Respostas totais: N" por dimensão SAÍRAM do bloco, e
     //   deixaram de estar entre as cobertas pela chave. Se voltarem, o inventário as acha SEM população, e reprova.
 
@@ -796,14 +817,19 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
       const semRotulo = todas.filter((l) => !rotulada(l) && !coberta(l));
       expect(semRotulo).toEqual([]);
       const soChave = todas.filter((l) => !rotulada(l) && coberta(l));
-      expect(soChave.length).toBe(6); // Total + 4 status + Taxa (eram dez: as 4 "Respostas totais" por dimensão saíram do bloco na saída A)
-      expect(todas.length - soChave.length).toBe(11); // e onze nomeiam a população no próprio texto: a décima primeira é a linha da lista APRESENTADA (R4)
+      // Ajuste 1: eram seis (Total + 4 status + Taxa). Hoje são nove, conferidas à mão uma a uma: «Respondentes enviados», «Matrizes
+      // avaliadas», «Como ler» e as seis linhas «n = 4 respondentes com CR» (BOCR, MAGNITUDE, SUB-B, SUB-O, SUB-C, SUB-R).
+      expect(soChave.length).toBe(9);
+      // E doze nomeiam a população no próprio texto (eram onze): as onze de antes, e o cabeçalho «CR individual por matriz, sobre os 4
+      // respondentes enviados ... (etapa: envio)» da seção por dimensão, que passou a ter número.
+      expect(todas.length - soChave.length).toBe(12);
       expect(ocorrencias(contexto, '- Lista de respondentes APRESENTADA a você (4 identificador(es)')).toBe(1);
       // a chave existe, UMA vez, e diz a que população cada uma dessas contagens se refere
       expect(ocorrencias(contexto, '- Chave de leitura das contagens deste contexto')).toBe(1);
-      expect(contexto).toContain('a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles');
-      // A.12, estatísticas por dimensão (saída A): o item da chave deixou de descrever a divisão por quatro
-      expect(contexto).toContain('"Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste contexto, e nenhuma deve ser derivada dos totais agregados');
+      expect(contexto).toContain('a lista de respondentes, o CR por matriz de cada um e as contagens de matrizes deste contexto referem-se a eles');
+      // A.12, estatísticas por dimensão (saída A): o item da chave deixou de descrever a divisão por quatro; Ajuste 1: diz que o CR por
+      // matriz é o recalculado dos julgamentos dos ENVIADOS
+      expect(contexto).toContain('"Estatísticas por Dimensão" BOCR: o CR por matriz é o recalculado dos julgamentos dos ENVIADOS');
       expect(contexto).not.toContain('os totais por dimensão BOCR de "Estatísticas por Dimensão"');
       expect(contexto).not.toContain('por quatro');
     });
@@ -835,7 +861,7 @@ describe('R1 e R2: o contexto COMPLETO conferido, com as frases antigas, nos con
 describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a coincidência só sai quando os TRÊS conjuntos correspondem um a um', () => {
   // ---- os elementos da lista apresentada, como a tela os monta
   /** SEM `respondentId` nem `id`: o `displayId` da rota é GERADO pela posição (`hash_NNN`). */
-  const semId = () => ({ name: 'sem identificador', cr: 0.05, metrics: { avgCR: 0.05 }, status: 'CONFIÁVEL' });
+  const semId = () => ({ name: 'sem identificador', cr: 0.05, metrics: { avgCR: 0.05 }, status: 'CONFIÁVEL', consistenciaIndividual: blocoDoMaximo(0.05) });
   /** O identificador em UM só dos dois campos. */
   const soEm = (campo: 'respondentId' | 'id', id: string) => ({
     [campo]: id,
@@ -843,6 +869,7 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     cr: 0.05,
     metrics: { avgCR: 0.05 },
     status: 'CONFIÁVEL',
+    consistenciaIndividual: blocoDoMaximo(0.05),
   });
   const apresentar = (...ids: string[]) => ids.map((id) => respondente(id, 0.05));
   const ids = (n: number) => Array.from({ length: n }, (_, i) => `r${i + 1}`);
@@ -1021,7 +1048,7 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(r).toContain(REGRA_R2);
     expect(r).not.toContain('Também pode ser nomeado');
     // a lista que o modelo LÊ
-    for (const id of IDS) expect(r).toContain(`- ID: ${id} | Email: Respondente ${id} | CR: 5.0% | Status: CONFIÁVEL`);
+    for (const id of IDS) expect(r).toContain(LINHA_DO_RESPONDENTE(id, `Respondente ${id}`));
     // CONTRAEXEMPLO: o detector discrimina — o mesmo pedido, com r4 fora da lista apresentada, não tem nenhum dos quatro sítios
     const sem = await executarR4(apresentar('r1', 'r2', 'r3'), vinculoCom(IDS, IDS));
     expect(coincidencias(sem.r)).toBe(0);
@@ -1074,7 +1101,7 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(r).toContain('Presentes na lista apresentada e ausentes de AMBOS os conjuntos declarados: ["r9"].');
     expect(ocorrencias(r, '1 ocorrência(s) só na lista apresentada ["r9"]')).toBe(2);
     expect(ocorrencias(r, '"r9"')).toBe(4); // a lista apresentada, os dois confrontos e o resumo; e a linha `- ID: r9` da lista não tem aspas
-    expect(r).toContain('- ID: r9 | Email: Respondente r9 | CR: 5.0% | Status: CONFIÁVEL');
+    expect(r).toContain(LINHA_DO_RESPONDENTE('r9', 'Respondente r9'));
     // r4: declarado nos dois, ausente da apresentada
     expect(r).toContain('só nos incluídos ["r4"]');
     expect(r).toContain('só nos enviados declarados ["r4"]');
@@ -1103,7 +1130,7 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
       const elementos = [semId(), ...apresentar('r2', 'r3', 'r4')];
       const { contexto, r } = await executarR4(elementos, vinculoCom(DECLARADOS, DECLARADOS));
       // o modelo LÊ hash_000 na lista, e o texto é o mesmo dos declarados
-      expect(r).toContain('- ID: hash_000 | Email: sem identificador | CR: 5.0% | Status: CONFIÁVEL');
+      expect(r).toContain(LINHA_DO_RESPONDENTE('hash_000', 'sem identificador'));
       expect(coincidencias(r)).toBe(0);
       expect(coincidencias(contexto)).toBe(0);
       for (const s of TRES_CONJUNTOS('["hash_000" (gerado por posição), "r2", "r3", "r4"]', 4, DECLARADOS, DECLARADOS)) {
@@ -1133,7 +1160,7 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     ] as const)('4b. hash_000 RECEBIDO em %s, com a mesma grafia do gerado: CORRESPONDE, e a coincidência é afirmada nos quatro sítios', async (_campo, montar) => {
       const elementos = [montar('hash_000'), ...apresentar('r2', 'r3', 'r4')];
       const { contexto, r } = await executarR4(elementos, vinculoCom(DECLARADOS, DECLARADOS));
-      expect(r).toContain('- ID: hash_000 | Email: Respondente hash_000 | CR: 5.0% | Status: CONFIÁVEL');
+      expect(r).toContain(LINHA_DO_RESPONDENTE('hash_000', 'Respondente hash_000'));
       expect(r).toContain(REL_COINCIDEM_4);
       expect(r).toContain(APRESENTADA.c1);
       expect(r).toContain(PAINEL_COINCIDE);
@@ -1354,7 +1381,10 @@ describe('R4: o contexto compara a lista APRESENTADA com as duas declaradas, e a
     expect(ocorrencias(rota, 'identificarParaApresentacao(')).toBe(1);
     expect(ocorrencias(rota, 'displayId = `hash_')).toBe(0);
     // as outras duas expressões de identificador da rota, medidas e NÃO alteradas por R4
-    expect(ocorrencias(rota, 'let displayId = r.respondentId || r.id;')).toBe(1); // a lista dos respondentes críticos
+    // Ajuste 1: a lista dos respondentes críticos SAIU (era uma recomendação de exclusão por pessoa, A.12 item (c)), e com ela a expressão
+    // `let displayId = r.respondentId || r.id;` (antes: 1 ocorrência). Se a lista voltasse, esta ocorrência voltaria com ela.
+    expect(ocorrencias(rota, 'let displayId = r.respondentId || r.id;')).toBe(0);
+    expect(ocorrencias(rota, 'Respondentes críticos')).toBe(0);
     expect(ocorrencias(rota, "r.respondentId || r.id || `hash_${idx.toString().padStart(3, '0')}`")).toBe(1); // a validação posterior à geração
 
     const modulo = ler('lib/ai-reviewer/vinculo-execucao.ts');
@@ -1608,7 +1638,10 @@ describe('ensaio 12: julgamentos-resumo.ts não é importado pela tela, e não e
   });
 
   test('a tela e o módulo do vínculo não importam o módulo de resumo nem APIs do Node', () => {
-    for (const arquivo of [TELA, 'lib/ai-reviewer/vinculo-execucao.ts']) {
+    // Ajuste 1: a montagem do pedido (que chama o preparo do vínculo) saiu da tela para `lib/ai-reviewer/montagem-do-pedido.ts`, e passou a
+    // ser conferida junto com a tela e o módulo do vínculo.
+    const MONTAGEM = 'lib/ai-reviewer/montagem-do-pedido.ts';
+    for (const arquivo of [TELA, MONTAGEM, 'lib/ai-reviewer/vinculo-execucao.ts']) {
       const especificadores = especificadoresDe(ler(arquivo));
       if (arquivo === TELA) expect(especificadores.length).toBeGreaterThan(10); // o detector leu os imports da tela
       for (const e of especificadores) {
@@ -1616,8 +1649,10 @@ describe('ensaio 12: julgamentos-resumo.ts não é importado pela tela, e não e
         expect([arquivo, e, /^node:/.test(e) || e === 'crypto']).toEqual([arquivo, e, false]);
       }
     }
-    // a tela importa o módulo do vínculo, e SÓ ele, deste assunto
-    expect(especificadoresDe(ler(TELA))).toContain('@/lib/ai-reviewer/vinculo-execucao');
+    // a MONTAGEM importa o módulo do vínculo (Ajuste 1: era a tela), e a tela importa a montagem
+    expect(especificadoresDe(ler(MONTAGEM))).toContain('./vinculo-execucao');
+    expect(especificadoresDe(ler(TELA))).toContain('@/lib/ai-reviewer/montagem-do-pedido');
+    expect(especificadoresDe(ler(TELA))).not.toContain('@/lib/ai-reviewer/vinculo-execucao');
     // o módulo do vínculo não importa NADA
     expect(especificadoresDe(ler('lib/ai-reviewer/vinculo-execucao.ts'))).toEqual([]);
   });
@@ -1677,7 +1712,11 @@ describe('ensaio 12: julgamentos-resumo.ts não é importado pela tela, e não e
 
 // ============================================================ 8 e 13 (fiação na tela, por LEITURA)
 describe('fiação na tela, por LEITURA (a tela não é executada por teste algum)', () => {
+  // Ajuste 1: a MONTAGEM do pedido (exclusões, vínculo, classificador, payload) foi movida de `runAiReview` para
+  // `lib/ai-reviewer/montagem-do-pedido.ts`, função pura que a tela chama e que os testes EXECUTAM. Este bloco passa a ler os dois
+  // fontes: a tela (a fiação: chamar a montagem e enviar o corpo) e a montagem (a ordem e as listas que a tela montava).
   const tela = ler(TELA);
+  const montagem = ler('lib/ai-reviewer/montagem-do-pedido.ts');
   const inicio = tela.indexOf('const runAiReview = async () => {');
   const fimDaChamada = tela.indexOf("const response = await fetch('/api/ai-reviewer', {", inicio);
   const corpo = tela.slice(inicio, fimDaChamada);
@@ -1685,86 +1724,103 @@ describe('fiação na tela, por LEITURA (a tela não é executada por teste algu
   test('a região existe e é delimitada: da função até o fetch', () => {
     expect(inicio).toBeGreaterThan(-1);
     expect(fimDaChamada).toBeGreaterThan(inicio);
-    expect(corpo.length).toBeGreaterThan(5000);
+    // Ajuste 1: era > 5000 (a montagem inteira morava aqui); agora a tela só chama a montagem, e a região é menor
+    expect(corpo.length).toBeGreaterThan(1500);
+    expect(ocorrencias(corpo, 'montarPedidoDoParecer({')).toBe(1);
+    expect(montagem.length).toBeGreaterThan(5000);
   });
 
-  test('o preparo do vínculo é chamado UMA vez, depois das exclusões e antes de toda estatística', () => {
-    expect(ocorrencias(corpo, 'prepararVinculoDaTela(')).toBe(1);
-    const posExcluidos = corpo.indexOf('const activeProjectResponses = projectResponses.filter(');
-    const posPreparo = corpo.indexOf('const preparoDoVinculo = prepararVinculoDaTela({');
-    const posEstatistica = corpo.indexOf('let individualStats = ');
-    const posClassificador = corpo.indexOf('const avaliacaoDeQualidade = classificarAvaliacaoDaTela({');
+  test('o preparo do vínculo é chamado UMA vez, na montagem, depois das exclusões e antes do classificador', () => {
+    // a tela não chama mais o preparo: ele vive na montagem, que a tela chama UMA vez
+    expect(ocorrencias(tela, 'prepararVinculoDaTela(')).toBe(0);
+    expect(ocorrencias(montagem, 'prepararVinculoDaTela(')).toBe(1);
+    const posExcluidos = montagem.indexOf('const activeProjectResponses = projectResponses.filter(');
+    const posPreparo = montagem.indexOf('const preparoDoVinculo = prepararVinculoDaTela({');
+    const posLista = montagem.indexOf('let respondentesComConsistencia');
+    const posClassificador = montagem.indexOf('const avaliacaoDeQualidade = classificarAvaliacaoDaTela({');
     expect(posExcluidos).toBeGreaterThan(-1);
     expect(posPreparo).toBeGreaterThan(posExcluidos);
-    expect(posEstatistica).toBeGreaterThan(posPreparo);
-    expect(posClassificador).toBeGreaterThan(posEstatistica);
+    expect(posLista).toBeGreaterThan(posPreparo);
+    expect(posClassificador).toBeGreaterThan(posLista);
     // os argumentos são as listas JÁ excluídas, e o documento de cálculo carregado
-    const chamada = corpo.slice(posPreparo, corpo.indexOf('});', posPreparo));
+    const chamada = montagem.slice(posPreparo, montagem.indexOf('});', posPreparo));
     expect(normalizar(chamada)).toContain(
       'calculo: calculation, respondentesAtivos: activeRespondents, respostasAtivas: activeProjectResponses,'
     );
   });
 
-  test('da estatística ao classificador, SÓ as listas enviadas são lidas: as antigas não reaparecem (individualStats conta os enviados)', () => {
-    const ini = corpo.indexOf('// CORREÇÃO CRÍTICA: CÁLCULO DE QUALIDADE ROBUSTO');
-    const fim = corpo.indexOf('respostasAtivas: respostasEnviadas,');
+  test('da lista ao classificador, SÓ as listas enviadas são lidas: as antigas não reaparecem', () => {
+    const ini = montagem.indexOf('// Ajuste 1: a lista de respondentes ENVIADOS');
+    const fim = montagem.indexOf('respostasAtivas: respostasEnviadas,');
     expect(ini).toBeGreaterThan(-1);
     expect(fim).toBeGreaterThan(ini);
-    const regiao = corpo.slice(ini, fim);
+    const regiao = montagem.slice(ini, fim);
     expect(ocorrencias(regiao, 'activeRespondents')).toBe(0);
     expect(ocorrencias(regiao, 'activeProjectResponses')).toBe(0);
-    expect(ocorrencias(regiao, 'respondentesEnviados')).toBeGreaterThanOrEqual(5);
-    expect(ocorrencias(regiao, 'respostasEnviadas')).toBeGreaterThanOrEqual(14);
-    // o classificador da etapa 1 recebe os ENVIADOS
-    expect(normalizar(corpo)).toContain(
-      'classificarAvaliacaoDaTela({ respondentesAvaliados: respondentesEnviados, respostasAtivas: respostasEnviadas, });'
+    // Ajuste 1: eram >= 5 e >= 14 porque a região também calculava `individualStats` sobre as listas; agora só escolhe a lista
+    // (medido: 2 e 2)
+    expect(ocorrencias(regiao, 'respondentesEnviados')).toBe(2);
+    expect(ocorrencias(regiao, 'respostasEnviadas')).toBe(2);
+    // o classificador da etapa 1 recebe os ENVIADOS, com o CR por matriz recalculado (e nunca a lista antiga)
+    expect(normalizar(montagem)).toContain(
+      'classificarAvaliacaoDaTela({ respondentesAvaliados: respondentesComConsistencia, respostasAtivas: respostasEnviadas, });'
     );
+    expect(montagem).toContain('respondentesComConsistencia = respondentesEnviados.map(respondenteDaAnalise);');
   });
 
   test('responseCount e exclusionInfo seguem descrevendo o conjunto ANTES da restrição', () => {
-    expect(ocorrencias(tela, 'responseCount: calculation.responseCount || activeProjectResponses.length || 0,')).toBe(1);
-    expect(ocorrencias(tela, 'activeCount: activeProjectResponses.length,')).toBe(1);
+    expect(ocorrencias(montagem, 'responseCount: calculation.responseCount || activeProjectResponses.length || 0,')).toBe(1);
+    expect(ocorrencias(montagem, 'activeCount: activeProjectResponses.length,')).toBe(1);
+    // e a tela não os monta mais
+    expect(ocorrencias(tela, 'responseCount: calculation.responseCount')).toBe(0);
   });
 
-  test('o payload leva o vínculo, separado de avaliacaoDeQualidade, e `overall` sai quando o conjunto muda', () => {
-    expect(normalizar(tela)).toContain('const payload = { avaliacaoDeQualidade, // A.12 etapa 3, estágio 1: separado de `avaliacaoDeQualidade`, que é contrato da etapa 1. vinculoDaExecucao, projectName:');
-    expect(ocorrencias(tela, 'overall: preparoDoVinculo.omitirOverall ? undefined : (currentQualityAnalysis?.overall || {}),')).toBe(1);
-    // e a versão antiga do `overall` não sobrou
+  test('o payload leva o vínculo, separado de avaliacaoDeQualidade, e NÃO leva mais `overall` (nem agregado algum)', () => {
+    expect(normalizar(montagem)).toContain('const payload = { avaliacaoDeQualidade, // A.12 etapa 3, estágio 1: separado de `avaliacaoDeQualidade`, que é contrato da etapa 1. vinculoDaExecucao, projectName:');
+    // Ajuste 1: ANTES `overall` saía quando o conjunto mudava (`omitirOverall`). Hoje NENHUM agregado do formato anterior vai ao modelo
+    //   (a chave `overall` nem existe no payload), então a omissão condicional perdeu o objeto.
+    expect(montagem).not.toMatch(/\boverall\s*:/);
+    expect(ocorrencias(tela, 'overall: preparoDoVinculo.omitirOverall')).toBe(0);
     expect(ocorrencias(tela, 'overall: currentQualityAnalysis?.overall || {},')).toBe(0);
+    expect(normalizar(montagem)).toContain('qualityAnalysis: { respondents: respondentesComConsistencia },');
   });
 
-  test('NENHUM estado bloqueia o parecer: o preparo só alimenta listas, payload e `overall`', () => {
-    // ⚠ Lista COMPLETA das linhas da tela que citam o preparo ou o vínculo, fora comentário.
-    //   Qualquer `if`, `return`, `throw` ou `setAiReview` que ramificasse pelo estado seria uma linha a mais.
-    const linhas = tela
-      .split('\n')
-      .map((l) => l.trim())
-      .filter((l) => /preparoDoVinculo|vinculoDaExecucao|prepararVinculoDaTela/.test(l) && !l.startsWith('//'));
-    expect(linhas).toEqual([
-      "import { idDoElementoNoFallback, prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';",
+  test('NENHUM estado bloqueia o parecer: o preparo só alimenta listas e payload, e a tela só lê o resultado para o log', () => {
+    // ⚠ Lista COMPLETA das linhas citando o preparo ou o vínculo, fora comentário. Qualquer `if`, `return`, `throw` ou
+    //   `setAiReview` que ramificasse pelo estado seria uma linha a mais. Ajuste 1: nas DUAS fontes, a montagem e a tela.
+    const citam = (fonte: string) =>
+      fonte
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => /preparoDoVinculo|vinculoDaExecucao|prepararVinculoDaTela|pedido\.vinculo/.test(l) && !l.startsWith('//') && !l.startsWith('*') && !l.startsWith('/*'));
+    expect(citam(montagem)).toEqual([
+      'prepararVinculoDaTela,',
       'const preparoDoVinculo = prepararVinculoDaTela({',
       'const vinculoDaExecucao = preparoDoVinculo.vinculo;',
       'const respondentesEnviados = preparoDoVinculo.respondentesEnviados;',
       'const respostasEnviadas = preparoDoVinculo.respostasEnviadas;',
-      "'🔗 [AI-REVIEW] Vínculo com a execução:', vinculoDaExecucao.estado,",
-      "'| origem:', vinculoDaExecucao.origemDaListaAvaliada,",
-      "'| avaliados:', vinculoDaExecucao.cobertura.avaliadosAntesDaRestricao,",
-      "'| enviados:', vinculoDaExecucao.cobertura.enviados",
       'vinculoDaExecucao,',
-      'overall: preparoDoVinculo.omitirOverall ? undefined : (currentQualityAnalysis?.overall || {}),',
+      'vinculo: vinculoDaExecucao,',
+    ]);
+    expect(citam(tela)).toEqual([
+      "'🔗 [AI-REVIEW] Vínculo com a execução:', pedido.vinculo.estado,",
+      "'| origem:', pedido.vinculo.origemDaListaAvaliada,",
+      "'| avaliados:', pedido.vinculo.cobertura.avaliadosAntesDaRestricao,",
+      "'| enviados:', pedido.vinculo.cobertura.enviados",
     ]);
   });
 
-  test('as cadeias de identificador da tela NÃO foram unificadas', () => {
-    // a cadeia do ramo de análise: a do filtro de excluídos, duas vezes, dentro de runAiReview
-    expect(ocorrencias(corpo, "const id = r.respondentId || r.id || r.visitorId || '';")).toBe(2);
-    // a do fallback: a expressão vive no módulo, com visitorId ANTES de id, e a tela a chama
-    expect(ocorrencias(corpo, 'id: idDoElementoNoFallback(response, idx),')).toBe(1);
+  test('as cadeias de identificador NÃO foram unificadas: o filtro de excluídos na montagem, e o fallback no módulo do vínculo', () => {
+    // a cadeia do filtro de excluídos, duas vezes, dentro da montagem (movida da tela sem alteração)
+    expect(ocorrencias(montagem, "const id = r.respondentId || r.id || r.visitorId || '';")).toBe(2);
+    // a do fallback: a expressão vive no módulo, com visitorId ANTES de id, e a montagem a chama
+    expect(ocorrencias(montagem, 'id: idDoElementoNoFallback(response, idx),')).toBe(1);
     const modulo = ler('lib/ai-reviewer/vinculo-execucao.ts');
     expect(modulo).toContain('return resposta.visitorId || resposta.id || `resp-${indice + 1}`;');
     expect(modulo).toContain("return elemento.respondentId || elemento.id || elemento.visitorId || '';");
-    // e a expressão antiga, inline, saiu do ramo (a chamada a substitui)
+    // e a expressão antiga, inline, saiu (a chamada a substitui), na tela e na montagem
     expect(ocorrencias(corpo, 'id: response.visitorId || response.id ||')).toBe(0);
+    expect(ocorrencias(montagem, 'id: response.visitorId || response.id ||')).toBe(0);
   });
 
   test('CalculationResult declara executionId, includedRespondents e judgmentsDigest com as formas do contrato', () => {

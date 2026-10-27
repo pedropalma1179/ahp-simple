@@ -31,6 +31,13 @@ import {
   type FrasesDaLista,
   type IdentidadeApresentada,
 } from '@/lib/ai-reviewer/vinculo-execucao';
+import {
+  blocoDeConsistenciaDoPainel,
+  estatisticasPorMatriz,
+  lerConsistenciaDoRespondente,
+  resumirPainelDeConsistencia,
+  trechoDaLinhaDoRespondente,
+} from '@/lib/ai-reviewer/consistencia-individual-contexto';
 import { validateReviewOutput } from '@/lib/ai-reviewer/validate-review';
 import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-contract';
 import { getRAGSemanticDiagnosticado } from '@/lib/rag/semantic-retrieve';
@@ -342,19 +349,21 @@ const MODEL_CONFIG = {
 /**
  * A.12: a classificação global só existe quando há avaliação de qualidade.
  *
- * ⚠ **Ausência não é resultado.** Sem avaliação, não há nota, letra, veredicto de
- * mérito nem penalização: a classificação fica SUSPENSA, com o motivo. Com
- * avaliação, o comportamento existente é preservado, inclusive o de zero
- * confiáveis observados, que é dado e não ausência.
+ * ⚠ **Ausência não é resultado.** Sem avaliação, não há nota, letra nem veredicto de
+ * mérito: a classificação fica SUSPENSA, com o motivo.
+ *
+ * ⚠ **Ajuste 1 (A.12, item (c)): NÃO HÁ MAIS CLASSIFICAÇÃO AUTOMÁTICA.** Esta função deixou de contar categorias de
+ * pessoas (`byStatus`, `status`, `summary`, `overallStats`) e de subtrair pontos pela taxa delas: o transporte não as
+ * leva mais, e o score que saía delas era o construto sem lastro que A.12 manda remover. Calcular um score só com a
+ * homogeneidade dos pesos BOCR produziria um valor favorável por omissão, e por isso ele também saiu. O que resta é o
+ * PORTÃO: avaliação disponível (CR por matriz recalculado dos julgamentos para todos os enviados) e coerente. A nota
+ * e o veredicto que a tela mostra continuam vindo SÓ do texto do modelo (`extractGradeFromReview`), sob esse portão.
  */
 type Classificacao =
-  | { suspensa: false; nota: string; veredicto: string; score: number; motivo: null }
+  | { suspensa: false; nota: null; veredicto: null; score: null; motivo: null }
   | { suspensa: true; nota: null; veredicto: null; score: null; motivo: string };
 
 function calculateGrade(data: ReviewRequest): Classificacao {
-  const stats = data.individualStats;
-  const weights = data.bocrWeights;
-
   // ⚠ ELEGIBILIDADE, e não disponibilidade: este ponto decide CLASSIFICAR. A regra
   //   exige avaliação disponível, nenhuma contradição não resolvida e conclusão
   //   satisfatória das verificações obrigatórias aplicáveis.
@@ -365,155 +374,8 @@ function calculateGrade(data: ReviewRequest): Classificacao {
     return { suspensa: true, nota: null, veredicto: null, score: null, motivo };
   }
 
-  let score = 100;
-
-  // ============================================================
-  // AVALIAÇÃO DE QUALIDADE DOS DADOS (40 pontos)
-  // Baseado em Saaty (1977, 1980): CR individual é crítico
-  // ============================================================
-
-  let totalRespondents = 0;
-  let validCount = 0; // CR ≤ 0.10
-  let warningCount = 0; // 0.10 < CR ≤ 0.20
-  let criticalCount = 0; // CR > 0.20
-  let unknownCount = 0; // CR não disponível
-
-  // PRIORIDADE 1: Usar qualityAnalysis.statistics.byStatus (da API response-quality)
-  if (data.qualityAnalysis?.statistics?.byStatus) {
-    const byStatus = data.qualityAnalysis.statistics.byStatus;
-    validCount = (byStatus['CONFIÁVEL'] || byStatus['CONFIAVEL'] || 0);
-    warningCount = (byStatus['REVISAR'] || 0);
-    criticalCount = (byStatus['SUSPEITO'] || 0) + (byStatus['CRÍTICO'] || byStatus['CRITICO'] || 0);
-    unknownCount = byStatus['DESCONHECIDO'] || 0;
-    totalRespondents = data.qualityAnalysis.statistics.total || (validCount + warningCount + criticalCount + unknownCount);
-    console.log(`${LOG_PREFIX} Usando statistics.byStatus: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌ ${unknownCount}❓`);
-  }
-  // PRIORIDADE 2: Contar dos respondents array
-  else if (data.qualityAnalysis?.respondents && data.qualityAnalysis.respondents.length > 0) {
-    data.qualityAnalysis.respondents.forEach((r: any) => {
-      const status = r.status;
-      if (status === 'CONFIÁVEL' || status === 'CONFIAVEL') validCount++;
-      else if (status === 'REVISAR') warningCount++;
-      else if (status === 'SUSPEITO' || status === 'CRÍTICO' || status === 'CRITICO') criticalCount++;
-      else if (status === 'DESCONHECIDO') unknownCount++;
-    });
-    totalRespondents = data.qualityAnalysis.respondents.length;
-    console.log(`${LOG_PREFIX} Contando respondents: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌ ${unknownCount}❓`);
-  }
-  // PRIORIDADE 3: Usar overallStats
-  else if (data.overallStats && data.overallStats.total > 0) {
-    totalRespondents = data.overallStats.total;
-    validCount = data.overallStats.valid;
-    warningCount = data.overallStats.warning || 0;
-    criticalCount = data.overallStats.critical || 0;
-    console.log(`${LOG_PREFIX} Usando overallStats: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌`);
-  }
-  // PRIORIDADE 4: Usar qualityAnalysis.summary
-  else if (data.qualityAnalysis?.summary && data.qualityAnalysis.summary.total > 0) {
-    totalRespondents = data.qualityAnalysis.summary.total;
-    validCount = data.qualityAnalysis.summary.ok || 0;
-    warningCount = data.qualityAnalysis.summary.suspicious || 0;
-    criticalCount = data.qualityAnalysis.summary.critical || 0;
-    console.log(`${LOG_PREFIX} Usando qualityAnalysis.summary: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌`);
-  }
-  // ⚠ A.12: avaliação declarada disponível SEM dados de qualidade é inconsistência,
-  // e não motivo de penalização. A dupla contagem — 15 aqui e 40 pela taxa zero —
-  // saiu: ausência não produz resultado desfavorável.
-  else {
-    const motivo = 'Avaliação declarada disponível, mas a requisição não traz distribuição de qualidade.';
-    console.log(`${LOG_PREFIX} Classificação SUSPENSA: ${motivo}`);
-    return { suspensa: true, nota: null, veredicto: null, score: null, motivo };
-  }
-
-  // Calcular taxa de validade
-  const validPercent = totalRespondents > 0
-    ? (validCount / totalRespondents) * 100
-    : 0;
-
-  const problematicPercent = totalRespondents > 0
-    ? ((warningCount + criticalCount) / totalRespondents) * 100
-    : 0;
-
-  console.log(`${LOG_PREFIX} Validade: ${validPercent.toFixed(1)}%, Problemáticos: ${problematicPercent.toFixed(1)}%`);
-
-  // Penalizações por qualidade individual (Saaty, 1977)
-  // Escala proporcional: penalização reflete a gravidade real
-  if (validPercent < 30) {
-    score -= 40; // Menos de 30% válidos = catastrófico
-    console.log(`${LOG_PREFIX} Penalidade: -40 (validPercent < 30%)`);
-  } else if (validPercent < 50) {
-    score -= 30; // 30-50% válidos = crítico
-    console.log(`${LOG_PREFIX} Penalidade: -30 (validPercent < 50%)`);
-  } else if (validPercent < 70) {
-    score -= 20; // 50-70% válidos = problemático
-    console.log(`${LOG_PREFIX} Penalidade: -20 (validPercent < 70%)`);
-  } else if (validPercent < 85) {
-    score -= 10; // 70-85% válidos = aceitável com ressalvas
-    console.log(`${LOG_PREFIX} Penalidade: -10 (validPercent < 85%)`);
-  }
-
-  // Penalização adicional por respondentes críticos (CR > 0.20)
-  const criticalPercent = totalRespondents > 0 ? (criticalCount / totalRespondents) * 100 : 0;
-  if (criticalPercent > 30) {
-    score -= 15;
-    console.log(`${LOG_PREFIX} Penalidade: -15 (criticalPercent > 30%)`);
-  } else if (criticalPercent > 20) {
-    score -= 10;
-    console.log(`${LOG_PREFIX} Penalidade: -10 (criticalPercent > 20%)`);
-  } else if (criticalPercent > 10) {
-    score -= 5;
-    console.log(`${LOG_PREFIX} Penalidade: -5 (criticalPercent > 10%)`);
-  }
-
-  // ============================================================
-  // HOMOGENEIDADE BOCR (20 pontos)
-  // ============================================================
-  const maxWeight = Math.max(weights.Benefits, weights.Opportunities, weights.Costs, weights.Risks);
-  const minWeight = Math.min(weights.Benefits, weights.Opportunities, weights.Costs, weights.Risks);
-  const weightRatio = maxWeight / minWeight;
-
-  if (weightRatio > 10) {
-    score -= 20;
-    console.log(`${LOG_PREFIX} Penalidade: -20 (weightRatio > 10)`);
-  } else if (weightRatio > 5) {
-    score -= 10;
-    console.log(`${LOG_PREFIX} Penalidade: -10 (weightRatio > 5)`);
-  }
-
-  // Penalidade se Riscos muito baixo (pode indicar viés)
-  if (weights.Risks < 0.10) {
-    score -= 5;
-    console.log(`${LOG_PREFIX} Penalidade: -5 (Risks < 10%)`);
-  }
-
-  console.log(`${LOG_PREFIX} Score final: ${score}/100`);
-
-  // ============================================================
-  // CLASSIFICAÇÃO FINAL
-  // ============================================================
-  let nota: string;
-  let veredicto: string;
-
-  if (score >= 90) {
-    nota = 'A';
-    veredicto = 'ACEITO';
-  } else if (score >= 80) {
-    nota = 'B';
-    veredicto = 'ACEITO COM REVISÕES MENORES';
-  } else if (score >= 70) {
-    nota = 'C';
-    veredicto = 'REVISÕES MAIORES NECESSÁRIAS';
-  } else if (score >= 60) {
-    nota = 'D';
-    veredicto = 'RECONSIDERAR APÓS REVISÃO SUBSTANCIAL';
-  } else {
-    nota = 'F';
-    veredicto = 'REJEITAR';
-  }
-
-  console.log(`${LOG_PREFIX} Resultado: ${nota} (${score}/100) - ${veredicto}`);
-
-  return { suspensa: false, nota, veredicto, score, motivo: null };
+  console.log(`${LOG_PREFIX} Classificação NÃO suspensa: avaliação disponível e coerente. Sem valor automático de nota (A.12, item (c)).`);
+  return { suspensa: false, nota: null, veredicto: null, score: null, motivo: null };
 }
 
 // ============================================================
@@ -563,6 +425,26 @@ function extractGradeFromReview(reviewText: string): { nota: string; veredicto: 
 // NORMALIZAÇÃO (BACKWARDS COMPATIBILITY)
 // ============================================================
 
+/**
+ * Ajuste 1 (A.12, item (c)): do `qualityAnalysis` recebido, SÓ a lista de respondentes passa, e de cada um só a
+ * identidade e o bloco `consistenciaIndividual`. `statistics`, `overall`, `summary`, e em cada respondente `status`,
+ * `overallScore`, `score`, `flags`, `recommendation`, `cr` e `metrics`, NÃO são copiados: não chegam ao contexto
+ * nem à cópia normalizada que o registro de execução guarda. A cópia da entrada RECEBIDA continua íntegra no registro.
+ */
+function normalizarQualidade(bruto: any): ReviewRequest['qualityAnalysis'] {
+  if (!bruto || typeof bruto !== 'object' || !Array.isArray(bruto.respondents)) return undefined;
+  return {
+    respondents: bruto.respondents.map((r: any) => ({
+      ...(r?.respondentId !== undefined ? { respondentId: r.respondentId } : {}),
+      ...(r?.id !== undefined ? { id: r.id } : {}),
+      ...(r?.name !== undefined ? { name: r.name } : {}),
+      ...(r?.email !== undefined ? { email: r.email } : {}),
+      isSimulated: r?.isSimulated === true,
+      ...(r?.consistenciaIndividual !== undefined ? { consistenciaIndividual: r.consistenciaIndividual } : {}),
+    })),
+  };
+}
+
 function normalizeRequest(rawData: any): ReviewRequest {
   // A.12: o estado da avaliação vem do contrato, e é conferido; `byStatus` sozinho
   // não é avaliação.
@@ -611,8 +493,7 @@ function normalizeRequest(rawData: any): ReviewRequest {
     bocrWeights,
     personalWeights: normalizeBOCRWeights(rawData.personalWeights, 'v') || undefined,
     rescalingWeights: normalizeBOCRWeights(rawData.rescalingWeights, 's') || undefined,
-    qualityAnalysis: rawData.qualityAnalysis,
-    overallStats: rawData.overallStats || rawData.qualityMetrics,
+    qualityAnalysis: normalizarQualidade(rawData.qualityAnalysis),
     sensitivityInflections: rawData.sensitivityInflections,
     demographicsSummary: rawData.demographicsSummary,
     alternatives: rawData.alternatives || [],
@@ -672,100 +553,24 @@ async function generateReview(
     );
   }
 
-  // A.12: sem avaliação disponível, NENHUM percentual de qualidade é montado, nem
-  // a partir de `byStatus`, que a tela antiga fabricava.
-  // ⚠ ELEGIBILIDADE, e não disponibilidade: o percentual daqui SUSTENTA a
-  //   classificação, então ele não pode ser apresentado quando a classificação está
-  //   suspensa. `qualidadeDisponivel` continua descrevendo só disponibilidade.
+  // ⚠ ELEGIBILIDADE, e não disponibilidade: a classificação global só existe quando a avaliação está disponível e
+  //   coerente. `qualidadeDisponivel` continua descrevendo só disponibilidade.
   const elegivel = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);
   const avaliada = elegivel.elegivel;
 
-  // Análise de respondentes individuais
-  let respondentAnalysis = '';
+  // Ajuste 1 (A.12, item (c)): o contexto de qualidade individual sai do CR POR MATRIZ, recalculado dos julgamentos e lido
+  // do bloco `consistenciaIndividual` de cada respondente ENVIADO. NÃO há categoria de pessoa, score, taxa de validade nem
+  // recomendação de exclusão: o formato anterior (`statistics.byStatus`, `summary`, `overallStats`, `status`) não é lido, e
+  // `normalizeRequest` nem o copia. Todas as contagens saem da LISTA ENVIADA, e o texto diz a população.
+  const listaEnviada: any[] = Array.isArray(data.qualityAnalysis?.respondents) ? (data.qualityAnalysis!.respondents as any[]) : [];
+  const leituras = listaEnviada.map((r) => lerConsistenciaDoRespondente(r));
+  const painel = resumirPainelDeConsistencia(leituras);
+
+  // O estado da CLASSIFICAÇÃO GLOBAL (o portão), e nunca de uma pessoa. Elegível: nada a dizer além dos números.
   let respondentSummary = '';
 
-  // PRIORIDADE 1: Usar statistics.byStatus (formato correto da API response-quality)
-  if (avaliada && data.qualityAnalysis?.statistics?.byStatus) {
-    const byStatus = data.qualityAnalysis.statistics.byStatus;
-    const total = data.qualityAnalysis.statistics.total ||
-      Object.values(byStatus).reduce((a: number, b: any) => a + (b || 0), 0);
-
-    const confiavel = byStatus['CONFIÁVEL'] || byStatus['CONFIAVEL'] || 0;
-    const revisar = byStatus['REVISAR'] || 0;
-    const suspeito = byStatus['SUSPEITO'] || 0;
-    const critico = byStatus['CRÍTICO'] || byStatus['CRITICO'] || 0;
-
-    respondentSummary = `
-**Distribuição de Qualidade dos Respondentes (CR Individual):**
-- Total: ${total} especialistas
-- Respostas CONFIÁVEIS (CR ≤ 0.10): ${confiavel} (${total > 0 ? ((confiavel / total) * 100).toFixed(1) : 0}%)
-- Respostas para REVISAR (0.10 < CR ≤ 0.15): ${revisar} (${total > 0 ? ((revisar / total) * 100).toFixed(1) : 0}%)
-- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): ${suspeito} (${total > 0 ? ((suspeito / total) * 100).toFixed(1) : 0}%)
-- Respostas CRÍTICAS (CR > 0.20): ${critico} (${total > 0 ? ((critico / total) * 100).toFixed(1) : 0}%)
-
-**Nota:** Conforme Saaty (1977), CR individual > 0.10 indica inconsistência nos julgamentos do respondente.
-`;
-
-    // Listar respondentes críticos se disponível
-    if (data.qualityAnalysis.respondents && data.qualityAnalysis.respondents.length > 0) {
-      const criticalRespondents = data.qualityAnalysis.respondents.filter(
-        (r: any) => r.status === 'CRÍTICO' || r.status === 'CRITICO'
-      );
-      if (criticalRespondents.length > 0) {
-        respondentAnalysis += `\n**Respondentes com Inconsistência Crítica (CR > 0.20):**\n`;
-        criticalRespondents.slice(0, 5).forEach((r: any, idx: number) => {
-          // CORREÇÃO: Sanitizar ID - evitar "undefined" como string
-          let displayId = r.respondentId || r.id;
-          if (!displayId || displayId === 'undefined' || displayId === 'null') {
-            displayId = `Respondente ${idx + 1}`;
-          }
-
-          // CORREÇÃO: Sanitizar CR - evitar NaN
-          let crValue = 0;
-          if (typeof r.cr === 'number' && !isNaN(r.cr)) {
-            crValue = r.cr;
-          } else if (r.metrics && typeof r.metrics.avgCR === 'number' && !isNaN(r.metrics.avgCR)) {
-            crValue = r.metrics.avgCR;
-          }
-
-          const crDisplay = crValue > 0 ? `${(crValue * 100).toFixed(1)}%` : 'não disponível';
-          respondentAnalysis += `- ${displayId}: CR médio = ${crDisplay}\n`;
-        });
-        if (criticalRespondents.length > 5) {
-          respondentAnalysis += `... e mais ${criticalRespondents.length - 5} respondentes críticos\n`;
-        }
-      }
-    }
-  }
-  // PRIORIDADE 2: Usar respondents array
-  else if (avaliada && data.qualityAnalysis?.respondents && data.qualityAnalysis.respondents.length > 0) {
-    const respondents = data.qualityAnalysis.respondents;
-    const total = respondents.length;
-
-    const confiavel = respondents.filter((r: any) => r.status === 'CONFIÁVEL' || r.status === 'CONFIAVEL').length;
-    const revisar = respondents.filter((r: any) => r.status === 'REVISAR').length;
-    const suspeito = respondents.filter((r: any) => r.status === 'SUSPEITO').length;
-    const critico = respondents.filter((r: any) => r.status === 'CRÍTICO' || r.status === 'CRITICO').length;
-
-    respondentSummary = `
-**Distribuição de Qualidade dos Respondentes (CR Individual):**
-- Total: ${total} especialistas
-- Respostas CONFIÁVEIS (CR ≤ 0.10): ${confiavel} (${((confiavel / total) * 100).toFixed(1)}%)
-- Respostas para REVISAR (0.10 < CR ≤ 0.15): ${revisar} (${((revisar / total) * 100).toFixed(1)}%)
-- Respostas SUSPEITAS (0.15 < CR ≤ 0.20): ${suspeito} (${((suspeito / total) * 100).toFixed(1)}%)
-- Respostas CRÍTICAS (CR > 0.20): ${critico} (${((critico / total) * 100).toFixed(1)}%)
-`;
-  }
-  // PRIORIDADE 3: Usar overallStats
-  else if (avaliada && data.overallStats && data.overallStats.total > 0) {
-    const stats = data.overallStats;
-    respondentSummary = `
-**Distribuição de Qualidade dos Respondentes:**
-- Total: ${stats.total} especialistas
-- Respostas válidas (CR ≤ 0.10): ${stats.valid} (${((stats.valid / stats.total) * 100).toFixed(1)}%)
-- Respostas com alerta: ${stats.warning} (${((stats.warning / stats.total) * 100).toFixed(1)}%)
-- Respostas críticas: ${stats.critical} (${((stats.critical / stats.total) * 100).toFixed(1)}%)
-`;
+  if (avaliada) {
+    respondentSummary = '';
   }
   // A.12 etapa 1, C5: a avaliação EXISTE e a classificação está suspensa por CONTRADIÇÃO
   // INTERNA. ⚠ **Dizer aqui que a avaliação não está disponível, ou que os CRs não foram
@@ -794,8 +599,21 @@ Nenhum percentual de qualidade é apresentado, e a classificação global está 
 Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
 `;
   }
+  // Ajuste 1: a avaliação é INCOMPLETA quando há respondente enviado sem CR recalculado. ⚠ Os CRs dos que o têm ESTÃO na
+  // lista acima, e dizer que «os CRs individuais NÃO foram avaliados» seria falso para eles; o texto do ramo AUSENTE,
+  // abaixo, só é verdadeiro quando nenhum respondente tem CR.
+  else if (data.avaliacaoDeQualidade?.estado === 'incompleta' && painel.recalculados > 0) {
+    respondentSummary = `
+**Qualidade dos Dados:**
+⚠️ AVALIAÇÃO INDIVIDUAL DE QUALIDADE INCOMPLETA — ${elegivel.motivo || motivoDaSuspensao(data.avaliacaoDeQualidade)}
+Os CRs por matriz dos ${painel.recalculados} respondente(s) que os têm estão na lista acima; cada um dos demais está marcado, um a um, com a condição dos seus julgamentos.
+A classificação global está SUSPENSA: ${DESCRICAO_SUSPENSAO_POR_DISPONIBILIDADE}.
+⚠️ A ausência de CR de alguns respondentes NÃO é resultado favorável nem desfavorável, e não deve ser tratada como zero.
+Conforme Saaty (1977), a consistência individual é crítica para a validade dos resultados.
+`;
+  }
   // A.12: sem avaliação, nenhum percentual de qualidade é apresentado.
-  // ⚠ Texto PRESERVADO palavra por palavra: para `ausente` e `incompleta` as três
+  // ⚠ Texto PRESERVADO palavra por palavra: para `ausente` e para `incompleta` sem nenhum CR as três
   //   afirmações abaixo são VERDADEIRAS.
   else {
     respondentSummary = `
@@ -808,54 +626,16 @@ Conforme Saaty (1977), a consistência individual é crítica para a validade do
 `;
   }
 
-  // Calcular métricas agregadas para o prompt
-  // Usar statistics.byStatus como fonte primária
-  let totalResponses = 0;
-  let validResponses = 0;
+  console.log(`[AI-REVIEWER] Consistência individual: ${painel.recalculados}/${painel.enviados} respondentes com CR recalculado; ${painel.matrizesAcimaDoLimiar}/${painel.matrizesAvaliadas} matrizes acima do limiar`);
 
-  if (avaliada && data.qualityAnalysis?.statistics?.byStatus) {
-    const byStatus = data.qualityAnalysis.statistics.byStatus;
-    const confiavel = byStatus['CONFIÁVEL'] || byStatus['CONFIAVEL'] || 0;
-    const revisar = byStatus['REVISAR'] || 0;
-    const suspeito = byStatus['SUSPEITO'] || 0;
-    const critico = byStatus['CRÍTICO'] || byStatus['CRITICO'] || 0;
-
-    totalResponses = confiavel + revisar + suspeito + critico;
-    validResponses = confiavel; // Apenas CR ≤ 0.10
-  } else if (avaliada && data.qualityAnalysis?.summary && data.qualityAnalysis.summary.total > 0) {
-    totalResponses = data.qualityAnalysis.summary.total;
-    validResponses = data.qualityAnalysis.summary.ok || 0;
-  } else if (avaliada && data.overallStats && data.overallStats.total > 0) {
-    totalResponses = data.overallStats.total;
-    validResponses = data.overallStats.valid || 0;
-  }
-  // A.12, estatísticas por dimensão (saída A): NÃO há quarto ramo. O que existia aqui SOMAVA as
-  // quatro dimensões de `individualStats`, isto é, os quocientes que a divisão por quatro
-  // fabricava. Sem nenhuma das três fontes acima a base é AUSENTE, e ausência não vira zero.
-
-  console.log(`[AI-REVIEWER] Prompt: ${validResponses}/${totalResponses} respostas válidas`);
-
-  // A.12, estatísticas por dimensão (saída A): `null` é ausência de base, e NÃO zero. `0` aqui só
-  // sairia de uma medição (válidas iguais a zero sobre uma base positiva), e essa fica.
-  const overallValidPercent = totalResponses > 0 ? (validResponses / totalResponses) * 100 : null;
-  // A.12: sem avaliação, a taxa não é calculada; zero aqui seria ausência
-  // apresentada como medida. ⚠ O mesmo vale para a base ausente: avaliada, mas sem nenhuma das três
-  // fontes da taxa (`byStatus`, `summary`, `overallStats`) com total positivo, a taxa também não é
-  // calculada. ⚠ A frase diz SÓ isso: a lista de respondentes não é fonte da taxa, e por isso não se
-  // afirma que nenhuma contagem exista no contexto.
-  const taxaDeValidadeGeral = avaliada
-    ? overallValidPercent === null
-      ? '**Taxa de Validade Geral:** não calculada — nenhuma das contagens agregadas recebidas nesta requisição (por status, resumo ou totais gerais) traz total positivo.'
-      : `**Taxa de Validade Geral:** ${overallValidPercent.toFixed(1)}% das respostas com CR ≤ 0.10`
-    : '**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.';
-
-  // A.12, estatísticas por dimensão (saída A): o bloco NÃO traz número por dimensão. ⚠ Sem
-  // avaliação, a frase EXISTENTE fica palavra por palavra. Avaliada, a frase é PRÓPRIA, e diz só
-  // o que o contexto TEM: os totais são agregados e não identificam a dimensão. "Não disponível
-  // nesta requisição" não é "não existe", e a razão não afirma o que a requisição carrega.
-  const blocoPorDimensao = !avaliada
-    ? '⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.'
-    : '⚠️ Contagem por dimensão BOCR: não disponível nesta requisição (respostas totais, válidas, warning e críticas por dimensão). Os totais deste contexto são agregados e não identificam a dimensão: nenhuma contagem por dimensão é apresentada, e nenhuma deve ser derivada deles.';
+  // Ajuste 1: a seção «Estatísticas por Dimensão BOCR» traz o CR POR MATRIZ sobre o painel enviado. O que a precedia dizia
+  // que a contagem por dimensão não estava disponível, porque a única fonte era o agregado por categoria, dividido por
+  // quatro (removido na saída A). ⚠ Nenhuma contagem por dimensão é derivada de agregado: cada número sai do CR de uma matriz.
+  // ⚠ Sem nenhum respondente com CR recalculado, a frase EXISTENTE (a da saída A, para o pedido não avaliado) fica palavra por palavra.
+  const blocoPorDimensao =
+    painel.recalculados === 0
+      ? '⚠️ Não disponíveis: a qualidade individual não foi avaliada. Nenhum percentual por dimensão é apresentado.'
+      : estatisticasPorMatriz(painel);
 
   // A.12 etapa 3, estágio 1, correções antes do aceite: as frases AO REDOR do bloco do vínculo.
   // ⚠ A redação é a MESMA em toda requisição, também na SEM o campo (omitido, `undefined` ou `null`): já não há
@@ -903,33 +683,12 @@ ${linhasDaExclusao.qualidade}
       const displayId = identidade.bruto;
       respondentIds.push(displayId);
 
-      // Sanitizar CR
-      let crValue = 0;
-      if (typeof r.cr === 'number' && !isNaN(r.cr)) crValue = r.cr;
-      else if (r.metrics && typeof r.metrics.avgCR === 'number' && !isNaN(r.metrics.avgCR)) crValue = r.metrics.avgCR;
-      else if (typeof r.avgCR === 'number' && !isNaN(r.avgCR)) crValue = r.avgCR;
-
-      const crDisplay = crValue > 0 ? `${(crValue * 100).toFixed(1)}%` : 'N/D';
-
-      // Status normalizado
-      let status = r.status || 'DESCONHECIDO';
-      if (status === 'CONFIAVEL') status = 'CONFIÁVEL';
-      if (status === 'CRITICO') status = 'CRÍTICO';
-
-      // Email (se disponível)
+      // Ajuste 1: o CR POR MATRIZ, recalculado dos julgamentos e lido do bloco do respondente. Nenhum CR solto e nenhum
+      // rótulo de pessoa: o que antes saía aqui («CR: x% | Status: y») era o cache legado e uma categoria sem lastro.
       const email = r.email || r.name || '—';
 
-      return `- ID: ${displayId} | Email: ${email} | CR: ${crDisplay} | Status: ${status}`;
+      return `- ID: ${displayId} | Email: ${email} | ${trechoDaLinhaDoRespondente(leituras[idx])}`;
     });
-
-    // Contagens por status
-    const statusCounts = {
-      confiavel: respondents.filter((r: any) => r.status === 'CONFIÁVEL' || r.status === 'CONFIAVEL').length,
-      revisar: respondents.filter((r: any) => r.status === 'REVISAR').length,
-      suspeito: respondents.filter((r: any) => r.status === 'SUSPEITO').length,
-      critico: respondents.filter((r: any) => r.status === 'CRÍTICO' || r.status === 'CRITICO').length,
-      desconhecido: respondents.filter((r: any) => r.status === 'DESCONHECIDO' || !r.status).length,
-    };
 
     const frases: FrasesDaLista = frasesDaListaComVinculo(lerVinculoParaTexto(data.vinculoDaExecucao, identidadesApresentadas), respondents.length);
 
@@ -942,11 +701,7 @@ ${frases.total}
 
 ${frases.agregacao}
 
-${frases.cabecalhoDasContagens}- CONFIÁVEIS (CR ≤ 10%): ${statusCounts.confiavel}
-- REVISAR (10–15%): ${statusCounts.revisar}
-- SUSPEITOS (15–20%): ${statusCounts.suspeito}
-- CRÍTICOS (>20%): ${statusCounts.critico}
-${statusCounts.desconhecido > 0 ? `- DESCONHECIDO (CR não disponível): ${statusCounts.desconhecido}` : ''}
+${blocoDeConsistenciaDoPainel(painel, frases.cabecalhoDasContagens)}
 
 ${frases.regraDeMencao}
 `;
@@ -1099,10 +854,6 @@ ${finalScoresSection}
 
 ${respondentSummary}
 
-${taxaDeValidadeGeral}
-
-${respondentAnalysis}
-
 ## Estatísticas por Dimensão BOCR
 
 ${blocoPorDimensao}
@@ -1237,7 +988,7 @@ Recomende ao pesquisador executar a análise de sensibilidade.`;
 
 ## Outros Recursos Disponíveis
 - ✅ Cálculo automático de CR por respondente
-- ✅ Classificação de qualidade (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO)
+- ✅ CR individual por matriz, recalculado dos julgamentos (BOCR, Magnitude e os quatro blocos de subcritérios)
 - ✅ Agregação por média geométrica (Saaty, 1990)
 - ✅ Validação externa com pyAHP
 - ✅ **Fórmula de síntese BOCR ESPECIFICADA:** Síntese Subtrativa Completa (Wijnmalen, 2007, Eq. 17)
@@ -1510,9 +1261,6 @@ export async function POST(request: NextRequest) {
 
     if (aiGrade && !classification.suspensa) {
       console.log(`${LOG_PREFIX} ✅ Nota IA (autoritativa): ${aiGrade.nota} - ${aiGrade.veredicto}`);
-      if (aiGrade.nota !== classification.nota) {
-        console.log(`${LOG_PREFIX} 📊 Divergência: IA=${aiGrade.nota}/${aiGrade.veredicto} vs Auto=${classification.nota}/${classification.veredicto} (${classification.score}/100)`);
-      }
     } else if (!classification.suspensa) {
       console.log(`${LOG_PREFIX} ⚠️ Nenhum padrão de nota ou veredicto reconhecido no texto do parecer simulado: nota e veredicto ficam nulos, sem valor automático substituto`);
     }

@@ -8,6 +8,19 @@
  *
  * ⚠ **O LIMITE, declarado:** isto verifica **coerência interna da requisição**.
  * **Cobertura do universo real e vínculo com a execução NÃO são demonstrados aqui.**
+ *
+ * ⚠ **AJUSTE 1 (A.12 item (c)): o que mudou neste arquivo, e por quê.** A DISPONIBILIDADE da avaliação passou a exigir o
+ * bloco `consistenciaIndividual` (CR por matriz recalculado dos julgamentos) em TODO respondente enviado, e a rota nem lê
+ * mais `statistics`, `summary`, `overallStats` e `individualStats`. Consequências, todas MEDIDAS:
+ *   - uma requisição do formato ANTERIOR (a de `coerente()`, sem bloco) é `incompleta`, logo INELEGÍVEL por
+ *     `disponibilidade`, ANTES de qualquer coerência: a regra de elegibilidade avalia a disponibilidade primeiro;
+ *   - as comparações V1–V5 do formato anterior continuam funcionando como funções (os testes por comparação abaixo são os
+ *     de antes, intactos), mas já não têm caminho de produção: `avaliarCoerencia(rawData)` cai em P4 sempre que há bloco, e
+ *     requisição sem bloco nunca é disponível;
+ *   - por isso os testes que verificavam ELEGIBILIDADE e CAUSA de suspensão sobre requisição do formato anterior compõem
+ *     as funções puras com uma avaliação DISPONÍVEL construída (`DISPONIVEL`, de uma requisição com blocos), e dizem que a
+ *     combinação é composta e que a rota não a produz; e os testes de apresentação passaram à contradição V6 (resumo
+ *     declarado do bloco contra as suas seis matrizes), que a rota produz.
  */
 import {
   avaliarCoerencia,
@@ -23,6 +36,9 @@ import {
 
 const CHAVE = 'chave-anthropic-falsa-do-processo-de-teste';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { blocoDoMaximo, blocoComMaximo } = require('./helpers/consistencia-de-ensaio');
+
 const respondente = (i: number, cr: number | null, status?: string) => ({
   id: `resp-${i}`,
   name: `Respondente ${i}`,
@@ -32,7 +48,10 @@ const respondente = (i: number, cr: number | null, status?: string) => ({
     : { status }),
 });
 
-/** Requisição COERENTE: quatro respondentes com CR 0.05, e os agregados de acordo. */
+/** O respondente do formato ATUAL: o mesmo, com o bloco `consistenciaIndividual` (CR governante `cr`, ou sem CR se `null`). */
+const respondenteComBloco = (i: number, cr: number | null) => ({ ...respondente(i, cr), consistenciaIndividual: blocoDoMaximo(cr) });
+
+/** Requisição COERENTE: quatro respondentes com CR 0.05, e os agregados de acordo. (Formato ANTERIOR: sem bloco.) */
 function coerente(): any {
   const rs = [1, 2, 3, 4].map((i) => respondente(i, 0.05));
   return {
@@ -56,14 +75,36 @@ function coerente(): any {
   };
 }
 
+/** A MESMA requisição coerente no formato ATUAL: blocos recalculados em todos os respondentes. É disponível, e o ramo é P4. */
+function coerenteComBlocos(): any {
+  const r = coerente();
+  r.qualityAnalysis.respondents = [1, 2, 3, 4].map((i) => respondenteComBloco(i, 0.05));
+  return r;
+}
+
+/**
+ * Uma avaliação DISPONÍVEL, construída: o resultado de `classificarAvaliacaoRecebida` sobre a requisição com blocos. Serve às
+ * composições com `avaliarCoerencia` do formato anterior (ver o cabeçalho). ⚠ A combinação NÃO é produzida pela rota.
+ */
+const DISPONIVEL = classificarAvaliacaoRecebida(coerenteComBlocos());
+
 const estadoDe = (raw: any, id: IdComparacao) =>
   avaliarCoerencia(raw).comparacoes.find((c) => c.id === id)!;
 
 const elegivel = (raw: any) =>
   elegivelParaClassificacao(classificarAvaliacaoRecebida(raw), avaliarCoerencia(raw));
 
+/**
+ * ⚠ **A elegibilidade que a COERÊNCIA decide, isolada da disponibilidade** (Ajuste 1). Os testes por comparação (V1–V5) usam
+ * requisição do formato anterior, que sem bloco é `incompleta` e portanto INELEGÍVEL por `disponibilidade`. Se continuassem
+ * chamando `elegivel(raw)`, `expect(...).toBe(false)` passaria pela disponibilidade e NÃO pela contradição que o teste diz
+ * exercitar (passar pelo motivo errado). Aqui a avaliação é a `DISPONIVEL` construída, e só a coerência pode suspender; o
+ * controle de que o instrumento discrimina é o caso coerente, que fica elegível (primeiro teste do arquivo).
+ */
+const elegivelPelaCoerencia = (raw: any) => elegivelParaClassificacao(DISPONIVEL, avaliarCoerencia(raw));
+
 // ============================================================ o caso que passa
-test('a requisicao coerente tem as cinco comparacoes concluidas, e e ELEGIVEL', () => {
+test('a requisicao coerente do formato anterior tem as cinco comparacoes concluidas, e e INELEGIVEL por disponibilidade', () => {
   const r = coerente();
   expect(ramoDeQualidade(r)).toBe('P1');
   for (const id of ['V1', 'V2', 'V3', 'V4', 'V5'] as IdComparacao[]) {
@@ -73,7 +114,61 @@ test('a requisicao coerente tem as cinco comparacoes concluidas, e e ELEGIVEL', 
   expect(c.conclusao).toBe('coerente');
   expect(c.conjuntoMinimo).toEqual(CONJUNTO_MINIMO.P1);
   expect(c.conjuntoMinimoConcluido).toBe(true);
+  // Ajuste 1: ANTES esta requisição era ELEGÍVEL ({ elegivel: true, causa: null, ... }). Sem o bloco por respondente a avaliação
+  // é `incompleta` (0 de 4 com CR recalculado dos julgamentos), e a disponibilidade vem ANTES da coerência.
+  const e = elegivel(r);
+  expect(e.elegivel).toBe(false);
+  expect(e.causa).toBe('disponibilidade');
+  expect(e.motivo).toContain('Medido: 0 de 4 respondentes com CR.');
+  // E a coerência concluída, sozinha, NÃO torna elegível: composta com uma avaliação disponível, aí sim é elegível.
+  expect(elegivelParaClassificacao(DISPONIVEL, c)).toEqual({ elegivel: true, causa: null, motivo: null, rotulo: null });
+});
+
+test('a requisicao coerente do formato ATUAL (blocos recalculados) e disponivel, tem V6 concluida, e e ELEGIVEL', () => {
+  const r = coerenteComBlocos();
+  expect(DISPONIVEL.estado).toBe('disponivel');
+  // ⚠ P4 vence: os agregados do formato anterior que ainda viajam NÃO são examinados.
+  expect(ramoDeQualidade(r)).toBe('P4');
+  const c = avaliarCoerencia(r);
+  expect(c.ramo).toBe('P4');
+  expect(c.conjuntoMinimo).toEqual(CONJUNTO_MINIMO.P4);
+  expect(c.conjuntoMinimo).toEqual(['V6']);
+  expect(c.comparacoes.map((x) => [x.id, x.estado])).toEqual([['V6', 'consistente']]);
+  expect(c.conclusao).toBe('coerente');
   expect(elegivel(r)).toEqual({ elegivel: true, causa: null, motivo: null, rotulo: null });
+});
+
+test('V6 reprova quando o resumo declarado do bloco nao confere com as suas seis matrizes, e conserva os dois valores', () => {
+  const r = coerenteComBlocos();
+  r.qualityAnalysis.respondents[2].consistenciaIndividual = { ...blocoComMaximo(0.05), media: 0.9 };
+  const v6 = estadoDe(r, 'V6');
+  expect(v6.estado).toBe('contraditoria');
+  // os DOIS valores com a fonte de cada um, e nenhum escolhido
+  expect(v6.lados.map((l) => l.valor)).toEqual([0.9, 0.029166666666666664]);
+  expect(v6.lados[0].fonte).toContain('qualityAnalysis.respondents[2].consistenciaIndividual.media = 0.9');
+  expect(v6.lados[1].fonte).toContain('recomputado das seis matrizes de qualityAnalysis.respondents[2]');
+  expect(v6.motivo).toContain('respondente 2: media declarado 0.9 contra 0.029166666666666664 recomputado das seis matrizes');
+  const e = elegivel(r);
+  expect(e.elegivel).toBe(false);
+  expect(e.causa).toBe('contradicao');
+  // controle de que o instrumento discrimina: o bloco coerente passa
+  expect(estadoDe(coerenteComBlocos(), 'V6').estado).toBe('consistente');
+});
+
+test('V6 nao examina requisicao sem bloco recalculado: o campo ausente NAO vale zero, e a falta e da disponibilidade', () => {
+  const r = coerente();
+  r.qualityAnalysis.respondents = [respondenteComBloco(1, 0.05), respondenteComBloco(2, null)];
+  expect(ramoDeQualidade(r)).toBe('P4');
+  // um respondente recalculado e outro sem CR: V6 conferiu o que tem, e a avaliação é incompleta
+  expect(estadoDe(r, 'V6').estado).toBe('consistente');
+  expect(classificarAvaliacaoRecebida(r).estado).toBe('incompleta');
+  // nenhum recalculado: V6 não concluída, com o motivo que diz que a falta não vale zero
+  const nenhum = coerente();
+  nenhum.qualityAnalysis.respondents = [respondenteComBloco(1, null), respondenteComBloco(2, null)];
+  const v6 = estadoDe(nenhum, 'V6');
+  expect(v6.estado).toBe('nao_determinada');
+  expect(v6.motivo).toContain('Campo ausente NAO vale zero');
+  expect(v6.lados.some((l) => l.valor === 0)).toBe(false);
 });
 
 // ============================================================ V1
@@ -87,7 +182,7 @@ test('V1 reprova quando summary.ok divergir de overallStats.valid, e conserva os
     ['overallStats.valid', 4],
   ]);
   expect(v1.motivo).toContain('Os dois valores e as suas fontes ficam conservados');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
 });
 
 /**
@@ -110,7 +205,7 @@ test('V1 DETECTA a contradicao quando os totais declarados divergem, em vez de e
     ['overallStats.valid', 9],
   ]);
   expect(avaliarCoerencia(r).conclusao).toBe('contraditoria');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
 });
 
 /**
@@ -193,7 +288,7 @@ test('V2 reprova quando statistics.total divergir da lista, e passa quando coinc
   const v2 = estadoDe(r, 'V2');
   expect(v2.estado).toBe('contraditoria');
   expect(v2.motivo).toContain('qualityAnalysis.respondents.length = 4 contra qualityAnalysis.statistics.total = 9');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
   expect(estadoDe(coerente(), 'V2').estado).toBe('consistente');
 });
 
@@ -206,7 +301,7 @@ test('V3 reprova quando a soma das chaves NOMEADAS nao fechar no total', () => {
   // ⚠ As chaves somadas estao NOMEADAS, e nao somadas indiscriminadamente.
   expect(v3.chavesSomadas).toEqual(['CONFIÁVEL', 'REVISAR', 'SUSPEITO', 'CRÍTICO', 'DESCONHECIDO']);
   expect(v3.motivo).toContain('= 5 contra');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
   expect(estadoDe(coerente(), 'V3').estado).toBe('consistente');
 });
 
@@ -214,7 +309,10 @@ test('V3: alias com valores IGUAIS conta UMA vez', () => {
   const r = coerente();
   r.qualityAnalysis.statistics.byStatus['CONFIAVEL'] = 4;
   expect(estadoDe(r, 'V3').estado).toBe('consistente');
-  expect(elegivel(r).elegivel).toBe(true);
+  // Ajuste 1: ANTES asseria `elegivel(r).elegivel === true`. A requisição do formato anterior é inelegível por disponibilidade, então
+  // a asserção que importa a V3 é a da coerência: o alias de valor igual NÃO suspende (a conclusão segue `coerente`).
+  expect(avaliarCoerencia(r).conclusao).toBe('coerente');
+  expect(elegivelParaClassificacao(DISPONIVEL, avaliarCoerencia(r)).elegivel).toBe(true);
 });
 
 test('V3: alias com valores DIFERENTES suspende, e nenhuma variante prevalece', () => {
@@ -227,7 +325,7 @@ test('V3: alias com valores DIFERENTES suspende, e nenhuma variante prevalece', 
     ["byStatus['CONFIAVEL']", 3],
   ]);
   expect(v3.motivo).toContain('Nenhuma variante prevalece');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
 });
 
 // ============================================================ V4
@@ -240,7 +338,7 @@ test('V4 reprova quando a contagem derivada dos CRs divergir da categoria agrega
   expect(v4.motivo).toContain("byStatus['CONFIÁVEL'] = 0");
   // ⚠ V3 segue consistente: a soma ainda fecha em 4. O par que reprova e V4.
   expect(estadoDe(r, 'V3').estado).toBe('consistente');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
   expect(estadoDe(coerente(), 'V4').estado).toBe('consistente');
 });
 
@@ -279,7 +377,7 @@ test('V4 com CONFIAVEL ausente sai NAO_DETERMINADA, qualquer que seja o restante
     ]);
     expect(v4.lados[1].valor).toBeNull();
     // ⚠ E SUSPENDE, porque comparacao aplicavel nao concluida suspende.
-    expect(elegivel(r).elegivel).toBe(false);
+    expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
   }
 });
 
@@ -295,7 +393,7 @@ test('V5 reprova quando a particao nao fechar, com as chaves NOMEADAS', () => {
     'summary.ok', 'summary.suspicious', 'summary.critical',
     'overallStats.valid', 'overallStats.warning', 'overallStats.critical',
   ]);
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
   expect(estadoDe(coerente(), 'V5').estado).toBe('consistente');
 });
 
@@ -332,8 +430,10 @@ test('campo ausente produz NAO_DETERMINADA, com os DOIS lados registrados, e SUS
   const c = avaliarCoerencia(r);
   expect(c.conclusao).toBe('nao_determinada');
   expect(c.conjuntoMinimoConcluido).toBe(false);
-  const e = elegivel(r);
+  // Ajuste 1: composta com uma avaliação DISPONÍVEL (a rota não produz a combinação: sem bloco a avaliação é incompleta).
+  const e = elegivelParaClassificacao(DISPONIVEL, c);
   expect(e.elegivel).toBe(false);
+  expect(e.causa).toBe('coerencia_nao_concluida');
   expect(e.motivo).toContain('Verificação obrigatória de coerência não determinada');
 });
 
@@ -354,7 +454,7 @@ test('pendente FORA do conjunto minimo tambem SUSPENDE', () => {
   const c = avaliarCoerencia(r);
   expect(c.conclusao).toBe('nao_determinada');
   expect(c.motivo).toContain('FORA do conjunto minimo, que tambem suspende');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
 });
 
 /**
@@ -369,7 +469,7 @@ test('V5: particao completa NAO salva o par quando outra particao presente esta 
   expect(v5.estado).toBe('nao_determinada');
   expect(v5.motivo).toContain('cada particao presente e verificacao propria');
   expect(v5.lados.some((l) => l.fonte === 'overallStats.warning' && l.valor === null)).toBe(true);
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
 });
 
 test('conjunto minimo de P2 nao estabelecido, sem status na lista, SUSPENDE', () => {
@@ -380,7 +480,7 @@ test('conjunto minimo de P2 nao estabelecido, sem status na lista, SUSPENDE', ()
   expect(CONJUNTO_MINIMO.P2).toEqual(['V4']);
   expect(estadoDe(r, 'V4').estado).toBe('nao_determinada');
   expect(avaliarCoerencia(r).conclusao).toBe('nao_determinada');
-  expect(elegivel(r).elegivel).toBe(false);
+  expect(elegivelPelaCoerencia(r).elegivel).toBe(false);
 });
 
 // ============================================================ precedência
@@ -392,7 +492,7 @@ test('PRECEDENCIA: ausente e incompleta conservam os motivos e as fontes anterio
   expect(elegivel(ausente).motivo).not.toContain('Contradição interna');
 
   const inc = coerente();
-  inc.qualityAnalysis.respondents = [respondente(1, 0.05), respondente(2, null)];
+  inc.qualityAnalysis.respondents = [respondenteComBloco(1, 0.05), respondenteComBloco(2, null)];
   const i = classificarAvaliacaoRecebida(inc);
   expect(i.estado).toBe('incompleta');
   expect(elegivel(inc).motivo).toContain(MOTIVO_INCOMPLETA);
@@ -454,24 +554,26 @@ function renderizar(corpo: any): string {
  * `renderToStaticMarkup`, sobre o corpo que a rota devolveu.
  */
 test('apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que passa a suspender', async () => {
-  const r = coerente();
-  r.qualityAnalysis.summary.critical = 4; // a contradição medida: 4 + 4 sobre total 4
+  // Ajuste 1: a contradição que a rota produz é a V6 (resumo declarado do bloco contra as suas seis matrizes). ANTES era a V5
+  // (`summary.critical = 4`, 4 + 4 sobre total 4), do formato anterior, que a rota já não examina.
+  const r = coerenteComBlocos();
+  r.qualityAnalysis.respondents[1].consistenciaIndividual = { ...blocoComMaximo(0.05), media: 0.9 };
   const corpo = await executar(r);
 
   expect(corpo.nota).toBeNull();
   expect(corpo.veredicto).toBeNull();
   expect(corpo.notaSuspensa?.suspensa).toBe(true);
   expect(corpo.notaSuspensa.rotulo).toBe('Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade');
-  expect(corpo.notaSuspensa.motivo).toContain('V5: a particao de qualityAnalysis.summary soma 8 sobre total 4');
+  expect(corpo.notaSuspensa.motivo).toContain('V6: respondente 1: media declarado 0.9 contra 0.029166666666666664 recomputado das seis matrizes');
 
   const html = renderizar(corpo);
   // ⚠ C5: o rotulo e o PROPRIO do caso contraditorio, e o antigo NAO aparece.
   expect(html).toContain('Destaque de nota e veredito suspenso: contradição interna não resolvida na avaliação de qualidade');
   expect(html).not.toContain('Destaque de nota e veredito suspenso: qualidade individual não avaliada');
-  expect(html).toContain('soma 8 sobre total 4');
+  expect(html).toContain('media declarado 0.9 contra 0.029166666666666664 recomputado das seis matrizes');
   expect(html).toContain('Os cálculos AHP-BOCR');
-  // ⚠ CONTROLE de que a asserção discrimina: no caso coerente o cartão de suspensão NÃO sai.
-  const corpoOk = await executar(coerente());
+  // ⚠ CONTROLE de que a asserção discrimina: no caso coerente (blocos conferem) o cartão de suspensão NÃO sai.
+  const corpoOk = await executar(coerenteComBlocos());
   expect(corpoOk.notaSuspensa).toBeNull();
   const htmlOk = renderizar(corpoOk);
   expect(htmlOk).not.toContain('Destaque de nota e veredito suspenso: qualidade individual não avaliada');
@@ -485,25 +587,34 @@ test('apresentacao EXERCITADA: o rotulo e o motivo chegam a tela no caso que pas
  * ⚠ **D1: a apresentação do caso NÃO CONCLUÍDO, também EXERCITADA.** Suspende igual, e
  * **não pode anunciar contradição**, porque nenhuma foi demonstrada.
  */
-test('apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao', async () => {
-  const r = coerente();
-  delete r.qualityAnalysis.statistics.total; // V2 e V3 ficam nao_determinada
-  const corpo = await executar(r);
-
-  expect(corpo.nota).toBeNull();
-  expect(corpo.veredicto).toBeNull();
-  expect(corpo.notaSuspensa?.suspensa).toBe(true);
+test('apresentacao COMPOSTA: verificacao NAO CONCLUIDA tem rotulo proprio, e nao afirma contradicao', async () => {
+  // Ajuste 1: ⚠ este caso deixou de ter caminho PELA ROTA. `coerencia_nao_concluida` só nascia das comparações V1–V5 do formato
+  // anterior com campo ausente, e a rota já não as examina (com bloco o ramo é P4; sem bloco a avaliação é incompleta e
+  // `disponibilidade` vem antes). O que se exercita agora é o COMPONENTE REAL sobre um corpo COMPOSTO: o corpo que a rota
+  // devolve no caso de contradição V6, com `notaSuspensa` trocada pela que a função de elegibilidade REAL produz para a
+  // verificação não concluída. Cobre a redação do rótulo/motivo e a ausência de afirmação de contradição na tela; NÃO cobre
+  // que a rota a produza.
+  const semTotal = coerente();
+  delete semTotal.qualityAnalysis.statistics.total; // V2 e V3 ficam nao_determinada
+  const e = elegivelPelaCoerencia(semTotal);
+  expect(e.causa).toBe('coerencia_nao_concluida');
   // ⚠ CAUSA, ROTULO e MOTIVO proprios, distintos dos da contradicao.
-  expect(corpo.notaSuspensa.causa).toBe('coerencia_nao_concluida');
-  expect(corpo.notaSuspensa.rotulo).toBe('Destaque de nota e veredito suspenso: verificação de coerência não concluída');
-  expect(corpo.notaSuspensa.motivo).toContain('NENHUMA contradicao foi demonstrada');
+  expect(e.rotulo).toBe('Destaque de nota e veredito suspenso: verificação de coerência não concluída');
+  expect(e.motivo).toContain('NENHUMA contradicao foi demonstrada');
   // ⚠ E NOMEIA a verificacao pendente.
-  expect(corpo.notaSuspensa.motivo).toMatch(/V2:|V3:/);
+  expect(e.motivo).toMatch(/V2:|V3:/);
+
+  const r = coerenteComBlocos();
+  r.qualityAnalysis.respondents[1].consistenciaIndividual = { ...blocoComMaximo(0.05), media: 0.9 };
+  const corpo = await executar(r);
+  expect(corpo.notaSuspensa.causa).toBe('contradicao'); // controle: o corpo-base é o da contradição
+  corpo.notaSuspensa = { ...corpo.notaSuspensa, causa: e.causa, rotulo: e.rotulo, motivo: e.motivo };
 
   const html = renderizar(corpo);
   expect(html).toContain('Destaque de nota e veredito suspenso: verificação de coerência não concluída');
   // ⚠ NAO afirma contradicao, nem indisponibilidade, em lugar nenhum do markup.
   expect(html).not.toContain('contradição interna não resolvida');
+  expect(html).not.toContain('media declarado 0.9');
   expect(html).not.toContain('Destaque de nota e veredito suspenso: qualidade individual não avaliada');
 });
 
@@ -512,7 +623,8 @@ test('apresentacao EXERCITADA: verificacao NAO CONCLUIDA tem rotulo proprio, e n
  * que antes colapsava na mesma causa.
  */
 test('coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradicao', () => {
-  const av = classificarAvaliacaoRecebida(coerente());
+  // Ajuste 1: a avaliação é a DISPONÍVEL construída (a requisição do formato anterior é `incompleta`, e a causa seria `disponibilidade`).
+  const av = DISPONIVEL;
   const e = elegivelParaClassificacao(av, null);
   expect(e.elegivel).toBe(false);
   expect(e.causa).toBe('coerencia_nao_avaliada');
@@ -522,10 +634,10 @@ test('coerencia NAO AVALIADA tem causa e rotulo proprios, e nao afirma contradic
   // ⚠ E as tres causas de coerencia sao DISTINTAS entre si.
   const r = coerente();
   r.qualityAnalysis.summary.critical = 4;
-  const contradicao = elegivel(r);
+  const contradicao = elegivelPelaCoerencia(r);
   const s = coerente();
   delete s.qualityAnalysis.statistics.total;
-  const naoConcluida = elegivel(s);
+  const naoConcluida = elegivelPelaCoerencia(s);
   const causas = [e.causa, contradicao.causa, naoConcluida.causa];
   expect(causas).toEqual(['coerencia_nao_avaliada', 'contradicao', 'coerencia_nao_concluida']);
   expect(new Set([e.rotulo, contradicao.rotulo, naoConcluida.rotulo]).size).toBe(3);
@@ -593,29 +705,25 @@ async function executarCapturando(payload: any): Promise<{ corpo: any; contexto:
  * se exercita aqui é o braço alcançável**, e a correção retira a promessa de nome dos dois.
  */
 test('E1: o texto entregue nao promete nome de verificacao, e o motivo segue nomeando', async () => {
-  const r = coerente();
-  delete r.qualityAnalysis.statistics.total; // V2 e V3 ficam nao_determinada
-  const { corpo, contexto } = await executarCapturando(r);
+  // Ajuste 1: ⚠ o braço `coerencia_nao_concluida` deixou de ter caminho pela rota (ver o teste de apresentação COMPOSTA). O que
+  // se exercita pela rota é o ramo alcançável do mesmo texto compartilhado, o da CONTRADIÇÃO (V6), e a frase antiga é conferida
+  // também NA FONTE da rota, onde o braço inalcançável ainda existe: sem isso a correção do braço não teria nenhuma guarda.
+  const fonteDaRota = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', '..', 'app', 'api', 'ai-reviewer', 'route.ts'), 'utf8');
+  expect(fonteDaRota).not.toContain('nomeada acima');
+  expect(fonteDaRota).toContain('a verificação de coerência não foi concluída, pelo motivo informado acima');
 
-  expect(corpo.notaSuspensa.causa).toBe('coerencia_nao_concluida');
   // ⚠ CONTROLE de captura NAO VAZIA: sem isto, toda ausencia passaria por vacuidade.
-  expect(contexto).toContain('CLASSIFICAÇÃO SUSPENSA POR VERIFICAÇÃO DE COERÊNCIA NÃO CONCLUÍDA');
-  // ⚠ A frase antiga SAIU do que o modelo recebe.
-  expect(contexto).not.toContain('nomeada acima');
-  expect(contexto).toContain(
-    'a verificação de coerência não foi concluída, pelo motivo informado acima'
-  );
-  // ⚠ E o que NOMEIA a verificacao continua presente: e o MOTIVO, na linha anterior.
-  expect(contexto).toMatch(/V2:|V3:/);
-
-  // ⚠ CONTROLE de que a assercao DISCRIMINA: o ramo da contradicao nao recebeu a frase, e
-  //   continua com a sua, palavra por palavra.
-  const s = coerente();
-  s.qualityAnalysis.summary.critical = 4;
+  const s = coerenteComBlocos();
+  s.qualityAnalysis.respondents[0].consistenciaIndividual = { ...blocoComMaximo(0.05), media: 0.9 };
   const outro = await executarCapturando(s);
   expect(outro.corpo.notaSuspensa.causa).toBe('contradicao');
+  expect(outro.contexto).toContain('CLASSIFICAÇÃO SUSPENSA POR CONTRADIÇÃO INTERNA');
+  // ⚠ O ramo da contradicao nao recebeu a frase da verificacao nao concluida, e continua com a sua, palavra por palavra.
+  expect(outro.contexto).not.toContain('nomeada acima');
   expect(outro.contexto).not.toContain('a verificação de coerência não foi concluída');
   expect(outro.contexto).toContain(
     'o que não se resolveu foi a contradição entre os valores declarados na própria requisição'
   );
+  // ⚠ E o que NOMEIA a verificacao e o valor em conflito continua presente: e o MOTIVO.
+  expect(outro.contexto).toContain('V6: respondente 0: media declarado 0.9 contra 0.029166666666666664 recomputado das seis matrizes');
 });

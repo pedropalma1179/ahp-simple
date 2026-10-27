@@ -17,6 +17,14 @@ export {};
  *   - o estado de A.27 `nao_confirmado`: CONSTRUÍDO a partir de uma resposta REAL sem padrão reconhecido, com `validation`
  *     retirada ou invalidada SÓ no instrumento (o tratador real SEMPRE devolve `validation`).
  *
+ * ⚠ **AJUSTE 1 (consistência individual, A.12 item (c)): o que mudou neste arquivo, e por quê.** (1) Os contextos da Fase 2 e da rodada 1 eram conferidos
+ * BYTE A BYTE contra o contexto de ANTES recomposto por trocas declaradas; o Ajuste 1 muda a qualidade individual do contexto, e o recomposto não pode
+ * prever o texto novo. A parte da cadeia que depende só dos arquivos históricos continua conferida inteira (teste «CADEIA HISTÓRICA»), e a parte que
+ * comparava com o código atual foi substituída por bytes e sha256 MEDIDOS dos sete contextos (convenção de atualização por medição). (2) `coerencia_nao_concluida`
+ * nascia das comparações V1–V5 do formato anterior, que a rota já não examina: passou a CONSTRUÍDA, como `coerencia_nao_avaliada` (o simulado devolve o resultado
+ * REAL de `avaliarCoerencia` sobre a requisição do formato anterior com `statistics.total` removido). A rota produz duas causas: disponibilidade e contradição
+ * (agora a V6). (3) `calculateGrade`, que a trava de A.12 Fase 2 declarava imutável, foi LIBERADO por identificador, com guarda própria (ver a trava, adiante).
+ *
  * ⚠ **Os literais vêm do PEDIDO e da PREDIÇÃO registrada ANTES do código** (commit 848d5a4, `docs/dados/a12-nota-veredicto-fase2/`),
  * e NÃO do que o código imprime: os quatro rótulos, as quatro descrições, o prefixo, a frase da mensagem, os três valores do
  * estado, e o sha256 de cada contexto previsto. Nenhum teste foi adaptado ao que o código imprime.
@@ -77,12 +85,15 @@ const ENV_ANTES = { chave: process.env.ANTHROPIC_API_KEY, flag: process.env.USE_
 process.env.ANTHROPIC_API_KEY = CHAVE;
 delete process.env.USE_RAG_SEMANTIC;
 
-const estado: { texto: string; contexto: string; system: string; chamadas: number; coerenciaNula: boolean } = {
+// Ajuste 1: `coerenciaConstruida` generaliza o antigo `coerenciaNula`. `undefined` = a coerência REAL; qualquer outro valor (inclusive `null`) é
+// devolvido no lugar dela. Serve às DUAS causas que o tratador real deixou de produzir: `coerencia_nao_avaliada` (a coerência `null`) e
+// `coerencia_nao_concluida` (o resultado REAL de `avaliarCoerencia` sobre a requisição do formato anterior com `statistics.total` removido).
+const estado: { texto: string; contexto: string; system: string; chamadas: number; coerenciaConstruida: any } = {
   texto: '',
   contexto: '',
   system: '',
   chamadas: 0,
-  coerenciaNula: false,
+  coerenciaConstruida: undefined,
 };
 
 jest.mock('@anthropic-ai/sdk', () => ({
@@ -99,10 +110,10 @@ jest.mock('@anthropic-ai/sdk', () => ({
   },
 }));
 
-// ⚠ Construção DECLARADA: só para a causa `coerencia_nao_avaliada`, que o tratador real não produz. Não altera produção.
+// ⚠ Construção DECLARADA: só para as causas `coerencia_nao_avaliada` e `coerencia_nao_concluida`, que o tratador real já não produz. Não altera produção.
 jest.mock('@/lib/ai-reviewer/avaliacao-qualidade', () => {
   const real = jest.requireActual('@/lib/ai-reviewer/avaliacao-qualidade');
-  return { ...real, avaliarCoerencia: (raw: any) => (estado.coerenciaNula ? null : real.avaliarCoerencia(raw)) };
+  return { ...real, avaliarCoerencia: (raw: any) => (estado.coerenciaConstruida !== undefined ? estado.coerenciaConstruida : real.avaliarCoerencia(raw)) };
 });
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -136,6 +147,12 @@ jest.setTimeout(120000);
 // As REQUISIÇÕES. ⚠ COPIA LITERAL de `lib/__tests__/a12-coerencia.test.ts` e da sonda da Fase 1 (as mesmas sete requisições:
 // o sha256 de cada uma é conferido contra o da Fase 1 em `captura.json`).
 // ---------------------------------------------------------------------------------------------------------------------------
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { blocoDoMaximo, blocoComMaximo } = require('./helpers/consistencia-de-ensaio');
+
+// Ajuste 1: as requisições do FORMATO ANTERIOR (sem bloco por respondente) ficam como estavam: as da Fase 1, cujo sha256 é conferido contra
+// `captura.json`. As condições do pedido ATUAL são essas mesmas requisições com o bloco `consistenciaIndividual` em cada respondente
+// (`comBlocos`), e a contradição passa a ser a V6.
 const respondente = (i: number, cr: number | null, status?: string) => ({
   id: `resp-${i}`,
   name: `Respondente ${i}`,
@@ -189,6 +206,24 @@ function ruim(): any {
   };
 }
 
+/** A requisição no formato ATUAL: o bloco do CR por matriz, recalculado, em cada respondente (`cr` é o governante; sem `cr`, o bloco é «sem CR»). */
+function comBlocos(r: any): any {
+  if (Array.isArray(r.qualityAnalysis?.respondents)) {
+    r.qualityAnalysis.respondents = r.qualityAnalysis.respondents.map((x: any) => ({ ...x, consistenciaIndividual: blocoDoMaximo(typeof x.cr === 'number' ? x.cr : null) }));
+  }
+  return r;
+}
+const semBlocos = (r: any): any => {
+  const c = JSON.parse(JSON.stringify(r));
+  if (Array.isArray(c.qualityAnalysis?.respondents)) c.qualityAnalysis.respondents = c.qualityAnalysis.respondents.map(({ consistenciaIndividual, ...resto }: any) => resto);
+  return c;
+};
+/** A contradição que a rota examina (V6): o resumo declarado do bloco de um respondente não confere com as suas seis matrizes. ANTES: `summary.critical = 4` (V5). */
+const contradizer = (r: any): any => {
+  r.qualityAnalysis.respondents[0].consistenciaIndividual = { ...blocoComMaximo(0.05), media: 0.9 };
+  return r;
+};
+
 type Causa = keyof typeof DESCRICAO;
 type Condicao = {
   id: string;
@@ -196,17 +231,23 @@ type Condicao = {
   causa: Causa | null;
   /** ⚠ CONSTRUÍDA: o tratador real não produz esta causa. */
   construida: boolean;
+  /** A coerência que o simulado devolve no lugar da real, só nas condições construídas. */
+  coerenciaConstruida?: () => any;
+  /** A requisição do pedido ATUAL (com blocos). */
   fazer: () => any;
+  /** A requisição do FORMATO ANTERIOR, a da Fase 1: serve só à conferência de integridade do registro histórico. */
+  legado: () => any;
 };
 
 const CONDICOES: Condicao[] = [
-  { id: 'elegivel-auto-A', suspensa: false, causa: null, construida: false, fazer: () => coerente() },
-  { id: 'elegivel-auto-F', suspensa: false, causa: null, construida: false, fazer: () => ruim() },
+  { id: 'elegivel-auto-A', suspensa: false, causa: null, construida: false, legado: () => coerente(), fazer: () => comBlocos(coerente()) },
+  { id: 'elegivel-auto-F', suspensa: false, causa: null, construida: false, legado: () => ruim(), fazer: () => comBlocos(ruim()) },
   {
     id: 'disponibilidade-ausente',
     suspensa: true,
     causa: 'disponibilidade',
     construida: false,
+    legado: () => { const r = coerente(); delete r.qualityAnalysis.respondents; return r; },
     fazer: () => { const r = coerente(); delete r.qualityAnalysis.respondents; return r; },
   },
   {
@@ -214,23 +255,38 @@ const CONDICOES: Condicao[] = [
     suspensa: true,
     causa: 'disponibilidade',
     construida: false,
-    fazer: () => { const r = coerente(); r.qualityAnalysis.respondents = [respondente(1, 0.05), respondente(2, null)]; return r; },
+    legado: () => { const r = coerente(); r.qualityAnalysis.respondents = [respondente(1, 0.05), respondente(2, null)]; return r; },
+    fazer: () => { const r = coerente(); r.qualityAnalysis.respondents = [respondente(1, 0.05), respondente(2, null)]; return comBlocos(r); },
   },
   {
     id: 'contradicao',
     suspensa: true,
     causa: 'contradicao',
     construida: false,
-    fazer: () => { const r = coerente(); r.qualityAnalysis.summary.critical = 4; return r; },
+    legado: () => { const r = coerente(); r.qualityAnalysis.summary.critical = 4; return r; },
+    fazer: () => contradizer(comBlocos(coerente())),
   },
   {
+    // Ajuste 1: ⚠ CONSTRUÍDA. Esta causa nascia das comparações V1–V5 do formato anterior com campo ausente, que a rota já não examina. A
+    // requisição é a ELEGÍVEL (com blocos), e a coerência devolvida é o resultado REAL de `avaliarCoerencia` sobre a requisição do formato
+    // anterior com `statistics.total` removido (V2 e V3 não determinadas). Não altera produção, e não é um caminho que a rota produza.
     id: 'coerencia-nao-concluida',
     suspensa: true,
     causa: 'coerencia_nao_concluida',
-    construida: false,
-    fazer: () => { const r = coerente(); delete r.qualityAnalysis.statistics.total; return r; },
+    construida: true,
+    coerenciaConstruida: () => { const r = coerente(); delete r.qualityAnalysis.statistics.total; return real.avaliarCoerencia(semBlocos(r)); },
+    legado: () => { const r = coerente(); delete r.qualityAnalysis.statistics.total; return r; },
+    fazer: () => comBlocos(coerente()),
   },
-  { id: 'coerencia-nao-avaliada-CONSTRUIDA', suspensa: true, causa: 'coerencia_nao_avaliada', construida: true, fazer: () => coerente() },
+  {
+    id: 'coerencia-nao-avaliada-CONSTRUIDA',
+    suspensa: true,
+    causa: 'coerencia_nao_avaliada',
+    construida: true,
+    coerenciaConstruida: () => null,
+    legado: () => coerente(),
+    fazer: () => comBlocos(coerente()),
+  },
 ];
 const SUSPENSAS = CONDICOES.filter((c) => c.suspensa);
 const ALCANCAVEIS = SUSPENSAS.filter((c) => !c.construida);
@@ -276,22 +332,22 @@ const SUFIXO_INCONCLUSIVA = '\nObservação final: o Score = 0.5 foi mencionado 
 // ---------------------------------------------------------------------------------------------------------------------------
 type Execucao = { corpo: any; status: number; contexto: string; system: string; logs: string[] };
 
-async function executar(payload: any, texto: string, coerenciaNula = false): Promise<Execucao> {
+async function executar(payload: any, texto: string, coerenciaConstruida?: () => any): Promise<Execucao> {
   estado.texto = texto;
   estado.contexto = '';
   estado.system = '';
-  estado.coerenciaNula = coerenciaNula;
+  estado.coerenciaConstruida = coerenciaConstruida ? coerenciaConstruida() : undefined;
   logs = [];
   const antes = estado.chamadas;
   const res = await POST({ json: async () => JSON.parse(JSON.stringify(payload)) } as any);
   const corpo = await res.json();
-  estado.coerenciaNula = false;
+  estado.coerenciaConstruida = undefined;
   // ⚠ CONTROLE de captura NÃO VAZIA: sem isto, toda ausência passaria por vacuidade.
   expect(estado.chamadas).toBe(antes + 1);
   expect(estado.contexto).toContain('## Pesos Finais da Hierarquia de Controle');
   return { corpo, status: res.status ?? 200, contexto: estado.contexto, system: estado.system, logs: [...logs] };
 }
-const executarCondicao = (c: Condicao, texto: string, ajustar: (r: any) => any = (r) => r) => executar(ajustar(c.fazer()), texto, c.construida);
+const executarCondicao = (c: Condicao, texto: string, ajustar: (r: any) => any = (r) => r) => executar(ajustar(c.fazer()), texto, c.coerenciaConstruida);
 
 /** O `aiReview` que a PÁGINA monta (`page.tsx`, `setAiReview`): os mesmos campos, `mensagemDaExtracao` do nível principal. */
 const aiReviewDaPagina = (c: any) => ({
@@ -521,30 +577,61 @@ describe('A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predi�
   test('os contextos históricos da Fase 1 estão INTACTOS (o sha256 de cada um é o registrado na predição), e as requisições são as da Fase 1', async () => {
     for (const c of CONDICOES) {
       expect([c.id, sha256(antigoDaFase1(c.id))]).toEqual([c.id, PREDICAO[c.id].antigo.sha256]);
-      expect([c.id, sha256(JSON.stringify(c.fazer()))]).toEqual([c.id, CAPTURA_FASE1[c.id].sha256Requisicao]); // a MESMA requisição
+      // Ajuste 1: a requisição da Fase 1 é a do FORMATO ANTERIOR (`legado`); a do pedido atual tem o bloco por respondente e outro sha256
+      expect([c.id, sha256(JSON.stringify(c.legado()))]).toEqual([c.id, CAPTURA_FASE1[c.id].sha256Requisicao]); // a MESMA requisição
     }
   });
 
   test.each(CONDICOES.map((c) => [c.id] as [string]))(
-    '%s: o contexto novo é o ANTIGO menos as quatro linhas do bloco e, nas suspensas, menos o prefixo, MAIS o bloco de ausência e as frases da lista (rodada 1): byte a byte, e com o sha256 PREVISTO',
+    '%s: a CADEIA HISTÓRICA segue íntegra: o contexto da Fase 1, menos as quatro linhas do bloco e o prefixo, mais o bloco de ausência e as frases da lista (rodada 1), tem os bytes e o sha256 PREVISTOS',
+    (id) => {
+      // Ajuste 1: ⚠ esta é a parte da cadeia que NÃO depende do código sob teste: só dos arquivos históricos (`docs/dados/`) e da predição. Ela continua
+      // valendo e é conferida inteira. A parte que comparava o contexto GERADO AGORA com este recomposto (byte a byte) passou ao teste seguinte, porque o
+      // Ajuste 1 muda a qualidade individual do contexto (por respondente, contagens, seção por dimensão, chave de leitura), e o recomposto não pode
+      // prever o texto novo.
+      const c = doId(id);
+      const { texto: daFase2, blocosRetirados, prefixosTrocados } = esperadoDoAntigo(antigoDaFase1(id), c.suspensa);
+      expect([blocosRetirados, prefixosTrocados]).toEqual([1, c.suspensa ? 1 : 0]); // as duas trocas da Fase 2, contadas
+      expect(Buffer.byteLength(daFase2, 'utf8')).toBe(PREDICAO[id].previsto.bytes);
+      expect(sha256(daFase2)).toBe(PREDICAO[id].previsto.sha256);
+      const nDaLista = c.legado().qualityAnalysis?.respondents?.length ?? 0;
+      const { texto: esperado, ausencias, listas } = comAAusenciaDaRodada1(daFase2, nDaLista);
+      expect([ausencias, listas]).toEqual([1, nDaLista > 0 ? 1 : 0]);
+      expect(Buffer.byteLength(esperado, 'utf8')).toBe(PREVISTO_DA_RODADA_1[id].bytes);
+      expect(sha256(esperado)).toBe(PREVISTO_DA_RODADA_1[id].sha256);
+    }
+  );
+
+  /**
+   * ⚠ OS CONTEXTOS ATUAIS (Ajuste 1), com o modelo fixado em T1: bytes e sha256 MEDIDOS nesta execução (convenção de atualização por medição: o valor sai
+   * da execução, e foi conferido à mão no que importa, nos testes que o acompanham). Os valores PREVISTOS da rodada 1 (`PREVISTO_DA_RODADA_1`) ficam acima,
+   * nomeados, como o contexto de ANTES do Ajuste 1. ⚠ O hash prova que o contexto é ESTE e que é determinístico; não prova que o que mudou é só a
+   * qualidade individual: isso está nos testes que seguem, e na comparação antes/depois do registro do Ajuste 1.
+   */
+  const MEDIDO_APOS_O_AJUSTE_1: Record<string, { bytes: number; sha256: string }> = {
+    'elegivel-auto-A': { bytes: 72934, sha256: 'cd5030e03e6cfdf7cfd8945339e500c825803de5fa8008bd58284ec5ecf2bd98' },
+    'elegivel-auto-F': { bytes: 72987, sha256: '6fc4179333ebac91705e443179df26373ac5b9e84984c6b46519abc260cf72da' },
+    'disponibilidade-ausente': { bytes: 69918, sha256: '25377a8891a7807a45364d7c4f4b71b0d40137ada347a232c8fb135404134a01' },
+    'disponibilidade-incompleta': { bytes: 73165, sha256: '882f8c301a899c0f096740f9471d01cf5b4e76207984a10793c02d21244ed4d4' },
+    'contradicao': { bytes: 73175, sha256: '6d4d7db75e3ac9bf76e54d2d28a44e17ba11eca63185794cd59c89b3eae2bfb8' },
+    'coerencia-nao-concluida': { bytes: 74127, sha256: '198ea053338392ef51515630de9a2c03b653d3b359750d6974c0a4292b06eb98' },
+    'coerencia-nao-avaliada-CONSTRUIDA': { bytes: 73810, sha256: '1c16d5bc24aa351d2952ffefe9a03dd3bd5498220737fe803ad42593f2344bb6' },
+  };
+
+  test.each(CONDICOES.map((c) => [c.id] as [string]))(
+    '%s: o contexto ATUAL traz o bloco de ausência UMA vez e as frases da lista da ausência, tem o sha256 MEDIDO, difere do de antes, e o system não muda',
     async (id) => {
       const c = doId(id);
       const r = await executarCondicao(c, T1);
-      const { texto: daFase2, blocosRetirados, prefixosTrocados } = esperadoDoAntigo(antigoDaFase1(id), c.suspensa);
-      expect([blocosRetirados, prefixosTrocados]).toEqual([1, c.suspensa ? 1 : 0]); // as duas trocas da Fase 2, contadas
-      // ⚠ a cadeia: o recomposto da Fase 2 (T1 e T2) tem os bytes e o sha256 PREVISTOS ANTES do código da Fase 2 (`predicao-contextos.json`)...
-      expect(Buffer.byteLength(daFase2, 'utf8')).toBe(PREDICAO[id].previsto.bytes);
-      expect(sha256(daFase2)).toBe(PREDICAO[id].previsto.sha256);
-      // ...e as DUAS trocas da rodada 1 (T3 e T4), contadas: sem lista (`disponibilidade-ausente`) só o bloco; com lista, o bloco e as cinco frases
       const nDaLista = c.fazer().qualityAnalysis?.respondents?.length ?? 0;
-      const { texto: esperado, ausencias, listas } = comAAusenciaDaRodada1(daFase2, nDaLista);
-      expect([ausencias, listas]).toEqual([1, nDaLista > 0 ? 1 : 0]);
-      expect(r.contexto === esperado).toBe(true); // ⚠ o contexto COMPLETO, byte a byte: qualquer outro byte diferente reprova
-      // ⚠ e contra o que foi PREVISTO antes do código da rodada 1 (`838212c`), e não só contra o que se recompõe agora
-      expect(Buffer.byteLength(r.contexto, 'utf8')).toBe(PREVISTO_DA_RODADA_1[id].bytes);
-      expect(sha256(r.contexto)).toBe(PREVISTO_DA_RODADA_1[id].sha256);
+      expect(ocorrencias(r.contexto, BLOCO_DE_AUSENCIA)).toBe(1); // a ausência de vínculo (as requisições não trazem o campo)
+      const nova = FRASES_DA_LISTA_DA_AUSENCIA(nDaLista);
+      for (const k of ['cabecalho', 'total', 'agregacao'] as const) expect([k, ocorrencias(r.contexto, nDaLista > 0 ? nova[k] : '\u0000')]).toEqual([k, nDaLista > 0 ? 1 : 0]);
       expect(sha256(r.system)).toBe(SHA_SYSTEM); // o `system` não muda
-      expect(r.contexto).not.toBe(antigoDaFase1(id)); // CONTRAEXEMPLO: o contexto MUDOU em relação ao da Fase 1 (a reversão não é vacuosa)
+      expect({ bytes: Buffer.byteLength(r.contexto, 'utf8'), sha256: sha256(r.contexto) }).toEqual(MEDIDO_APOS_O_AJUSTE_1[id]);
+      // CONTRAEXEMPLO: o contexto MUDOU em relação ao de antes do Ajuste 1 (o pinado não é o previsto da rodada 1) e à Fase 1
+      expect(MEDIDO_APOS_O_AJUSTE_1[id].sha256).not.toBe(PREVISTO_DA_RODADA_1[id].sha256);
+      expect(r.contexto).not.toBe(antigoDaFase1(id));
     }
   );
 
@@ -564,6 +651,21 @@ describe('A. O que o modelo RECEBE: os sete contextos (P1 a P4), contra a predi�
     expect(typeof motivo.texto).toBe('string');
     expect(ocorrencias(antigoDaFase1(id), motivo.texto)).toBe(motivo.ocorrenciasNoAntigo); // o antigo: no bloco E no bloco de qualidade
     expect(motivo.ocorrenciasNoAntigo).toBe(2);
+    // Ajuste 1: duas condições têm MOTIVO novo, porque o texto delas mudou por desenho: a incompleta (a redação de «incompleta» agora diz que faltam
+    // CRs RECALCULADOS dos julgamentos) e a contradição (V6, e não mais V5). O motivo REGISTRADO na base não pode mais ser o da resposta; o novo
+    // vem da resposta, e a conferência é que ele chega ao contexto UMA vez, que o antigo não sobrevive, e que ele diz o que foi medido.
+    const MOTIVO_NOVO: Record<string, string> = {
+      'disponibilidade-incompleta': 'Medido: 1 de 2 respondentes com CR.',
+      'contradicao': 'V6: respondente 0: media declarado 0.9 contra 0.029166666666666664 recomputado das seis matrizes',
+    };
+    if (MOTIVO_NOVO[id]) {
+      const novo: string = r.corpo.notaSuspensa.motivo;
+      expect(novo).toContain(MOTIVO_NOVO[id]);
+      expect(novo).not.toBe(motivo.texto);
+      expect(ocorrencias(r.contexto, novo)).toBe(1); // ⚠ nenhum motivo se perdeu, e não duplicou
+      expect(ocorrencias(r.contexto, motivo.texto)).toBe(0); // o texto registrado na base não sobrevive
+      return;
+    }
     expect(ocorrencias(r.contexto, motivo.texto)).toBe(1); // ⚠ nenhum motivo se perdeu
     const linhas = r.contexto.split('\n').map((l, i) => (l.includes(motivo.texto) ? i + 1 : null)).filter(Boolean);
     // ⚠ Rodada 1: o bloco de ausência entra ANTES da linha do motivo (+6 linhas sem lista, +7 com lista, que ganha também a linha do cabeçalho das contagens):
@@ -602,9 +704,14 @@ describe('B. Os quatro rótulos: a DESCRIÇÃO no contexto, o PREFIXO mais a mes
   test.each(SUSPENSAS.map((c) => [c.id] as [string]))('%s: o contexto traz só a DESCRIÇÃO da causa DECLARADA, e a resposta traz o prefixo mais a mesma descrição', async (id) => {
     const c = doId(id);
     const r = await executarCondicao(c, T1);
-    const frase = `Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${DESCRICAO[c.causa as Causa]}.`;
+    // Ajuste 1: a avaliação INCOMPLETA com ao menos um CR recalculado tem ramo PRÓPRIO («A classificação global está SUSPENSA: …»), porque dizer «Nenhum
+    // percentual de qualidade é apresentado» seria falso para os respondentes que o têm. As outras quatro condições seguem com a frase de antes.
+    const incompletaComCR = id === 'disponibilidade-incompleta';
+    const frase = incompletaComCR
+      ? `A classificação global está SUSPENSA: ${DESCRICAO[c.causa as Causa]}.`
+      : `Nenhum percentual de qualidade é apresentado, e a classificação global está SUSPENSA: ${DESCRICAO[c.causa as Causa]}.`;
     expect(ocorrencias(r.contexto, frase)).toBe(1);
-    expect(ocorrencias(r.contexto, 'a classificação global está SUSPENSA')).toBe(1); // uma só frase de suspensão no contexto
+    expect(ocorrencias(r.contexto, 'classificação global está SUSPENSA')).toBe(1); // uma só frase de suspensão no contexto, nas duas grafias
     expect(r.contexto).not.toContain(PREFIXO);
     // ⚠ a descrição é o TEXTO da causa, e NÃO o valor do campo `causa` (um identificador)
     expect(r.contexto).not.toContain('coerencia_nao_avaliada');
@@ -856,11 +963,16 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
     expect(s.ordem).toEqual(['cartao-de-suspensao', 'corpo']);
   });
 
-  test('os pares existem para as CINCO condições, e a quinta está marcada CONSTRUÍDA (o tratador real não a produz)', () => {
+  test('os pares existem para as CINCO condições, e as DUAS últimas estão marcadas CONSTRUÍDAS (o tratador real já não as produz)', () => {
     expect(SUSPENSAS.length).toBe(5);
-    expect(ALCANCAVEIS.map((c) => c.id)).toEqual(['disponibilidade-ausente', 'disponibilidade-incompleta', 'contradicao', 'coerencia-nao-concluida']);
-    expect(new Set(ALCANCAVEIS.map((c) => c.causa)).size).toBe(3); // quatro condições, TRÊS causas
-    expect(SUSPENSAS.filter((c) => c.construida).map((c) => [c.id, c.causa])).toEqual([['coerencia-nao-avaliada-CONSTRUIDA', 'coerencia_nao_avaliada']]);
+    // Ajuste 1: eram QUATRO condições alcançáveis em TRÊS causas. Hoje a rota produz DUAS causas, em TRÊS condições (disponibilidade: ausente e incompleta;
+    // contradição: V6). `coerencia_nao_concluida` nascia das comparações V1–V5 do formato anterior, que a rota já não examina, e passou a CONSTRUÍDA.
+    expect(ALCANCAVEIS.map((c) => c.id)).toEqual(['disponibilidade-ausente', 'disponibilidade-incompleta', 'contradicao']);
+    expect(new Set(ALCANCAVEIS.map((c) => c.causa)).size).toBe(2); // três condições, DUAS causas
+    expect(SUSPENSAS.filter((c) => c.construida).map((c) => [c.id, c.causa])).toEqual([
+      ['coerencia-nao-concluida', 'coerencia_nao_concluida'],
+      ['coerencia-nao-avaliada-CONSTRUIDA', 'coerencia_nao_avaliada'],
+    ]);
   });
 
   // ⚠ A trava das NOVE âncoras, e a TRANSIÇÃO de `handleCopy` (rodada 2, 06/10/2026). O artefato `trechos-que-nao-mudam.json` NÃO é regravado: a contagem de NOVE registros
@@ -869,9 +981,14 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
   // liberado, reprova. A unicidade da âncora de início e o terminador depois dela seguem exigidos para os NOVE. O confinamento da edição de `handleCopy` é provado por reversão,
   // com controle negativo (os ensaios abaixo).
   const ARTEFATO_DA_TRAVA = 'docs/dados/a12-nota-veredicto-fase2/trechos-que-nao-mudam.json';
-  const TRECHOS_LIBERADOS: readonly string[] = ['handleCopy'];
+  // ⚠ AJUSTE 1 (A.12 item (c)): `calculateGrade` FOI LIBERADO, por IDENTIFICADOR e por decisão consciente, como `handleCopy` na rodada 2. O motivo é
+  // estrutural, e não de conveniência: o trecho pré-registrado (7468 bytes) pontuava a partir de `byStatus`, `overallStats` e das categorias de
+  // pessoa (CONFIÁVEL/REVISAR/SUSPEITO/CRÍTICO), que o pedido já não leva (são o construto sem lastro que A.12 (c) manda remover), e tinha um ramo
+  // defensivo que SUSPENDERIA toda requisição sem distribuição, isto é, TODA requisição atual. Deixá-lo como estava suspenderia a classificação de
+  // todo pedido. O hash histórico (`02bf0fd9…`) fica no artefato, a proteção NÃO se retira, e o trecho novo ganha a sua guarda (o teste da liberação, abaixo).
+  // Os SETE outros seguem imutáveis, por lista nominal.
+  const TRECHOS_LIBERADOS: readonly string[] = ['handleCopy', 'calculateGrade'];
   const TRECHOS_IMUTAVEIS: readonly string[] = [
-    'calculateGrade',
     'extractGradeFromReview (com o cabeçalho de comentário)',
     'ranking das alternativas no contexto (finalScoresSection)',
     'interface Elegibilidade e tipo CausaDaSuspensao',
@@ -896,7 +1013,7 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
     if (trechos.length !== 9) v.push(`o artefato tem ${trechos.length} registros, e a trava exige 9`);
     const esperados = [...TRECHOS_LIBERADOS, ...TRECHOS_IMUTAVEIS].sort();
     if (JSON.stringify(trechos.map((t) => t.id).sort()) !== JSON.stringify(esperados)) v.push(`os identificadores do artefato não são os nove da lista nominal: ${JSON.stringify(trechos.map((t) => t.id))}`);
-    if (liberados.length !== 1 || liberados[0] !== 'handleCopy') v.push(`liberados: ${JSON.stringify(liberados)}, e só handleCopy pode ser liberado`);
+    if (JSON.stringify([...liberados].sort()) !== JSON.stringify(['calculateGrade', 'handleCopy'])) v.push(`liberados: ${JSON.stringify(liberados)}, e só handleCopy e calculateGrade podem ser liberados`);
     for (const t of trechos) {
       const x = extrairTrecho(textosPorArquivo[t.arquivo], t);
       if (x.ocorrenciasDaAncora !== 1) v.push(`${t.id}: a âncora de início ocorre ${x.ocorrenciasDaAncora} vez(es)`); // a âncora de início ocorre UMA vez, nos nove
@@ -909,14 +1026,14 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
   }
   const textosDaTrava = (registro: any): Record<string, string> => Object.fromEntries([...new Set<string>(registro.trechos.map((t: any) => t.arquivo))].map((a) => [a, ler(a)]));
 
-  test('os trechos que o pedido manda NÃO mudar (os OITO imutáveis, por lista nominal) têm o sha256 PRÉ-REGISTRADO no commit da predição, e handleCopy, liberado por identificador, mantém a âncora única e o terminador', () => {
+  test('os trechos que o pedido manda NÃO mudar (os SETE imutáveis, por lista nominal) têm o sha256 PRÉ-REGISTRADO no commit da predição, e handleCopy e calculateGrade, liberados por identificador, mantêm a âncora única e o terminador', () => {
     const registro = lerJson(ARTEFATO_DA_TRAVA);
     const { trechos } = registro;
     expect(trechos.length).toBe(9);
-    expect(TRECHOS_IMUTAVEIS.length).toBe(8);
-    expect([...TRECHOS_LIBERADOS]).toEqual(['handleCopy']);
+    expect(TRECHOS_IMUTAVEIS.length).toBe(7);
+    expect([...TRECHOS_LIBERADOS]).toEqual(['handleCopy', 'calculateGrade']);
     expect(violacoesDaTrava(registro, textosDaTrava(registro))).toEqual([]);
-    // os oito imutáveis, UM A UM, com o mesmo `sha256` do artefato (a leitura direta, sem a função acima)
+    // os sete imutáveis, UM A UM, com o mesmo `sha256` do artefato (a leitura direta, sem a função acima)
     for (const id of TRECHOS_IMUTAVEIS) {
       const t = trechos.find((x: any) => x.id === id);
       expect([id, t !== undefined]).toEqual([id, true]);
@@ -937,7 +1054,10 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
     // um DÉCIMO registro
     expect(violacoesDaTrava({ trechos: [...registro.trechos, { ...registro.trechos[0], id: 'um décimo registro' }] }, textos).length).toBeGreaterThan(0);
     // um SEGUNDO identificador liberado
-    expect(violacoesDaTrava(registro, textos, ['handleCopy', 'portão do destaque']).length).toBeGreaterThan(0);
+    expect(violacoesDaTrava(registro, textos, ['handleCopy', 'calculateGrade', 'portão do destaque']).length).toBeGreaterThan(0);
+    // e um liberado a MENOS: só `handleCopy`, ou só `calculateGrade`, também reprova (a lista nominal dos liberados é exata)
+    expect(violacoesDaTrava(registro, textos, ['handleCopy']).length).toBeGreaterThan(0);
+    expect(violacoesDaTrava(registro, textos, ['calculateGrade']).length).toBeGreaterThan(0);
     // o registro de `handleCopy` retirado (a proteção histórica NÃO se retira)
     expect(violacoesDaTrava({ trechos: registro.trechos.filter((t: any) => t.id !== 'handleCopy') }, textos).length).toBeGreaterThan(0);
     // um imutável alterado: o texto do componente com UM byte do portão trocado
@@ -954,7 +1074,46 @@ describe('E. A FRONTEIRA (caracterização): campos e destaque mudaram; o corpo 
     // a liberação "porque o hash falhou" NÃO existe: com a lista de liberados vazia, `handleCopy` é cobrado como imutável, e hoje difere do pré-registrado
     const semLiberados = violacoesDaTrava(registro, textos, []);
     expect(semLiberados.some((m) => m.startsWith('handleCopy: o sha256 do trecho difere'))).toBe(true);
+    // Ajuste 1: o mesmo vale para `calculateGrade`, liberado por identificador e NÃO porque o hash falhou
+    expect(semLiberados.some((m) => m.startsWith('calculateGrade: o sha256 do trecho difere'))).toBe(true);
     expect(semLiberados.some((m) => m.startsWith('liberados: []'))).toBe(true);
+  });
+
+  describe('a LIBERAÇÃO de calculateGrade (Ajuste 1): o hash pré-registrado fica no artefato, e o trecho novo tem a sua guarda', () => {
+    const ID = 'calculateGrade';
+    // O hash do trecho NOVO, MEDIDO nesta execução por um trecho de código independente deste arquivo (`node -e`, com a mesma extração do artefato) e conferido
+    // por este teste: convenção de atualização por medição. O pré-registrado (`02bf0fd9…`, 7468 bytes) é o de ANTES, e fica nomeado.
+    const SHA_APOS_O_AJUSTE_1 = '5bc1e847f7aa199944d49ea6d1ec0c5413b02c9dc17ba43c050433aaa63b879b';
+    const BYTES_APOS_O_AJUSTE_1 = 921;
+    const SHA_PREREGISTRADO_COMPLETO_PREFIXO = '02bf0fd92791';
+    const trechoAtual = () => {
+      const t = lerJson(ARTEFATO_DA_TRAVA).trechos.find((x: any) => x.id === ID);
+      return { t, x: extrairTrecho(ler(t.arquivo), t) };
+    };
+
+    test('o registro histórico de calculateGrade segue no artefato (7468 bytes, 02bf0fd9…), e o trecho de hoje DIFERE dele, por desenho', () => {
+      const { t, x } = trechoAtual();
+      expect([t.bytes, t.sha256.startsWith(SHA_PREREGISTRADO_COMPLETO_PREFIXO)]).toEqual([7468, true]);
+      expect(sha256(x.trecho)).not.toBe(t.sha256);
+      expect(x.ocorrenciasDaAncora).toBe(1);
+      expect(x.j).toBeGreaterThan(-1);
+    });
+
+    test('o trecho novo tem o sha256 e os bytes medidos, e é SÓ o portão: sem pontuação, sem categoria de pessoa, sem recomendação', () => {
+      const { x } = trechoAtual();
+      expect([Buffer.byteLength(x.trecho, 'utf8'), sha256(x.trecho)]).toEqual([BYTES_APOS_O_AJUSTE_1, SHA_APOS_O_AJUSTE_1]);
+      expect(x.trecho).toContain('const elegibilidade = elegivelParaClassificacao(data.avaliacaoDeQualidade, data.coerenciaDaQualidade);');
+      expect(ocorrencias(x.trecho, 'return { suspensa: true, nota: null, veredicto: null, score: null, motivo };')).toBe(1);
+      expect(ocorrencias(x.trecho, 'return { suspensa: false, nota: null, veredicto: null, score: null, motivo: null };')).toBe(1);
+      expect(x.trecho).not.toMatch(/score\s*(-=|\+=|=\s*\d)|byStatus|overallStats|validPercent|criticalPercent|summary\.|individualStats|CONFIÁVEL|CRÍTICO|REVISAR/);
+    });
+
+    test('CONTRAEXEMPLO: acrescentar uma pontuação ao trecho, ou trocar o portão, muda o hash (a guarda discrimina)', () => {
+      const { x } = trechoAtual();
+      expect(sha256(x.trecho)).toBe(SHA_APOS_O_AJUSTE_1); // o controle
+      expect(sha256(x.trecho.replace('  const elegibilidade', '  let score = 100;\n  score -= 15;\n  const elegibilidade'))).not.toBe(SHA_APOS_O_AJUSTE_1);
+      expect(sha256(x.trecho.replace('!elegibilidade.elegivel', 'elegibilidade.elegivel'))).not.toBe(SHA_APOS_O_AJUSTE_1);
+    });
   });
 
   test('o artefato preservado NÃO foi regravado nem trocado: o arquivo tem os bytes e o sha256 do commit da predição, e o registro de handleCopy é o pré-registrado', () => {

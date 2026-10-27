@@ -607,8 +607,21 @@ describe('A.33 v2: a requisição de referência r2, e o seu inventário', () =>
 
   test('as âncoras seguem valendo, e o alcance delas está escrito', () => {
     const ler = (rel: string) => fs.readFileSync(path.join(__dirname, '../..', rel), 'utf8');
-    const tela = ler(referencia.TELA), calculo = ler(referencia.CALCULO);
-    for (const [ancora, n] of referencia.ANCORAS_DA_TELA) expect([ancora, contar(tela, ancora)]).toEqual([ancora, n]);
+    // ⚠ AJUSTE 1 (27/10/2026): a montagem do pedido SAIU de `page.tsx` para `lib/ai-reviewer/montagem-do-pedido.ts`, movida sem alterar o
+    // que não é a qualidade individual. As âncoras que ela carrega verbatim passam a ser lidas da tela E do módulo (a contagem é a SOMA
+    // dos dois textos, e continua sendo a do `scripts/a33-payload-referencia.cjs`). A única âncora que o Ajuste 1 RETIRA é `'REVISAR': 0`
+    // (o `byStatus` com `REVISAR` fixo saiu do transporte): ela é conferida pela AUSÊNCIA, na convenção de `ANCORAS_RETIRADAS_POR_A12`.
+    // A r2 segue espelhando a montagem ANTERIOR, e por isso mantém o campo no inventário.
+    const ANCORAS_RETIRADAS_PELO_AJUSTE_1 = ["'REVISAR': 0"];
+    const telaPura = ler(referencia.TELA), montagem = ler('lib/ai-reviewer/montagem-do-pedido.ts'), calculo = ler(referencia.CALCULO);
+    const tela = telaPura + '\n' + montagem;
+    for (const [ancora, n] of referencia.ANCORAS_DA_TELA) {
+      if (ANCORAS_RETIRADAS_PELO_AJUSTE_1.includes(ancora)) {
+        expect([ancora, contar(tela, ancora)]).toEqual([ancora, 0]);
+      } else {
+        expect([ancora, contar(tela, ancora)]).toEqual([ancora, n]);
+      }
+    }
     for (const [ancora, n] of referencia.ANCORAS_DO_CALCULO) expect([ancora, contar(calculo, ancora)]).toEqual([ancora, n]);
     // ⚠ A.12 retirou os fallbacks que fabricavam distribuição: conferidos pela
     // AUSÊNCIA. A r2 espelha a tela ANTERIOR à correção, e segue preservada.

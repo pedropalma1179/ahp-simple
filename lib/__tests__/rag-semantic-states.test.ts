@@ -398,8 +398,17 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // abaixo foram PREVISTOS ANTES do código (commit 838212c, `docs/imprecisoes-parecer-ia.md`, tabela R da seção 5b), e o código os imprimiu: se
     // imprimisse outro, seria refutação da predição, e a constante NÃO se atualizaria. Os valores anteriores ficam nomeados: eram `71d5a2dc…` com
     // chunks e `4f638afb…` sem. O `system` NÃO se moveu.
-    const A12_MESSAGES_COM_CHUNKS = '4df2cb20f2af2f8d8d9815645b9f759773e3c31c0c62aec90cbe109948267677';
-    const A12_MESSAGES_SEM_CHUNKS = '107cec11b6f884c5274ec1f39780f1ce83a0b5d88439298ba1e0a5b621d8c7c9';
+    // ⚠ **O AJUSTE 1 (consistência individual no Parecer IA, 27/10/2026) MOVE os `messages` de novo**, e esta é uma ATUALIZAÇÃO POR
+    // MEDIÇÃO, e não por predição: a predição P-CR-7 (`docs/imprecisoes-parecer-ia.md`, registro de 27/10/2026) previu o CONJUNTO das
+    // diferenças textuais, e não estes sha256. A diferença MEDIDA contra `bcb6bdb`, para este payload (avaliação ausente), é exatamente
+    // duas: sai a linha «**Taxa de Validade Geral:** não calculada — qualidade individual não avaliada.» (categoria de pessoa sem lastro,
+    // A.12 item (c)) e o item «✅ Classificação de qualidade (CONFIÁVEL, REVISAR, SUSPEITO, CRÍTICO)» dá lugar a «✅ CR individual por
+    // matriz, recalculado dos julgamentos (…)». Os valores anteriores ficam nomeados: eram `4df2cb20…` com chunks e `107cec11…` sem.
+    // O `system` NÃO se moveu.
+    const A12_MESSAGES_COM_CHUNKS = 'dc9f5eaebc4fbe2ad3153bda0e34a4ea800e797192d377711013f9eca78708f9';
+    const A12_MESSAGES_SEM_CHUNKS = '8e7ba92ddf869051d54ed6519829f8d64a0d5607043f142cd3029ea7dd0f053a';
+    const A12_MESSAGES_COM_CHUNKS_ANTERIOR = '4df2cb20f2af2f8d8d9815645b9f759773e3c31c0c62aec90cbe109948267677';
+    const A12_MESSAGES_SEM_CHUNKS_ANTERIOR = '107cec11b6f884c5274ec1f39780f1ce83a0b5d88439298ba1e0a5b621d8c7c9';
 
     // `system` muda nas QUATRO, porque a reescrita das instruções o alcança inteiro.
     // ⚠ **Remedido depois da ÚLTIMA edição do prompt.** O primeiro valor fixado aqui
@@ -445,7 +454,10 @@ describe('os quatro estados da recuperação semântica, pelo handler real', () 
     // teria sido desfeita sem que nada mais acusasse.
     expect(resumo(JSON.stringify(r.messages))).not.toBe(D658E50_MESSAGES_SEM_CHUNKS);
     expect(resumo(JSON.stringify(r.messages))).not.toBe(A16_MESSAGES_SEM_CHUNKS);
+    // ⚠ **Nem os `messages` de antes do Ajuste 1**: se voltassem, a troca do bloco de qualidade teria sido desfeita sem que nada mais acusasse.
+    expect(resumo(JSON.stringify(r.messages))).not.toBe(A12_MESSAGES_SEM_CHUNKS_ANTERIOR);
     const c = await executar('true', false, Array(5).fill(cincoChunks));
+    expect(resumo(JSON.stringify(c.messages))).not.toBe(A12_MESSAGES_COM_CHUNKS_ANTERIOR);
     expect(resumo(JSON.stringify(c.messages))).not.toBe(A33_MESSAGES_COM_CHUNKS);
     expect(resumo(JSON.stringify(c.messages))).not.toBe(A16_MESSAGES_COM_CHUNKS);
   });

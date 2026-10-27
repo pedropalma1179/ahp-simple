@@ -156,12 +156,17 @@ async function executar(payload: unknown, texto: string): Promise<Execucao> {
 // ---------------------------------------------------------------------------------------------------------------------------
 // As REQUISIÇÕES. ⚠ COPIA LITERAL dos auxiliares de `vinculo-execucao-fiacao.test.ts` (as mesmas dos 21 cenários da rodada 1) e de `a12-nota-veredicto-fase2.test.ts`
 // ---------------------------------------------------------------------------------------------------------------------------
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { blocoDoMaximo, blocoComMaximo } = require('./helpers/consistencia-de-ensaio');
+// Ajuste 1: o respondente do pedido ATUAL traz o bloco `consistenciaIndividual` (CR por matriz recalculado; `cr` é o governante, ou `null`
+// para «sem CR»). Os campos do formato anterior continuam no payload DE PROPÓSITO: a rota não os lê.
 const respondente = (id: string, cr: number | null) => ({
   respondentId: id,
   id,
   name: `Respondente ${id}`,
   ...(cr === null ? {} : { cr, metrics: { avgCR: cr } }),
   status: cr === null ? 'DESCONHECIDO' : cr <= 0.1 ? 'CONFIÁVEL' : cr <= 0.2 ? 'SUSPEITO' : 'CRÍTICO',
+  consistenciaIndividual: blocoDoMaximo(cr),
 });
 const balde = (total: number, valid: number, warning = 0, critical = 0) => ({ total, valid, warning, critical, avgCR: 0.05 });
 function payloadDaTela(respondentes: any[], vinculo?: unknown, comOverall = true): Record<string, unknown> {
@@ -199,6 +204,15 @@ function payloadDaTela(respondentes: any[], vinculo?: unknown, comOverall = true
   return p;
 }
 const IDS = ['r1', 'r2', 'r3', 'r4'];
+/**
+ * A CONTRADIÇÃO que a rota examina hoje (Ajuste 1): o resumo declarado do bloco de um respondente (`media`) não confere com as seis
+ * matrizes do mesmo bloco (V6). ⚠ ANTES era `qualityAnalysis.summary.critical = 4` (V5, 4 + 4 sobre total 4, do formato anterior), que a rota
+ * já não lê: com o campo adulterado e sem esta troca, o pedido seria ELEGÍVEL e o teste mediria outra coisa.
+ */
+const contradizer = (p: any): any => {
+  p.qualityAnalysis.respondents[0].consistenciaIndividual = { ...blocoComMaximo(0.05), media: 0.9 };
+  return p;
+};
 const elegivel = () => IDS.map((id) => respondente(id, 0.05));
 const naoElegivel = () => [respondente('r1', 0.05), respondente('r2', null), respondente('r3', 0.05), respondente('r4', 0.05)];
 const HEX_PAINEL = 'b'.repeat(64);
@@ -238,7 +252,7 @@ const CENARIOS: Record<string, () => Record<string, unknown>> = {
   'A-sem-lista': () => payloadDaTela([]),
   'A-sem-lista-exclusao-ativa': () => ({ ...payloadDaTela([]), exclusionInfo: EXCLUSAO }),
   'A-nao-elegivel': () => payloadDaTela(naoElegivel()),
-  'A-contradicao': () => { const p: any = payloadDaTela(elegivel()); p.qualityAnalysis.summary.critical = 4; return p; },
+  'A-contradicao': () => contradizer(payloadDaTela(elegivel())),
   // ---- G1, classe B
   'B-indisponivel': () => payloadDaTela(elegivel(), vinculoDoEstado('indisponivel', elegivel())),
   'B-invalido': () => payloadDaTela(elegivel(), vinculoDoEstado('invalido', elegivel())),
@@ -315,7 +329,12 @@ const BASE_SHA256: Record<string, string[]> = {
   'A-sem-lista': ['255402f629de85b6fe0bad4725da9f79428a4fb618871d08bbe0d02039eb2857', '21ba452318dfc2461f8e12140892f32b6c953ae023cd0e341aab47ec459e0ee7', '4d09eaab14f19a4b24bddc145e5e01968d54cf816f5f76c177f0b1492ac45af1', '361731f1fd5e4beffa48dd767e9ce86b810db6dff82607f5738dc5f5c45db4f8', 'bec48ea74121387e22be9e6c8f9700566d01b25ccfb2f33e9af276c262a2f91d', '87faae2586bb04802653d1c3bb911fd3f24f4d19de010c13df45e450fb5a7d95', '07d6dadd9ac3a157306f564dd841dbb0cbe184133f999fcfd4f0f9ee572cee17', '33258a5d1ce13bbd2a1916d274bb3aa6676b8ddfeb1aada4e80fe5f685e59247'],
   'A-sem-lista-exclusao-ativa': ['255402f629de85b6fe0bad4725da9f79428a4fb618871d08bbe0d02039eb2857', '21ba452318dfc2461f8e12140892f32b6c953ae023cd0e341aab47ec459e0ee7', '4d09eaab14f19a4b24bddc145e5e01968d54cf816f5f76c177f0b1492ac45af1', '361731f1fd5e4beffa48dd767e9ce86b810db6dff82607f5738dc5f5c45db4f8', 'bec48ea74121387e22be9e6c8f9700566d01b25ccfb2f33e9af276c262a2f91d', '87faae2586bb04802653d1c3bb911fd3f24f4d19de010c13df45e450fb5a7d95', '07d6dadd9ac3a157306f564dd841dbb0cbe184133f999fcfd4f0f9ee572cee17', '33258a5d1ce13bbd2a1916d274bb3aa6676b8ddfeb1aada4e80fe5f685e59247'],
   'A-nao-elegivel': ['1919a353b49699696d93faa3d24657750b7bdcfc4f8153336e1199d40bd0c819', '0241e0e40d96d46638e45e2a8a532751f6baa5fed3ff62accc679aea1bed7e77', '155adda86f52a86cb0df95aec839ffd24d1d790566c8a25ca972eb6ab655bbfc', '59a0b0307e784367d014107e4e397d4049c01d414ae299bb24902cf05207d6f4', 'ac0cb0385077b7e50cd649f827b9033c7207be319d9c202355021ed30bb66642', 'a50d5f8c157a47d63c6fabf803ca1eaff2a0d36bd7fa9709f57d314f0c465613', '0a6fd7ca30f1ae120f1ac160646b6e362215c443082ca8fc8338baeee306befb', '7c9a1fe38a1a3536285ade2d3aebabfeca3a5a22d15f78ef07339b39d1e861e0'],
-  'A-contradicao': ['aadf69ff3966fd2a7b299a9363d13a7f9644dd6c02a86627b0c2d7c2baf00ef1', 'aa37141aad13915be777463dceaf65d46d535ea965944f1876cc7e31f8fd5bc4', '9913a2dc1ad8593f8fcd9f15b985bee7050af9b6252194cc6e9bb0d88076a2df', 'b3644c499fd692a985a8d74bb4d3ae5cbdd067aaae9298c986b965fe161269d3', 'b6e5ebbf48b6453792b785143be5d33f13708dd4886cabef87a69ba7453547c0', '6fe8c8fbef6ca578a9df27fd875be14e43a664e758bf12b1c3bc8926bccce728', '27fd82ebb1322a0196bd5693a1b2293c17c7045032110bb72e1495a3f228eb57', '25fbf94d8d01d198e6d0017a5561225d40ff11c08a284ac046c6b77d2f38e3ad'],
+  // ⚠ AJUSTE 1: ÚNICO cenário cujo golden foi RECAPTURADO (os outros 34 seguem os de `b55efec`, e passam). A contradição agora é a V6 (resumo
+  //   declarado do bloco contra as suas seis matrizes), e o texto de `notaSuspensa.motivo` nomeia V6 onde nomeava V5. MEDIDO sobre os 280 corpos,
+  //   código de `bcb6bdb` contra o atual, com o mesmo harness: 272 idênticos e 8 diferentes, e nos 8 o ÚNICO campo diferente é
+  //   `notaSuspensa.motivo`. Conferência do instrumento: o hash recomposto do corpo ANTIGO reproduz o golden antigo nos 8, e o golden novo é o do
+  //   corpo antigo com SÓ o motivo trocado, nos 8. Os 8 valores antigos (`b55efec`): aadf69ff3966, aa37141aad13, 9913a2dc1ad8, b3644c499fd6, b6e5ebbf48b6, 6fe8c8fbef6c, 27fd82ebb132, 25fbf94d8d01 (12 primeiros hexadecimais).
+  'A-contradicao': ['c99575e7c101d13a2c97bd6aa10da0abaf159dab35995bfce88bd18a67e35e62', 'bfdf3c6f79042c8c94482b6d94de6b36d54414ba79dec84da0b5601d5197a822', 'c806935cbfbdea3b23c90d4295a40b6b98bcebcd236d38b08efd93e5bb82caaa', 'c9867f2cad287c7b9ce42e8ae335ed7e4a4152e0959fdbb13fcac0c2d5df3031', '9f7c3b0b4921bd2421677eac2fe9ecc3ee9561a2af1d982798945c26ba342c72', '4925b8fc988d68b0008a56861ec8d9d78c144aa662ace24009357f3d29893171', '3b66b6c594a6209fd8293edcb408a10b2ec2ea26c92d1072c86e0cf49ebf9b21', 'c66fe172e500f4ba8c6ae4d6b5d3586503d880684884b7f1e75b40498b1e524a'],
   'B-indisponivel': ['d739b9710f094d1bd85a8efdf3edd73c044c0e2efd2167e3241952dbf763d0c4', 'f1d5a2814ec9382c6793bc9b80e8d3b47436d4f7de76a85c8a71c6d8dee0bcc3', '17b9c0029efce03571e24bcba0ecfc59756f05915c9b3e9ba0714026e4ea3989', 'd06836cc430c8c05ce7973079428efba30fa1e037362801670149a0ec8b68712', 'c9a833f8ae18146d647c0beae2c7b0a66449b3928f0b9fa8060946b46b30a2f9', 'ccc7f35ca88b79c5859c17a7d49e31b9d9af64f600405815f1df534afd4cedb7', 'a5c301d816bb861e9ddd227f938c623ab7cfea3d0e86c4cf724a9b43e3d43a36', '67d06c1bfee47b7d8cce655ad2bef4b3912ed54edbc3b808596fef1c42142670'],
   'B-invalido': ['d739b9710f094d1bd85a8efdf3edd73c044c0e2efd2167e3241952dbf763d0c4', 'f1d5a2814ec9382c6793bc9b80e8d3b47436d4f7de76a85c8a71c6d8dee0bcc3', '17b9c0029efce03571e24bcba0ecfc59756f05915c9b3e9ba0714026e4ea3989', 'd06836cc430c8c05ce7973079428efba30fa1e037362801670149a0ec8b68712', 'c9a833f8ae18146d647c0beae2c7b0a66449b3928f0b9fa8060946b46b30a2f9', 'ccc7f35ca88b79c5859c17a7d49e31b9d9af64f600405815f1df534afd4cedb7', 'a5c301d816bb861e9ddd227f938c623ab7cfea3d0e86c4cf724a9b43e3d43a36', '67d06c1bfee47b7d8cce655ad2bef4b3912ed54edbc3b808596fef1c42142670'],
   'B-vinculado': ['d739b9710f094d1bd85a8efdf3edd73c044c0e2efd2167e3241952dbf763d0c4', 'f1d5a2814ec9382c6793bc9b80e8d3b47436d4f7de76a85c8a71c6d8dee0bcc3', '17b9c0029efce03571e24bcba0ecfc59756f05915c9b3e9ba0714026e4ea3989', 'd06836cc430c8c05ce7973079428efba30fa1e037362801670149a0ec8b68712', 'c9a833f8ae18146d647c0beae2c7b0a66449b3928f0b9fa8060946b46b30a2f9', 'ccc7f35ca88b79c5859c17a7d49e31b9d9af64f600405815f1df534afd4cedb7', 'a5c301d816bb861e9ddd227f938c623ab7cfea3d0e86c4cf724a9b43e3d43a36', '67d06c1bfee47b7d8cce655ad2bef4b3912ed54edbc3b808596fef1c42142670'],
@@ -767,7 +786,7 @@ describe('D. A decisão NÃO recebe o campo (K5): a leitura do fonte da rota, co
       for (const f of FORMAS) expect([f.rotulo, decisao((await executar(comOCampo(f), texto)).corpo)]).toEqual([f.rotulo, referencia]);
     }
     // e com a classificação SUSPENSA (contradição) a decisão também é a mesma, e a causa é a da contradição
-    const contraditoria = (valor: unknown) => { const p: any = payloadDaTela(elegivel(), valor); p.qualityAnalysis.summary.critical = 4; return p; };
+    const contraditoria = (valor: unknown) => contradizer(payloadDaTela(elegivel(), valor));
     const ref = (await executar(contraditoria(undefined), T1)).corpo;
     expect(ref.notaSuspensa).toMatchObject({ suspensa: true, causa: 'contradicao' });
     for (const f of FORMAS) {
@@ -918,8 +937,7 @@ describe('F. O componente real: o aviso (c), só nas duas situações da classe 
 
   test('com a classificação SUSPENSA e com a mensagem da extração o aviso também aparece, depois dessa mensagem e antes do corpo, e nenhum bloco existente é substituído', async () => {
     // suspensa: contradição na avaliação de qualidade
-    const contraditoria: any = payloadDaTela(elegivel());
-    contraditoria.qualityAnalysis.summary.critical = 4;
+    const contraditoria: any = contradizer(payloadDaTela(elegivel()));
     const suspensa = await aiReviewReal(T1, contraditoria);
     expect(suspensa.aiReview.notaSuspensa).toMatchObject({ suspensa: true, causa: 'contradicao' });
     const htmlS = renderizar({ ...suspensa.aiReview, estadoDoVinculo: 'nulo_explicito' });

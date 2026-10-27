@@ -1,192 +1,177 @@
 // app/api/response-quality/route.ts
-// API para análise de qualidade das respostas - v5.2 com fallback de cálculo
-// Extrai CRs individuais de cada respondente corretamente
-// Correções: IDs undefined, CR NaN, formatos variados, fallback para judgments brutos
+// API para análise de qualidade das respostas - v5.3
+//
+// Ajuste 1 (A.12 item (c), A.25): a ORIGEM do CR individual.
+//   - O CR individual é RECALCULADO dos julgamentos, pelo motor (`lib/consistencia-individual.ts`), e quando os
+//     julgamentos são válidos o cache legado (`responses.avgCR` e afins) NÃO prevalece sobre ele.
+//   - Ausência não vira zero: `cr` é `null` quando não há CR; `0` é um resultado calculado válido.
+//   - As métricas trazem a Magnitude, a média das seis, o máximo e a matriz governante, com os nomes certos.
+//   - O bloco `consistenciaIndividual` é o que o Parecer IA transporta. ⚠ Os campos antigos (`status`, `overallScore`,
+//     `flags`, `recommendation`) continuam aqui PARA A TELA; o Parecer não os recebe (`lib/ai-reviewer/montagem-do-pedido.ts`).
+// Histórico: v5.2 tinha fallback de cálculo; IDs undefined, CR NaN e formatos variados foram tratados antes.
 
 import { NextRequest, NextResponse } from 'next/server';
-import { calculateRespondentWeights } from '@/lib/respondent-weights';
-import { randomIndex } from '@/lib/ahp-engine';
-import type { JudgmentItem as Judgment } from '@/lib/types';
+import {
+  consistenciaIndividualDeJulgamentos,
+  type ConsistenciaIndividual,
+} from '@/lib/consistencia-individual';
+import type { Alternative } from '@/lib/data';
 
 // ============================================================
-// CONSTANTES AHP - Saaty (1980)
+// EXTRAÇÃO DO CR DO CACHE LEGADO
 // ============================================================
 
-// ============================================================
-// EXTRAÇÃO DE CRs DO RESPONDENTE - v5.1
-// ============================================================
+/**
+ * O que o cache legado da resposta traz. ⚠ **Cada campo é `null` quando o cache não o trouxe**, e nunca `0`.
+ * O cache só serve de fallback para a TELA quando os julgamentos não são utilizáveis, e a fonte é declarada.
+ */
+interface CRsDoCache {
+  bocr: number | null;
+  benefits: number | null;
+  opportunities: number | null;
+  costs: number | null;
+  risks: number | null;
+  magnitude: number | null;
+  /**
+   * O `avgCR` gravado. ⚠ **Semântica heterogênea**: média sobre as 26 matrizes nas respostas coletadas em maio de
+   * 2026 (inclui as vinte 2×2, de CR zero), e máximo das seis nas respostas gravadas depois de A.1. O cache não diz qual.
+   */
+  avgCR: number | null;
+  /** Quantos dos cinco CRs por matriz o cache trouxe (sem Magnitude, que só as respostas novas gravam). */
+  campos: number;
+}
 
-interface RespondentCRs {
-  bocr: number;
-  benefits: number;
-  opportunities: number;
-  costs: number;
-  risks: number;
-  avgCR: number;
+/** Número finito, ou `null`. `undefined`, `null` e NaN são AUSÊNCIA, e nunca viram zero. */
+function lerNumero(val: unknown): number | null {
+  if (val === undefined || val === null || val === '') return null;
+  const num = Number(val);
+  return Number.isNaN(num) ? null : num;
 }
 
 /**
- * Extrai CRs de uma resposta individual
- * Suporta múltiplos formatos de dados (simulador v5, respondente real, etc.)
- * v5.1: Correção para evitar NaN e melhor extração
+ * Extrai o CR do cache de uma resposta individual, em qualquer dos formatos que o sistema já gravou
+ * (simulador v5, respondente real, formatos legados). A cascata e as saídas antecipadas são as de antes.
  */
-function extractRespondentCRs(response: any): RespondentCRs {
-  const crs: RespondentCRs = {
-    bocr: 0,
-    benefits: 0,
-    opportunities: 0,
-    costs: 0,
-    risks: 0,
-    avgCR: 0
+function extractCacheCRs(response: any): CRsDoCache {
+  const c: CRsDoCache = {
+    bocr: null, benefits: null, opportunities: null, costs: null, risks: null, magnitude: null, avgCR: null, campos: 0,
   };
-  
-  // Helper para garantir número válido
-  const safeNumber = (val: any): number => {
-    if (val === undefined || val === null) return 0;
-    const num = Number(val);
-    return isNaN(num) ? 0 : num;
+  const fim = (): CRsDoCache => {
+    c.campos = [c.bocr, c.benefits, c.opportunities, c.costs, c.risks].filter(x => x !== null).length;
+    return c;
   };
-  
-  // ============================================================
-  // FORMATO v5: response.responses.bocrConsistency
-  // ============================================================
+
+  // FORMATO v5: response.responses.*
   if (response.responses) {
-    // CR BOCR
-    if (response.responses.bocrConsistency?.cr !== undefined) {
-      crs.bocr = safeNumber(response.responses.bocrConsistency.cr);
+    const r = response.responses;
+    const bocr = lerNumero(r.bocrConsistency?.cr);
+    if (bocr !== null) c.bocr = bocr;
+    const magnitude = lerNumero(r.magnitudeConsistency?.cr);
+    if (magnitude !== null) c.magnitude = magnitude;
+
+    const sub = r.subConsistency;
+    if (sub) {
+      const pares: Array<[keyof CRsDoCache, unknown, unknown]> = [
+        ['benefits', sub.B?.cr, sub.Benefits?.cr],
+        ['opportunities', sub.O?.cr, sub.Opportunities?.cr],
+        ['costs', sub.C?.cr, sub.Costs?.cr],
+        ['risks', sub.R?.cr, sub.Risks?.cr],
+      ];
+      for (const [campo, curto, longo] of pares) {
+        const v = lerNumero(longo) ?? lerNumero(curto);
+        if (v !== null) (c as any)[campo] = v;
+      }
     }
-    
-    // CRs dos subcritérios
-    const subCons = response.responses.subConsistency;
-    if (subCons) {
-      if (subCons.B?.cr !== undefined) crs.benefits = safeNumber(subCons.B.cr);
-      if (subCons.O?.cr !== undefined) crs.opportunities = safeNumber(subCons.O.cr);
-      if (subCons.C?.cr !== undefined) crs.costs = safeNumber(subCons.C.cr);
-      if (subCons.R?.cr !== undefined) crs.risks = safeNumber(subCons.R.cr);
-      
-      // Fallback: subcritérios com nomes completos
-      if (subCons.Benefits?.cr !== undefined) crs.benefits = safeNumber(subCons.Benefits.cr);
-      if (subCons.Opportunities?.cr !== undefined) crs.opportunities = safeNumber(subCons.Opportunities.cr);
-      if (subCons.Costs?.cr !== undefined) crs.costs = safeNumber(subCons.Costs.cr);
-      if (subCons.Risks?.cr !== undefined) crs.risks = safeNumber(subCons.Risks.cr);
-    }
-    
-    // CR médio já calculado
-    if (response.responses.avgCR !== undefined) {
-      crs.avgCR = safeNumber(response.responses.avgCR);
-      if (crs.avgCR > 0) return crs; // Já temos tudo!
+
+    const media = lerNumero(r.avgCR);
+    if (media !== null) {
+      c.avgCR = media;
+      if (media > 0) return fim(); // «Já temos tudo»: a saída antecipada de sempre
     }
   }
-  
-  // ============================================================
+
   // FORMATO LEGADO: response.bocrConsistency direto
-  // ============================================================
-  if (response.bocrConsistency?.cr !== undefined) {
-    crs.bocr = safeNumber(response.bocrConsistency.cr);
-  }
-  
+  const legadoBocr = lerNumero(response.bocrConsistency?.cr);
+  if (legadoBocr !== null) c.bocr = legadoBocr;
   if (response.subConsistency) {
-    if (response.subConsistency.B?.cr !== undefined) crs.benefits = safeNumber(response.subConsistency.B.cr);
-    if (response.subConsistency.O?.cr !== undefined) crs.opportunities = safeNumber(response.subConsistency.O.cr);
-    if (response.subConsistency.C?.cr !== undefined) crs.costs = safeNumber(response.subConsistency.C.cr);
-    if (response.subConsistency.R?.cr !== undefined) crs.risks = safeNumber(response.subConsistency.R.cr);
+    const s = response.subConsistency;
+    const b = lerNumero(s.B?.cr); if (b !== null) c.benefits = b;
+    const o = lerNumero(s.O?.cr); if (o !== null) c.opportunities = o;
+    const k = lerNumero(s.C?.cr); if (k !== null) c.costs = k;
+    const r2 = lerNumero(s.R?.cr); if (r2 !== null) c.risks = r2;
   }
-  
-  // ============================================================
+
   // FORMATO metrics (fallback)
-  // ============================================================
   if (response.metrics) {
-    if (response.metrics.crBOCR !== undefined) crs.bocr = safeNumber(response.metrics.crBOCR);
-    if (response.metrics.crBenefits !== undefined) crs.benefits = safeNumber(response.metrics.crBenefits);
-    if (response.metrics.crOpportunities !== undefined) crs.opportunities = safeNumber(response.metrics.crOpportunities);
-    if (response.metrics.crCosts !== undefined) crs.costs = safeNumber(response.metrics.crCosts);
-    if (response.metrics.crRisks !== undefined) crs.risks = safeNumber(response.metrics.crRisks);
-    if (response.metrics.avgCR !== undefined) {
-      crs.avgCR = safeNumber(response.metrics.avgCR);
-      if (crs.avgCR > 0) return crs;
+    const m = response.metrics;
+    const set = (campo: keyof CRsDoCache, v: unknown) => { const n = lerNumero(v); if (n !== null) (c as any)[campo] = n; };
+    set('bocr', m.crBOCR); set('benefits', m.crBenefits); set('opportunities', m.crOpportunities);
+    set('costs', m.crCosts); set('risks', m.crRisks);
+    const media = lerNumero(m.avgCR);
+    if (media !== null) {
+      c.avgCR = media;
+      if (media > 0) return fim();
     }
   }
-  
-  // ============================================================
+
   // FORMATO: CR direto na resposta (simulador simplificado)
-  // ============================================================
-  if (response.cr !== undefined) {
-    crs.avgCR = safeNumber(response.cr);
-    if (crs.avgCR > 0) return crs;
+  for (const v of [response.cr, response.consistency?.cr]) {
+    const n = lerNumero(v);
+    if (n !== null) {
+      c.avgCR = n;
+      if (n > 0) return fim();
+    }
   }
-  
-  if (response.consistency?.cr !== undefined) {
-    crs.avgCR = safeNumber(response.consistency.cr);
-    if (crs.avgCR > 0) return crs;
-  }
-  
-  // ============================================================
-  // FORMATO: Dados aninhados em "data"
-  // ============================================================
+
+  // FORMATO: dados aninhados em "data"
   if (response.data) {
-    const data = response.data;
-    if (data.bocrConsistency?.cr !== undefined) {
-      crs.bocr = safeNumber(data.bocrConsistency.cr);
+    const d = response.data;
+    const bocr = lerNumero(d.bocrConsistency?.cr);
+    if (bocr !== null) c.bocr = bocr;
+    const media = lerNumero(d.avgCR);
+    if (media !== null) {
+      c.avgCR = media;
+      if (media > 0) return fim();
     }
-    if (data.avgCR !== undefined) {
-      crs.avgCR = safeNumber(data.avgCR);
-      if (crs.avgCR > 0) return crs;
-    }
   }
-  
-  // ============================================================
-  // CALCULAR CR MÉDIO se não encontrado
-  // ============================================================
-  const validCRs = [crs.bocr, crs.benefits, crs.opportunities, crs.costs, crs.risks]
-    .filter(cr => cr > 0);
-  
-  if (validCRs.length > 0) {
-    crs.avgCR = validCRs.reduce((a, b) => a + b, 0) / validCRs.length;
-  } else {
-    // Se não encontrou nenhum CR, retornar 0 (será classificado como desconhecido)
-    crs.avgCR = 0;
-  }
-  
-  // Garantir que avgCR não é NaN
-  if (isNaN(crs.avgCR)) {
-    crs.avgCR = 0;
-  }
-  
-  return crs;
+
+  return fim();
 }
 
 /**
- * Fallback: calcula CRs a partir dos judgments brutos quando o campo responses não existe.
- * Usa calculateRespondentWeights (mesma lógica do frontend e do cálculo).
+ * ⚠ **O que o cache pode dizer à tela quando os julgamentos não servem.** Um `avgCR` gravado vale como está; sem ele, a
+ * média dos CRs por matriz que o cache trouxe, sobre os que trouxe (zero entra: é valor). Sem nenhum dos dois, `null`.
  */
-function computeCRsFromJudgments(response: any): RespondentCRs | null {
-  const judgments = response.judgments || response.responses?.judgments;
-  if (!judgments || !Array.isArray(judgments) || judgments.length === 0) return null;
-
-  // Extrair códigos de alternativas dos judgments de tipo 'alternatives'
-  const altJudgments = judgments.filter((j: any) => j.type === 'alternatives');
-  const altCodes = [...new Set(altJudgments.flatMap((j: any) => [j.itemA, j.itemB]).filter(Boolean))] as string[];
-  if (altCodes.length === 0) {
-    // Fallback: usar A1, A2 como default (projeto com 2 alternativas)
-    altCodes.push('A1', 'A2');
+function crDoCacheParaATela(c: CRsDoCache): { valor: number | null; descricao: string } {
+  if (c.avgCR !== null && c.avgCR > 0) {
+    return { valor: c.avgCR, descricao: 'avgCR gravado na coleta (o cache não diz se é média sobre 26 matrizes ou máximo das seis)' };
   }
-
-  try {
-    const result = calculateRespondentWeights(judgments as Judgment[], altCodes);
-
+  const presentes = [c.bocr, c.benefits, c.opportunities, c.costs, c.risks].filter((x): x is number => x !== null);
+  if (presentes.length > 0) {
     return {
-      bocr: result.bocrWeights.cr,
-      benefits: result.subWeights['B']?.cr || 0,
-      opportunities: result.subWeights['O']?.cr || 0,
-      costs: result.subWeights['C']?.cr || 0,
-      risks: result.subWeights['R']?.cr || 0,
-      // CR governante; o nome do campo é contrato com os consumidores.
-      avgCR: result.maxCR,
+      valor: presentes.reduce((a, b) => a + b, 0) / presentes.length,
+      descricao: `média dos ${presentes.length} CRs por matriz que o cache trouxe (de 5; sem Magnitude)`,
     };
-  } catch (e) {
-    console.warn('[QUALITY] Fallback CR computation failed:', e);
-    return null;
   }
+  if (c.avgCR !== null) return { valor: c.avgCR, descricao: 'avgCR gravado na coleta' };
+  return { valor: null, descricao: '' };
+}
+
+/** As alternativas do pedido, quando a tela as envia; senão, as que os próprios julgamentos de alternativas nomeiam. */
+function alternativasParaAResposta(declaradas: unknown, judgments: unknown): Alternative[] | null {
+  if (Array.isArray(declaradas) && declaradas.length > 0 && declaradas.every((a: any) => a && typeof a.code === 'string')) {
+    return declaradas.map((a: any) => ({ ...a, code: a.code, name: a.name ?? a.code, description: a.description ?? '' }));
+  }
+  if (!Array.isArray(judgments)) return null;
+  const codigos = [
+    ...new Set(
+      judgments
+        .filter((j: any) => j && j.type === 'alternatives')
+        .flatMap((j: any) => [j.itemA, j.itemB])
+        .filter((x: any) => typeof x === 'string' && x !== '')
+    ),
+  ] as string[];
+  return codigos.length > 0 ? codigos.map(code => ({ code, name: code, description: '' })) : null;
 }
 
 /**
@@ -204,13 +189,13 @@ function extractRespondentId(response: any, idx: number): string {
     response.userId,
     response.email?.split('@')[0], // Usar parte do email como fallback
   ];
-  
+
   for (const id of possibleIds) {
     if (id && id !== 'undefined' && id !== 'null') {
       return String(id);
     }
   }
-  
+
   // Fallback: gerar ID baseado no índice
   return `respondente_${idx + 1}`;
 }
@@ -219,12 +204,15 @@ function extractRespondentId(response: any, idx: number): string {
 // CLASSIFICAÇÃO DE RESPONDENTE - Saaty (1980)
 // ============================================================
 
-function classifyRespondent(avgCR: number): { status: string; score: number } {
-  // Se CR = 0 (não encontrado), classificar como desconhecido
-  if (avgCR === 0) {
+/**
+ * ⚠ `null` é AUSÊNCIA e dá `DESCONHECIDO`; `0` é CR calculado (consistência perfeita) e dá `CONFIÁVEL`. Antes, `0` era
+ * os dois, e um respondente perfeitamente consistente saía como «não encontrado».
+ */
+function classifyRespondent(avgCR: number | null): { status: string; score: number } {
+  if (avgCR === null) {
     return { status: 'DESCONHECIDO', score: 50 };
   }
-  
+
   if (avgCR <= 0.05) {
     return { status: 'CONFIÁVEL', score: 100 };
   } else if (avgCR <= 0.10) {
@@ -248,43 +236,50 @@ interface Flag {
   details: string;
 }
 
-function detectPatterns(response: any, crs: RespondentCRs): Flag[] {
+/** De onde vem o CR que a tela mostra e que as flags citam. */
+type FonteDoCR = 'recalculado_dos_julgamentos' | 'cache_legado' | 'indisponivel';
+
+function detectPatterns(
+  response: any,
+  cr: { valor: number | null; fonte: FonteDoCR; descricao: string; governante: string | null },
+  condicaoDosJulgamentos: string
+): Flag[] {
   const flags: Flag[] = [];
-  
-  // 1. CR Alto (apenas se > 10%, conforme Saaty 1980)
-  if (crs.avgCR > 0.20) {
+
+  // 1. CR alto (limites de Saaty, 1980: 10% e 20%). ⚠ O texto NOMEIA o que o número é: o máximo das seis matrizes
+  //    quando recalculado, e o valor do cache quando não. «CR médio» para o máximo foi o defeito de A.25.
+  if (cr.valor !== null && cr.valor > 0.10) {
+    const quanto = cr.valor > 0.20 ? 'muito acima' : 'acima';
+    const oQue =
+      cr.fonte === 'recalculado_dos_julgamentos'
+        ? `CR máximo entre as seis matrizes não triviais, ${(cr.valor * 100).toFixed(1)}% (matriz governante: ${cr.governante ?? 'não identificada'})`
+        : `CR do cache legado, ${(cr.valor * 100).toFixed(1)}% (${cr.descricao})`;
     flags.push({
       type: 'CR_ALTO',
-      severity: 'GRAVE',
-      details: `CR médio de ${(crs.avgCR * 100).toFixed(1)}% está muito acima do limite de 10%`
-    });
-  } else if (crs.avgCR > 0.10) {
-    flags.push({
-      type: 'CR_ALTO',
-      severity: 'ALERTA',
-      details: `CR médio de ${(crs.avgCR * 100).toFixed(1)}% está acima do limite de 10%`
+      severity: cr.valor > 0.20 ? 'GRAVE' : 'ALERTA',
+      details: `${oQue} está ${quanto} do limite de 10%`,
     });
   }
-  
-  // 2. CR = 0 (não foi possível extrair)
-  if (crs.avgCR === 0) {
+
+  // 2. Sem CR: AUSÊNCIA, e a condição dos julgamentos dita o motivo. (Zero calculado NÃO cai aqui.)
+  if (cr.valor === null) {
     flags.push({
       type: 'CR_DESCONHECIDO',
       severity: 'INFO',
-      details: 'Não foi possível extrair CR individual desta resposta'
+      details: `Não foi possível obter o CR individual desta resposta (julgamentos: ${condicaoDosJulgamentos}; sem cache utilizável)`,
     });
   }
-  
+
   // 3. Verificar padrões uniformes nos julgamentos
   const judgments = response.judgments || response.responses?.judgments || [];
   if (judgments.length > 0) {
     const values = judgments
       .map((j: any) => j.saatyValue || j.value)
       .filter((v: any) => v !== undefined);
-    
+
     if (values.length > 0) {
       const uniqueValues = new Set(values);
-      
+
       // Tudo igual
       if (uniqueValues.size === 1) {
         flags.push({
@@ -293,7 +288,7 @@ function detectPatterns(response: any, crs: RespondentCRs): Flag[] {
           details: `Todas as ${values.length} comparações têm o mesmo valor (${values[0]})`
         });
       }
-      
+
       // Padrão muito uniforme
       else if (uniqueValues.size <= 2 && values.length > 10) {
         flags.push({
@@ -302,7 +297,7 @@ function detectPatterns(response: any, crs: RespondentCRs): Flag[] {
           details: `Apenas ${uniqueValues.size} valores diferentes em ${values.length} comparações`
         });
       }
-      
+
       // 4. Uso excessivo de extremos
       const extremeCount = values.filter((v: number) => v === 1 || v === 9).length;
       const extremeRatio = extremeCount / values.length;
@@ -315,7 +310,7 @@ function detectPatterns(response: any, crs: RespondentCRs): Flag[] {
       }
     }
   }
-  
+
   return flags;
 }
 
@@ -326,49 +321,68 @@ function detectPatterns(response: any, crs: RespondentCRs): Flag[] {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { responses, includeSimulated = true } = body;
-    
+    const { responses, includeSimulated = true, alternatives } = body;
+
     if (!responses || !Array.isArray(responses)) {
       return NextResponse.json({
         success: false,
         error: 'Parâmetro "responses" é obrigatório e deve ser um array'
       }, { status: 400 });
     }
-    
-    console.log(`[QUALITY v5.1] Analisando ${responses.length} respostas`);
-    
+
+    console.log(`[QUALITY v5.3] Analisando ${responses.length} respostas`);
+
     // Filtrar respostas se necessário
-    const filteredResponses = includeSimulated 
-      ? responses 
+    const filteredResponses = includeSimulated
+      ? responses
       : responses.filter((r: any) => !r.isSimulated);
-    
+
     // Analisar cada respondente
     const respondentAnalysis = filteredResponses.map((response: any, idx: number) => {
       // CORREÇÃO: Extrair ID de forma robusta
       const respondentId = extractRespondentId(response, idx);
       const isSimulated = response.isSimulated || false;
-      
-      // Extrair CRs individuais
-      let crs = extractRespondentCRs(response);
 
-      // Fallback: se avgCR === 0 (campo responses ausente), calcular a partir dos judgments brutos
-      if (crs.avgCR === 0) {
-        const fallbackCRs = computeCRsFromJudgments(response);
-        if (fallbackCRs && fallbackCRs.avgCR > 0) {
-          crs = fallbackCRs;
-          console.log(`[QUALITY v5.2] Fallback: calculado CR de judgments para ${respondentId}`);
-        }
+      // A ORIGEM: o CR individual é recalculado dos julgamentos. ⚠ O cache NÃO é consultado para decidir isso.
+      const julgamentos = response.judgments || response.responses?.judgments;
+      const consistenciaIndividual: ConsistenciaIndividual = consistenciaIndividualDeJulgamentos(
+        julgamentos,
+        alternativasParaAResposta(alternatives, julgamentos)
+      );
+      const recalculado = consistenciaIndividual.fonte === 'recalculado_dos_julgamentos';
+
+      // O cache legado, lido e conservado À PARTE. Só a TELA o usa, e só quando os julgamentos não servem.
+      const cache = extractCacheCRs(response);
+      const doCache = crDoCacheParaATela(cache);
+
+      let fonteDoCR: FonteDoCR;
+      let valorDoCR: number | null;
+      let descricaoDoCR = '';
+      if (recalculado) {
+        fonteDoCR = 'recalculado_dos_julgamentos';
+        // Nome do campo é contrato com os consumidores (`avgCR`); a medida, desde A.1, é o CR GOVERNANTE (o máximo).
+        valorDoCR = consistenciaIndividual.maximo;
+      } else if (doCache.valor !== null) {
+        fonteDoCR = 'cache_legado';
+        valorDoCR = doCache.valor;
+        descricaoDoCR = doCache.descricao;
+      } else {
+        fonteDoCR = 'indisponivel';
+        valorDoCR = null;
       }
 
-      // Log para debug
-      console.log(`[QUALITY v5.2] Respondente ${respondentId}: avgCR = ${(crs.avgCR * 100).toFixed(2)}%`);
-      
+      console.log(`[QUALITY v5.3] Respondente ${respondentId}: CR = ${valorDoCR === null ? 'indisponível' : (valorDoCR * 100).toFixed(2) + '%'} (fonte: ${fonteDoCR})`);
+
       // Classificar respondente
-      const { status, score } = classifyRespondent(crs.avgCR);
-      
+      const { status, score } = classifyRespondent(valorDoCR);
+
       // Detectar padrões suspeitos
-      const flags = detectPatterns(response, crs);
-      
+      const flags = detectPatterns(
+        response,
+        { valor: valorDoCR, fonte: fonteDoCR, descricao: descricaoDoCR, governante: consistenciaIndividual.matrizGovernante },
+        consistenciaIndividual.condicao
+      );
+
       // Gerar recomendação
       let recommendation = '';
       if (status === 'CONFIÁVEL') {
@@ -382,26 +396,41 @@ export async function POST(request: NextRequest) {
       } else {
         recommendation = 'CR crítico ou padrões inválidos. Recomenda-se exclusão da análise.';
       }
-      
+
+      const crs = consistenciaIndividual.crPorMatriz;
       return {
         respondentId,
         isSimulated,
         status,
         overallScore: score,
-        cr: crs.avgCR,
+        cr: valorDoCR,
+        // De onde vem `cr`. ⚠ `cr` e `metrics.avgCR` são, quando recalculados, o CR GOVERNANTE (o máximo das seis).
+        fonteDoCR,
+        // O bloco que o Parecer IA transporta: CR por matriz, recalculado dos julgamentos, ou a condição que o impediu.
+        consistenciaIndividual,
+        // O cache legado, conservado e rotulado; NUNCA misturado ao bloco acima.
+        cacheLegado: {
+          presente: cache.avgCR !== null || cache.campos > 0 || cache.magnitude !== null,
+          avgCR: cache.avgCR,
+          camposPorMatriz: cache.campos,
+        },
         metrics: {
-          avgCR: crs.avgCR,
-          crBOCR: crs.bocr,
-          crBenefits: crs.benefits,
-          crOpportunities: crs.opportunities,
-          crCosts: crs.costs,
-          crRisks: crs.risks
+          avgCR: valorDoCR,
+          crBOCR: crs.BOCR ?? cache.bocr,
+          crBenefits: crs['SUB-B'] ?? cache.benefits,
+          crOpportunities: crs['SUB-O'] ?? cache.opportunities,
+          crCosts: crs['SUB-C'] ?? cache.costs,
+          crRisks: crs['SUB-R'] ?? cache.risks,
+          crMagnitude: crs.MAGNITUDE ?? cache.magnitude,
+          meanCR: consistenciaIndividual.media,
+          maxCR: consistenciaIndividual.maximo,
+          governingMatrix: consistenciaIndividual.matrizGovernante,
         },
         flags,
         recommendation
       };
     });
-    
+
     // Calcular estatísticas gerais
     const total = respondentAnalysis.length;
     const byStatus = {
@@ -411,23 +440,29 @@ export async function POST(request: NextRequest) {
       'CRÍTICO': respondentAnalysis.filter((r: any) => r.status === 'CRÍTICO').length,
       'DESCONHECIDO': respondentAnalysis.filter((r: any) => r.status === 'DESCONHECIDO').length
     };
-    
-    // Calcular médias apenas de respondentes com CR conhecido
-    const knownCRs = respondentAnalysis.filter((r: any) => r.cr > 0);
-    const avgCR = knownCRs.length > 0 
-      ? knownCRs.reduce((sum: number, r: any) => sum + r.cr, 0) / knownCRs.length 
+
+    // Calcular médias apenas de respondentes com CR conhecido (zero calculado é CR conhecido)
+    const knownCRs = respondentAnalysis.filter((r: any) => typeof r.cr === 'number');
+    const avgCR = knownCRs.length > 0
+      ? knownCRs.reduce((sum: number, r: any) => sum + r.cr, 0) / knownCRs.length
       : 0;
-    
-    const avgScore = total > 0 
-      ? respondentAnalysis.reduce((sum: number, r: any) => sum + r.overallScore, 0) / total 
+
+    const avgScore = total > 0
+      ? respondentAnalysis.reduce((sum: number, r: any) => sum + r.overallScore, 0) / total
       : 0;
-    
+
     const statistics = {
       total,
       byStatus,
       avgCR,
       avgScore,
       knownCRCount: knownCRs.length,
+      // De onde vieram os CRs que as estatísticas acima misturam. ⚠ Só `recalculado_dos_julgamentos` é CR por matriz.
+      porFonteDoCR: {
+        recalculado_dos_julgamentos: respondentAnalysis.filter((r: any) => r.fonteDoCR === 'recalculado_dos_julgamentos').length,
+        cache_legado: respondentAnalysis.filter((r: any) => r.fonteDoCR === 'cache_legado').length,
+        indisponivel: respondentAnalysis.filter((r: any) => r.fonteDoCR === 'indisponivel').length,
+      },
       flagCounts: {
         CR_ALTO: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'CR_ALTO')).length,
         TUDO_IGUAL: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'TUDO_IGUAL')).length,
@@ -436,16 +471,16 @@ export async function POST(request: NextRequest) {
         CR_DESCONHECIDO: respondentAnalysis.filter((r: any) => r.flags.some((f: Flag) => f.type === 'CR_DESCONHECIDO')).length
       }
     };
-    
-    console.log(`[QUALITY v5.1] Resultado: ${byStatus['CONFIÁVEL']} confiáveis, ${byStatus['REVISAR']} revisar, ${byStatus['SUSPEITO']} suspeitos, ${byStatus['CRÍTICO']} críticos, ${byStatus['DESCONHECIDO']} desconhecidos`);
-    
+
+    console.log(`[QUALITY v5.3] Resultado: ${byStatus['CONFIÁVEL']} confiáveis, ${byStatus['REVISAR']} revisar, ${byStatus['SUSPEITO']} suspeitos, ${byStatus['CRÍTICO']} críticos, ${byStatus['DESCONHECIDO']} desconhecidos`);
+
     // Determinar status geral
     const problematicRatio = (byStatus['SUSPEITO'] + byStatus['CRÍTICO']) / total;
     const unknownRatio = byStatus['DESCONHECIDO'] / total;
-    
+
     let overallStatus = 'EXCELENTE';
     let overallRecommendation = 'Qualidade excelente. Todos os respondentes dentro dos parâmetros.';
-    
+
     if (unknownRatio > 0.5) {
       overallStatus = 'DADOS INCOMPLETOS';
       overallRecommendation = 'Mais de 50% das respostas não possuem CR individual. Verificar formato dos dados.';
@@ -462,7 +497,7 @@ export async function POST(request: NextRequest) {
       overallStatus = 'BOA';
       overallRecommendation = 'Qualidade boa. Alguns respondentes com CR marginal, mas aceitável.';
     }
-    
+
     return NextResponse.json({
       success: true,
       analysis: {
@@ -475,7 +510,7 @@ export async function POST(request: NextRequest) {
         }
       }
     });
-    
+
   } catch (error: any) {
     console.error('Erro na análise de qualidade:', error);
     return NextResponse.json({

@@ -40,8 +40,7 @@ import {
 // Componente híbrido para Revisão IA (resolve problema de alucinação numérica)
 // Valores numéricos do SISTEMA + análise qualitativa da IA
 import ParecerAISection from '@/components/ParecerAISection';
-import { classificarAvaliacaoDaTela } from '@/lib/ai-reviewer/avaliacao-qualidade';
-import { idDoElementoNoFallback, prepararVinculoDaTela } from '@/lib/ai-reviewer/vinculo-execucao';
+import { montarPedidoDoParecer } from '@/lib/ai-reviewer/montagem-do-pedido';
 import type { FonteDoIdentificador } from '@/lib/identificador-respondente';
 import ExternalValidation from '@/components/ExternalValidation';
 import { dependenciasDoNavegador, executarCalculo, resumirRetomada, retomarPendentes } from '@/lib/intencoes';
@@ -1041,7 +1040,9 @@ export default function ResultadosPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               responses: projectResponses,
-              includeSimulated: true
+              includeSimulated: true,
+              // As alternativas do projeto: a estrutura contra a qual a API valida os julgamentos e recalcula o CR por matriz
+              alternatives: project.alternatives ?? []
             })
           });
 
@@ -1063,363 +1064,33 @@ export default function ResultadosPage() {
       console.log('📤 [AI-REVIEW] qualityAnalysis.respondents count:', currentQualityAnalysis?.respondents?.length || 0);
 
       // ------------------------------------------------------------
-      // CORREÇÃO: FILTRAR RESPONDENTES EXCLUÍDOS ANTES DO CÁLCULO
+      // A MONTAGEM DO PEDIDO mora em `lib/ai-reviewer/montagem-do-pedido.ts`, movida daqui SEM alterar o que não é a
+      // qualidade individual: as exclusões do gestor, o vínculo com a execução, os pesos, a consistência agregada, o
+      // ranking, a sensibilidade, a demografia e as exclusões saem como saíam. O que mudou (Ajuste 1, A.12 item (c)):
+      // por respondente vai só a identidade e o CR POR MATRIZ recalculado dos julgamentos, e nada de categoria de pessoa,
+      // score, recomendação ou distribuição. ⚠ A tela é `'use client'` e nenhum teste a executa; a função é exercitada
+      // por `consistencia-individual-pedido.test.ts`, e a fiação abaixo é verificada por leitura, `tsc` e `build`.
       // ------------------------------------------------------------
-      const activeRespondents = currentQualityAnalysis?.respondents
-        ? currentQualityAnalysis.respondents.filter((r: any) => {
-          const id = r.respondentId || r.id || r.visitorId || '';
-          return !excludedIds.includes(id);
-        })
-        : [];
-
-      const activeProjectResponses = projectResponses.filter((r: any) => {
-        const id = r.respondentId || r.id || r.visitorId || '';
-        return !excludedIds.includes(id);
-      });
-      // ------------------------------------------------------------
-
-      console.log('📤 [AI-REVIEW] activeRespondents count:', activeRespondents.length);
-      console.log('📤 [AI-REVIEW] activeProjectResponses count:', activeProjectResponses.length);
-
-      // ------------------------------------------------------------
-      // A.12 etapa 3, estágio 1: O VÍNCULO DA AVALIAÇÃO COM A EXECUÇÃO DO CÁLCULO.
-      //
-      // ⚠ A decisão mora em `lib/ai-reviewer/vinculo-execucao.ts`, que é puro e exercitado por
-      //   teste. ESTA tela é `'use client'` e nenhum teste a executa: a fiação abaixo é
-      //   verificada por LEITURA, `tsc` e `build`, e isso é um limite declarado.
-      // ⚠ A ORDEM É A REGRA. A origem da lista é escolhida DEPOIS das exclusões acima e ANTES da
-      //   restrição; a comparação com `metadata.includedRespondents` é feita ANTES da restrição;
-      //   e a restrição NUNCA reabre o fallback (a lista enviada é subconjunto da selecionada).
-      // ⚠ `indisponivel` e `invalido` NÃO restringem: as listas voltam como vieram, e o
-      //   comportamento anterior a este estágio se preserva. Nenhum dos quatro estados bloqueia o
-      //   parecer. O estado do vínculo, isoladamente, não acrescenta causa de suspensão nem
-      //   altera a elegibilidade; alterações decorrentes do novo conjunto avaliado continuam
-      //   sujeitas às regras existentes da etapa 1.
-      // ⚠ NÃO unifica as cadeias de identificador desta tela. A do ramo de análise é a do filtro
-      //   de excluídos acima; a do fallback segue como estava, com `visitorId` antes de `id`. O
-      //   vínculo registra a expressão que produziu cada identificador.
-      // ⚠ Daqui até o classificador, `respondentesEnviados` e `respostasEnviadas` fazem o papel
-      //   de `activeRespondents` e `activeProjectResponses`. Os nomes antigos seguem valendo em
-      //   `responseCount` e `exclusionInfo`, que descrevem o conjunto ANTES da restrição.
-      const preparoDoVinculo = prepararVinculoDaTela({
-        calculo: calculation,
-        respondentesAtivos: activeRespondents,
-        respostasAtivas: activeProjectResponses,
-      });
-      const vinculoDaExecucao = preparoDoVinculo.vinculo;
-      const respondentesEnviados = preparoDoVinculo.respondentesEnviados;
-      const respostasEnviadas = preparoDoVinculo.respostasEnviadas;
-      console.log(
-        '🔗 [AI-REVIEW] Vínculo com a execução:', vinculoDaExecucao.estado,
-        '| origem:', vinculoDaExecucao.origemDaListaAvaliada,
-        '| avaliados:', vinculoDaExecucao.cobertura.avaliadosAntesDaRestricao,
-        '| enviados:', vinculoDaExecucao.cobertura.enviados
-      );
-
-      // ------------------------------------------------------------
-      // CORREÇÃO CRÍTICA: CÁLCULO DE QUALIDADE ROBUSTO
-      // ------------------------------------------------------------
-      let individualStats = { valid: 0, warning: 0, critical: 0, total: 0, avgCR: 0 };
-
-      // Tentar usar dados da análise de qualidade primeiro
-      if (respondentesEnviados.length > 0) {
-        console.log('📊 [AI-REVIEW] Usando dados de qualityAnalysis:', respondentesEnviados.length, 'respondentes ativos (de', currentQualityAnalysis?.respondents?.length || 0, 'total)');
-
-        let totalCR = 0;
-        individualStats = respondentesEnviados.reduce((acc: any, r: any) => {
-          // 1. Tenta encontrar o CR em qualquer lugar possível
-          let crValue = 0;
-
-          if (typeof r.cr === 'number') crValue = r.cr;
-          else if (r.metrics && typeof r.metrics.avgCR === 'number') crValue = r.metrics.avgCR;
-          else if (r.consistency && typeof r.consistency.cr === 'number') crValue = r.consistency.cr;
-          else if (typeof r.cr_mean === 'number') crValue = r.cr_mean;
-
-          totalCR += crValue;
-
-          // 2. Classificação Agressiva (Mesma régua do Menu Qualidade)
-          const isExplicitlyBad = r.status === 'SUSPEITO' || r.status === 'CRÍTICO';
-          const isMathematicallyBad = crValue > 0.20; // CR > 20% = CRÍTICO
-          const isMathematicallySuspect = crValue > 0.10; // CR > 10% = SUSPEITO
-
-          if (isExplicitlyBad || isMathematicallyBad) {
-            acc.critical++;
-            console.log(`⚠️ [QUALITY] Respondente CRÍTICO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue * 100).toFixed(1)}%, Status: ${r.status || 'N/A'})`);
-          } else if (isMathematicallySuspect) {
-            acc.warning++;
-            console.log(`🔸 [QUALITY] Respondente SUSPEITO: ${r.id || r.visitorId || 'N/A'} (CR: ${(crValue * 100).toFixed(1)}%)`);
-          } else {
-            acc.valid++;
-          }
-
-          acc.total++;
-          return acc;
-        }, { valid: 0, warning: 0, critical: 0, total: 0 });
-
-        individualStats.avgCR = individualStats.total > 0 ? totalCR / individualStats.total : 0;
-
-      } else if (respostasEnviadas.length > 0) {
-        // Fallback: calcular CR diretamente das respostas
-        console.log('📊 [AI-REVIEW] Fallback: calculando CR de', respostasEnviadas.length, 'respostas ativas');
-
-        let totalCR = 0;
-        let validCount = 0;
-        let warningCount = 0;
-        let criticalCount = 0;
-
-        respostasEnviadas.forEach((response: any) => {
-          // Tentar extrair CR de várias estruturas possíveis
-          let cr = 0;
-
-          // Estrutura 1: response.consistency.cr
-          if (response.consistency?.cr !== undefined) {
-            cr = response.consistency.cr;
-          }
-          // Estrutura 2: response.cr
-          else if (response.cr !== undefined) {
-            cr = response.cr;
-          }
-          // Estrutura 3: response.metrics?.avgCR
-          else if (response.metrics?.avgCR !== undefined) {
-            cr = response.metrics.avgCR;
-          }
-          // Estrutura 4: Calcular média dos CRs de cada matriz
-          else if (response.bocrJudgments || response.subJudgments) {
-            // Se tem dados brutos, não conseguimos calcular sem mais processamento
-            // Assumir como válido se não há CR explícito
-            validCount++;
-            return;
-          }
-
-          totalCR += cr;
-
-          // Classificar respondente
-          if (cr > 0.20) {
-            criticalCount++;
-            console.log(`❌ [QUALITY] Resposta CRÍTICA: CR = ${(cr * 100).toFixed(1)}%`);
-          } else if (cr > 0.10) {
-            warningCount++;
-            console.log(`⚠️ [QUALITY] Resposta SUSPEITA: CR = ${(cr * 100).toFixed(1)}%`);
-          } else {
-            validCount++;
-          }
-        });
-
-        // Se não conseguimos extrair CR de nenhuma resposta, usar CR global
-        if (validCount + warningCount + criticalCount === 0) {
-          console.log('📊 [AI-REVIEW] Sem CR individual, usando CR global do projeto');
-          const globalCR = calculation.bocrConsistency?.cr || 0;
-
-          if (globalCR <= 0.10) {
-            // CR global excelente = assumir todas respostas válidas
-            validCount = respostasEnviadas.length;
-            console.log(`✅ [QUALITY] CR global ${(globalCR * 100).toFixed(2)}% - todas respostas consideradas válidas`);
-          } else if (globalCR <= 0.20) {
-            // CR global aceitável = assumir maioria válida
-            validCount = Math.floor(respostasEnviadas.length * 0.7);
-            warningCount = respostasEnviadas.length - validCount;
-          } else {
-            // CR global ruim = assumir maioria problemática
-            validCount = Math.floor(respostasEnviadas.length * 0.4);
-            warningCount = Math.floor(respostasEnviadas.length * 0.3);
-            criticalCount = respostasEnviadas.length - validCount - warningCount;
-          }
-        }
-
-        individualStats = {
-          valid: validCount,
-          warning: warningCount,
-          critical: criticalCount,
-          total: respostasEnviadas.length,
-          avgCR: respostasEnviadas.length > 0 ? totalCR / respostasEnviadas.length : 0
-        };
-
-        console.log(`📊 [AI-REVIEW] Qualidade calculada: ${validCount}✅ ${warningCount}⚠️ ${criticalCount}❌ de ${respostasEnviadas.length} respostas`);
-      }
-
-      console.log('📉 [AI-REVIEW] RESUMO DE QUALIDADE:', individualStats);
-
-      // Calcular % de problemáticos
-      const badRatio = individualStats.total > 0
-        ? (individualStats.warning + individualStats.critical) / individualStats.total
-        : 0;
-
-      if (badRatio >= 0.3) {
-        console.warn(`🚨 [AI-REVIEW] ALERTA: ${(badRatio * 100).toFixed(0)}% dos respondentes são problemáticos! Quality Gate será ativado.`);
-      } else if (badRatio >= 0.2) {
-        console.warn(`⚠️ [AI-REVIEW] ATENÇÃO: ${(badRatio * 100).toFixed(0)}% dos respondentes requerem revisão.`);
-      }
-      // ------------------------------------------------------------
-
-      // ============================================================
-      // CONSTRUIR A LISTA INDIVIDUAL DE RESPONDENTES COM CR NORMALIZADO
-      // ⚠ Esta lista alimenta `payload.qualityAnalysis.respondents` nos DOIS ramos,
-      //   inclusive no ramo AUSENTE, e é dela que A.12 tira o CR por respondente,
-      //   via `crDoRespondente` de `lib/ai-reviewer/avaliacao-qualidade.ts`.
-      // ⚠ O nome anterior, `biasRespondents`, dizia que o destino era a análise de
-      //   fairness. Ela era UMA das destinatárias: a lista atendia fairness E A.12.
-      //   A análise saiu, e a lista permanece necessária para A.12.
-      // ============================================================
-      let respondentesComCR: any[] = [];
-
-      if (respondentesEnviados.length > 0) {
-        // Usar respondentes da análise de qualidade (já processados)
-        respondentesComCR = respondentesEnviados.map((r: any) => ({
-          ...r,
-          cr: typeof r.cr === 'number' ? r.cr
-            : (r.metrics?.avgCR ?? r.consistency?.cr ?? r.cr_mean ?? 0),
-          isSimulated: r.isSimulated === true, // Strict boolean
-        }));
-        console.log(`📊 [AI-REVIEW] CR individual: ${respondentesComCR.length} respondentes de qualityAnalysis`);
-      } else if (respostasEnviadas.length > 0) {
-        // Fallback: construir respondentes a partir das respostas brutas do Firestore
-        respondentesComCR = respostasEnviadas.map((response: any, idx: number) => {
-          let cr = 0;
-          if (response.consistency?.cr !== undefined) cr = response.consistency.cr;
-          else if (response.cr !== undefined) cr = response.cr;
-          else if (response.metrics?.avgCR !== undefined) cr = response.metrics.avgCR;
-
-          let status = 'CONFIÁVEL';
-          if (cr > 0.20) status = 'CRÍTICO';
-          else if (cr > 0.10) status = 'SUSPEITO';
-
-          return {
-            // ⚠ A MESMA expressão de antes (`visitorId` antes de `id`, e `resp-N` por posição), agora
-            //   escrita uma vez em `vinculo-execucao.ts`: o identificador enviado e o comparado saem
-            //   do mesmo código. Não é unificação de cadeias: o comportamento não mudou.
-            id: idDoElementoNoFallback(response, idx),
-            name: response.respondentName || response.name || `Respondente ${idx + 1}`,
-            cr: cr,
-            status: status,
-            isSimulated: response.isSimulated === true,
-            metrics: { avgCR: cr },
-          };
-        });
-        console.log(`📊 [AI-REVIEW] CR individual: ${respondentesComCR.length} respondentes de projectResponses (fallback)`);
-      }
-
-      // ============================================================
-      // A.12: a tela NÃO fabrica distribuição de qualidade.
-      // ⚠ Sem avaliação individual, o payload declara `ausente` e NÃO envia
-      // byStatus, summary, overallStats nem individualStats. Quem decide o que
-      // fazer com isso é a rota, que suspende a classificação global.
-      // ============================================================
-      const avaliacaoDeQualidade = classificarAvaliacaoDaTela({
-        respondentesAvaliados: respondentesEnviados,
-        respostasAtivas: respostasEnviadas,
-      });
-      const qualidadeAvaliada = avaliacaoDeQualidade.estado === 'disponivel';
-      console.log('📤 [AI-REVIEW] Avaliação de qualidade:', avaliacaoDeQualidade.estado, avaliacaoDeQualidade.fonte);
-
-      // Preparar payload
-      const payload = {
-        avaliacaoDeQualidade,
-        // A.12 etapa 3, estágio 1: separado de `avaliacaoDeQualidade`, que é contrato da etapa 1.
-        vinculoDaExecucao,
-        projectName: project.name || 'Projeto sem nome',
-        projectDescription: project.description || '',
-        alternatives: project.alternatives || [],
-        bocrWeights: calculation.bocrWeights || [],
-        // ANTI-ALUCINAÇÃO: pesos pessoais (v) e rescaling weights (s) para fórmula Wijnmalen (2007, Eq. 17)
-        // O backend (normalizeBOCRWeights) aceita ambos os formatos: array [b,o,c,r] ou objeto {sb,so,sc,sr}
-        personalWeights: Array.isArray(calculation.bocrWeights) && calculation.bocrWeights.length >= 4
-          ? {
-            Benefits: calculation.bocrWeights[0],
-            Opportunities: calculation.bocrWeights[1],
-            Costs: calculation.bocrWeights[2],
-            Risks: calculation.bocrWeights[3],
-          }
-          : undefined,
-        rescalingWeights: calculation.rescalingWeights
-          ? {
-            // @ts-ignore
-            Benefits: calculation.rescalingWeights.sb,
-            // @ts-ignore
-            Opportunities: calculation.rescalingWeights.so,
-            // @ts-ignore
-            Costs: calculation.rescalingWeights.sc,
-            // @ts-ignore
-            Risks: calculation.rescalingWeights.sr,
-          }
-          : undefined,
-        bocrConsistency: calculation.bocrConsistency || { cr: 0, lambda: 0 },
-        subWeights: calculation.subWeights || {},
-        subConsistency: calculation.subConsistency || {},
-        finalScores: calculation.finalScores || [],
-        responseCount: calculation.responseCount || activeProjectResponses.length || 0,
-        sensitivityInflections: calculation.sensitivityInflections || {},
-        // ⚠ A.12: a distribuição só vai quando foi MEDIDA. Sem avaliação, segue só
-        // a lista de respondentes que houver, sem estatísticas fabricadas.
-        qualityAnalysis: qualidadeAvaliada ? {
-          respondents: respondentesComCR,
-          statistics: {
-            byStatus: {
-              'CONFIÁVEL': individualStats.valid,
-              'REVISAR': 0,
-              'SUSPEITO': individualStats.warning,
-              'CRÍTICO': individualStats.critical
-            },
-            total: individualStats.total,
-            avgCR: individualStats.avgCR
-          },
-          // ⚠ `overall` descreve o conjunto NÃO restringido, produzido pela API de qualidade sobre
-          //   todas as respostas. Quando o conjunto enviado difere do avaliado, esse agregado NÃO vai:
-          //   estatística de um conjunto não se apresenta como avaliação de outro.
-          overall: preparoDoVinculo.omitirOverall ? undefined : (currentQualityAnalysis?.overall || {}),
-          summary: {
-            total: individualStats.total,
-            ok: individualStats.valid,
-            suspicious: individualStats.warning,
-            critical: individualStats.critical
-          }
-        } : {
-          respondents: respondentesComCR
-        },
-        // overallStats para compatibilidade, e só com avaliação medida.
-        overallStats: qualidadeAvaliada ? {
-          total: individualStats.total,
-          valid: individualStats.valid,
-          warning: individualStats.warning,
-          critical: individualStats.critical
-        } : undefined,
-        individualStats: qualidadeAvaliada && individualStats.total > 0 ? individualStats : undefined
-      };
-
-      // Adicionar dados demográficos ao payload
-      const demographicsSummary = respondentsDemographics.length > 0 ? {
-        total: respondentsDemographics.length,
-        hasData: true,
-        fields: {
-          idade: [...new Set(respondentsDemographics.map(d => d.idade).filter(Boolean))],
-          genero: [...new Set(respondentsDemographics.map(d => d.genero).filter(Boolean))],
-          formacao: [...new Set(respondentsDemographics.map(d => d.formacao).filter(Boolean))],
-          tempoTrabalho: [...new Set(respondentsDemographics.map(d => d.tempoTrabalho).filter(Boolean))],
-          funcao: [...new Set(respondentsDemographics.map(d => d.funcao).filter(Boolean))],
-          areaAtuacao: [...new Set(respondentsDemographics.map(d => d.areaAtuacao).filter(Boolean))]
-        }
-      } : { total: 0, hasData: false };
-
-      // Adicionar ao payload
-      const finalPayload = {
-        ...payload,
-        demographicsSummary,
-        // Registro de execução do Parecer IA: a rota monta o registro SÓ sob este pedido, e o guarda com o id do projeto. ⚠ A
-        //   montagem do contexto do modelo NÃO lê nenhum dos dois campos (`normalizeRequest` copia campo a campo): só a cópia da
-        //   entrada recebida os guarda.
+      const pedido = montarPedidoDoParecer({
+        calculation,
+        project,
         projectId,
-        incluirRegistroDaExecucao: true,
-        // NOVO: Informação de exclusão para contextualizar a IA
-        exclusionInfo: excludedIds.length > 0 ? {
-          totalCollected: projectResponses.length,
-          activeCount: activeProjectResponses.length,
-          excludedCount: excludedIds.length,
-          reason: 'Filtragem por consistência (CR > 0.10, Saaty 1977)'
-        } : undefined
-      };
-
-
-      console.log('📤 [AI-REVIEW] demographicsSummary:', demographicsSummary);
-
+        qualityAnalysis: currentQualityAnalysis,
+        projectResponses,
+        excludedIds,
+        demographics: respondentsDemographics,
+      });
+      const finalPayload = pedido.corpo;
+      console.log('📤 [AI-REVIEW] activeRespondents count:', pedido.contagens.ativosDaAnalise);
+      console.log('📤 [AI-REVIEW] activeProjectResponses count:', pedido.contagens.ativasDasRespostas);
+      console.log(
+        '🔗 [AI-REVIEW] Vínculo com a execução:', pedido.vinculo.estado,
+        '| origem:', pedido.vinculo.origemDaListaAvaliada,
+        '| avaliados:', pedido.vinculo.cobertura.avaliadosAntesDaRestricao,
+        '| enviados:', pedido.vinculo.cobertura.enviados
+      );
+      console.log('📤 [AI-REVIEW] Avaliação de qualidade:', pedido.avaliacaoDeQualidade.estado, pedido.avaliacaoDeQualidade.fonte);
+      console.log('📤 [AI-REVIEW] demographicsSummary:', finalPayload.demographicsSummary);
       console.log('📤 [AI-REVIEW] personalWeights:', finalPayload.personalWeights);
       console.log('📤 [AI-REVIEW] rescalingWeights:', finalPayload.rescalingWeights);
 
@@ -1483,7 +1154,8 @@ export default function ResultadosPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           responses: projectResponses,
-          includeSimulated: true
+          includeSimulated: true,
+          alternatives: project?.alternatives ?? []
         })
       });
 

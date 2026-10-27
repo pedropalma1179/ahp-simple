@@ -31,6 +31,8 @@
  * verificações tenha sido **efetivamente concluído**.
  */
 
+import { lerConsistenciaDoRespondente } from './consistencia-individual-contexto';
+
 /** Os três estados da avaliação, e só estes. */
 export type EstadoAvaliacaoQualidade = 'disponivel' | 'ausente' | 'incompleta';
 
@@ -47,11 +49,17 @@ export const ESTADOS_AVALIACAO: EstadoAvaliacaoQualidade[] = ['disponivel', 'aus
 export const MOTIVO_AUSENTE =
   'Qualidade individual não avaliada: a requisição não traz avaliação por respondente.';
 export const MOTIVO_INCOMPLETA =
-  'Avaliação de qualidade incompleta: há respondentes sem CR individual, e a distribuição não pode ser tratada como completa.';
+  'Avaliação de qualidade incompleta: há respondentes sem CR individual recalculado dos julgamentos, e o conjunto não pode ser tratado como completo.';
 export const MOTIVO_DECLARADA_SEM_DADOS =
-  'Avaliação declarada disponível, mas a requisição não traz CR por respondente.';
+  'Avaliação declarada disponível, mas a requisição não traz CR por matriz recalculado dos julgamentos para todos os respondentes enviados.';
 
-/** O CR individual de um respondente, em qualquer das formas que o payload usa. */
+/**
+ * O CR individual de um respondente, em qualquer das formas que o payload ANTERIOR ao Ajuste 1 usava.
+ *
+ * ⚠ **Só a comparação V4 do formato anterior (ramo P2) o usa.** A disponibilidade da avaliação NÃO o lê mais: o
+ * campo `cr` desses payloads era o cache legado (média sobre 26 matrizes nas respostas antigas, máximo das seis
+ * nas novas), e tratá-lo como CR individual era o defeito de A.25.
+ */
 function crDoRespondente(r: any): number | null {
   for (const valor of [r?.cr, r?.metrics?.avgCR, r?.avgCR, r?.consistency?.cr]) {
     if (typeof valor === 'number' && Number.isFinite(valor)) return valor;
@@ -59,10 +67,17 @@ function crDoRespondente(r: any): number | null {
   return null;
 }
 
-/** Há CR individual para TODOS os respondentes listados? */
+/**
+ * Há CR individual por matriz, RECALCULADO dos julgamentos, para TODOS os respondentes listados?
+ *
+ * ⚠ **Ajuste 1: a medição é o bloco `consistenciaIndividual` com fonte `recalculado_dos_julgamentos` e as seis
+ * matrizes com valor.** Um número solto em `cr`, `metrics.avgCR` ou `consistency.cr` NÃO é medição: pode ser o cache
+ * legado, e a requisição não diz de onde veio. Respondente sem o bloco, com o bloco `indisponivel` ou com o bloco em
+ * formato não reconhecido conta no total e NÃO conta em `comCR`.
+ */
 export function medicaoPorRespondente(respondentes: unknown): { total: number; comCR: number } {
   const lista = Array.isArray(respondentes) ? respondentes : [];
-  return { total: lista.length, comCR: lista.filter((r) => crDoRespondente(r) !== null).length };
+  return { total: lista.length, comCR: lista.filter((r) => lerConsistenciaDoRespondente(r).estado === 'recalculado').length };
 }
 
 /**
@@ -263,7 +278,7 @@ export const ROTULO_NOTA_SUSPENSA_POR_COERENCIA_NAO_AVALIADA =
  */
 export type EstadoComparacao = 'consistente' | 'contraditoria' | 'nao_determinada' | 'incompativel';
 
-export type IdComparacao = 'V1' | 'V2' | 'V3' | 'V4' | 'V5';
+export type IdComparacao = 'V1' | 'V2' | 'V3' | 'V4' | 'V5' | 'V6';
 
 /** Um lado da comparação, com o valor e a sua fonte. ⚠ Contradição conserva os DOIS. */
 export interface LadoDaComparacao {
@@ -285,8 +300,15 @@ export interface Comparacao {
   motivo: string;
 }
 
-/** O ramo do resumo de qualidade que o formato recebido seleciona, em `route.ts`. */
-export type RamoDeQualidade = 'P1' | 'P2' | 'P3' | 'indeterminado';
+/**
+ * O ramo do resumo de qualidade que o formato recebido seleciona.
+ *
+ * ⚠ **P4 (Ajuste 1) é o formato ATUAL**: o respondente traz o bloco `consistenciaIndividual`, e o contexto sai só
+ * dele. P1, P2 e P3 são os formatos ANTERIORES (distribuição por categoria), que a rota não apresenta mais ao
+ * modelo e que a disponibilidade já não aceita como medição; o código deles fica porque os testes que o fixam
+ * continuam descrevendo o contrato daquele formato, e a remoção é outra tarefa.
+ */
+export type RamoDeQualidade = 'P1' | 'P2' | 'P3' | 'P4' | 'indeterminado';
 
 export interface Coerencia {
   comparacoes: Comparacao[];
@@ -318,6 +340,8 @@ export const CONJUNTO_MINIMO: Record<RamoDeQualidade, IdComparacao[]> = {
   P2: ['V4'],
   // É a única partição disponível.
   P3: ['V5'],
+  // Formato atual: o resumo que o motor declara por respondente confere com as seis matrizes transportadas.
+  P4: ['V6'],
   indeterminado: [],
 };
 
@@ -393,6 +417,14 @@ export function baldeComAlias(
 /** O ramo que o formato recebido seleciona, pelas prioridades da rota. */
 export function ramoDeQualidade(raw: any): RamoDeQualidade {
   const qa = raw?.qualityAnalysis;
+  // ⚠ P4 vence: com o bloco novo no respondente, agregados do formato anterior que ainda viajem são IGNORADOS
+  //   (a rota não os apresenta), e por isso não podem decidir a coerência.
+  if (
+    Array.isArray(qa?.respondents) &&
+    qa.respondents.some((r: any) => r !== null && typeof r === 'object' && r.consistenciaIndividual !== undefined && r.consistenciaIndividual !== null)
+  ) {
+    return 'P4';
+  }
   if (qa?.statistics?.byStatus) return 'P1';
   if (Array.isArray(qa?.respondents) && qa.respondents.length > 0) return 'P2';
   if (raw?.overallStats && numeroFinito(raw.overallStats.total) !== null && raw.overallStats.total > 0) return 'P3';
@@ -436,6 +468,7 @@ function comparar(
  * campo a partir do seu nome: cada uma declara população, categoria e condição.
  */
 export function avaliarCoerencia(raw: any): Coerencia {
+  if (ramoDeQualidade(raw) === 'P4') return avaliarCoerenciaP4(raw);
   const qa = raw?.qualityAnalysis;
   const st = qa?.statistics;
   const by = st?.byStatus;
@@ -764,6 +797,82 @@ export function avaliarCoerencia(raw: any): Coerencia {
   }
 
   return { comparacoes, ramo, conjuntoMinimo, conjuntoMinimoConcluido, conclusao, motivo };
+}
+
+/**
+ * **V6, a coerência do formato atual (ramo P4).** O motor declara, por respondente, a média das seis matrizes, o
+ * máximo e a matriz governante; esta comparação confere esses três valores contra as SEIS matrizes que o mesmo bloco
+ * transporta. Divergência é contradição do próprio bloco, e os dois valores se conservam, cada um com a fonte.
+ *
+ * ⚠ **Não há agregado declarado a conferir**: as contagens do painel saem da lista, na rota, e por isso não existem
+ * V1, V2, V3 nem V5 neste formato. Respondente sem CR recalculado não entra aqui; a falta dele é da
+ * DISPONIBILIDADE, que vem antes na regra de elegibilidade.
+ */
+function avaliarCoerenciaP4(raw: any): Coerencia {
+  const lista: any[] = Array.isArray(raw?.qualityAnalysis?.respondents) ? raw.qualityAnalysis.respondents : [];
+  const lados: LadoDaComparacao[] = [];
+  const contradicoes: string[] = [];
+  let recalculados = 0;
+  lista.forEach((r, i) => {
+    const leitura = lerConsistenciaDoRespondente(r);
+    if (leitura.estado !== 'recalculado') return;
+    recalculados++;
+    for (const d of leitura.contradicoes) {
+      const ladoDeclarado = `qualityAnalysis.respondents[${i}].consistenciaIndividual.${d.campo}`;
+      const ladoRecomputado = `${d.campo} recomputado das seis matrizes de qualityAnalysis.respondents[${i}]`;
+      lados.push(
+        { fonte: `${ladoDeclarado} = ${String(d.declarado)}`, valor: typeof d.declarado === 'number' ? d.declarado : null },
+        { fonte: `${ladoRecomputado} = ${String(d.recomputado)}`, valor: typeof d.recomputado === 'number' ? d.recomputado : null }
+      );
+      contradicoes.push(`respondente ${i}: ${d.campo} declarado ${String(d.declarado)} contra ${String(d.recomputado)} recomputado das seis matrizes`);
+    }
+  });
+  const base = {
+    id: 'V6' as IdComparacao,
+    populacao: 'os respondentes enviados com CR recalculado dos julgamentos',
+    categoria: 'média, máximo e matriz governante declarados pelo motor, contra as seis matrizes transportadas',
+    condicao: 'o resumo é função das seis matrizes do próprio respondente',
+    chavesSomadas: null,
+  };
+  let v6: Comparacao;
+  if (recalculados === 0) {
+    v6 = {
+      ...base,
+      estado: 'nao_determinada',
+      lados: [],
+      motivo: 'V6: não concluída porque nenhum respondente enviado traz CR recalculado dos julgamentos. Campo ausente NAO vale zero.',
+    };
+  } else if (contradicoes.length > 0) {
+    v6 = {
+      ...base,
+      estado: 'contraditoria',
+      lados,
+      motivo: `V6: ${contradicoes.join('; ')}. Os dois valores e as suas fontes ficam conservados.`,
+    };
+  } else {
+    v6 = {
+      ...base,
+      estado: 'consistente',
+      lados: [],
+      motivo: `V6: o resumo declarado de ${recalculados} respondente(s) confere com as suas seis matrizes.`,
+    };
+  }
+  const conjuntoMinimo = CONJUNTO_MINIMO.P4;
+  const conclusao: Coerencia['conclusao'] =
+    v6.estado === 'contraditoria' ? 'contraditoria' : v6.estado === 'consistente' ? 'coerente' : 'nao_determinada';
+  return {
+    comparacoes: [v6],
+    ramo: 'P4',
+    conjuntoMinimo,
+    conjuntoMinimoConcluido: v6.estado === 'consistente' || v6.estado === 'contraditoria',
+    conclusao,
+    motivo:
+      conclusao === 'contraditoria'
+        ? `${MOTIVO_COERENCIA_CONTRADICAO} ${v6.motivo}`
+        : conclusao === 'nao_determinada'
+          ? `${MOTIVO_COERENCIA_NAO_DETERMINADA} Ramo P4, conjunto minimo V6. Pendente: ${v6.motivo}`
+          : null,
+  };
 }
 
 /**

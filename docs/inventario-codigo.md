@@ -92,6 +92,16 @@ engolia erro de conectividade e devolvia pesos uniformes com CR zero.
 medida fixada em `docs/referencia-cr-individuais.md`. O campo persistido continua
 se chamando `avgCR`, por contrato de dados; a medida é de A.25.
 
+### `lib/consistencia-individual.ts` (235L) — NOVO (Ajuste 1, 27/10/2026)
+
+O CR individual **por matriz**, recalculado dos julgamentos de UM respondente: valida pela mesma `checkResponseCompleteness`
+do instrumento e chama `calculateRespondentWeights`; **não calcula autovetor nem CR**. Devolve o bloco `consistenciaIndividual`
+(esquema `consistencia-individual-v1`): as seis matrizes não triviais, a média aritmética, o máximo e a matriz governante do
+motor, ou a **condição** que impede o CR (`ausentes`, `incompletos`, `invalidos`, `duplicados`, `mistos`, `nao_calculavel`), com
+`null` e nunca zero. `0` calculado é valor válido; o resíduo do motor não recebe clamp (só `formatarPercentualDoCR`, de
+apresentação, normaliza o zero negativo). O cache legado (`responses.avgCR`) nunca entra aqui. Contrato em
+`docs/contratos-de-dados.md`, `POST /api/response-quality`.
+
 ### `lib/aggregation.ts` (116L)
 
 `aggregateMatrix`, movida de `calculate/route.ts` em `a5524d1` sem alteração de
@@ -310,6 +320,20 @@ O classificador heurístico de concentração dos pesos BOCR e sua injeção no
 prompt foram removidos em `501b19a`. O prompt conserva apenas o ratio
 máximo/mínimo calculado diretamente dos pesos.
 
+### `lib/ai-reviewer/montagem-do-pedido.ts` e `lib/ai-reviewer/consistencia-individual-contexto.ts` — NOVOS (Ajuste 1)
+
+`montarPedidoDoParecer` é a montagem do pedido que a tela envia a `/api/ai-reviewer`, **movida** de `runAiReview` para uma função
+pura (a tela é `'use client'` e nenhum teste a executa; a função, sim). Aplica as exclusões do gestor e o vínculo com a execução
+(inalterados), e leva por respondente **só a identidade e o bloco `consistenciaIndividual`**; sem análise de qualidade, o bloco sai
+dos julgamentos das respostas pelo mesmo módulo, nunca do cache. `consistencia-individual-contexto.ts` lê o bloco de cada
+respondente (formato não reconhecido vira `invalido`, nunca «lido no que der»), confere o resumo declarado contra as seis
+matrizes (V6), resume o painel **enviado** com denominador escrito, e escreve o texto do contexto.
+
+Mudanças correlatas em `route.ts` (a tabela acima é de antes do Ajuste 1 e não foi renumerada): `calculateGrade` é **só o portão** de
+elegibilidade, sem pontuação por categoria de pessoa; `normalizeRequest` copia só identidade e bloco; `generateReview` não imprime mais a
+distribuição por categoria, a Taxa de Validade Geral nem a lista de críticos. `avaliacao-qualidade.ts` exige o bloco recalculado em todo
+enviado para a avaliação ser `disponivel`, e ganhou a V6.
+
 ### `app/api/ai-reviewer/system-prompt.ts` (518L)
 
 Prompt do parecer.
@@ -403,6 +427,11 @@ Qualidade por respondente. `extractRespondentCRs` (37),
 `computeCRsFromJudgments` (166), `classifyRespondent` (225), `detectPatterns`
 (254) para tudo-igual, padrão uniforme e valores extremos. ⚠ Tabela RI própria.
 
+⚠ **Atualizado em 27/10/2026 (Ajuste 1).** O parágrafo acima é a descrição histórica. `extractRespondentCRs` (cascata sobre o cache,
+com saída antecipada em `avgCR > 0`) e `computeCRsFromJudgments` **saíram**: o CR vem de `lib/consistencia-individual.ts`; o cache é lido por
+`extractCacheCRs` só para a **tela**, à parte (`cacheLegado`). `classifyRespondent` e `detectPatterns` continuam, para a tela; o Parecer
+IA não recebe o que eles produzem.
+
 ### `lib/crRealista.ts` (336L)
 
 Geração de CR sintético por distribuição de Weibull, em três modos.
@@ -464,6 +493,15 @@ simulado, em quatro casos, e é **o primeiro teste do repositório que executa c
 de `app/`**.
 
 ⚠ Os de `ahp-ipc` e `graph-utils` saíram em `0ac4e95`, com os módulos.
+
+### Testes do Ajuste 1 (27/10/2026)
+
+`consistencia-individual.test.ts` (o módulo contra a tabela de referência, os 12 respondentes, o zero calculado e as condições de ausência),
+`consistencia-individual-contexto.test.ts` (a leitura do bloco, as contagens do painel enviado e o painel reduzido 60/37/10),
+`response-quality-consistencia.test.ts` (o handler real, com cache adverso), `consistencia-individual-pedido.test.ts` (a montagem real) e
+`consistencia-individual-rota.test.ts` (a cadeia real até o SDK interceptado e o registro da execução). A tabela de referência está
+copiada à mão em `helpers/referencia-cr-individuais.ts`; os blocos de ensaio dos testes que montam pedidos à mão, em
+`helpers/consistencia-de-ensaio.ts`. ⚠ São testes de **contexto**: nenhum diz o que o modelo escreveria.
 
 ### `lib/__tests__/fixtures/panel-2026.json`
 

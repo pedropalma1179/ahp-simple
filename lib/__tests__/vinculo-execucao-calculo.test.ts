@@ -53,6 +53,13 @@ const { classificarAvaliacaoDaTela } = require('@/lib/ai-reviewer/avaliacao-qual
 const { compararIdentificadores } = require('@/lib/ai-reviewer/vinculo-execucao');
 const fixture = require('./fixtures/panel-2026.json');
 const { duplo } = require('./helpers/firestore-duplo');
+const { blocoComMaximo } = require('./helpers/consistencia-de-ensaio');
+
+// ⚠ AJUSTE 1 (27/10/2026): «a resposta tem CR» passou a significar que traz o CR POR MATRIZ recalculado dos julgamentos (o bloco
+// `consistenciaIndividual`). O `consistency.cr` solto era o cache legado e deixou de ser medição; segue no objeto como o campo legado
+// que a tela ainda lê, e o bloco é o que `classificarAvaliacaoDaTela` conta. (Na tela real o bloco não está gravado na resposta: a
+// montagem o calcula dos julgamentos; aqui ele é injetado para exercitar a MESMA regra de disponibilidade.)
+const EXTRA_COM_CR = { consistency: { cr: 0.05 }, consistenciaIndividual: blocoComMaximo(0.05) };
 /* eslint-enable @typescript-eslint/no-var-requires */
 
 const PROJETO = 'projeto-vinculo-execucao';
@@ -412,7 +419,7 @@ describe('o vínculo OBSERVADO sobre o documento que a rota grava: origem da lis
     //   e desfazem a divergência. `respondentId` não está na cadeia, e o documento de cálculo é
     //   chaveado por `respondentId`. Medido abaixo; NÃO corrigido (unificar cadeias é proibido).
     const n = 4;
-    const base = painel(n, { consistency: { cr: 0.05 } });
+    const base = painel(n, EXTRA_COM_CR);
     montarStore(base.cadastrados, base.respostas);
     // as três condições, verificadas sobre o que este teste construiu
     expect(store.responses.every(d => d.id !== d.data.respondentId)).toBe(true);
@@ -474,7 +481,7 @@ describe('o vínculo OBSERVADO sobre o documento que a rota grava: origem da lis
     const n = 4;
     /** O painel de `n` respostas com `alterar` aplicado a cada uma, o documento gravado pela rota real e o vínculo do ramo do fallback. */
     async function fallbackCom(alterar: (e: Entrada) => Entrada) {
-      const base = painel(n, { consistency: { cr: 0.05 } });
+      const base = painel(n, EXTRA_COM_CR);
       montarStore(base.cadastrados, base.respostas.map(alterar));
       const { gravado } = await rodar();
       const carregadas = carregarComoATela();

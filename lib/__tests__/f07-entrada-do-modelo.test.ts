@@ -11,17 +11,31 @@
  * `system` e o `messages` que chegariam ao modelo. A referência está em
  * `fixtures/f07-entrada-antes.json`, capturada no HEAD `317767a`, ANTES de qualquer alteração.
  *
- * ⚠ **O QUE É REAL E O QUE É ESPELHO.**
- *   - REAL: a rota de cálculo; `prepararVinculoDaTela` e `classificarAvaliacaoDaTela`; o handler de
+ * ⚠ **O QUE É REAL E O QUE É ESPELHO.** (Ajuste 1: o ESPELHO deixou de existir.)
+ *   - REAL: a rota de cálculo; a montagem do pedido (`montarPedidoDoParecer`, em
+ *     `lib/ai-reviewer/montagem-do-pedido.ts`, a função pura para onde o bloco "Preparar payload" de
+ *     `runAiReview` foi movido, e que a tela chama); `prepararVinculoDaTela` e
+ *     `classificarAvaliacaoDaTela`; o CR por matriz de cada respondente, calculado pelo motor
+ *     (`consistenciaIndividualDeJulgamentos`) sobre os julgamentos carregados; o handler de
  *     `/api/ai-reviewer`, que monta o contexto.
- *   - ESPELHO: a montagem do payload pela tela (`runAiReview`, bloco "Preparar payload", em
- *     `app/decisor/resultados/[projectId]/page.tsx`). A tela é `'use client'` e nenhum teste a
- *     executa. As linhas de que o espelho depende têm âncora de texto (mais abaixo): mudar uma
- *     delas reprova o ensaio e o espelho precisa ser revisto. ⚠ É ancoragem por LEITURA, e não
- *     equivalência com a execução da tela.
- *   - FORA DO ESCOPO: as estatísticas de qualidade (`qualityAnalysis.statistics`, `overallStats`,
- *     `individualStats`) e a demografia, que vêm da API de qualidade e das respostas, e não do
- *     documento de cálculo. F07 não as toca.
+ *   - ÂNCORA: a TELA só chama a montagem e envia o corpo. As duas linhas dela de que o ensaio
+ *     depende têm âncora de texto (mais abaixo). ⚠ É ancoragem por LEITURA da tela, que é
+ *     `'use client'` e nenhum teste executa.
+ *   - FORA DO ESCOPO: a demografia, que vem das respostas e não do documento de cálculo.
+ *
+ * ⚠ **AJUSTE 1 (A.12 item (c)): o que mudou de propósito em relação à referência.** A referência
+ * foi capturada com a qualidade individual do formato ANTERIOR (categorias de pessoa a partir do
+ * `cr` em cache). O pedido ATUAL leva, por respondente, o CR por matriz recalculado dos julgamentos,
+ * e o contexto muda por isso. Por isso:
+ *   - o `system` continua com o MESMO SHA-256 da referência (o prompt de sistema não foi tocado);
+ *   - o payload é igual ao da referência em TODOS os campos exceto os de qualidade
+ *     (`qualityAnalysis`, e `avaliacaoDeQualidade` quando o seu texto declara a fonte), que são
+ *     conferidos à parte, e os dois campos do registro da execução que a tela já enviava e o espelho
+ *     antigo omitia (`projectId`, `incluirRegistroDaExecucao`);
+ *   - o `messages` TEM hash novo, medido nesta execução e com o hash da referência nomeado abaixo.
+ *     ⚠ Hash novo prova que mudou, e não que mudou só no que devia: a conferência de que o que
+ *     mudou é só a qualidade individual está em `consistencia-individual-pedido.test.ts` e no
+ *     registro do Ajuste 1.
  *
  * ⚠ **O QUE NÃO SE DEMONSTRA.** Nenhuma redação é gerada: o cliente do modelo é simulado. Isto
  * verifica a ENTRADA, e não o que o parecer escreveria.
@@ -45,6 +59,7 @@ const crypto = require('node:crypto');
 
 const RAIZ = path.resolve(__dirname, '..', '..');
 const TELA = path.join(RAIZ, 'app', 'decisor', 'resultados', '[projectId]', 'page.tsx');
+const MONTAGEM = path.join(RAIZ, 'lib', 'ai-reviewer', 'montagem-do-pedido.ts');
 const REFERENCIA = path.join(__dirname, 'fixtures', 'f07-entrada-antes.json');
 const CAPTURAR = process.env.F07_CAPTURAR === '1';
 
@@ -54,8 +69,8 @@ jest.mock('firebase/firestore', () => require('./helpers/firestore-duplo').modul
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { duplo } = require('./helpers/firestore-duplo');
 const { POST: CALCULAR } = require('@/app/api/calculate/route');
-const { prepararVinculoDaTela } = require('@/lib/ai-reviewer/vinculo-execucao');
-const { classificarAvaliacaoDaTela } = require('@/lib/ai-reviewer/avaliacao-qualidade');
+const { montarPedidoDoParecer } = require('@/lib/ai-reviewer/montagem-do-pedido');
+const { consistenciaIndividualDeJulgamentos } = require('@/lib/consistencia-individual');
 const fixture = require('./fixtures/panel-2026.json');
 /* eslint-enable @typescript-eslint/no-var-requires */
 
@@ -74,7 +89,7 @@ const copia = (x: any) => JSON.parse(JSON.stringify(x));
 // Âncoras do espelho da tela. ⚠ LEITURA, e não execução.
 // ---------------------------------------------------------------------------
 
-const ANCORAS_DA_TELA: [string, number][] = [
+const ANCORAS_DA_MONTAGEM: [string, number][] = [
   ["projectName: project.name || 'Projeto sem nome'", 1],
   ["projectDescription: project.description || ''", 1],
   ['alternatives: project.alternatives || []', 1],
@@ -87,8 +102,15 @@ const ANCORAS_DA_TELA: [string, number][] = [
   ['finalScores: calculation.finalScores || []', 1],
   ['responseCount: calculation.responseCount || activeProjectResponses.length || 0', 1],
   ['sensitivityInflections: calculation.sensitivityInflections || {}', 1],
-  ['avaliacaoDeQualidade,', 1],
-  ['vinculoDaExecucao,', 1],
+  // ⚠ DUAS ocorrências de cada uma, medidas: o campo do corpo e o retorno da função (`vinculo: vinculoDaExecucao,` e
+  //   `avaliacaoDeQualidade,`, que devolvem a avaliação e o vínculo ao log da tela).
+  ['avaliacaoDeQualidade,', 2],
+  ['vinculoDaExecucao,', 2],
+];
+
+// A TELA: chama a montagem real e envia o corpo. Nada mais do bloco antigo mora nela.
+const ANCORAS_DA_TELA: [string, number][] = [
+  ['montarPedidoDoParecer(', 1],
   ['body: JSON.stringify(finalPayload)', 1],
 ];
 
@@ -140,51 +162,26 @@ function carregarComoATela(): any[] {
 }
 
 /**
- * ⚠ ESPELHO do bloco "Preparar payload" de `runAiReview`, restrito ao que vem do documento de
- * cálculo e do vínculo. Cada linha corresponde a uma âncora acima.
+ * A montagem REAL do pedido (Ajuste 1: o espelho antigo foi substituído pela função pura que a tela chama). Entram o
+ * documento de cálculo, o projeto e as respostas carregadas; o CR por matriz de cada respondente sai do MOTOR, sobre os
+ * julgamentos, e nunca de um `cr` fixo (o espelho antigo punha `cr: 0.05` em todos).
  */
 function montarPayloadComoATela(calculation: any, project: any) {
   const carregadas = carregarComoATela();
-  const respondentesAtivos = carregadas.map((r: any) => ({ respondentId: r.respondentId, cr: 0.05 }));
-  const preparo = prepararVinculoDaTela({ calculo: calculation, respondentesAtivos, respostasAtivas: carregadas });
-  const respondentesEnviados = preparo.respondentesEnviados;
-  const respostasEnviadas = preparo.respostasEnviadas;
-  const avaliacaoDeQualidade = classificarAvaliacaoDaTela({ respondentesAvaliados: respondentesEnviados, respostasAtivas: respostasEnviadas });
-  const respondentesComCR = respondentesEnviados.map((r: any) => ({ ...r, cr: typeof r.cr === 'number' ? r.cr : 0, isSimulated: false }));
-  const payload = {
-    avaliacaoDeQualidade,
-    vinculoDaExecucao: preparo.vinculo,
-    projectName: project.name || 'Projeto sem nome',
-    projectDescription: project.description || '',
-    alternatives: project.alternatives || [],
-    bocrWeights: calculation.bocrWeights || [],
-    personalWeights: Array.isArray(calculation.bocrWeights) && calculation.bocrWeights.length >= 4
-      ? {
-        Benefits: calculation.bocrWeights[0],
-        Opportunities: calculation.bocrWeights[1],
-        Costs: calculation.bocrWeights[2],
-        Risks: calculation.bocrWeights[3],
-      }
-      : undefined,
-    rescalingWeights: calculation.rescalingWeights
-      ? {
-        Benefits: calculation.rescalingWeights.sb,
-        Opportunities: calculation.rescalingWeights.so,
-        Costs: calculation.rescalingWeights.sc,
-        Risks: calculation.rescalingWeights.sr,
-      }
-      : undefined,
-    bocrConsistency: calculation.bocrConsistency || { cr: 0, lambda: 0 },
-    subWeights: calculation.subWeights || {},
-    subConsistency: calculation.subConsistency || {},
-    finalScores: calculation.finalScores || [],
-    responseCount: calculation.responseCount || 0,
-    sensitivityInflections: calculation.sensitivityInflections || {},
-    qualityAnalysis: { respondents: respondentesComCR },
-    demographicsSummary: { total: 0, hasData: false },
-  };
-  // Como `fetch` recebe o corpo: JSON.stringify, que descarta os `undefined`.
-  return { payload: JSON.parse(JSON.stringify(payload)), omitirOverall: preparo.omitirOverall };
+  const respondentesDaAnalise = carregadas.map((r: any) => ({
+    respondentId: r.respondentId,
+    consistenciaIndividual: consistenciaIndividualDeJulgamentos(r.judgments, project.alternatives),
+  }));
+  const pedido = montarPedidoDoParecer({
+    calculation,
+    project,
+    projectId: PROJETO,
+    qualityAnalysis: { respondents: respondentesDaAnalise },
+    projectResponses: carregadas,
+    excludedIds: [],
+    demographics: [],
+  });
+  return { payload: pedido.corpo };
 }
 
 // ---------------------------------------------------------------------------
@@ -352,7 +349,11 @@ describe('F07: a entrada do modelo, caso fixo do painel de 2026', () => {
 
   const referencia = () => JSON.parse(fs.readFileSync(REFERENCIA, 'utf8'));
 
-  test('âncoras: as linhas da tela de que o espelho depende estão presentes, na contagem medida', () => {
+  test('âncoras: as linhas da montagem e da tela de que o ensaio depende estão presentes, na contagem medida', () => {
+    const montagem = fs.readFileSync(MONTAGEM, 'utf8');
+    for (const [literal, n] of ANCORAS_DA_MONTAGEM) {
+      expect({ literal, n: ocorrencias(montagem, literal) }).toEqual({ literal, n });
+    }
     const tela = fs.readFileSync(TELA, 'utf8');
     for (const [literal, n] of ANCORAS_DA_TELA) {
       expect({ literal, n: ocorrencias(tela, literal) }).toEqual({ literal, n });
@@ -371,8 +372,52 @@ describe('F07: a entrada do modelo, caso fixo do painel de 2026', () => {
     for (const k of acrescentados) expect(CAMPOS_ACRESCENTADOS_POR_F07).toContain(k);
   });
 
-  test('o payload que a tela montaria é igual ao da referência, campo a campo', () => {
-    expect(diferencas(arredondar(entrada.payload), referencia().payload)).toEqual([]);
+  /**
+   * ⚠ O que o payload ATUAL tem a mais ou a menos que a referência, e é DECLARADO aqui, campo a campo:
+   *   - `projectId` e `incluirRegistroDaExecucao`: a tela já os enviava (registro da execução do Parecer IA) e o espelho antigo
+   *     os omitia. Não vêm do Ajuste 1 nem de F07.
+   *   - `qualityAnalysis`: o Ajuste 1 troca o objeto da API de qualidade (CR em cache, `status`, `overallScore`, `flags`,
+   *     `recommendation`) pelo bloco `consistenciaIndividual`. Conferido no teste seguinte.
+   * Todo o resto, `avaliacaoDeQualidade` inclusive, é comparado campo a campo.
+   */
+  const CAMPOS_FORA_DA_COMPARACAO = ['projectId', 'incluirRegistroDaExecucao', 'qualityAnalysis'];
+
+  test('o payload que a tela monta é igual ao da referência em tudo o que não é a qualidade individual, campo a campo', () => {
+    const atual = arredondar(copia(entrada.payload));
+    const ref = copia(referencia().payload);
+    for (const k of CAMPOS_FORA_DA_COMPARACAO) {
+      delete atual[k];
+      delete ref[k];
+    }
+    expect(diferencas(atual, ref)).toEqual([]);
+    // a comparação cobre campos de verdade (um laço sobre vazio passaria por vacuidade)
+    expect(Object.keys(ref).length).toBeGreaterThanOrEqual(14);
+    expect(atual.avaliacaoDeQualidade.estado).toBe('disponivel');
+  });
+
+  test('Ajuste 1: a qualidade individual do payload é só identidade e CR por matriz recalculado, para os 12', () => {
+    const lista = entrada.payload.qualityAnalysis.respondents;
+    expect(Object.keys(entrada.payload.qualityAnalysis)).toEqual(['respondents']);
+    expect(lista).toHaveLength(12);
+    for (const r of lista) {
+      expect(Object.keys(r).sort()).toEqual(['consistenciaIndividual', 'isSimulated', 'respondentId']);
+      const b = r.consistenciaIndividual;
+      expect(b.fonte).toBe('recalculado_dos_julgamentos');
+      expect(b.matrizesComCR).toBe(6);
+      expect(Object.keys(b.crPorMatriz)).toEqual(['BOCR', 'MAGNITUDE', 'SUB-B', 'SUB-O', 'SUB-C', 'SUB-R']);
+      for (const v of Object.values(b.crPorMatriz)) expect(Number.isFinite(v)).toBe(true);
+    }
+    // o que a referência levava por respondente e o pedido atual NÃO leva. ⚠ `"cr"` aparece legitimamente em
+    // `bocrConsistency` (o CR das matrizes AGREGADAS), então a conferência dos campos por pessoa é sobre `qualityAnalysis`.
+    const textoDaQualidade = JSON.stringify(entrada.payload.qualityAnalysis);
+    for (const campo of ['"cr"', '"status"', '"overallScore"', '"flags"', '"recommendation"', '"metrics"', '"byStatus"', '"overallStats"', '"individualStats"']) {
+      expect({ campo, presente: textoDaQualidade.includes(campo) }).toEqual({ campo, presente: false });
+    }
+    // e os agregados por categoria não viajam em canal nenhum do payload
+    const textoTodo = JSON.stringify(entrada.payload);
+    for (const campo of ['"byStatus"', '"overallStats"', '"individualStats"', '"overallScore"', '"recommendation"']) {
+      expect({ campo, presente: textoTodo.includes(campo) }).toEqual({ campo, presente: false });
+    }
   });
 
   test('NENHUM campo de F07 chega ao payload', () => {
@@ -382,10 +427,42 @@ describe('F07: a entrada do modelo, caso fixo do painel de 2026', () => {
     }
   });
 
-  test('o contexto enviado ao modelo é o da referência: mesmo SHA-256 do system e do messages', () => {
+  /**
+   * ⚠ HASH NOVO, MEDIDO NESTA EXECUÇÃO (Ajuste 1). O `messages` da referência (`3f2b6380…`, capturado em `317767a`) levava a
+   * qualidade individual do formato anterior; o atual leva o CR por matriz recalculado. A constante abaixo é o que a rota
+   * produz agora para o caso fixo, e vale como «convenção de atualização por medição» (o valor sai da execução, não de
+   * predição). ⚠ Ela prova que o contexto é ESTE e que é determinístico; não prova que o que mudou é só a qualidade.
+   */
+  const MESSAGES_APOS_O_AJUSTE_1 = { sha256: 'bfd0ab36e8664ec6fe8f68a183c8b8107eccd74e40d9f47ca476bc313b65cb03', bytes: 80678 };
+
+  test('o system é o da referência (prompt de sistema intocado) e o messages é o medido após o Ajuste 1, distinto da referência', () => {
     const ref = referencia();
-    expect({ system: sha256(entrada.system), messages: sha256(entrada.messages) }).toEqual(ref.sha256);
-    expect({ system: Buffer.byteLength(entrada.system, 'utf8'), messages: Buffer.byteLength(entrada.messages, 'utf8') }).toEqual(ref.bytes);
+    // o prompt de sistema NÃO mudou: mesmo SHA-256 e mesmos bytes
+    expect(sha256(entrada.system)).toBe(ref.sha256.system);
+    expect(Buffer.byteLength(entrada.system, 'utf8')).toBe(ref.bytes.system);
+    // o messages MUDOU, e o hash antigo fica nomeado: o teste reprova se alguém restaurar o contexto anterior
+    expect(sha256(entrada.messages)).not.toBe(ref.sha256.messages);
+    expect({ sha256: sha256(entrada.messages), bytes: Buffer.byteLength(entrada.messages, 'utf8') }).toEqual(MESSAGES_APOS_O_AJUSTE_1);
+  });
+
+  test('Ajuste 1: o contexto do caso fixo traz as contagens da referência por matriz, com a população escrita (47 de 72, 12 de 12)', () => {
+    // Valores de docs/referencia-cr-individuais.md, conferidos à mão: 12 respondentes x 6 matrizes não triviais = 72, e 47 delas
+    // acima de 0.10, em 12 de 12 respondentes. ⚠ São denominadores do PAINEL ENVIADO, e não do painel da pesquisa.
+    for (const trecho of [
+      'Respondentes enviados: 12. Com CR recalculado dos julgamentos nas 6 matrizes: 12. Sem CR: 0.',
+      'Matrizes avaliadas: 72 (12 respondentes × 6 matrizes não triviais: BOCR, MAGNITUDE, SUB-B, SUB-O, SUB-C, SUB-R)',
+      'Matrizes com CR > 0.10 (limiar de aceitação por matriz, Saaty, 1977): 47 de 72 (65.3%).',
+      'Respondentes com ao menos uma matriz com CR > 0.10: 12 de 12.',
+      'o CR descreve uma matriz de julgamentos, e não classifica a pessoa',
+      'não é critério de exclusão de participantes',
+    ]) {
+      expect({ trecho, presente: entrada.messages.includes(trecho) }).toEqual({ trecho, presente: true });
+    }
+    // e nenhuma categoria de pessoa nem taxa em canal nenhum do contexto. ⚠ Cada texto abaixo EXISTIA no contexto anterior (medido
+    // na captura de antes, 1 a 4 ocorrências cada), então a negativa não passa por vacuidade.
+    for (const removido of ['Respostas CONFIÁVEIS', 'Respostas SUSPEITAS', 'Respostas CRÍTICAS', 'Taxa de Validade', 'Distribuição de Qualidade dos Respondentes', 'REVISAR']) {
+      expect({ removido, presente: entrada.messages.includes(removido) }).toEqual({ removido, presente: false });
+    }
   });
 
   test('o executionId do contexto é o do documento lido, e o bloco do vínculo o transporta', () => {
@@ -397,6 +474,7 @@ describe('F07: a entrada do modelo, caso fixo do painel de 2026', () => {
     const outro = copia(entrada.payload);
     outro.vinculoDaExecucao.executionId = '11111111-1111-4111-8111-111111111111';
     const { messages } = await contextoEnviadoAoModelo(outro);
-    expect(sha256(messages)).not.toBe(referencia().sha256.messages);
+    // ⚠ Contra o contexto ATUAL, e não contra a referência: contra a referência o controle passaria por vacuidade (os dois já diferem).
+    expect(sha256(messages)).not.toBe(sha256(entrada.messages));
   });
 });

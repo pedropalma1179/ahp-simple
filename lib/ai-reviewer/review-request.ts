@@ -17,6 +17,7 @@
 
 import type { AvaliacaoQualidade, Coerencia } from './avaliacao-qualidade';
 import type { VinculoDaExecucao } from './vinculo-execucao';
+import type { ConsistenciaIndividual } from '../consistencia-individual';
 
 // ============================================================
 // TIPOS DA REQUISIÇÃO
@@ -30,11 +31,20 @@ export interface IndividualStats {
   avgCR?: number;
 }
 
+/**
+ * Um respondente ENVIADO ao modelo.
+ *
+ * ⚠ **Ajuste 1 (A.12, item (c)):** só a identidade e o bloco `consistenciaIndividual`. Os campos que este tipo
+ * declarava (`avgCR`, `status`) eram o cache legado e uma categoria de pessoa sem lastro, e `normalizeRequest` não os
+ * copia mais. O CR é POR MATRIZ, recalculado dos julgamentos, e descreve matrizes, não a pessoa.
+ */
 export interface RespondentData {
-  id: string;
+  id?: string;
+  respondentId?: string;
   name?: string;
-  avgCR: number;
-  status: 'OK' | 'SUSPEITO' | 'CRÍTICO';
+  email?: string;
+  isSimulated?: boolean;
+  consistenciaIndividual?: ConsistenciaIndividual;
 }
 
 export interface ReviewRequest {
@@ -117,41 +127,13 @@ export interface ReviewRequest {
   };
   subConsistency?: Record<string, { cr: number; lambda: number }>;
   subWeights?: Record<string, number[]>;
+  /**
+   * Ajuste 1: SÓ a lista de respondentes enviados. `statistics` (`byStatus`, `avgScore`), `overall`, `summary` e
+   * `overallStats` saíram do tipo porque a rota não os lê nem os copia: eram a distribuição por categoria de pessoa e o
+   * score composto que A.12 manda remover do transporte.
+   */
   qualityAnalysis?: {
     respondents: RespondentData[];
-    // Formato da API response-quality
-    statistics?: {
-      total: number;
-      byStatus: {
-        'CONFIÁVEL'?: number;
-        'CONFIAVEL'?: number;
-        'REVISAR'?: number;
-        'SUSPEITO'?: number;
-        'CRÍTICO'?: number;
-        'CRITICO'?: number;
-        'DESCONHECIDO'?: number;
-      };
-      avgCR?: number;
-      avgScore?: number;
-      knownCRCount?: number;
-    };
-    overall?: {
-      status: string;
-      qualityScore: number;
-      recommendation: string;
-    };
-    summary?: {
-      total: number;
-      ok: number;
-      suspicious: number;
-      critical: number;
-    };
-  };
-  overallStats?: {
-    total: number;
-    valid: number;
-    warning: number;
-    critical: number;
   };
   /**
    * A.12 etapa 1: a coerência interna da requisição, comparação por comparação.

@@ -1216,9 +1216,9 @@ export const CHAVE_DE_LEITURA_DAS_CONTAGENS = (l: LeituraDoVinculo): string[] =>
       ? '  - incluídos no documento de cálculo (etapa: cálculo): contagem declarada no vínculo, SEM lista de incluídos utilizável para compará-la;'
       : '  - incluídos no documento de cálculo (etapa: cálculo): contagem NÃO disponível nesta requisição;',
   '  - avaliados antes de qualquer restrição (etapa: avaliação de qualidade);',
-  '  - enviados a você (etapa: envio): a lista de respondentes, as contagens por status e as distribuições e taxas de qualidade deste contexto referem-se a eles;',
-  '  - "Estatísticas por Dimensão" BOCR: nenhuma contagem por dimensão é apresentada neste contexto, e nenhuma deve ser derivada dos totais agregados, ' +
-    'que NÃO são contagem por dimensão nem participação por dimensão nas matrizes.',
+  '  - enviados a você (etapa: envio): a lista de respondentes, o CR por matriz de cada um e as contagens de matrizes deste contexto referem-se a eles;',
+  '  - "Estatísticas por Dimensão" BOCR: o CR por matriz é o recalculado dos julgamentos dos ENVIADOS; a contagem de incluídos no documento de cálculo ' +
+    'NÃO é contagem por dimensão nem participação por dimensão nas matrizes, e nenhuma contagem por dimensão deve ser derivada dela.',
 ];
 
 const PREFIXO_DA_RELACAO =
@@ -1364,7 +1364,7 @@ export interface FrasesDaLista {
   total: string;
   /** Duas linhas, unidas por quebra de linha, como a redação anterior. */
   agregacao: string;
-  /** Termina em quebra de linha, para preceder a primeira contagem por status. */
+  /** Termina em quebra de linha, para preceder a primeira contagem do painel. */
   cabecalhoDasContagens: string;
   regraDeMencao: string;
 }
@@ -1440,7 +1440,7 @@ export function frasesDaListaComVinculo(l: LeituraDoVinculo, n: number): FrasesD
     cabecalho: '## DADOS DO SISTEMA — RESPONDENTES ENVIADOS A VOCÊ (lista EXAUSTIVA do conjunto enviado)',
     total,
     agregacao,
-    cabecalhoDasContagens: 'Contagens por status, sobre os ENVIADOS a você (etapa: envio):\n',
+    cabecalhoDasContagens: 'Consistência individual por matriz, sobre os ENVIADOS a você (etapa: envio):\n',
     regraDeMencao:
       '⚠️ REGRA: Você NÃO pode mencionar respondentes fora desta lista COMO PARTICIPANTES DA AVALIAÇÃO ENVIADA: nenhum deles contribuiu para os dados de qualidade acima, e para cada respondente da lista você usa o ID hash fornecido. ' +
       'Único caso permitido fora da lista: um identificador registrado no bloco do vínculo como DIVERGÊNCIA REGISTRADA (na avaliação e fora do documento, no documento e fora da avaliação, ou repetido) pode ser nomeado SOMENTE nesse papel, e nunca como quem contribuiu para os dados de qualidade.' +
