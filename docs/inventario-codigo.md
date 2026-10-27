@@ -524,6 +524,15 @@ respondente, e não efeito de IPC: o sistema não completa comparações) e o it
 efetivamente usa não mudou: matriz **completa**, autovetor principal, CR do motor e agregação por média geométrica; a rota de cálculo rejeita a resposta incompleta
 (`app/api/calculate/route.ts:806`) e nenhum código de produção completa matriz por transitividade, IPC ou LLSM.
 
+### Ajuste 1, quarta etapa (27/10/2026): perdas declaradas no escritor de procedência
+
+`lib/__tests__/helpers/procedencia-da-regravacao.ts` (instrumento de teste, não altera o que o modelo recebe). Uma entrada **nova** de regravação pode declarar
+perdas: `camposPerdidos` é o número medido e `perdasDeclaradas` lista cada uma como `{ caminho, motivo, valorAnterior }`. O escritor aceita **só** o declarado e confere
+nos dois sentidos contra o git (perda medida e não declarada recusa; declarada que não se perdeu recusa; motivo ausente ou curto, caminho repetido, contagem que não fecha
+e `valorAnterior` diferente do HEAD recusam); entradas antigas seguem sem perda e sem declaração; o histórico é intocável. `resumoDosCaminhosAnteriores` reconstrói o
+conjunto de caminhos da versão anterior a partir dos campos novos e das perdas declaradas. `f07-a8-procedencia.test.ts` passou de 93 para 161 testes, com dez mutações
+reprovadas. Usado pela primeira vez na entrada 17 de `docs/dados/a12-diagnostico/medicao.json` (quatro perdas). Registro: `docs/imprecisoes-parecer-ia.md`, quarta etapa.
+
 ### `lib/__tests__/fixtures/panel-2026.json`
 
 864 julgamentos anônimos, matrizes agregadas observadas, `altScores`, valores

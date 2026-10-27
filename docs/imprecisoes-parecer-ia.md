@@ -20663,6 +20663,86 @@ Não se usou a variação da suíte como critério de aceite: os critérios fora
 
 ---
 
+## Registro de 27/10/2026 (UTC), quarta etapa do Ajuste 1: perdas declaradas, a regravação dos dois artefatos e os commits locais
+
+⚠ **Este bloco registra a execução do que as três etapas deixaram preparado, e não altera o que o modelo recebe.** Não há predição de contexto aqui: o `system`, o `messages` e o portão são os da terceira etapa (`59ccf65`). O que se mede é o instrumento de integridade das regravações e o estado do repositório. **Sem push, sem implantação, sem chamada real ao modelo, sem escrita no Firestore.** Os commits são locais.
+
+### A. O que o autor decidiu e autorizou
+
+(1) **Commits locais, na sequência preparada.** (2) **A opção 1 para o `a12-diagnostico`: perdas declaradas individualmente, por caminho e motivo.** (3) **Registrar separadamente** a divergência do questionário sobre 42 contra 72 comparações, **sem alterar** as perguntas, as respostas coletadas nem a regra de finalização. Fica superado, na seção 8 da terceira etapa, o item 2 («Decisão do autor sobre a regravação de `a12-diagnostico`») e o item 4 («Autorização de commit»).
+
+### B. A regra nova do escritor, e o que ela aceita e recusa
+
+`lib/__tests__/helpers/procedencia-da-regravacao.ts`. Uma entrada **nova** de regravação pode declarar perdas: `camposPerdidos` é o número medido, e `perdasDeclaradas` lista cada uma como `{ caminho, motivo, valorAnterior }`. O escritor confere a declaração **nos dois sentidos, contra o git**:
+
+| Situação | Resultado |
+|---|---|
+| perda declarada, com caminho, motivo (mínimo 30 caracteres) e `valorAnterior` igual ao do HEAD | **aceita** |
+| perda **medida** e não declarada (a adicional) | **recusa**, com a mensagem de sempre («campos PERDIDOS em relação ao HEAD: …») |
+| perda **declarada** que não se perdeu (o campo existe), ou que nunca existiu | **recusa** («perdas DECLARADAS que NÃO se perderam em relação ao HEAD: …») |
+| motivo ausente, curto, só com espaços, ou que não é texto | **recusa** |
+| `camposPerdidos` que não fecha com as declaradas (maior, menor, zero com declaração, negativo, fracionário, em texto), lista ausente ou vazia | **recusa** |
+| caminho repetido, perda sem caminho, item que não é objeto, chave estranha na perda, perda sem `valorAnterior` | **recusa** |
+| `valorAnterior` da perda diferente do HEAD | **recusa** |
+| o mesmo caminho como regravado e como perdido | **recusa** |
+| entrada **antiga** com `camposPerdidos` diferente de zero, ou com `perdasDeclaradas` (mesmo vazio) | **recusa** (como antes, e agora também a declaração) |
+| histórico alterado, mesmo com a perda corretamente declarada, ou perda declarada numa entrada antiga | **recusa** («foi ALTERADA em relação ao HEAD») |
+
+`resumoDosCaminhosAnteriores` reconstrói o conjunto de caminhos da versão anterior a partir da versão nova, tirando as entradas novas e os **campos novos** (os de `camposRegravados` sem `valorAnterior`) e acrescentando as **perdas declaradas**; o teste de caminhos de `a12-diagnostico` passou a usá-lo. Sem campo novo e sem perda, é igual ao `resumoDosCaminhos` de antes.
+
+**Ensaio antes de aplicar** (clone descartável, outro repositório): `f07-a8-procedencia.test.ts` passou de **93 para 161 testes**, os 93 antigos **sem alteração** (a recusa da perda não declarada, as entradas antigas e o histórico se comportam como antes). **Dez mutações do helper**, uma de cada vez, restauradas por `cmp`, todas reprovadas: perda adicional aceita — 15 testes reprovam; declarada que não se perdeu aceita — 6; motivo deixa de ser exigido — 8; contagem deixa de fechar — 4; entrada antiga passa a poder declarar — 1; `valorAnterior` da perda deixa de ser conferido — 3; resumo reconstruído ignora as perdas — 1; toda perda medida passa a valer como declarada — 19; caminho repetido aceito — 2; campo novo deixa de sair do conjunto — 1. **O que isto não demonstra:** que o `motivo` de uma perda seja verdadeiro (é texto); demonstra que existe, que tem tamanho, que o caminho e o valor anterior coincidem com o git e que a lista fecha com o medido.
+
+### C. O diff dos artefatos, conferido por fora do helper
+
+| Artefato | Entradas | Folhas mudadas | Novas | Perdidas | Histórico |
+|---|---|---|---|---|---|
+| `a33-cadeia-rule` | 13 → **14** | **7**: o `sha256` de `route.ts`, `bytesSystem` 34170 → 34924 e `bytesMessages` 72567 → 72518, 71001 → 70952, 71001 → 70952 | 0 | 0 | intacto |
+| `a12-diagnostico` | 16 → **17** | **34**: 3 resumos de código e 31 dos quatro casos | **7** | **4, declaradas** | intacto |
+
+A conferência do `a33` é uma diferença de folhas escrita à parte. A do `a12` é um **inverso**: aplicado ao artefato novo o que a entrada 17 declara (repor os `valorAnterior` das 34 mudadas, retirar as 7 novas, repor as 4 perdas), reproduz-se o artefato do HEAD, com o **mesmo `sha256` canônico** (`ae37e3db…`), e as 16 entradas anteriores são iguais, byte a byte. As **quatro perdas**: as linhas «Respostas SUSPEITAS (0.15 < CR ≤ 0.20):» e «Respostas CRÍTICAS (CR > 0.20):» que o teste procurava no contexto do caso 0 (o vetor passou de 4 elementos para os 2 marcadores do CR por matriz), e dois vetores que eram **vazios** (casos 2 e 3), que deixam de ser folha ao ganharem elementos. ⚠ O campo `marcadoresDePercentualEncontrados` **mudou de significado**: registrava as linhas de categoria da distribuição e passou a registrar os marcadores do CR por matriz. O nome ficou; está dito no `motivo` da entrada.
+
+A medição que gerou a entrada 17 foi feita com a guarda desligada **só na medição**, numa cópia temporária do teste (removida), e a escrita final passou pela guarda ligada. Os valores coincidem entre o clone e o repositório real (34, 7, 4; as duas âncoras `8f1da9cb…` e `274cc604…`).
+
+### D. Os commits locais (todos com `git add` por caminho explícito; o rodapé é o de atribuição)
+
+| # | Commit | O que é |
+|---|---|---|
+| 1 | `7634f0e` | `P1`, predições da etapa 1 (66 linhas acrescentadas, nenhuma removida) |
+| 2 | `c352eaf` | `R1`, origem e transporte do CR |
+| 3 | `3ee7bcb` | `P2`, predições da etapa 2 (62 linhas) |
+| 4 | `5e22871` | `R2`, exemplos do `system` e testes do portão |
+| 5 | `468ab9b` | `P3`, predições da etapa 3 (53 linhas) |
+| 6 | `59ccf65` | `R3`, linha do percentual e trecho de IPC |
+| 7 | `596e58e` | `G33`, regravação de `a33-cadeia-rule` (entrada 14) |
+| 8 | `d1d9cbb` | `I1`, o escritor aceita só perda declarada |
+| 9 | `6df92e1` | `G12`, regravação de `a12-diagnostico` (entrada 17, quatro perdas) |
+| 10 | `49620bb` | `Q`, registro de **A.35** na âncora (o questionário), à parte |
+| 11 | o commit deste registro | `D4` |
+
+⚠ **O que o git NÃO comprova** (como na terceira etapa): `P1`, `P2` e `P3` são acréscimos puros e contêm exatamente o texto das predições, mas foram criados depois do código no *working tree*; a ordem «predição antes do código» é a das operações da sessão. A base da entrada 14 de `a33` é `59ccf65`, e a da entrada 17 de `a12` é `d1d9cbb`, cada uma o commit do código medido (a convenção é que a base é o estado SOBRE o qual se regrava; o commit que registra a entrada vem depois).
+
+### E. A divergência do questionário, registrada à parte (A.35)
+
+Duas frases de `app/avaliacao/[projectId]/page.tsx` (linhas 2557 e 2735) dizem que 42 das 72 comparações bastam «conforme o método IPC» e que as demais são «complementares»; o mesmo arquivo trata toda comparação não respondida como obrigatória e recusa a finalização sem as 72. Registrada como **A.35** em `docs/objetivo-estados-caminho.md`, **sem alterar** as perguntas, as respostas coletadas nem a regra de finalização. O repositório começa em `aec0a0f`, que já traz os textos: **o git não diz o que os respondentes do painel de 2026 leram**. A decisão de corrigir os textos é do autor.
+
+### F. Medições finais (antes deste registro)
+
+| Verificação | Resultado [medido] |
+|---|---|
+| `npx tsc --noEmit` | sai **0** |
+| `npm test` | sai **0**: **63 suítes e 2358 testes, 2358 passam, 0 reprovam**. Os 68 testes a mais que na terceira etapa (2290) são os de perdas declaradas em `f07-a8-procedencia.test.ts`; as seis reprovações dos artefatos deixaram de existir |
+| `npm run build` | sai **0**, **18** páginas |
+| `git status --short` | vazio (árvore limpa) depois do commit `49620bb` |
+
+### G. O que continua em aberto
+
+1. **A saída real do modelo.** P-IPC-6, P-SP-5 e P-CR-9 seguem **não avaliadas**: dependem de uma geração real, que é observação nova, com registro novo.
+2. **A.35**, a correção dos textos do questionário (decisão do autor).
+3. **O smoke somente-leitura do Preview** autorizado antes continua não executado; o Preview ainda é de `bcb6bdb`.
+4. **Nenhum push.** Os 11 commits (10 mais este registro) existem só localmente, no ramo `claude/loving-shannon-661fy9`.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
