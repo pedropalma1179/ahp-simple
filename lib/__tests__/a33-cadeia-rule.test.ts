@@ -343,6 +343,25 @@ const PROCEDENCIA_DAS_REGRAVACOES = [
     ],
     camposPerdidos: 0,
   },
+  {
+    ordem: 14,
+    motivo: 'Ajuste 1 (A.12 item (c) e A.25), em tres etapas: o CR individual por matriz, recalculado dos julgamentos, passou a ser o que o Parecer IA recebe, no lugar do cache e das categorias de pessoa (alterou app/api/ai-reviewer/route.ts e o contexto de cada caso); e app/api/ai-reviewer/system-prompt.ts teve tres exemplos do H-CR-S corrigidos e cinco trechos esclarecidos (consistencia individual por matriz, regra das comparacoes completas, DIRETRIZ 4 de IPC). Mudam o sha256 de route.ts e os bytes do system e das mensagens dos tres casos; knowledge.ts e as demais fontes de codigo desta medicao nao mudam.',
+    commitDaBase: '59ccf65fe3f53db6ffdc5857c75252a349754248',
+    comando: 'A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts',
+    ambiente: { plataforma: 'linux', arch: 'x64', node: 'v22.22.0' },
+    artefato: 'docs/dados/a33-cadeia-rule/medicao.json',
+    // MEDIDO pela diferenca de folhas do helper de procedencia, contra o artefato do HEAD: SETE folhas mudadas, ZERO novas e ZERO perdidas.
+    camposRegravados: [
+      'identificacao.codigo[app/api/ai-reviewer/route.ts]',
+      'montagem.casos.C1.bytesSystem',
+      'montagem.casos.C1.bytesMessages',
+      'montagem.casos.C2.bytesSystem',
+      'montagem.casos.C2.bytesMessages',
+      'montagem.casos.C3.bytesSystem',
+      'montagem.casos.C3.bytesMessages',
+    ],
+    camposPerdidos: 0,
+  },
 ];
 
 const sha256 = (b: Buffer | string) =>

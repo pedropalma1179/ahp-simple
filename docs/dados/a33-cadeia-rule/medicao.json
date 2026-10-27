@@ -5,7 +5,7 @@
     "commitMedido": "ebfc9dd3e3f8c988e68fcd1876f8ea3a26b9c27d",
     "codigo": {
       "app/api/ai-reviewer/knowledge.ts": "7d76ce6e92103edf8d6d5106cb5a592e6328800f4c5045bc046b1eb51fed3d34",
-      "app/api/ai-reviewer/route.ts": "be3788e03a1a10c8938cdc3d6f41c6ac4dfc59a5da055d42f9e2cbb5e5a1a5cf"
+      "app/api/ai-reviewer/route.ts": "f6391b9b0626282ba2f855cd5de63d9ae6b75949ee4a0302419632faf0b0c45f"
     },
     "dados": {
       "docs/dados/a33-etapa4-v2/casos.json": "49b6c5ad94ef461c8973511b765e35b58f3de2958d76ca16642c7c0c6217afc7",
@@ -243,6 +243,28 @@
           "identificacao.codigo[app/api/ai-reviewer/route.ts]"
         ],
         "camposPerdidos": 0
+      },
+      {
+        "ordem": 14,
+        "motivo": "Ajuste 1 (A.12 item (c) e A.25), em tres etapas: o CR individual por matriz, recalculado dos julgamentos, passou a ser o que o Parecer IA recebe, no lugar do cache e das categorias de pessoa (alterou app/api/ai-reviewer/route.ts e o contexto de cada caso); e app/api/ai-reviewer/system-prompt.ts teve tres exemplos do H-CR-S corrigidos e cinco trechos esclarecidos (consistencia individual por matriz, regra das comparacoes completas, DIRETRIZ 4 de IPC). Mudam o sha256 de route.ts e os bytes do system e das mensagens dos tres casos; knowledge.ts e as demais fontes de codigo desta medicao nao mudam.",
+        "commitDaBase": "59ccf65fe3f53db6ffdc5857c75252a349754248",
+        "comando": "A33_GRAVAR=1 npx jest --runInBand lib/__tests__/a33-cadeia-rule.test.ts",
+        "ambiente": {
+          "plataforma": "linux",
+          "arch": "x64",
+          "node": "v22.22.0"
+        },
+        "artefato": "docs/dados/a33-cadeia-rule/medicao.json",
+        "camposRegravados": [
+          "identificacao.codigo[app/api/ai-reviewer/route.ts]",
+          "montagem.casos.C1.bytesSystem",
+          "montagem.casos.C1.bytesMessages",
+          "montagem.casos.C2.bytesSystem",
+          "montagem.casos.C2.bytesMessages",
+          "montagem.casos.C3.bytesSystem",
+          "montagem.casos.C3.bytesMessages"
+        ],
+        "camposPerdidos": 0
       }
     ]
   },
@@ -456,8 +478,8 @@
         "interrompidoAntesDeConteudo": true,
         "consultasAoIndice": 5,
         "superficie": "messages",
-        "bytesSystem": 34170,
-        "bytesMessages": 72567,
+        "bytesSystem": 34924,
+        "bytesMessages": 72518,
         "presencaPorSecao": {
           "consistencia": {
             "esperados": 93,
@@ -488,8 +510,8 @@
         "interrompidoAntesDeConteudo": true,
         "consultasAoIndice": 0,
         "superficie": "messages",
-        "bytesSystem": 34170,
-        "bytesMessages": 71001,
+        "bytesSystem": 34924,
+        "bytesMessages": 70952,
         "presencaPorSecao": {
           "consistencia": {
             "esperados": 93,
@@ -520,8 +542,8 @@
         "interrompidoAntesDeConteudo": true,
         "consultasAoIndice": 5,
         "superficie": "messages",
-        "bytesSystem": 34170,
-        "bytesMessages": 71001,
+        "bytesSystem": 34924,
+        "bytesMessages": 70952,
         "presencaPorSecao": {
           "consistencia": {
             "esperados": 93,
