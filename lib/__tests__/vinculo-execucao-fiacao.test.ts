@@ -1653,8 +1653,13 @@ describe('ensaio 12: julgamentos-resumo.ts não é importado pela tela, e não e
     //   serializa nem resume julgamentos. A igualdade é EXATA, de propósito: um terceiro arquivo com
     //   `createHash(` reprova este teste, e a versão e a função de serialização continuam em UM só
     //   arquivo, que é o que o teste protege.
+    // ⚠ **O registro de execução do Parecer IA passa a exigir um terceiro arquivo com `createHash(`:
+    //   `lib/ai-reviewer/registro-da-execucao.ts`.** Ele resume as ENTRADAS, os PROMPTS e a SAÍDA de uma geração do
+    //   Parecer (SHA-256 do texto e da serialização canônica de objetos), e NÃO serializa nem resume julgamentos. É o
+    //   mesmo tipo de exceção do A1 acima: a igualdade segue EXATA, um quarto arquivo com `createHash(` reprova, e a
+    //   versão e a função de serialização de julgamentos continuam em UM só arquivo, que é o que o teste protege.
     expect(definem).toEqual({
-      hash: ['lib/execucoes.ts', 'lib/julgamentos-resumo.ts'],
+      hash: ['lib/ai-reviewer/registro-da-execucao.ts', 'lib/execucoes.ts', 'lib/julgamentos-resumo.ts'],
       versao: ['lib/julgamentos-resumo.ts'],
       funcao: ['lib/julgamentos-resumo.ts'],
     });

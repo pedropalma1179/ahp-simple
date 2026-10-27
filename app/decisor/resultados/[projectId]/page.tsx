@@ -1403,6 +1403,11 @@ export default function ResultadosPage() {
       const finalPayload = {
         ...payload,
         demographicsSummary,
+        // Registro de execução do Parecer IA: a rota monta o registro SÓ sob este pedido, e o guarda com o id do projeto. ⚠ A
+        //   montagem do contexto do modelo NÃO lê nenhum dos dois campos (`normalizeRequest` copia campo a campo): só a cópia da
+        //   entrada recebida os guarda.
+        projectId,
+        incluirRegistroDaExecucao: true,
         // NOVO: Informação de exclusão para contextualizar a IA
         exclusionInfo: excludedIds.length > 0 ? {
           totalCollected: projectResponses.length,

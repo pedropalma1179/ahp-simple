@@ -8,6 +8,7 @@ import React from 'react';
 import { decideReviewPresentation } from '@/lib/ai-reviewer/review-validation-contract';
 import { vinculoAusenteNaEntrada } from '@/lib/ai-reviewer/vinculo-execucao';
 import { type IdentificacaoDaExecucao, rodapeDeCopia } from '@/lib/identificacao-da-execucao';
+import { baixarNoNavegador, prepararDownloadDoRegistro, situacaoDoRegistro } from '@/lib/ai-reviewer/exportar-registro';
 
 /**
  * O aviso ao gestor quando o vínculo com a execução do cálculo estava AUSENTE na entrada (`ausente_no_payload` ou `nulo_explicito`).
@@ -58,6 +59,13 @@ interface ParecerAISectionProps {
         criticalRefs?: number;
         uniqueArticles?: number;
       };
+      /**
+       * Registro de execução desta geração (esquema versionado), montado no servidor. ⚠ Lido só por `situacaoDoRegistro`, que
+       * reconhece o formato e diz se está disponível, incompleto ou indisponível. Não altera nota, veredicto nem quarentena.
+       */
+      registroDaExecucao?: unknown;
+      /** Motivo informado pela rota quando o registro não pôde ser montado. */
+      registroDaExecucaoIndisponivel?: unknown;
     };
   } | null;
   loading: boolean;
@@ -95,6 +103,28 @@ export default function ParecerAISection({
       console.error('Erro ao copiar parecer:', err);
     }
   };
+
+  // Registro de execução: o desfecho do último download, ligado à GERAÇÃO a que se refere (`idDaGeracao`), para que a mensagem
+  // de um parecer anterior não apareça sobre o parecer novo. ⚠ Estado só de apresentação; nada é gravado.
+  const [exportacao, setExportacao] = React.useState<{ idDaGeracao: string; resultado: 'baixado' | 'erro'; texto: string } | null>(null);
+  const situacaoDoRegistroAtual = aiReview?.review ? situacaoDoRegistro(aiReview.metadata) : null;
+  const registroAtual = situacaoDoRegistroAtual && situacaoDoRegistroAtual.situacao !== 'indisponivel' ? situacaoDoRegistroAtual.registro : null;
+
+  // Baixa o registro do parecer APRESENTADO, tal como a rota o devolveu: não consulta o RAG, não chama o modelo e não gera outro
+  // parecer. ⚠ Falha aparece com a mensagem real; nada é dito como arquivado.
+  const handleBaixarRegistro = () => {
+    if (!registroAtual) return;
+    const idDaGeracao = registroAtual.identificacao.idDaGeracao;
+    try {
+      const preparo = prepararDownloadDoRegistro(registroAtual);
+      baixarNoNavegador(preparo);
+      setExportacao({ idDaGeracao, resultado: 'baixado', texto: `Download do registro iniciado: ${preparo.nomeDoArquivo}` });
+    } catch (err) {
+      console.error('Erro ao exportar o registro da execução:', err);
+      setExportacao({ idDaGeracao, resultado: 'erro', texto: err instanceof Error ? err.message : String(err) });
+    }
+  };
+
   // Cores dinâmicas baseadas na nota/veredicto
   const getNotaStyle = (nota: string) => {
     switch (nota) {
@@ -180,6 +210,23 @@ export default function ParecerAISection({
                   Copiar
                 </span>
               )}
+            </button>
+          )}
+
+          {/* Botão Baixar registro (só quando o registro existe; indisponível é dito no bloco "Registro da execução") */}
+          {registroAtual && (
+            <button
+              onClick={handleBaixarRegistro}
+              disabled={loading}
+              className={`px-4 py-3 rounded-lg font-medium whitespace-nowrap transition-colors border bg-white text-gray-700 border-gray-300 hover:bg-gray-50 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              title="Baixar o registro desta execução do parecer (JSON)"
+            >
+              <span className="flex items-center gap-2">
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" />
+                </svg>
+                Baixar JSON
+              </span>
             </button>
           )}
 
@@ -277,6 +324,49 @@ export default function ParecerAISection({
           {vinculoAusenteNaEntrada(aiReview.estadoDoVinculo) && (
             <div className="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4" role="status">
               <p className="text-sm text-slate-800">{AVISO_DO_VINCULO_AUSENTE}</p>
+            </div>
+          )}
+
+          {/* Registro da execução desta geração. ⚠ Indisponível e incompleto são ditos aqui, com o motivo; o botão de download fica no
+              cabeçalho. A retenção é só por download: o sistema não grava o registro. Não altera nota, veredicto nem a quarentena. */}
+          {situacaoDoRegistroAtual && (
+            <div className="mb-6 rounded-lg border border-slate-300 bg-slate-50 p-4" data-registro-da-execucao={situacaoDoRegistroAtual.situacao}>
+              <h4 className="font-semibold text-slate-900">🧾 Registro da execução</h4>
+              {situacaoDoRegistroAtual.situacao === 'indisponivel' && (
+                <p className="mt-1 text-sm text-slate-700">
+                  Indisponível para este parecer: {situacaoDoRegistroAtual.motivo} Não há arquivo para baixar.
+                </p>
+              )}
+              {situacaoDoRegistroAtual.situacao === 'incompleto' && (
+                <div className="mt-1 text-sm text-slate-700">
+                  <p>
+                    Registro incompleto ({situacaoDoRegistroAtual.ausencias.length} campo(s) sem valor). O arquivo declara cada ausência e o motivo.
+                  </p>
+                  <ul className="mt-1 list-disc space-y-1 pl-5 text-xs text-slate-600">
+                    {situacaoDoRegistroAtual.ausencias.map((ausencia, index) => (
+                      <li key={index}>
+                        <span className="font-mono">{ausencia.campo}</span>: {ausencia.motivo}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {situacaoDoRegistroAtual.situacao === 'disponivel' && (
+                <p className="mt-1 text-sm text-slate-700">Registro completo para esta geração.</p>
+              )}
+              <p className="mt-2 text-xs text-slate-600">
+                Retenção somente por download: o sistema não grava este registro. Ele vale para o parecer apresentado e deixa de estar
+                disponível ao gerar outro parecer, trocar a execução exibida ou recarregar a página. O arquivo pode conter dados dos respondentes enviados ao
+                modelo; revise antes de compartilhar.
+              </p>
+              {exportacao && registroAtual && exportacao.idDaGeracao === registroAtual.identificacao.idDaGeracao && (
+                <p
+                  className={`mt-2 text-sm ${exportacao.resultado === 'erro' ? 'font-semibold text-red-700' : 'text-slate-800'}`}
+                  role={exportacao.resultado === 'erro' ? 'alert' : 'status'}
+                >
+                  {exportacao.resultado === 'erro' ? `Falha ao exportar o registro: ${exportacao.texto}` : exportacao.texto}
+                </p>
+              )}
             </div>
           )}
 

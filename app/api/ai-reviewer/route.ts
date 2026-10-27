@@ -36,6 +36,13 @@ import { toReviewValidationContract } from '@/lib/ai-reviewer/review-validation-
 import { getRAGSemanticDiagnosticado } from '@/lib/rag/semantic-retrieve';
 import { VERSAO_CONTRATO_SEMANTICO, type DiagnosticoConsulta } from '@/lib/rag/diagnostico';
 import type { RetrievedChunk } from '@/lib/rag/upstash-client';
+import { randomUUID } from 'node:crypto';
+import {
+  clonarParaRegistro,
+  copiaSegura,
+  montarRegistroDaExecucao,
+  type CapturaDaGeracao,
+} from '@/lib/ai-reviewer/registro-da-execucao';
 
 // ============================================================
 // VERCEL FUNCTION CONFIG
@@ -625,7 +632,7 @@ function normalizeRequest(rawData: any): ReviewRequest {
 
 async function generateReview(
   data: ReviewRequest
-): Promise<{ review: string; semanticStats: SemanticStats }> {
+): Promise<{ review: string; semanticStats: SemanticStats; captura: CapturaDaGeracao }> {
   console.log('[AI-REVIEWER] sensitivityInflections recebido:', JSON.stringify(data.sensitivityInflections));
 
   const client = new Anthropic({
@@ -636,6 +643,9 @@ async function generateReview(
   // A "BASE DE CONHECIMENTO CIENTÍFICO" é montada pelas quatro seções abaixo.
   // A função permanece em `./knowledge` — decidir o destino dela é outra tarefa.
   const criticalRefs = getCriticalRefs();
+  // Registro de execução: as referências críticas que ENTRAM no prompt (as oito primeiras), numa variável só, para que o
+  // texto interpolado e o conteúdo registrado saiam do mesmo valor.
+  const criticalRefsInjetadas = criticalRefs.slice(0, 8);
   const crRefs = getRefsByTopic('consistência');
   const bocrRefs = getRefsByTopic('BOCR');
   const sensibilityRefs = getRefsByTopic('sensibilidade');
@@ -649,6 +659,8 @@ async function generateReview(
   // Feature flag USE_RAG_SEMANTIC controla execução real.
   // Quando OFF, retorna { chunks: [], stats: EMPTY_SEMANTIC_STATS } sem custo.
   const { chunks: semanticChunks, stats: semanticStats } = await getSemanticChunks();
+  // Registro de execução: o bloco semântico formatado UMA vez; o prompt o interpola e o registro o guarda.
+  const blocoSemantico = formatSemanticChunks(semanticChunks);
   if (semanticStats.enabled) {
     console.log(
       `[AI-REVIEWER] RAG semantic: ${semanticStats.queriesRan} queries -> ` +
@@ -1139,7 +1151,7 @@ Fundamento: ${ref.rule}
 
 ## Referências Críticas Adicionais (Alta Prioridade)
 
-${criticalRefs.slice(0, 8).map(ref => `
+${criticalRefsInjetadas.map(ref => `
 **${ref.citation}** - *${ref.topic}*
 Fundamento: ${ref.rule}
 `).join('\n')}
@@ -1158,7 +1170,7 @@ ${ragBenchmarks}
 
 ## Evidências Semânticas Recuperadas (RAG Vetorial)
 
-${formatSemanticChunks(semanticChunks)}
+${blocoSemantico}
 
 ---
 
@@ -1330,17 +1342,51 @@ Elabore agora a revisão de validação científica.`;
   // Ref: docs/RAG_DECISIONS.md v3 §2.3
   // Breaking changes do Opus 4.7 (temperature/top_p/top_k removidos, prompts mais literais)
   // inviáveis pré-defesa; Opus 4.6 é o sweet spot transitional model.
-  const message = await client.messages.create({
+  const parametrosDaChamada: Anthropic.MessageCreateParamsNonStreaming = {
     model: MODEL_CONFIG.id,
     max_tokens: MODEL_CONFIG.maxTokens,
     thinking: MODEL_CONFIG.thinking,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: userPrompt }],
-  });
+  };
+  // Registro de execução: cópia do objeto EXATO que o SDK recebe, tirada antes da chamada (o que se registra é o que foi
+  // enviado, e não uma reconstrução), e o instante de início/término da invocação.
+  const parametrosRegistrados = clonarParaRegistro(parametrosDaChamada);
+  const inicioDaChamada = new Date();
+  const message = await client.messages.create(parametrosDaChamada);
+  const terminoDaChamada = new Date();
 
   const textContent = message.content.find((block) => block.type === 'text');
   const review = textContent && 'text' in textContent ? textContent.text : '';
-  return { review, semanticStats };
+  const captura: CapturaDaGeracao = {
+    inicioDaChamada,
+    terminoDaChamada,
+    parametros: parametrosRegistrados as CapturaDaGeracao['parametros'],
+    respostaDoProvedor: message,
+    contexto: clonarParaRegistro({
+      estatico: {
+        consistencia: crRefs,
+        bocr: bocrRefs,
+        sensibilidade: sensibilityRefs,
+        criticasAdicionais: criticalRefsInjetadas,
+        limiaresPublicados: ragThresholds,
+        formulasBocr: ragBOCRFormulas,
+        benchmarks: ragBenchmarks,
+      },
+      semantico: {
+        consultasConfiguradas: [...RAG_SEMANTIC_QUERIES],
+        parametros: {
+          topKPorConsulta: RAG_SEMANTIC_TOPK_PER_QUERY,
+          maximoPorArtigo: RAG_SEMANTIC_MAX_PER_ARTICLE,
+          totalFinal: RAG_SEMANTIC_FINAL_TOPK,
+        },
+        estatisticas: semanticStats,
+        trechos: semanticChunks.map((c) => ({ id: c.id, score: c.score, metadata: { ...c.metadata } })),
+        textoInjetadoNoPrompt: blocoSemantico,
+      },
+    }),
+  };
+  return { review, semanticStats, captura };
 }
 
 // ============================================================
@@ -1398,8 +1444,15 @@ export async function POST(request: NextRequest) {
   try {
     const rawData = await request.json();
     console.log(`${LOG_PREFIX} Payload recebido`);
+    // Registro de execução: SOB PEDIDO da requisição (`incluirRegistroDaExecucao: true`, que a tela sempre envia). Sem o pedido a
+    // resposta é a de antes, byte a byte. As cópias da entrada saem aqui, antes de qualquer normalização ou uso.
+    const registroSolicitado = rawData?.incluirRegistroDaExecucao === true;
+    const idDaGeracao = registroSolicitado ? randomUUID() : null;
+    const entradaRecebida = registroSolicitado ? copiaSegura(rawData) : null;
 
     const data = normalizeRequest(rawData);
+    // Registro de execução: cópia dos dados normalizados, tirada antes de a geração e a validação os usarem.
+    const entradaNormalizada = registroSolicitado ? copiaSegura(data) : null;
     console.log(`${LOG_PREFIX} Avaliação de qualidade: ${data.avaliacaoDeQualidade?.estado} (${data.avaliacaoDeQualidade?.fonte})`);
     console.log(`${LOG_PREFIX} Dados normalizados - bocrWeights:`, JSON.stringify(data.bocrWeights));
 
@@ -1416,7 +1469,7 @@ export async function POST(request: NextRequest) {
     console.log(`${LOG_PREFIX} Classificação:`, classification);
 
     console.log(`${LOG_PREFIX} Iniciando chamada à API Anthropic...`);
-    const { review, semanticStats } = await generateReview(data);
+    const { review, semanticStats, captura } = await generateReview(data);
     console.log(`${LOG_PREFIX} Revisão gerada com sucesso!`, review.substring(0, 100) + '...');
 
     // ANTI-ALUCINAÇÃO: Validação pós-geração
@@ -1464,7 +1517,7 @@ export async function POST(request: NextRequest) {
       console.log(`${LOG_PREFIX} ⚠️ Nenhum padrão de nota ou veredicto reconhecido no texto do parecer simulado: nota e veredicto ficam nulos, sem valor automático substituto`);
     }
 
-    return NextResponse.json({
+    const corpo = {
       success: true,
       nota: finalNota,
       veredicto: finalVeredicto,
@@ -1511,7 +1564,55 @@ export async function POST(request: NextRequest) {
         },
         debug: debugInfo
       },
-    });
+    };
+
+    // Registro de execução, SOB PEDIDO. ⚠ Montado a partir do que foi capturado no ponto da chamada real e do PRÓPRIO corpo que
+    // sai (`corpo`): texto, validação e metadados do registro são os desta mesma resposta. Vai em `metadata`, que a tela já repassa
+    // inteiro ao parecer apresentado. Falha ao montar NÃO derruba o parecer (já gerado e validado): a resposta declara o registro
+    // indisponível e o motivo, e a tela mostra isso. Não há registro parcial silencioso.
+    if (registroSolicitado && idDaGeracao !== null && entradaRecebida !== null && entradaNormalizada !== null) {
+      try {
+        const registro = montarRegistroDaExecucao({
+          idDaGeracao,
+          versaoDaApi: API_VERSION,
+          ambiente: {
+            commit: process.env.VERCEL_GIT_COMMIT_SHA,
+            idDaImplantacao: process.env.VERCEL_DEPLOYMENT_ID,
+            ambienteDaImplantacao: process.env.VERCEL_ENV,
+          },
+          entradaRecebida: entradaRecebida.copia,
+          entradaNormalizada: entradaNormalizada.copia,
+          falhasDeSnapshot: [
+            ...(entradaRecebida.falha === null
+              ? []
+              : [{ campo: 'entrada.recebidaPelaApi', motivo: `A cópia da entrada recebida falhou: ${entradaRecebida.falha}` }]),
+            ...(entradaNormalizada.falha === null
+              ? []
+              : [{ campo: 'entrada.normalizada', motivo: `A cópia dos dados normalizados falhou: ${entradaNormalizada.falha}` }]),
+          ],
+          chamada: {
+            provedor: 'anthropic',
+            inicio: captura.inicioDaChamada,
+            termino: captura.terminoDaChamada,
+            parametros: captura.parametros,
+            resposta: captura.respostaDoProvedor,
+          },
+          contexto: captura.contexto,
+          respostaDaRota: corpo,
+        });
+        Object.assign(corpo.metadata, { registroDaExecucao: registro });
+        console.log(
+          `${LOG_PREFIX} Registro da execução ${idDaGeracao} montado: ` +
+          `${registro.completude.completo ? 'completo' : `incompleto (${registro.completude.ausencias.length} ausência(s))`}`
+        );
+      } catch (erroDoRegistro: any) {
+        const motivo = `Falha ao montar o registro da execução ${idDaGeracao}: ${erroDoRegistro?.message ?? String(erroDoRegistro)}`;
+        Object.assign(corpo.metadata, { registroDaExecucao: null, registroDaExecucaoIndisponivel: { motivo } });
+        console.error(`${LOG_PREFIX} ${motivo}`);
+      }
+    }
+
+    return NextResponse.json(corpo);
 
   } catch (error: any) {
     const stackLines = (error.stack || '').split('\n').slice(0, 20).join('\n');
