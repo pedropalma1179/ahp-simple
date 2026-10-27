@@ -20499,6 +20499,59 @@ Não se usou a variação da suíte como critério de aceite: os critérios fora
 
 ---
 
+## Registro de 27/10/2026 (UTC), terceira etapa do Ajuste 1: a decisão de `calculateGrade`, a linha «% que atende» e o trecho de IPC do `system`
+
+⚠ **Este bloco nasce ANTES da alteração do `system-prompt.ts`, e a seção «Predições» é a predição.** Hora do registro: 27/10/2026, 19:0x UTC. Os resultados entram depois, na seção «Resultados», sem alterar as predições. Código, testes e registro seguem no *working tree*, **sem commit** (o pedido proíbe commit, push, implantação e chamada real ao modelo): a ordem «predição antes do código» é a das operações da sessão, e **o git não a comprova**.
+
+### A. Decisão confirmada pelo autor
+
+**`calculateGrade`: a retirada da classificação automática está CONFIRMADA** (27/10/2026), **preservados os bloqueios por ausência, incompletude e contradição dos dados**. Deixa de ser «decisão pendente do autor»: a seção 6 («O que continua em aberto»), item 4, da segunda etapa fica **superada**. O que se conserva é medido: a chamada de elegibilidade é a de `bcb6bdb`, e os 21 casos bloqueados e os controles de `portao-da-classificacao.test.ts` seguem como a guarda. **Nada em `calculateGrade` muda nesta etapa.**
+
+### B. O que se examinou antes de editar o `system` (medido nesta execução)
+
+**O cálculo efetivamente usado** (leitura do código e `git grep` em `*.ts`/`*.tsx`, fora de testes, `scripts/` e do corpus):
+1. A rota de cálculo **rejeita** a resposta que não tem todos os pares de todas as matrizes (`app/api/calculate/route.ts:806`, `checkResponseCompleteness`), e **lança erro** se a PCM agregada vier incompleta (`calculateWeightsGroup`, linhas ~191–213: «não há caminho para matriz incompleta»). A finalização do questionário também exige completude par a par (`app/avaliacao/[projectId]/page.tsx:932`).
+2. Os pesos vêm do **autovetor principal** da matriz completa, e o CR, do motor (`principalEigenvector`, `engineConsistency`); a agregação é por média geométrica célula a célula (AIJ). O módulo `lib/respondent-weights.ts` diz que o ramo LLSM saiu (A.21).
+3. **Nenhum código de produção completa matriz por transitividade, IPC ou LLSM.** O `git grep` por `transitiv`, `a_ik`, `completar matriz`, `impute` e `fillMissing` não achou caminho algum; as menções a IPC que restam são comentários, textos e bibliografia (ver abaixo).
+4. As **quatro** células de CR zero do painel (R03/SUB-O, R09/SUB-B, R09/SUB-O, R12/SUB-B, esta com o resíduo −3,97e−16) vêm de matrizes 5×5 com **10 de 10 julgamentos do respondente**, com valores não uniformes (por exemplo, R03/SUB-O: 1, 1/5, 1/5, 1/5, 1/5, 1/5, 1/5, 1, 1, 1). Nenhuma foi «completada».
+5. O contexto que o modelo recebe já traz o portão de completude como **propriedade do percurso de cálculo, e não conferência desta execução** (`vinculo-execucao.ts:1321`, dentro do bloco do vínculo). ⚠ Só aparece quando o bloco do vínculo aparece; por isso o `system` não pode afirmar «toda resposta desta execução é completa», que seria mais forte que o contexto.
+
+**Ocorrências de IPC/LLSM no `system`, classificadas** (uma a uma, antes de decidir):
+
+| Linha | Texto | Classe | Decisão |
+|---|---|---|---|
+| 52, 59, 60 | cabeçalho «Agregação, Consistência e IPC:» e os resumos de Bozóki (2010) e Harker (1987) | **descrição da literatura**, correta; não afirma uso no estudo | **não altera** (é a lista do que se pode citar) |
+| 101 | «❌ Afirmar que IPC invalida os resultados — Bozóki et al. (2010) demonstram…» | regra sobre um enunciado da literatura; não afirma nada sobre o instrumento | **não altera** |
+| 102 | «❌ Sugerir que todas as comparações devem ser obrigatoriamente completas — Harker (1987) e Saaty & Ozdemir (2003) justificam comparações incompletas…» | **ambígua**: lida literalmente, pode impedir o parecer de descrever o fato de que ESTE instrumento só aceita respostas completas | **altera** (S4) |
+| 324 | «4. CR individual: distribuição → % que atende Saaty (1977)…» | **ambígua**: o «%» não declara o denominador (pessoas ou matrizes), e a «distribuição» e a taxa de pessoas foram retiradas do contexto | **altera** (S3) |
+| 325 | «5. Respondentes com CR > 0.20: listar…» | **ambígua**: com o contexto novo há seis CRs, a média e o máximo por respondente, e «o CR do respondente» não diz qual. O limiar 0.20 é publicado (Saaty & Ergu, 2015, no RAG e na linha 43) | **altera** (S3b), sem limiar novo |
+| 401–409 | DIRETRIZ 4, «CR = 0% em contexto IPC» | **incorreta para este instrumento**: condiciona-se a «o estudo tiver declarado uso de IPC» e a «metadados IPC do sistema», que o contexto não traz; e explica o zero como «matriz completada por transitividade», o que, nas quatro células de CR zero acima, é **falso** (10 de 10 julgamentos do respondente) | **reescreve** (S5) |
+| 449 | checklist 4, «CR = 0% + IPC: … verifiquei se foi gerado por IPC…» | **incorreta**, pelo mesmo motivo; e incondicional | **altera** (S6) |
+
+**Fora do `system`, vistos e NÃO alterados** (não fazem parte do pedido; ficam como achado): `app/avaliacao/[projectId]/page.tsx:2557` e `:2735` dizem ao respondente que, «graças ao método de comparação incompleta (IPC), o número mínimo necessário é de 42» das 72 e que as demais são «complementares — responda se quiser aumentar a precisão», **o que contradiz o portão de finalização** (linha 932), que exige as 72. Comentários e rótulos de IPC em `app/api/calculate/route.ts` (cabeçalho, «IPC AWARE», «=== IPC METADATA ===» vazio), `lib/aggregation.ts:79,106` (que ainda ignora julgamento pulado, mas `calculate` rejeita a resposta incompleta antes), `lib/types.ts` (campos de «pulado») e a bibliografia de IPC em `lib/knowledge.ts` (corpus, que o pedido manda não alterar).
+
+### C. Predições (escritas antes de editar o `system-prompt.ts`)
+
+A alteração prevista tem **cinco pontos**, e só eles: **S3** (item 4 da linha 324), **S3b** (item 5 da linha 325), **S4** (linha 102), **S5** (DIRETRIZ 4 inteira: título, corpo, ressalvas e formato padrão) e **S6** (item 4 do checklist, linha 449). O texto de cada um está fixado em `scratchpad/ajuste1c/substituicoes-etapa3.py` e foi aplicado, **em memória**, ao `system` capturado depois da segunda etapa, para derivar os valores abaixo.
+
+**P-IPC-1 (o `system` é exatamente o previsto).** O `system` renderizado pela rota real passa de `d56267e90f98bd5e474b2e2b2a823bf544e28cecb6e0186780fd074945f8f5da` (34073 bytes, 440 linhas) para **`0d8bc15eecac50fcd5d19cc1fc7c20543f89735f22b3bb94fd5fef8707fbb441`, 34924 bytes (delta +851), 438 linhas**. Desfeitas as substituições da terceira etapa, o hash volta a `d56267e9…`; desfeitas as das duas etapas, a `f3f2410c…`. *Caso negativo:* qualquer outro `sha256` ou tamanho (a edição tocou mais ou menos que os cinco pontos).
+
+**P-IPC-2 (as ocorrências-alvo somem; as de controle ficam).** No `system`, contagens antes → depois: `% que atende` 1 → **0**; `Respondentes com CR > 0.20` 1 → **0**; `contexto IPC` 1 → **0**; `metadados IPC` 1 → **0**; `CR = 0% + IPC` 1 → **0**; `gerado por IPC` 1 → **0**; `Motivo: no método IPC` 1 → **0**; `completadas por transitividade` 1 → **0**; `Sugerir que todas as comparações` 1 → **0**; `IPC` 10 → **6** (as que restam são as de literatura, a negação da DIRETRIZ 4 e o item 4 do checklist); `LLSM` 2 → **3**; **controles que permanecem:** `Primeiro tratamento formal de IPC no AHP` 1 → **1**; `Afirmar que IPC invalida os resultados` 1 → **1**; `Matrizes incompletas: unicidade, LLSM, grafo conectado` 1 → **1**; `Agregação, Consistência e IPC:` 1 → **1**; `CR > 0.20 não confiável` 1 → **1**; `abaixo do limiar` 2 → **2**. *Caso negativo:* qualquer destes números diferente (em especial um controle que mude: a edição teria tocado a lista do que se pode citar).
+
+**P-IPC-3 (nenhum limiar, autor ou critério novo).** Os textos novos citam só autores que o `system` já cita e o limiar de 0.10 e o de 0.20 que ele já tem; **não há** limiar, categoria de respondente ou autor novo, e não há número de painel no texto (nenhum «47», «72», «12»). *Caso negativo:* algum número de painel, algum autor ou limiar novo no texto acrescentado.
+
+**P-IPC-4 (o pedido ao modelo não muda).** Para o caso fixo, o `messages` continua com 79335 bytes e `sha256` `febe6783e0d7bced66e662cbb65109db04f765c255d20f932b828a6b53475c06`, e `notaSuspensa` continua `null`. *Caso negativo:* qualquer mudança no `messages`.
+
+**P-IPC-5 (o que reprova por construção).** Reprovam os testes que fixam o `system` pelo auxiliar `helpers/system-do-ajuste-1.ts` (que será atualizado por medição, com os dois valores antigos nomeados) e o teste `P-SP-2`, que fixava `% que atende Saaty (1977)` = 1: os 13 de antes (`a12-nota-veredicto-fase2` 7, `consistencia-individual-rota` 3, `rag-semantic-states` 1, `f07-entrada-do-modelo` 1, `a12-estatisticas-dimensao` 1). **Desta vez a lista foi feita lendo quem importa o auxiliar e quem lê o hash de arquivo de base, e não só o literal.** Os dois artefatos regeneráveis ficam nas **mesmas 6**. *Caso negativo:* reprovar qualquer outro teste, ou menos de 13.
+
+**P-IPC-6 (a saída real, que este ajuste NÃO mede).** *Predição para a próxima geração real:* se a linha 324 e a DIRETRIZ 4 eram canais que levavam o modelo a (a) dar um percentual de **pessoas** que atendem o limiar, e (b) explicar um CR 0,00% por IPC ou «matriz completada», o texto real **não** fará nenhuma das duas coisas e dirá «N de M matrizes». *Caso negativo:* se fizer qualquer uma, há outro canal (candidatos nomeados desde já: os trechos de RAG de Bozóki que o `messages` traz sobre IPC, e o viés do modelo), e a hipótese está refutada. **Nenhum mock a confirma ou refuta**; fica **não avaliada** até a geração real, e uma geração que não faça isso não prova que a causa era o `system`.
+
+### D. Os testes
+
+Medição ao fim: `npx tsc --noEmit`, `npm test` e `npm run build`. **Não** se usa a variação da suíte como critério. Se restarem **só** as seis reprovações dos artefatos regeneráveis, cada uma será conferida **individualmente** (nome, arquivo e causa), e a sequência de commits e de regravação será **preparada, e não executada**.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
