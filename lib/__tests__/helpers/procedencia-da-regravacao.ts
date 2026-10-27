@@ -33,6 +33,14 @@
  *                      colchetes balanceados: `codigo[app/decisor/[projectId]/page.tsx]`);
  *   - `a[3]`           índice de array;
  *   - `a[]`, `a[1..4]` ABREVIAÇÕES: todos os elementos, e a faixa fechada. Só as entradas ANTIGAS as usam.
+ *
+ * ⚠ **PERDAS DECLARADAS (a regra aceita só o que é declarado, caminho a caminho).** Até a entrada 16, uma regravação não podia perder nenhum
+ * campo (`camposPerdidos` tinha de ser 0 medido). Uma mudança que RETIRA conteúdo de propósito (o Ajuste 1 retirou do contexto do modelo a
+ * distribuição de qualidade por categoria de pessoa, e com ela os marcadores que o artefato registrava) não cabia nessa regra. Agora uma
+ * entrada NOVA pode declarar perdas: `camposPerdidos` é o número medido, e `perdasDeclaradas` lista, UMA A UMA, `{ caminho, motivo, valorAnterior }`.
+ * O escritor confere a declaração nos dois sentidos contra o git: perda medida e NÃO declarada recusa; perda declarada que NÃO se perdeu recusa;
+ * perda sem motivo, repetida, ou com `valorAnterior` diferente do HEAD recusa; e a contagem tem de fechar. As entradas ANTIGAS seguem exigindo 0
+ * e NÃO podem declarar perda. O histórico não se reescreve (a lista anterior tem de estar intacta).
  */
 
 import { execFileSync } from 'node:child_process';
@@ -233,6 +241,31 @@ export function resumoDosCaminhos(artefato: unknown, caminhoDaLista: string, apa
   return sha256(caminhos.sort().join('\n'));
 }
 
+/**
+ * O resumo do conjunto de caminhos da versão ANTERIOR, RECONSTRUÍDO a partir da versão nova e das entradas novas: tira as folhas das entradas
+ * de índice >= `apartirDe`, tira os campos NOVOS que as entradas novas declaram (os de `camposRegravados` sem `valorAnterior`: não existiam) e
+ * acrescenta as perdas que elas declaram. Sem campo novo e sem perda, é igual a `resumoDosCaminhos`. É o que permite conferir, sem git, que o
+ * que se diz novo e perdido é TUDO o que mudou no conjunto de caminhos.
+ */
+export function resumoDosCaminhosAnteriores(artefato: unknown, caminhoDaLista: string, apartirDe: number, entradasNovas: any[]): string {
+  const prefixo = `${caminhoDaLista}[`;
+  const novos = new Set<string>();
+  const perdidos = new Set<string>();
+  for (const e of entradasNovas) {
+    const ant = e?.valorAnterior && typeof e.valorAnterior === 'object' ? e.valorAnterior : {};
+    for (const c of Array.isArray(e?.camposRegravados) ? e.camposRegravados : []) if (!Object.prototype.hasOwnProperty.call(ant, c)) novos.add(c);
+    for (const p of Array.isArray(e?.perdasDeclaradas) ? e.perdasDeclaradas : []) if (typeof p?.caminho === 'string') perdidos.add(p.caminho);
+  }
+  const caminhos = [...folhas(artefato).keys()].filter(p => {
+    if (novos.has(p)) return false;
+    if (!p.startsWith(prefixo)) return true;
+    const indice = Number(p.slice(prefixo.length, p.indexOf(']', prefixo.length)));
+    return !(indice >= apartirDe);
+  });
+  for (const p of perdidos) caminhos.push(p);
+  return sha256(caminhos.sort().join('\n'));
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Conferência das entradas
 // ─────────────────────────────────────────────────────────────────────────────
@@ -257,6 +290,55 @@ export function violacoesDaLista(lista: any[], opcoes: { commitDaBaseOriginal?: 
   if (opcoes.commitDaBaseOriginal !== undefined) {
     for (const b of bases) if (b === opcoes.commitDaBaseOriginal) v.push(`uma base de regravação é igual ao commitDaBase histórico ${opcoes.commitDaBaseOriginal}`);
   }
+  return v;
+}
+
+/** Os campos de uma perda declarada, e só eles. */
+const CHAVES_DE_UMA_PERDA = ['caminho', 'motivo', 'valorAnterior'];
+export const MOTIVO_MINIMO_DA_PERDA = 30;
+
+/**
+ * As exigências sobre as PERDAS de uma entrada NOVA, que não dependem do git: `camposPerdidos` é um inteiro não negativo; zero não traz
+ * declaração; acima de zero, `perdasDeclaradas` tem exatamente esse número de itens, cada um com caminho, motivo (mínimo 30 caracteres) e
+ * `valorAnterior`, sem repetir caminho e sem chave estranha. A conferência contra o HEAD (perda medida = perda declarada, e o `valorAnterior` de
+ * cada uma) está em `medirRegravacao`.
+ */
+export function violacoesDasPerdas(e: any, rotulo: string): string[] {
+  const v: string[] = [];
+  const n = e?.camposPerdidos;
+  if (typeof n !== 'number' || !Number.isInteger(n) || n < 0) {
+    v.push(`${rotulo}: camposPerdidos é ${JSON.stringify(n)}, e tem de ser um inteiro não negativo (o número medido de campos perdidos)`);
+    return v;
+  }
+  const decl = e?.perdasDeclaradas;
+  if (n === 0) {
+    if (decl !== undefined && !(Array.isArray(decl) && decl.length === 0)) v.push(`${rotulo}: camposPerdidos é 0, mas perdasDeclaradas traz item: perda declarada sem perda medida`);
+    return v;
+  }
+  if (!Array.isArray(decl) || decl.length === 0) {
+    v.push(`${rotulo}: camposPerdidos é ${n}, e perdasDeclaradas está ausente ou vazio: toda perda tem de ser declarada, caminho a caminho, com o seu motivo`);
+    return v;
+  }
+  if (decl.length !== n) v.push(`${rotulo}: camposPerdidos é ${n}, mas perdasDeclaradas declara ${decl.length}`);
+  const vistos = new Set<string>();
+  decl.forEach((p: any, i: number) => {
+    if (p === null || typeof p !== 'object' || Array.isArray(p)) {
+      v.push(`${rotulo}: perdasDeclaradas[${i}] não é um objeto { caminho, motivo, valorAnterior }`);
+      return;
+    }
+    const c = p.caminho;
+    const nome = typeof c === 'string' && c.trim() !== '' ? JSON.stringify(c) : `de índice ${i}`;
+    if (typeof c !== 'string' || c.trim() === '') v.push(`${rotulo}: perdasDeclaradas[${i}] não tem caminho`);
+    else {
+      if (vistos.has(c)) v.push(`${rotulo}: perdasDeclaradas repete o caminho ${JSON.stringify(c)}`);
+      vistos.add(c);
+    }
+    if (typeof p.motivo !== 'string' || p.motivo.trim().length < MOTIVO_MINIMO_DA_PERDA) {
+      v.push(`${rotulo}: a perda ${nome} está sem motivo, ou o motivo é curto demais (mínimo ${MOTIVO_MINIMO_DA_PERDA} caracteres)`);
+    }
+    if (!Object.prototype.hasOwnProperty.call(p, 'valorAnterior')) v.push(`${rotulo}: a perda ${nome} não traz valorAnterior (o valor que existia no HEAD)`);
+    for (const k of Object.keys(p)) if (!CHAVES_DE_UMA_PERDA.includes(k)) v.push(`${rotulo}: a perda ${nome} traz a chave ${JSON.stringify(k)}, que não é caminho, motivo nem valorAnterior`);
+  });
   return v;
 }
 
@@ -288,7 +370,12 @@ export function violacoesDaEntrada(e: any, medicao: unknown, o: { comando: strin
     else if (!r.existe) v.push(`${rotulo}: o caminho ${JSON.stringify(c)} NÃO existe no artefato`);
     else if (o.estrita && !r.exato) v.push(`${rotulo}: o caminho ${JSON.stringify(c)} não é uma folha exata (${r.container ? 'é um container, isto é, genérico' : 'usa abreviação ou não está na notação canônica'})`);
   }
-  if (typeof e?.camposPerdidos !== 'number' || e.camposPerdidos !== 0) v.push(`${rotulo}: camposPerdidos é ${JSON.stringify(e?.camposPerdidos)}, e tem de ser 0 medido`);
+  if (o.estrita) v.push(...violacoesDasPerdas(e, rotulo));
+  else {
+    // as entradas ANTIGAS: nenhuma perda, e nenhuma declaração de perda
+    if (typeof e?.camposPerdidos !== 'number' || e.camposPerdidos !== 0) v.push(`${rotulo}: camposPerdidos é ${JSON.stringify(e?.camposPerdidos)}, e tem de ser 0 medido`);
+    if (e?.perdasDeclaradas !== undefined) v.push(`${rotulo}: uma entrada antiga não declara perdas (perdasDeclaradas); só as entradas novas podem`);
+  }
   if (o.estrita) {
     const ant = e?.valorAnterior;
     const nov = e?.valorNovo;
@@ -375,7 +462,14 @@ export function medirRegravacao(a: ArgumentosDaRecusa): MedicaoDaRegravacao {
 
   // 2. A diferença MEDIDA, fora da própria lista de procedência.
   const diferenca = diferencaDeFolhas(anterior, a.novo, [lista]);
-  if (diferenca.perdidas.length > 0) v.push(`campos PERDIDOS em relação ao HEAD: ${diferenca.perdidas.join(', ')}`);
+  // 2.1 As PERDAS: a regra aceita só o que a entrada nova declara, nos dois sentidos. Sem entrada nova válida, nada está declarado.
+  const declaradasComoPerdidas: any[] =
+    entradaNova && listaNova.length === nAnterior + 1 && Array.isArray(entradaNova.perdasDeclaradas) ? entradaNova.perdasDeclaradas : [];
+  const caminhosDeclarados = new Set<string>(declaradasComoPerdidas.map(p => p?.caminho).filter((c): c is string => typeof c === 'string'));
+  const perdidasSemDeclarar = diferenca.perdidas.filter(p => !caminhosDeclarados.has(p));
+  const declaradasSemPerda = [...caminhosDeclarados].filter(p => !diferenca.perdidas.includes(p));
+  if (perdidasSemDeclarar.length > 0) v.push(`campos PERDIDOS em relação ao HEAD: ${perdidasSemDeclarar.join(', ')}`);
+  if (declaradasSemPerda.length > 0) v.push(`perdas DECLARADAS que NÃO se perderam em relação ao HEAD: ${declaradasSemPerda.join(', ')}`);
 
   if (entradaNova && listaNova.length === nAnterior + 1) {
     // 3. A âncora e a forma da entrada.
@@ -397,6 +491,13 @@ export function medirRegravacao(a: ArgumentosDaRecusa): MedicaoDaRegravacao {
       const antes = folhasAntes.get(p);
       const decl = entradaNova.valorAnterior && Object.prototype.hasOwnProperty.call(entradaNova.valorAnterior, p) ? JSON.stringify(entradaNova.valorAnterior[p]) : undefined;
       if (antes !== decl) v.push(`valorAnterior de ${p} é ${decl ?? 'ausente'}, e o HEAD tem ${antes ?? 'ausente'}`);
+    }
+    // 4.1 O valorAnterior de cada PERDA declarada é o que existia no HEAD (o conteúdo retirado fica registrado na entrada).
+    for (const p of declaradasComoPerdidas) {
+      if (typeof p?.caminho !== 'string' || !Object.prototype.hasOwnProperty.call(p, 'valorAnterior')) continue;
+      const antes = folhasAntes.get(p.caminho);
+      if (antes === undefined) continue; // não existia no HEAD: já apontado acima como «declarada que não se perdeu»
+      if (JSON.stringify(p.valorAnterior) !== antes) v.push(`valorAnterior da perda ${p.caminho} é ${JSON.stringify(p.valorAnterior)}, e o HEAD tem ${antes}`);
     }
   }
 

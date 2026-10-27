@@ -13,6 +13,10 @@
  *     o bloco lança; com entrada correspondente o arquivo é gravado; e sem a variável de ambiente o bloco não faz
  *     nada (nem chama a guarda).
  *
+ *   - as PERDAS DECLARADAS (Ajuste 1, quarta etapa): a regra aceita só a perda que a entrada nova declara, caminho a caminho, com motivo e
+ *     `valorAnterior`; recusa a perda adicional, a declaração incorreta (que não se perdeu, que nunca existiu, com valor errado) e a sem motivo;
+ *     as entradas ANTIGAS seguem sem perda e sem declaração; e o histórico segue intocável.
+ *
  * ⚠ **O QUE ESTE ARQUIVO NÃO DEMONSTRA.**
  *   - que o `motivo` de uma entrada seja verdadeiro (é texto);
  *   - que a regravação REAL dos dois artefatos esteja certa: isso é a comparação campo a campo medida na entrega,
@@ -220,7 +224,7 @@ const git = (dir: string, ...args: string[]) =>
  * Um repositório temporário com o artefato SINTÉTICO no caminho e na forma de cada escritor, e um arquivo de
  * "código" commitado. `forma` diz onde fica a lista (`diag`: identificacao.procedenciaDasRegravacoes; `rastr`: no topo).
  */
-function repo(forma: 'diag' | 'rastr') {
+function repo(forma: 'diag' | 'rastr', extra: Record<string, unknown> = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'f07-a8-'));
   temporarios.push(dir);
   git(dir, 'init', '-q');
@@ -232,8 +236,8 @@ function repo(forma: 'diag' | 'rastr') {
   const lista = [entrada(1), entrada(2)];
   const codigo = { 'src/a.ts': sha(fs.readFileSync(path.join(dir, 'src/a.ts'))) };
   const base: any = forma === 'diag'
-    ? { identificacao: { commitDaBase: ORIGINAL, procedenciaDasRegravacoes: lista, codigo }, campo1: { valor: 1 }, campo2: 'texto', grupo: { a: 1, b: 2 } }
-    : { identificacao: { codigo }, procedenciaDasRegravacoes: lista, campo1: { valor: 1 }, campo2: 'texto', grupo: { a: 1, b: 2 } };
+    ? { identificacao: { commitDaBase: ORIGINAL, procedenciaDasRegravacoes: lista, codigo }, campo1: { valor: 1 }, campo2: 'texto', grupo: { a: 1, b: 2 }, ...copia(extra) }
+    : { identificacao: { codigo }, procedenciaDasRegravacoes: lista, campo1: { valor: 1 }, campo2: 'texto', grupo: { a: 1, b: 2 }, ...copia(extra) };
   fs.mkdirSync(path.dirname(path.join(dir, artefato)), { recursive: true });
   fs.writeFileSync(path.join(dir, artefato), JSON.stringify(base, null, 2) + '\n');
   git(dir, 'add', '-A');
@@ -321,6 +325,177 @@ describe.each(['diag', 'rastr'] as const)('A8: a recusa, repositório sintético
     recusa(r.novoCorreto());
     const n = r.novoCorreto(); delete n.campo2; recusa(n);
     expect(fs.readFileSync(path.join(r.dir, r.artefato)).equals(antes)).toBe(true);
+  });
+});
+
+// ═════════════════════════════════════════════════════════════════════════════
+// PERDAS DECLARADAS: a regra aceita só o que a entrada nova declara, caminho a caminho
+// ═════════════════════════════════════════════════════════════════════════════
+
+const MOTIVO_DA_PERDA = 'conteudo retirado de proposito: o contexto deixou de trazer esta informacao';
+
+describe.each(['diag', 'rastr'] as const)('A8, perdas declaradas, repositório sintético na forma de «%s»', forma => {
+  const r = repo(forma);
+  const recusa = (novo: any) => { try { P.exigirProcedenciaCorrespondente(r.args(novo)); return null; } catch (e: any) { return String(e.message); } };
+  const perda = (caminho: string, valorAnterior: unknown, motivo = MOTIVO_DA_PERDA) => ({ caminho, motivo, valorAnterior });
+  /** A regravação correta que, além de mudar `campo1.valor`, RETIRA `campo2` e declara a perda. */
+  const comPerda = () => {
+    const n = r.novoCorreto();
+    delete n.campo2;
+    const e = r.doObjeto(n)[2];
+    e.camposPerdidos = 1;
+    e.perdasDeclaradas = [perda('campo2', 'texto')];
+    return n;
+  };
+
+  test('ACEITA a perda expressamente declarada (caminho, motivo e valorAnterior), e a medição diz o que se perdeu', () => {
+    const m = P.exigirProcedenciaCorrespondente(r.args(comPerda()));
+    expect(m.violacoes).toEqual([]);
+    expect(m.diferenca).toEqual({ mudadas: ['campo1.valor'], novas: [], perdidas: ['campo2'] });
+    expect(m.entradaNova.perdasDeclaradas).toEqual([perda('campo2', 'texto')]);
+  });
+
+  test('CONTROLE: a MESMA retirada, sem declarar, continua recusada com a mensagem de sempre (a regra não afrouxou)', () => {
+    const n = r.novoCorreto();
+    delete n.campo2;
+    expect(recusa(n)).toMatch(/campos PERDIDOS em relação ao HEAD: campo2/);
+  });
+
+  test.each([
+    // ── perda ADICIONAL (medida e não declarada)
+    ['perda ADICIONAL: duas perdidas, uma declarada', (n: any) => { delete n.grupo.b; }, /campos PERDIDOS em relação ao HEAD: grupo\.b[^,]*(\n|$)/],
+    ['perda ADICIONAL: a declarada some e outra é perdida em lugar dela', (n: any) => { n.campo2 = 'texto'; delete n.grupo.a; }, /campos PERDIDOS em relação ao HEAD: grupo\.a/],
+    // ── declaração INCORRETA
+    ['declara perda de campo que EXISTE (não se perdeu)', (n: any) => { const e = r.doObjeto(n)[2]; e.camposPerdidos = 2; e.perdasDeclaradas.push(perda('grupo.a', 1)); }, /perdas DECLARADAS que NÃO se perderam em relação ao HEAD: grupo\.a/],
+    ['declara perda de campo que NUNCA existiu', (n: any) => { const e = r.doObjeto(n)[2]; e.camposPerdidos = 2; e.perdasDeclaradas.push(perda('campo9', 'x')); }, /perdas DECLARADAS que NÃO se perderam em relação ao HEAD: campo9/],
+    ['declara o caminho errado (a perdida é outra)', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas = [perda('campo3', 'texto')]; }, /(campos PERDIDOS em relação ao HEAD: campo2[\s\S]*perdas DECLARADAS que NÃO se perderam em relação ao HEAD: campo3|perdas DECLARADAS que NÃO se perderam em relação ao HEAD: campo3[\s\S]*campos PERDIDOS em relação ao HEAD: campo2)/],
+    ['valorAnterior da perda diferente do HEAD', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas = [perda('campo2', 'errado')]; }, /valorAnterior da perda campo2 é "errado", e o HEAD tem "texto"/],
+    ['perda sem valorAnterior', (n: any) => { delete r.doObjeto(n)[2].perdasDeclaradas[0].valorAnterior; }, /não traz valorAnterior/],
+    ['camposPerdidos MAIOR que as declaradas', (n: any) => { r.doObjeto(n)[2].camposPerdidos = 2; }, /camposPerdidos é 2, mas perdasDeclaradas declara 1/],
+    ['camposPerdidos MENOR que as declaradas', (n: any) => { const e = r.doObjeto(n)[2]; e.perdasDeclaradas.push(perda('grupo.a', 1)); }, /camposPerdidos é 1, mas perdasDeclaradas declara 2/],
+    ['camposPerdidos zero, com perda declarada', (n: any) => { r.doObjeto(n)[2].camposPerdidos = 0; }, /camposPerdidos é 0, mas perdasDeclaradas traz item/],
+    ['camposPerdidos sem a lista', (n: any) => { delete r.doObjeto(n)[2].perdasDeclaradas; }, /perdasDeclaradas está ausente ou vazio/],
+    ['camposPerdidos com a lista vazia', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas = []; }, /perdasDeclaradas está ausente ou vazio/],
+    ['camposPerdidos negativo', (n: any) => { r.doObjeto(n)[2].camposPerdidos = -1; }, /inteiro não negativo/],
+    ['camposPerdidos fracionário', (n: any) => { r.doObjeto(n)[2].camposPerdidos = 1.5; }, /inteiro não negativo/],
+    ['camposPerdidos em texto', (n: any) => { r.doObjeto(n)[2].camposPerdidos = '1'; }, /camposPerdidos é "1", e tem de ser um inteiro não negativo/],
+    // ── motivo AUSENTE
+    ['motivo ausente', (n: any) => { delete r.doObjeto(n)[2].perdasDeclaradas[0].motivo; }, /a perda "campo2" está sem motivo/],
+    ['motivo curto', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas[0].motivo = 'retirado'; }, /a perda "campo2" está sem motivo, ou o motivo é curto demais \(mínimo 30 caracteres\)/],
+    ['motivo só com espaços', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas[0].motivo = ' '.repeat(40); }, /sem motivo, ou o motivo é curto/],
+    ['motivo que não é texto', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas[0].motivo = 12345; }, /sem motivo, ou o motivo é curto/],
+    // ── forma
+    ['perda sem caminho', (n: any) => { delete r.doObjeto(n)[2].perdasDeclaradas[0].caminho; }, /perdasDeclaradas\[0\] não tem caminho/],
+    ['caminho repetido', (n: any) => { const e = r.doObjeto(n)[2]; e.camposPerdidos = 2; e.perdasDeclaradas.push(perda('campo2', 'texto')); }, /perdasDeclaradas repete o caminho "campo2"/],
+    ['chave estranha na perda', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas[0].porque = 'x'; }, /traz a chave "porque"/],
+    ['item que não é objeto', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas = ['campo2']; }, /perdasDeclaradas\[0\] não é um objeto/],
+    // ── a perda declarada não pode ser, ao mesmo tempo, campo regravado (ela não existe mais no artefato)
+    ['o mesmo caminho declarado como regravado e como perdido', (n: any) => { const e = r.doObjeto(n)[2]; e.camposRegravados.push('campo2'); e.valorNovo['campo2'] = 'texto'; e.valorAnterior['campo2'] = 'texto'; }, /NÃO existe no artefato/],
+    // ── o HISTÓRICO segue intocável, com ou sem perda declarada
+    ['histórico ALTERADO, mesmo com perda declarada corretamente', (n: any) => { r.doObjeto(n)[0].motivo = 'motivo reescrito depois, com texto suficientemente longo'; }, /foi ALTERADA em relação ao HEAD/],
+    ['perda declarada numa entrada ANTIGA (o histórico não se reescreve)', (n: any) => { r.doObjeto(n)[1].perdasDeclaradas = [perda('campo2', 'texto')]; r.doObjeto(n)[1].camposPerdidos = 1; }, /a entrada de índice 1 \(ordem 2\) foi ALTERADA em relação ao HEAD/],
+  ])('RECUSA: %s', (_n, mutar: (n: any) => void, padrao) => {
+    const n = comPerda();
+    mutar(n);
+    const msg = recusa(n);
+    expect(msg).not.toBeNull();
+    expect(msg).toMatch(/^REGRAVACAO RECUSADA/);
+    expect(msg).toMatch(padrao);
+    expect(msg).toMatch(/Nada foi escrito\.$/);
+  });
+
+  test('a perda declarada NÃO aceita a perda adicional mesmo quando a declarada está certa: só a adicional é apontada', () => {
+    const n = comPerda();
+    delete n.grupo.b;
+    const msg = recusa(n) as string;
+    expect(msg).toMatch(/campos PERDIDOS em relação ao HEAD: grupo\.b\n/);
+    expect(msg).not.toMatch(/campos PERDIDOS em relação ao HEAD: [^\n]*campo2/);
+    expect(msg).not.toMatch(/perdas DECLARADAS que NÃO se perderam/);
+    expect(msg).toMatch(/2 perdido\(s\)\. Nada foi escrito\.$/);
+  });
+
+  test('a guarda continua sem escrever: o artefato em disco é o mesmo antes e depois, com perda declarada aceita ou recusada', () => {
+    const antes = fs.readFileSync(path.join(r.dir, r.artefato));
+    P.exigirProcedenciaCorrespondente(r.args(comPerda()));
+    const n = comPerda(); delete n.grupo.b; recusa(n);
+    expect(fs.readFileSync(path.join(r.dir, r.artefato)).equals(antes)).toBe(true);
+  });
+});
+
+describe('A8, perdas declaradas: as entradas ANTIGAS não perdem nada e não declaram perda', () => {
+  const medicao = { campo1: { valor: 'novo' } };
+  const antiga = (extra: Record<string, unknown> = {}) => ({ ...entradaAntiga(4), camposRegravados: ['campo1.valor'], ...extra });
+  const checa = (e: any) => P.violacoesDaEntrada(e, medicao, { comando: COMANDO, estrita: false });
+  test('uma entrada antiga com camposPerdidos 0 e sem declaração passa', () => expect(checa(antiga())).toEqual([]));
+  test('camposPerdidos diferente de zero reprova (como antes)', () => expect(checa(antiga({ camposPerdidos: 1 })).join('\n')).toMatch(/camposPerdidos é 1, e tem de ser 0 medido/));
+  test('perdasDeclaradas numa entrada antiga reprova, mesmo vazia ou bem formada', () => {
+    expect(checa(antiga({ perdasDeclaradas: [] })).join('\n')).toMatch(/uma entrada antiga não declara perdas/);
+    expect(checa(antiga({ camposPerdidos: 1, perdasDeclaradas: [{ caminho: 'x', motivo: MOTIVO_DA_PERDA, valorAnterior: 1 }] })).join('\n')).toMatch(/uma entrada antiga não declara perdas/);
+  });
+});
+
+describe('A8, perdas declaradas: vetores que ENCURTAM ou ESVAZIAM (o caso real do Ajuste 1)', () => {
+  // antes: um vetor de 4 que vira de 2; um vetor vazio que ganha um elemento (o vazio era a folha, e some); um campo novo.
+  const extra = { vetor: ['a', 'b', 'c', 'd'], vazio: [] as string[] };
+  const r = repo('diag', extra);
+  const recusa = (novo: any) => { try { P.exigirProcedenciaCorrespondente(r.args(novo)); return null; } catch (e: any) { return String(e.message); } };
+  const perda = (caminho: string, valorAnterior: unknown) => ({ caminho, motivo: 'vetor encurtado de proposito: a informacao deixou de ser registrada', valorAnterior });
+  const novoVetores = () => {
+    const n = r.novoCorreto();
+    n.vetor = ['x', 'y'];
+    n.vazio = ['q'];
+    const e = r.doObjeto(n)[2];
+    e.camposRegravados = ['campo1.valor', 'vetor[0]', 'vetor[1]', 'vazio[0]'];
+    e.valorAnterior = { 'campo1.valor': 1, 'vetor[0]': 'a', 'vetor[1]': 'b' };
+    e.valorNovo = { 'campo1.valor': 2, 'vetor[0]': 'x', 'vetor[1]': 'y', 'vazio[0]': 'q' };
+    e.camposPerdidos = 3;
+    e.perdasDeclaradas = [perda('vetor[2]', 'c'), perda('vetor[3]', 'd'), perda('vazio', [])];
+    return n;
+  };
+
+  test('a medição vê 2 mudadas, 1 nova e 3 perdidas (o vazio que ganha elemento conta como perda do vazio)', () => {
+    const m = P.exigirProcedenciaCorrespondente(r.args(novoVetores()));
+    expect(m.diferenca).toEqual({ mudadas: ['campo1.valor', 'vetor[0]', 'vetor[1]'], novas: ['vazio[0]'], perdidas: ['vetor[2]', 'vetor[3]', 'vazio'] });
+    expect(m.violacoes).toEqual([]);
+  });
+
+  test.each([
+    ['declara só duas das três perdas', (n: any) => { const e = r.doObjeto(n)[2]; e.perdasDeclaradas.pop(); e.camposPerdidos = 2; }, /campos PERDIDOS em relação ao HEAD: vazio/],
+    ['declara o vazio com o valorAnterior errado', (n: any) => { r.doObjeto(n)[2].perdasDeclaradas[2].valorAnterior = ['x']; }, /valorAnterior da perda vazio é \["x"\], e o HEAD tem \[\]/],
+    ['esquece o campo NOVO em camposRegravados', (n: any) => { const e = r.doObjeto(n)[2]; e.camposRegravados.pop(); delete e.valorNovo['vazio[0]']; }, /campos que MUDARAM e a entrada não declara: vazio\[0\]/],
+  ])('RECUSA: %s', (_n, mutar: (n: any) => void, padrao) => {
+    const n = novoVetores();
+    mutar(n);
+    expect(recusa(n)).toMatch(padrao);
+  });
+
+  test('resumoDosCaminhosAnteriores: reconstrói o conjunto de caminhos da versão anterior a partir dos campos novos e das perdas declaradas', () => {
+    const v1 = { campo: 1, vetor: ['a', 'b', 'c', 'd'], vazio: [], lista: [{ o: 1 }, { o: 2 }] };
+    const entrada = {
+      o: 3,
+      camposRegravados: ['campo', 'vetor[0]', 'vetor[1]', 'vazio[0]', 'extra'],
+      valorAnterior: { campo: 1, 'vetor[0]': 'a', 'vetor[1]': 'b' },
+      valorNovo: { campo: 2, 'vetor[0]': 'x', 'vetor[1]': 'y', 'vazio[0]': 'q', extra: 1 },
+      camposPerdidos: 3,
+      perdasDeclaradas: [{ caminho: 'vetor[2]' }, { caminho: 'vetor[3]' }, { caminho: 'vazio' }],
+    };
+    const v2 = { campo: 2, vetor: ['x', 'y'], vazio: ['q'], extra: 1, lista: [{ o: 1 }, { o: 2 }, entrada] };
+    const alvo = P.resumoDosCaminhos(v1, 'lista', 2);
+    expect(P.resumoDosCaminhosAnteriores(v2, 'lista', 2, [entrada])).toBe(alvo);
+    // sem a regra nova, o conjunto de caminhos NÃO fecha (é o motivo de a regra existir)
+    expect(P.resumoDosCaminhos(v2, 'lista', 2)).not.toBe(alvo);
+    // perda NÃO declarada: não fecha
+    const semUma = { ...entrada, perdasDeclaradas: entrada.perdasDeclaradas.slice(0, 2), camposPerdidos: 2 };
+    expect(P.resumoDosCaminhosAnteriores(v2, 'lista', 2, [semUma])).not.toBe(alvo);
+    // perda declarada que NÃO era folha da versão anterior: não fecha
+    const inventada = { ...entrada, perdasDeclaradas: [...entrada.perdasDeclaradas, { caminho: 'inventado' }], camposPerdidos: 4 };
+    expect(P.resumoDosCaminhosAnteriores(v2, 'lista', 2, [inventada])).not.toBe(alvo);
+    // campo novo declarado como se já existisse (com valorAnterior): não fecha
+    const novoComoAntigo = { ...entrada, valorAnterior: { ...entrada.valorAnterior, extra: 0 } };
+    expect(P.resumoDosCaminhosAnteriores(v2, 'lista', 2, [novoComoAntigo])).not.toBe(alvo);
+    // sem novidade e sem perda, é igual a resumoDosCaminhos
+    const v3 = { campo: 9, lista: [{ o: 1 }, { o: 2 }, { o: 3 }] };
+    expect(P.resumoDosCaminhosAnteriores(v3, 'lista', 2, [{ o: 3, camposRegravados: ['campo'], valorAnterior: { campo: 1 }, valorNovo: { campo: 9 }, camposPerdidos: 0 }])).toBe(P.resumoDosCaminhos(v3, 'lista', 2));
   });
 });
 

@@ -1383,7 +1383,10 @@ describe('A8: a procedencia das regravacoes, conferida contra a medicao e contra
   test.each([
     ['contra a MEDICAO desta execucao', () => M],
     ['contra o artefato gravado', gravado],
-  ])('camposPerdidos e ZERO medido: o conjunto de caminhos, tirado o das entradas novas, e o da versao anterior: %s', (_n, alvo: any) => {
-    expect(P.resumoDosCaminhos(alvo(), CAMINHO_DA_LISTA.join('.'), ANCORA_DA_VERSAO_ANTERIOR.entradas)).toBe(ANCORA_DA_VERSAO_ANTERIOR.sha256DosCaminhos);
+  ])('camposPerdidos e o MEDIDO e DECLARADO: o conjunto de caminhos, tirado o das entradas novas e o dos campos novos, mais as perdas declaradas, e o da versao anterior: %s', (_n, alvo: any) => {
+    // ⚠ Perdas declaradas (Ajuste 1, quarta etapa): a regra deixou de exigir ZERO perdidos e passou a exigir que TODA perda e TODO campo novo estejam
+    //   declarados nas entradas novas. Sem campo novo e sem perda declarados, isto e o que o teste sempre mediu (`resumoDosCaminhos`).
+    const novas = PROCEDENCIA_DAS_REGRAVACOES.slice(ANCORA_DA_VERSAO_ANTERIOR.entradas);
+    expect(P.resumoDosCaminhosAnteriores(alvo(), CAMINHO_DA_LISTA.join('.'), ANCORA_DA_VERSAO_ANTERIOR.entradas, novas)).toBe(ANCORA_DA_VERSAO_ANTERIOR.sha256DosCaminhos);
   });
 });
