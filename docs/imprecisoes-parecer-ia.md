@@ -20495,7 +20495,7 @@ Não se usou a variação da suíte como critério de aceite: os critérios fora
 1. **Saída real.** P-SP-5 e P-CR-9 (H-CR-S) seguem **não avaliadas**. O item 1 da seção 7 do bloco anterior («H-CR-S, não corrigida») está **superado quanto ao texto do `system`**: as duas frases saíram. Continua em aberto se o parecer real deixa de repetir «1,1% a 9,6%» e «todos abaixo do limiar», e uma geração que não os repita **não prova** que o exemplo era a causa.
 2. **Os dois artefatos regeneráveis** seguem vermelhos (6 conferências). A regravação exige um commit com o código medido; o procedimento está na seção 6 do bloco anterior. **Não foi regravado**.
 3. **A linha 324 e a DIRETRIZ 4 do `system`**, acima.
-4. **Decisão do autor:** manter ou reverter a liberação da trava de `calculateGrade`, com o fato corrigido da seção 1(ii).
+4. ~~**Decisão do autor:** manter ou reverter a liberação da trava de `calculateGrade`, com o fato corrigido da seção 1(ii).~~ **SUPERADO em 27/10/2026 (terceira etapa, seção A): o autor CONFIRMOU a retirada da classificação automática, preservados os bloqueios.**
 
 ---
 
@@ -20549,6 +20549,117 @@ A alteração prevista tem **cinco pontos**, e só eles: **S3** (item 4 da linha
 ### D. Os testes
 
 Medição ao fim: `npx tsc --noEmit`, `npm test` e `npm run build`. **Não** se usa a variação da suíte como critério. Se restarem **só** as seis reprovações dos artefatos regeneráveis, cada uma será conferida **individualmente** (nome, arquivo e causa), e a sequência de commits e de regravação será **preparada, e não executada**.
+
+### Resultados (terceira etapa; as predições acima não foram alteradas)
+
+⚠ Continuam valendo os limites do bloco: **sem commit, sem push, sem implantação, sem chamada real ao modelo, sem escrita no Firestore**, e tudo o que se mede aqui é **contexto e portão**, e não o que o parecer escreveria. Ambiente: Linux x86_64, Node v22.22.0, base `bcb6bdbbf1e4013da890081a143afb2b449338d7` mais o *working tree*.
+
+#### 1. A decisão confirmada, e o que a guarda continua medindo
+
+`calculateGrade` **não foi tocado** nesta etapa. A guarda é a de antes: `portao-da-classificacao.test.ts` (28 testes: 21 condições bloqueadas, 5 controles que não bloqueiam, a contagem dos casos e a tabela sem decisão), as seis mutações do portão (M-G1 a M-G6) e a guarda de fonte do trecho em `a12-nota-veredicto-fase2.test.ts`. As mutações do portão **não foram reexecutadas** nesta etapa, porque `app/api/ai-reviewer/route.ts` e `lib/ai-reviewer/avaliacao-qualidade.ts` estão **idênticos** (`cmp`) ao estado da segunda etapa, onde foram medidas (22, 5, 14, 8, 0+2 e 1 reprovações); o portão e a sua guarda passam na suíte inteira.
+
+#### 2. As predições da terceira etapa contra a medição
+
+| Predição | Resultado | Medida |
+|---|---|---|
+| **P-IPC-1** o `system` é exatamente o previsto | **confirmada** | `0d8bc15eecac50fcd5d19cc1fc7c20543f89735f22b3bb94fd5fef8707fbb441`, **34924 bytes, 438 linhas**, igual **byte a byte** ao texto previsto em memória antes da edição (delta +851). Desfeitas as cinco substituições da terceira etapa, o hash volta a `d56267e9…` (34073); desfeitas as oito, a `f3f2410c…` (34170) |
+| **P-IPC-2** as ocorrências-alvo somem; as de controle ficam | **confirmada** | `% que atende` 1→0; `Respondentes com CR > 0.20` 1→0; `contexto IPC` 1→0; `metadados IPC` 1→0; `CR = 0% + IPC` 1→0; `gerado por IPC` 1→0; `Motivo: no método IPC` 1→0; `completadas por transitividade` 1→0; `Sugerir que todas as comparações` 1→0; `IPC` 10→6; `LLSM` 2→3. **Controles:** `Primeiro tratamento formal de IPC no AHP`, `Afirmar que IPC invalida os resultados`, `Matrizes incompletas: unicidade, LLSM, grafo conectado`, `Agregação, Consistência e IPC:` e `CR > 0.20 não confiável`: 1→1; `abaixo do limiar`: 2→2 |
+| **P-IPC-3** nada novo no texto acrescentado | **confirmada** | o texto acrescentado (8 linhas pelo `diff` contra a segunda etapa) não tem número de painel (`47`, `72`, `12`), categoria de pessoa, autor ou limiar que o `system` já não tivesse: só `0.10` e `0.20`, e Harker (1987), Saaty & Ozdemir (2003), Saaty & Ergu (2015), Saaty (1977), Saaty (1990) e Bozóki, Fülöp e Rónyai (2010), todos já presentes. O teste `P-IPC-3` isola a terceira etapa (`reverterEtapa3`) e tem controle de não-vacuidade |
+| **P-IPC-4** o pedido ao modelo não muda | **confirmada** | `messages` do caso fixo: **79335 bytes, `sha256` `febe6783…5c06`, idêntico**; `notaSuspensa: null` |
+| **P-IPC-5** o que reprova por construção | **parcialmente refutada** | com o `system` novo e os testes da segunda etapa, reprovaram **20** testes: os **6** dos artefatos e **14** que dependem do `system`: `a12-nota-veredicto-fase2` 7, `a12-estatisticas-dimensao` 1, `rag-semantic-states` 1, `f07-entrada-do-modelo` 1 e **`consistencia-individual-rota` 4**. Previ 13 (3 na rota). O quarto da rota é o detector da segunda etapa (`respondentes[^.\n]{0,40}(atendem\|abaixo do limiar)`), que **casou com o texto novo**: a linha 4 traz, entre aspas e como PROIBIÇÃO, «% de respondentes que atendem». Não foi defeito do texto: o detector procura afirmações, e a proibição não é uma. Foi **refinado** (exclui só a forma «% de respondentes que atendem»), com controle (ainda pega o `system` antigo reconstruído) e com a prova de que essa é a **única** ocorrência excluída |
+| **P-IPC-6** a saída real | **NÃO AVALIADA** | depende da próxima geração real; nenhum mock a mede |
+
+**Mutações no texto novo**, uma de cada vez, sobre os três arquivos que o medem (64 testes), com restauração conferida por `cmp`: **M-I1** devolver «com base nos metadados IPC do sistema» — **8** reprovam; **M-I2** devolver «% que atende Saaty (1977)» na linha 4 — **9**; **M-I3** trocar um «.» por «!» fora dos cinco pontos — **4**; **M-I4** pôr «47 de 72» no texto acrescentado — **7**.
+
+**O que cada ponto passou a dizer, no essencial.** (S3) A linha 4 é **por matriz**: manda copiar «N de M matrizes com CR > 0.10» do contexto, define M (respondentes enviados com CR recalculado × 6 matrizes não triviais; as vinte 2×2 ficam fora), proíbe converter a contagem em «% de respondentes que atendem» e manda dizer «não disponível» quando o contexto o diz. (S3b) O item 5 fixa a unidade: «respondentes com **alguma matriz** com CR > 0.20», com respondente, matriz e CR do contexto, sem classificar a pessoa; o limiar 0.20 já era o de Saaty & Ergu (2015). (S4) A regra sobre comparações completas distingue o **método** (a literatura não as exige) do **instrumento** (aceita somente respostas completas, propriedade do percurso de cálculo, nos termos do bloco do vínculo). (S5) A DIRETRIZ 4 deixa de explicar o CR 0,00% por IPC ou «matriz completada»: o sistema não completa comparações; o zero de ordem ≥ 3 é o valor calculado dos julgamentos do respondente; o de uma 2×2 é por construção. (S6) O item 4 do checklist acompanha.
+
+#### 3. As seis reprovações, uma a uma
+
+Medidas com o `system` final, na suíte inteira (`jest --json`): **63 suítes, 2290 testes, 2284 passam, 6 reprovam**, e as seis são estas, e só estas. **Nenhuma é causada pela mudança do `system`**: os seis motivos da coluna «Causa medida» não o citam, o `a12-diagnostico` não inventaria `system-prompt.ts` (a lista das 34 folhas mudadas não o traz), e o `bytesSystem` gravado em `a33-cadeia-rule` está defasado (34170 contra 34924) sem que nenhum teste o reprove (as outras 38 conferências do arquivo passam).
+
+| # | Arquivo | Teste | Causa medida | O que a regravação faz |
+|---|---|---|---|---|
+| 1 | `a33-cadeia-rule` | `RE2: o inventario gravado coincide com o medido agora` | a **única** linha diferente é `app/api/ai-reviewer/route.ts`: gravado `be3788e0…`, medido `f6391b9b…` | `A33_GRAVAR=1` regrava (ensaiado: 41 de 41 passam) |
+| 2 | `a33-cadeia-rule` | `complemento: os metadados historicos do artefato foram preservados` | o mesmo `sha256` de `route.ts` | idem |
+| 3 | `a33-cadeia-rule` | `complemento: cada regravacao registra procedencia PROPRIA, e a lista ACUMULA` | o mesmo `sha256` de `route.ts` | idem; ver a entrada de procedência no item 6 |
+| 4 | `a12-diagnostico` | `o artefato gravado coincide com a medicao atual` | o artefato guarda o contexto de antes: a medição atual difere em **34** folhas, traz **7** novas e **perde 4** | **recusada pelo escritor** (seção 4) |
+| 5 | `a12-diagnostico` | A8, `cada entrada NOVA e bem formada e ESTRITA … contra a MEDICAO desta execucao` | a entrada 16, já commitada, tem `valorNovo` de `route.ts` e `page.tsx` que não coincidem com a medição de hoje (`route.ts` e `page.tsx` mudaram depois da base dela) | avançar a âncora e acrescentar a entrada 17 (seção 4) |
+| 6 | `a12-diagnostico` | A8, `camposPerdidos e ZERO medido … contra a MEDICAO desta execucao` | o resumo do conjunto de caminhos, `08c9f7aa…` medido contra `bcd71a72…` na âncora: **os 7 caminhos novos e os 4 perdidos mudam o conjunto** | **recusada pelo escritor** (seção 4) |
+
+**O que isto confirma, e o que não.** Confirma que as seis reprovações são **desatualização do artefato ou da sua âncora** em relação ao código medido, e que nenhuma é regressão de comportamento: todas as outras 2284 passam. **Não confirma** que a regravação seja mecânica: para o `a12-diagnostico` não é (seção 4).
+
+#### 4. Achado: o escritor de `a12-diagnostico` RECUSA a regravação, e a recusa é medida
+
+Ensaiado em clone descartável (outro repositório, sem efeito neste), com o código já commitado: `A12_GRAVAR=1 npx jest --runInBand lib/__tests__/a12-diagnostico.test.ts` lança `REGRAVACAO RECUSADA`, por duas razões independentes:
+
+1. **A lista não tem a entrada nova**: «tem 16 entradas, e a regravação exige 17». Isto se resolve acrescentando a entrada de ordem 17, como nas dezesseis anteriores.
+2. **Campos PERDIDOS em relação ao HEAD: 4** — `quatroCasos[0].executadoAntesDaInterrupcao.marcadoresDePercentualEncontrados[2]` e `[3]`, e `quatroCasos[2]` e `quatroCasos[3]` … `.marcadoresDePercentualEncontrados` (estas duas são vetores que eram vazios e passam a ter elemento: a comparação por folha trata «vetor vazio» como folha que desaparece, o que é artefato da comparação). **Medido contra o HEAD: 34 campos mudados, 7 novos, 4 perdidos.** A regra do escritor é que **nenhum campo se perde** (`camposPerdidos` tem de ser `0`), e a entrada tem de citar **exatamente** os campos mudados e novos (41), cada um com `valorAnterior` e `valorNovo` conferidos contra o git. Os dois perdidos de verdade (`[2]` e `[3]` do caso 0) eram, no HEAD, as linhas de categoria da distribuição de qualidade que o teste procurava no contexto («- Respostas SUSPEITAS (0.15 < CR ≤ 0.20):» e «- Respostas CRÍTICAS (CR > 0.20):»; as duas primeiras, CONFIÁVEIS e REVISAR, são os `[0]` e `[1]`, que apenas **mudam de valor**): conteúdo que o Ajuste 1 **retirou de propósito**, e que o teste migrado passou a procurar com dois marcadores novos.
+
+O escritor atual não tem mecanismo para **declarar uma perda**. As dezesseis entradas anteriores têm de 0 a 7 campos e `camposPerdidos: 0`; esta seria a primeira com 41 campos e perda. **Há precedente do mesmo fenômeno:** a entrada 4 registrou que o mesmo vetor `marcadoresDePercentualEncontrados` «passou de QUATRO elementos a ZERO, e isso é MUDANÇA DE COMPORTAMENTO, não campo perdido» (`arraysEsvaziados`); mas essa entrada é **anterior** ao escritor que recusa (F07 A8), que não lê `arraysEsvaziados`. **Mudar o escritor para aceitar perda declarada é mudar o instrumento de integridade, e é decisão do autor.** Opções, em ordem de custo:
+
+- **(1) Perda declarada por caminho (a menor mudança, e coerente com o precedente da entrada 4).** A entrada passa a trazer `caminhosPerdidos` (lista exata, que cobre também os vetores encurtados ou esvaziados) e `motivoDaPerda`, e `camposPerdidos` passa a ser «igual ao medido e declarado» (as entradas antigas seguem exigindo 0). O escritor compara o declarado com o medido nos dois sentidos. O teste A8 do conjunto de caminhos passa a reconstruir o conjunto anterior a partir de «novos» (campos sem `valorAnterior`) e «perdidos» declarados. Toca `helpers/procedencia-da-regravacao.ts` e quatro testes A8. **Não ensaiado.**
+- **(2) Congelar `a12-diagnostico/medicao.json` como histórico** e medir o novo contexto num artefato novo, como as outras fases fizeram (`a12-nota-veredicto-fase2`, `a12-rastreabilidade`). Os três testes deixam de comparar o artefato antigo com a medição atual. Reclassifica o artefato de «referência regenerável» para «histórico», o que já foi decidido para outros.
+- **(3) Não registrar mais o que mede um construto removido** (`marcadoresDePercentualEncontrados`). Também «perde» o campo: não resolve sozinha.
+
+Recomendo a **(1)** pelo tamanho, mas só depois da sua decisão. Para o `a33-cadeia-rule` **não há** o impedimento: o escritor roda (41 de 41), e a mudança do artefato é de **7 folhas**: `identificacao.codigo[app/api/ai-reviewer/route.ts]` (`be3788e0…` → `f6391b9b…`), `bytesSystem` 34170 → **34924** nos três casos, e `bytesMessages` 72567 → **72518**, 71001 → **70952** e 71001 → **70952**. Zero perdidos, zero novos.
+
+#### 5. A sequência de commits e de regravação, preparada (não executada)
+
+Cada passo é um commit por natureza de mudança, com `git status --short` antes, `git add` por **caminho explícito** (nunca `-A`) e `git show --stat` depois (`CLAUDE.md` §4). Mensagens sem acento. Sem push.
+
+| # | Commit | Conteúdo | Estado esperado depois |
+|---|---|---|---|
+| 1 | `P1` docs: predições da etapa 1 | só `docs/imprecisoes-parecer-ia.md`: o documento do HEAD mais o bloco das predições P-CR (**66 linhas acrescentadas, nenhuma removida**) | 57 suítes, 2105 testes, todos passam |
+| 2 | `R1` etapa 1 | origem e transporte do CR (código, testes migrados e novos, contratos, inventário, resultados da etapa 1) | 62 suítes, 2257 testes, 6 reprovam |
+| 3 | `P2` docs: predições da etapa 2 | só o bloco das predições da etapa 2 (**62 linhas acrescentadas, nenhuma removida**) | idem |
+| 4 | `R2` etapa 2 | `system-prompt.ts` (3 pontos), auxiliar do `system`, `portao-da-classificacao.test.ts`, testes que fixam o `system`, resultados | 63 suítes, 2287 testes, 6 reprovam |
+| 5 | `P3` docs: predições da etapa 3 | só o bloco das predições da etapa 3 (**53 linhas acrescentadas, nenhuma removida**) | idem |
+| 6 | `R3` etapa 3 | `system-prompt.ts` (5 pontos), auxiliar, testes, resultados | 63 suítes, 2290 testes, 6 reprovam |
+| 7 | `G33` regravação de `a33-cadeia-rule` | entrada de procedência de ordem 14 (base = `R3`) e `A33_GRAVAR=1` | as 3 de `a33` passam; restam 3 |
+| 8 | `G12` regravação de `a12-diagnostico` | **bloqueado pela decisão da seção 4**; depois dela, entrada 17, âncora avançada para 16 entradas, `A12_GRAVAR=1` | 0 reprovações (63 suítes, 2290 testes) |
+
+**Ensaio da sequência**, num clone descartável (outro repositório, sem efeito neste), com `tsc` e a suíte inteira **em cada commit**, construído a partir dos três estados medidos do *working tree* (etapa 1, etapas 1 e 2, etapas 1 a 3):
+
+| Commit do ensaio | `tsc` | Suítes | Testes | Passam | Reprovam | Onde |
+|---|---|---|---|---|---|---|
+| `P1` | 0 | 57 | 2105 | 2105 | 0 | (a linha de base de `bcb6bdb`) |
+| `R1` | 0 | 62 | 2257 | 2251 | 6 | `a12-diagnostico` 3, `a33-cadeia-rule` 3 |
+| `P2` | 0 | 62 | 2257 | 2251 | 6 | idem |
+| `R2` | 0 | 63 | 2287 | 2281 | 6 | idem |
+| `P3` | 0 | 63 | 2287 | 2281 | 6 | idem |
+| `R3` | 0 | 63 | 2290 | 2284 | 6 | idem |
+| `G33` | 0 | 63 | 2290 | **2287** | **3** | só `a12-diagnostico` 3 |
+
+Cada commit é verde **exceto** pelas seis (depois, três) do impedimento, e nenhum commit intermediário introduz reprovação que o seguinte não tenha. O código e os testes do ensaio (`R3`) são **idênticos**, arquivo a arquivo, aos do *working tree* (32 caminhos fora de `docs/`, conferidos com `cmp`); só os textos de `docs/` diferem (as seções de resultados da terceira etapa e o inventário foram escritos depois do ensaio). Em `G33` entrou a entrada de procedência de ordem 14 de `a33-cadeia-rule` (base = `R3`, sete folhas regravadas, zero perdidas e zero novas) e o artefato regravado com `A33_GRAVAR=1`.
+
+⚠ **O que o git NÃO comprova.** Os commits `P1`, `P2` e `P3` são **acréscimos puros** (conferido com `git diff --numstat`: 66, 62 e 53 linhas, zero removidas) e contêm exatamente o texto das predições, mas são criados **depois** do código no *working tree*. A ordem «predição antes do código» é a das operações da sessão; o git, por construção, não a prova. Cada `R` é o estado inteiro do documento daquela etapa (as correções de registro que fiz nos blocos anteriores, como a do «suspenderia toda requisição», entram em `R2`, e não em `P2`).
+
+Os scripts que montam a sequência e a testam (`ensaio-sequencia.py`, `testa-commits.sh`) ficam no *scratchpad* da sessão, e não no repositório; quem executar a sequência real as repete com os caminhos explícitos de cada commit.
+
+#### 6. Achados fora do prompt (vistos, não alterados)
+
+1. **O questionário diz ao respondente o contrário do que o portão exige.** `app/avaliacao/[projectId]/page.tsx:2557` («Graças ao método de comparação incompleta (IPC), o número mínimo necessário é de 42») e `:2735` («42 das 72 comparações são obrigatórias … As demais são complementares — responda se quiser aumentar a precisão») convivem com `handleFinalizeSurvey` (linha 932), que **recusa a finalização sem as 72**. Texto voltado ao respondente; **não registrado como tarefa** em `docs/` (o `grep` não achou). Merece tarefa própria.
+2. Comentários e rótulos de IPC que ficaram em `app/api/calculate/route.ts` (cabeçalho, «IPC AWARE», «=== IPC METADATA ===» vazio) e a tolerância a julgamento pulado em `lib/aggregation.ts:79,106` (inofensiva, porque `calculate` rejeita antes a resposta incompleta). Os campos de «pulado» de `lib/types.ts`.
+3. A bibliografia de IPC em `lib/knowledge.ts` e o tópico `ipc` de `app/api/ai-reviewer/knowledge.ts` (corpus; o pedido manda não alterar). Os trechos de Bozóki sobre IPC continuam chegando ao `messages` pelo RAG; o `system` agora diz que o instrumento não usa IPC.
+4. A regra da linha 101 («Afirmar que IPC invalida os resultados») e a lista de literatura das linhas 52–60 ficaram: descrevem a literatura e não afirmam uso no estudo.
+5. `docs/SYSTEM_PROMPT_AUDIT_*.md` e `docs/GUIA-INTEGRACAO-HIBRIDO.md` são anteriores ao saneamento e não foram tocados.
+
+#### 7. Medições do conjunto
+
+| Verificação | Resultado [medido] |
+|---|---|
+| `npx tsc --noEmit` | sai **0** |
+| `npm test` | **sai 1**, com **63 suítes e 2290 testes: 2284 passam e 6 reprovam**, as seis da seção 3. Na segunda etapa: 2287 testes; a diferença de **+3** é `P-IPC-2` (2 testes) e `P-IPC-3` (1) |
+| `npm run build` | sai **0**, **18** páginas |
+
+Não se usou a variação da suíte como critério de aceite: os critérios foram P-IPC-1 a P-IPC-4, as mutações e a conferência individual das seis reprovações.
+
+#### 8. O que continua em aberto
+
+1. **Saída real.** P-IPC-6, P-SP-5 e P-CR-9 seguem **não avaliadas**.
+2. **Decisão do autor sobre a regravação de `a12-diagnostico`** (seção 4): opção 1, 2 ou 3, ou outra. Sem ela, restam 3 reprovações.
+3. **A tarefa do questionário** (seção 6, item 1).
+4. **Autorização de commit** para executar a sequência da seção 5.
 
 ---
 

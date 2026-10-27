@@ -513,6 +513,17 @@ medição de `35a1506`, à referência de F07 e a A.33 é que, desfeitas, o hash
 com o provedor simulado e mede, por condição (ausente, incompleto, inválido, duplicado, formato desconhecido, cache legado sem bloco e contraditório), que a
 classificação fica suspensa e que o texto do modelo não restabelece nota nem veredicto. ⚠ Todos medem **contexto e portão**; nenhum diz o que o modelo escreveria.
 
+### Ajuste 1, terceira etapa (27/10/2026): a linha «% que atende», o trecho de IPC e a decisão confirmada de `calculateGrade`
+
+`app/api/ai-reviewer/system-prompt.ts` mudou em **cinco pontos** (e só neles), além dos três da etapa anterior: o item 4 da análise de consistência (agora **por
+matriz**, com «N de M matrizes com CR > 0.10» e o denominador definido, sem percentual de pessoas), o item 5 (a unidade passa a ser a matriz), a regra das
+comparações completas (o **método** não as exige; **este instrumento** só aceita respostas completas), a DIRETRIZ 4 (o CR 0,00% é valor calculado dos julgamentos do
+respondente, e não efeito de IPC: o sistema não completa comparações) e o item 4 do checklist. O `system` renderizado passou de `d56267e9…` (34073 bytes) para
+`0d8bc15e…` (34924 bytes). `helpers/system-do-ajuste-1.ts` guarda os três estados e as oito substituições; `reverterEtapa3` e `reverterOsExemplos` as desfazem.
+`calculateGrade` **não foi tocado**: a retirada da classificação automática está confirmada pelo autor, e a guarda é `portao-da-classificacao.test.ts`. O que o cálculo
+efetivamente usa não mudou: matriz **completa**, autovetor principal, CR do motor e agregação por média geométrica; a rota de cálculo rejeita a resposta incompleta
+(`app/api/calculate/route.ts:806`) e nenhum código de produção completa matriz por transitividade, IPC ou LLSM.
+
 ### `lib/__tests__/fixtures/panel-2026.json`
 
 864 julgamentos anônimos, matrizes agregadas observadas, `altScores`, valores

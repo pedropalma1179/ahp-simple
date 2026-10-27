@@ -21,7 +21,7 @@ import { POST as QUALIDADE } from '@/app/api/response-quality/route';
 import { montarPedidoDoParecer } from '@/lib/ai-reviewer/montagem-do-pedido';
 import { verificarIntegridadeDoRegistro } from '@/lib/ai-reviewer/registro-da-execucao';
 import { REFERENCIA } from './helpers/referencia-cr-individuais';
-import { conferirSystemDeDepois, FRASES_RETIRADAS, reverterOsExemplos, SYSTEM_ESPERADO } from './helpers/system-do-ajuste-1';
+import { conferirSystemDeDepois, FRASES_RETIRADAS, reverterEtapa3, reverterOsExemplos, SYSTEM_ESPERADO } from './helpers/system-do-ajuste-1';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const fixture = require('./fixtures/panel-2026.json');
@@ -396,11 +396,11 @@ describe('o registro da execução é o que FOI enviado ao SDK', () => {
   });
 });
 
-describe('o `system` depois dos exemplos (H-CR-S, Ajuste 1 segunda etapa): só os três pontos mudaram, e as duas frases saíram', () => {
-  test('o `system` capturado é o MEDIDO depois da alteração, e desfeitas as três substituições volta a ser, byte a byte, o de antes (`f3f2410c…`, 34170 bytes)', async () => {
+describe('o `system` depois dos exemplos e do trecho de IPC (Ajuste 1, segunda e terceira etapas): só os pontos previstos mudaram, e as frases-alvo saíram', () => {
+  test('o `system` capturado é o MEDIDO depois da alteração; desfeitas as cinco substituições da terceira etapa volta a ser o da segunda (`d56267e9…`), e desfeitas as oito, o de antes (`f3f2410c…`), byte a byte', async () => {
     const { captura } = await executarCadeia(respostas(true));
-    // ⚠ ATUALIZADO POR MEDIÇÃO (predição P-SP-1): o valor ANTIGO é `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98`, e fica nomeado em
-    //   `helpers/system-do-ajuste-1.ts`. A segunda conferência é a que diz que NADA além dos três pontos mudou.
+    // ⚠ ATUALIZADO POR MEDIÇÃO (predições P-SP-1 e P-IPC-1): os valores ANTIGOS (`f3f2410c…`, 34170 bytes; `d56267e9…`, 34073 bytes) ficam nomeados em
+    //   `helpers/system-do-ajuste-1.ts`. As duas conferências de reversão dizem que NADA além dos pontos previstos mudou.
     expect(conferirSystemDeDepois(captura.system)).toEqual(SYSTEM_ESPERADO);
   });
 
@@ -412,20 +412,93 @@ describe('o `system` depois dos exemplos (H-CR-S, Ajuste 1 segunda etapa): só o
     }
     // o exemplo de D8 mantém a lição (verbo direto) com um sujeito que o contexto traz e que NÃO é o CR individual
     expect(captura.system).toContain('Exemplo correto: "o CR agregado atende o limiar"');
-    // CONTROLE (não-vacuidade): as duas frases «Todos os valores estão abaixo do limiar.» do exemplo de pontuação (sem sujeito de painel) NÃO eram alvo e ficam;
-    //   e a instrução de estrutura «% que atende Saaty (1977)» também fica, registrada como limite (denominador não declarado)
+    // CONTROLE (não-vacuidade): as duas frases «Todos os valores estão abaixo do limiar.» do exemplo de pontuação (sem sujeito de painel) NÃO eram alvo e ficam
     expect(ocorrencias(captura.system, 'abaixo do limiar')).toBe(2);
-    expect(ocorrencias(captura.system, '% que atende Saaty (1977)')).toBe(1);
+    // ATUALIZADO POR MEDIÇÃO (terceira etapa): a linha «% que atende Saaty (1977)», que a segunda etapa deixou como vizinho, foi esclarecida e SAIU (P-IPC-2)
+    expect(ocorrencias(captura.system, '% que atende Saaty (1977)')).toBe(0);
   });
 
   test('o CONTEXTO diz, com números, o que o exemplo não diz mais: 47 das 72 matrizes acima do limiar, e a lição de redação não afirma nada sobre os respondentes', async () => {
     const { captura } = await executarCadeia(respostas(true));
     expect(captura.messages).toContain('47 de 72');
     // o `system` não tem mais NENHUM enunciado de conformidade dos respondentes individuais com o limiar
-    const ENUNCIADO = /respondentes[^.\n]{0,40}(atendem|abaixo do limiar)/;
+    // ⚠ Detector REFINADO na terceira etapa, e a razão é dita: o texto novo da linha 4 traz, ENTRE ASPAS e como PROIBIÇÃO, a expressão «% de respondentes que atendem»
+    //   (o que o modelo NÃO deve produzir). O detector procura AFIRMAÇÕES, então o negativo de «% de » exclui só essa forma citada. O controle abaixo exige que o
+    //   detector ainda pegue o texto ANTIGO, e o sub-teste seguinte prova que a única ocorrência excluída é a proibição.
+    const ENUNCIADO = /(?<!% de )respondentes[^.\n]{0,40}(atendem|abaixo do limiar)/;
     expect(captura.system).not.toMatch(ENUNCIADO);
+    expect(captura.system.match(/respondentes[^.\n]{0,40}(atendem|abaixo do limiar)/g)).toEqual(['respondentes que atendem']);
+    expect(captura.system).toContain('Não converta a contagem em "% de respondentes que atendem"');
     // CONTROLE (não-vacuidade): o detector pega o `system` ANTIGO, reconstruído desfazendo as três substituições
     expect(reverterOsExemplos(captura.system)).toMatch(ENUNCIADO);
+  });
+
+  test('P-IPC-2: a linha de consistência individual é POR MATRIZ, com o denominador e o formato «N de M», e não pede percentual de pessoas', async () => {
+    const { captura } = await executarCadeia(respostas(true));
+    const itemDoSystem = captura.system.split('\n').find((l: string) => l.startsWith('4. CR individual, POR MATRIZ'));
+    expect(itemDoSystem).toBeDefined();
+    for (const trecho of [
+      'critério de aceitação de uma MATRIZ',
+      '"N de M matrizes com CR > 0.10"',
+      'M = respondentes enviados com CR recalculado × 6 matrizes não triviais: BOCR, Magnitude e os quatro blocos de subcritérios',
+      'as vinte matrizes de alternativas 2×2 ficam fora, porque o CR delas é zero por construção',
+      'Não converta a contagem em "% de respondentes que atendem" e não troque M pelo número de respondentes',
+      'Se o contexto disser que o CR individual não está disponível ou que as contagens não são apresentadas, diga isso e não estime',
+    ]) expect({ trecho, presente: (itemDoSystem as string).includes(trecho) }).toEqual({ trecho, presente: true });
+    // o item seguinte também fixa a UNIDADE: matriz, e não «o CR do respondente»
+    expect(captura.system).toContain('5. Respondentes com alguma matriz com CR > 0.20: listar o respondente, a matriz e o CR dela (valores do contexto, sem classificar a pessoa)');
+    // CONSISTÊNCIA com o contexto: o formato «N de M» e os 6 + 20 que o `system` manda copiar são os que o `messages` traz
+    expect(captura.messages).toContain('Matrizes com CR > 0.10 (limiar de aceitação por matriz, Saaty, 1977): 47 de 72');
+    expect(captura.messages).toContain('(12 respondentes × 6 matrizes não triviais: BOCR, MAGNITUDE, SUB-B, SUB-O, SUB-C, SUB-R)');
+    expect(captura.messages).toContain('As vinte matrizes de alternativas (2×2) ficam fora: o CR delas é zero por construção');
+  });
+
+  test('P-IPC-2: o trecho de IPC não manda explicar o CR zero por «matriz completada», e o controle da literatura permanece', async () => {
+    const { captura } = await executarCadeia(respostas(true));
+    const s = captura.system;
+    expect(s).toContain('### DIRETRIZ 4 — Interpretação de CR = 0%\n');
+    expect(s).toContain('o sistema NÃO completa comparações faltantes por transitividade, nem por IPC ou LLSM');
+    expect(s).toContain('não o atribua a IPC, a comparações completadas pelo sistema ou a artefato do método');
+    expect(s).toContain('(1) matriz 2×2 tem CR = 0 por construção, e esse zero não informa consistência');
+    expect(s).toContain('4. **CR = 0%:** se há CR = 0.00% em alguma matriz, relatei-o como valor calculado dos julgamentos do respondente');
+    // o `system` NÃO afirma mais que toda resposta desta execução é completa (o contexto só a declara como propriedade do percurso de cálculo)
+    expect(s).not.toContain('toda resposta é COMPLETA');
+    expect(s).toContain('propriedade do percurso de cálculo, nos termos do bloco do vínculo, quando o contexto o traz');
+    // regra das comparações completas: o MÉTODO não as exige; ESTE instrumento sim
+    expect(s).toContain('Sugerir que o MÉTODO AHP exige comparações obrigatoriamente completas');
+    expect(s).toContain('ESTE instrumento aceita somente respostas completas');
+    // CONTROLES: a descrição da literatura e as duas regras que NÃO eram alvo permanecem exatamente uma vez
+    for (const c of [
+      'Agregação, Consistência e IPC:',
+      'Matrizes incompletas: unicidade, LLSM, grafo conectado',
+      'Primeiro tratamento formal de IPC no AHP',
+      'Afirmar que IPC invalida os resultados',
+      'CR > 0.20 não confiável',
+    ]) expect({ c, n: ocorrencias(s, c) }).toEqual({ c, n: 1 });
+    // e o detector de «atribuir o zero a IPC» pega o texto ANTIGO, reconstruído desfazendo as substituições
+    const antigo = reverterOsExemplos(s);
+    expect(antigo).toContain('as comparações faltantes são completadas deterministicamente pela relação de transitividade');
+    expect(s).not.toContain('as comparações faltantes são completadas deterministicamente pela relação de transitividade');
+  });
+
+  test('P-IPC-3: nenhum número de painel, limiar, categoria ou autor NOVOS no texto acrescentado', async () => {
+    const { captura } = await executarCadeia(respostas(true));
+    // a TERCEIRA etapa, isolada: o `system` atual contra o da segunda etapa (desfeitas só as cinco substituições da terceira)
+    const antigo = reverterEtapa3(captura.system);
+    // o texto acrescentado = as linhas do `system` atual que não estão no da segunda etapa
+    const linhasAntigas = new Set(antigo.split('\n'));
+    const acrescentado = captura.system.split('\n').filter((l: string) => !linhasAntigas.has(l)).join('\n');
+    expect(acrescentado.length).toBeGreaterThan(500); // controle de não-vacuidade: há texto acrescentado
+    for (const painel of ['47', '72 ', ' 72', '12 respondentes', 'CRÍTIC', 'CONFIÁVEL', 'REVISAR', 'SUSPEIT']) {
+      expect({ painel, presente: acrescentado.includes(painel) }).toEqual({ painel, presente: false });
+    }
+    // os autores citados no texto acrescentado já estavam no `system` antigo
+    for (const autor of ['Harker (1987)', 'Saaty & Ozdemir (2003)', 'Saaty & Ergu (2015)', 'Saaty (1977)', 'Saaty, 1990', 'Bozóki, Fülöp e Rónyai (2010)']) {
+      if (acrescentado.includes(autor)) expect({ autor, noAntigo: antigo.includes(autor) }).toEqual({ autor, noAntigo: true });
+    }
+    // limiares: só 0.10 e 0.20 (ambos já no `system` antigo)
+    const limiares = new Set((acrescentado.match(/CR (?:>|≤|<) ?0[.,]\d+/g) ?? []).map((x: string) => x.replace(/\s/g, '')));
+    expect([...limiares].sort()).toEqual(['CR>0.10', 'CR>0.20']);
   });
 
   // ⚠ LIMITE (P-SP-5, saída real NÃO avaliada): os três testes acima medem o TEXTO do `system`, e não o que o modelo escreverá. Nenhum mock confirma ou
