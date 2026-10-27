@@ -20378,6 +20378,68 @@ Contexto da `a12-nota-veredicto-fase2` fora da trava: a parte da cadeia que só 
 
 ---
 
+## Registro de 27/10/2026 (UTC), segunda etapa do Ajuste 1: a direção da contagem, os exemplos do `system` e o portão
+
+⚠ **Este bloco nasce ANTES da alteração do `system-prompt.ts`, e é a predição.** Hora do registro: 27/10/2026, 17:2x UTC. Os resultados serão acrescentados abaixo, na seção «Resultados», sem alterar a seção das predições. Código, testes e registro seguem no *working tree*, **sem commit** (o pedido proíbe commit, push, implantação e chamada real ao modelo): a ordem «predição antes do código» é a das operações da sessão, e **o git não a comprova**.
+
+### A. A divergência «47 de 72 dentro do limite» contra «47 de 72 acima do limite»
+
+**Origem do erro, medida.** A frase «47 de 72 matrizes (65,3%) ficam **dentro** do limiar de 0,10» saiu **do meu relato final ao usuário**, e não do código, dos testes, do contexto nem dos documentos. Medido: nos documentos (o `git diff` dos três), nos testes (`git grep` do 47) e no contexto capturado, o 47 aparece **sempre** como «acima»; no código, a contagem usa `>` (`lib/consistencia-individual.ts:224` e `lib/ai-reviewer/consistencia-individual-contexto.ts:177`). O erro foi de direção na redação do relato; os números estavam certos.
+
+**Os quatro caminhos, medidos agora, sobre as mesmas 72 células (12 respondentes × 6 matrizes não triviais):**
+
+| Caminho | Origem | Acima de 0,10 | Dentro (≤ 0,10) | Total | Respondentes com ao menos uma acima |
+|---|---|---|---|---|---|
+| 1. tabela de referência | `docs/referencia-cr-individuais.md` §2, lida do `.md` por um script (e não do helper de teste) | **47** | 25 | 72 | 12 de 12 |
+| 2. recálculo pelo módulo | `consistenciaIndividualDeJulgamentos` sobre os 864 julgamentos de `fixtures/panel-2026.json` | **47** | 25 | 72 | 12 de 12 |
+| 3. contexto enviado ao modelo | `messages` capturado no SDK pela rota real, com o código atual (79335 bytes, `sha256` `febe6783…5c06`), linha 86: «Matrizes com CR > 0.10 (…): 47 de 72 (65.3%)»; linhas 129–134, «acima de 0.10»: 8 + 10 + 4 + 5 + 10 + 10 | **47** | (não escrito) | 72 | 12 de 12 |
+| 4. recálculo INDEPENDENTE | iteração de potência escrita à parte, sem importar nada do repositório (só o JSON do fixture), `RI(4)=0,90`, `RI(5)=1,12`, com a semântica de `favors` lida do dado | **47** | 25 | 72 | (não computado) |
+
+**Conferência das células que decidem a contagem** (as que estão a menos de 1,5 ponto percentual do limiar), no caminho 4 contra a tabela: R01/SUB-C 11,389 contra 11,39 (acima); R02/SUB-B 9,069 contra 9,07 (dentro); R04/SUB-O 9,445 contra 9,44 (dentro); R04/SUB-R 10,347 contra 10,35 (**acima**); R07/BOCR 9,362 contra 9,36 (dentro); R07/SUB-C 9,564 contra 9,56 (dentro); R08/SUB-R 10,273 contra 10,27 (**acima**); R09/SUB-C 9,678 contra 9,68 (dentro); R10/SUB-O 8,798 contra 8,80 (dentro); R11/SUB-O 11,137 contra 11,14 (acima). **Maior diferença entre o caminho independente e a tabela, nas 72 células: 0,005 ponto percentual** (o arredondamento da tabela). **Nenhuma célula muda de lado.**
+
+**O que isto estabelece e o que não estabelece.** Os quatro caminhos concordam em **47 acima e 25 dentro**. Os caminhos 2 e 4 usam o mesmo conjunto de julgamentos; o 4 não usa o motor, e por isso é a conferência de que o motor não erra a classificação em nenhuma das 72 células. **Não estabelece** que os julgamentos do fixture sejam os do Firestore de produção (o fixture é a cópia do painel de 2026 usada pelas tabelas publicadas; **não** foi comparado com a produção, que esta etapa não consulta).
+
+**Predição sobre o instrumento, e o caso negativo.** O teste novo `A DIREÇÃO da contagem` (`consistencia-individual-contexto.test.ts`) deve **reprovar** se a comparação do módulo (`v > LIMIAR`) ou a do resumo do contexto (`x > LIMIAR`) for invertida para `<=`. *Caso negativo:* o teste passar com qualquer das duas inversões. (O que fica sem teste: a **frase do relato**, que não é código.)
+
+### B. Os exemplos do `system` (H-CR-S): predição antes da alteração
+
+**Medição do escopo** (`git grep` no repositório rastreado, `*.ts`/`*.tsx`, sem o corpus; e o `system` renderizado capturado pela rota real). Padrões: `9,6%`, `1,1% e`, `todos os 12 respondentes`, `12 respondentes (individuais) apresentam/atendem`, `abaixo do limiar`, `atendem o limiar`. Resultado: **8 ocorrências em 4 linhas, todas em `app/api/ai-reviewer/system-prompt.ts`**, e nenhuma em outro arquivo de código. Classificação, uma a uma:
+
+| Linha | Texto | Classe |
+|---|---|---|
+| 267 | `Exemplo correto: "todos os 12 respondentes atendem o limiar"` (par da regra D8, verbos diretos) | **ALVO.** Afirma, como modelo de boa redação, que os 12 respondentes atendem o limiar; o recálculo dá 47 de 72 matrizes acima de 0,10 e 12 de 12 respondentes com ao menos uma |
+| 295 | `Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar.` (exemplo «CORRETO» integral) | **ALVO.** É a faixa do cache diluído que A.25 desmente (recalculado: governante de 11,39% a 109,27%) |
+| 207 e 208 | `Todos os valores estão abaixo do limiar.` (exemplo de pontuação depois de citação) | **vizinho, outra causa.** Sem sujeito de painel e sem número; ensina a pontuação, e não uma conclusão sobre respondentes. **Não alterado** |
+| 324 | `4. CR individual: distribuição → % que atende Saaty (1977) → impacto na agregação` | **vizinho, outra causa.** É instrução de estrutura, não exemplo; o «% que atende» não declara o denominador (pessoas ou matrizes). **Não alterado**; registrado como limite (seção «Resultados», item 3) |
+
+**A alteração prevista (e só esta), em `system-prompt.ts`:**
+- **S1**, linhas 266–267: `"configura conformidade integral da amostra"` passa a `"configura conformidade integral do CR agregado"`, e `"todos os 12 respondentes atendem o limiar"` passa a `"o CR agregado atende o limiar"`. A lição de D8 (verbo direto) se mantém; o sujeito passa a ser o CR agregado, que o contexto traz (1,06%, e as quatro sub-hierarquias abaixo de 0,10) e que **não** é o CR individual.
+- **S2**, linha 295: sai a última frase do exemplo «CORRETO», `Os 12 respondentes individuais apresentam CRs entre 1,1% e 9,6%, todos abaixo do limiar.` **Não** entra frase substituta com número: um número de painel no `system` é copiável (foi o que o H-CR-S descreve) e ficaria errado para qualquer painel reduzido. A lista «Mudanças aplicadas no exemplo acima» não citava essa frase e não muda.
+
+**P-SP-1 (a mudança é exatamente essa).** O `system` renderizado pela rota real, para o caso fixo, passa de `f3f2410c65c2919a477a5b2ee2c9b1628315effa85c906a71468ecf53eb36f98` (34170 bytes) para **`d56267e90f98bd5e474b2e2b2a823bf544e28cecb6e0186780fd074945f8f5da`, 34073 bytes (delta −97)**, valor **derivado** (as três substituições aplicadas, em memória, ao `system` capturado, antes de editar o arquivo). *Caso negativo:* qualquer outro `sha256` ou tamanho; isso significaria que a edição tocou ou deixou de tocar mais do que as três substituições.
+
+**P-SP-2 (as ocorrências alvo somem, e o controle não).** No `system`: `9,6%` 1 → **0**; `1,1% e` 1 → **0**; `todos os 12 respondentes` 1 → **0**; `12 respondentes individuais` 1 → **0**; `atendem o limiar` 1 → **0**; `abaixo do limiar` 3 → **2** (os dois vizinhos das linhas 207–208 **permanecem**: é o controle de que a verificação não é «nenhuma ocorrência da expressão em lugar algum»); `% que atende` 1 → **1** (linha 324, não tocada). *Caso negativo:* qualquer destes números diferente.
+
+**P-SP-3 (o resto do pedido não muda).** Para o caso fixo, o `messages` continua com 79335 bytes e `sha256` `febe6783e0d7bced66e662cbb65109db04f765c255d20f932b828a6b53475c06`; o corpo da resposta e o payload da tela não mudam. No registro da execução, só mudam `prompts.system` e o hash/bytes dele (e o que deriva do hash do registro). *Caso negativo:* mudança em `messages`, no payload ou na avaliação de qualidade.
+
+**P-SP-4 (o que reprova por construção, e o que não).** Reprovam, por fixarem o `sha256` ou o conteúdo do `system` antigo: `a12-nota-veredicto-fase2` (`SHA_SYSTEM`), `consistencia-individual-rota` (duas conferências do `sha256`), `rag-semantic-states` (`SYSTEM_SEM_FAIRNESS`), a conferência do `system` contra `f07-entrada-antes.json` em `f07-entrada-do-modelo`, e o teste que **caracteriza** o exemplo do H-CR-S (`LIMITE REGISTRADO`), que existe para reprovar quando alguém altera o exemplo. Os dois artefatos regeneráveis (`a12-diagnostico`, `a33-cadeia-rule`) já reprovam 6 conferências por desenho e podem reprovar **mais** pelo `bytesSystem`. *Caso negativo:* reprovar qualquer suíte fora desta lista, ou nenhuma delas; a contagem exata sai da medição, e cada atualização será justificada, com o valor antigo nomeado.
+
+**P-SP-5 (a saída real, que este ajuste NÃO mede).** *Predição registrada para a próxima geração real, depois da implantação:* se os exemplos eram o único canal que ensinava «CRs entre 1,1% e 9,6%» e «todos abaixo do limiar» sobre os respondentes, o texto real **não** repetirá nenhum dos dois enunciados. *Caso negativo:* se repetir qualquer um, há um **segundo canal** (candidatos nomeados desde já: a linha 324 do `system`, as demais instruções do `messages`, o próprio viés do modelo), e a hipótese de canal único está refutada. **Nenhum mock confirma ou refuta isto.** Fica **não avaliada** até a geração real; e uma geração real que **não** repita os enunciados não prova que o exemplo era a causa, apenas que ela é compatível com os dados.
+
+### C. O portão `calculateGrade`: o que se conferirá
+
+O trecho `calculateGrade` foi liberado da trava de imutáveis na primeira etapa (decisão do autor). A conferência pedida é **se o portão ainda bloqueia** o que o código antigo bloqueava para dados ausentes, incompletos e contraditórios, ou o que passou a bloquear em outro lugar.
+
+**P-GR-1 (nenhum caso que o antigo bloqueava e o novo passa por engano).** Para cada condição, a requisição **não** pode seguir para a classificação global com nota: (a) sem `qualityAnalysis`; (b) `qualityAnalysis` presente, mas sem a lista de respondentes; (c) lista vazia; (d) um respondente sem o bloco `consistenciaIndividual`; (e) um respondente com o bloco `indisponivel` (nas cinco condições: `ausentes`, `incompletos`, `invalidos`, `duplicados`, `mistos`/`nao_calculavel`); (f) bloco com formato não reconhecido; (g) bloco com o resumo declarado **contraditório** com as suas seis matrizes (média, máximo ou matriz governante adulterados); (h) o cache legado favorável com julgamentos ausentes. Em todos, `notaSuspensa` não é `null`, com o motivo dito, e a nota e o veredicto saem suspensos. Nos casos de **painel completo e coerente** (o fixture) e de **zero calculado válido**, `notaSuspensa` é `null`. *Caso negativo:* qualquer das condições (a) a (h) com `notaSuspensa: null`; o fixture completo, ou o zero calculado, suspenso.
+
+**P-GR-2 (o que mudou de lugar).** O bloqueio por **disponibilidade** (a, b, c, d, e, f) é decidido por `avaliacao-qualidade.ts`, e o por **contradição** (g), pelo V6; `calculateGrade` virou só o portão que lê a elegibilidade. A conferência é feita por **mutação**: desligar o portão (fazer `calculateGrade` devolver sempre elegível) deve reprovar os casos (a) a (h) nos testes de rota. *Caso negativo:* a mutação passar sem reprovação, o que mostraria que o portão não tem teste que o proteja.
+
+### D. Os testes
+
+Medição a fazer ao fim: `npx tsc --noEmit`, `npm test` e `npm run build`. **Não** se usa a variação da suíte como critério de aceite: os comportamentos que precisam passar são os de P-SP-1 a P-SP-4 e P-GR-1 e P-GR-2, e o total observado será registrado **depois** de executar.
+
+---
+
 ## Anexo 3: metadados e trechos da execução 7
 
 ### Metadados da execução, do log de produção
